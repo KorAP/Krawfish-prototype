@@ -1,0 +1,29 @@
+{
+  "@context" : "http://korap.ids-mannheim.de/ns/koral/0.5/context.jsonld",
+  "doc" : {
+    "@type" : "koral:text",
+    "text" : "Der Bau-Leiter trug einen lustigen Bau-Helm.",
+    "meta" : [
+      {
+        "@type" : "koral:doc",
+        "key" : "docID",
+        "value" : "doc-3",
+        "type" : "type:string"
+      }
+    ],
+    "segments" : [
+      {
+        "@type" : "koral:segment",
+        "nr" : 1,
+        "offset" : [0,3]
+      },
+    ],
+    "annotation" : [
+      {
+        "@type": "koral:token",
+        "segments" : [1],
+        "key": "Der"
+      }
+    ]
+  }
+}

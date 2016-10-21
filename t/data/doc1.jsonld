@@ -1,0 +1,71 @@
+{
+  "@context" : "http://korap.ids-mannheim.de/ns/koral/0.3/context.jsonld",
+  "doc" : {
+    "@type" : "koral:text",
+    "text" : "Der alte Mann ging über die Straße. Er trug einen lustigen Hut",
+    "meta" : [
+      {
+        "@type":"koral:doc",
+        "key":"docID",
+        "value":"doc-1",
+        "type":"type:string"
+      }
+    ],
+    "annotation" : [
+      {
+        "@type": "koral:token",
+        "offset" : [0,3],
+        "key" : "Der",
+        "wrap" : [
+          {
+            "@type": "koral:term"
+          }
+        ]
+      },{
+        "@type": "koral:token", 
+	      "key" : "alte",
+        "offset" : [4,8]
+      },{
+        "@type": "koral:token", 
+	      "key" : "Mann",
+        "offset" : [9,13]
+      },{
+        "@type": "koral:token", 
+	      "key" : "ging",
+        "offset" : [14,18]
+      },{
+        "@type": "koral:token", 
+	      "key" : "über",
+        "offset" : [19,23]
+      },{
+        "@type": "koral:token", 
+	      "key" : "die",
+        "offset" : [24,27]
+      },{
+        "@type": "koral:token", 
+	      "key" : "Straße",
+        "offset" : [28,34]
+      },{
+        "@type": "koral:token", 
+	      "key" : "Er",
+        "offset" : [36,38]
+      },{
+        "@type": "koral:token", 
+	      "key" : "trug",
+        "offset" : [39,43]
+      },{
+        "@type": "koral:token", 
+	      "key" : "einen",
+        "offset" : [44,49]
+      },{
+        "@type": "koral:token", 
+	      "key" : "lustigen",
+        "offset" : [50,58]
+      },{
+        "@type": "koral:token", 
+	      "key" : "Hut",
+        "offset" : [59,62]
+      }
+    ]
+  }
+}
