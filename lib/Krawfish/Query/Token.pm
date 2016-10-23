@@ -1,4 +1,4 @@
-package Krawfish::Query::Term;
+package Krawfish::Query::Token;
 use Krawfish::Index::PostingsList;
 use Krawfish::Span::Term;
 use strict;

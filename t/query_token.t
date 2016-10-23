@@ -13,7 +13,7 @@ ok($index->add('t/data/doc2.jsonld'), 'Add new document');
 
 ok(my $qb = Krawfish::QueryBuilder->new($index), 'Create QueryBuilder');
 
-ok(my $term = $qb->term('Hut'), 'Term');
+ok(my $term = $qb->token('Hut'), 'Term');
 ok(!$term->current, 'Not initialized yet');
 
 is($term->freq, 2, 'Frequency');

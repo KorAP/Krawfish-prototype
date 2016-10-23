@@ -108,7 +108,7 @@ sub next {
             );
 
             # Position finger to last item
-            $self->{buffer}->to_last;
+            $self->{buffer}->to_end;
           }
           else {
             $self->{buffer}->forward;
@@ -124,7 +124,7 @@ sub next {
         # May point to no current
 
         # Reset buffer
-        $self->{buffer}->reset;
+        $self->{buffer}->to_start;
       };
 
       # The configuration matches

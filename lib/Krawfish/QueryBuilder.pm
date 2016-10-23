@@ -1,5 +1,5 @@
 package Krawfish::QueryBuilder;
-use Krawfish::Query::Term;
+use Krawfish::Query::Token;
 use Krawfish::Query::Next;
 use strict;
 use warnings;
@@ -12,10 +12,10 @@ sub new {
   }, $class;
 };
 
-sub term {
+sub token {
   my $self = shift;
   my $term = shift;
-  return Krawfish::Query::Term->new(
+  return Krawfish::Query::Token->new(
     $self->{index},
     $term
   );

@@ -29,17 +29,6 @@ sub next {
 
   print "  >> Forward buffer finger: " . $self->to_string . "\n";
   return 1;
-
-
-
-  return;
-  if ($self->{finger} < $self->size) {
-    $self->{finger}++;
-    print "  >> Forward buffer finger: " . $self->to_string . "\n";
-    return; # Why?
-  };
-  print "  >> Unable to forward buffer finger: " . $self->to_string . "\n";
-  return;
 };
 
 
@@ -60,14 +49,7 @@ sub forward {
   $_[0]->{finger}++;
 };
 
-# Reset finger to start position
-sub reset {
-  $_[0]->{finger} = 0;
-  print "  >> Reset buffer finger: " . $_[0]->to_string . "\n";
-};
-
-
-# Remember item and reposition finger to this item.
+# Remember item
 sub remember {
   my $self = shift;
   my $span = shift;
@@ -75,9 +57,17 @@ sub remember {
   print "  >> Remember $span in buffer: " . $self->to_string . "\n";
 };
 
-sub to_last {
+# Reset finger to start position
+sub to_start {
+  $_[0]->{finger} = 0;
+  print "  >> Reset buffer finger: " . $_[0]->to_string . "\n";
+};
+
+
+# Position finger to last element
+sub to_end {
   my $self = shift;
-  $self->{finger} = $self->size-1;
+  $self->{finger} = $self->size - 1;
 };
 
 # Check size
@@ -90,9 +80,6 @@ sub forget {
   my $span = shift(@{$_[0]->{array}});
   print "  >> Forget span $span: " . $_[0]->to_string . "\n";
   $_[0]->{finger}-- if $span;
-#  if ($_[0]->{finger} < 0) {
-#    $_[0]->{finger} = 0;
-#  };
   print "  >> Buffer is now " . $_[0]->to_string . "\n";
   return 1;
 };
@@ -115,7 +102,7 @@ sub to_string {
   $string .= $self->{array}->[$finger] // '';
   $string .= '> ';
 
-  foreach ($finger+1 .. $self->size) {
+  foreach ($finger + 1 .. $self->size) {
     $string .= ($self->{array}->[$_] // '');
   };
 
