@@ -9,27 +9,34 @@ use_ok('Krawfish::Span::Term');
 ok(my $buff = Krawfish::Query::Util::Buffer->new, 'New candidates');
 
 ok(!$buff->current, 'No current');
+is($buff->size, 0, 'Size 0');
+is($buff->finger, 0, 'Finger 0');
 ok(!$buff->next, 'No next');
 is($buff->size, 0, 'Size 0');
-is($buff->finger, 0, 'Size 0');
+is($buff->finger, 1, 'Finger 1');
 
 ok($buff->remember(Krawfish::Span::Term->new(0,2,3)), 'Remember');
 is($buff->size, 1, 'Size 0');
-is($buff->finger, 0, 'Size 0');
-is($buff->current, '[0:2-3]', 'Current');
-ok($buff->next, 'Next is fine');
+is($buff->finger, 1, 'Size 0');
+ok(!$buff->current, 'Current');
+is($buff->to_string, '[0:2-3] <> ', 'Current');
+
+ok(!$buff->next, 'Nothing next');
+is($buff->to_string, '[0:2-3] <> ', 'Current');
+
 ok(!$buff->current, 'No current');
 is($buff->size, 1, 'Size 0');
-is($buff->finger, 1, 'Finger 1');
+is($buff->finger, 2, 'Finger 2');
 
 $buff->reset;
 is($buff->size, 1, 'Size 0');
 is($buff->finger, 0, 'Size 0');
 is($buff->current, '[0:2-3]', 'Current');
 
+# Reposition finger there
 ok($buff->remember(Krawfish::Span::Term->new(0,5,6)), 'Remember');
 is($buff->size, 2, 'Size 2');
-is($buff->finger, 0, 'Size 0');
+is($buff->finger, 0, 'Size 1');
 is($buff->current, '[0:2-3]', 'Current');
 
 ok($buff->next, 'Next is fine');
@@ -38,7 +45,7 @@ is($buff->current, '[0:5-6]', 'Current');
 
 is($buff->to_string, '[0:2-3] <[0:5-6]> ', 'Buffer string');
 
-ok($buff->next, 'Next is fine');
+ok(!$buff->next, 'Next is fine');
 is($buff->finger, 2, 'Finger 2');
 ok(!$buff->current, 'Current');
 

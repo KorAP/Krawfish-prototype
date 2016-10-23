@@ -65,12 +65,12 @@ sub next {
 
   while (1) {
     unless ($first = $self->{first}->current) {
-      print " ->> return false 1\n";
+      print " ->> No more first items, return false 1\n";
       return;
     };
 
     unless ($second = $self->{buffer}->current) {
-      print " ->> return false 2\n";
+      print " ->> Buffer is empty, return false 2\n";
       return;
     };
 
@@ -79,11 +79,12 @@ sub next {
     # Equal documents - check!
     if ($first->doc == $second->doc) {
       print "  >> Documents are equal - check the configuration\n";
+      print "  >> Configuration is $first vs $second\n";
 
       # Check configuration
       my $check = $self->check($first, $second);
 
-      print "  >> Plan next step\n";
+      print "  >> Plan next step based on $check\n";
 
       # next b is possible
       if ($check & NEXTB) {
@@ -99,12 +100,18 @@ sub next {
         if (!($self->{buffer}->next)) {
           # This will never be true
 
-          print "  >> Unable to forward buffer\n";
+          print "  >> Unable to forward buffer - get next\n";
 
           if ($self->{second}->next) {
             $self->{buffer}->remember(
               $self->{second}->current
             );
+
+            # Position finger to last item
+            $self->{buffer}->to_last;
+          }
+          else {
+            $self->{buffer}->forward;
           };
         };
       }
@@ -121,8 +128,10 @@ sub next {
       };
 
       # The configuration matches
-      print "  >> return Match\n";
-      return 1 if ($check & MATCH);
+      if ($check & MATCH) {
+        print "  !! return Match\n";
+        return 1 ;
+      };
     }
 
     # The first span is behind
