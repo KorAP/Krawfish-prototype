@@ -6,7 +6,10 @@ sub simple_doc {
 
   my @tokens;
   foreach (@_) {
-    push @tokens, { 'key' => $_ }
+    push @tokens, {
+      'key' => $_,
+      '@type' => 'koral:token'
+    }
   };
 
   return {

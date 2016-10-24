@@ -1,4 +1,4 @@
-package Krawfish::Posting::Token;
+package Krawfish::Posting::Span;
 use parent 'Krawfish::Posting';
 use strict;
 use warnings;
@@ -22,7 +22,7 @@ sub start {
 
 # End of span
 sub end {
-  return $_[0]->[2] // $_[0]->start + 1
+  return $_[0]->[2];
 };
 
 1;

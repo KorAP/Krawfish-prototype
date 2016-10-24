@@ -5,7 +5,6 @@ use warnings;
 use Mojo::JSON qw/encode_json decode_json/;
 use Mojo::Util qw/slurp/;
 
-
 # TODO: Support Main Index and Auxiliary Indices with merging
 # https://www.youtube.com/watch?v=98E1h_u4xGk
 # TODO: Maybe logarithmic merge
@@ -40,29 +39,60 @@ sub add {
     $doc = decode_json slurp $doc;
   };
 
-  my $pos = 0;
-
   # Get new doc_id
   my $doc_id = $self->{last_doc}++;
 
+  $doc = $doc->{doc};
+
+  # TODO: Get segments
+  # my @segments = ();
+  # if ($doc->{segments}) {
+  #   foreach my $seg (@{$doc->{segments}}) {
+  #     $segments[$seg->{nr}] = $seg->{offset};
+  #   };
+  # };
+
   # Get all tokens
-  foreach my $token (@{$doc->{doc}->{annotation}}) {
+  my $pos = 0;
+  my $end;
+  foreach my $item (@{$doc->{annotation}}) {
 
     # Add term to term dictionary
     # Get post_list
-    my $post_list = $self->{dict}->add($token->{key});
+    if ($item->{'@type'} eq 'koral:token') {
 
-    # Append posting to postings list
-    $post_list->append(
-      $doc_id, $pos
-    );
+      # Create key string
+      my $key = '';
 
-    # Step to next token position
-    $pos++;
+      if ($item->{foundry}) {
+        $key .= $item->{foundry};
+        if ($item->{layer}) {
+          $key .= $item->{layer} . '=';
+        }
+      };
+      $key .= $item->{key};
+
+      my @posting = ($doc_id);
+
+      if ($item->{segments}) {
+        push @posting, $item->{segments}->[0];
+        push @posting, $item->{segments}->[-1];
+      }
+      else {
+        push @posting, $pos++;
+      }
+
+      my $post_list = $self->{dict}->add($key);
+
+      # Append posting to postings list
+      $post_list->append(@posting);
+    };
   };
 
   return 1;
 };
+
+
 
 sub dict {
   $_[0]->{dict};

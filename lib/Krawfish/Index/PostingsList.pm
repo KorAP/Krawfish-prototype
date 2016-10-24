@@ -19,6 +19,7 @@ sub new {
 sub append {
   my $self = shift;
   my ($doc_id, $pos, @payload) = @_;
+  print "  == Appended " . $self->term . " with $doc_id, $pos\n";
   push (@{$self->{array}}, [$doc_id, $pos, @payload]);
 };
 

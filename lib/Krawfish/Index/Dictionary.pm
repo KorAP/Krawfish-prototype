@@ -17,6 +17,7 @@ sub new {
 sub add {
   my $self = shift;
   my $term = shift;
+  print "  == Added term $term\n";
   my $post_list = $self->{hash}->{$term} //= Krawfish::Index::PostingsList->new(
     $self->{file}, $term
   );
