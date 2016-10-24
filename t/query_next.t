@@ -28,7 +28,6 @@ ok(!$seq->next, 'No more');
 
 ok($index->add(simple_doc(qw/aa bb aa bb/)), 'Add new document');
 
-print "-----------------------------\n";
 ok($seq = $qb->sequence($qb->token('aa'), $qb->token('bb')), 'Sequence');
 
 ok($seq->next, 'Init');

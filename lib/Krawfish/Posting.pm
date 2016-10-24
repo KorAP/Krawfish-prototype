@@ -1,4 +1,4 @@
-package Krawfish::Span;
+package Krawfish::Posting;
 use overload '""' => sub { $_[0]->to_string }, fallback => 1;
 use strict;
 use warnings;

@@ -1,5 +1,5 @@
-package Krawfish::Span::Term;
-use parent 'Krawfish::Span';
+package Krawfish::Posting::Token;
+use parent 'Krawfish::Posting';
 use strict;
 use warnings;
 

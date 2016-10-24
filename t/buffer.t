@@ -4,7 +4,7 @@ use warnings;
 use Test::More;
 
 use_ok('Krawfish::Query::Util::Buffer');
-use_ok('Krawfish::Span::Term');
+use_ok('Krawfish::Posting::Token');
 
 ok(my $buff = Krawfish::Query::Util::Buffer->new, 'New candidates');
 
@@ -15,7 +15,7 @@ ok(!$buff->next, 'No next');
 is($buff->size, 0, 'Size 0');
 is($buff->finger, 1, 'Finger 1');
 
-ok($buff->remember(Krawfish::Span::Term->new(0,2,3)), 'Remember');
+ok($buff->remember(Krawfish::Posting::Token->new(0,2,3)), 'Remember');
 is($buff->size, 1, 'Size 0');
 is($buff->finger, 1, 'Size 0');
 ok(!$buff->current, 'Current');
@@ -33,7 +33,7 @@ is($buff->size, 1, 'Size 0');
 is($buff->finger, 0, 'Size 0');
 is($buff->current, '[0:2-3]', 'Current');
 
-ok($buff->remember(Krawfish::Span::Term->new(0,5,6)), 'Remember');
+ok($buff->remember(Krawfish::Posting::Token->new(0,5,6)), 'Remember');
 is($buff->size, 2, 'Size 2');
 is($buff->finger, 0, 'Size 1');
 is($buff->current, '[0:2-3]', 'Current');
@@ -53,7 +53,7 @@ is($buff->size, 1, 'Size 1');
 is($buff->finger, 1, 'Finger 1');
 
 is($buff->to_string, '[0:5-6] <> ', 'Stringify');
-ok($buff->remember(Krawfish::Span::Term->new(0,8,9)), 'Remember');
+ok($buff->remember(Krawfish::Posting::Token->new(0,8,9)), 'Remember');
 is($buff->to_string, '[0:5-6] <[0:8-9]> ', 'Stringify');
 $buff->to_start;
 is($buff->to_string, ' <[0:5-6]> [0:8-9]', 'Stringify');

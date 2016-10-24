@@ -1,5 +1,5 @@
 package Krawfish::Index::PostingsList;
-use Krawfish::Span;
+use Krawfish::Posting;
 use strict;
 use warnings;
 

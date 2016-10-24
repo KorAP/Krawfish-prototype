@@ -2,7 +2,7 @@ package Krawfish::Query::Base::Dual;
 use strict;
 use warnings;
 use Krawfish::Query::Util::Buffer;
-use Krawfish::Span;
+use Krawfish::Posting;
 use base 'Exporter';
 
 use constant {
@@ -48,7 +48,7 @@ sub init {
 # Current span object
 sub current {
   my $self = shift;
-  return Krawfish::Span->new(
+  return Krawfish::Posting->new(
     doc   => $self->{doc},
     start => $self->{start},
     end   => $self->{end},

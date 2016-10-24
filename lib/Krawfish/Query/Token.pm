@@ -1,6 +1,6 @@
 package Krawfish::Query::Token;
 use Krawfish::Index::PostingsList;
-use Krawfish::Span::Term;
+use Krawfish::Posting::Token;
 use strict;
 use warnings;
 
@@ -40,7 +40,7 @@ sub current {
   return if $postings->pos == -1;
   return unless $postings->posting;
 
-  Krawfish::Span::Term->new(
+  Krawfish::Posting::Token->new(
     @{$postings->posting}
   );
 };
