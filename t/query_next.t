@@ -5,8 +5,7 @@ use Data::Dumper;
 use File::Basename 'dirname';
 use File::Spec::Functions 'catfile';
 
-require '' . catfile(dirname(__FILE__), 'util', 'SimpleDoc.pm');
-
+require '' . catfile(dirname(__FILE__), 'util', 'CreateDoc.pm');
 
 use_ok('Krawfish::Index');
 use_ok('Krawfish::QueryBuilder');
