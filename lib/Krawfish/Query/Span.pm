@@ -1,4 +1,4 @@
-package Krawfish::Query::Token;
+package Krawfish::Query::Span;
 use Krawfish::Index::PostingsList;
 use Krawfish::Posting::Span;
 use parent 'Krawfish::Query::Token';

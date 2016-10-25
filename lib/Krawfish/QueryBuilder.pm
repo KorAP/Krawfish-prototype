@@ -1,5 +1,6 @@
 package Krawfish::QueryBuilder;
 use Krawfish::Query::Token;
+use Krawfish::Query::Span;
 use Krawfish::Query::Next;
 use strict;
 use warnings;
@@ -16,6 +17,15 @@ sub token {
   my $self = shift;
   my $term = shift;
   return Krawfish::Query::Token->new(
+    $self->{index},
+    $term
+  );
+};
+
+sub span {
+  my $self = shift;
+  my $term = shift;
+  return Krawfish::Query::Span->new(
     $self->{index},
     $term
   );

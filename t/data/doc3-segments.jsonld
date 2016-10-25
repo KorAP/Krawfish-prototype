@@ -14,68 +14,60 @@
     "segments" : [
       {
         "@type" : "koral:segment",
-        "nr" : 1,
         "offset" : [0,3]
       },
       {
         "@type" : "koral:segment",
-        "nr" : 2,
         "offset" : [4,7]
       },
       {
         "@type" : "koral:segment",
-        "nr" : 3,
         "offset" : [8,14]
       },
       {
         "@type" : "koral:segment",
-        "nr" : 4,
         "offset" : [15,19]
       },
       {
         "@type" : "koral:segment",
-        "nr" : 5,
         "offset" : [20,25]
       },
       {
         "@type" : "koral:segment",
-        "nr" : 6,
         "offset" : [26,34]
       },
       {
         "@type" : "koral:segment",
-        "nr" : 7,
         "offset" : [35,38]
       },
       {
         "@type" : "koral:segment",
-        "nr" : 8,
         "offset" : [39,43]
-      },
+      }
     ],
     "annotation" : [
       {
         "@type": "koral:token",
-        "segments" : [1],
+        "segments" : [0],
         "foundry" : "akron",
         "key" : "Der"
       },
       {
         "@type" : "koral:span",
-        "segments" : [1,3],
+        "segments" : [0,2],
         "foundry" : "akron",
         "layer" : "c",
         "key" : "NP"
       },
       {
         "@type": "koral:token",
-        "segments" : [2,3],
+        "segments" : [1,2],
         "foundry" : "akron",
         "key" : "Bau-Leiter"
       },
       {
         "@type": "koral:tokenGroup",
-        "segments" : [4],
+        "segments" : [3],
         "wrap" : [
           {
             "@type" : "koral:token",
@@ -91,26 +83,26 @@
       },
       {
         "@type": "koral:token",
-        "segments" : [5],
+        "segments" : [4],
         "foundry" : "akron",
         "key" : "einen"
       },
       {
         "@type" : "koral:span",
-        "segments" : [5,8],
+        "segments" : [4,7],
         "foundry" : "akron",
         "layer" : "c",
         "key" : "NP"
       },
       {
         "@type": "koral:token",
-        "segments" : [6],
+        "segments" : [5],
         "foundry" : "akron",
         "key" : "lustigen"
       },
       {
         "@type": "koral:token",
-        "segments" : [7,8],
+        "segments" : [6,7],
         "foundry" : "akron",
         "key" : "Bau-Helm"
       }

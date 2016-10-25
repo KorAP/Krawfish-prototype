@@ -57,26 +57,32 @@ sub add {
   my $end;
   foreach my $item (@{$doc->{annotation}}) {
 
+    # Create key string
+    my $key = '';
+
+    if ($item->{foundry}) {
+      $key .= $item->{foundry};
+      if ($item->{layer}) {
+        $key .= '/' . $item->{layer};
+      }
+      $key .= '=';
+    };
+    $key .= $item->{key} // '';
+
     # Add term to term dictionary
     # Get post_list
     if ($item->{'@type'} eq 'koral:token') {
 
-      # Create key string
-      my $key = '';
-
-      if ($item->{foundry}) {
-        $key .= $item->{foundry};
-        if ($item->{layer}) {
-          $key .= $item->{layer} . '=';
-        }
-      };
-      $key .= $item->{key};
-
       my @posting = ($doc_id);
 
       if ($item->{segments}) {
+
+        # Remove!
         push @posting, $item->{segments}->[0];
-        push @posting, $item->{segments}->[-1];
+
+        if ($item->{segments}->[1]) {
+          push @posting, $item->{segments}->[1];
+        };
       }
       else {
         push @posting, $pos++;
@@ -86,6 +92,18 @@ sub add {
 
       # Append posting to postings list
       $post_list->append(@posting);
+    }
+
+    elsif ($item->{'@type'} eq 'koral:span') {
+      $key = '<>' . $key;
+      my $post_list = $self->{dict}->add($key);
+
+      # Append posting to posting list
+      $post_list->append(
+        $doc_id,
+        $item->{segments}->[0],
+        $item->{segments}->[-1]
+      );
     };
   };
 
