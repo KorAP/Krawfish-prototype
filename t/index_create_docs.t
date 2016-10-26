@@ -22,19 +22,20 @@ ok(exists $doc->{doc}, 'Doc exists');
 ok(exists $doc->{doc}->{annotation}, 'Annotations exists');
 $anno = $doc->{doc}->{annotation};
 
-is($anno->[0]->{'@type'}, 'koral:span', 'Annotation span');
-is_deeply($anno->[0]->{'segments'}, [0,1], 'Annotation segments');
-is($anno->[0]->{'key'}, 'xy', 'Annotation key');
+is($anno->[0]->{'@type'}, 'koral:token', 'Annotation token');
+is($anno->[0]->{'key'}, 'aa', 'Annotation key');
+is_deeply($anno->[0]->{'segments'}, [0], 'Annotation segments');
+
+is($anno->[1]->{'@type'}, 'koral:span', 'Annotation span');
+is_deeply($anno->[1]->{'segments'}, [0,1], 'Annotation segments');
+is($anno->[1]->{'key'}, 'xy', 'Annotation key');
 
 
-is($anno->[1]->{'@type'}, 'koral:token', 'Annotation token');
-is($anno->[1]->{'key'}, 'aa', 'Annotation key');
-is_deeply($anno->[1]->{'segments'}, [0], 'Annotation segments');
 
-is($anno->[2]->{'@type'}, 'koral:span', 'Annotation token');
-is($anno->[2]->{'foundry'}, 'opennlp', 'Annotation key');
-ok(!exists $anno->[2]->{'layer'}, 'Annotation key');
-is($anno->[2]->{'key'}, 'z', 'Annotation key');
+is($anno->[3]->{'@type'}, 'koral:span', 'Annotation token');
+is($anno->[3]->{'foundry'}, 'opennlp', 'Annotation key');
+ok(!exists $anno->[3]->{'layer'}, 'Annotation key');
+is($anno->[3]->{'key'}, 'z', 'Annotation key');
 
 
 is($anno->[-1]->{'@type'}, 'koral:tokenGroup', 'Annotation tokenGroup');
@@ -48,5 +49,15 @@ is($token_group->[0]->{foundry}, 'corenlp', 'Annotation key');
 is($token_group->[0]->{layer}, 'c', 'Annotation key');
 is($token_group->[1]->{'@type'}, 'koral:token', 'Annotation type');
 is($token_group->[1]->{key}, 'dd', 'Annotation key');
+
+$doc = complex_doc('<1:aa><2:aa>[bb]</2>[bb]</1>');
+$anno = $doc->{doc}->{annotation};
+is($anno->[0]->{'@type'}, 'koral:span', 'Span');
+is($anno->[0]->{segments}->[0], 0, 'Span');
+ok((!$anno->[0]->{segments}->[0] || $anno->[0]->{segments}->[0] == 0),
+    'Span');
+is($anno->[2]->{'@type'}, 'koral:span', 'Span');
+is($anno->[2]->{segments}->[0], 0, 'Span');
+is($anno->[2]->{segments}->[1], 1, 'Span');
 
 done_testing;

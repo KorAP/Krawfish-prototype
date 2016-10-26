@@ -35,12 +35,15 @@ sub check {
 
   print "  >> There is no match\n";
 
+  # Conf [b|a]
+  #   -> b-next: [b|a], [b..[a]], [a][b]!, [a]..[b]
+  #   -> a-next = [b|a], [a..[b]], [b][a], [b]..[a]
   # Conf [b..]..[a..]
   # Conf [b..][a..]
   # Conf [b..[a..]]
-  #   -> b->next = [b][a..], [b[a..], [a[b]], [a][b]!
+  #   -> b-next = [b][a..], [b[a..], [a[b]], [a][b]!
   #   -> a-next  = [b..][a..]
-  if ($second->start < $first->start) {
+  if ($second->start <= $first->start) {
     print "  >> Config is [b..][a..] or [b..[a..]] - so b next\n";
     return NEXTB;
   };

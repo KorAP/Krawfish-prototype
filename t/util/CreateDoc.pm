@@ -69,13 +69,18 @@ sub complex_doc {
     # Found a span closing
     elsif ($token =~ /^<\/(\d+?)>$/) {
       if (exists $spans{$1}) {
-        push @{$spans{$1}->{segments}}, $segment -1;
+        my $seg = $segment -1;
+        if ($seg != $spans{$1}->{segments}->[0]) {
+          push @{$spans{$1}->{segments}}, $segment -1;
+        };
       }
       else {
         warn "Span $1 unknown\n";
       };
     };
   };
+
+  @tokens = sort _token_sort @tokens;
 
   return {
     doc => {
@@ -105,6 +110,25 @@ sub _token_group {
     $hash->{'segments'} = [@_];
   };
   return $hash;
+};
+
+sub _token_sort {
+  return 0 unless $a->{segments} && $b->{segments};
+  my $seg_a = $a->{segments};
+  my $seg_b = $b->{segments};
+  if ($seg_a->[0] < $seg_b->[0]) {
+    return -1;
+  }
+  elsif ($seg_a->[0] > $seg_b->[0]) {
+    return 1;
+  }
+  elsif ($seg_a->[-1] < $seg_b->[-1]) {
+    return -1;
+  }
+  elsif ($seg_a->[-1] > $seg_b->[-1]) {
+    return 1;
+  };
+  return 0;
 };
 
 

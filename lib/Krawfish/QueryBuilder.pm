@@ -5,6 +5,9 @@ use Krawfish::Query::Next;
 use strict;
 use warnings;
 
+# TODO: Better not expect index object in constructor,
+# but support apply() method
+
 sub new {
   my $class = shift;
   my $index = shift;

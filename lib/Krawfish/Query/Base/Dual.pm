@@ -70,11 +70,22 @@ sub next {
     };
 
     unless ($second = $self->{buffer}->current) {
-      print " ->> Buffer is empty, return false 2\n";
-      return;
+      print " ->> Buffer is empty\n";
+
+      # Forward span
+      unless ($self->{first}->next) {
+        # May point to no current
+        print "  >> return false 2\n";
+        return;
+      };
+
+      # Reset buffer
+      $self->{buffer}->to_start;
+      next;
     };
 
-    # TODO: Check if second may not be at the end of the buffer
+    # TODO: Check if second may not be at the end
+    # of the buffer
 
     # Equal documents - check!
     if ($first->doc == $second->doc) {
@@ -84,7 +95,7 @@ sub next {
       # Check configuration
       my $check = $self->check($first, $second);
 
-      print "  >> Plan next step based on $check\n";
+      print "  >> Plan next step based on " . (0 + $check) . "\n";
 
       # next b is possible
       if ($check & NEXTB) {
@@ -157,65 +168,3 @@ sub next {
 1;
 
 __END__
-
-
-
-
-  if ($)
-
-  
-  while (1) {
-
-    $first = $self->{first}->current;
-
-    if ($self->{try_candidates}) {
-      $second = $self->{candidates}->first;
-      unless ($second) {
-        $second = $self->{second}->current;
-      };
-    }
-    else {
-      $second = $self->{second}->current;
-    };
-
-    # Equal documents - check!
-    if ($first->doc == $second->doc) {
-      print "  >> Documents are equal\n";
-
-      my $check = $self->_check($first, $second);
-
-      if ($check & NEXTB) {
-        if ($check & STOREB) {
-          $self->{candidates}->add($second);
-        }
-        else {
-          $self->{second}->next;
-        };
-      }
-      elsif ($check & NEXTA) {
-        $self->{first}->next;
-      };
-      if ($check & MATCH) {
-        return 1;
-      };
-    }
-
-    # TODO: Improve by skipping to the same document
-    elsif ($first->doc < $second->doc) {
-
-      # TODO: This may be wrong, because there may be
-      # a second candidate in the same document
-      $self->{candidates}->clear;
-      $self->{first}->next or return;
-    }
-
-    # TODO: Improve by skipping to the same document
-    else {
-      $self->{candidates}->clear;
-      $self->{second}->next or return;
-    };
-  };
-  return;
-};
-
-1;

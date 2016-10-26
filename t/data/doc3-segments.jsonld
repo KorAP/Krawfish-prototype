@@ -77,7 +77,8 @@
           {
             "@type" : "koral:token",
             "foundry" : "opennlp",
-            "key" : "trug"
+            "layer" : "p",
+            "key" : "V"
           }
         ]
       },

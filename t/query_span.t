@@ -18,9 +18,9 @@ ok(!$span->current, 'Not initialized yet');
 is($span->freq, 2, 'Frequency');
 
 ok($span->next, 'Init search');
-is($span->current->to_string, '[0:0-2]', 'Found string');
+is($span->current->to_string, '[0:0-3]', 'Found string');
 ok($span->next, 'More tokens');
-is($span->current->to_string, '[0:4-7]', 'Found string');
+is($span->current->to_string, '[0:4-8]', 'Found string');
 ok(!$span->next, 'No more tokens');
 
 

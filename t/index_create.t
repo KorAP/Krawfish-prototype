@@ -5,8 +5,6 @@ use Data::Dumper;
 
 use_ok('Krawfish::Index');
 
-# TODO: Support tokenGroups!
-
 my $index = Krawfish::Index->new('index.dat');
 
 ok($index->add('t/data/doc1.jsonld'), 'Add new document');
@@ -51,5 +49,7 @@ ok($index->add('t/data/doc3-segments.jsonld'), 'Add new document with segments')
 is_deeply($index->dict->get('Der')->{array}, [[0,0],[1,0]], 'PostingsList');
 is_deeply($index->dict->get('akron=Der')->{array}, [[3,0]], 'PostingsList');
 
+is_deeply($index->dict->get('akron=trug')->{array}, [[3,3]], 'PostingsList');
+is_deeply($index->dict->get('opennlp/p=V')->{array}, [[3,3]], 'PostingsList');
 
 done_testing;
