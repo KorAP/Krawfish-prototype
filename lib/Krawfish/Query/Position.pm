@@ -1,5 +1,5 @@
 package Krawfish::Query::Position;
-use base 'Krawfish::Query::Base::Dual';
+use parent 'Krawfish::Query::Base::Dual';
 use strict;
 use warnings;
 
@@ -35,7 +35,7 @@ my (@next_a, @next_b);
 sub new {
   my $class = shift;
   bless {
-    frame => shift,
+    frames => shift,
     first => shift,
     second => shift,
     buffer  => Krawfish::Query::Util::Buffer->new,
@@ -50,13 +50,13 @@ sub check {
 
   # Get the current configuration
   my $case = case($first, $second);
-  my $frame = $self->{frame};
+  my $frames = $self->{frames};
 
-  print "  >> The case is   " ._bits($case)  . " ($case)\n";
-  print "     for the frame " ._bits($frame) . " ($frame)\n";
+  print "  >> The case is    " ._bits($case)  . " ($case)\n";
+  print "     for the frames " ._bits($frames) . " ($frames)\n";
 
   # Configuration is valid
-  if ($case & $frame) {
+  if ($case & $frames) {
 
     # Set current
     $self->{doc} = $first->doc;
@@ -71,12 +71,12 @@ sub check {
   my $ret_val = 0b0000;
 
   # Span may forward with a
-  if ($next_a[$case] & $frame) {
+  if ($next_a[$case] & $frames) {
     $ret_val |= NEXTA
   };
 
   # Span may forward with b
-  if ($next_b[$case] & $frame) {
+  if ($next_b[$case] & $frames) {
     $ret_val |= NEXTB
   };
 
@@ -372,5 +372,39 @@ sub case {
   return MATCHES;
 };
 
+
+# Return KoralQuery fragment
+sub to_koral_query_fragment {
+  my $self = shift;
+  return {
+    '@type' => 'koral:group',
+    'operation' => 'operation:position',
+    'frames' => [_to_list($self->{frames})],
+    'operands' => [
+      $self->{first}->to_koral_query_fragment,
+      $self->{second}->to_koral_query_fragment
+    ]
+  };
+};
+
+# List all elements of a value
+sub _to_list {
+  my $val = shift;
+  my @array = ();
+  push @array, 'precedes'         if $val & PRECEDES;
+  push @array, 'precedesDirectly' if $val & PRECEDES_DIRECTLY;
+  push @array, 'overlapsLeft'     if $val & OVERLAPS_LEFT;
+  push @array, 'alignsLeft'       if $val & ALIGNS_LEFT;
+  push @array, 'startsWith'       if $val & STARTS_WITH;
+  push @array, 'matches'          if $val & MATCHES;
+  push @array, 'isWithin'         if $val & IS_WITHIN;
+  push @array, 'isAround'         if $val & IS_AROUND;
+  push @array, 'endsWith'         if $val & ENDS_WITH;
+  push @array, 'alignsRight'      if $val & ALIGNS_RIGHT;
+  push @array, 'overlapsRight'    if $val & OVERLAPS_RIGHT;
+  push @array, 'succeedsDirectly' if $val & SUCCEEDS_DIRECTLY;
+  push @array, 'succeeds'         if $val & SUCCEEDS;
+  return @array;
+};
 
 1;

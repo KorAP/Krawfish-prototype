@@ -1,5 +1,6 @@
 package Krawfish::Query::Span;
 use Krawfish::Index::PostingsList;
+use Krawfish::Index::Term;
 use Krawfish::Posting::Span;
 use parent 'Krawfish::Query::Token';
 use strict;
@@ -30,6 +31,5 @@ sub current {
     @{$postings->posting}
   );
 };
-
 
 1;

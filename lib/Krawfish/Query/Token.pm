@@ -1,6 +1,7 @@
 package Krawfish::Query::Token;
 use Krawfish::Index::PostingsList;
 use Krawfish::Posting::Token;
+use parent 'Krawfish::Koral::Query';
 use strict;
 use warnings;
 
@@ -49,6 +50,15 @@ sub freq {
   $_[0]->{postings}->freq;
 };
 
+
+# Return KoralQuery fragment for term
+sub to_koral_query_fragment {
+  my $self = shift;
+  my $koral = Krawfish::Index::Term->new($self->term) or return {
+    '@type' => 'koral:undefined'
+  };
+  return $koral->to_koral_query_fragment;
+};
 
 1;
 

@@ -1,9 +1,9 @@
 package Krawfish::Query::Base::Dual;
+use parent 'Exporter', 'Krawfish::Koral::Query';
 use strict;
 use warnings;
 use Krawfish::Query::Util::Buffer;
 use Krawfish::Posting;
-use base 'Exporter';
 
 use constant {
   NEXTA  => 1,

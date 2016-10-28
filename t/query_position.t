@@ -96,24 +96,12 @@ ok($qb = Krawfish::QueryBuilder->new($index), 'Create QueryBuilder');
 ok($seq = $qb->position(['precedes_directly'], $qb->token('aa'), $qb->token('bb')), 'Sequence');
 test_matches($seq, qw/[0:0-2] [0:0-2] [0:0-2] [0:0-2] [0:2-4] [0:2-4] [0:2-4] [0:2-4]/);
 
-done_testing;
-__END__
-
-
-
-
-
-
-
-
 # Reset index
 $index = Krawfish::Index->new;
 ok($index->add(complex_doc('<1:aa><2:aa>[bb]</2>[bb]</1>')), 'Add complex document');
 ok($qb = Krawfish::QueryBuilder->new($index), 'Create QueryBuilder');
 ok($seq = $qb->sequence($qb->span('aa'), $qb->token('bb')), 'Sequence');
 test_matches($seq, qw/[0:0-2]/);
-
-
 
 done_testing;
 __END__

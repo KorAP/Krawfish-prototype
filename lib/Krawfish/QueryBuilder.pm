@@ -1,7 +1,6 @@
 package Krawfish::QueryBuilder;
 use Krawfish::Query::Token;
 use Krawfish::Query::Span;
-use Krawfish::Query::Next;
 use Krawfish::Query::Position;
 use strict;
 use warnings;
@@ -26,6 +25,7 @@ sub token {
   );
 };
 
+
 sub span {
   my $self = shift;
   my $term = shift;
@@ -36,26 +36,40 @@ sub span {
 };
 
 
-sub sequence {
+# Create token group
+sub token_and {
   my $self = shift;
-  my ($element1, $element2) = @_;
-  return Krawfish::Query::Next->new(
-    $element1, $element2
-  );
-
-  # TODO: Rewrite to ...
+  my ($span_a, $span_b) = @_;
   return Krawfish::Query::Position->new(
-    2, $element1, $element2
+    'matches', $span_a, $span_b
   );
 };
 
+
+# Create sequence query
+sub sequence {
+  my $self = shift;
+  my ($span_a, $span_b) = @_;
+
+  return $self->position(
+    'precedes_directly', $span_a, $span_b
+  );
+};
+
+# Create simple positional query
 sub position {
   my $self = shift;
-  my ($frame_array, $element1, $element2) = @_;
+  my ($frame_array, $span_a, $span_b) = @_;
   my $frame = 0b0000_0000_0000_0000;
-  foreach (@$frame_array)  {
+
+  $frame_array = ref $frame_array eq 'ARRAY' ?
+    $frame_array : [$frame_array];
+  foreach (@$frame_array) {
     if ($_ eq 'precedes_directly') {
       $frame |= 0b0000_0000_0000_0010;
+    }
+    elsif ($_ eq 'matches') {
+      $frame |= 0b0000_0000_0010_0000;
     }
     else {
       warn "Unknown frame title $_!";
@@ -64,9 +78,10 @@ sub position {
 
   return if $frame == 0b0000_0000_0000_0000;
   return Krawfish::Query::Position->new(
-    $frame, $element1, $element2
+    $frame, $span_a, $span_b
   );
 };
+
 
 sub sort_by {
   my $self = shift;
