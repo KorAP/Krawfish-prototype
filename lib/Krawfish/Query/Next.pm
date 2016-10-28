@@ -1,7 +1,7 @@
 package Krawfish::Query::Next;
+use base 'Krawfish::Query::Base::Dual';
 use strict;
 use warnings;
-use base 'Krawfish::Query::Base::Dual';
 
 # http://www.perlmonks.org/?node_id=512743
 # TODO: Should be inherited

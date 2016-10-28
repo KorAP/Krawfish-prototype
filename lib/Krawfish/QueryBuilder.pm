@@ -2,6 +2,7 @@ package Krawfish::QueryBuilder;
 use Krawfish::Query::Token;
 use Krawfish::Query::Span;
 use Krawfish::Query::Next;
+use Krawfish::Query::Position;
 use strict;
 use warnings;
 
@@ -40,6 +41,30 @@ sub sequence {
   my ($element1, $element2) = @_;
   return Krawfish::Query::Next->new(
     $element1, $element2
+  );
+
+  # TODO: Rewrite to ...
+  return Krawfish::Query::Position->new(
+    2, $element1, $element2
+  );
+};
+
+sub position {
+  my $self = shift;
+  my ($frame_array, $element1, $element2) = @_;
+  my $frame = 0b0000_0000_0000_0000;
+  foreach (@$frame_array)  {
+    if ($_ eq 'precedes_directly') {
+      $frame |= 0b0000_0000_0000_0010;
+    }
+    else {
+      warn "Unknown frame title $_!";
+    };
+  };
+
+  return if $frame == 0b0000_0000_0000_0000;
+  return Krawfish::Query::Position->new(
+    $frame, $element1, $element2
   );
 };
 
