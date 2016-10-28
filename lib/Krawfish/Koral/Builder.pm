@@ -1,4 +1,4 @@
-package Krawfish::QueryBuilder;
+package Krawfish::Koral::Builder;
 use Krawfish::Query::Token;
 use Krawfish::Query::Span;
 use Krawfish::Query::Position;
@@ -91,6 +91,10 @@ sub sort_by {
   # And use the doc_ids to intersect with the matching list
   # For this, the Match may first be converted to
   # a bitstream of documents
+  ...
+};
+
+sub apply {
   ...
 };
 

@@ -4,11 +4,11 @@ use warnings;
 use Data::Dumper;
 
 use_ok('Krawfish::Index');
-use_ok('Krawfish::QueryBuilder');
+use_ok('Krawfish::Koral::Builder');
 
 # Reset index
 my $index = Krawfish::Index->new;
-ok(my $qb = Krawfish::QueryBuilder->new($index), 'Create QueryBuilder');
+ok(my $qb = Krawfish::Koral::Builder->new($index), 'Create Koral::Builder');
 ok(my $seq = $qb->sequence($qb->span('aa'), $qb->token('bb')), 'Sequence');
 
 my $serial = $seq->to_koral_query;

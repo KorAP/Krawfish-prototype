@@ -9,7 +9,7 @@ require '' . catfile(dirname(__FILE__), 'util', 'CreateDoc.pm');
 require '' . catfile(dirname(__FILE__), 'util', 'TestMatches.pm');
 
 use_ok('Krawfish::Index');
-use_ok('Krawfish::QueryBuilder');
+use_ok('Krawfish::Koral::Builder');
 
 my $index = Krawfish::Index->new;
 
@@ -18,7 +18,7 @@ ok($index->add('t/data/doc1.jsonld'), 'Add new document');
 # Der Hut stand dem jungen Mann sehr gut. Er betrachtete sich gern im Spiegel.
 ok($index->add('t/data/doc2.jsonld'), 'Add new document');
 
-ok(my $qb = Krawfish::QueryBuilder->new($index), 'Create QueryBuilder');
+ok(my $qb = Krawfish::Koral::Builder->new($index), 'Create QueryBuilder');
 
 ok(my $seq = $qb->sequence($qb->token('sehr'), $qb->token('gut')), 'Sequence');
 
@@ -40,14 +40,14 @@ ok(!$seq->next, 'No more');
 # Reset index - situation [aa]..[bb] -> [aa][bb]
 $index = Krawfish::Index->new;
 ok($index->add(complex_doc('[aa][cc][aa][bb]')), 'Add complex document');
-ok($qb = Krawfish::QueryBuilder->new($index), 'Create QueryBuilder');
+ok($qb = Krawfish::Koral::Builder->new($index), 'Create QueryBuilder');
 ok($seq = $qb->sequence($qb->token('aa'), $qb->token('bb')), 'Sequence');
 test_matches($seq, qw/[0:2-4]/);
 
 # Reset index - situation [bb][aa] -> [aa][bb]
 $index = Krawfish::Index->new;
 ok($index->add(complex_doc('[bb][aa][bb][aa]')), 'Add complex document');
-ok($qb = Krawfish::QueryBuilder->new($index), 'Create QueryBuilder');
+ok($qb = Krawfish::Koral::Builder->new($index), 'Create QueryBuilder');
 ok($seq = $qb->sequence($qb->token('aa'), $qb->token('bb')), 'Sequence');
 test_matches($seq, qw/[0:1-3]/);
 
@@ -55,14 +55,14 @@ test_matches($seq, qw/[0:1-3]/);
 # Reset index - situation [aa]..[bb] -> [aa][bb]
 $index = Krawfish::Index->new;
 ok($index->add(complex_doc('[aa][cc][aa][bb]')), 'Add complex document');
-ok($qb = Krawfish::QueryBuilder->new($index), 'Create QueryBuilder');
+ok($qb = Krawfish::Koral::Builder->new($index), 'Create QueryBuilder');
 ok($seq = $qb->sequence($qb->token('aa'), $qb->token('bb')), 'Sequence');
 test_matches($seq, qw/[0:2-4]/);
 
 # Reset index - situation [bb]..[aa] -> [aa][bb]
 $index = Krawfish::Index->new;
 ok($index->add(complex_doc('[bb][cc][aa][bb]')), 'Add complex document');
-ok($qb = Krawfish::QueryBuilder->new($index), 'Create QueryBuilder');
+ok($qb = Krawfish::Koral::Builder->new($index), 'Create QueryBuilder');
 ok($seq = $qb->sequence($qb->token('aa'), $qb->token('bb')), 'Sequence');
 test_matches($seq, qw/[0:2-4]/);
 
@@ -71,14 +71,14 @@ test_matches($seq, qw/[0:2-4]/);
 # Reset index
 $index = Krawfish::Index->new;
 ok($index->add(complex_doc('[aa|aa][bb|bb]')), 'Add complex document');
-ok($qb = Krawfish::QueryBuilder->new($index), 'Create QueryBuilder');
+ok($qb = Krawfish::Koral::Builder->new($index), 'Create QueryBuilder');
 ok($seq = $qb->sequence($qb->token('aa'), $qb->token('bb')), 'Sequence');
 test_matches($seq, qw/[0:0-2] [0:0-2] [0:0-2] [0:0-2]/);
 
 # Reset index
 $index = Krawfish::Index->new;
 ok($index->add(complex_doc('[aa][bb|bb]')), 'Add complex document');
-ok($qb = Krawfish::QueryBuilder->new($index), 'Create QueryBuilder');
+ok($qb = Krawfish::Koral::Builder->new($index), 'Create QueryBuilder');
 ok($seq = $qb->sequence($qb->token('aa'), $qb->token('bb')), 'Sequence');
 # query language: [aa][bb]
 test_matches($seq, qw/[0:0-2] [0:0-2]/);
@@ -86,14 +86,14 @@ test_matches($seq, qw/[0:0-2] [0:0-2]/);
 # Reset index
 $index = Krawfish::Index->new;
 ok($index->add(complex_doc('[aa|aa][bb]')), 'Add complex document');
-ok($qb = Krawfish::QueryBuilder->new($index), 'Create QueryBuilder');
+ok($qb = Krawfish::Koral::Builder->new($index), 'Create QueryBuilder');
 ok($seq = $qb->sequence($qb->token('aa'), $qb->token('bb')), 'Sequence');
 test_matches($seq, qw/[0:0-2] [0:0-2]/);
 
 # Reset index
 $index = Krawfish::Index->new;
 ok($index->add(complex_doc('[aa|aa][bb|bb][aa|aa][bb|bb]')), 'Add complex document');
-ok($qb = Krawfish::QueryBuilder->new($index), 'Create QueryBuilder');
+ok($qb = Krawfish::Koral::Builder->new($index), 'Create QueryBuilder');
 ok($seq = $qb->sequence($qb->token('aa'), $qb->token('bb')), 'Sequence');
 test_matches($seq, qw/[0:0-2] [0:0-2] [0:0-2] [0:0-2] [0:2-4] [0:2-4] [0:2-4] [0:2-4]/);
 
@@ -104,7 +104,7 @@ test_matches($seq, qw/[0:0-2] [0:0-2] [0:0-2] [0:0-2] [0:2-4] [0:2-4] [0:2-4] [0
 # Reset index
 $index = Krawfish::Index->new;
 ok($index->add(complex_doc('<1:aa><2:aa>[bb]</2>[bb]</1>')), 'Add complex document');
-ok($qb = Krawfish::QueryBuilder->new($index), 'Create QueryBuilder');
+ok($qb = Krawfish::Koral::Builder->new($index), 'Create QueryBuilder');
 ok($seq = $qb->sequence($qb->span('aa'), $qb->token('bb')), 'Sequence');
 test_matches($seq, qw/[0:0-2]/);
 

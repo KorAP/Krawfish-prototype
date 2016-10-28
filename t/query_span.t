@@ -4,13 +4,13 @@ use warnings;
 use Data::Dumper;
 
 use_ok('Krawfish::Index');
-use_ok('Krawfish::QueryBuilder');
+use_ok('Krawfish::Koral::Builder');
 
 my $index = Krawfish::Index->new('index.dat');
 
 ok($index->add('t/data/doc3-segments.jsonld'), 'Add new document');
 
-ok(my $qb = Krawfish::QueryBuilder->new($index), 'Create QueryBuilder');
+ok(my $qb = Krawfish::Koral::Builder->new($index), 'Create Koral::Builder');
 
 ok(my $span = $qb->span('akron/c=NP'), 'Span');
 ok(!$span->current, 'Not initialized yet');
