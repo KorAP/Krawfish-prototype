@@ -1,6 +1,6 @@
 {
   "@context" : "http://korap.ids-mannheim.de/ns/koral/0.3/context.jsonld",
-  "doc" : {
+  "text" : {
     "@type" : "koral:text",
     "text" : "Der Hut stand dem jungen Mann sehr gut. Er betrachtete sich gern im Spiegel.",
     "meta" : [

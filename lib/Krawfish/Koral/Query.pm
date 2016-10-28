@@ -2,6 +2,10 @@ package Krawfish::Koral::Query;
 use strict;
 use warnings;
 
+# This should be rather the builder class,
+# that also provides serialization
+# The query classes themselves should not serialize!
+
 use constant CONTEXT => 'http://korap.ids-mannheim.de/ns/koral/0.6/context.jsonld';
 
 sub to_koral_query {

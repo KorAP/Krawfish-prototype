@@ -8,9 +8,9 @@ use File::Spec::Functions 'catfile';
 require '' . catfile(dirname(__FILE__), 'util', 'CreateDoc.pm');
 
 my $doc = simple_doc(qw/aa bb aa bb/);
-ok(exists $doc->{doc}, 'Doc exists');
-ok(exists $doc->{doc}->{annotation}, 'Annotations exists');
-my $anno = $doc->{doc}->{annotation};
+ok(exists $doc->{text}, 'Doc exists');
+ok(exists $doc->{text}->{annotation}, 'Annotations exists');
+my $anno = $doc->{text}->{annotation};
 is($anno->[0]->{'@type'}, 'koral:token', '@type is valid');
 is($anno->[0]->{'key'}, 'aa', '@type is valid');
 is($anno->[-1]->{'@type'}, 'koral:token', '@type is valid');
@@ -18,9 +18,9 @@ is($anno->[-1]->{'key'}, 'bb', '@type is valid');
 
 
 $doc = complex_doc('<1:xy>[aa]<2:opennlp=z>[bb]</1>[corenlp/c=cc|dd]</2>');
-ok(exists $doc->{doc}, 'Doc exists');
-ok(exists $doc->{doc}->{annotation}, 'Annotations exists');
-$anno = $doc->{doc}->{annotation};
+ok(exists $doc->{text}, 'Doc exists');
+ok(exists $doc->{text}->{annotation}, 'Annotations exists');
+$anno = $doc->{text}->{annotation};
 
 is($anno->[0]->{'@type'}, 'koral:token', 'Annotation token');
 is($anno->[0]->{'key'}, 'aa', 'Annotation key');
@@ -51,7 +51,7 @@ is($token_group->[1]->{'@type'}, 'koral:token', 'Annotation type');
 is($token_group->[1]->{key}, 'dd', 'Annotation key');
 
 $doc = complex_doc('<1:aa><2:aa>[bb]</2>[bb]</1>');
-$anno = $doc->{doc}->{annotation};
+$anno = $doc->{text}->{annotation};
 is($anno->[0]->{'@type'}, 'koral:span', 'Span');
 is($anno->[0]->{segments}->[0], 0, 'Span');
 ok((!$anno->[0]->{segments}->[0] || $anno->[0]->{segments}->[0] == 0),

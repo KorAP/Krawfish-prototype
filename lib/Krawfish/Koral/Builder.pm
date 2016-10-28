@@ -10,9 +10,8 @@ use warnings;
 
 sub new {
   my $class = shift;
-  my $index = shift;
   bless {
-    index => $index
+    index => shift
   }, $class;
 };
 
@@ -24,7 +23,6 @@ sub token {
     $term
   );
 };
-
 
 sub span {
   my $self = shift;
@@ -45,7 +43,6 @@ sub token_and {
   );
 };
 
-
 # Create sequence query
 sub sequence {
   my $self = shift;
@@ -60,28 +57,32 @@ sub sequence {
 sub position {
   my $self = shift;
   my ($frame_array, $span_a, $span_b) = @_;
-  my $frame = 0b0000_0000_0000_0000;
 
-  $frame_array = ref $frame_array eq 'ARRAY' ?
-    $frame_array : [$frame_array];
-  foreach (@$frame_array) {
-    if ($_ eq 'precedes_directly') {
-      $frame |= 0b0000_0000_0000_0010;
-    }
-    elsif ($_ eq 'matches') {
-      $frame |= 0b0000_0000_0010_0000;
-    }
-    else {
-      warn "Unknown frame title $_!";
-    };
-  };
+  # check frame array
+  my $frame = _frame($frame_array);
 
+  # Do not support empty array
   return if $frame == 0b0000_0000_0000_0000;
+
   return Krawfish::Query::Position->new(
     $frame, $span_a, $span_b
   );
 };
 
+sub position_exclude {
+  my $self = shift;
+  my ($frame_array, $span_a, $span_b) = @_;
+
+  # check frame array
+  my $frame = _frame($frame_array);
+
+  # Do not support empty array
+  return if $frame == 0b0000_0000_0000_0000;
+
+  return Krawfish::Query::Position->new(
+    ~$frame, $span_a, $span_b
+  );
+};
 
 sub sort_by {
   my $self = shift;
@@ -97,5 +98,34 @@ sub sort_by {
 sub apply {
   ...
 };
+
+
+# TODO: Should be exported, so not necessary
+sub _frame ($) {
+  my $array = shift;
+
+  my $frame = 0b0000_0000_0000_0000;
+
+  # Reference array
+  $array = ref $array eq 'ARRAY' ? $array : [$array];
+
+  # Iterate over all frames
+  foreach (@$array) {
+
+    # Check parameter
+    if ($_ eq 'precedes_directly') {
+      $frame |= 0b0000_0000_0000_0010;
+    }
+    elsif ($_ eq 'matches') {
+      $frame |= 0b0000_0000_0010_0000;
+    }
+    else {
+      warn "Unknown frame title $_!";
+    };
+  };
+
+  return $frame;
+};
+
 
 1;

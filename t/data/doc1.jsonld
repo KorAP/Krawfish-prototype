@@ -1,6 +1,6 @@
 {
   "@context" : "http://korap.ids-mannheim.de/ns/koral/0.3/context.jsonld",
-  "doc" : {
+  "text" : {
     "@type" : "koral:text",
     "text" : "Der alte Mann ging über die Straße. Er trug einen lustigen Hut",
     "meta" : [

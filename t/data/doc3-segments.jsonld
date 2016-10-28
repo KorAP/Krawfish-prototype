@@ -1,8 +1,8 @@
 {
   "@context" : "http://korap.ids-mannheim.de/ns/koral/0.5/context.jsonld",
-  "doc" : {
+  "text" : {
     "@type" : "koral:text",
-    "text" : "Der Bau-Leiter trug einen lustigen Bau-Helm.",
+    "content" : "Der Bau-Leiter trug einen lustigen Bau-Helm.",
     "meta" : [
       {
         "@type" : "koral:doc",

@@ -11,7 +11,7 @@ sub simple_doc {
   };
 
   return {
-    doc => {
+    text => {
       annotation => \@tokens
     }
   };
@@ -83,7 +83,7 @@ sub complex_doc {
   @tokens = sort _token_sort @tokens;
 
   return {
-    doc => {
+    text => {
       annotation => \@tokens
     }
   };

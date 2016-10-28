@@ -23,7 +23,7 @@ is_deeply($index->dict->get('Hut')->{array}, [[0,11],[1,1]], 'PostingsList');
 # Index as data structure
 $index->add(
   {
-    doc => {
+    text => {
       annotation => [
         {
           '@type' => "koral:token",

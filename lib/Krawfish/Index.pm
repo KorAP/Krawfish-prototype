@@ -52,7 +52,7 @@ sub add {
   my $doc_id = $self->{last_doc}++;
 
   # Get document
-  $doc = $doc->{doc};
+  $doc = $doc->{text};
 
   # TODO: Get segments
   # my @segments = ();

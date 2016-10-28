@@ -379,7 +379,7 @@ sub to_koral_query_fragment {
   return {
     '@type' => 'koral:group',
     'operation' => 'operation:position',
-    'frames' => [_to_list($self->{frames})],
+    'frames' => [map { 'frames:' . $_ } _to_list($self->{frames})],
     'operands' => [
       $self->{first}->to_koral_query_fragment,
       $self->{second}->to_koral_query_fragment
