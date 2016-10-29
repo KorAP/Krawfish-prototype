@@ -1,4 +1,4 @@
-package Krawfish::Index::Term;
+package Krawfish::Koral::Query::Term;
 use strict;
 use warnings;
 
@@ -89,7 +89,7 @@ sub value {
   $_[0]->[5];
 };
 
-sub to_koral_query_fragment {
+sub to_koral_fragment {
   my $self = shift;
   my $hash = {
     '@type' => 'koral:term',

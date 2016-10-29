@@ -19,7 +19,10 @@ sub new {
 # This will initialize the posting list
 sub next {
   my $self = shift;
+
   print '  >> Next "' . $self->term . "\"";
+
+  # TODO: This should respect filters
   my $return = $self->{postings}->next;
   if ($return) {
     print ' - current is ' . $self->current . "\n";
@@ -48,16 +51,6 @@ sub current {
 
 sub freq {
   $_[0]->{postings}->freq;
-};
-
-
-# Return KoralQuery fragment for term
-sub to_koral_query_fragment {
-  my $self = shift;
-  my $koral = Krawfish::Index::Term->new($self->term) or return {
-    '@type' => 'koral:undefined'
-  };
-  return $koral->to_koral_query_fragment;
 };
 
 1;

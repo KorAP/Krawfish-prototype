@@ -5,8 +5,7 @@ use Krawfish::Query::Position;
 use strict;
 use warnings;
 
-# TODO: Better not expect index object in constructor,
-# but support apply() method
+# This is now irrelevant due to Krawfish::Koral::Query
 
 sub new {
   my $class = shift;

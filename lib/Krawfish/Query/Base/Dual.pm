@@ -1,5 +1,5 @@
 package Krawfish::Query::Base::Dual;
-use parent 'Exporter', 'Krawfish::Koral::Query';
+use parent 'Exporter';
 use strict;
 use warnings;
 use Krawfish::Query::Util::Buffer;
