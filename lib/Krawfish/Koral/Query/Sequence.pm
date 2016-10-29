@@ -27,4 +27,9 @@ sub to_koral_fragment {
   };
 };
 
+sub to_string {
+  return join '', @$_;
+};
+
+
 1;

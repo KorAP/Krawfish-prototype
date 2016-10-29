@@ -28,4 +28,8 @@ sub to_koral_fragment {
   };
 };
 
+sub to_string {
+  return '<' . $_[0]->term . '>';
+};
+
 1;
