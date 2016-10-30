@@ -6,8 +6,6 @@ use Krawfish::Koral::Query::Position;
 use strict;
 use warnings;
 
-use constant CONTEXT => 'http://korap.ids-mannheim.de/ns/koral/0.6/context.jsonld';
-
 sub new {
   my $class = shift;
   bless {}, $class;
@@ -56,12 +54,15 @@ sub position {
 # Query Planning methods #
 ##########################
 
-sub is_any            { ... };
-sub is_optional       { ... };
-sub is_null           { ... };
-sub is_negative       { ... };
-sub is_extended       { ... };
-sub is_extended_right { ... }
+# Rewrite query to actual query
+sub plan;
+
+sub is_any            { 1 };
+sub is_optional       { 0 };
+sub is_null           { 0 };
+sub is_negative       { 0 };
+sub is_extended       { 0 };
+sub is_extended_right { 0 };
 
 sub maybe_anchor      {
   my $self = shift;
@@ -83,63 +84,21 @@ sub maybe_unsorted { ... };
 #############################
 # Query Application methods #
 #############################
-sub index {
-  my $self = shift;
-  $self->{index} = shift;
-};
-
-
-sub filter_by {
-  my $self = shift;
-  $self->{filter} = shift;
-};
-
 
 # Deserialization of KoralQuery
 sub from_koral {
   ...
 };
 
-# Serialization of KoralQuery
-sub to_koral_query {
-  my $self = shift;
-  return {
-    '@context' => CONTEXT,
-    query => $self->to_koral_fragment
-  };
-};
-
 # Overwritten
 sub to_koral_fragment;
 
+# Overwritten
 sub to_string;
+
 
 1;
 
 
 __END__
 
-sub search {
-  my $self = shift;
-  my $callback = shift;
-  my $token = Krawfish::Query::Token->new(
-    $self->{index},
-    $term
-  );
-
-  # Filter the results
-  if ($self->filter_by) {
-
-    # Filter the result
-    $token->filter_by($self->filter_by);
-  };
-
-  # Apply Sorting here
-
-  # Iterate over all matches
-  while ($self->next) {
-
-    # Call callback with match
-    $callback->($self->current) or return;
-  };
-};

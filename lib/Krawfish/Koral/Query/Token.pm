@@ -1,5 +1,6 @@
 package Krawfish::Koral::Query::Token;
 use parent 'Krawfish::Koral::Query';
+use Krawfish::Koral::Query::Token;
 use Krawfish::Koral::Query::Term;
 use strict;
 use warnings;
@@ -26,6 +27,14 @@ sub to_koral_fragment {
   return {
     '@type' => 'koral:token'
   };
+};
+
+sub plan {
+  my ($self, $index) = @_;
+  return Krawfish::Query::Token->new(
+    $index,
+    $self->term
+  );
 };
 
 sub to_string {

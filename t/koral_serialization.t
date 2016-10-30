@@ -3,17 +3,22 @@ use strict;
 use warnings;
 use Data::Dumper;
 
-use_ok('Krawfish::Koral::Query');
+use_ok('Krawfish::Koral');
 
-my $koral = Krawfish::Koral::Query->new;
+my $koral = Krawfish::Koral->new;
 
-my $seq = $koral->seq(
-  $koral->token('Der'),
-  $koral->token,
-  $koral->span('opennlp/c=NP')
+my $builder = $koral->query_builder;
+
+
+$koral->query(
+  $builder->seq(
+    $builder->token('Der'),
+    $builder->token,
+    $builder->span('opennlp/c=NP')
+  )
 );
 
-my $serial = $seq->to_koral_query;
+my $serial = $koral->to_koral_query;
 
 like($serial->{'@context'}, qr!korap\.ids-mannheim\.de!, 'Context is valid');
 ok(my $q = $serial->{'query'}, 'Query is given');

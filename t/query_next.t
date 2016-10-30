@@ -22,7 +22,7 @@ ok(my $qb = Krawfish::Koral::Builder->new($index), 'Create QueryBuilder');
 
 ok(my $seq = $qb->sequence($qb->token('sehr'), $qb->token('gut')), 'Sequence');
 
-ok($seq->next, 'Init');
+ok($seq->next, 'More');
 is($seq->current->to_string, '[1:6-8]', 'Match');
 ok(!$seq->next, 'No more');
 

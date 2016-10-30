@@ -2,11 +2,15 @@ package Krawfish::Index;
 use Krawfish::Index::Dictionary;
 use strict;
 use warnings;
+use Scalar::Util qw!blessed!;
 use Mojo::JSON qw/encode_json decode_json/;
 use Mojo::Util qw/slurp/;
 
+# TODO: Create Importer class
+#
 # TODO: Support Main Index and Auxiliary Indices with merging
 # https://www.youtube.com/watch?v=98E1h_u4xGk
+#
 # TODO: Maybe logarithmic merge
 # https://www.youtube.com/watch?v=VNjf2dxWH2Y&spfreload=5
 
@@ -39,6 +43,7 @@ sub last_doc {
 sub dict {
   $_[0]->{dict};
 };
+
 
 # Add document to the index
 sub add {
@@ -131,6 +136,7 @@ sub _term {
   return $key . ($item->{key} // '');
 }
 
+
 # Return segment list or nothing
 sub _segments {
   my $item = shift;
@@ -152,4 +158,75 @@ sub _segments {
   return;
 };
 
+
+sub apply {
+  my $self = shift;
+  my $koral = shift;
+
+  # Necessary for filtering
+  my $corpus = $koral->corpus->plan($self) or return;
+
+  my $query = $koral->query->plan($self) or return;
+
+  # Get meta information
+  my $meta = $koral->meta->plan($self) or return;
+
+  my $cb = shift;
+  my @result = ();
+
+  # No callback - push to array
+  unless ($cb) {
+    while ($query->next) {
+      push @result, $query->current;
+    };
+    return @result;
+  };
+
+  # Push callback
+  while ($query->next) {
+    $cb->($query->current);
+  };
+
+};
+
+
+
 1;
+
+
+__END__
+
+sub apply {
+  my $self = shift;
+  $self->{index} = shift;
+};
+
+
+sub filter_by {
+  my $self = shift;
+  $self->{filter} = shift;
+};
+
+sub items_per_page;
+
+sub start_page;
+
+sub apply {
+  my $self = shift;
+  my $query = $self->plan;
+  my $cb = shift;
+  my @result = ();
+
+  # No callback - push to array
+  unless ($cb) {
+    while ($query->next) {
+      push @result, $query->current;
+    };
+    return @result;
+  };
+
+  # Push callback
+  while ($query->next) {
+    $cb->($query->current);
+  };
+};

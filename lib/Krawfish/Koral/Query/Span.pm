@@ -1,6 +1,7 @@
 package Krawfish::Koral::Query::Span;
 use parent 'Krawfish::Koral::Query';
 use Krawfish::Koral::Query::Term;
+use Krawfish::Query::Span;
 use strict;
 use warnings;
 
@@ -27,6 +28,17 @@ sub to_koral_fragment {
     '@type' => 'koral:token'
   };
 };
+
+
+sub plan {
+  my $self = shift;
+  my $index = shift;
+  return Krawfish::Query::Span->new(
+    $index,
+    $self->term
+  );
+};
+
 
 sub to_string {
   return '<' . $_[0]->term . '>';
