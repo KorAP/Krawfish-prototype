@@ -1,5 +1,6 @@
 package Krawfish::Query::Position;
 use parent 'Krawfish::Query::Base::Dual';
+use Krawfish::Query::Base::Dual;
 use strict;
 use warnings;
 
@@ -10,10 +11,7 @@ use warnings;
 # TODO: Should be inherited
 use bytes;
 use constant {
-  NEXTA  => 1,
-  NEXTB  => 2,
-  MATCH  => 4,
-
+  NULL_4            => 0b0000_0000_0000_0000,
   PRECEDES          => 0b0000_0000_0000_0001,
   PRECEDES_DIRECTLY => 0b0000_0000_0000_0010,
   OVERLAPS_LEFT     => 0b0000_0000_0000_0100,
@@ -26,11 +24,24 @@ use constant {
   ALIGNS_RIGHT      => 0b0000_0010_0000_0000,
   OVERLAPS_RIGHT    => 0b0000_0100_0000_0000,
   SUCCEEDS_DIRECTLY => 0b0000_1000_0000_0000,
-  SUCCEEDS          => 0b0001_0000_0000_0000,
-#  ALL               => 1024 * 8 - 1
+  SUCCEEDS          => 0b0001_0000_0000_0000
 };
 
-my (@next_a, @next_b);
+our (@EXPORT, @next_a, @next_b);
+@EXPORT = qw/NULL_4
+             PRECEDES
+             PRECEDES_DIRECTLY
+             OVERLAPS_LEFT
+             ALIGNS_LEFT
+             STARTS_WITH
+             MATCHES
+             IS_WITHIN
+             IS_AROUND
+             ENDS_WITH
+             ALIGNS_RIGHT
+             OVERLAPS_RIGHT
+             SUCCEEDS_DIRECTLY
+             SUCCEEDS/;
 
 sub new {
   my $class = shift;
@@ -372,25 +383,5 @@ sub case {
   return MATCHES;
 };
 
-
-# List all elements of a value
-sub _to_list {
-  my $val = shift;
-  my @array = ();
-  push @array, 'precedes'         if $val & PRECEDES;
-  push @array, 'precedesDirectly' if $val & PRECEDES_DIRECTLY;
-  push @array, 'overlapsLeft'     if $val & OVERLAPS_LEFT;
-  push @array, 'alignsLeft'       if $val & ALIGNS_LEFT;
-  push @array, 'startsWith'       if $val & STARTS_WITH;
-  push @array, 'matches'          if $val & MATCHES;
-  push @array, 'isWithin'         if $val & IS_WITHIN;
-  push @array, 'isAround'         if $val & IS_AROUND;
-  push @array, 'endsWith'         if $val & ENDS_WITH;
-  push @array, 'alignsRight'      if $val & ALIGNS_RIGHT;
-  push @array, 'overlapsRight'    if $val & OVERLAPS_RIGHT;
-  push @array, 'succeedsDirectly' if $val & SUCCEEDS_DIRECTLY;
-  push @array, 'succeeds'         if $val & SUCCEEDS;
-  return @array;
-};
 
 1;

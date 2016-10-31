@@ -1,7 +1,24 @@
 package Krawfish::Koral::Query::Position;
 use parent 'Krawfish::Koral::Query';
+use Krawfish::Query::Position;
 use strict;
 use warnings;
+
+our %FRAME = (
+  precedes => PRECEDES,
+  precedesDirectly => PRECEDES_DIRECTLY,
+  overlapsLeft => OVERLAPS_LEFT,
+  alignsLeft => ALIGNS_LEFT,
+  startsWith => STARTS_WITH,
+  matches => MATCHES,
+  isWithin => IS_WITHIN,
+  isAround => IS_AROUND,
+  endsWith => ENDS_WITH,
+  alignsRight => ALIGNS_RIGHT,
+  overlapsRight => OVERLAPS_RIGHT,
+  succeedsDirectly => SUCCEEDS_DIRECTLY,
+  succeeds => SUCCEEDS
+);
 
 sub new {
   my $class = shift;
@@ -9,7 +26,7 @@ sub new {
 
   bless {
     exclude => $exclude,
-    frames  => _frame($frame_array),
+    frames  => _to_frame($frame_array),
     first   => $first,
     second  => $second
   }, $class;
@@ -33,7 +50,7 @@ sub plan {
   my ($self, $index) = @_;
 
   my $frame_array = 
-  
+
   return Krawfish::Query::Position->new(
     $self->{frames},
     $self->{first},
@@ -41,36 +58,33 @@ sub plan {
   );
 };
 
+
+# List all positions of a frame
 sub _to_list {
-...
+  my $frame = shift;
+  my @array = ();
+  while (my ($key, $value) = %FRAME) {
+    push @array, $key if $frame & $value;
+  };
+  return @array;
 };
 
 
-# TODO: Should be exported, so not necessary
-sub _frame ($) {
+# Get the frame of a position list
+sub _to_frame {
   my $array = shift;
-
-  my $frame = 0b0000_0000_0000_0000;
 
   # Reference array
   $array = ref $array eq 'ARRAY' ? $array : [$array];
 
+  my $frame = NULL_4;
+
   # Iterate over all frames
   foreach (@$array) {
 
-    # Check parameter
-    if ($_ eq 'precedes_directly') {
-      $frame |= 0b0000_0000_0000_0010;
-    }
-    elsif ($_ eq 'matches') {
-      $frame |= 0b0000_0000_0010_0000;
-    }
-    else {
-      warn "Unknown frame title $_!";
-    };
+    # Unify with frames
+    $frame |= $FRAME{$_} or warn "Unknown frame title $_!";
   };
-
-  return $frame;
 };
 
 
@@ -79,23 +93,3 @@ sub _frame ($) {
 
 __END__
 
-# Needs to be imported
-# List all elements of a value
-sub _to_list {
-  my $val = shift;
-  my @array = ();
-  push @array, 'precedes'         if $val & PRECEDES;
-  push @array, 'precedesDirectly' if $val & PRECEDES_DIRECTLY;
-  push @array, 'overlapsLeft'     if $val & OVERLAPS_LEFT;
-  push @array, 'alignsLeft'       if $val & ALIGNS_LEFT;
-  push @array, 'startsWith'       if $val & STARTS_WITH;
-  push @array, 'matches'          if $val & MATCHES;
-  push @array, 'isWithin'         if $val & IS_WITHIN;
-  push @array, 'isAround'         if $val & IS_AROUND;
-  push @array, 'endsWith'         if $val & ENDS_WITH;
-  push @array, 'alignsRight'      if $val & ALIGNS_RIGHT;
-  push @array, 'overlapsRight'    if $val & OVERLAPS_RIGHT;
-  push @array, 'succeedsDirectly' if $val & SUCCEEDS_DIRECTLY;
-  push @array, 'succeeds'         if $val & SUCCEEDS;
-  return @array;
-};

@@ -5,13 +5,15 @@ use warnings;
 use Krawfish::Query::Util::Buffer;
 use Krawfish::Posting;
 
+our @EXPORT;
+
 use constant {
   NEXTA  => 1,
   NEXTB  => 2,
   MATCH  => 4
 };
 
-our @EXPORT = qw/NEXTA NEXTB MATCH/;
+@EXPORT = qw/NEXTA NEXTB MATCH/;
 
 # TODO: Improve by skipping to the same document
 
