@@ -1,5 +1,7 @@
 package Krawfish::Index;
 use Krawfish::Index::Dictionary;
+use Krawfish::Index::Offsets;
+use Krawfish::Index::PrimaryData;
 use strict;
 use warnings;
 use Scalar::Util qw!blessed!;
@@ -26,6 +28,16 @@ sub new {
     $self->{file}
   );
 
+  # Load offsets
+  $self->{offsets} = Krawfish::Index::Offsets->new(
+    $self->{file}
+  );
+
+  # Load primary
+  $self->{primary} = Krawfish::Index::PrimaryData->new(
+    $self->{file}
+  );
+
   # TODO: Get last_doc_id from index file
   $self->{last_doc} = 0;
 
@@ -45,6 +57,18 @@ sub dict {
 };
 
 
+# Get offsets
+sub offsets {
+  $_[0]->{offsets};
+};
+
+
+# Get primary
+sub primary {
+  $_[0]->{primary};
+};
+
+
 # Add document to the index
 sub add {
   my $self = shift;
@@ -59,16 +83,25 @@ sub add {
   # Get document
   $doc = $doc->{text};
 
-  # TODO: Get segments
-  # my @segments = ();
-  # if ($doc->{segments}) {
-  #   foreach my $seg (@{$doc->{segments}}) {
-  #     $segments[$seg->{nr}] = $seg->{offset};
-  #   };
-  # };
+  # Store primary data
+  $self->primary->store($doc_id, $doc->{content});
+
+  my $offsets = $self->offsets;
+
+  my $pos = 0;
+  my @segments = ();
+
+  # Store segments
+  if ($doc->{segments}) {
+
+    # Store all segment offsets
+    foreach my $seg (@{$doc->{segments}}) {
+      $offsets->store($doc_id, $pos++, @{$seg->{offsets}});
+    };
+  };
 
   # Get all tokens
-  my $pos = 0;
+  $pos = 0;
   my $end;
   foreach my $item (@{$doc->{annotation}}) {
 
@@ -80,7 +113,17 @@ sub add {
 
       # Append posting to postings list
       my @segments = _segments($item);
-      push @segments, $pos++ unless scalar @segments;
+
+      # No segments defined
+      unless (scalar @segments) {
+        push @segments, $pos;
+
+        # Store offsets
+        if ($item->{offsets}) {
+          $offsets->store($doc_id, $pos, @{$item->{offsets}});
+        };
+        $pos++;
+      };
 
       my $post_list = $self->{dict}->add($key);
       $post_list->append($doc_id, @segments);
@@ -89,7 +132,15 @@ sub add {
     # Add tokengroup to dictionary
     elsif ($item->{'@type'} eq 'koral:tokenGroup') {
       my @segments = _segments($item);
-      push @segments, $pos++ unless scalar @segments;
+
+      unless (scalar @segments) {
+        push @segments, $pos;
+        # Store offsets
+        if ($item->{offsets}) {
+          $offsets->store($doc_id, $pos, @{$item->{offsets}});
+        };
+        $pos++;
+      };
 
       # Add tokens of token group
       foreach my $token (@{$item->{'wrap'}}) {
@@ -117,7 +168,7 @@ sub add {
     };
   };
 
-  return 1;
+  return $doc_id;
 };
 
 

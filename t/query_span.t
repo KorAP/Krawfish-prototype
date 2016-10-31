@@ -8,7 +8,7 @@ use_ok('Krawfish::Koral::Builder');
 
 my $index = Krawfish::Index->new('index.dat');
 
-ok($index->add('t/data/doc3-segments.jsonld'), 'Add new document');
+ok(defined $index->add('t/data/doc3-segments.jsonld'), 'Add new document');
 
 ok(my $qb = Krawfish::Koral::Builder->new($index), 'Create Koral::Builder');
 

@@ -7,13 +7,16 @@ use_ok('Krawfish::Index');
 
 my $index = Krawfish::Index->new('index.dat');
 
-ok($index->add('t/data/doc1.jsonld'), 'Add new document');
+my $doc_id;
+ok(defined ($doc_id = $index->add('t/data/doc1.jsonld')), 'Add new document');
 
 # Get terms from the term dictionary
 ok($index->dict->get('Der'), 'der is part of the term dict');
 ok(!$index->dict->get('Haus'), 'Haus is not part of the term dict');
 
 is_deeply($index->dict->get('Der')->{array}, [[0,0]], 'PostingsList');
+
+is($index->primary->get($doc_id, 0, 3), 'Der', 'Get primary');
 
 ok($index->add('t/data/doc2.jsonld'), 'Add new document');
 

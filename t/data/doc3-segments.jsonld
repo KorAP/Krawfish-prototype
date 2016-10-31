@@ -14,35 +14,35 @@
     "segments" : [
       {
         "@type" : "koral:segment",
-        "offset" : [0,3]
+        "offsets" : [0,3]
       },
       {
         "@type" : "koral:segment",
-        "offset" : [4,7]
+        "offsets" : [4,7]
       },
       {
         "@type" : "koral:segment",
-        "offset" : [8,14]
+        "offsets" : [8,14]
       },
       {
         "@type" : "koral:segment",
-        "offset" : [15,19]
+        "offsets" : [15,19]
       },
       {
         "@type" : "koral:segment",
-        "offset" : [20,25]
+        "offsets" : [20,25]
       },
       {
         "@type" : "koral:segment",
-        "offset" : [26,34]
+        "offsets" : [26,34]
       },
       {
         "@type" : "koral:segment",
-        "offset" : [35,38]
+        "offsets" : [35,38]
       },
       {
         "@type" : "koral:segment",
-        "offset" : [39,43]
+        "offsets" : [39,43]
       }
     ],
     "annotation" : [

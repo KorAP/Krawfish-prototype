@@ -2,7 +2,7 @@
   "@context" : "http://korap.ids-mannheim.de/ns/koral/0.3/context.jsonld",
   "text" : {
     "@type" : "koral:text",
-    "text" : "Der Hut stand dem jungen Mann sehr gut. Er betrachtete sich gern im Spiegel.",
+    "content" : "Der Hut stand dem jungen Mann sehr gut. Er betrachtete sich gern im Spiegel.",
     "meta" : [
       {
         "@type":"koral:doc",
@@ -14,59 +14,59 @@
     "annotation" : [
       {
         "@type": "koral:token",
-        "offset" : [0,3],
+        "offsets" : [0,3],
         "key" : "Der"
       },{
         "@type": "koral:token",
-        "offset" : [4,7],
+        "offsets" : [4,7],
         "key" : "Hut"
       },{
         "@type": "koral:token",
-        "offset" : [8,13],
+        "offsets" : [8,13],
         "key" : "stand"
       },{
         "@type": "koral:token",
-        "offset" : [14,17],
+        "offsets" : [14,17],
         "key" : "dem"
       },{
         "@type": "koral:token",
-        "offset" : [18,24],
+        "offsets" : [18,24],
         "key" : "jungen"
       },{
         "@type": "koral:token",
-        "offset" : [25,29],
+        "offsets" : [25,29],
         "key" : "Mann"
       },{
         "@type": "koral:token",
-        "offset" : [30,34],
+        "offsets" : [30,34],
         "key" : "sehr"
       },{
         "@type": "koral:token",
-        "offset" : [35,38],
+        "offsets" : [35,38],
         "key" : "gut"
       },{
         "@type": "koral:token",
-        "offset" : [40,42],
+        "offsets" : [40,42],
         "key" : "Er"
       },{
         "@type": "koral:token",
-        "offset" : [43,54],
+        "offsets" : [43,54],
         "key" : "betrachtete"
       },{
         "@type": "koral:token",
-        "offset" : [55,59],
+        "offsets" : [55,59],
         "key" : "sich"
       },{
         "@type": "koral:token",
-        "offset" : [60,64],
+        "offsets" : [60,64],
         "key" : "gern"
       },{
         "@type": "koral:token",
-        "offset" : [65,67],
+        "offsets" : [65,67],
         "key" : "im"
       },{
         "@type": "koral:token",
-        "offset" : [68,75],
+        "offsets" : [68,75],
         "key" : "Spiegel"
       }
     ]
