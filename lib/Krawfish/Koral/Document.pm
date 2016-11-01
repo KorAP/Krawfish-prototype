@@ -11,8 +11,8 @@ sub new {
   return $self unless @_;
 
   my $koral = shift;
-  if ($koral->{content}) {
-    $self->content($koral->{content});
+  if ($koral->{primaryData}) {
+    $self->primary_data($koral->{primaryData});
   };
 
   # Parse segments
@@ -23,11 +23,11 @@ sub new {
   };
 
   # Parse annotations
-  if ($koral->{annotation}) {
+  if ($koral->{annotations}) {
 
     # TODO: All annotations need to be wrapped
     my @annotations = ();
-    foreach my $item (@{$koral->{annotation}}) {
+    foreach my $item (@{$koral->{annotations}}) {
       if ($item->{'@type'} eq 'koral:token') {
         my $token = Krawfish::Koral::Query::Token->new($item);
 
@@ -42,12 +42,12 @@ sub new {
 
 
 # Primary data
-sub content {
+sub primary_data {
   my $self = shift;
   if (@_) {
-    $self->{content} = shift;
+    $self->{primary_data} = shift;
   };
-  return $self->{content};
+  return $self->{primary_data};
 };
 
 

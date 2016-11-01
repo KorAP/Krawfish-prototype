@@ -23,16 +23,12 @@ sub seq {
 
 
 # Token construct
+# Should probably be like:
+# ->token('Der') or
+# ->token(->term_or('Der', 'Die', 'Das'))
 sub token {
   shift;
   return Krawfish::Koral::Query::Token->new(@_);
-};
-
-
-# TokenGroup construct
-sub token_group {
-  shift;
-  return Krawfish::Koral::Query::TokenGroup->new(@_);
 };
 
 
