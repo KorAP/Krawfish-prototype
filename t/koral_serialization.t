@@ -9,7 +9,6 @@ my $koral = Krawfish::Koral->new;
 
 my $builder = $koral->query_builder;
 
-
 $koral->query(
   $builder->seq(
     $builder->token('Der'),
@@ -31,6 +30,9 @@ ok($op->[2], 'Operand exists');
 is($op->[0]->{'@type'}, 'koral:token', 'Operand exists');
 is($op->[1]->{'@type'}, 'koral:token', 'Operand exists');
 is($op->[2]->{'@type'}, 'koral:span', 'Operand exists');
+
+
+$builder = $koral->corpus_builder;
 
 done_testing;
 __END__

@@ -1,50 +1,11 @@
 package Krawfish::Koral::Query;
-use Krawfish::Koral::Query::Token;
-use Krawfish::Koral::Query::Span;
-use Krawfish::Koral::Query::Sequence;
-use Krawfish::Koral::Query::Position;
 use strict;
 use warnings;
 
 sub new {
   my $class = shift;
-  bless {}, $class;
+  bless \(my $self = ''), $class;
 };
-
-#########################
-# KoralQuery constructs #
-#########################
-
-# Sequence construct
-sub seq {
-  shift;
-  return Krawfish::Koral::Query::Sequence->new(@_);
-};
-
-
-# Token construct
-# Should probably be like:
-# ->token('Der') or
-# ->token(->term_or('Der', 'Die', 'Das'))
-sub token {
-  shift;
-  return Krawfish::Koral::Query::Token->new(@_);
-};
-
-
-# Span construct
-sub span {
-  shift;
-  return Krawfish::Koral::Query::Span->new(@_);
-};
-
-
-# Position construct
-sub position {
-  shift;
-  return Krawfish::Koral::Query::Position->new(@_);
-};
-
 
 ##########################
 # Query Planning methods #

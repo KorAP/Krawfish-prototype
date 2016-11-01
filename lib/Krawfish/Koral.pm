@@ -2,7 +2,9 @@ package Krawfish::Koral;
 use strict;
 use warnings;
 use Krawfish::Koral::Query;
+use Krawfish::Koral::Query::Builder;
 use Krawfish::Koral::Corpus;
+use Krawfish::Koral::Corpus::Builder;
 use Krawfish::Koral::Meta;
 use Krawfish::Koral::Document;
 
@@ -42,13 +44,17 @@ sub query {
 };
 
 sub query_builder {
-  Krawfish::Koral::Query->new;
+  Krawfish::Koral::Query::Builder->new;
 };
 
-sub corpus { ... };
+sub corpus {
+  my $self = shift;
+  $self->{corpus} = shift if $_[0];
+  return $self->{corpus};
+};
 
 sub corpus_builder {
-  Krawfish::Koral::Query->new;
+  Krawfish::Koral::Corpus::Builder->new;
 };
 
 sub meta { ... };
@@ -61,11 +67,20 @@ sub from_koral_query {
 # Serialization of KoralQuery
 sub to_koral_query {
   my $self = shift;
-  return {
-    '@context' => CONTEXT,
-    query => $self->query->to_koral_fragment,
-#    collection => $self->corpus->to_koral_fragment
+
+  my $koral = {
+    '@context' => CONTEXT
   };
+
+  if ($self->query) {
+    $koral->{'query'} = $self->query->to_koral_fragment
+  };
+
+  if ($self->corpus) {
+    $koral->{'corpus'} = $self->corpus->to_koral_fragment
+  };
+
+  return $koral;
 };
 
 1;

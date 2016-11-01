@@ -9,12 +9,6 @@ sub new {
   bless {}, $class;
 };
 
-sub doc;
-
-sub group_and;
-
-sub group_or;
-
 ##########################
 # Query Planning methods #
 ##########################
