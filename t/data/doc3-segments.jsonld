@@ -1,11 +1,11 @@
 {
   "@context" : "http://korap.ids-mannheim.de/ns/koral/0.5/context.jsonld",
-  "text" : {
-    "@type" : "koral:text",
-    "content" : "Der Bau-Leiter trug einen lustigen Bau-Helm.",
-    "meta" : [
+  "document" : {
+    "@type" : "koral:document",
+    "primarydata" : "Der Bau-Leiter trug einen lustigen Bau-Helm.",
+    "fields" : [
       {
-        "@type" : "koral:doc",
+        "@type" : "koral:field",
         "key" : "docID",
         "value" : "doc-3",
         "type" : "type:string"
@@ -45,67 +45,91 @@
         "offsets" : [39,43]
       }
     ],
-    "annotation" : [
+    "annotations" : [
       {
         "@type": "koral:token",
         "segments" : [0],
-        "foundry" : "akron",
-        "key" : "Der"
+        "wrap" : {
+          "@type" : "koral:term",
+          "foundry" : "akron",
+          "key" : "Der"
+        }
       },
       {
         "@type" : "koral:span",
         "segments" : [0,2],
-        "foundry" : "akron",
-        "layer" : "c",
-        "key" : "NP"
+        "wrap" : {
+          "@type" : "koral:term",
+          "foundry" : "akron",
+          "layer" : "c",
+          "key" : "NP"
+        }
       },
       {
         "@type": "koral:token",
         "segments" : [1,2],
-        "foundry" : "akron",
-        "key" : "Bau-Leiter"
+        "wrap" : {
+          "@type" : "koral:term",
+          "foundry" : "akron",
+          "key" : "Bau-Leiter"
+        }
       },
       {
-        "@type": "koral:tokenGroup",
+        "@type": "koral:token",
         "segments" : [3],
-        "wrap" : [
-          {
-            "@type" : "koral:token",
-            "foundry" : "akron",
-            "key" : "trug"
-          },
-          {
-            "@type" : "koral:token",
-            "foundry" : "opennlp",
-            "layer" : "p",
-            "key" : "V"
-          }
-        ]
+        "wrap" : {
+          "@type" : "koral:termGroup",
+          "operands" : [
+            {
+              "@type" : "koral:term",
+              "foundry" : "akron",
+              "key" : "trug"
+            },
+            {
+              "@type" : "koral:term",
+              "foundry" : "opennlp",
+              "layer" : "p",
+              "key" : "V"
+            }
+          ]
+        }
       },
       {
         "@type": "koral:token",
         "segments" : [4],
-        "foundry" : "akron",
-        "key" : "einen"
+        "wrap" : {
+          "@type" : "koral:term",
+          "foundry" : "akron",
+          "key" : "einen"
+        }
       },
       {
         "@type" : "koral:span",
         "segments" : [4,7],
-        "foundry" : "akron",
-        "layer" : "c",
-        "key" : "NP"
+        "wrap" : {
+          "@type" : "koral:term",
+          "foundry" : "akron",
+          "layer" : "c",
+          "key" : "NP"
+        }
       },
       {
         "@type": "koral:token",
         "segments" : [5],
-        "foundry" : "akron",
-        "key" : "lustigen"
+        "wrap" : {
+          "@type" : "koral:term",
+          "foundry" : "akron",
+          "key" : "lustigen"
+        }
       },
       {
         "@type": "koral:token",
         "segments" : [6,7],
-        "foundry" : "akron",
-        "key" : "Bau-Helm"
+        "wrap" : {
+          "@type" : "koral:term",
+          "foundry" : "akron",
+          "key" : "Bau-Helm"
+        }
       }
     ]
   }

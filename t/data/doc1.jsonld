@@ -1,69 +1,100 @@
 {
   "@context" : "http://korap.ids-mannheim.de/ns/koral/0.3/context.jsonld",
-  "text" : {
-    "@type" : "koral:text",
-    "content" : "Der alte Mann ging über die Straße. Er trug einen lustigen Hut",
-    "meta" : [
+  "document" : {
+    "@type" : "koral:document",
+    "primaryData" : "Der alte Mann ging über die Straße. Er trug einen lustigen Hut",
+    "fields" : [
       {
-        "@type":"koral:doc",
+        "@type":"koral:field",
         "key":"docID",
         "value":"doc-1",
         "type":"type:string"
       }
     ],
-    "annotation" : [
+    "annotations" : [
       {
         "@type": "koral:token",
         "offsets" : [0,3],
-        "key" : "Der",
-        "wrap" : [
-          {
-            "@type": "koral:term"
-          }
-        ]
+        "wrap" : {
+          "@type": "koral:term",
+          "key" : "Der"
+        }
       },{
         "@type": "koral:token", 
-	      "key" : "alte",
+	      "wrap" : {
+          "@type" : "koral:term",
+          "key" : "alte"
+        },
         "offsets" : [4,8]
       },{
         "@type": "koral:token", 
-	      "key" : "Mann",
+	      "wrap" : {
+          "@type" : "koral:term",
+          "key" : "Mann"
+        },
         "offsets" : [9,13]
       },{
         "@type": "koral:token", 
-	      "key" : "ging",
+	      "wrap" : {
+          "@type" : "koral:term",
+          "key" : "ging"
+        },
         "offsets" : [14,18]
       },{
         "@type": "koral:token", 
-	      "key" : "über",
+	      "wrap" : {
+          "@type" : "koral:term",
+          "key" : "über"
+        },
         "offsets" : [19,23]
       },{
         "@type": "koral:token", 
-	      "key" : "die",
+	      "wrap" : {
+          "@type" : "koral:term",
+          "key" : "die"
+        },
         "offsets" : [24,27]
       },{
         "@type": "koral:token", 
-	      "key" : "Straße",
+	      "wrap" : {
+          "@type" : "koral:term",
+          "key" : "Straße"
+        },
         "offsets" : [28,34]
       },{
         "@type": "koral:token", 
-	      "key" : "Er",
+	      "wrap" : {
+          "@type" : "koral:term",
+          "key" : "Er"
+        },
         "offsets" : [36,38]
       },{
         "@type": "koral:token", 
-	      "key" : "trug",
+	      "wrap" : {
+          "@type" : "koral:term",
+          "key" : "trug"
+        },
         "offsets" : [39,43]
       },{
         "@type": "koral:token", 
-	      "key" : "einen",
+	      "wrap" : {
+          "@type" : "koral:term",
+          "key" : "einen"
+        },
         "offsets" : [44,49]
       },{
         "@type": "koral:token", 
-	      "key" : "lustigen",
+	      "wrap" : {
+          "@type" : "koral:term",
+          "key" : "lustigen"
+        },
         "offsets" : [50,58]
       },{
         "@type": "koral:token", 
-	      "key" : "Hut",
+	      "wrap" : {
+          "@type" : "koral:term",
+          "key" : "Hut"
+        },
         "offsets" : [59,62]
       }
     ]

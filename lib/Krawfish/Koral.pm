@@ -4,6 +4,7 @@ use warnings;
 use Krawfish::Koral::Query;
 use Krawfish::Koral::Corpus;
 use Krawfish::Koral::Meta;
+use Krawfish::Koral::Document;
 
 # TODO:
 # Krawfish::Koral::Query
@@ -14,11 +15,24 @@ use constant CONTEXT => 'http://korap.ids-mannheim.de/ns/koral/0.6/context.jsonl
 
 sub new {
   my $class = shift;
-  bless {
-    query => undef,
+  my $self = bless {
+    query  => undef,
     corpus => undef,
-    meta => undef,
+    meta   => undef,
+    document => undef
   }, $class;
+
+  return $self unless @_;
+
+  # Expect a hash
+  my $koral = shift;
+
+  # Import document
+  if ($koral->{document}) {
+    $self->{document} = Krawfish::Koral::Document->new($koral->{document});
+  };
+
+  return $self;
 };
 
 sub query {

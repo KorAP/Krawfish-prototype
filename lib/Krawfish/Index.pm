@@ -81,10 +81,10 @@ sub add {
   my $doc_id = $self->{last_doc}++;
 
   # Get document
-  $doc = $doc->{text};
+  $doc = $doc->{document};
 
   # Store primary data
-  $self->primary->store($doc_id, $doc->{content});
+  $self->primary->store($doc_id, $doc->{primaryData});
 
   my $offsets = $self->offsets;
 
@@ -103,13 +103,31 @@ sub add {
   # Get all tokens
   $pos = 0;
   my $end;
-  foreach my $item (@{$doc->{annotation}}) {
+  foreach my $item (@{$doc->{annotations}}) {
 
     # Add token term to term dictionary
     if ($item->{'@type'} eq 'koral:token') {
 
+      unless ($item->{wrap}) {
+        warn 'No wrap defined in KoralQuery';
+        next;
+      };
+
       # Create key string
-      my $key = _term($item);
+      my $wrap = $item->{wrap};
+      my @keys;
+
+      # Token wraps a koral:termGroup
+      if ($wrap->{'@type'} && $wrap->{'@type'} eq 'koral:termGroup')  {
+        foreach (@{$wrap->{operands}}) {
+          push @keys, _term($_);
+        };
+      }
+
+      # Token wraps a single koral:term
+      else {
+        push @keys, _term($wrap);
+      };
 
       # Append posting to postings list
       my @segments = _segments($item);
@@ -125,36 +143,17 @@ sub add {
         $pos++;
       };
 
-      my $post_list = $self->{dict}->add($key);
-      $post_list->append($doc_id, @segments);
-    }
-
-    # Add tokengroup to dictionary
-    elsif ($item->{'@type'} eq 'koral:tokenGroup') {
-      my @segments = _segments($item);
-
-      unless (scalar @segments) {
-        push @segments, $pos;
-        # Store offsets
-        if ($item->{offsets}) {
-          $offsets->store($doc_id, $pos, @{$item->{offsets}});
-        };
-        $pos++;
-      };
-
-      # Add tokens of token group
-      foreach my $token (@{$item->{'wrap'}}) {
-        my $key = _term($token);
-        my $post_list = $self->{dict}->add($key);
+      foreach (@keys) {
+        my $post_list = $self->{dict}->add($_);
         $post_list->append($doc_id, @segments);
-      }
+      };
     }
 
     # Add span term to dictionary
     elsif ($item->{'@type'} eq 'koral:span') {
 
       # Create key string
-      my $key = '<>' . _term($item);
+      my $key = '<>' . _term($item->{wrap});
 
       my $post_list = $self->{dict}->add($key);
 

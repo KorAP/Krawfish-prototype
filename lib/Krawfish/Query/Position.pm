@@ -70,7 +70,7 @@ sub check {
   if ($case & $frames) {
 
     # Set current
-    $self->{doc} = $first->doc;
+    $self->{doc_id} = $first->doc_id;
     $self->{start} = $first->start < $second->start ? $first->start : $second->start;
     $self->{end}   = $first->end > $second->end ? $first->end : $second->end;
 

@@ -7,12 +7,12 @@ sub simple_doc {
 
   my @tokens;
   foreach (@_) {
-    push @tokens, _token($_)
+    push @tokens, _token(_key($_))
   };
 
   return {
-    text => {
-      annotation => \@tokens
+    document => {
+      annotations => \@tokens
     }
   };
 };
@@ -33,25 +33,19 @@ sub complex_doc {
 
     # Found a token description
     if ($token =~ /^\[((?:[^\]\|]+?)\s*(?:\|\s*(?:[^\]\|]+?))*)\]$/) {
-      my @token_in_group = split(/\s*\|\s*/, $1);
+      my @group = map { _key($_) } split(/\s*\|\s*/, $1);
 
       # This is a token group
-      if (@token_in_group > 1) {
-
-        # Iterate over all elements of the group
-        my @group;
-        foreach (@token_in_group) {
-          push @group, _token($_);
-        };
+      if (@group > 1) {
 
         # Push group to token list
-        push @tokens, _token_group(\@group, $segment);
+        push @tokens, _token(\@group, $segment);
       }
 
       # Only a single token available
       else {
         # Push token to token list
-        push @tokens, _token($token_in_group[0], $segment);
+        push @tokens, _token($group[0], $segment);
       };
 
       $segment++;
@@ -83,34 +77,49 @@ sub complex_doc {
   @tokens = sort _token_sort @tokens;
 
   return {
-    text => {
-      annotation => \@tokens
+    document => {
+      annotations => \@tokens
     }
   };
 };
 
 # Return token object
 sub _token {
-  my $hash = _key(shift);
-  $hash->{'@type'} = 'koral:token';
+  my $tokens = shift;
+  my $hash = {
+    '@type' => 'koral:token'
+  };
   if (defined $_[0]) {
     $hash->{'segments'} = [@_];
+  };
+
+  if (ref $tokens eq 'ARRAY') {
+    $hash->{wrap} = {
+      '@type' => 'koral:termGroup',
+      'operands' => $tokens
+    }
+  }
+  else {
+    $hash->{wrap} = $tokens
   };
   return $hash;
 };
 
 
 # return tokenGroup object
-sub _token_group {
-  my $hash = {
-    '@type' => 'koral:tokenGroup',
-    'wrap' => shift
-  };
-  if (defined $_[0]) {
-    $hash->{'segments'} = [@_];
-  };
-  return $hash;
-};
+#sub _token_group {
+#  my $hash = {
+#    '@type' => 'koral:token',
+#    'wrap' => {
+#      '@type' => 'koral:termGroup',
+#      'operands' => shift
+#    }
+#  };
+#  if (defined $_[0]) {
+#    $hash->{'segments'} = [@_];
+#  };
+#  return $hash;
+#};
 
 sub _token_sort {
   return 0 unless $a->{segments} && $b->{segments};
@@ -134,8 +143,10 @@ sub _token_sort {
 
 # Return span object
 sub _span {
-  my $key = _key(shift);
-  $key->{'@type'} = 'koral:span';
+  my $key = {
+    '@type' => 'koral:span',
+    'wrap' => _key(shift)
+  };
   $key->{'segments'} = [shift];
   return $key;
 };
@@ -144,19 +155,21 @@ sub _span {
 # Analyze key elements (foundry, layer, key)
 sub _key {
   my $key = shift;
+  my $hash = {
+    '@type' => 'koral:term'
+  };
   if ($key =~ m!^([^\/]+?)(?:/([^=]))?=(.+)$!) {
-    my $hash = {
-      key => $3,
-      foundry => $1
-    };
+    $hash->{key} = $3;
+    $hash->{foundry} = $1;
+
     if ($2) {
       $hash->{layer} = $2;
     };
-    return $hash;
   }
   else {
-    return { key => $key };
+    $hash->{key} = $key
   }
+  return $hash;
 };
 
 1;

@@ -1,73 +1,115 @@
 {
   "@context" : "http://korap.ids-mannheim.de/ns/koral/0.3/context.jsonld",
-  "text" : {
-    "@type" : "koral:text",
-    "content" : "Der Hut stand dem jungen Mann sehr gut. Er betrachtete sich gern im Spiegel.",
-    "meta" : [
+  "document" : {
+    "@type" : "koral:document",
+    "primarydata" : "Der Hut stand dem jungen Mann sehr gut. Er betrachtete sich gern im Spiegel.",
+    "fields" : [
       {
-        "@type":"koral:doc",
+        "@type":"koral:field",
         "key":"docID",
         "value":"doc-1",
         "type":"type:string"
       }
     ],
-    "annotation" : [
+    "annotations" : [
       {
         "@type": "koral:token",
         "offsets" : [0,3],
-        "key" : "Der"
+        "wrap" : {
+          "@type" : "koral:term",
+          "key" : "Der"
+        }
       },{
         "@type": "koral:token",
         "offsets" : [4,7],
-        "key" : "Hut"
+        "wrap" : {
+          "@type" : "koral:term",
+          "key" : "Hut"
+        }
       },{
         "@type": "koral:token",
         "offsets" : [8,13],
-        "key" : "stand"
+        "wrap" : {
+          "@type" : "koral:term",
+          "key" : "stand"
+        }
       },{
         "@type": "koral:token",
         "offsets" : [14,17],
-        "key" : "dem"
+        "wrap" : {
+          "@type" : "koral:term",
+          "key" : "dem"
+        }
       },{
         "@type": "koral:token",
         "offsets" : [18,24],
-        "key" : "jungen"
+        "wrap" : {
+          "@type" : "koral:term",
+          "key" : "jungen"
+        }
       },{
         "@type": "koral:token",
         "offsets" : [25,29],
-        "key" : "Mann"
+        "wrap" : {
+          "@type" : "koral:term",
+          "key" : "Mann"
+        }
       },{
         "@type": "koral:token",
         "offsets" : [30,34],
-        "key" : "sehr"
+        "wrap" : {
+          "@type" : "koral:term",
+          "key" : "sehr"
+        }
       },{
         "@type": "koral:token",
         "offsets" : [35,38],
-        "key" : "gut"
+        "wrap" : {
+          "@type" : "koral:term",
+          "key" : "gut"
+        }
       },{
         "@type": "koral:token",
         "offsets" : [40,42],
-        "key" : "Er"
+        "wrap" : {
+          "@type" : "koral:term",
+          "key" : "Er"
+        }
       },{
         "@type": "koral:token",
         "offsets" : [43,54],
-        "key" : "betrachtete"
+        "wrap" : {
+          "@type" : "koral:term",
+          "key" : "betrachtete"
+        }
       },{
         "@type": "koral:token",
         "offsets" : [55,59],
-        "key" : "sich"
+        "wrap" : {
+          "@type" : "koral:term",
+          "key" : "sich"
+        }
       },{
         "@type": "koral:token",
         "offsets" : [60,64],
-        "key" : "gern"
+        "wrap" : {
+          "@type" : "koral:term",
+          "key" : "gern"
+        }
       },{
         "@type": "koral:token",
         "offsets" : [65,67],
-        "key" : "im"
+        "wrap" : {
+          "@type" : "koral:term",
+          "key" : "im"
+        }
       },{
         "@type": "koral:token",
         "offsets" : [68,75],
-        "key" : "Spiegel"
+        "wrap" : {
+          "@type" : "koral:term",
+          "key" : "Spiegel"
+        }
       }
     ]
   }

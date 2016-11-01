@@ -9,8 +9,8 @@ sub new {
 };
 
 # Current document
-sub doc {
-  return $_[0]->{doc};
+sub doc_id {
+  return $_[0]->{doc_id};
 };
 
 
@@ -29,7 +29,7 @@ sub end {
 sub to_string {
   my $self = shift;
   return '[' .
-    $self->doc . ':' .
+    $self->doc_id . ':' .
     $self->start . '-' .
     $self->end . ']';
 };

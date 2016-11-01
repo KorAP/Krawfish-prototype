@@ -51,9 +51,9 @@ sub init {
 sub current {
   my $self = shift;
   return Krawfish::Posting->new(
-    doc   => $self->{doc},
-    start => $self->{start},
-    end   => $self->{end},
+    doc_id => $self->{doc_id},
+    start  => $self->{start},
+    end    => $self->{end},
   );
 };
 
@@ -90,7 +90,7 @@ sub next {
     # of the buffer
 
     # Equal documents - check!
-    if ($first->doc == $second->doc) {
+    if ($first->doc_id == $second->doc_id) {
       print "  >> Documents are equal - check the configuration\n";
       print "  >> Configuration is $first vs $second\n";
 
@@ -148,7 +148,7 @@ sub next {
     }
 
     # The first span is behind
-    elsif ($first->doc < $second->doc) {
+    elsif ($first->doc_id < $second->doc_id) {
 
       # TODO: This may be wrong, because there may be
       # a second candidate in the same document

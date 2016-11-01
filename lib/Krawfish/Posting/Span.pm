@@ -9,7 +9,7 @@ sub new {
 }
 
 # Current document
-sub doc {
+sub doc_id {
   return $_[0]->[0];
 };
 
