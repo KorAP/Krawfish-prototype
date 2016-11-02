@@ -29,8 +29,16 @@ sub to_koral_fragment {
   };
 };
 
-sub plan {
+
+# Overwrite is any
+sub is_any {
+  return 1 unless $_[0]->term;
+  return;
+};
+
+sub plan_for {
   my ($self, $index) = @_;
+  return unless $self->term;
   return Krawfish::Query::Token->new(
     $index,
     $self->term

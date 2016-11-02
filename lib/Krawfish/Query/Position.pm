@@ -7,8 +7,12 @@ use warnings;
 # This query validates positional constraints
 # between spans and returns a valid forwarding mechanism
 
-# http://www.perlmonks.org/?node_id=512743
-# TODO: Should be inherited
+# TODO:
+# This shouldn't be a query,
+# but a query constraint, so it can be
+# combined with a depth check, for example,
+# or class checks.
+
 use bytes;
 use constant {
   NULL_4            => 0b0000_0000_0000_0000,
@@ -383,5 +387,11 @@ sub case {
   return MATCHES;
 };
 
+sub to_string {
+  my $self = shift;
+  my $string = 'pos(' . (0 + $self->{frames}) . ':';
+  $string .= $self->{first}->to_string . ',';
+  return $string . $self->{second}->to_string . ')';
+};
 
 1;

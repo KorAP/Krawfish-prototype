@@ -5,10 +5,12 @@ use Krawfish::Query::Span;
 use strict;
 use warnings;
 
+# Todo: Support frequency here!
+
 sub new {
   my $class = shift;
   bless {
-    term => '<>'. shift
+    term => shift
   }, $class;
 };
 
@@ -19,7 +21,7 @@ sub term {
 sub to_koral_fragment {
   my $self = shift;
   if ($self->term) {
-    my $koral = Krawfish::Koral::Query::Term->new($self->term) or return {
+    my $koral = Krawfish::Koral::Query::Term->new('<>' . $self->term) or return {
       '@type' => 'koral:undefined'
     };
     return $koral->to_koral_fragment;
@@ -29,8 +31,7 @@ sub to_koral_fragment {
   };
 };
 
-
-sub plan {
+sub plan_for {
   my $self = shift;
   my $index = shift;
   return Krawfish::Query::Span->new(

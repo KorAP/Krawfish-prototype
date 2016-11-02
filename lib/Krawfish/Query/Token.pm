@@ -1,7 +1,6 @@
 package Krawfish::Query::Token;
 use Krawfish::Index::PostingsList;
 use Krawfish::Posting::Token;
-use parent 'Krawfish::Koral::Query';
 use strict;
 use warnings;
 
@@ -51,6 +50,10 @@ sub current {
 
 sub freq {
   $_[0]->{postings}->freq;
+};
+
+sub to_string {
+  return '[' . $_[0]->term . ']';
 };
 
 1;

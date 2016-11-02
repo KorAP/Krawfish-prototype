@@ -103,6 +103,8 @@ ok($qb = Krawfish::Koral::Builder->new($index), 'Create Koral::Builder');
 ok($seq = $qb->sequence($qb->span('aa'), $qb->token('bb')), 'Sequence');
 test_matches($seq, qw/[0:0-2]/);
 
+diag 'Test further';
+
 done_testing;
 __END__
 

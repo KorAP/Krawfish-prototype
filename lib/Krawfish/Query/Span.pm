@@ -31,4 +31,8 @@ sub current {
   );
 };
 
+sub to_string {
+  return '<' . substr($_[0]->term, 2) . '>';
+};
+
 1;

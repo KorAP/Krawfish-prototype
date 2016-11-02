@@ -40,7 +40,13 @@ sub span {
 # Position construct
 sub position {
   shift;
-  return Krawfish::Koral::Query::Position->new(@_);
+  return Krawfish::Koral::Query::Position->new(0, @_);
+};
+
+# Position construct
+sub position_exclude {
+  shift;
+  return Krawfish::Koral::Query::Position->new(1, @_);
 };
 
 1;

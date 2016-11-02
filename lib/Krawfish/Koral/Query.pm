@@ -1,25 +1,59 @@
 package Krawfish::Koral::Query;
+use Krawfish::Koral::Query::Builder;
 use strict;
 use warnings;
 
 sub new {
   my $class = shift;
-  bless \(my $self = ''), $class;
+  bless {
+    any => 0,
+    optional => 0,
+    null => 0,
+    negative => 0,
+    extended => 0,
+    extended_right => 0
+  }, $class;
 };
 
-##########################
-# Query Planning methods #
-##########################
+#########################################
+# Query Planning methods and attributes #
+#########################################
 
-# Rewrite query to actual query
-sub plan;
+# Prepare a query for an index
+sub prepare_for {
+  my ($self, $index) = @_;
 
-sub is_any            { 1 };
-sub is_optional       { 0 };
-sub is_null           { 0 };
-sub is_negative       { 0 };
-sub is_extended       { 0 };
-sub is_extended_right { 0 };
+  my $query = $self;
+
+  # There is a possible 'any' extension,
+  # that may exceed the text
+  if ($self->is_extended_right) {
+    my $builder = $self->builder;
+
+    # Wrap query in a text element
+    $query = $builder->position(
+      ['endsWith', 'isAround', 'startsWith', 'matches'],
+      $builder->span('base/s=t'),
+      $self
+    );
+  };
+
+  # Return the planned query
+  # TODO: Check for serialization errors
+  $query->plan_for($index);
+};
+
+# Plan a query for an index (to be overwritten)
+sub plan_for;
+
+sub is_any            {  0 };
+sub is_optional       {  0 };
+sub is_null           {  0 };
+sub is_negative       {  0 };
+sub is_extended       {  0 };
+sub is_extended_right {  0 };
+sub is_extended_left  {  0 };
+sub freq              { -1 };
 
 sub maybe_anchor      {
   my $self = shift;
@@ -53,6 +87,11 @@ sub to_koral_fragment;
 # Overwritten
 sub to_string;
 
+
+# Create KoralQuery builder
+sub builder {
+  return Krawfish::Koral::Query::Builder->new;
+};
 
 1;
 
