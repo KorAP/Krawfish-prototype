@@ -144,6 +144,11 @@ sub plan_for {
   my $first = $self->{first};
   my $second = $self->{second};
 
+  if ($frames == NULL_4) {
+    $self->error(000, 'No valid frame defined');
+    return;
+  };
+
   # Anything in positional relation to nothing
   if ($second->is_null) {
     print "  ## Try to eliminate null query\n";
@@ -219,7 +224,12 @@ sub _to_frame {
   foreach (@$array) {
 
     # Unify with frames
-    $frame |= $FRAME{$_} or warn "Unknown frame title $_!";
+    if (defined $FRAME{$_}) {
+      $frame |= $FRAME{$_};
+    }
+    else {
+      warn "Unknown frame title '$_'!"
+    };
   };
 
   return $frame;

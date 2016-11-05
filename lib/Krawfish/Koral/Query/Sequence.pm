@@ -13,16 +13,16 @@ sub new {
 };
 
 
-sub append {
-  $_[0]->{planned} = 0;
-  push @{$_[0]->{array}}, shift;
-};
+#sub append {
+#  $_[0]->{planned} = 0;
+#  push @{$_[0]->{array}}, shift;
+#};
 
 
-sub prepend {
-  $_[0]->{planned} = 0;
-  unshift @{$_[0]->{array}}, shift;
-};
+#sub prepend {
+#  $_[0]->{planned} = 0;
+#  unshift @{$_[0]->{array}}, shift;
+#};
 
 
 sub size {
@@ -33,17 +33,23 @@ sub size {
 # TODO: Order by frequency, so the most common occurrence is at the outside
 sub plan_for {
   my $self = shift;
-
+  my $index = shift;
+  
   # Only one element available
   if ($self->size == 1) {
 
     # Return this element
-    return $self->plan_for(
-      $self->{array}->[0]
+    return $self->{array}->[0]->plan_for(
+      $index
     );
   };
 
   $self->{planned} = 1;
+  return $self->builder->position(
+    'precedesDirectly',
+    $self->{array}->[0],
+    $self->{array}->[1]
+  )->plan_for($index);
 };
 
 sub _pre_plan {

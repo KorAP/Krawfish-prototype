@@ -78,13 +78,6 @@ sub maybe_unsorted { ... };
 # Query Application methods #
 #############################
 
-#sub info {
-#  my $self = shift;
-#  return $self->{info} unless @_;
-#  $self->{info} = shift // Krawfish::Info->new;
-#  return $self;
-#};
-
 # Deserialization of KoralQuery
 sub from_koral {
   ...
@@ -96,6 +89,8 @@ sub to_koral_fragment;
 # Overwritten
 sub to_string;
 
+# Clone the query
+# sub clone;
 
 # Create KoralQuery builder
 sub builder {

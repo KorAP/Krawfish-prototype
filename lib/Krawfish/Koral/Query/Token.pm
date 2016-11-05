@@ -5,6 +5,8 @@ use Krawfish::Koral::Query::Term;
 use strict;
 use warnings;
 
+# TODO: Support multiple tokens in a token group!
+
 sub new {
   my $class = shift;
   bless {

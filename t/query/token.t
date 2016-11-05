@@ -2,20 +2,25 @@ use Test::More;
 use strict;
 use warnings;
 use Data::Dumper;
+use File::Basename 'dirname';
+use File::Spec::Functions 'catfile';
 
 use_ok('Krawfish::Index');
-use_ok('Krawfish::Koral::Builder');
+use_ok('Krawfish::Koral::Query::Builder');
 
 my $index = Krawfish::Index->new('index.dat');
 
-ok(defined $index->add('t/data/doc1.jsonld'), 'Add new document');
-ok(defined $index->add('t/data/doc2.jsonld'), 'Add new document');
+sub cat_t {
+  return catfile(dirname(__FILE__), '..', @_);
+};
 
-ok(my $qb = Krawfish::Koral::Builder->new($index), 'Create Koral::Builder');
+ok(defined $index->add(cat_t('data','doc1.jsonld')), 'Add new document');
+ok(defined $index->add(cat_t('data','doc2.jsonld')), 'Add new document');
 
-ok(my $term = $qb->token('Hut'), 'Term');
+ok(my $qb = Krawfish::Koral::Query::Builder->new, 'Create Koral::Builder');
+
+ok(my $term = $qb->token('Hut')->plan_for($index), 'Term');
 ok(!$term->current, 'Not initialized yet');
-
 is($term->freq, 2, 'Frequency');
 
 ok($term->next, 'Init search');

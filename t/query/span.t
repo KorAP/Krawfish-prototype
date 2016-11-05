@@ -2,17 +2,24 @@ use Test::More;
 use strict;
 use warnings;
 use Data::Dumper;
+use File::Basename 'dirname';
+use File::Spec::Functions 'catfile';
 
 use_ok('Krawfish::Index');
-use_ok('Krawfish::Koral::Builder');
+use_ok('Krawfish::Koral::Query::Builder');
 
 my $index = Krawfish::Index->new('index.dat');
 
-ok(defined $index->add('t/data/doc3-segments.jsonld'), 'Add new document');
+sub cat_t {
+  return catfile(dirname(__FILE__), '..', @_);
+};
 
-ok(my $qb = Krawfish::Koral::Builder->new($index), 'Create Koral::Builder');
+ok(defined $index->add(cat_t('data','doc3-segments.jsonld')), 'Add new document');
 
-ok(my $span = $qb->span('akron/c=NP'), 'Span');
+ok(my $qb = Krawfish::Koral::Query::Builder->new, 'Create Koral::Builder');
+
+ok(my $wrap = $qb->span('akron/c=NP'), 'Span');
+ok(my $span = $wrap->plan_for($index), 'Span');
 ok(!$span->current, 'Not initialized yet');
 
 is($span->freq, 2, 'Frequency');
