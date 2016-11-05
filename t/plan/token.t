@@ -32,31 +32,16 @@ ok(!$query->is_extended, 'Isn\'t extended');
 is($query->to_string, '[]', 'Stringification');
 ok(!$query->plan_for($index), 'Planned Stringification');
 
-# Span planning
-$query = $builder->span('opennlp/c=NP');
-ok(!$query->is_any, 'Is any');
+$query = $builder->null;
+ok($query->is_any, 'Is any');
 ok(!$query->is_optional, 'Isn\'t optional');
-ok(!$query->is_null, 'Isn\'t null');
+ok($query->is_null, 'Isn\'t null');
 ok(!$query->is_negative, 'Isn\'t negative');
 ok(!$query->is_extended, 'Isn\'t extended');
-is($query->to_string, '<opennlp/c=NP>', 'Stringification');
-is($query->plan_for($index)->to_string, '<opennlp/c=NP>', 'Planned Stringification');
-
+is($query->to_string, '[]{0}', 'Stringification');
+ok(!$query->plan_for($index), 'Planned Stringification');
 
 
 done_testing;
 
-__END__
-
-my $seq = $builder->seq(
-  $builder->token('Der'),
-  $builder->token,
-  $builder->span('opennlp/c=NP')
-);
-
-is($seq->to_string, '[Der][]<opennlp/c=NP>', 'Stringification');
-
-my $query = $seq->plan($index);
-
-done_testing;
 __END__

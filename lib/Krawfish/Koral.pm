@@ -1,4 +1,5 @@
 package Krawfish::Koral;
+use parent 'Krawfish::Information';
 use strict;
 use warnings;
 use Krawfish::Koral::Query;
@@ -82,6 +83,7 @@ sub to_koral_query {
 
   return $koral;
 };
+
 
 1;
 

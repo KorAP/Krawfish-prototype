@@ -46,6 +46,9 @@ use constant {
   SUCCEEDS          => 0b0001_0000_0000_0000
 };
 
+# _IS_CONTAINED => STARTS_WITH | MATCHES | IS_AROUND | ENDS_WITH
+
+
 our (@EXPORT, @next_a, @next_b);
 @EXPORT = qw/NULL_4
              PRECEDES
@@ -115,6 +118,7 @@ sub check {
 };
 
 
+# May be better in an util, see Koral::Query::Position::_bits
 sub _bits ($) {
   return unpack "b16", pack "s", shift;
 };

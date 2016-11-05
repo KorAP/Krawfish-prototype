@@ -46,7 +46,14 @@ sub plan_for {
 };
 
 sub to_string {
-  return '[' . ($_[0]->term // '') . ']';
+  my $string = '[' . ($_[0]->term // '') . ']';
+  if ($_[0]->is_null) {
+    $string .= '{0}';
+  }
+  elsif ($_[0]->is_optional) {
+    $string .= '?';
+  };
+  return $string;
 };
 
 1;

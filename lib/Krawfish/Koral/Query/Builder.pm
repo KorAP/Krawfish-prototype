@@ -49,4 +49,12 @@ sub position_exclude {
   return Krawfish::Koral::Query::Position->new(1, @_);
 };
 
+
+# Null element - only for plan testing purposes
+sub null {
+  my $token = Krawfish::Koral::Query::Token->new;
+  $token->{null} = 1;
+  return $token;
+};
+
 1;

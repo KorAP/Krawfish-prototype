@@ -56,6 +56,9 @@ sub dict {
   $_[0]->{dict};
 };
 
+sub info {
+  $_[0]->{info};
+};
 
 # Get offsets
 sub offsets {

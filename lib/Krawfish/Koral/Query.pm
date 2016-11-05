@@ -1,4 +1,5 @@
 package Krawfish::Koral::Query;
+use parent 'Krawfish::Koral';
 use Krawfish::Koral::Query::Builder;
 use strict;
 use warnings;
@@ -11,7 +12,8 @@ sub new {
     null => 0,
     negative => 0,
     extended => 0,
-    extended_right => 0
+    extended_left => 0,
+    extended_right => 0,
   }, $class;
 };
 
@@ -46,13 +48,13 @@ sub prepare_for {
 # Plan a query for an index (to be overwritten)
 sub plan_for;
 
-sub is_any            {  0 };
-sub is_optional       {  0 };
-sub is_null           {  0 };
-sub is_negative       {  0 };
-sub is_extended       {  0 };
-sub is_extended_right {  0 };
-sub is_extended_left  {  0 };
+sub is_any            { $_[0]->{any} };
+sub is_optional       { $_[0]->{optional} };
+sub is_null           { $_[0]->{null} };
+sub is_negative       { $_[0]->{negative} };
+sub is_extended       { $_[0]->{extended} };
+sub is_extended_right { $_[0]->{extended_right} };
+sub is_extended_left  { $_[0]->{extended_left} };
 sub freq              { -1 };
 
 sub maybe_anchor      {

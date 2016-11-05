@@ -139,10 +139,41 @@ sub is_extended {
 sub plan_for {
   my ($self, $index) = @_;
 
+  my $frames = $self->{frames};
+  my $first = $self->{first};
+  my $second = $self->{second};
+
+  # Anything in positional relation to nothing
+  if ($second->is_null) {
+    print "  ## Try to eliminate null query\n";
+
+    # This may be reducible to first span
+    my $valid_frames =
+      PRECEDES | PRECEDES_DIRECTLY | STARTS_WITH | IS_AROUND | ENDS_WITH |
+      SUCCEEDS_DIRECTLY | SUCCEEDS;
+
+    # Frames has at least one match with valid frames
+    if ($frames & $valid_frames) {
+      print "  ## Frames match valid frames:\n";
+      print "     " . _bits($frames) . " & \n";
+      print "     " . _bits($valid_frames) . " = true\n";
+
+      # Frames has no match with invalid frames
+      unless ($frames & ~$valid_frames) {
+        print "  ## Frames don't match invalid frames:\n";
+        print "     " . _bits($frames) . " & \n";
+        print "     " . _bits(~$valid_frames) . " = false\n";
+        print "  ## Can eliminate null query\n";
+        return $first->plan_for($index);
+      };
+    };
+
+    $self->error(000, 'Null elements in certain positional queries are undefined');
+    return;
+  };
 
   # Plan with
   # see https://github.com/KorAP/Krill/issues/20
-
 
   return Krawfish::Query::Position->new(
     $self->{frames},
@@ -191,6 +222,11 @@ sub to_string {
   $string .= $self->{first}->to_string . ',';
   $string .= $self->{second}->to_string;
   return $string . ')';
+};
+
+# May be better in an util, see Koral::Position::_bits
+sub _bits ($) {
+  return unpack "b16", pack "s", shift;
 };
 
 1;
