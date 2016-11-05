@@ -8,6 +8,21 @@ use warnings;
 # between spans and returns a valid forwarding mechanism
 
 # TODO:
+# exclude does not work that way! Exclude means e.g.
+# "X is not in that positional relation with any Y",
+# while the current solution only checks for
+# "X is not in that positional relation with Y".
+# The sulution may be an exclusivity constraint,
+# that may buffer valid X spans and release them once
+# it's clear there is no Y in existence to be in the
+# requested configuration.
+# It's probably more like:
+# excludeDouble(focus1:pos(![..], class(1:X), Y)
+#
+# Better: Use another query that also uses
+# the check and is asymmetric, only returning the first
+
+# TODO:
 # This shouldn't be a query,
 # but a query constraint, so it can be
 # combined with a depth check, for example,
