@@ -28,7 +28,8 @@ sub new {
     exclude => $exclude,
     frames  => _to_frame($frame_array),
     first   => $first,
-    second  => $second
+    second  => $second,
+    info => undef
   }, $class;
 };
 
@@ -168,17 +169,20 @@ sub plan_for {
       };
     };
 
-    $self->error(000, 'Null elements in certain positional queries are undefined');
+    $self->info->error(000, 'Null elements in certain positional queries are undefined');
     return;
   };
 
   # Plan with
   # see https://github.com/KorAP/Krill/issues/20
 
+  my $first_plan = $self->{first}->plan_for($index) or return;
+  my $second_plan = $self->{second}->plan_for($index) or return;
+
   return Krawfish::Query::Position->new(
     $self->{frames},
-    $self->{first}->plan_for($index),
-    $self->{second}->plan_for($index)
+    $first_plan,
+    $second_plan
   );
 };
 

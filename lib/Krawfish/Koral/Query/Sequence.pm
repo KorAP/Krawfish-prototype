@@ -8,6 +8,7 @@ sub new {
   my $self = $class->SUPER::new;
   $self->{array} = [@_];
   $self->{planned} = 0;
+  $self->{info} = undef;
   return $self;
 };
 

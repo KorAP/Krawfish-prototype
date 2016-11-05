@@ -1,7 +1,7 @@
 package Krawfish::Koral;
-use parent 'Krawfish::Information';
 use strict;
 use warnings;
+use Krawfish::Info;
 use Krawfish::Koral::Query;
 use Krawfish::Koral::Query::Builder;
 use Krawfish::Koral::Corpus;
@@ -22,7 +22,8 @@ sub new {
     query  => undef,
     corpus => undef,
     meta   => undef,
-    document => undef
+    document => undef,
+    info => Krawfish::Info->new
   }, $class;
 
   return $self unless @_;

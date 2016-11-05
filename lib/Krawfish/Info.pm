@@ -1,6 +1,10 @@
-package Krawfish::Information;
+package Krawfish::Info;
 use strict;
 use warnings;
+
+sub new {
+  bless {}, shift;
+};
 
 # Add error
 sub error {

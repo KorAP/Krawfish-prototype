@@ -1,5 +1,4 @@
 package Krawfish::Koral::Query;
-use parent 'Krawfish::Koral';
 use Krawfish::Koral::Query::Builder;
 use strict;
 use warnings;
@@ -14,6 +13,7 @@ sub new {
     extended => 0,
     extended_left => 0,
     extended_right => 0,
+    info => undef
   }, $class;
 };
 
@@ -48,13 +48,13 @@ sub prepare_for {
 # Plan a query for an index (to be overwritten)
 sub plan_for;
 
-sub is_any            { $_[0]->{any} };
-sub is_optional       { $_[0]->{optional} };
-sub is_null           { $_[0]->{null} };
-sub is_negative       { $_[0]->{negative} };
-sub is_extended       { $_[0]->{extended} };
-sub is_extended_right { $_[0]->{extended_right} };
-sub is_extended_left  { $_[0]->{extended_left} };
+sub is_any            { $_[0]->{any}            // 0 };
+sub is_optional       { $_[0]->{optional}       // 0 };
+sub is_null           { $_[0]->{null}           // 0 };
+sub is_negative       { $_[0]->{negative}       // 0 };
+sub is_extended       { $_[0]->{extended}       // 0 };
+sub is_extended_right { $_[0]->{extended_right} // 0 };
+sub is_extended_left  { $_[0]->{extended_left}  // 0 };
 sub freq              { -1 };
 
 sub maybe_anchor      {
@@ -77,6 +77,12 @@ sub maybe_unsorted { ... };
 #############################
 # Query Application methods #
 #############################
+
+sub info {
+  return $_[0]->{info} unless $_[1];
+  $_[0]->{info} = $_[1];
+  return $_[0];
+};
 
 # Deserialization of KoralQuery
 sub from_koral {
