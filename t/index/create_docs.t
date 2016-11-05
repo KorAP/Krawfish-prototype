@@ -5,7 +5,7 @@ use Data::Dumper;
 use File::Basename 'dirname';
 use File::Spec::Functions 'catfile';
 
-require '' . catfile(dirname(__FILE__), 'util', 'CreateDoc.pm');
+require '' . catfile(dirname(__FILE__), '..', 'util', 'CreateDoc.pm');
 
 my $doc = simple_doc(qw/aa bb aa bb/);
 

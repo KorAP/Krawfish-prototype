@@ -5,8 +5,8 @@ use Data::Dumper;
 use File::Basename 'dirname';
 use File::Spec::Functions 'catfile';
 
-require '' . catfile(dirname(__FILE__), 'util', 'CreateDoc.pm');
-require '' . catfile(dirname(__FILE__), 'util', 'TestMatches.pm');
+require '' . catfile(dirname(__FILE__), '..', 'util', 'CreateDoc.pm');
+require '' . catfile(dirname(__FILE__), '..', 'util', 'TestMatches.pm');
 
 use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Builder');
