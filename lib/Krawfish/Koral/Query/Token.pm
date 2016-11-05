@@ -12,10 +12,14 @@ sub new {
   }, $class;
 };
 
+
+# The term of the token (may need to be changed)
 sub term {
-  shift->{term};
+  $_[0]->{term};
 };
 
+
+# Return Koral fragment
 sub to_koral_fragment {
   my $self = shift;
   if ($self->term) {
@@ -36,15 +40,32 @@ sub is_any {
   return;
 };
 
+
+# Query planning
 sub plan_for {
   my ($self, $index) = @_;
-  return unless $self->term;
+
+  # Token is null
+  if ($self->is_null) {
+    $self->error(000, 'Unable to search for null tokens');
+    return;
+  };
+
+  # No term defined
+  unless ($self->term) {
+    $self->error(000, 'Unable to search for empty tokens');
+    return;
+  };
+
+  # Create token query
   return Krawfish::Query::Token->new(
     $index,
     $self->term
   );
 };
 
+
+# Stringify
 sub to_string {
   my $string = '[' . ($_[0]->term // '') . ']';
   if ($_[0]->is_null) {

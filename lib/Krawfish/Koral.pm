@@ -22,8 +22,7 @@ sub new {
     query  => undef,
     corpus => undef,
     meta   => undef,
-    document => undef,
-    info => Krawfish::Info->new
+    document => undef
   }, $class;
 
   return $self unless @_;

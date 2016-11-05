@@ -89,6 +89,8 @@ sub value {
   $_[0]->[5];
 };
 
+
+# Create koral fragment
 sub to_koral_fragment {
   my $self = shift;
   my $hash = {

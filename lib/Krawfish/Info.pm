@@ -2,10 +2,6 @@ package Krawfish::Info;
 use strict;
 use warnings;
 
-sub new {
-  bless {}, shift;
-};
-
 # Add error
 sub error {
   my $self = shift;
@@ -14,9 +10,20 @@ sub error {
   return $self;
 };
 
+
+# Is there an error?
 sub has_error {
   return 1 if $_[0]->{error};
   return;
+};
+
+
+# Copy information from another object
+sub copy_info_from {
+  my ($self, $obj) = @_;
+  if ($obj->has_error) {
+    push @{$self->{error} //= []}, @{$obj->{error}};
+  };
 };
 
 # sub warning;

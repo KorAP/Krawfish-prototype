@@ -1,4 +1,5 @@
 package Krawfish::Koral::Query;
+use parent 'Krawfish::Info';
 use Krawfish::Koral::Query::Builder;
 use strict;
 use warnings;
@@ -12,8 +13,7 @@ sub new {
     negative => 0,
     extended => 0,
     extended_left => 0,
-    extended_right => 0,
-    info => undef
+    extended_right => 0
   }, $class;
 };
 
@@ -78,11 +78,12 @@ sub maybe_unsorted { ... };
 # Query Application methods #
 #############################
 
-sub info {
-  return $_[0]->{info} unless $_[1];
-  $_[0]->{info} = $_[1];
-  return $_[0];
-};
+#sub info {
+#  my $self = shift;
+#  return $self->{info} unless @_;
+#  $self->{info} = shift // Krawfish::Info->new;
+#  return $self;
+#};
 
 # Deserialization of KoralQuery
 sub from_koral {
