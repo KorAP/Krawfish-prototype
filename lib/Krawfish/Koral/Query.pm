@@ -56,7 +56,9 @@ sub is_extended       { $_[0]->{extended}       // 0 };
 sub is_extended_right { $_[0]->{extended_right} // 0 };
 sub is_extended_left  { $_[0]->{extended_left}  // 0 };
 sub freq              { -1 };
+sub type              { '' };
 
+# TODO: Probably better to be renamed "potential_anchor"
 sub maybe_anchor      {
   my $self = shift;
   return if $self->is_negative;

@@ -20,6 +20,7 @@ sub term {
   $_[0]->{term};
 };
 
+sub type { 'token' };
 
 # Return Koral fragment
 sub to_koral_fragment {

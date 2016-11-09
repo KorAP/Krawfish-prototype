@@ -104,6 +104,7 @@ ok($seq = $wrap->plan_for($index), 'Rewrite');
 # query language: [aa][bb]
 test_matches($seq, qw/[0:0-2] [0:0-2]/);
 
+
 # Reset index
 $index = Krawfish::Index->new;
 ok(defined $index->add(complex_doc('[aa|aa][bb]')), 'Add complex document');

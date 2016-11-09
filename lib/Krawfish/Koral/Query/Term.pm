@@ -39,6 +39,8 @@ sub new {
   bless \@self, $class;
 };
 
+sub type { 'term' };
+
 sub field {
   if ($_[1]) {
     $_[0]->[0] = $_[1];
@@ -53,7 +55,7 @@ sub prefix {
   $_[0]->[1];
 };
 
-sub type {
+sub term_type {
   my $self = shift;
   return 'token' unless $self->prefix;
   return 'span' if $self->prefix eq '<>';
@@ -102,7 +104,7 @@ sub to_koral_fragment {
   $hash->{value} = $self->value if $self->value;
 
   return {
-    '@type' => 'koral:' . $self->type,
+    '@type' => 'koral:' . $self->term_type,
     'wrap' => $hash
   };
 };

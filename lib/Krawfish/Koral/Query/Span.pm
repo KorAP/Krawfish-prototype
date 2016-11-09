@@ -18,6 +18,8 @@ sub term {
   shift->{term};
 };
 
+sub type { 'span' };
+
 sub to_koral_fragment {
   my $self = shift;
   if ($self->term) {

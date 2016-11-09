@@ -52,6 +52,7 @@ sub to_koral_fragment {
 # Query Planning methods and attributes #
 #########################################
 
+sub type { 'position' };
 
 # Return if the query may result in an 'any' left extension
 # [][Der]

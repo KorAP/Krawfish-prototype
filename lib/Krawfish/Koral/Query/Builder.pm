@@ -3,6 +3,7 @@ use Krawfish::Koral::Query::Token;
 use Krawfish::Koral::Query::Span;
 use Krawfish::Koral::Query::Sequence;
 use Krawfish::Koral::Query::Position;
+use Krawfish::Koral::Query::Extension;
 
 sub new {
   my $class = shift;
@@ -48,6 +49,18 @@ sub position_exclude {
   shift;
   Krawfish::Koral::Query::Position->new(1, @_);
 };
+
+# Extension to the left
+sub ext_left {
+  shift;
+  Krawfish::Koral::Query::Extension->new(0, @_);
+};
+
+sub ext_right {
+  shift;
+  Krawfish::Koral::Query::Extension->new(1, @_);
+};
+
 
 # Null element - only for plan testing purposes
 sub null {
