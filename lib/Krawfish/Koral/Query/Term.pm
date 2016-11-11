@@ -1,6 +1,11 @@
 package Krawfish::Koral::Query::Term;
+use parent 'Krawfish::Koral::Query';
 use strict;
 use warnings;
+
+# TODO: Support escaping!
+# TODO: Support regular expressions
+# TODO: Support negation
 
 sub new {
   my $class = shift;
@@ -8,32 +13,34 @@ sub new {
 
   my @self;
 
-  # TODO: Support escaping!
-  if ($term =~ m!^(?:([^:\/]+?):)? # 1 Field
-                 (<>|[\<\>\@])?    # 2 Prefix
-                 ([^\/]+?)         # 3 Foundry or Key
-                 (?:
-                   (?:/([^\=]+?))? # 4 Layer
-                   =([^\:]+?)      # 5 Key
-                   (?:\:(.+))?     # 6 Value
-                 )?
-                 $!x) {
+  if ($term) {
+    if ($term =~ m!^(?:([^:\/]+?):)?   # 1 Field
+                   (<>|[\<\>\@])?      # 2 Prefix
+                   ([^\/]+?)           # 3 Foundry or Key
+                   (?:
+                     (?:/([^\=\!]+?))? # 4 Layer
+                     \s*(\!?=)\s*      # 5 Operator
+                     ([^\:]+?)         # 6 Key
+                     (?:\:(.+))?       # 7 Value
+                   )?
+                   $!x) {
 
-    # Key is defined
-    if ($5) {
-      @self = ($1, $2, $3, $4, $5, $6);
+      # Key is defined
+      if ($6) {
+        @self = ($1, $2, $3, $4, $5, $6, $7);
+      }
+
+      # The foundry is the key
+      else {
+        @self = ($1, $2, undef, undef, undef, $3);
+      };
     }
 
-    # The foundry is the key
+    # Term is not valid
     else {
-      @self = ($1, $2, undef, undef, $3);
+      warn 'Invalid term structure: ' . $term;
+      return;
     };
-  }
-
-  # Term is not valid
-  else {
-    warn 'Invalid term structure: ' . $term;
-    return;
   };
 
   bless \@self, $class;
@@ -57,12 +64,14 @@ sub prefix {
 
 sub term_type {
   my $self = shift;
-  return 'token' unless $self->prefix;
-  return 'span' if $self->prefix eq '<>';
+  return 'token'     unless $self->prefix;
+  return 'span'      if $self->prefix eq '<>';
   return 'attribute' if $self->prefix eq '@';
   return 'relation';
 };
 
+
+# Foundry of the term
 sub foundry {
   if ($_[1]) {
     $_[0]->[2] = $_[1];
@@ -70,6 +79,8 @@ sub foundry {
   $_[0]->[2];
 };
 
+
+# Layer of the term
 sub layer {
   if ($_[1]) {
     $_[0]->[3] = $_[1];
@@ -77,18 +88,29 @@ sub layer {
   $_[0]->[3];
 };
 
-sub key {
+# Operation
+sub op {
   if ($_[1]) {
     $_[0]->[4] = $_[1];
   };
   $_[0]->[4];
 };
 
-sub value {
+
+# Key of the term
+sub key {
   if ($_[1]) {
     $_[0]->[5] = $_[1];
   };
   $_[0]->[5];
+};
+
+# Value of the term
+sub value {
+  if ($_[1]) {
+    $_[0]->[6] = $_[1];
+  };
+  $_[0]->[6];
 };
 
 
@@ -103,10 +125,32 @@ sub to_koral_fragment {
   $hash->{layer} = $self->layer if $self->layer;
   $hash->{value} = $self->value if $self->value;
 
-  return {
-    '@type' => 'koral:' . $self->term_type,
-    'wrap' => $hash
+  return $hash;
+};
+
+sub to_string {
+  my $self = shift;
+  my $str = '';
+  if ($self->foundry) {
+    $str .= $self->foundry;
+    if ($self->layer) {
+      $str .= '/' . $self->layer;
+    };
+    if ($self->key) {
+      $str .= $self->op ? $self->op : '=';
+    };
   };
+  $str .= $self->key;
+  if ($self->value) {
+    $str .= ':' . $self->value;
+  };
+  $str;
+};
+
+sub plan_for {
+  my $self = shift;
+  my $index = shift;
+  return Krawfish::Query::Term->new($index, );
 };
 
 1;

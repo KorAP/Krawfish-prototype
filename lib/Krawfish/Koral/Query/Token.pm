@@ -4,42 +4,57 @@ use Krawfish::Koral::Query::Token;
 use Krawfish::Koral::Query::Term;
 use strict;
 use warnings;
+use Scalar::Util qw/blessed/;
 
-# TODO: Support multiple tokens in a token group!
+# TODO: Support multiple tokens in a term group!
 
 sub new {
   my $class = shift;
+  my $token = shift;
+
+  # Any token
+  unless ($token) {
+    return bless { wrap => undef }, $class;
+  };
+
+  # Token is a string
+  unless (blessed $token) {
+    return bless {
+      wrap => Krawfish::Koral::Query::Term->new($token)
+    }, $class;
+  };
+
+  # Token is already a group or a term
   bless {
-    term => shift
-  }, $class;
-};
-
-
-# The term of the token (may need to be changed)
-sub term {
-  $_[0]->{term};
+    wrap => $token
+  };
 };
 
 sub type { 'token' };
 
+sub wrap {
+  $_[0]->{wrap};
+}
+
 # Return Koral fragment
 sub to_koral_fragment {
   my $self = shift;
-  if ($self->term) {
-    my $koral = Krawfish::Koral::Query::Term->new($self->term) or return {
-      '@type' => 'koral:undefined'
-    };
-    return $koral->to_koral_fragment;
-  };
-  return {
+
+  my $token = {
     '@type' => 'koral:token'
   };
+
+  if ($self->wrap) {
+    $token->{wrap} = $self->wrap->to_koral_fragment;
+  };
+
+  $token;
 };
 
 
 # Overwrite is any
 sub is_any {
-  return 1 unless $_[0]->term;
+  return 1 unless $_[0]->wrap;
   return;
 };
 
@@ -55,22 +70,24 @@ sub plan_for {
   };
 
   # No term defined
-  unless ($self->term) {
-    $self->error(000, 'Unable to search for empty tokens');
+  unless ($self->wrap) {
+    $self->error(000, 'Unable to search for any tokens');
     return;
   };
 
   # Create token query
-  return Krawfish::Query::Token->new(
-    $index,
-    $self->term
-  );
+  if ($self->wrap->type eq 'term') {
+    return Krawfish::Query::Token->new(
+      $index,
+      $self->wrap->to_string
+    );
+  };
 };
 
 
 # Stringify
 sub to_string {
-  my $string = '[' . ($_[0]->term // '') . ']';
+  my $string = '[' . ($_[0]->wrap ? $_[0]->wrap->to_string : '') . ']';
   if ($_[0]->is_null) {
     $string .= '{0}';
   }

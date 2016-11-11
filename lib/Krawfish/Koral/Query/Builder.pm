@@ -1,8 +1,10 @@
 package Krawfish::Koral::Query::Builder;
+use Krawfish::Koral::Query::Term;
 use Krawfish::Koral::Query::Token;
 use Krawfish::Koral::Query::Span;
 use Krawfish::Koral::Query::Sequence;
 use Krawfish::Koral::Query::Repetition;
+use Krawfish::Koral::Query::TermGroup;
 use Krawfish::Koral::Query::Position;
 use Krawfish::Koral::Query::Extension;
 
@@ -35,6 +37,21 @@ sub repeat {
 sub token {
   shift;
   Krawfish::Koral::Query::Token->new(@_);
+};
+
+sub term {
+  shift;
+  Krawfish::Koral::Query::Term->new(@_);
+};
+
+sub term_and {
+  shift;
+  Krawfish::Koral::Query::TermGroup->new('and' => @_);
+};
+
+sub term_or {
+  shift;
+  Krawfish::Koral::Query::TermGroup->new('or' => @_);
 };
 
 

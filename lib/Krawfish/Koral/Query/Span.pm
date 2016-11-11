@@ -2,6 +2,7 @@ package Krawfish::Koral::Query::Span;
 use parent 'Krawfish::Koral::Query';
 use Krawfish::Koral::Query::Term;
 use Krawfish::Query::Span;
+use Scalar::Util qw/blessed/;
 use strict;
 use warnings;
 
@@ -9,42 +10,52 @@ use warnings;
 
 sub new {
   my $class = shift;
-  bless {
-    term => shift
-  }, $class;
-};
+  my $span = shift;
 
-sub term {
-  shift->{term};
+  # Span is a string
+  unless (blessed $span) {
+    return bless {
+      wrap => Krawfish::Koral::Query::Term->new('<>' . $span),
+    }, $class;
+  };
+
+  bless {
+    wrap => $span
+  }, $class;
 };
 
 sub type { 'span' };
 
+sub wrap {
+  shift->{wrap};
+};
+
+
 sub to_koral_fragment {
   my $self = shift;
-  if ($self->term) {
-    my $koral = Krawfish::Koral::Query::Term->new('<>' . $self->term) or return {
-      '@type' => 'koral:undefined'
-    };
-    return $koral->to_koral_fragment;
+  my $span = {
+    '@type' => 'koral:span'
   };
-  return {
-    '@type' => 'koral:token'
+  if ($self->wrap) {
+    $span->{wrap} = $self->wrap->to_koral_fragment
   };
+
+  return $span;
 };
 
 sub plan_for {
   my $self = shift;
   my $index = shift;
+  # Todo: May be more complicated
   return Krawfish::Query::Span->new(
     $index,
-    $self->term
+    $self->wrap->to_string
   );
 };
 
 
 sub to_string {
-  return '<' . $_[0]->term . '>';
+  return '<' . $_[0]->wrap->to_string . '>';
 };
 
 1;
