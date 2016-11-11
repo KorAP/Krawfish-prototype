@@ -2,6 +2,7 @@ package Krawfish::Koral::Query::Token;
 use parent 'Krawfish::Koral::Query';
 use Krawfish::Koral::Query::Token;
 use Krawfish::Koral::Query::Term;
+use Krawfish::Query::Term;
 use strict;
 use warnings;
 use Scalar::Util qw/blessed/;
@@ -78,7 +79,7 @@ sub plan_for {
 
   # Create token query
   if ($self->wrap->type eq 'term') {
-    return Krawfish::Query::Token->new(
+    return Krawfish::Query::Term->new(
       $index,
       $self->wrap->to_string
     );

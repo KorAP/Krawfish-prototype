@@ -1,6 +1,6 @@
 package Krawfish::Koral::Query::TermGroup;
-use Krawfish::Koral::Query::Term;
 use parent 'Krawfish::Koral::Query';
+use Krawfish::Koral::Query::Term;
 use Scalar::Util qw/blessed/;
 use strict;
 use warnings;

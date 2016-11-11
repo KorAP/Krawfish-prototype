@@ -1,5 +1,6 @@
 package Krawfish::Koral::Query::Term;
 use parent 'Krawfish::Koral::Query';
+use Krawfish::Query::Term;
 use strict;
 use warnings;
 

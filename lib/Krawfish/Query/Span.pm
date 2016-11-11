@@ -1,7 +1,7 @@
 package Krawfish::Query::Span;
 use Krawfish::Index::PostingsList;
 use Krawfish::Posting::Span;
-use parent 'Krawfish::Query::Token';
+use parent 'Krawfish::Query::Term';
 use strict;
 use warnings;
 
@@ -19,6 +19,7 @@ sub new {
   }, $class;
 };
 
+
 # TODO: Probably rename to posting - and return a posting
 # that augments the given payload
 sub current {
@@ -30,6 +31,7 @@ sub current {
     @{$postings->posting}
   );
 };
+
 
 sub to_string {
   return '<' . substr($_[0]->term, 2) . '>';
