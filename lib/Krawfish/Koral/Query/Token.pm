@@ -84,6 +84,8 @@ sub plan_for {
       $self->wrap->to_string
     );
   };
+
+  return $self->wrap->plan_for($index);
 };
 
 

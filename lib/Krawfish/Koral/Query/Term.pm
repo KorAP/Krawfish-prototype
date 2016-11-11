@@ -151,7 +151,7 @@ sub to_string {
 sub plan_for {
   my $self = shift;
   my $index = shift;
-  return Krawfish::Query::Term->new($index, );
+  return Krawfish::Query::Term->new($index, $self->to_string);
 };
 
 1;
