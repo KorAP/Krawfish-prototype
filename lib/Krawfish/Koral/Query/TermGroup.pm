@@ -38,7 +38,9 @@ sub operands {
 sub to_string {
   my $self = shift;
   my $op = $self->operation eq 'and' ? '&' : '|';
-  join $op, map { $_->to_string } $self->operands;
+  join $op, map {
+    $_->type eq 'termGroup' ? '(' . $_->to_string . ')' : $_->to_string
+  } $self->operands;
 };
 
 1;

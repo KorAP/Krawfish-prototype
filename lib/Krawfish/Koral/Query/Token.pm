@@ -34,7 +34,8 @@ sub type { 'token' };
 
 sub wrap {
   $_[0]->{wrap};
-}
+};
+
 
 # Return Koral fragment
 sub to_koral_fragment {
@@ -96,5 +97,6 @@ sub to_string {
   };
   return $string;
 };
+
 
 1;
