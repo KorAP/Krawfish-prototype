@@ -53,7 +53,7 @@ sub freq {
 };
 
 sub to_string {
-  return '[' . $_[0]->term . ']';
+  return "'" . $_[0]->term . "'";
 };
 
 1;

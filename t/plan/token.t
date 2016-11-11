@@ -22,7 +22,7 @@ ok(!$query->is_negative, 'Isn\'t negative');
 ok(!$query->is_extended, 'Isn\'t extended');
 is($query->to_string, '[Der]', 'Stringification');
 
-is($query->plan_for($index)->to_string, '[Der]', 'Planned Stringification');
+is($query->plan_for($index)->to_string, "'Der'", 'Planned Stringification');
 
 $query = $builder->token;
 ok($query->is_any, 'Is any');

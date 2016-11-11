@@ -24,7 +24,7 @@ ok(!$query->is_null, 'Isn\'t null');
 ok(!$query->is_negative, 'Isn\'t negative');
 ok(!$query->is_extended, 'Isn\'t extended');
 is($query->to_string, '[der&art]', 'Stringification');
-is($query->plan_for($index)->to_string, 'pos(32:[der],[art])', 'Planned Stringification');
+is($query->plan_for($index)->to_string, "pos(32:'der','art')", 'Planned Stringification');
 
 $query = $qb->token(
   $qb->term_or('opennlp/c=NP', 'tt/p=NN')
@@ -36,7 +36,7 @@ ok(!$query->is_null, 'Isn\'t null');
 ok(!$query->is_negative, 'Isn\'t negative');
 ok(!$query->is_extended, 'Isn\'t extended');
 is($query->to_string, '[opennlp/c=NP|tt/p=NN]', 'Stringification');
-is($query->plan_for($index)->to_string, '([opennlp/c=NP]|[tt/p=NN])', 'Planned Stringification');
+is($query->plan_for($index)->to_string, "or('opennlp/c=NP','tt/p=NN')", 'Planned Stringification');
 
 $query = $qb->token(
   $qb->term_or(
@@ -52,7 +52,7 @@ ok(!$query->is_negative, 'Isn\'t negative');
 ok(!$query->is_extended, 'Isn\'t extended');
 is($query->to_string, '[(first&second)|(third&fourth)]', 'Stringification');
 is($query->plan_for($index)->to_string,
-   '(pos(32:[first],[second])|pos(32:[third],[fourth]))',
+   "or(pos(32:'first','second'),pos(32:'third','fourth'))",
    'Planned Stringification');
 
 $query = $qb->token(
@@ -73,7 +73,7 @@ ok(!$query->is_negative, 'Isn\'t negative');
 ok(!$query->is_extended, 'Isn\'t extended');
 is($query->to_string, '[(first&second)|(third&(fourth|fifth))|sixth]', 'Stringification');
 is($query->plan_for($index)->to_string,
-   '((pos(32:[first],[second])|pos(32:[third],([fourth]|[fifth])))|[sixth])',
+   "or(or(pos(32:'first','second'),pos(32:'third',or('fourth','fifth'))),'sixth')",
    'Planned Stringification');
 
 done_testing;

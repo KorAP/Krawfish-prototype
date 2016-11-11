@@ -79,7 +79,7 @@ sub next {
 
 sub to_string {
   my $self = shift;
-  return '(' . $self->{first}->to_string . '|' . $self->{second}->to_string . ')';
+  return 'or(' . $self->{first}->to_string . ',' . $self->{second}->to_string . ')';
 };
 
 1;
