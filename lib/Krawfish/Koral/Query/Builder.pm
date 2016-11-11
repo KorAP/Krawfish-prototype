@@ -2,6 +2,7 @@ package Krawfish::Koral::Query::Builder;
 use Krawfish::Koral::Query::Token;
 use Krawfish::Koral::Query::Span;
 use Krawfish::Koral::Query::Sequence;
+use Krawfish::Koral::Query::Repetition;
 use Krawfish::Koral::Query::Position;
 use Krawfish::Koral::Query::Extension;
 
@@ -18,6 +19,12 @@ sub new {
 sub seq {
   shift;
   return Krawfish::Koral::Query::Sequence->new(@_);
+};
+
+
+sub repeat {
+  shift;
+  return Krawfish::Koral::Query::Repetition->new(@_);
 };
 
 
