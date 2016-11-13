@@ -19,10 +19,11 @@ sub init  {
 # Current span object
 sub current {
   my $self = shift;
+  return unless defined $self->{doc_id};
   return Krawfish::Posting->new(
     doc_id => $self->{doc_id},
     start  => $self->{start},
-    end    => $self->{end},
+    end    => $self->{end}
   );
 };
 
@@ -33,48 +34,59 @@ sub next {
   my $first = $self->{first}->current;
   my $second = $self->{second}->current;
 
-  my $curr = $first;
+  my $curr = 'first';
 
   # First span is no longer available
   if (!$first) {
 
     return unless $second;
-    $curr = $second;
+    print "  >> Current is second\n";
+    $curr = 'second';
   }
 
   # Second span is no longer available
   elsif (!$second) {
-    $curr = $first
+    print "  >> Current is first\n";
+    $curr = 'first';
   }
 
   elsif ($first->doc_id < $second->doc_id) {
-    $curr = $first;
+    print "  >> Current is first\n";
+    $curr = 'first';
   }
   elsif ($first->doc_id > $second->doc_id) {
-    $curr = $second;
+    print "  >> Current is second\n";
+    $curr = 'second';
   }
   elsif ($first->start < $second->start) {
-    $curr = $first;
+    print "  >> Current is first\n";
+    $curr = 'first';
   }
   elsif ($first->start > $second->start) {
-    $curr = $second;
+    print "  >> Current is second\n";
+    $curr = 'second';
   }
   elsif ($first->end < $second->end) {
-    $curr = $first;
+    print "  >> Current is first\n";
+    $curr = 'first';
   }
   elsif ($first->end > $second->end) {
-    $curr = $second;
+    print "  >> Current is second\n";
+    $curr = 'second';
   }
   else {
-    $curr = $first;
+    print "  >> Current is first\n";
+    $curr = 'first';
   };
 
-  $self->{doc_id} = $curr->doc_id;
-  $self->{start} = $curr->start;
-  $self->{end} = $curr->end;
-  $curr->next;
+  my $curr_post = $self->{$curr}->current;
+  $self->{doc_id} = $curr_post->doc_id;
+  $self->{start} = $curr_post->start;
+  $self->{end} = $curr_post->end;
+  print "  >> Current " . $self->current->to_string . "\n";
+  $self->{$curr}->next;
   return 1;
-}
+};
 
 
 sub to_string {

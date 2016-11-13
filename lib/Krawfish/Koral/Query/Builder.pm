@@ -7,6 +7,7 @@ use Krawfish::Koral::Query::Repetition;
 use Krawfish::Koral::Query::TermGroup;
 use Krawfish::Koral::Query::Position;
 use Krawfish::Koral::Query::Extension;
+use Krawfish::Koral::Query::Exclusion;
 
 sub new {
   my $class = shift;
@@ -65,13 +66,13 @@ sub span {
 # Position construct
 sub position {
   shift;
-  Krawfish::Koral::Query::Position->new(0, @_);
+  Krawfish::Koral::Query::Position->new(@_);
 };
 
 # Position construct
-sub position_exclude {
+sub exclude {
   shift;
-  Krawfish::Koral::Query::Position->new(1, @_);
+  Krawfish::Koral::Query::Exclusion->new(@_);
 };
 
 # Extension to the left

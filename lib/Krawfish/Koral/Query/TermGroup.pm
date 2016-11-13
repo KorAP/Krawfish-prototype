@@ -38,6 +38,14 @@ sub operands {
 };
 
 # TODO: Flatten or groups in a first pass!
+# TODO: In case, the group is 'and' and there is at
+#       least one positive element, do for negative elements:
+#       [tt/l=Baum & tt/p=NN & cnx/p!=NN]
+#       excl(match:[tt/l=Baum & tt/p=NN],[cnx/p=NN])
+# TODO: [tt/l=Baum & tt/p=NN | cnx/p!=NN]
+#       ???
+
+
 sub plan_for {
   my $self = shift;
   my $index = shift;

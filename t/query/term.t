@@ -8,7 +8,7 @@ use File::Spec::Functions 'catfile';
 use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Query::Builder');
 
-my $index = Krawfish::Index->new('index.dat');
+my $index = Krawfish::Index->new;
 
 sub cat_t {
   return catfile(dirname(__FILE__), '..', @_);

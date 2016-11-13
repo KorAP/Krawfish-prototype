@@ -8,21 +8,6 @@ use warnings;
 # between spans and returns a valid forwarding mechanism
 
 # TODO:
-# exclude does not work that way! Exclude means e.g.
-# "X is not in that positional relation with any Y",
-# while the current solution only checks for
-# "X is not in that positional relation with Y".
-# The sulution may be an exclusivity constraint,
-# that may buffer valid X spans and release them once
-# it's clear there is no Y in existence to be in the
-# requested configuration.
-# It's probably more like:
-# excludeDouble(focus1:pos(![..], class(1:X), Y)
-#
-# Better: Use another query that also uses
-# the check and is asymmetric, only returning the first
-
-# TODO:
 # This shouldn't be a query,
 # but a query constraint, so it can be
 # combined with a depth check, for example,
@@ -48,80 +33,7 @@ use constant {
 
 # _IS_CONTAINED => STARTS_WITH | MATCHES | IS_AROUND | ENDS_WITH
 
-
 our (@EXPORT, @next_a, @next_b);
-@EXPORT = qw/NULL_4
-             PRECEDES
-             PRECEDES_DIRECTLY
-             OVERLAPS_LEFT
-             ALIGNS_LEFT
-             STARTS_WITH
-             MATCHES
-             IS_WITHIN
-             IS_AROUND
-             ENDS_WITH
-             ALIGNS_RIGHT
-             OVERLAPS_RIGHT
-             SUCCEEDS_DIRECTLY
-             SUCCEEDS/;
-
-sub new {
-  my $class = shift;
-  bless {
-    frames => shift,
-    first => shift,
-    second => shift,
-    buffer  => Krawfish::Query::Util::Buffer->new,
-  }, $class;
-};
-
-
-# Check the configuration
-sub check {
-  my $self = shift;
-  my ($first, $second) = @_;
-
-  # Get the current configuration
-  my $case = case($first, $second);
-  my $frames = $self->{frames};
-
-  print "  >> The case is    " ._bits($case)  . " ($case)\n";
-  print "     for the frames " ._bits($frames) . " ($frames)\n";
-
-  # Configuration is valid
-  if ($case & $frames) {
-
-    # Set current
-    $self->{doc_id} = $first->doc_id;
-    $self->{start} = $first->start < $second->start ? $first->start : $second->start;
-    $self->{end}   = $first->end > $second->end ? $first->end : $second->end;
-
-    print "  >>There is a match - make current match: " . $self->current . "\n";
-    return NEXTA | NEXTB | MATCH;
-  };
-
-  # Initialize the return value
-  my $ret_val = 0b0000;
-
-  # Span may forward with a
-  if ($next_a[$case] & $frames) {
-    $ret_val |= NEXTA
-  };
-
-  # Span may forward with b
-  if ($next_b[$case] & $frames) {
-    $ret_val |= NEXTB
-  };
-
-  print "  >> Next frames are "._bits($next_a[$case])." and "._bits($next_b[$case])."\n";
-  return $ret_val;
-};
-
-
-# May be better in an util, see Koral::Query::Position::_bits
-sub _bits ($) {
-  return unpack "b16", pack "s", shift;
-};
 
 # In case of a configuration A,
 # next_a may result in configuration B and
@@ -141,10 +53,10 @@ $next_a[PRECEDES] =
   OVERLAPS_RIGHT |
   SUCCEEDS_DIRECTLY |
   SUCCEEDS;
-$next_b[PRECEDES] = 
+$next_b[PRECEDES] =
   PRECEDES;
 
-$next_a[PRECEDES_DIRECTLY] = 
+$next_a[PRECEDES_DIRECTLY] =
   PRECEDES_DIRECTLY |
   OVERLAPS_LEFT |
   ALIGNS_LEFT |
@@ -319,6 +231,81 @@ $next_b[SUCCEEDS] =
   ALIGNS_RIGHT |
   SUCCEEDS_DIRECTLY |
   SUCCEEDS;
+
+@EXPORT = qw/NULL_4
+             PRECEDES
+             PRECEDES_DIRECTLY
+             OVERLAPS_LEFT
+             ALIGNS_LEFT
+             STARTS_WITH
+             MATCHES
+             IS_WITHIN
+             IS_AROUND
+             ENDS_WITH
+             ALIGNS_RIGHT
+             OVERLAPS_RIGHT
+             SUCCEEDS_DIRECTLY
+             SUCCEEDS
+             @next_a
+             @next_b/;
+
+sub new {
+  my $class = shift;
+  bless {
+    frames => shift,
+    first => shift,
+    second => shift,
+    buffer  => Krawfish::Query::Util::Buffer->new,
+  }, $class;
+};
+
+
+# Check the configuration
+sub check {
+  my $self = shift;
+  my ($first, $second) = @_;
+
+  # Get the current configuration
+  my $case = case($first, $second);
+  my $frames = $self->{frames};
+
+  print "  >> The case is    " ._bits($case)  . " ($case)\n";
+  print "     for the frames " ._bits($frames) . " ($frames)\n";
+
+  # Configuration is valid
+  if ($case & $frames) {
+
+    # Set current
+    $self->{doc_id} = $first->doc_id;
+    $self->{start} = $first->start < $second->start ? $first->start : $second->start;
+    $self->{end}   = $first->end > $second->end ? $first->end : $second->end;
+
+    print "  >>There is a match - make current match: " . $self->current . "\n";
+    return NEXTA | NEXTB | MATCH;
+  };
+
+  # Initialize the return value
+  my $ret_val = 0b0000;
+
+  # Span may forward with a
+  if ($next_a[$case] & $frames) {
+    $ret_val |= NEXTA
+  };
+
+  # Span may forward with b
+  if ($next_b[$case] & $frames) {
+    $ret_val |= NEXTB
+  };
+
+  print "  >> Next frames are "._bits($next_a[$case])." and "._bits($next_b[$case])."\n";
+  return $ret_val;
+};
+
+
+# May be better in an util, see Koral::Query::Position::_bits
+sub _bits ($) {
+  return unpack "b16", pack "s", shift;
+};
 
 
 # Return the current configuration
