@@ -42,16 +42,10 @@ sub plan_for {
   return unless $tree;
 
   return $tree->plan_for($index);
-
-  # TEMP
-#  return $self->builder->position(
-#    'precedesDirectly',
-#    $self->{array}->[0],
-#    $self->{array}->[1]
-#  )->plan_for($index);
 };
 
 
+# Left extensions are always prefered!
 sub _solve_problems {
   my $self = shift;
 
@@ -88,10 +82,13 @@ sub _solve_problems {
       next;
     };
 
+    print "  >> " . $elements[$p]->to_string . " is problematic\n";
+
     # Problem has a following anchor
     if ($elements[$p+1] && $elements[$p+1]->maybe_anchor) {
       my $next = $elements[$p+1];
-      splice @elements, $p, 2, $self->builder->ext_right(
+      print "  >> Extend left with " . $next->to_string . "\n";
+      splice @elements, $p, 2, $self->builder->ext_left(
         $next,
         $elements[$p]
       );
@@ -100,11 +97,14 @@ sub _solve_problems {
     # Problem has a preceeding anchor
     elsif ($elements[$p-1] && $elements[$p-1]->maybe_anchor) {
       my $previous = $elements[$p-1];
-      splice @elements, $p-1, 2, $self->builder->ext_left(
+      print "  >> Extend right with " . $previous->to_string . "\n";
+      splice @elements, $p-1, 2, $self->builder->ext_right(
         $previous,
         $elements[$p]
       );
     }
+
+    # Problem remains
     else {
       $problems = 1;
     };

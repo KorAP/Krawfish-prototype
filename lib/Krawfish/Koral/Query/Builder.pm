@@ -78,12 +78,12 @@ sub exclude {
 # Extension to the left
 sub ext_left {
   shift;
-  Krawfish::Koral::Query::Extension->new(0, @_);
+  Krawfish::Koral::Query::Extension->new(1, @_);
 };
 
 sub ext_right {
   shift;
-  Krawfish::Koral::Query::Extension->new(1, @_);
+  Krawfish::Koral::Query::Extension->new(0, @_);
 };
 
 

@@ -1,12 +1,9 @@
 package Krawfish::Koral::Query::Term;
-use parent 'Krawfish::Koral::Query';
 use Krawfish::Query::Term;
 use strict;
 use warnings;
 
 # TODO: Support escaping!
-# TODO: Support regular expressions
-# TODO: Support negation
 
 sub new {
   my $class = shift;
@@ -94,7 +91,7 @@ sub op {
   if ($_[1]) {
     $_[0]->[4] = $_[1];
   };
-  $_[0]->[4];
+  $_[0]->[4] // '=';
 };
 
 
@@ -148,10 +145,40 @@ sub to_string {
   $str;
 };
 
+sub term {
+  my $self = shift;
+  my $str = $self->field // '';
+  if ($str) {
+    $str .= ':';
+  };
+  $str .= $self->prefix if $self->prefix;
+  my $term = $self->to_string;
+  if ($self->op ne '=') {
+    $term =~ s/!=/=/i;
+  };
+  return $str . $term;
+};
+
 sub plan_for {
   my $self = shift;
   my $index = shift;
-  return Krawfish::Query::Term->new($index, $self->to_string);
+  return if $self->is_negative;
+  return Krawfish::Query::Term->new($index, $self->term);
 };
+
+sub is_any { 0 };
+sub is_optional { 0 };
+sub is_null { 0 };
+sub is_negative {
+  $_[0]->op eq '!=' ? 1 : 0;
+};
+sub is_extended { 0 };
+sub is_extended_right { 0 };
+sub is_extended_left { 0 };
+sub freq {
+  ...
+};
+
+sub maybe_unsorted { 0 };
 
 1;

@@ -19,7 +19,7 @@ ok(defined $index->add(cat_t('data','doc2.jsonld')), 'Add new document');
 
 ok(my $qb = Krawfish::Koral::Query::Builder->new, 'Create Koral::Builder');
 
-ok(my $term = $qb->token('Hut')->plan_for($index), 'Term');
+ok(my $term = $qb->term('Hut')->plan_for($index), 'Term');
 ok(!$term->current, 'Not initialized yet');
 is($term->freq, 2, 'Frequency');
 
@@ -28,5 +28,7 @@ is($term->current->to_string, '[0:11-12]', 'Found string');
 ok($term->next, 'More tokens');
 is($term->current->to_string, '[1:1-2]', 'Found string');
 ok(!$term->next, 'No more tokens');
+
+ok(!$qb->term('opennlp/c!=N')->plan_for($index), 'Term');
 
 done_testing;

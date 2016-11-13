@@ -10,7 +10,6 @@ use warnings;
 
 sub new {
   my ($class, $index, $term) = @_;
-  $term = '<>' . $term;
   my $postings = $index->dict->get($term)
     // Krawfish::Index::PostingsList->new($index, $term);
   bless {
@@ -34,7 +33,7 @@ sub current {
 
 
 sub to_string {
-  return '<' . substr($_[0]->term, 2) . '>';
+  return "'" . $_[0]->term . "'";
 };
 
 1;

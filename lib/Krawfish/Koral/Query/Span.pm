@@ -49,7 +49,7 @@ sub plan_for {
   # Todo: May be more complicated
   return Krawfish::Query::Span->new(
     $index,
-    $self->wrap->to_string
+    $self->wrap->term
   );
 };
 

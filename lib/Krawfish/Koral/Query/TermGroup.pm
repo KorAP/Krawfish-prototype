@@ -41,10 +41,26 @@ sub operands {
 # TODO: In case, the group is 'and' and there is at
 #       least one positive element, do for negative elements:
 #       [tt/l=Baum & tt/p=NN & cnx/p!=NN]
-#       excl(match:[tt/l=Baum & tt/p=NN],[cnx/p=NN])
-# TODO: [tt/l=Baum & tt/p=NN | cnx/p!=NN]
-#       ???
-
+#       excl(match:pos(match, 'tt/l=Baum', 'tt/p=NN'),'cnx/p=NN')
+#       and
+#       [tt/l=Baum & tt/p=NN & cnx/p!=NN & cnx/p!=ADJA]
+#       excl(match:pos(match, 'tt/l=Baum', 'tt/p=NN'), or('cnx/p=NN', 'cnx/p=ADJA'))
+# TODO: der [tt/l=Baum | tt/p=NN | cnx/p!=NN]
+#       or(
+#         seq(
+#           'der',
+#            or('tt/l=Baum', 'tt/p=NN')
+#         ).
+#         ext(
+#           'right',
+#           excl(
+#             'precedes',
+#             'der'
+#             'cnx/p=NN'
+#           ),
+#           1
+#         )
+#       )
 
 sub plan_for {
   my $self = shift;
