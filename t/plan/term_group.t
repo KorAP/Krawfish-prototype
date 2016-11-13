@@ -76,6 +76,35 @@ is($query->plan_for($index)->to_string,
    "or(or(pos(32:'first','second'),pos(32:'third',or('fourth','fifth'))),'sixth')",
    'Planned Stringification');
 
+$query = $qb->token(
+  $qb->term_and('first', $qb->null)
+);
+is($query->to_string, '[first&0]', 'Stringifications');
+is($query->plan_for($index)->to_string,
+   "'first'",
+   'Planned stringification');
+
+# [first&opennlp/c!=NN]
+$query = $qb->token(
+  $qb->term_and('first', 'opennlp/c!=NN')
+);
+is($query->to_string, '[first&opennlp/c!=NN]', 'Stringifications');
+is($query->plan_for($index)->to_string,
+   "excl(32:'first','opennlp/c=NN')",
+   'Planned Stringification');
+
+# [first&opennlp/c!=NN&second&third&tt/p!=ADJA]
+$query = $qb->token(
+  $qb->term_and(
+    $qb->term_and('first', 'opennlp/c!=NN'),
+    $qb->term_and('second', 'tt/p!=ADJA')
+  )
+);
+is($query->to_string, '[(first&opennlp/c!=NN)&(second&tt/p!=ADJA)]', 'Stringifications');
+is($query->plan_for($index)->to_string,
+   "excl(32:pos(32:'first','second'),or('opennlp/c=NN','tt/p=ADJA'))",
+   'Planned Stringification');
+
 done_testing;
 __END__
 

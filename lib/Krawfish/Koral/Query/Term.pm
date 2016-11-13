@@ -32,13 +32,9 @@ sub new {
       else {
         @self = ($1, $2, undef, undef, undef, $3);
       };
-    }
-
-    # Term is not valid
-    else {
-      warn 'Invalid term structure: ' . $term;
-      return;
     };
+
+    # Term is null
   };
 
   bless \@self, $class;
@@ -73,6 +69,7 @@ sub term_type {
 sub foundry {
   if ($_[1]) {
     $_[0]->[2] = $_[1];
+    return $_[0];
   };
   $_[0]->[2];
 };
@@ -82,6 +79,7 @@ sub foundry {
 sub layer {
   if ($_[1]) {
     $_[0]->[3] = $_[1];
+    return $_[0];
   };
   $_[0]->[3];
 };
@@ -90,6 +88,7 @@ sub layer {
 sub op {
   if ($_[1]) {
     $_[0]->[4] = $_[1];
+    return $_[0];
   };
   $_[0]->[4] // '=';
 };
@@ -99,6 +98,7 @@ sub op {
 sub key {
   if ($_[1]) {
     $_[0]->[5] = $_[1];
+    return $_[0];
   };
   $_[0]->[5];
 };
@@ -107,6 +107,7 @@ sub key {
 sub value {
   if ($_[1]) {
     $_[0]->[6] = $_[1];
+    return $_[0];
   };
   $_[0]->[6];
 };
@@ -115,10 +116,13 @@ sub value {
 # Create koral fragment
 sub to_koral_fragment {
   my $self = shift;
+
   my $hash = {
     '@type' => 'koral:term',
-    'key' => $self->key,
   };
+
+  return $hash if $self->is_null;
+  $hash->{key} = $self->key,
   $hash->{foundry} = $self->foundry if $self->foundry;
   $hash->{layer} = $self->layer if $self->layer;
   $hash->{value} = $self->value if $self->value;
@@ -128,7 +132,13 @@ sub to_koral_fragment {
 
 sub to_string {
   my $self = shift;
+
+  if ($self->is_null) {
+    return 0
+  };
+
   my $str = '';
+
   if ($self->foundry) {
     $str .= $self->foundry;
     if ($self->layer) {
@@ -142,11 +152,14 @@ sub to_string {
   if ($self->value) {
     $str .= ':' . $self->value;
   };
+
   $str;
 };
 
 sub term {
   my $self = shift;
+  return if $self->is_null;
+
   my $str = $self->field // '';
   if ($str) {
     $str .= ':';
@@ -162,13 +175,19 @@ sub term {
 sub plan_for {
   my $self = shift;
   my $index = shift;
-  return if $self->is_negative;
+  return if $self->is_negative || $self->is_null;
   return Krawfish::Query::Term->new($index, $self->term);
 };
 
-sub is_any { 0 };
+sub is_any {
+  return 1 unless $_[0]->key;
+  return;
+};
 sub is_optional { 0 };
-sub is_null { 0 };
+sub is_null {
+  return 1 unless $_[0]->key;
+  return;
+};
 sub is_negative {
   $_[0]->op eq '!=' ? 1 : 0;
 };

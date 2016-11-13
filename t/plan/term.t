@@ -30,6 +30,16 @@ ok($query->is_negative, 'Isn\'t negative');
 ok(!$query->is_extended, 'Isn\'t extended');
 is($query->to_string, 'opennlp/c!=NN', 'Stringification');
 
+
+$query = $builder->null;
+ok($query->is_any, 'Is any');
+ok(!$query->is_optional, 'Isn\'t optional');
+ok($query->is_null, 'Isn\'t null');
+ok(!$query->is_negative, 'Isn\'t negative');
+ok(!$query->is_extended, 'Isn\'t extended');
+is($query->to_string, '0', 'Stringification');
+ok(!$query->plan_for($index), 'Planned Stringification');
+
 done_testing;
 
 __END__

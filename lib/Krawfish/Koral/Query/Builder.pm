@@ -89,9 +89,8 @@ sub ext_right {
 
 # Null element - only for plan testing purposes
 sub null {
-  my $token = Krawfish::Koral::Query::Token->new;
-  $token->{null} = 1;
-  return $token;
+  my $term = Krawfish::Koral::Query::Term->new;
+  return $term;
 };
 
 1;

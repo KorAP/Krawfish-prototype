@@ -66,10 +66,50 @@ sub plan_for {
   my $self = shift;
   my $index = shift;
   my $ops = $self->operands;
-  my $query = $ops->[0]->plan_for($index);
+
+
+  my @negatives = ();
+
+  # First pass - flatten and cleanup
+  for (my $i = @$ops - 1; $i >= 0;) {
+
+    # Clean null
+    if ($ops->[$i]->is_null) {
+      splice @$ops, $i, 1;
+    }
+
+    # Flatten
+    elsif ($ops->[$i]->type eq 'termGroup' &&
+             $ops->[$i]->operation eq $self->operation) {
+      my $operands = $ops->[$i]->operands;
+      my $nr = @$operands;
+      splice @$ops, $i, 1, @$operands;
+      $i+= $nr;
+    }
+
+    # Element is negative - remember
+    elsif ($ops->[$i]->is_negative) {
+      push @negatives, splice @$ops, $i, 1
+    };
+
+    $i--
+  };
+
+  # Only one operator valid
+  if (@$ops == 0 && @negatives > 0) {
+    $self->error(000, 'Negative queries are not supported');
+    return;
+  }
+  elsif (@$ops == 1 && @negatives == 0) {
+    return $ops->[0]->plan_for($index);
+  };
+
+  my $query;
 
   # Serialize for 'or' operation
   if ($self->operation eq 'or') {
+
+    $query = $ops->[0]->plan_for($index);
 
     for (my $i = 1; $i < @$ops; $i++) {
       $query = Krawfish::Query::Or->new(
@@ -82,6 +122,8 @@ sub plan_for {
   # Serialize for 'and' operation
   else {
 
+    $query = $ops->[0]->plan_for($index);
+
     # TODO: Order by frequency!
     for (my $i = 1; $i < @$ops; $i++) {
       $query = Krawfish::Query::Position->new(
@@ -90,6 +132,35 @@ sub plan_for {
         $ops->[$i]->plan_for($index)
       )
     };
+  };
+
+  # Merge the remembered negatives
+  if (@negatives) {
+    if ($self->operation eq 'and') {
+
+      # Plan query with positivie element
+      # TODO: Elements may be termgroups!
+      my $neg_query =
+        pop(@negatives)->op('=')->plan_for($index);
+
+      # Join all negative terms in an or-query
+      foreach (@negatives) {
+        $neg_query = Krawfish::Query::Or->new(
+          $neg_query,
+          $_->op('=')->plan_for($index)
+        )
+      };
+
+      # Exclude this
+      $query = Krawfish::Query::Exclusion->new(
+        MATCHES,
+        $query,
+        $neg_query
+      );
+    }
+    else {
+      ...
+    }
   };
 
   return $query;
