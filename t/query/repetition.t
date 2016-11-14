@@ -49,6 +49,33 @@ ok(!$rep->next, 'No more');
 # test_matches($rep, qw/[0:1-3] [0:1-4] [0:2-4] [0:2-5] [0:3-5]/);
 
 
+# Next test
+$index = Krawfish::Index->new;
+ok(defined $index->add(simple_doc(qw/aa bb bb bb cc/)), 'Add new document');
+ok(defined $index->add(simple_doc(qw/bb bb bb bb cc/)), 'Add new document');
+
+ok($wrap = $qb->repeat( $qb->token('bb'), 1, 3), 'Repeat');
+is($wrap->to_string, '[bb]{1,3}', 'Stringification');
+ok($rep = $wrap->plan_for($index), 'Rewrite');
+is($rep->to_string, "rep(1-3:'bb')", 'Stringification');
+
+test_matches($rep, qw/[0:1-2]
+                      [0:1-3]
+                      [0:1-4]
+                      [0:2-3]
+                      [0:2-4]
+                      [0:3-4]
+                      [1:0-1]
+                      [1:0-2]
+                      [1:0-3]
+                      [1:1-2]
+                      [1:1-3]
+                      [1:1-4]
+                      [1:2-3]
+                      [1:2-4]
+                      [1:3-4]/);
+
+
 done_testing;
 __END__
 

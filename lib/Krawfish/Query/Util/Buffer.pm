@@ -43,7 +43,7 @@ sub current {
 # Return the current position of the finger
 # Or set the finger
 sub finger {
-  if ($_[1]) {
+  if (defined $_[1]) {
     $_[0]->{finger} = $_[1];
     print "  >> Set finger to $_[1]: " . $_[0]->to_string . "\n";
   }

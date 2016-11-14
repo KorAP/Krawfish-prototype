@@ -56,7 +56,13 @@ sub next {
       if ($buffer->finger + 1 <= $self->{max}) {
         print '  >> Buffer is below than max ' . $self->{max} . "\n";
 
-        $last = $buffer->current or return;
+        $last = $buffer->current;
+
+        unless ($last) {
+          $buffer->clear;
+          $buffer->backward;
+          next;
+        };
 
         # Set current
         $self->{doc_id} = $buffer->first->doc_id;
@@ -72,13 +78,9 @@ sub next {
           # Get the current span
           my $current = $self->{span}->current;
 
-  #        unless ($current) {
- #           print "  >> No current - clear buffer (1)\n"#;
-          #  $buffer->clear;
-          #}
-
           # The current element is fine - remember
-          if ($current && $last->doc_id == $current->doc_id &&
+          if ($current &&
+                $last->doc_id == $current->doc_id &&
                 $last->end == $current->start) {
 
             print "  >> Remember the current element (1)\n";
@@ -134,6 +136,7 @@ sub next {
         unless ($current) {
           print "  >> No current - clear buffer (2)\n";
           $buffer->clear;
+          $buffer->backward;
           return 0;
         }
 
@@ -150,6 +153,7 @@ sub next {
           print "  >> No matching doc ids (2)\n";
           print "  >> Clear buffer\n";
           $buffer->clear;
+          $buffer->backward;
           return 0;
         };
       };
