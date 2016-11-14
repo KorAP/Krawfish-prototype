@@ -8,6 +8,7 @@ use Krawfish::Koral::Query::TermGroup;
 use Krawfish::Koral::Query::Position;
 use Krawfish::Koral::Query::Extension;
 use Krawfish::Koral::Query::Exclusion;
+use Krawfish::Koral::Query::Class;
 
 sub new {
   my $class = shift;
@@ -73,6 +74,11 @@ sub position {
 sub exclude {
   shift;
   Krawfish::Koral::Query::Exclusion->new(@_);
+};
+
+sub class {
+  shift;
+  Krawfish::Koral::Query::Class->new(@_);
 };
 
 # Extension to the left
