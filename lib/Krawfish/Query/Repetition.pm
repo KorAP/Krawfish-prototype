@@ -21,7 +21,7 @@ sub current {
   return Krawfish::Posting->new(
     doc_id => $self->{doc_id},
     start  => $self->{start},
-    end    => $self->{end},
+    end    => $self->{end}
   );
 };
 

@@ -4,13 +4,14 @@ use Krawfish::Query::Repetition;
 use strict;
 use warnings;
 
+our $MAX = 100;
+
 sub new {
   my $class = shift;
   my $span = shift;
 
   my ($min, $max);
-  # {1,4}
-  # {,4}
+  # {1,4}, {,4}
   # {0,1} # ?
   # {1,}  # +
   # {0,}  # *
@@ -25,8 +26,6 @@ sub new {
     $min = $max = 1;
   };
 
-  $min //= 0;
-
   bless {
     span => $span,
     min => $min,
@@ -36,12 +35,20 @@ sub new {
 
 
 sub min {
-  $_[0]->{min}
+  if (defined $_[1]) {
+    $_[0]->{min} = $_[1];
+    return $_[0];
+  };
+  $_[0]->{min};
 };
 
 
 sub max {
-  $_[0]->{max}
+  if (defined $_[1]) {
+    $_[0]->{max} = $_[1];
+    return $_[0];
+  };
+  $_[0]->{max};
 };
 
 
@@ -103,16 +110,47 @@ sub is_extended_right {
 
 sub type { 'repetition' };
 
+
 sub plan_for {
   my $self = shift;
   my $index = shift;
-  my $span = $self->{span}->plan_for($index);
 
-  return Krawfish::Query::Repetition->new(
-    $span,
-    $self->{min},
-    $self->{max}
-  );
+  # Copy messages from span serialization
+  my $span;
+  unless ($span = $self->{span}->plan_for($index)) {
+    $self->copy_info_from($self->{span});
+    return;
+  };
+
+  my $min = $self->{min};
+  my $max = $self->{max};
+
+  $min //= 0;
+
+  if (!$max || $max > $MAX) {
+    $self->warning(000, 'Maximum value is limited', $MAX);
+    $max = $MAX;
+  };
+
+  # Some errors
+  if ($min > $max) {
+    $self->error(000, 'Minimum has to be greater than maximum in repetition');
+    return;
+  }
+  elsif ($min == 0) {
+    $self->error(000, 'Optionality is ignored');
+    return;
+  }
+  elsif ($min < 0) {
+    $self->error(000, 'Minimum has to be greater than 0');
+    return;
+  };
+
+  if ($min == 1 && $max == 1) {
+    return $span;
+  };
+
+  return Krawfish::Query::Repetition->new($span, $min, $max);
 };
 
 
@@ -120,7 +158,7 @@ sub to_string {
   my $self = shift;
   my $str = $self->{span}->to_string;
 
-  if (defined $self->{max}) {
+  if (defined $self->{min} && defined $self->{max}) {
     if ($self->{min} == $self->{max}) {
       $str .= '{' . $self->{min} . '}';
     }

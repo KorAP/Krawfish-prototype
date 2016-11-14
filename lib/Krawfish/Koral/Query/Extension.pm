@@ -12,8 +12,45 @@ sub new {
   return $self;
 };
 
+
 sub plan_for {
-  ...
+  my $self = shift;
+  my $index = shift;
+
+  my $anchor = $self->{anchor};
+  my $ext = $self->{extension};
+
+  # Extension is not important
+  if ($ext->is_null) {
+    return $anchor->plan_for($index);
+  };
+
+  if ($ext->is_optional) {
+    if ($ext->is_negative) {
+      ...
+    };
+
+    # if ($ext->is_partially_negative) {
+    #   ...
+    # }
+
+    if ($ext->is_any) {
+      ...
+    };
+    ...
+  };
+
+  if ($ext->is_negative) {
+    ...
+  };
+
+  # if ($ext->is_partially_negative) {
+  #   ...
+  # };
+
+  if ($ext->is_any) {
+    ...
+  };
 };
 
 sub to_string {

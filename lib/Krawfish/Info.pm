@@ -4,12 +4,18 @@ use warnings;
 
 # Add error
 sub error {
-  my $self = shift;
-  my ($code, $msg, @param) = @_;
-  push(@{$self->{error} //= []}, [$code, $msg, @param]);
-  return $self;
+  return shift->_info('error', @_);
 };
 
+# sub message;
+
+sub warning {
+  return shift->_info('warning', @_);
+};
+
+sub message {
+  return shift->_info('message', @_);
+};
 
 # Is there an error?
 sub has_error {
@@ -18,15 +24,41 @@ sub has_error {
 };
 
 
+# Is there a warning?
+sub has_warning {
+  return 1 if $_[0]->{warning};
+  return;
+};
+
+
+# Is there a warning?
+sub has_message {
+  return 1 if $_[0]->{message};
+  return;
+};
+
+
 # Copy information from another object
 sub copy_info_from {
   my ($self, $obj) = @_;
-  if ($obj->has_error) {
-    push @{$self->{error} //= []}, @{$obj->{error}};
+
+  # Copy from types
+  foreach my $type (qw/error warning message/) {
+    if ($obj->{$type}) {
+      push @{$self->{$type} //= []}, @{$obj->{$type}};
+    };
   };
 };
 
-# sub warning;
-# sub errors;
+
+sub _info {
+  my $self = shift;
+  my ($type, $code, $msg, @param) = @_;
+  unless (defined $code) {
+    return $self->{$type};
+  };
+  push(@{$self->{$type} //= []}, [$code, $msg, @param]);
+  return $self;
+};
 
 1;

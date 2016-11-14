@@ -25,8 +25,11 @@ ok(!$seq->is_null, 'Query is not null');
 ok(my $tree = $seq->planned_tree, 'Query is now a tree');
 is($seq->to_string, '[Der][]<opennlp/c=NP>', 'Stringification');
 
+# Stringify tree
 is($tree->to_string, "pos(2:[Der],ext(1:<opennlp/c=NP>,[]))", 'Tree stringification');
 # ok(my $plan = $seq->plan_for($index), 'Query is plannable');
+
+diag "Test further";
 
 done_testing;
 

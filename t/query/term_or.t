@@ -51,10 +51,10 @@ is($plan->current->to_string, '[0:0-1]', 'Found string');
 ok($plan->next, 'More tokens');
 is($plan->current->to_string, '[1:0-1]', 'Found string');
 ok($plan->next, 'More tokens');
-#is($plan->current->to_string, '[2:3-4]', 'Found string');
-#ok($plan->next, 'More tokens');
-#is($plan->current->to_string, '[2:5-6]', 'Found string');
-#ok(!$plan->next, 'No more tokens');
+is($plan->current->to_string, '[2:3-4]', 'Found string');
+ok($plan->next, 'More tokens');
+is($plan->current->to_string, '[2:5-6]', 'Found string');
+ok(!$plan->next, 'No more tokens');
 
 
 

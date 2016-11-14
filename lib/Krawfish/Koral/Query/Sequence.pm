@@ -18,8 +18,8 @@ sub size {
   scalar @{$_[0]->{array}};
 };
 
-sub type { 'sequence' };
 
+sub type { 'sequence' };
 
 
 # TODO: Order by frequency, so the most common occurrence is at the outside
@@ -122,6 +122,7 @@ sub _solve_problems {
 sub planned_tree {
   my $self = shift;
 
+  # Return tree
   if ($self->{planned_tree}) {
     return $self->{planned_tree};
   };
@@ -150,16 +151,16 @@ sub planned_tree {
 
 sub is_any {
   my $self = shift;
-  return $self->{any} if $self->{planned} && $self->{any};
-  ...
+  my $tree = $self->planned_tree;
+  return $tree->is_any;
 };
 
 
 sub is_null {
-  
+  my $self = shift;
+  my $tree = $self->planned_tree;
+  return $tree->is_null;
 };
-
-
 
 sub to_koral_fragment {
   my $self = shift;
