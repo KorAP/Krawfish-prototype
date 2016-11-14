@@ -40,7 +40,11 @@ ok($rep->next, 'More');
 is($rep->current->to_string, '[0:1-4]', 'Match');
 ok($rep->next, 'No more');
 is($rep->current->to_string, '[0:2-4]', 'Match');
-# ok(!$rep->next, 'No more');
+ok($rep->next, 'No more');
+is($rep->current->to_string, '[0:2-5]', 'Match');
+ok($rep->next, 'No more');
+is($rep->current->to_string, '[0:3-5]', 'Match');
+ok(!$rep->next, 'No more');
 
 # test_matches($rep, qw/[0:1-3] [0:1-4] [0:2-4] [0:2-5] [0:3-5]/);
 

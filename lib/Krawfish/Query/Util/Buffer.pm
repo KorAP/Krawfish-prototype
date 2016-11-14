@@ -41,12 +41,21 @@ sub current {
 
 
 # Return the current position of the finger
+# Or set the finger
 sub finger {
+  if ($_[1]) {
+    $_[0]->{finger} = $_[1];
+    print "  >> Set finger to $_[1]: " . $_[0]->to_string . "\n";
+  }
   $_[0]->{finger};
 };
 
 sub forward {
   $_[0]->{finger}++;
+};
+
+sub backward {
+  $_[0]->{finger}--;
 };
 
 # Remember item
@@ -61,9 +70,6 @@ sub first {
   $_[0]->{array}->[0];
 };
 
-sub last {
-  $_[0]->{array}->[-1];
-};
 
 # Reset finger to start position
 sub to_start {

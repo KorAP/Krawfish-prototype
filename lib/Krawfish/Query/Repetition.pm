@@ -29,9 +29,12 @@ sub current {
 # Initialize spans and buffer
 sub init {
   return if $_[0]->{init}++;
-  $_[0]->{span}->next or return;
+  $_[0]->{span}->next;
   print "  >> Init span\n";
-#  $_[0]->{buffer}->remember($_[0]->{span}->current);
+  # $_[0]->{buffer}->remember($_[0]->{span}->current);
+
+  # Set finger to -1
+  $_[0]->{buffer}->backward;
   1;
 };
 
@@ -44,17 +47,16 @@ sub next {
   my $last;
 
   while (1) {
-    my $current = $self->{span}->current;
 
     # Buffer is greater than minimum length
-    if ($buffer->size >= $self->{min}) {
+    if ($buffer->finger + 1 >= $self->{min}) {
       print '  >> Buffer is greater than min ' . $self->{min} . "\n";
 
       # Buffer is below maximum length
-      if ($buffer->size <= $self->{max}) {
+      if ($buffer->finger + 1 <= $self->{max}) {
         print '  >> Buffer is below than max ' . $self->{max} . "\n";
 
-        $last = $buffer->last;
+        $last = $buffer->current or return;
 
         # Set current
         $self->{doc_id} = $buffer->first->doc_id;
@@ -64,29 +66,39 @@ sub next {
         print "  >> There is a match - make current match: " .
           $self->current . "\n";
 
+        # Forward and remember
+        unless ($buffer->next) {
 
-        # The current element is fine - remember
-        if ($last->doc_id == $current->doc_id &&
-              $last->end == $current->start) {
+          # Get the current span
+          my $current = $self->{span}->current;
 
-          print "  >> Remember the current element (1)\n";
+  #        unless ($current) {
+ #           print "  >> No current - clear buffer (1)\n"#;
+          #  $buffer->clear;
+          #}
 
-          # Forward and remember
-          $buffer->remember($current);
-          $self->{span}->next;
-        }
+          # The current element is fine - remember
+          if ($current && $last->doc_id == $current->doc_id &&
+                $last->end == $current->start) {
 
-        # Current element is not fine
-        else {
-          print "  >> No matching doc ids\n";
-          print "  >> Forget the first buffer element (1)\n";
+            print "  >> Remember the current element (1)\n";
+            $buffer->remember($current);
+            $self->{span}->next;
+          }
 
-          # Shrink the buffer
-          $buffer->forget;
+          # Current element is not fine
+          else {
+            print "  >> No matching doc ids (1)\n";
+            print "  >> Forget the first buffer element (1)\n";
+
+            # Shrink the buffer
+            $buffer->forget;
+            $buffer->finger($self->{min} - 1);
+          };
         };
 
         # Match
-        print "  -> MATCH\n";
+        print "  -> MATCH " . $self->current->to_string . "\n";
         return 1;
       }
 
@@ -98,6 +110,7 @@ sub next {
         # Let the buffer shrink
         # TODO: This will reposition finger with no need
         $buffer->forget;
+        $buffer->finger($self->{min} - 1);
       };
     }
 
@@ -105,31 +118,41 @@ sub next {
     else {
       print "  >> !Buffer is shorter than minimum: " . $buffer->to_string . "\n";
 
-      # No current
-      unless ($current) {
+      my $last = $buffer->current;
 
-        print "  >> No current - clear buffer\n";
-        $buffer->clear;
+      # Forward and remember
+      unless ($buffer->next) {
 
-        # No further matches
-        return;
+        # Get the current span
+        my $current = $self->{span}->current;
+
+        print "  >> Last element in buffer is " . $last->to_string . "\n" if $last;
+        print "  >> Current element is " . $current->to_string . "\n" if $current;
+
+        # !$last???
+
+        unless ($current) {
+          print "  >> No current - clear buffer (2)\n";
+          $buffer->clear;
+          return 0;
+        }
+
+        elsif (!$last || (
+          $current &&
+            $last->doc_id == $current->doc_id &&
+            $last->end == $current->start
+          )) {
+          print "  >> Remember the current element (2)\n";
+          $buffer->remember($current);
+          $self->{span}->next;
+        }
+        else {
+          print "  >> No matching doc ids (2)\n";
+          print "  >> Clear buffer\n";
+          $buffer->clear;
+          return 0;
+        };
       };
-
-      my $last = $buffer->last;
-
-      print "  >> Last element in buffer is " . $last->to_string . "\n" if $last;
-      print "  >> Current element is " . $current->to_string . "\n";
-      if (!$last || ($last->doc_id == $current->doc_id &&
-                       $last->end == $current->start)
-        ) {
-        print "  >> Remember the current element (2)\n";
-        $buffer->remember($current);
-        $self->{span}->next;
-      }
-      else {
-        print "  >> No matching doc ids - clear buffer\n";
-        $buffer->clear;
-      }
     };
   };
 };
