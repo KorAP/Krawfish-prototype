@@ -57,6 +57,14 @@ sub remember {
   print "  >> Remember $span in buffer: " . $self->to_string . "\n";
 };
 
+sub first {
+  $_[0]->{array}->[0];
+};
+
+sub last {
+  $_[0]->{array}->[-1];
+};
+
 # Reset finger to start position
 sub to_start {
   $_[0]->{finger} = 0;

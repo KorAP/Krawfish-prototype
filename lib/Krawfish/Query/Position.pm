@@ -255,7 +255,7 @@ sub new {
     frames => shift,
     first => shift,
     second => shift,
-    buffer  => Krawfish::Query::Util::Buffer->new,
+    buffer  => Krawfish::Query::Util::Buffer->new
   }, $class;
 };
 

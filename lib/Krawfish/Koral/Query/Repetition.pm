@@ -1,5 +1,6 @@
 package Krawfish::Koral::Query::Repetition;
 use parent 'Krawfish::Koral::Query';
+use Krawfish::Query::Repetition;
 use strict;
 use warnings;
 
@@ -91,6 +92,8 @@ sub is_null {
 
 sub is_extended {
   return 0 if $_[0]->is_null;
+
+  # Is extended, in case the repetition is any
   $_[0]->is_any;
 };
 
@@ -101,7 +104,15 @@ sub is_extended_right {
 sub type { 'repetition' };
 
 sub plan_for {
-  ...
+  my $self = shift;
+  my $index = shift;
+  my $span = $self->{span}->plan_for($index);
+
+  return Krawfish::Query::Repetition->new(
+    $span,
+    $self->{min},
+    $self->{max}
+  );
 };
 
 

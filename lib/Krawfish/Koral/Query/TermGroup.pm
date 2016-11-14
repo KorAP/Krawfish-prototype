@@ -78,7 +78,7 @@ sub plan_for {
       splice @$ops, $i, 1;
     }
 
-    # Flatten
+    # Flatten groups
     elsif ($ops->[$i]->type eq 'termGroup' &&
              $ops->[$i]->operation eq $self->operation) {
       my $operands = $ops->[$i]->operands;
@@ -95,15 +95,19 @@ sub plan_for {
     $i--
   };
 
-  # Only one operator valid
-  if (@$ops == 0 && @negatives > 0) {
+
+  # No positive operator valid
+  if (@$ops == 0) {
     $self->error(000, 'Negative queries are not supported');
     return;
   }
+
+  # Only one positive operator - simplify
   elsif (@$ops == 1 && @negatives == 0) {
     return $ops->[0]->plan_for($index);
   };
 
+  # Build complex query
   my $query;
 
   # Serialize for 'or' operation
