@@ -18,6 +18,7 @@ sub new {
 # Current span object
 sub current {
   my $self = shift;
+  return unless defined $self->{doc_id};
   return Krawfish::Posting->new(
     doc_id => $self->{doc_id},
     start  => $self->{start},
@@ -137,7 +138,8 @@ sub next {
           print "  >> No current - clear buffer (2)\n";
           $buffer->clear;
           $buffer->backward;
-          return 0;
+          $self->{doc_id} = undef;
+          return;
         }
 
         elsif (!$last || (
@@ -154,7 +156,8 @@ sub next {
           print "  >> Clear buffer\n";
           $buffer->clear;
           $buffer->backward;
-          return 0;
+          $self->{doc_id} = undef;
+          return;
         };
       };
     };

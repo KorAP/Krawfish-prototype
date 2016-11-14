@@ -43,7 +43,6 @@ ok($seq->next, 'More');
 is($seq->current->to_string, '[2:2-4]', 'Match');
 ok(!$seq->next, 'No more');
 
-
 # Reset index - situation [aa]..[bb] -> [aa][bb]
 $index = Krawfish::Index->new;
 ok(defined $index->add(complex_doc('[aa][cc][aa][bb]')), 'Add complex document');

@@ -50,6 +50,7 @@ sub init {
 # Current span object
 sub current {
   my $self = shift;
+  return unless defined $self->{doc_id};
   return Krawfish::Posting->new(
     doc_id => $self->{doc_id},
     start  => $self->{start},
@@ -68,6 +69,7 @@ sub next {
   while (1) {
     unless ($first = $self->{first}->current) {
       print " ->> No more first items, return false 1\n";
+      $self->{doc_id} = undef;
       return;
     };
 
@@ -78,6 +80,7 @@ sub next {
       unless ($self->{first}->next) {
         # May point to no current
         print "  >> return false 2\n";
+        $self->{doc_id} = undef;
         return;
       };
 
@@ -153,13 +156,19 @@ sub next {
       # TODO: This may be wrong, because there may be
       # a second candidate in the same document
       $self->{buffer}->clear;
-      $self->{first}->next or return;
+      unless ($self->{first}->next) {
+        $self->{doc_id} = undef;
+        return;
+      };
     }
 
     # The second span is behind
     else {
       $self->{buffer}->clear;
-      $self->{second}->next or return;
+      unless ($self->{second}->next) {
+        $self->{doc_id} = undef;
+        return;
+      };
     };
   };
 

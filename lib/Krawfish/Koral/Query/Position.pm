@@ -41,8 +41,8 @@ sub to_koral_fragment {
     'operation' => 'operation:position',
     'frames' => [map { 'frames:' . $_ } _to_list($self->{frames})],
     'operands' => [
-      $self->{first}->to_koral_query_fragment,
-      $self->{second}->to_koral_query_fragment
+      $self->{first}->to_koral_fragment,
+      $self->{second}->to_koral_fragment
     ]
   };
 };
