@@ -1,8 +1,8 @@
 package Krawfish::Query::Base::Dual;
-use parent 'Exporter';
-use Krawfish::Log;
+use parent 'Exporter', 'Krawfish::Query';
 use strict;
 use warnings;
+use Krawfish::Log;
 use Krawfish::Query::Util::Buffer;
 use Krawfish::Posting;
 
@@ -36,19 +36,6 @@ sub init {
   $_[0]->{first}->next;
   $_[0]->{second}->next;
   $_[0]->{buffer}->remember($_[0]->{second}->current);
-};
-
-
-# Current span object
-sub current {
-  my $self = shift;
-  return unless defined $self->{doc_id};
-  return Krawfish::Posting->new(
-    doc_id => $self->{doc_id},
-    start  => $self->{start},
-    end    => $self->{end},
-    payload => $self->{payload}
-  );
 };
 
 

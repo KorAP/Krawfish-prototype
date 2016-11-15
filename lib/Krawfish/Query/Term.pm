@@ -1,4 +1,5 @@
 package Krawfish::Query::Term;
+use parent 'Krawfish::Query';
 use Krawfish::Index::PostingsList;
 use Krawfish::Posting::Token;
 use Krawfish::Log;

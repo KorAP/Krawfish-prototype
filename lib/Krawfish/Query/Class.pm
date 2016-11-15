@@ -1,4 +1,5 @@
 package Krawfish::Query::Class;
+use parent 'Krawfish::Query';
 use Krawfish::Posting::Payload;
 use Krawfish::Log;
 use strict;
@@ -12,18 +13,6 @@ sub new {
     span => shift,
     number => shift
   }, $class;
-};
-
-# Current span object
-sub current {
-  my $self = shift;
-  return unless defined $self->{doc_id};
-  return Krawfish::Posting->new(
-    doc_id   => $self->{doc_id},
-    start    => $self->{start},
-    end      => $self->{end},
-    payload => $self->{payload}
-  );
 };
 
 

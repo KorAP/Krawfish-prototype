@@ -1,4 +1,5 @@
 package Krawfish::Query::Repetition;
+use parent 'Krawfish::Query';
 use Krawfish::Query::Util::Buffer;
 use Krawfish::Log;
 use Krawfish::Posting;
@@ -6,6 +7,9 @@ use strict;
 use warnings;
 
 use constant DEBUG => 1;
+
+# TODO: Support next_pos, in case current start position can not succeed
+# e.g. in case of position
 
 sub new {
   my $class = shift;
@@ -15,18 +19,6 @@ sub new {
     max => shift,
     buffer => Krawfish::Query::Util::Buffer->new
   }, $class;
-};
-
-
-# Current span object
-sub current {
-  my $self = shift;
-  return unless defined $self->{doc_id};
-  return Krawfish::Posting->new(
-    doc_id => $self->{doc_id},
-    start  => $self->{start},
-    end    => $self->{end}
-  );
 };
 
 

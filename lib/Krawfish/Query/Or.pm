@@ -1,4 +1,5 @@
 package Krawfish::Query::Or;
+use parent 'Krawfish::Query';
 use strict;
 use warnings;
 
@@ -16,16 +17,6 @@ sub init  {
   $_[0]->{second}->next;
 };
 
-# Current span object
-sub current {
-  my $self = shift;
-  return unless defined $self->{doc_id};
-  return Krawfish::Posting->new(
-    doc_id => $self->{doc_id},
-    start  => $self->{start},
-    end    => $self->{end}
-  );
-};
 
 sub next {
   my $self = shift;
