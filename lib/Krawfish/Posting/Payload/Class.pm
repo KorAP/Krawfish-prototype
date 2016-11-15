@@ -21,5 +21,9 @@ sub end {
   $_[0]->[2];
 };
 
+sub to_string {
+  my $self = shift;
+  return join(',', $self->number, $self->start, $self->end);
+};
 
 1;

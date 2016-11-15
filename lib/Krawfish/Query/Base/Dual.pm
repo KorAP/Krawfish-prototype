@@ -55,6 +55,7 @@ sub current {
     doc_id => $self->{doc_id},
     start  => $self->{start},
     end    => $self->{end},
+    payload => $self->{payload}
   );
 };
 

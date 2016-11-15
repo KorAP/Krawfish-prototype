@@ -1,12 +1,15 @@
 package Krawfish::Posting;
 use overload '""' => sub { $_[0]->to_string }, fallback => 1;
+use Krawfish::Posting::Payload;
 use strict;
 use warnings;
 
+# Constructor
 sub new {
   my $class = shift;
   bless { @_ }, $class;
 };
+
 
 # Current document
 sub doc_id {
@@ -26,12 +29,26 @@ sub end {
 };
 
 
+# Payloads
+sub payload {
+  return $_[0]->{payload} //= Krawfish::Posting::Payload->new;
+};
+
+
+# Stringify
 sub to_string {
   my $self = shift;
-  return '[' .
+  my $str = '[' .
     $self->doc_id . ':' .
     $self->start . '-' .
-    $self->end . ']';
+    $self->end;
+
+  if ($self->payload->length) {
+    $str .= '$' . $self->payload->to_string;
+  };
+
+  return $str . ']';
 };
+
 
 1;

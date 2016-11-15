@@ -1,5 +1,5 @@
 package Krawfish::Query::Class;
-use Krawfish::Posting::Payload::Class;
+use Krawfish::Posting::Payload;
 use strict;
 use warnings;
 
@@ -15,10 +15,11 @@ sub new {
 sub current {
   my $self = shift;
   return unless defined $self->{doc_id};
-  return Krawfish::Posting->new(
-    doc_id => $self->{doc_id},
-    start  => $self->{start},
-    end    => $self->{end}
+  my $post = Krawfish::Posting->new(
+    doc_id   => $self->{doc_id},
+    start    => $self->{start},
+    end      => $self->{end},
+    payload => $self->{payload}
   );
 };
 
@@ -28,17 +29,20 @@ sub next {
 
   my $span = $self->{span};
   if ($span->next) {
-    $self->{doc_id} = $span->{doc_id};
-    $self->{start} = $span->{start};
-    $self->{end} = $span->{end};
-    push(
-      @{ $self->{payloads} //= []},
-      Krawfish::Posting::Payload::Class->new(
-        $self->{number},
-        $self->{start},
-        $self->{end}
-      )
-      );
+
+    my $current = $span->current;
+
+    $self->{doc_id} = $current->doc_id;
+    $self->{start}  = $current->start;
+    $self->{end}    = $current->end;
+
+    $self->{payload} = $current->payload->add(
+      0,
+      $self->{number},
+      $self->{start},
+      $self->{end}
+    );
+
     return 1;
   };
 

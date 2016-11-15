@@ -279,6 +279,7 @@ sub check {
     $self->{doc_id} = $first->doc_id;
     $self->{start} = $first->start < $second->start ? $first->start : $second->start;
     $self->{end}   = $first->end > $second->end ? $first->end : $second->end;
+    $self->{payload} = $first->payload->clone->copy_from($second->payload);
 
     print "  >>There is a match - make current match: " . $self->current . "\n";
     return NEXTA | NEXTB | MATCH;

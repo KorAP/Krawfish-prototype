@@ -25,4 +25,10 @@ sub end {
   return $_[0]->[2];
 };
 
+# Payloads
+sub payload {
+  return $_[0]->[3] //= Krawfish::Posting::Payload->new;
+};
+
+
 1;
