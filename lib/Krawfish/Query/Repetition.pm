@@ -1,8 +1,11 @@
 package Krawfish::Query::Repetition;
 use Krawfish::Query::Util::Buffer;
+use Krawfish::Log;
 use Krawfish::Posting;
 use strict;
 use warnings;
+
+use constant DEBUG => 1;
 
 sub new {
   my $class = shift;
@@ -31,7 +34,7 @@ sub current {
 sub init {
   return if $_[0]->{init}++;
   $_[0]->{span}->next;
-  print "  >> Init span\n";
+  print_log('repeat', 'Init span') if DEBUG;
   # $_[0]->{buffer}->remember($_[0]->{span}->current);
 
   # Set finger to -1
@@ -51,11 +54,11 @@ sub next {
 
     # Buffer is greater than minimum length
     if ($buffer->finger + 1 >= $self->{min}) {
-      print '  >> Buffer is greater than min ' . $self->{min} . "\n";
+      print_log('repeat', 'Buffer is greater than min ' . $self->{min}) if DEBUG;
 
       # Buffer is below maximum length
       if ($buffer->finger + 1 <= $self->{max}) {
-        print '  >> Buffer is below than max ' . $self->{max} . "\n";
+        print_log('repeat', 'Buffer is below than max ' . $self->{max}) if DEBUG;
 
         $last = $buffer->current;
 
@@ -70,8 +73,8 @@ sub next {
         $self->{start} = $buffer->first->start;
         $self->{end} = $last->end;
 
-        print "  >> There is a match - make current match: " .
-          $self->current . "\n";
+        print_log('repeat', 'There is a match - make current match: ' .
+                    $self->current) if DEBUG;
 
         # Forward and remember
         unless ($buffer->next) {
@@ -84,15 +87,16 @@ sub next {
                 $last->doc_id == $current->doc_id &&
                 $last->end == $current->start) {
 
-            print "  >> Remember the current element (1)\n";
+            print_log('repeat', 'Remember the current element (1)') if DEBUG;
+
             $buffer->remember($current);
             $self->{span}->next;
           }
 
           # Current element is not fine
           else {
-            print "  >> No matching doc ids (1)\n";
-            print "  >> Forget the first buffer element (1)\n";
+            print_log('repeat', 'No matching doc ids (1)') if DEBUG;
+            print_log('repeat', 'Forget the first buffer element (1)') if DEBUG;
 
             # Shrink the buffer
             $buffer->forget;
@@ -101,14 +105,14 @@ sub next {
         };
 
         # Match
-        print "  -> MATCH " . $self->current->to_string . "\n";
+        print_log('repeat', "MATCH " . $self->current->to_string) if DEBUG;
         return 1;
       }
 
       # Buffer is greater than maximum size
       else {
-        print "  >> !Buffer is greater than maximum size\n";
-        print "  >> Forget the first buffer element (2)\n";
+        print_log('repeat', '!Buffer is greater than maximum size') if DEBUG;
+        print_log('repeat', 'Forget the first buffer element (2)') if DEBUG;
 
         # Let the buffer shrink
         # TODO: This will reposition finger with no need
@@ -119,7 +123,7 @@ sub next {
 
     # Buffer has not minimum size yet
     else {
-      print "  >> !Buffer is shorter than minimum: " . $buffer->to_string . "\n";
+      print_log('repeat', '!Buffer is shorter than minimum: ' . $buffer->to_string) if DEBUG;
 
       my $last = $buffer->current;
 
@@ -129,13 +133,13 @@ sub next {
         # Get the current span
         my $current = $self->{span}->current;
 
-        print "  >> Last element in buffer is " . $last->to_string . "\n" if $last;
-        print "  >> Current element is " . $current->to_string . "\n" if $current;
-
-        # !$last???
+        if (DEBUG) {
+          print_log('repeat', "Last element in buffer is " . $last->to_string) if $last;
+          print_log('repeat', "Current element is " . $current->to_string) if $current;
+        };
 
         unless ($current) {
-          print "  >> No current - clear buffer (2)\n";
+          print_log('repeat', 'No current - clear buffer (2)') if DEBUG;
           $buffer->clear;
           $buffer->backward;
           $self->{doc_id} = undef;
@@ -147,13 +151,13 @@ sub next {
             $last->doc_id == $current->doc_id &&
             $last->end == $current->start
           )) {
-          print "  >> Remember the current element (2)\n";
+          print_log('repeat', 'Remember the current element (2)') if DEBUG;
           $buffer->remember($current);
           $self->{span}->next;
         }
         else {
-          print "  >> No matching doc ids (2)\n";
-          print "  >> Clear buffer\n";
+          print_log('repeat', 'No matching doc ids (2)') if DEBUG;
+          print_log('repeat', 'Clear buffer') if DEBUG;
           $buffer->clear;
           $buffer->backward;
           $self->{doc_id} = undef;

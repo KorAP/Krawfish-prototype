@@ -1,7 +1,10 @@
 package Krawfish::Query::Class;
 use Krawfish::Posting::Payload;
+use Krawfish::Log;
 use strict;
 use warnings;
+
+use constant DEBUG => 1;
 
 sub new {
   my $class = shift;
@@ -15,7 +18,7 @@ sub new {
 sub current {
   my $self = shift;
   return unless defined $self->{doc_id};
-  my $post = Krawfish::Posting->new(
+  return Krawfish::Posting->new(
     doc_id   => $self->{doc_id},
     start    => $self->{start},
     end      => $self->{end},
@@ -42,6 +45,8 @@ sub next {
       $self->{start},
       $self->{end}
     );
+
+    print_log('class', 'Classed match found: ' . $self->current->to_string) if DEBUG;
 
     return 1;
   };

@@ -1,9 +1,12 @@
 package Krawfish::Query::Util::Buffer;
+use Krawfish::Log;
 use strict;
 use warnings;
 
 # Buffer contains a queue of spans, with a finger to point
 # on certain positions in the queue
+
+use constant DEBUG => 1;
 
 # Constructor
 sub new {
@@ -17,17 +20,17 @@ sub new {
 # Go to the next element of the buffer
 sub next {
   my $self = shift;
-  print "  >> Try to forward buffer finger: " . $self->to_string . "\n";
-  print "  >> Finger: " . $self->finger . ' of ' . $self->size . "\n";
+  print_log('buffer', "Try to forward buffer finger: " . $self->to_string) if DEBUG;
+  print_log('buffer', "Finger: " . $self->finger . ' of ' . $self->size) if DEBUG;
 
   $self->{finger}++;
 
   if ($self->{finger} >= $self->size) {
-    print "  >> Finger is already at the end of the buffer\n";
+    print_log('buffer', 'Finger is already at the end of the buffer') if DEBUG;
     return;
   };
 
-  print "  >> Forward buffer finger: " . $self->to_string . "\n";
+  print_log('buffer', 'Forward buffer finger: ' . $self->to_string) if DEBUG;
   return 1;
 };
 
@@ -45,7 +48,7 @@ sub current {
 sub finger {
   if (defined $_[1]) {
     $_[0]->{finger} = $_[1];
-    print "  >> Set finger to $_[1]: " . $_[0]->to_string . "\n";
+    print_log('buffer', "Set finger to $_[1]: " . $_[0]->to_string) if DEBUG;
   }
   $_[0]->{finger};
 };
@@ -63,7 +66,7 @@ sub remember {
   my $self = shift;
   my $span = shift;
   push @{$self->{array}}, $span;
-  print "  >> Remember $span in buffer: " . $self->to_string . "\n";
+  print_log('buffer', "Remember $span in buffer: " . $self->to_string) if DEBUG;
 };
 
 sub first {
@@ -74,7 +77,7 @@ sub first {
 # Reset finger to start position
 sub to_start {
   $_[0]->{finger} = 0;
-  print "  >> Reset buffer finger: " . $_[0]->to_string . "\n";
+  print_log('buffer', 'Reset buffer finger: ' . $_[0]->to_string) if DEBUG;
 };
 
 
@@ -92,14 +95,14 @@ sub size {
 # Forget first element and reposition finger
 sub forget {
   my $span = shift(@{$_[0]->{array}});
-  print "  >> Forget span $span: " . $_[0]->to_string . "\n";
+  print_log('buffer', "Forget span $span: " . $_[0]->to_string) if DEBUG;
   $_[0]->{finger}-- if $span;
-  print "  >> Buffer is now " . $_[0]->to_string . "\n";
+  print_log('buffer', "Buffer is now " . $_[0]->to_string) if DEBUG;
   return 1;
 };
 
 sub clear {
-  print "  >> Clear buffer list\n";
+  print_log('buffer', 'Clear buffer list') if DEBUG;
   $_[0]->{array} = [];
   $_[0]->{finger} = 0;
 };

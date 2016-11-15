@@ -27,15 +27,16 @@ ok(my $wrap = $qb->position(
   $qb->class($qb->repeat($qb->token('bb'), 1, undef),2)
 ), 'Sequence');
 
-is($wrap->to_string, 'pos(4:{1:[aa]{1,}},{2:[bb]{1,}})', 'Stringification');
+is($wrap->to_string, 'pos(4:{1:[aa]+},{2:[bb]+})', 'Stringification');
 ok(my $ov = $wrap->plan_for($index), 'Rewrite');
 is($ov->to_string, "pos(4:class(1:rep(1-100:'aa')),class(2:rep(1-100:'bb')))", 'Stringification');
 
 
-# [<0 {1> 2}] 3
-# [<0 {1> 2   3}]
-# [<0 {1  2>  3}]
-# [<0  1 {2>  3}]
+# [<0  {1> 2}] 3
+# [<0  {1> 2   3}]
+# [<0  {1  2>  3}]
+# [<0   1 {2>  3}]
+#   0 [<1 {2>  3}]
 
 ok($ov->next, 'Init');
 is($ov->current->to_string, '[0:0-3$0,1,0,2|0,2,1,3]', 'Match');
@@ -45,16 +46,9 @@ ok($ov->next, 'More');
 is($ov->current->to_string, '[0:0-4$0,1,0,3|0,2,1,4]', 'Match');
 ok($ov->next, 'More');
 is($ov->current->to_string, '[0:0-4$0,1,0,3|0,2,2,4]', 'Match');
-
-print "++++++++++++++++++++++++++++++++++++\n";
-# 0 [<1 {2> 3}]
 ok($ov->next, 'More');
 is($ov->current->to_string, '[0:1-4$0,1,1,3|0,2,2,4]', 'Match');
 ok(!$ov->next, 'No More');
 
 done_testing;
 __END__
-
-
-
-test_matches($seq, qw/[0:0-2] [0:1-3] [0:2-4]/);

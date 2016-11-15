@@ -2,6 +2,7 @@ package Krawfish::Index::PostingsList;
 use Krawfish::Posting;
 use strict;
 use warnings;
+use constant DEBUG => 0;
 
 # TODO: Use different PostingsList for different term types
 # TODO: Split postinglists, so they have different sizes,
@@ -21,7 +22,7 @@ sub new {
 sub append {
   my $self = shift;
   my ($doc_id, $pos, @payload) = @_;
-  print "  == Appended " . $self->term . " with $doc_id, $pos\n";
+  print_log('post', "Appended " . $self->term . " with $doc_id, $pos") if DEBUG;
   push (@{$self->{array}}, [$doc_id, $pos, @payload]);
 };
 

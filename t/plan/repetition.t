@@ -60,14 +60,15 @@ ok(!$rep->has_error, 'Error not set');
 $rep = $builder->repeat($builder->token('hey'), undef, undef);
 is($rep->to_string, '[hey]*', 'Stringification');
 ok(!$rep->is_any, 'Is not any');
-ok(!$rep->is_optional, 'Is not optional');
+ok($rep->is_optional, 'Is not optional');
 ok(!$rep->is_null, 'Is not null');
 ok(!$rep->is_negative, 'Is not negative');
 ok(!$rep->is_extended, 'Is not extended');
 ok(!$rep->is_extended_right, 'Is not extended to the right');
 ok(!$rep->is_extended_left, 'Is not extended to the left');
-is($rep->plan_for($index)->to_string, "rep(2-100:'hey')", 'Stringification');
-ok(!$rep->has_error, 'Error not set');
+ok(!$rep->plan_for($index), 'Unplannable');
+ok($rep->has_error, 'Error set');
+is($rep->error->[0]->[1], 'Optionality is ignored', 'Error');
 
 # [hey]{0,2}
 $rep = $builder->repeat($builder->token('hey'), undef, 2);

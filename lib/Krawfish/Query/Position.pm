@@ -1,5 +1,6 @@
 package Krawfish::Query::Position;
 use parent 'Krawfish::Query::Base::Dual';
+use Krawfish::Log;
 use Krawfish::Query::Base::Dual;
 use strict;
 use warnings;
@@ -28,7 +29,8 @@ use constant {
   ALIGNS_RIGHT      => 0b0000_0010_0000_0000,
   OVERLAPS_RIGHT    => 0b0000_0100_0000_0000,
   SUCCEEDS_DIRECTLY => 0b0000_1000_0000_0000,
-  SUCCEEDS          => 0b0001_0000_0000_0000
+  SUCCEEDS          => 0b0001_0000_0000_0000,
+  DEBUG             => 1
 };
 
 # _IS_CONTAINED => STARTS_WITH | MATCHES | IS_AROUND | ENDS_WITH
@@ -39,14 +41,13 @@ our (@EXPORT, @next_a, @next_b);
 # next_a may result in configuration B and
 # next_b may result in configuration C
 # These configurations were precomputed
-$next_a[PRECEDES] = 
+$next_a[PRECEDES] =
   PRECEDES |
   PRECEDES_DIRECTLY |
   OVERLAPS_LEFT |
   ALIGNS_LEFT |
   STARTS_WITH |
   MATCHES |
-  IS_WITHIN |
   IS_AROUND |
   ENDS_WITH |
   ALIGNS_RIGHT |
@@ -57,6 +58,7 @@ $next_b[PRECEDES] =
   PRECEDES;
 
 $next_a[PRECEDES_DIRECTLY] =
+  PRECEDES |
   PRECEDES_DIRECTLY |
   OVERLAPS_LEFT |
   ALIGNS_LEFT |
@@ -69,11 +71,121 @@ $next_a[PRECEDES_DIRECTLY] =
   OVERLAPS_RIGHT |
   SUCCEEDS_DIRECTLY |
   SUCCEEDS;
-$next_b[PRECEDES_DIRECTLY] = 
+$next_b[PRECEDES_DIRECTLY] =
   PRECEDES |
   PRECEDES_DIRECTLY;
 
-$next_a[OVERLAPS_LEFT] = 
+$next_a[OVERLAPS_LEFT] =
+  PRECEDES_DIRECTLY |
+  OVERLAPS_LEFT |
+  ALIGNS_LEFT |
+  STARTS_WITH |
+  MATCHES |
+  IS_WITHIN |
+  IS_AROUND |
+  ENDS_WITH |
+  ALIGNS_RIGHT |
+  OVERLAPS_RIGHT |
+  SUCCEEDS_DIRECTLY |
+  SUCCEEDS;
+$next_b[OVERLAPS_LEFT] =
+  PRECEDES |
+  PRECEDES_DIRECTLY |
+  OVERLAPS_LEFT |
+  IS_AROUND |
+  ENDS_WITH;
+
+$next_a[ALIGNS_LEFT] =
+  ALIGNS_LEFT |
+  STARTS_WITH |
+  MATCHES |
+  IS_WITHIN |
+  ALIGNS_RIGHT |
+  OVERLAPS_RIGHT |
+  SUCCEEDS_DIRECTLY |
+  SUCCEEDS;
+$next_b[ALIGNS_LEFT] =
+  PRECEDES |
+  PRECEDES_DIRECTLY |
+  OVERLAPS_LEFT |
+  ALIGNS_LEFT |
+  IS_AROUND |
+  ENDS_WITH;
+
+$next_a[STARTS_WITH] =
+  STARTS_WITH |
+  IS_WITHIN |
+  ALIGNS_RIGHT |
+  OVERLAPS_RIGHT |
+  SUCCEEDS_DIRECTLY |
+  SUCCEEDS;
+$next_b[STARTS_WITH] =
+  PRECEDES |
+  PRECEDES_DIRECTLY |
+  OVERLAPS_LEFT |
+  ALIGNS_LEFT |
+  STARTS_WITH |
+  MATCHES |
+  IS_AROUND |
+  ENDS_WITH;
+
+$next_a[MATCHES] =
+  STARTS_WITH |
+  MATCHES |
+  IS_WITHIN |
+  ALIGNS_RIGHT |
+  OVERLAPS_RIGHT |
+  SUCCEEDS_DIRECTLY |
+  SUCCEEDS;
+$next_b[MATCHES] =
+  PRECEDES |
+  PRECEDES_DIRECTLY |
+  OVERLAPS_LEFT |
+  ALIGNS_LEFT |
+  MATCHES |
+  IS_AROUND |
+  ENDS_WITH;
+
+$next_a[IS_WITHIN] =
+  IS_WITHIN |
+  ALIGNS_RIGHT |
+  OVERLAPS_RIGHT |
+  SUCCEEDS_DIRECTLY |
+  SUCCEEDS;
+$next_b[IS_WITHIN] =
+  PRECEDES |
+  PRECEDES_DIRECTLY |
+  OVERLAPS_LEFT |
+  ALIGNS_LEFT |
+  STARTS_WITH |
+  MATCHES |
+  IS_WITHIN |
+  ENDS_WITH |
+  ALIGNS_RIGHT |
+  OVERLAPS_RIGHT |
+  SUCCEEDS_DIRECTLY;
+
+$next_a[IS_AROUND] =
+  PRECEDES_DIRECTLY |
+  OVERLAPS_LEFT |
+  ALIGNS_LEFT |
+  STARTS_WITH |
+  MATCHES |
+  IS_AROUND |
+  ENDS_WITH |
+  ALIGNS_RIGHT |
+  OVERLAPS_RIGHT |
+  SUCCEEDS_DIRECTLY |
+  SUCCEEDS;
+$next_b[IS_AROUND] =
+  PRECEDES |
+  PRECEDES_DIRECTLY |
+  OVERLAPS_LEFT |
+  IS_AROUND |
+  ENDS_WITH;
+
+$next_a[ENDS_WITH] =
+  PRECEDES_DIRECTLY |
   OVERLAPS_LEFT |
   ALIGNS_LEFT |
   STARTS_WITH |
@@ -85,127 +197,20 @@ $next_a[OVERLAPS_LEFT] =
   OVERLAPS_RIGHT |
   SUCCEEDS_DIRECTLY |
   SUCCEEDS;
-$next_b[OVERLAPS_LEFT] = 
-  PRECEDES |
-  PRECEDES_DIRECTLY |
-  OVERLAPS_LEFT;
-
-$next_a[ALIGNS_LEFT] = 
-  ALIGNS_LEFT |
-  STARTS_WITH |
-  MATCHES |
-  IS_WITHIN |
-  ALIGNS_RIGHT |
-  OVERLAPS_RIGHT |
-  SUCCEEDS_DIRECTLY |
-  SUCCEEDS;
-$next_b[ALIGNS_LEFT] = 
-  PRECEDES |
-  PRECEDES_DIRECTLY |
-  OVERLAPS_LEFT |
-  ALIGNS_LEFT;
-
-$next_a[STARTS_WITH] = 
-  STARTS_WITH |
-  OVERLAPS_RIGHT |
-  SUCCEEDS_DIRECTLY |
-  SUCCEEDS;
-$next_b[STARTS_WITH] = 
-  PRECEDES |
-  PRECEDES_DIRECTLY |
-  OVERLAPS_LEFT |
-  ALIGNS_LEFT |
-  STARTS_WITH |
-  MATCHES |
-  IS_AROUND |
-  ENDS_WITH;
-
-$next_a[MATCHES] = 
-  STARTS_WITH |
-  MATCHES |
-  ALIGNS_RIGHT |
-  OVERLAPS_RIGHT |
-  SUCCEEDS_DIRECTLY |
-  SUCCEEDS;
-$next_b[MATCHES] = 
-  PRECEDES |
-  PRECEDES_DIRECTLY |
-  OVERLAPS_LEFT |
-  ALIGNS_LEFT |
-  MATCHES |
-  ENDS_WITH;
-
-$next_a[IS_WITHIN] = 
-  IS_WITHIN |
-  ALIGNS_RIGHT |
-  OVERLAPS_RIGHT |
-  SUCCEEDS_DIRECTLY |
-  SUCCEEDS;
-$next_b[IS_WITHIN] = 
-  PRECEDES |
-  PRECEDES_DIRECTLY |
-  ALIGNS_LEFT |
-  IS_WITHIN;
-
-$next_a[IS_AROUND] = 
-  STARTS_WITH |
-  IS_AROUND |
-  SUCCEEDS_DIRECTLY |
-  SUCCEEDS;
-$next_b[IS_AROUND] = 
+$next_b[ENDS_WITH] =
   PRECEDES |
   PRECEDES_DIRECTLY |
   OVERLAPS_LEFT |
   IS_AROUND |
   ENDS_WITH;
 
-$next_a[ENDS_WITH] = 
-  STARTS_WITH |
-  MATCHES |
-  IS_AROUND |
-  ENDS_WITH |
-  SUCCEEDS_DIRECTLY |
-  SUCCEEDS;
-$next_b[ENDS_WITH] = 
-  PRECEDES |
-  PRECEDES_DIRECTLY |
-  OVERLAPS_LEFT |
-  ENDS_WITH;
-
-$next_a[ALIGNS_RIGHT] = 
+$next_a[ALIGNS_RIGHT] =
+  IS_WITHIN |
   ALIGNS_RIGHT |
   OVERLAPS_RIGHT |
   SUCCEEDS_DIRECTLY |
   SUCCEEDS;
-$next_b[ALIGNS_RIGHT] = 
-  PRECEDES |
-  PRECEDES_DIRECTLY |
-  ALIGNS_LEFT |
-  MATCHES |
-  IS_WITHIN |
-  ALIGNS_RIGHT;
-
-$next_a[OVERLAPS_RIGHT] = 
-  OVERLAPS_RIGHT |
-  SUCCEEDS_DIRECTLY |
-  SUCCEEDS;
-$next_b[OVERLAPS_RIGHT] = 
-  PRECEDES |
-  PRECEDES_DIRECTLY |
-  OVERLAPS_LEFT |
-  ALIGNS_LEFT |
-  STARTS_WITH |
-  MATCHES |
-  IS_WITHIN |
-  IS_AROUND |
-  ENDS_WITH |
-  ALIGNS_RIGHT |
-  OVERLAPS_RIGHT;
-
-$next_a[SUCCEEDS_DIRECTLY] = 
-  SUCCEEDS_DIRECTLY |
-  SUCCEEDS;
-$next_b[SUCCEEDS_DIRECTLY] = 
+$next_b[ALIGNS_RIGHT] =
   PRECEDES |
   PRECEDES_DIRECTLY |
   OVERLAPS_LEFT |
@@ -219,16 +224,56 @@ $next_b[SUCCEEDS_DIRECTLY] =
   OVERLAPS_RIGHT |
   SUCCEEDS_DIRECTLY;
 
-$next_a[SUCCEEDS] = 
+$next_a[OVERLAPS_RIGHT] =
+  OVERLAPS_RIGHT |
+  SUCCEEDS_DIRECTLY |
   SUCCEEDS;
-$next_b[SUCCEEDS] = 
+$next_b[OVERLAPS_RIGHT] =
   PRECEDES |
   PRECEDES_DIRECTLY |
+  OVERLAPS_LEFT |
   ALIGNS_LEFT |
   STARTS_WITH |
   MATCHES |
   IS_WITHIN |
+  IS_AROUND |
+  ENDS_WITH |
   ALIGNS_RIGHT |
+  OVERLAPS_RIGHT |
+  SUCCEEDS_DIRECTLY;
+
+$next_a[SUCCEEDS_DIRECTLY] =
+  SUCCEEDS_DIRECTLY |
+  SUCCEEDS;
+$next_b[SUCCEEDS_DIRECTLY] =
+  PRECEDES |
+  PRECEDES_DIRECTLY |
+  OVERLAPS_LEFT |
+  ALIGNS_LEFT |
+  STARTS_WITH |
+  MATCHES |
+  IS_WITHIN |
+  IS_AROUND |
+  ENDS_WITH |
+  ALIGNS_RIGHT |
+  OVERLAPS_RIGHT |
+  SUCCEEDS_DIRECTLY |
+  SUCCEEDS;
+
+$next_a[SUCCEEDS] =
+  SUCCEEDS;
+$next_b[SUCCEEDS] =
+  PRECEDES |
+  PRECEDES_DIRECTLY |
+  OVERLAPS_LEFT |
+  ALIGNS_LEFT |
+  STARTS_WITH |
+  MATCHES |
+  IS_WITHIN |
+  IS_AROUND |
+  ENDS_WITH |
+  ALIGNS_RIGHT |
+  OVERLAPS_RIGHT |
   SUCCEEDS_DIRECTLY |
   SUCCEEDS;
 
@@ -269,8 +314,8 @@ sub check {
   my $case = case($first, $second);
   my $frames = $self->{frames};
 
-  print "  >> The case is    " ._bits($case)  . " ($case)\n";
-  print "     for the frames " ._bits($frames) . " ($frames)\n";
+  print_log('pos', "The case is     " ._bits($case)  . " ($case)") if DEBUG;
+  print_log('pos', "for the frames  " ._bits($frames) . " ($frames)") if DEBUG;
 
   # Configuration is valid
   if ($case & $frames) {
@@ -281,7 +326,7 @@ sub check {
     $self->{end}   = $first->end > $second->end ? $first->end : $second->end;
     $self->{payload} = $first->payload->clone->copy_from($second->payload);
 
-    print "  >>There is a match - make current match: " . $self->current . "\n";
+    print_log('pos', "There is a match - make current match: " . $self->current) if DEBUG;
     return NEXTA | NEXTB | MATCH;
   };
 
@@ -298,7 +343,10 @@ sub check {
     $ret_val |= NEXTB
   };
 
-  print "  >> Next frames are "._bits($next_a[$case])." and "._bits($next_b[$case])."\n";
+  if (DEBUG) {
+    print_log('pos', "Next frames are "._bits($next_a[$case])." and ");
+    print_log('pos', '                '._bits($next_b[$case]));
+  };
   return $ret_val;
 };
 

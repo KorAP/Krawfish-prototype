@@ -1,5 +1,6 @@
 package Krawfish::Query::Base::Dual;
 use parent 'Exporter';
+use Krawfish::Log;
 use strict;
 use warnings;
 use Krawfish::Query::Util::Buffer;
@@ -10,22 +11,13 @@ our @EXPORT;
 use constant {
   NEXTA  => 1,
   NEXTB  => 2,
-  MATCH  => 4
+  MATCH  => 4,
+  DEBUG  => 1
 };
 
 @EXPORT = qw/NEXTA NEXTB MATCH/;
 
 # TODO: Improve by skipping to the same document
-
-# This idea is probably wrong.
-# There should be a finger in the second span, that can be forwarded but also
-# rewinded. The system should be like that:
-# Spans:  [pos1][pos2][pos3][pos4][pos5][pos6]
-#          ^           ^           ^
-#          remember    finger      current
-# The finger can return to remember.
-# remember can be forwarded.
-# Everything between remember and finger is in the candidate list.
 
 sub new {
   my $class = shift;
@@ -40,7 +32,7 @@ sub new {
 # Initialize both spans
 sub init {
   return if $_[0]->{init}++;
-  print "  >> Init dual spans\n";
+  print_log('dual', 'Init dual spans') if DEBUG;
   $_[0]->{first}->next;
   $_[0]->{second}->next;
   $_[0]->{buffer}->remember($_[0]->{second}->current);
@@ -69,18 +61,18 @@ sub next {
 
   while (1) {
     unless ($first = $self->{first}->current) {
-      print " ->> No more first items, return false 1\n";
+      print_log('dual', 'No more first items, return false 1') if DEBUG;
       $self->{doc_id} = undef;
       return;
     };
 
     unless ($second = $self->{buffer}->current) {
-      print " ->> Buffer is empty\n";
+      print_log('dual', 'Buffer is empty') if DEBUG;
 
       # Forward span
       unless ($self->{first}->next) {
         # May point to no current
-        print "  >> return false 2\n";
+        print_log('dual', 'Return false 2') if DEBUG;
         $self->{doc_id} = undef;
         return;
       };
@@ -95,19 +87,21 @@ sub next {
 
     # Equal documents - check!
     if ($first->doc_id == $second->doc_id) {
-      print "  >> Documents are equal - check the configuration\n";
-      print "  >> Configuration is $first vs $second\n";
+      print_log('dual', 'Documents are equal - check the configuration') if DEBUG;
+      print_log('dual', "Configuration is $first vs $second") if DEBUG;
 
       # Check configuration
       my $check = $self->check($first, $second);
 
-      print "  >> Plan next step based on " . (0 + $check) . "\n";
+      print_log('dual', 'Plan next step based on ' . (0 + $check)) if DEBUG;
 
       # next b is possible
       if ($check & NEXTB) {
 
         # Only next b is possible
         if (!($check & NEXTA)) {
+
+          print_log('dual', 'Only next B is possible') if DEBUG;
 
           # Forget the current buffer
           $self->{buffer}->forget;
@@ -117,7 +111,7 @@ sub next {
         if (!($self->{buffer}->next)) {
           # This will never be true
 
-          print "  >> Unable to forward buffer - get next\n";
+          print_log('dual', 'Unable to forward buffer - get next') if DEBUG;
 
           if ($self->{second}->next) {
             $self->{buffer}->remember(
@@ -136,6 +130,8 @@ sub next {
       # Only next a is possible
       elsif ($check & NEXTA) {
 
+        print_log('dual', 'Only next A is possible') if DEBUG;
+
         # Forward span
         $self->{first}->next;
         # May point to no current
@@ -146,7 +142,7 @@ sub next {
 
       # The configuration matches
       if ($check & MATCH) {
-        print "  !! return Match\n";
+        print_log('dual', 'MATCH!') if DEBUG;
         return 1 ;
       };
     }

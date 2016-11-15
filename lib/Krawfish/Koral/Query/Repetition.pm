@@ -22,8 +22,9 @@ sub new {
   elsif (@_ == 1) {
     $min = $max = shift;
   }
+  # *
   else {
-    $min = $max = 1;
+    $min = $max = undef;
   };
 
   bless {
@@ -159,18 +160,34 @@ sub to_string {
   my $str = $self->{span}->to_string;
 
   if (defined $self->{min} && defined $self->{max}) {
-    if ($self->{min} == $self->{max}) {
+    if (!$self->{min} && $self->{max} == 1) {
+      $str .= '?';
+    }
+    elsif ($self->{min} == $self->{max}) {
       $str .= '{' . $self->{min} . '}';
     }
     else {
       $str .= '{' . $self->{min} . ',' . $self->{max} . '}';
     }
   }
-  elsif (defined $self->{min}) {
-    $str .= '{' . $self->{min} . ',}';
+  elsif ($self->{min}) {
+    if ($self->{min} == 1) {
+      $str .= '+';
+    }
+    else {
+      $str .= '{' . $self->{min} . ',}';
+    };
   }
   elsif (defined $self->{max}) {
-    $str .= '{,' . $self->{max} . '}';
+    if ($self->{max} == 1) {
+      $str .= '?';
+    }
+    else {
+      $str .= '{,' . $self->{max} . '}';
+    };
+  }
+  else {
+    $str .= '*';
   };
   return $str;
 };

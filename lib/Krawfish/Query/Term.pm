@@ -1,8 +1,11 @@
 package Krawfish::Query::Term;
 use Krawfish::Index::PostingsList;
 use Krawfish::Posting::Token;
+use Krawfish::Log;
 use strict;
 use warnings;
+
+use constant DEBUG => 1;
 
 sub new {
   my ($class, $index, $term) = @_;
@@ -19,15 +22,13 @@ sub new {
 sub next {
   my $self = shift;
 
-  print '  >> Next "' . $self->term . "\"";
+  print_log('term', 'Next "' . $self->term . "\"") if DEBUG;
 
   # TODO: This should respect filters
   my $return = $self->{postings}->next;
-  if ($return) {
-    print ' - current is ' . $self->current . "\n";
-  }
-  else  {
-    print " - no current\n";
+  if (DEBUG) {
+    print_log('term', ' - current is ' . $self->current) if $return;
+    print_log('term', ' - no current');
   };
   return $return;
 };
