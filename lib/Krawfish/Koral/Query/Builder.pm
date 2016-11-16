@@ -8,6 +8,7 @@ use Krawfish::Koral::Query::TermGroup;
 use Krawfish::Koral::Query::Position;
 use Krawfish::Koral::Query::Extension;
 use Krawfish::Koral::Query::Exclusion;
+use Krawfish::Koral::Query::Unique;
 use Krawfish::Koral::Query::Class;
 
 sub new {
@@ -95,8 +96,14 @@ sub ext_right {
 
 # Null element - only for plan testing purposes
 sub null {
-  my $term = Krawfish::Koral::Query::Term->new;
-  return $term;
+  Krawfish::Koral::Query::Term->new;
+};
+
+
+# Unique results
+sub unique {
+  shift;
+  Krawfish::Koral::Query::Unique->new(@_);
 };
 
 1;

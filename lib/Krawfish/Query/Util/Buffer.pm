@@ -6,7 +6,7 @@ use warnings;
 # Buffer contains a queue of spans, with a finger to point
 # on certain positions in the queue
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # Constructor
 sub new {
@@ -65,8 +65,9 @@ sub backward {
 sub remember {
   my $self = shift;
   my $span = shift;
-  push @{$self->{array}}, $span;
   print_log('buffer', "Remember $span in buffer: " . $self->to_string) if DEBUG;
+  push @{$self->{array}}, $span;
+  return 1;
 };
 
 sub first {

@@ -1,4 +1,5 @@
 package Krawfish::Index::TokensList;
+use constant DEBUG => 0;
 use strict;
 use warnings;
 
@@ -30,7 +31,7 @@ sub new {
 sub append {
   my $self = shift;
   my ($token, $doc_id, $pos, $end) = @_;
-  print "  == Appended $token with $doc_id, $pos" . ($end ? "-$end" : '') . "\n";
+  print_log('toklist', "Appended $token with $doc_id, $pos" . ($end ? "-$end" : '')) if DEBUG;
   push(@{$self->{array}}, [$doc_id, $pos, $end]);
 };
 

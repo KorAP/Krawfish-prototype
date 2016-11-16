@@ -14,6 +14,7 @@ use bytes;
 # "X is not in that positional relation with any Y",
 # while the current solution only checks for
 # "X is not in that positional relation with Y".
+#
 # The solution may be an exclusivity constraint,
 # that may buffer valid X spans and release them once
 # it's clear there is no Y in existence to be in the

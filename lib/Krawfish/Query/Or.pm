@@ -1,7 +1,10 @@
 package Krawfish::Query::Or;
 use parent 'Krawfish::Query';
+use Krawfish::Log;
 use strict;
 use warnings;
+
+use constant DEBUG => 0;
 
 sub new {
   my $class = shift;
@@ -34,42 +37,42 @@ sub next {
       $self->{doc_id} = undef;
       return;
     };
-    print "  >> Current is second (a)\n";
+    print_log('or', 'Current is second (a)') if DEBUG;
     $curr = 'second';
   }
 
   # Second span is no longer available
   elsif (!$second) {
-    print "  >> Current is first (b)\n";
+    print_log('or', 'Current is first (b)') if DEBUG;
     $curr = 'first';
   }
 
   elsif ($first->doc_id < $second->doc_id) {
-    print "  >> Current is first (1)\n";
+    print_log('or', 'Current is first (1)') if DEBUG;
     $curr = 'first';
   }
   elsif ($first->doc_id > $second->doc_id) {
-    print "  >> Current is second (1)\n";
+    print_log('or', 'Current is second (1)') if DEBUG;
     $curr = 'second';
   }
   elsif ($first->start < $second->start) {
-    print "  >> Current is first (2)\n";
+    print_log('or', 'Current is first (2)') if DEBUG;
     $curr = 'first';
   }
   elsif ($first->start > $second->start) {
-    print "  >> Current is second (2)\n";
+    print_log('or', 'Current is second (2)') if DEBUG;
     $curr = 'second';
   }
   elsif ($first->end < $second->end) {
-    print "  >> Current is first (3)\n";
+    print_log('or', 'Current is first (3)') if DEBUG;
     $curr = 'first';
   }
   elsif ($first->end > $second->end) {
-    print "  >> Current is second (3)\n";
+    print_log('or', 'Current is second (3)') if DEBUG;
     $curr = 'second';
   }
   else {
-    print "  >> Current is first (4)\n";
+    print_log('or', 'Current is first (4)') if DEBUG;
     $curr = 'first';
   };
 
@@ -77,8 +80,10 @@ sub next {
   $self->{doc_id} = $curr_post->doc_id;
   $self->{start} = $curr_post->start;
   $self->{end} = $curr_post->end;
-  print "  >> Current " . $self->current->to_string . "\n";
-  print "  >> Next on $curr\n";
+  if (DEBUG) {
+    print_log('or', 'Current ' . $self->current->to_string);
+    print_log('or', "Next on $curr");
+  };
   $self->{$curr}->next;
   return 1;
 };

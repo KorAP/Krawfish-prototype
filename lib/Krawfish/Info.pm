@@ -7,8 +7,6 @@ sub error {
   return shift->_info('error', @_);
 };
 
-# sub message;
-
 sub warning {
   return shift->_info('warning', @_);
 };

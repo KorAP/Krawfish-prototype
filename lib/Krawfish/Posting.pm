@@ -50,5 +50,10 @@ sub to_string {
   return $str . ']';
 };
 
+sub compare {
+  my ($self, $comp) = @_;
+  return unless $comp;
+  return $self->to_string eq $comp->to_string;
+};
 
 1;
