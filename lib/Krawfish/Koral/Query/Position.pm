@@ -25,12 +25,13 @@ sub new {
   my $class = shift;
   my ($frame_array, $first, $second) = @_;
 
-  bless {
-    frames  => _to_frame($frame_array),
+  my $self = bless {
     first   => $first,
-    second  => $second,
-    info => undef
+    second  => $second
   }, $class;
+
+  $self->{frames}  = $self->_to_frame($frame_array);
+  return $self;
 };
 
 # Return KoralQuery fragment
@@ -39,7 +40,7 @@ sub to_koral_fragment {
   return {
     '@type' => 'koral:group',
     'operation' => 'operation:position',
-    'frames' => [map { 'frames:' . $_ } _to_list($self->{frames})],
+    'frames' => [map { 'frames:' . $_ } $self->_to_list($self->{frames})],
     'operands' => [
       $self->{first}->to_koral_fragment,
       $self->{second}->to_koral_fragment
@@ -118,7 +119,7 @@ sub plan_for {
 
 # List all positions of a frame
 sub _to_list {
-  my $frame = shift;
+  my ($self, $frame) = @_;
   my @array = ();
   while (my ($key, $value) = %FRAME) {
     push @array, $key if $frame & $value;
@@ -129,7 +130,7 @@ sub _to_list {
 
 # Get the frame of a position list
 sub _to_frame {
-  my $array = shift;
+  my ($self, $array) = @_;
 
   # Reference array
   $array = ref $array eq 'ARRAY' ? $array : [$array];
@@ -161,13 +162,15 @@ sub to_string {
   return $string . ')';
 };
 
+
 # Return if the query may result in an 'any' left extension
 # [][Der]
 sub is_extended_left {
   my $self = shift;
 
   # Already computed
-  return $self->{is_extended_left} if $self->{is_extended_left};
+  return $self->{is_extended_left}
+    if $self->{is_extended_left};
 
   my $frames = $self->{frames};
   $frames = ~$frames if $self->{exclude};

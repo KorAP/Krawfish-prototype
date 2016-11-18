@@ -2,6 +2,7 @@ package Krawfish::Query::Exclusion;
 use parent 'Krawfish::Query::Position';
 use Krawfish::Query::Base::Dual;
 use Krawfish::Query::Position;
+use Krawfish::Log;
 use strict;
 use warnings;
 use bytes;
@@ -32,6 +33,7 @@ use bytes;
 # If normal next_a is called,
 # a is truely exclusive.
 
+use constant DEBUG => 1;
 
 sub new {
   my $class = shift;
@@ -48,26 +50,33 @@ sub check {
   my ($first, $second) = @_;
 
   # Get the current configuration
-  my $case = case($first, $second);
+  my $case = Krawfish::Query::Position::case($first, $second);
   my $frames = $self->{frames};
 
+  # There is a machtch - so A does not exclude B
   if ($case & $frames) {
     return NEXTA;
-  }
+  };
 
   my $ret_val = 0b0000;
 
   # Span may forward with a
   if ($next_a[$case] & $frames) {
     $ret_val |= NEXTA
-  };
+  }
 
   # Span may forward with b
   if ($next_b[$case] & $frames) {
     $ret_val |= NEXTB
   };
 
-  print "  >> Next frames are "._bits($next_a[$case])." and "._bits($next_b[$case])."\n";
+  if (DEBUG) {
+    print_log('excl', "Next frames are ".Krawfish::Query::Position::_bits($next_a[$case])." and ");
+    print_log('excl', '                '.Krawfish::Query::Position::_bits($next_b[$case]));
+    print_log('excl', '     for frames '.Krawfish::Query::Position::_bits($frames));
+    print_log('excl', '     with case  '.Krawfish::Query::Position::_bits($case));
+  };
+
   return $ret_val;
 };
 

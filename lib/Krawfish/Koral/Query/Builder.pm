@@ -10,6 +10,11 @@ use Krawfish::Koral::Query::Extension;
 use Krawfish::Koral::Query::Exclusion;
 use Krawfish::Koral::Query::Unique;
 use Krawfish::Koral::Query::Class;
+use Krawfish::Koral::Query::Constraints;
+
+# TODO: Not all constraints need to be wrapped
+use Krawfish::Koral::Query::Constraint::Position;
+use Krawfish::Koral::Query::Constraint::ClassDistance;
 
 sub new {
   my $class = shift;
@@ -71,10 +76,27 @@ sub position {
   Krawfish::Koral::Query::Position->new(@_);
 };
 
+
 # Position construct
-sub exclude {
+sub exclusion {
   shift;
   Krawfish::Koral::Query::Exclusion->new(@_);
+};
+
+
+sub constraints {
+  shift;
+  Krawfish::Koral::Query::Constraints->new(@_);
+};
+
+sub c_position {
+  shift;
+  Krawfish::Koral::Query::Constraint::Position->new(@_);
+};
+
+sub c_class_distance {
+  shift;
+  Krawfish::Koral::Query::Constraint::ClassDistance->new(@_);
 };
 
 sub class {

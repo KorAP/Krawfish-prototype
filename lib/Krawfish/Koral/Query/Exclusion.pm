@@ -10,13 +10,15 @@ sub new {
   my $class = shift;
   my ($frame_array, $first, $second) = @_;
 
-  bless {
-    frames  => _to_frame($frame_array),
+  my $self = bless {
     first   => $first,
-    second  => $second,
-    info => undef
+    second  => $second
   }, $class;
+
+  $self->{frames}  = $self->_to_frame($frame_array);
+  return $self;
 };
+
 
 # Return KoralQuery fragment
 sub to_koral_fragment {
@@ -25,7 +27,7 @@ sub to_koral_fragment {
     '@type' => 'koral:group',
     'operation' => 'operation:position',
     'exclude' => Mojo::JSON->true,
-    'frames' => [map { 'frames:' . $_ } _to_list($self->{frames})],
+    'frames' => [map { 'frames:' . $_ } $self->_to_list($self->{frames})],
     'operands' => [
       $self->{first}->to_koral_query_fragment,
       $self->{second}->to_koral_query_fragment
@@ -42,11 +44,27 @@ sub to_koral_fragment {
 sub type { 'exclusion' };
 
 sub plan_for {
-#  my ($self, $index) = @_;
-#  my $frames = $self->{frames};
-#  my $first = $self->{first};
-#  my $second = $self->{second};
-  ...
+  my ($self, $index) = @_;
+  my $frames = $self->{frames};
+  my $first = $self->{first};
+  my $second = $self->{second};
+
+  my ($first_plan, $second_plan);
+  unless ($first_plan = $self->{first}->plan_for($index)) {
+    $self->copy_info_from($self->{first});
+    return;
+  };
+
+  unless ($second_plan = $self->{second}->plan_for($index)) {
+    $self->copy_info_from($self->{second});
+    return;
+  };
+
+  return Krawfish::Query::Exclusion->new(
+    $self->{frames},
+    $first_plan,
+    $second_plan
+  );
 };
 
 
@@ -59,23 +77,42 @@ sub to_string {
   return $string . ')';
 };
 
+
+sub is_any {
+  $_[0]->{first}->is_any;
+};
+
+
+sub is_optional {
+  $_[0]->{first}->is_optional;
+};
+
+sub is_null {
+  $_[0]->{first}->is_null;
+};
+
+sub is_negative {
+  $_[0]->{first}->is_null;
+};
+
+
 # Return if the query may result in an 'any' left extension
 # [][Der]
 sub is_extended_left {
-  ...
+  return $_[0]->{first}->is_extended_left;
 };
 
 
 # Return if the query may result in an 'any' right extension
 # [Der][]
 sub is_extended_right {
-  ...
+  return $_[0]->{first}->is_extended_right;
 };
 
 
 # return if the query is extended either to the left or to the right
 sub is_extended {
-  ...
+    return $_[0]->{first}->is_extended;
 };
 
 

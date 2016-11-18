@@ -1,6 +1,5 @@
 package Krawfish::Query::Class;
 use parent 'Krawfish::Query';
-use Krawfish::Posting::Payload;
 use Krawfish::Log;
 use strict;
 use warnings;
