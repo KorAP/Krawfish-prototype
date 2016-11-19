@@ -58,6 +58,7 @@ ok($seq = $wrap->plan_for($index), 'Rewrite');
 
 test_matches($seq, qw/[0:2-4]/);
 
+
 # Reset index - situation [bb][aa] -> [aa][bb]
 $index = Krawfish::Index->new;
 ok(defined $index->add(complex_doc('[bb][aa][bb][aa]')), 'Add complex document');
@@ -65,7 +66,6 @@ ok($qb = Krawfish::Koral::Query::Builder->new, 'Create Koral::Builder');
 ok($wrap = $qb->position(['precedesDirectly'], $qb->token('aa'), $qb->token('bb')), 'Sequence');
 ok($seq = $wrap->plan_for($index), 'Rewrite');
 test_matches($seq, qw/[0:1-3]/);
-
 
 # Reset index - situation [aa]..[bb] -> [aa][bb]
 $index = Krawfish::Index->new;
@@ -93,7 +93,6 @@ ok($qb = Krawfish::Koral::Query::Builder->new, 'Create Koral::Builder');
 ok($wrap = $qb->position(['precedesDirectly'], $qb->token('aa'), $qb->token('bb')), 'Sequence');
 ok($seq = $wrap->plan_for($index), 'Rewrite');
 test_matches($seq, qw/[0:0-2] [0:0-2] [0:0-2] [0:0-2]/);
-
 
 # Reset index
 $index = Krawfish::Index->new;

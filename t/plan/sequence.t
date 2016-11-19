@@ -31,6 +31,13 @@ is($tree->to_string, "pos(2:[Der],ext(1:<opennlp/c=NP>,[]))", 'Tree stringificat
 
 diag "Test further";
 
+# aa []* bb
+# aa []+ bb
+# aa ([][])+ bb -> pos(frames=precedes,dist=???)
+# -> constr(frames=precedes,dist=,2,100,steps=2:'aa', 'bb')
+# aa ([opennlp][])+ bb
+# aa ({1:[]{2}}|2:[]{3})+ bb
+
 done_testing;
 
 __END__

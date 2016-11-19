@@ -97,22 +97,14 @@ sub is_negative {
 
 
 # Return if the query may result in an 'any' left extension
-# [][Der]
 sub is_extended_left {
   return $_[0]->{first}->is_extended_left;
 };
 
 
 # Return if the query may result in an 'any' right extension
-# [Der][]
 sub is_extended_right {
   return $_[0]->{first}->is_extended_right;
-};
-
-
-# return if the query is extended either to the left or to the right
-sub is_extended {
-    return $_[0]->{first}->is_extended;
 };
 
 

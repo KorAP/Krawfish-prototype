@@ -49,7 +49,7 @@ $term = Krawfish::Koral::Query::Term->new('opennlp/p != gender:m');
 ok(!$term->field, 'No field');
 ok(!$term->prefix, 'No prefix');
 is($term->foundry, 'opennlp', 'Foundry');
-is($term->op, '!=', 'Layer');
+is($term->match, '!=', 'Layer');
 is($term->layer, 'p', 'Layer');
 is($term->key, 'gender', 'Key');
 is($term->value, 'm', 'Value');

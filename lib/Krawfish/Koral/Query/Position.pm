@@ -1,9 +1,12 @@
 package Krawfish::Koral::Query::Position;
 use parent 'Krawfish::Koral::Query';
 use Krawfish::Query::Position;
+use Krawfish::Log;
 use Mojo::JSON;
 use strict;
 use warnings;
+
+use constant DEBUG => 0;
 
 our %FRAME = (
   precedes => PRECEDES,
@@ -68,7 +71,7 @@ sub plan_for {
 
   # Anything in positional relation to nothing
   if ($second->is_null) {
-    print "  ## Try to eliminate null query\n";
+    print_log('k_pos', 'Try to eliminate null query') if DEBUG;
 
     # This may be reducible to first span
     my $valid_frames =
@@ -77,16 +80,20 @@ sub plan_for {
 
     # Frames has at least one match with valid frames
     if ($frames & $valid_frames) {
-      print "  ## Frames match valid frames:\n";
-      print "     " . _bits($frames) . " & \n";
-      print "     " . _bits($valid_frames) . " = true\n";
+      if (DEBUG) {
+        print_log('k_pos', 'Frames match valid frames');
+        print_log('k_pos', '  ' . _bits($frames) . ' & ');
+        print_log('k_pos', '  ' . _bits($valid_frames) . ' = true');
+      };
 
       # Frames has no match with invalid frames
       unless ($frames & ~$valid_frames) {
-        print "  ## Frames don't match invalid frames:\n";
-        print "     " . _bits($frames) . " & \n";
-        print "     " . _bits(~$valid_frames) . " = false\n";
-        print "  ## Can eliminate null query\n";
+        if (DEBUG) {
+          print_log('k_pos', 'Frames don\'t match invalid frames');
+          print_log('k_pos', '  ' . _bits($frames) . ' & ');
+          print_log('k_pos', '  ' . _bits(~$valid_frames) . ' = false');
+          print_log('k_pos', 'Can eliminate null query');
+        };
         return $first->plan_for($index);
       };
     };

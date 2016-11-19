@@ -85,7 +85,7 @@ sub layer {
 };
 
 # Operation
-sub op {
+sub match {
   if ($_[1]) {
     $_[0]->[4] = $_[1];
     return $_[0];
@@ -145,8 +145,11 @@ sub to_string {
       $str .= '/' . $self->layer;
     };
     if ($self->key) {
-      $str .= $self->op ? $self->op : '=';
+      $str .= $self->match ? $self->match : '=';
     };
+  }
+  elsif ($self->is_negative) {
+    $str .= '!';
   };
   $str .= $self->key;
   if ($self->value) {
@@ -166,7 +169,7 @@ sub term {
   };
   $str .= $self->prefix if $self->prefix;
   my $term = $self->to_string;
-  if ($self->op ne '=') {
+  if ($self->match ne '=') {
     $term =~ s/!=/=/i;
   };
   return $str . $term;
@@ -189,7 +192,7 @@ sub is_null {
   return;
 };
 sub is_negative {
-  $_[0]->op eq '!=' ? 1 : 0;
+  $_[0]->match eq '!=' ? 1 : 0;
 };
 sub is_extended { 0 };
 sub is_extended_right { 0 };

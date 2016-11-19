@@ -145,13 +145,13 @@ sub plan_for {
       # Plan query with positivie element
       # TODO: Elements may be termgroups!
       my $neg_query =
-        pop(@negatives)->op('=')->plan_for($index);
+        pop(@negatives)->match('=')->plan_for($index);
 
       # Join all negative terms in an or-query
       foreach (@negatives) {
         $neg_query = Krawfish::Query::Or->new(
           $neg_query,
-          $_->op('=')->plan_for($index)
+          $_->match('=')->plan_for($index)
         )
       };
 

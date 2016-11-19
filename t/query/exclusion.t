@@ -23,18 +23,18 @@ my $qb = Krawfish::Koral::Query::Builder->new;
 ok(defined $index->add(complex_doc('<1:aa>[bb][bb]</1><2:aa>[cc]</2>')), 'Add complex document');
 
 my $query = $qb->exclusion(
-  ['isAround'],
+  [qw/isAround startsWith endsWith matches/],
   $qb->span('aa'),
   $qb->token('bb')
 );
-is($query->to_string, 'excl(128:<aa>,[bb])', 'Stringification');
+is($query->to_string, 'excl(432:<aa>,[bb])', 'Stringification');
 ok(my $wrap = $query->plan_for($index), 'Planning');
-is($wrap->to_string, "excl(128:'<>aa','bb')",
+is($wrap->to_string, "excl(432:'<>aa','bb')",
    'Planned Stringification');
 
 ok($wrap->next, 'Init');
-# is($wrap->current->to_string, '[1:6-8]', 'Match');
-# ok(!$wrap->next, 'No more');
+is($wrap->current->to_string, '[0:2-3]', 'Match');
+ok(!$wrap->next, 'No more');
 
 
 

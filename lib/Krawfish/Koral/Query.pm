@@ -52,9 +52,9 @@ sub is_any            { $_[0]->{any}            // 0 };
 sub is_optional       { $_[0]->{optional}       // 0 };
 sub is_null           { $_[0]->{null}           // 0 };
 sub is_negative       { $_[0]->{negative}       // 0 };
-sub is_extended       { $_[0]->{extended}       // 0 };
 sub is_extended_right { $_[0]->{extended_right} // 0 };
 sub is_extended_left  { $_[0]->{extended_left}  // 0 };
+sub is_extended       { $_[0]->is_extended_right || $_[0]->is_extended_left // 0 };
 sub freq              { -1 };
 sub type              { '' };
 

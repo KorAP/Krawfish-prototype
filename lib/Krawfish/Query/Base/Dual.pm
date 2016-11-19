@@ -12,7 +12,7 @@ use constant {
   NEXTA  => 1,
   NEXTB  => 2,
   MATCH  => 4,
-  DEBUG  => 1
+  DEBUG  => 0
 };
 
 @EXPORT = qw/NEXTA NEXTB MATCH/;
@@ -49,6 +49,7 @@ sub next {
   while (1) {
     unless ($first = $self->{first}->current) {
       print_log('dual', 'No more first items, return false 1') if DEBUG;
+
       $self->{doc_id} = undef;
       return;
     };
@@ -56,17 +57,29 @@ sub next {
     unless ($second = $self->{buffer}->current) {
       print_log('dual', 'Buffer is empty') if DEBUG;
 
-      # Forward span
-      unless ($self->{first}->next) {
-        # May point to no current
-        print_log('dual', 'Return false 2') if DEBUG;
-        $self->{doc_id} = undef;
-        return;
+      # Check configuration
+      my $check = $self->check($first, undef);
+
+      print_log('dual', 'Final check is '. (0+$check)) if DEBUG;
+
+      # Expect a next_a
+      if ($check & NEXTA) {
+
+        # Forward span
+        $self->{first}->next;
+      };
+
+      # The configuration matches
+      if ($check & MATCH) {
+        print_log('dual', 'MATCH!') if DEBUG;
+        return 1 ;
       };
 
       # Reset buffer
       $self->{buffer}->to_start;
-      next;
+      $self->{doc_id} = undef;
+      return;
+      # next;
     };
 
     # TODO: Check if second may not be at the end
@@ -80,7 +93,7 @@ sub next {
       # Check configuration
       my $check = $self->check($first, $second);
 
-      print_log('dual', 'Plan next step based on ' . (0 + $check)) if DEBUG;
+      print_log('dual', 'Next step after check returned ' . (0 + $check)) if DEBUG;
 
       # next b is possible
       if ($check & NEXTB) {
@@ -92,14 +105,18 @@ sub next {
 
           # Forget the current buffer
           $self->{buffer}->forget;
+        }
+        elsif (DEBUG) {
+          print_log('dual', 'Next A and next B is possible') if DEBUG;
         };
 
         # Forward buffer - or span
         if (!($self->{buffer}->next)) {
           # This will never be true
 
-          print_log('dual', 'Unable to forward buffer - get next') if DEBUG;
+          print_log('dual', 'Unable to forward buffer - get next posting') if DEBUG;
 
+          # Check next posting
           if ($self->{second}->next) {
             $self->{buffer}->remember(
               $self->{second}->current
@@ -108,7 +125,27 @@ sub next {
             # Position finger to last item
             $self->{buffer}->to_end;
           }
+
+          # Check if nextA is supported
+          elsif ($check & NEXTA) {
+            print_log('dual', 'Second has no further postings') if DEBUG;
+
+            # Check configuration
+            my $check = $self->check($first, undef);
+
+            $self->{first}->next;
+            $self->{buffer}->to_start;
+
+            if ($check & MATCH) {
+              return 1;
+            };
+          }
+
+          # No, nothing
           else {
+            print_log('dual', 'There is no next second') if DEBUG;
+
+            # May be wrong (untested!)
             $self->{buffer}->forward;
           };
         };
@@ -125,6 +162,13 @@ sub next {
 
         # Reset buffer
         $self->{buffer}->to_start;
+      }
+
+      # No forwarding
+      else {
+        $self->{buffer}->clear;
+        $self->{doc_id} = undef;
+        return;
       };
 
       # The configuration matches

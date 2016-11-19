@@ -62,6 +62,11 @@ sub term_or {
   Krawfish::Koral::Query::TermGroup->new('or' => @_);
 };
 
+sub term_neg {
+  shift;
+  Krawfish::Koral::Query::Term->new(@_)->match('!=');
+};
+
 
 # Span construct
 sub span {
