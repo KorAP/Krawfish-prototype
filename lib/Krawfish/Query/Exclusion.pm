@@ -33,7 +33,7 @@ use bytes;
 # If normal next_a is called,
 # a is truely exclusive.
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 sub new {
   my $class = shift;

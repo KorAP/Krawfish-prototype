@@ -26,9 +26,11 @@ sub add {
   return $post_list;
 };
 
+# Return pointer
 sub get {
   my ($self, $term) = @_;
-  return $self->{hash}->{$term};
+  my $list = $self->{hash}->{$term} or return;
+  return $list->pointer;
 };
 
 1;

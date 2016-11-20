@@ -32,11 +32,7 @@ ok($plan->next, 'More tokens');
 is($plan->current->to_string, '[2:5-6]', 'Found string');
 ok(!$plan->next, 'No more tokens');
 
-# Todo: Reset index!
-$index = Krawfish::Index->new;
-ok(defined $index->add(cat_t('data','doc1.jsonld')), 'Add new document');
-ok(defined $index->add(cat_t('data','doc2.jsonld')), 'Add new document');
-ok(defined $index->add(cat_t('data','doc3-segments.jsonld')), 'Add new document');
+
 
 $query = $qb->token(
   $qb->term_or('opennlp/p=V', 'akron=lustigen', 'Der')

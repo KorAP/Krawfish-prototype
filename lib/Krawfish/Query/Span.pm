@@ -13,10 +13,10 @@ use warnings;
 sub current {
   my $postings = $_[0]->{postings};
   return if $postings->pos == -1;
-  return unless $postings->posting;
+  return unless $postings->current;
 
   Krawfish::Posting::Span->new(
-    @{$postings->posting}
+    @{$postings->current}
   );
 };
 

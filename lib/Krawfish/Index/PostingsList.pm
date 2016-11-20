@@ -1,12 +1,12 @@
 package Krawfish::Index::PostingsList;
-use Krawfish::Posting;
+use Krawfish::Index::PostingPointer;
 use strict;
 use warnings;
 use constant DEBUG => 0;
 
 # TODO: Use different PostingsList for different term types
 # TODO: Split postinglists, so they have different sizes,
-#   that may be fragmented.
+# that may be fragmented.
 
 sub new {
   my ($class, $index, $term) = @_;
@@ -14,7 +14,7 @@ sub new {
     term => $term,
     index => $index,
     array => [],
-    pos => -1
+    pointers => []
   }, $class;
 };
 
@@ -33,26 +33,22 @@ sub term {
   return $_[0]->{term};
 };
 
-sub next {
+sub at {
+  return $_[0]->{array}->[$_[1]];
+};
+
+sub pointer {
   my $self = shift;
-  my $pos = $self->{pos}++;
-  return ($pos + 1) < $self->freq ? 1 : 0;
+  # TODO: Add pointer to pointer list
+  # so the PostingsList knows, which fragments to lift
+  # Be aware, this may result in circular structures
+  Krawfish::Index::PostingPointer->new($self);
 };
-
-sub pos {
-  return $_[0]->{pos};
-};
-
-sub posting {
-  return $_[0]->{array}->[$_[0]->pos];
-}
 
 1;
 
 __END__
 
-# sub skip_doc_to;
-#sub skip_pos_to;
 
 
 

@@ -48,9 +48,6 @@ is($query->to_string, "constr(pos=1,class=5:'aa','bb')", 'Query is valid');
 
 test_matches($query, '[0:0-4$0,5,1,2]','[0:0-6$0,5,1,4]','[0:2-6$0,5,3,4]');
 
-$index = Krawfish::Index->new;
-ok(defined $index->add(simple_doc(qw/aa bb aa bb aa bb/)), 'Add complex document');
-
 # This equals to [aa]{5:[]*}[bb]
 $wrap = $qb->constraints(
   [$qb->c_position('precedes', 'precedesDirectly'), $qb->c_class_distance(5)],

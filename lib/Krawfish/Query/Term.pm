@@ -45,10 +45,10 @@ sub term {
 sub current {
   my $postings = $_[0]->{postings};
   return if $postings->pos == -1;
-  return unless $postings->posting;
+  return unless $postings->current;
 
   Krawfish::Posting::Token->new(
-    @{$postings->posting}
+    @{$postings->current}
   );
 };
 

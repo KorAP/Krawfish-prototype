@@ -34,10 +34,6 @@ test_matches($non_unique, qw/[0:0-1]
                              [0:2-3]/);
 
 
-# TODO: RESET
-$index = Krawfish::Index->new;
-ok(defined $index->add(complex_doc('[aa|bb][aa|bb][aa|bb]')), 'Add new document');
-
 $query = $qb->unique(
   $qb->token(
     $qb->term_or('aa', 'bb')

@@ -1,3 +1,5 @@
+use Test::More skip_all => 'No tests defined';
+
 __END__
 
 # 'aa' ({1:[]{2}}|{2:[]{3}|'cc'})+ 'bb'

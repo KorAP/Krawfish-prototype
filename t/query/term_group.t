@@ -41,13 +41,7 @@ $token = $qb->token(
 is($token->to_string, '[(aa&!bb)|(bb&cc)]', 'Stringification');
 ok($plan = $token->plan_for($index), 'Planning');
 is($plan->to_string, "or(excl(32:'aa','bb'),pos(32:'bb','cc'))", 'Stringification');
-print "*****************************\n\n";
-ok($plan->next, 'Init spans');
-is($plan->current->to_string, '[0:1-2]', 'Match');
-ok($plan->next, 'Next spans');
-#is($plan->current->to_string, '[0:2-3]', 'Match');
-
-# test_matches($plan, '[0:1-2]', '[0:2-3]','[0:3-4]');
+test_matches($plan, '[0:1-2]', '[0:2-3]','[0:3-4]');
 
 
 
