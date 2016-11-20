@@ -170,6 +170,7 @@ sub plan_for {
   return $query;
 };
 
+sub maybe_unsorted { 0 };
 
 sub to_string {
   my $self = shift;

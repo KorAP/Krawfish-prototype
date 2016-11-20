@@ -162,6 +162,14 @@ sub is_null {
   return $tree->is_null;
 };
 
+
+sub maybe_unsorted {
+  my $self = shift;
+  my $tree = $self->planned_tree;
+  return $tree->maybe_unsorted;
+};
+
+
 sub to_koral_fragment {
   my $self = shift;
   return {

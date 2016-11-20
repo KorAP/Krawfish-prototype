@@ -73,8 +73,7 @@ sub maybe_anchor      {
 # a wrapped relation query, classed operands may
 # be in arbitrary order. When focussing on these
 # classes, the span has to me reordered.
-
-sub maybe_unsorted { ... };
+sub maybe_unsorted { $_[0]->{maybe_unsorted} // 0 };
 
 #############################
 # Query Application methods #

@@ -7,7 +7,6 @@ use constant DEBUG => 0;
 # TODO: Use different PostingsList for different term types
 # TODO: Split postinglists, so they have different sizes,
 #   that may be fragmented.
-# TODO: Support filters and skip
 
 sub new {
   my ($class, $index, $term) = @_;

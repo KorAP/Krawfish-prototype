@@ -72,4 +72,8 @@ sub is_classed {
   $_[0]->span->is_classed;
 };
 
+sub maybe_unsorted {
+  $_[0]->span->maybe_unsorted;
+};
+
 1;

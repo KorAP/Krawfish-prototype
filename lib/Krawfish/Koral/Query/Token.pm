@@ -102,4 +102,7 @@ sub to_string {
 };
 
 
+sub maybe_unsorted { 0 };
+
+
 1;

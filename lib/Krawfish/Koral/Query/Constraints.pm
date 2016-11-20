@@ -47,6 +47,11 @@ return Krawfish::Query::Constraints->new(
 
 # TODO: Made helpers constrained knowing
 
+sub maybe_unsorded {
+  ...
+};
+
+
 sub to_string {
   my $self = shift;
   my $str = 'constr(';

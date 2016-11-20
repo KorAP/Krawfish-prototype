@@ -84,6 +84,10 @@ sub is_extended_left {
   $_[0]->span->is_extended_left;
 };
 
+sub maybe_unsorded {
+  $_[0]->span->maybe_unsorted;
+};
+
 sub is_classed { 1 };
 
 1;

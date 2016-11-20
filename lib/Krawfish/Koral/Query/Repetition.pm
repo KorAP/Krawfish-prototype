@@ -155,6 +155,10 @@ sub plan_for {
 };
 
 
+sub maybe_unsorted {
+  $_[0]->{span}->maybe_unsorded;
+}
+
 sub to_string {
   my $self = shift;
   my $str = $self->{span}->to_string;

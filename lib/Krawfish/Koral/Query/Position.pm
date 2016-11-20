@@ -24,6 +24,10 @@ our %FRAME = (
   succeeds => SUCCEEDS
 );
 
+our $LEFT_FRAMES = PRECEDES | PRECEDES_DIRECTLY | OVERLAPS_LEFT | ALIGNS_LEFT | STARTS_WITH;
+our $RIGHT_FRAMES = SUCCEEDS | SUCCEEDS_DIRECTLY | OVERLAPS_RIGHT | ALIGNS_RIGHT | ENDS_WITH;
+
+
 sub new {
   my $class = shift;
   my ($frame_array, $first, $second) = @_;
@@ -252,6 +256,21 @@ sub is_extended_right {
 sub is_extended {
   my $self = shift;
   return $self->is_extended_right || $self->is_extended_left;
+};
+
+
+sub maybe_unsorded {
+  my $self = shift;
+  my $frames = $self->{frames};
+
+  return 1 if $self->{first}->maybe_unsorted or $self->{second}->maybe_unsorted;
+
+  # TODO: Probably check for has_classes
+
+  # ??? IS_WITHIN, IS_AROUND, MATCHES
+
+  # Return 1 if frame definitions may result in unordered spans
+  return 1 if $frames & $LEFT_FRAMES && $frames & $RIGHT_FRAMES;
 };
 
 

@@ -95,6 +95,10 @@ sub is_negative {
   $_[0]->{first}->is_null;
 };
 
+sub maybe_unsorded {
+  $_[0]->{first}->maybe_unsorted;
+};
+
 
 # Return if the query may result in an 'any' left extension
 sub is_extended_left {

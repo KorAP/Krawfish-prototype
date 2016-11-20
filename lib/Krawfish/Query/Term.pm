@@ -6,6 +6,8 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
+# TODO: Support filters and skip
+
 use constant DEBUG => 0;
 
 sub new {

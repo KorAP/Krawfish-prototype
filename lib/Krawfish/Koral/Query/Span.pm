@@ -53,6 +53,7 @@ sub plan_for {
   );
 };
 
+sub maybe_unsorted { 0 };
 
 sub to_string {
   return '<' . $_[0]->wrap->to_string . '>';
