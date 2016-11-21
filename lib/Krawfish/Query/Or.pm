@@ -98,4 +98,16 @@ sub to_string {
   return 'or(' . $self->{first}->to_string . ',' . $self->{second}->to_string . ')';
 };
 
+sub freq {
+  my $self = shift;
+  return $self->{freq} if exists $self->{freq};
+  if ($self->{first}->freq != -1 || $self->{second}->freq != -1) {
+    $self->{freq} = -1;
+  }
+  else {
+    $self->{freq} = $self->{first}->freq + $self->{second}->freq;
+  };
+  return $self->{freq};
+};
+
 1;

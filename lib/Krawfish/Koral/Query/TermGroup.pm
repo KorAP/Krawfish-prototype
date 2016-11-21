@@ -67,6 +67,9 @@ sub plan_for {
   my $index = shift;
   my $ops = $self->operands;
 
+  if (@$ops == 0) {
+    return Krawfish::Koral::Query::Nothing->new;
+  };
 
   my @negatives = ();
 

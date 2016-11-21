@@ -1,6 +1,7 @@
 package Krawfish::Koral::Query::Term;
 use parent 'Krawfish::Koral::Query';
 use Krawfish::Query::Term;
+use Krawfish::Query::Nothing;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -227,7 +228,7 @@ sub plan_for {
       print_log('regex', 'to ' . substr(join(',',@terms),0,50));
     };
 
-    return unless @terms;
+    return Krawfish::Query::Nothing->new unless @terms;
 
     my $builder = $self->builder;
     my $or = $builder->term_or(@terms)->plan_for($index);
@@ -252,10 +253,6 @@ sub is_negative {
 sub is_extended { 0 };
 sub is_extended_right { 0 };
 sub is_extended_left { 0 };
-sub freq {
-  ...
-};
-
 sub maybe_unsorted { 0 };
 
 1;

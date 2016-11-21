@@ -60,6 +60,11 @@ sub plan_for {
     return;
   };
 
+  # Second object does not occur
+  if ($second_plan->freq == 0) {
+    return $first_plan;
+  };
+
   return Krawfish::Query::Exclusion->new(
     $self->{frames},
     $first_plan,

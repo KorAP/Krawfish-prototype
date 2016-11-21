@@ -47,7 +47,7 @@ sub token {
   Krawfish::Koral::Query::Token->new(@_);
 };
 
-sub regex {
+sub term_re {
   shift;
   Krawfish::Koral::Query::Term->new(@_)->match('~');
 }

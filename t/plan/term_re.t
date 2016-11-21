@@ -18,7 +18,7 @@ require '' . cat_t('util', 'CreateDoc.pm');
 
 ok(my $qb = Krawfish::Koral::Query::Builder->new, 'Add new_document');
 
-ok(my $re = $qb->regex('Der.*'), 'Regex');
+ok(my $re = $qb->term_re('Der.*'), 'Regex');
 is($re->to_string, '/Der.*/', 'Stringification');
 
 
@@ -36,7 +36,8 @@ is($plan->to_string, "or('a/l=PART','a/l=PUM')", 'Stringification');
 
 ok($re = $qb->term('f/l~G.*?'), 'Regex');
 is($re->to_string, 'f/l~G.*?', 'Stringification');
-ok(!$re->plan_for($index), 'Plan Regex');
+ok($plan = $re->plan_for($index), 'Plan Regex');
+is($plan->to_string, "[0]", 'Stringification');
 
 done_testing;
 __END__
