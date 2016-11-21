@@ -2,6 +2,7 @@ package Krawfish::Index;
 use Krawfish::Index::Dictionary;
 use Krawfish::Index::Offsets;
 use Krawfish::Index::PrimaryData;
+use Krawfish::Index::Fields;
 use strict;
 use warnings;
 use Scalar::Util qw!blessed!;
@@ -38,6 +39,11 @@ sub new {
     $self->{file}
   );
 
+  # Load primary
+  $self->{fields} = Krawfish::Index::Fields->new(
+    $self->{file}
+  );
+
   # TODO: Get last_doc_id from index file
   $self->{last_doc} = 0;
 
@@ -71,6 +77,11 @@ sub primary {
   $_[0]->{primary};
 };
 
+# Get fields
+sub fields {
+  $_[0]->{fields};
+};
+
 
 # Add document to the index
 sub add {
@@ -101,6 +112,21 @@ sub add {
     foreach my $seg (@{$doc->{segments}}) {
       $offsets->store($doc_id, $pos++, @{$seg->{offsets}});
     };
+  };
+
+  my $dict = $self->{dict};
+
+  # Add metadata fields
+  my $fields = $self->fields;
+  foreach my $field (@{$doc->{fields}}) {
+
+    # Add to document field (retrieval)
+    $fields->store($doc_id, $field->{key}, $field->{value});
+
+    # Add to postings lists (search)
+    my $term = $field->{key} . ':' . $field->{value};
+    my $post_list = $dict->add('-' . $term);
+    $post_list->append($doc_id);
   };
 
   # Get all tokens
@@ -147,7 +173,7 @@ sub add {
       };
 
       foreach (@keys) {
-        my $post_list = $self->{dict}->add($_);
+        my $post_list = $dict->add($_);
         $post_list->append($doc_id, @segments);
       };
     }
@@ -158,7 +184,7 @@ sub add {
       # Create key string
       my $key = '<>' . _term($item->{wrap});
 
-      my $post_list = $self->{dict}->add($key);
+      my $post_list = $dict->add($key);
 
       # Append posting to posting list
       $post_list->append(
