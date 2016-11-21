@@ -2,13 +2,26 @@ use Test::More;
 use strict;
 use warnings;
 use Data::Dumper;
+use File::Basename 'dirname';
+use File::Spec::Functions 'catfile';
+
 
 use_ok('Krawfish::Koral');
 use_ok('Krawfish::Index');
 
+
+sub cat_t {
+  return catfile(dirname(__FILE__), '..', @_);
+};
+
+require '' . cat_t('util', 'CreateDoc.pm');
+require '' . cat_t('util', 'TestMatches.pm');
+
+
 my $index = Krawfish::Index->new;
 
-ok(defined $index->add('t/data/doc1.jsonld'), 'Add new document');
+ok(defined $index->add(cat_t('data','doc1.jsonld')), 'Add new document');
+ok(defined $index->add(simple_doc(qw/first second third fourth fifth sixth/)), 'Add new document');
 
 my $koral = Krawfish::Koral->new;
 
@@ -36,7 +49,7 @@ ok(!$query->is_null, 'Isn\'t null');
 ok(!$query->is_negative, 'Isn\'t negative');
 ok(!$query->is_extended, 'Isn\'t extended');
 is($query->to_string, '[opennlp/c=NP|tt/p=NN]', 'Stringification');
-is($query->plan_for($index)->to_string, "or('opennlp/c=NP','tt/p=NN')", 'Planned Stringification');
+is($query->plan_for($index)->to_string, "[0]", 'Planned Stringification');
 
 $query = $qb->token(
   $qb->term_or(

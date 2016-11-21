@@ -53,6 +53,15 @@ is($plan->current->to_string, '[2:5-6]', 'Found string');
 ok(!$plan->next, 'No more tokens');
 
 
+# One element does not exist
+$query = $qb->token(
+  $qb->term_or('opennlp/p=V', 'traurig', 'Der')
+);
+is($query->to_string, '[opennlp/p=V|traurig|Der]', 'termGroup');
+ok($plan = $query->plan_for($index), 'TermGroup');
+is($plan->to_string, "or('opennlp/p=V','Der')", 'termGroup');
+
+
 
 done_testing;
 

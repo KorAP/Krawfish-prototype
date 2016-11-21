@@ -107,7 +107,13 @@ sub plan_for {
 
   # Only one positive operator - simplify
   elsif (@$ops == 1 && @negatives == 0) {
-    return $ops->[0]->plan_for($index);
+    my $single_term = $ops->[0]->plan_for($index);
+
+    if ($single_term->freq == 0) {
+      return Krawfish::Query::Nothing->new;
+    };
+
+    return $single_term;
   };
 
   # Build complex query
@@ -116,13 +122,29 @@ sub plan_for {
   # Serialize for 'or' operation
   if ($self->operation eq 'or') {
 
-    $query = $ops->[0]->plan_for($index);
+    # Check the frequency of all operands
+    my $i = 0;
 
-    for (my $i = 1; $i < @$ops; $i++) {
-      $query = Krawfish::Query::Or->new(
-        $query,
-        $ops->[$i]->plan_for($index)
-      )
+    # Start with a query != null
+    $query = $ops->[$i++]->plan_for($index);
+
+    while ($query->freq == 0 && $i < @$ops) {
+      $query = $ops->[$i++]->plan_for($index);
+    };
+
+    # Filter out all terms that do not occur
+    for (; $i < @$ops; $i++) {
+      my $option = $ops->[$i]->plan_for($index);
+      if ($option->freq != 0) {
+        $query = Krawfish::Query::Or->new(
+          $query,
+          $option
+        )
+      };
+    };
+
+    if ($query->freq == 0) {
+      return Krawfish::Query::Nothing->new;
     };
   }
 

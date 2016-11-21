@@ -29,7 +29,9 @@ sub skip_doc {
   return $self->{doc_id};
 };
 
-sub freq;
+sub freq {
+  -1;
+};
 
 # Overwrite
 sub to_string;
