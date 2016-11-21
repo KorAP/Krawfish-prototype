@@ -1,9 +1,13 @@
 package Krawfish::Koral::Query::Term;
+use parent 'Krawfish::Koral::Query';
 use Krawfish::Query::Term;
+use Krawfish::Log;
 use strict;
 use warnings;
 
-# TODO: Support escaping!
+# TODO: Support escaping! Especially for regex!
+
+use constant DEBUG => 0;
 
 sub new {
   my $class = shift;
@@ -17,7 +21,7 @@ sub new {
                    ([^\/]+?)           # 3 Foundry or Key
                    (?:
                      (?:/([^\=\!]+?))? # 4 Layer
-                     \s*(\!?=)\s*      # 5 Operator
+                     \s*(\!?[=~])\s*   # 5 Operator
                      ([^\:]+?)         # 6 Key
                      (?:\:(.+))?       # 7 Value
                    )?
@@ -113,6 +117,10 @@ sub value {
 };
 
 
+sub is_regex {
+  return index($_[0]->match, '~') == -1 ? 0 : 1;
+};
+
 # Create koral fragment
 sub to_koral_fragment {
   my $self = shift;
@@ -126,6 +134,8 @@ sub to_koral_fragment {
   $hash->{foundry} = $self->foundry if $self->foundry;
   $hash->{layer} = $self->layer if $self->layer;
   $hash->{value} = $self->value if $self->value;
+
+  # TODO: REGEX!
 
   return $hash;
 };
@@ -148,8 +158,19 @@ sub to_string {
       $str .= $self->match ? $self->match : '=';
     };
   }
-  elsif ($self->is_negative) {
-    $str .= '!';
+  else {
+    if ($self->is_negative) {
+      $str .= '!';
+    }
+    elsif ($self->is_regex) {
+      $str .= '/';
+      $str .= $self->key;
+      if ($self->value) {
+        $str .= ':' . $self->value;
+      };
+      $str .= '/';
+      return $str;
+    }
   };
   $str .= $self->key;
   if ($self->value) {
@@ -170,15 +191,49 @@ sub term {
   $str .= $self->prefix if $self->prefix;
   my $term = $self->to_string;
   if ($self->match ne '=') {
-    $term =~ s/!=/=/i;
+    $term =~ s/!?[=~]/=/i;
+  };
+  if ($self->is_regex) {
+    $term =~ s!^/!!;
+    $term =~ s!/$!!;
   };
   return $str . $term;
+};
+
+sub term_escaped {
+  my $self = shift;
+  my $term = $self->term;
+  if ($term =~ m!^((?:[^:]+?\:)?(?:[^/]+?\/)?(?:[^=]+?)\=)(.+?)$!) {
+    return quotemeta($1). $2;
+  };
+  return $term;
 };
 
 sub plan_for {
   my $self = shift;
   my $index = shift;
+
   return if $self->is_negative || $self->is_null;
+
+  # Expand regular expressions
+  if ($self->is_regex) {
+
+    # Get terms
+    my $term = $self->term_escaped;
+    my @terms = $index->dict->terms(qr/^$term$/);
+
+    if (DEBUG) {
+      print_log('regex', 'Expand /^' . $term . '$/');
+      print_log('regex', 'to ' . substr(join(',',@terms),0,50));
+    };
+
+    return unless @terms;
+
+    my $builder = $self->builder;
+    my $or = $builder->term_or(@terms)->plan_for($index);
+    return $or;
+  };
+
   return Krawfish::Query::Term->new($index, $self->term);
 };
 

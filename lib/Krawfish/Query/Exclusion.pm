@@ -43,6 +43,9 @@ sub new {
     second => shift,
     buffer  => Krawfish::Query::Util::Buffer->new,
   }, $class;
+
+
+  # TODO: Return 'first', if second->freq == 0
 };
 
 sub check {

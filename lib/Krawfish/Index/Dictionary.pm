@@ -33,4 +33,15 @@ sub get {
   return $list->pointer;
 };
 
+# Return terms of the term dictionary
+sub terms {
+  my ($self, $re) = @_;
+
+  if ($re) {
+    return sort grep { $_ =~ $re } keys %{$self->{hash}};
+  };
+
+  return keys %{$self->{hash}};
+};
+
 1;
