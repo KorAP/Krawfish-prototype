@@ -11,6 +11,7 @@ use Krawfish::Koral::Query::Exclusion;
 use Krawfish::Koral::Query::Unique;
 use Krawfish::Koral::Query::Class;
 use Krawfish::Koral::Query::Constraints;
+use Krawfish::Query::Nothing;
 
 # TODO: Not all constraints need to be wrapped
 use Krawfish::Koral::Query::Constraint::Position;
@@ -129,6 +130,11 @@ sub ext_right {
 # Null element - only for plan testing purposes
 sub null {
   Krawfish::Koral::Query::Term->new;
+};
+
+# No match
+sub nothing {
+  Krawfish::Query::Nothing->new;
 };
 
 

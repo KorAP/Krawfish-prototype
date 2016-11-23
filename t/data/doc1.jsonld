@@ -9,6 +9,12 @@
         "key":"docID",
         "value":"doc-1",
         "type":"type:string"
+      },
+      {
+        "@type":"koral:field",
+        "key":"license",
+        "value":"free",
+        "type":"type:string"
       }
     ],
     "annotations" : [

@@ -7,13 +7,14 @@ use strict;
 use warnings;
 
 # TODO: Support filters and skip
+# return Nothing if get returns undef
 
 use constant DEBUG => 0;
 
 sub new {
   my ($class, $index, $term) = @_;
   my $postings = $index->dict->get($term)
-    // Krawfish::Index::PostingsList->new($index, $term);
+    or return Krawfish::Query::Nothing->new;
   bless {
     postings => $postings,
     term => $term

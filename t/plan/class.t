@@ -13,10 +13,16 @@ ok(defined $index->add('t/data/doc1.jsonld'), 'Add new document');
 my $koral = Krawfish::Koral->new;
 my $qb = $koral->query_builder;
 
-my $query = $qb->class($qb->token('der'), 3);
+my $query = $qb->class($qb->token('Der'), 3);
+is($query->to_string, '{3:[Der]}', 'Stringification');
+
+is($query->plan_for($index)->to_string, "class(3:'Der')", 'Planned Stringification');
+
+$query = $qb->class($qb->token('der'), 3);
 is($query->to_string, '{3:[der]}', 'Stringification');
 
-is($query->plan_for($index)->to_string, "class(3:'der')", 'Planned Stringification');
+is($query->plan_for($index)->to_string, "[0]", 'Planned Stringification');
 
 done_testing;
 __END__
+

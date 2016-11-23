@@ -35,6 +35,11 @@ sub plan_for {
     return;
   };
 
+  # Span has no match
+  if ($span->freq == 0) {
+    return $self->builder->nothing;
+  };
+
   return Krawfish::Query::Class->new(
     $span,
     $self->number

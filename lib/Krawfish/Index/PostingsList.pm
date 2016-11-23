@@ -1,18 +1,19 @@
 package Krawfish::Index::PostingsList;
 use Krawfish::Index::PostingPointer;
+use Krawfish::Log;
 use strict;
 use warnings;
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # TODO: Use different PostingsList for different term types
 # TODO: Split postinglists, so they have different sizes,
 # that may be fragmented.
 
 sub new {
-  my ($class, $index, $term) = @_;
+  my ($class, $index_file, $term) = @_;
   bless {
     term => $term,
-    index => $index,
+    index_file => $index_file,
     array => [],
     pointers => []
   }, $class;
@@ -20,9 +21,14 @@ sub new {
 
 sub append {
   my $self = shift;
-  my ($doc_id, $pos, @payload) = @_;
-  print_log('post', "Appended " . $self->term . " with $doc_id, $pos") if DEBUG;
-  push (@{$self->{array}}, [$doc_id, $pos, @payload]);
+  my (@data) = @_;
+  if (DEBUG) {
+    print_log(
+      'post',
+      "Appended " . $self->term . " with " . join(',', @data)
+    );
+  };
+  push (@{$self->{array}}, [@data]);
 };
 
 sub freq {
@@ -44,6 +50,12 @@ sub pointer {
   # Be aware, this may result in circular structures
   Krawfish::Index::PostingPointer->new($self);
 };
+
+sub to_string {
+  my $self = shift;
+  join(',', map { '[' . $_ . ']' } @{$self->{array}});
+};
+
 
 1;
 

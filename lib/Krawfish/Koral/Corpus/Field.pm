@@ -1,5 +1,6 @@
 package Krawfish::Koral::Corpus::Field;
 use parent 'Krawfish::Koral::Corpus';
+use Krawfish::Corpus::Field;
 use strict;
 use warnings;
 
@@ -56,8 +57,12 @@ sub excludes {
 };
 
 
-sub plan {
-  ...
+sub plan_for {
+  my ($self, $index) = @_;
+  Krawfish::Corpus::Field->new(
+    $index,
+    $self->to_term
+  );
 };
 
 
@@ -108,5 +113,40 @@ sub to_koral_fragment {
   return $field;
 };
 
+
+sub to_string {
+  my $self = shift;
+  my $str = $self->{key};
+  my $op = $self->match;
+  if ($op eq 'eq') {
+    $str .= '=';
+  }
+  elsif ($op eq 'ne') {
+    $str .= '!=';
+  }
+  elsif ($op eq 'geq') {
+    $str .= '>=';
+  }
+  elsif ($op eq 'leq') {
+    $str .= '<=';
+  }
+  elsif ($op eq 'contains') {
+    $str .= '~'
+  }
+  elsif ($op eq 'excludes') {
+    $str .= '!=';
+  }
+  else {
+    $str .= '?';
+  };
+  return $str . $self->{value};
+};
+
+sub to_term {
+  my $self = shift;
+  my $term = $self->to_string;
+  $term =~ s/^([^=!><~\?]+?)(?:[!<>]?[=~\?])/$1:/;
+  return $term;
+};
 
 1;

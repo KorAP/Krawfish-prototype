@@ -3,9 +3,12 @@ use parent 'Krawfish::Koral::Query';
 use Krawfish::Koral::Query::Term;
 use Krawfish::Query::Or;
 use Krawfish::Query::Position;
+use Krawfish::Log;
 use Scalar::Util qw/blessed/;
 use strict;
 use warnings;
+
+use constant DEBUG => 1;
 
 sub new {
   my $class = shift;
@@ -67,9 +70,9 @@ sub plan_for {
   my $index = shift;
   my $ops = $self->operands;
 
-  if (@$ops == 0) {
-    return Krawfish::Koral::Query::Nothing->new;
-  };
+  # if (@$ops == 0) {
+  #   return Krawfish::Koral::Query::Nothing->new;
+  # };
 
   my @negatives = ();
 
@@ -107,30 +110,33 @@ sub plan_for {
 
   # Only one positive operator - simplify
   elsif (@$ops == 1 && @negatives == 0) {
-    my $single_term = $ops->[0]->plan_for($index);
+    my $single_op = $ops->[0]->plan_for($index);
 
-    if ($single_term->freq == 0) {
+    if ($single_op->freq == 0) {
       return Krawfish::Query::Nothing->new;
     };
 
-    return $single_term;
+    # Return operand query
+    return $single_op;
   };
 
   # Build complex query
   my $query;
 
+  my $i = 0;
+
+  # Check the frequency of all operands
+  # Start with a query != null
+  $query = $ops->[$i++]->plan_for($index);
+
+  while ($query->freq == 0 && $i < @$ops) {
+    $query = $ops->[$i++]->plan_for($index);
+  };
+
   # Serialize for 'or' operation
   if ($self->operation eq 'or') {
 
-    # Check the frequency of all operands
-    my $i = 0;
-
-    # Start with a query != null
-    $query = $ops->[$i++]->plan_for($index);
-
-    while ($query->freq == 0 && $i < @$ops) {
-      $query = $ops->[$i++]->plan_for($index);
-    };
+    print_log('kq_tgroup', 'Prepare or-group') if DEBUG;
 
     # Filter out all terms that do not occur
     for (; $i < @$ops; $i++) {
@@ -142,42 +148,58 @@ sub plan_for {
         )
       };
     };
-
-    if ($query->freq == 0) {
-      return Krawfish::Query::Nothing->new;
-    };
   }
 
   # Serialize for 'and' operation
   else {
 
-    $query = $ops->[0]->plan_for($index);
+    print_log('kq_tgroup', 'Prepare and-group') if DEBUG;
 
     # TODO: Order by frequency!
-    for (my $i = 1; $i < @$ops; $i++) {
-      $query = Krawfish::Query::Position->new(
-        MATCHES,
-        $query,
-        $ops->[$i]->plan_for($index)
-      )
+    for (; $i < @$ops; $i++) {
+      my $option = $ops->[$i]->plan_for($index);
+
+      if ($option->freq != 0) {
+        $query = Krawfish::Query::Position->new(
+          MATCHES,
+          $query,
+          $option
+        );
+      };
     };
+  };
+
+  if ($query->freq == 0) {
+    return Krawfish::Query::Nothing->new;
   };
 
   # Merge the remembered negatives
   if (@negatives) {
     if ($self->operation eq 'and') {
 
+      print_log('kq_tgroup', 'Add negatives to and-group') if DEBUG;
+
       # Plan query with positivie element
       # TODO: Elements may be termgroups!
+      # TODO: Elements may have frequency zero
       my $neg_query =
         pop(@negatives)->match('=')->plan_for($index);
 
       # Join all negative terms in an or-query
       foreach (@negatives) {
-        $neg_query = Krawfish::Query::Or->new(
-          $neg_query,
-          $_->match('=')->plan_for($index)
-        )
+        my $option = $_->match('=')->plan_for($index);
+
+        if ($option->freq != 0) {
+          $neg_query = Krawfish::Query::Or->new(
+            $neg_query,
+            $option
+          )
+        };
+      };
+
+      # Negation not important
+      if ($neg_query->freq == 0) {
+        return $query;
       };
 
       # Exclude this
@@ -196,6 +218,12 @@ sub plan_for {
 };
 
 sub maybe_unsorted { 0 };
+
+sub is_any {
+  my $self = shift;
+  return 1 if @{$self->operands} == 0;
+  return 0;
+};
 
 sub to_string {
   my $self = shift;

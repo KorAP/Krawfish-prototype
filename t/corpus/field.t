@@ -1,0 +1,38 @@
+use Test::More;
+use strict;
+use warnings;
+use File::Basename 'dirname';
+use File::Spec::Functions 'catfile';
+use Data::Dumper;
+
+sub cat_t {
+  return catfile(dirname(__FILE__), '..', @_);
+};
+
+require '' . cat_t('util', 'CreateDoc.pm');
+require '' . cat_t('util', 'TestMatches.pm');
+
+use_ok('Krawfish::Koral::Corpus::Builder');
+use_ok('Krawfish::Index');
+
+my $index = Krawfish::Index->new;
+ok(defined $index->add(cat_t('data', 'doc2.jsonld')), 'Add new document');
+ok(defined $index->add(cat_t('data', 'doc1.jsonld')), 'Add new document');
+ok(defined $index->add(cat_t('data', 'doc3-segments.jsonld')), 'Add new document');
+
+ok(my $cb = Krawfish::Koral::Corpus::Builder->new, 'Create CorpusBuilder');
+
+ok(my $field = $cb->string('license')->eq('free'), 'String field');
+is($field->to_string, "license=free", 'Stringification');
+ok(my $plan = $field->plan_for($index), 'Plan');
+is($plan->to_string, "'license:free'", 'Stringification');
+ok(!$plan->current, 'No current');
+ok($plan->next, 'Next posting');
+is($plan->current->to_string, '[1]', 'Current doc id');
+ok(!$plan->next, 'No next posting');
+ok(!$plan->current, 'No Current doc id');
+
+diag 'Test further';
+
+done_testing;
+__END__

@@ -5,7 +5,8 @@ use Krawfish::Log;
 use Krawfish::Index::PostingsList;
 
 # TODO: Use Storable
-use constant DEBUG => 0;
+
+use constant DEBUG => 1;
 
 sub new {
   my $class = shift;
@@ -20,15 +21,17 @@ sub add {
   my $self = shift;
   my $term = shift;
   print_log('dict', "Added term $term") if DEBUG;
-  my $post_list = $self->{hash}->{$term} //= Krawfish::Index::PostingsList->new(
-    $self->{file}, $term
-  );
-  return $post_list;
+  $self->{hash}->{$term} //=
+    Krawfish::Index::PostingsList->new(
+      $self->{file}, $term
+    );
+  return $self->{hash}->{$term};
 };
 
 # Return pointer
 sub get {
   my ($self, $term) = @_;
+  print_log('dict', 'Try to retrieve ' . $term) if DEBUG;
   my $list = $self->{hash}->{$term} or return;
   return $list->pointer;
 };

@@ -20,7 +20,6 @@ require '' . cat_t('util', 'TestMatches.pm');
 
 my $index = Krawfish::Index->new;
 
-ok(defined $index->add(cat_t('data','doc1.jsonld')), 'Add new document');
 ok(defined $index->add(simple_doc(qw/first second third fourth fifth sixth/)), 'Add new document');
 
 my $koral = Krawfish::Koral->new;
@@ -28,7 +27,7 @@ my $koral = Krawfish::Koral->new;
 my $qb = $koral->query_builder;
 
 my $query = $qb->token(
-  $qb->term_and('der', 'art')
+  $qb->term_and('first', 'second')
 );
 
 ok(!$query->is_any, 'Isn\'t any');
@@ -36,8 +35,8 @@ ok(!$query->is_optional, 'Isn\'t optional');
 ok(!$query->is_null, 'Isn\'t null');
 ok(!$query->is_negative, 'Isn\'t negative');
 ok(!$query->is_extended, 'Isn\'t extended');
-is($query->to_string, '[der&art]', 'Stringification');
-is($query->plan_for($index)->to_string, "pos(32:'der','art')", 'Planned Stringification');
+is($query->to_string, '[first&second]', 'Stringification');
+is($query->plan_for($index)->to_string, "pos(32:'first','second')", 'Planned Stringification');
 
 $query = $qb->token(
   $qb->term_or('opennlp/c=NP', 'tt/p=NN')
@@ -89,6 +88,7 @@ is($query->plan_for($index)->to_string,
    "or(or(pos(32:'first','second'),pos(32:'third',or('fourth','fifth'))),'sixth')",
    'Planned Stringification');
 
+# Group with null
 $query = $qb->token(
   $qb->term_and('first', $qb->null)
 );
@@ -97,15 +97,39 @@ is($query->plan_for($index)->to_string,
    "'first'",
    'Planned stringification');
 
+# Group with negation
+# [first&!second]
+$query = $qb->token(
+  $qb->term_and('first', $qb->term_neg('second'))
+);
+is($query->to_string, '[first&!second]', 'Stringifications');
+is($query->plan_for($index)->to_string,
+   "excl(32:'first','second')",
+   'Planned Stringification');
+
+# Group with negation and zero freq
 # [first&opennlp/c!=NN]
 $query = $qb->token(
   $qb->term_and('first', 'opennlp/c!=NN')
 );
 is($query->to_string, '[first&opennlp/c!=NN]', 'Stringifications');
 is($query->plan_for($index)->to_string,
-   "excl(32:'first','opennlp/c=NN')",
+   "'first'",
    'Planned Stringification');
 
+# [first&!third&second&!fourth]
+$query = $qb->token(
+  $qb->term_and(
+    $qb->term_and('first', $qb->term_neg('third')),
+    $qb->term_and('second', $qb->term_neg('fourth'))
+  )
+);
+is($query->to_string, '[(first&!third)&(second&!fourth)]', 'Stringifications');
+is($query->plan_for($index)->to_string,
+   "excl(32:pos(32:'first','second'),or('third','fourth'))",
+   'Planned Stringification');
+
+# And group with not-founds
 # [first&opennlp/c!=NN&second&third&tt/p!=ADJA]
 $query = $qb->token(
   $qb->term_and(
@@ -115,8 +139,12 @@ $query = $qb->token(
 );
 is($query->to_string, '[(first&opennlp/c!=NN)&(second&tt/p!=ADJA)]', 'Stringifications');
 is($query->plan_for($index)->to_string,
-   "excl(32:pos(32:'first','second'),or('opennlp/c=NN','tt/p=ADJA'))",
+   "pos(32:'first','second')",
    'Planned Stringification');
+
+done_testing;
+__END__
+
 
 done_testing;
 __END__

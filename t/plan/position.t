@@ -2,13 +2,23 @@ use Test::More;
 use strict;
 use warnings;
 use Data::Dumper;
+use File::Basename 'dirname';
+use File::Spec::Functions 'catfile';
+
+sub cat_t {
+  return catfile(dirname(__FILE__), '..', @_);
+};
+
+require '' . cat_t('util', 'CreateDoc.pm');
+require '' . cat_t('util', 'TestMatches.pm');
 
 use_ok('Krawfish::Koral');
 use_ok('Krawfish::Index');
 
 my $index = Krawfish::Index->new;
 
-ok(defined $index->add('t/data/doc1.jsonld'), 'Add new document');
+# ok(defined $index->add('t/data/doc3-segments.jsonld'), 'Add new document');
+ok(defined $index->add(complex_doc('<1:opennlp/c=NP>[Der][hey]</1>')), 'Add new document');
 
 my $koral = Krawfish::Koral->new;
 
@@ -68,6 +78,19 @@ ok(!$query->is_extended, 'Isn\'t extended');
 is($query->to_string, 'pos(64:<opennlp/c=NP>,0)', 'Stringification');
 ok(!$query->prepare_for($index), 'Planned Stringification');
 ok($query->has_error, 'Builder has error');
+
+
+##########################
+# Test freq=0 as element #
+##########################
+# isAround(<opennlp/c=NP>,Bus)
+$query = $builder->position(
+  ['isWithin'],
+  $builder->span('opennlp/c=NP'),
+  $builder->token('Bus')
+);
+is($query->to_string, 'pos(64:<opennlp/c=NP>,[Bus])', 'Stringification');
+is($query->plan_for($index)->to_string, '[0]', 'Planned Stringification');
 
 
 diag 'Test further';

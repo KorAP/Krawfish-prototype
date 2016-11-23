@@ -26,6 +26,10 @@ sub plan_for {
     return;
   };
 
+  if ($span->freq == 0) {
+    return $self->builder->nothing;
+  };
+
   return Krawfish::Query::Unique->new($span);
 };
 

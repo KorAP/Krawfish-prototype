@@ -228,7 +228,7 @@ sub plan_for {
       print_log('regex', 'to ' . substr(join(',',@terms),0,50));
     };
 
-    return Krawfish::Query::Nothing->new unless @terms;
+    return $self->builder->nothing unless @terms;
 
     my $builder = $self->builder;
     my $or = $builder->term_or(@terms)->plan_for($index);

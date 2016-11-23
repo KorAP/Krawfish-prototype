@@ -125,7 +125,7 @@ sub add {
 
     # Add to postings lists (search)
     my $term = $field->{key} . ':' . $field->{value};
-    my $post_list = $dict->add('-' . $term);
+    my $post_list = $dict->add('+' . $term);
     $post_list->append($doc_id);
   };
 

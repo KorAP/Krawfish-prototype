@@ -120,6 +120,10 @@ sub plan_for {
     return;
   };
 
+  if ($first_plan->freq == 0 || $second_plan->freq == 0) {
+    return $self->builder->nothing;
+  };
+
   return Krawfish::Query::Position->new(
     $self->{frames},
     $first_plan,

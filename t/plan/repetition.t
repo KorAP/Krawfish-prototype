@@ -2,13 +2,22 @@ use Test::More;
 use strict;
 use warnings;
 use Data::Dumper;
+use File::Basename 'dirname';
+use File::Spec::Functions 'catfile';
+
+sub cat_t {
+  return catfile(dirname(__FILE__), '..', @_);
+};
+
+require '' . cat_t('util', 'CreateDoc.pm');
+require '' . cat_t('util', 'TestMatches.pm');
 
 use_ok('Krawfish::Koral');
 use_ok('Krawfish::Index');
 
 my $index = Krawfish::Index->new;
 
-ok(defined $index->add('t/data/doc1.jsonld'), 'Add new document');
+ok(defined $index->add(complex_doc('<1:aaa>[hey][hey]</1>')), 'Add new document');
 
 my $koral = Krawfish::Koral->new;
 
