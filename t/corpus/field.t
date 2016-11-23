@@ -32,6 +32,28 @@ is($plan->current->to_string, '[1]', 'Current doc id');
 ok(!$plan->next, 'No next posting');
 ok(!$plan->current, 'No Current doc id');
 
+ok($field = $cb->string('license')->eq('closed'), 'String field');
+is($field->to_string, "license=closed", 'Stringification');
+ok($plan = $field->plan_for($index), 'Plan');
+is($plan->to_string, "'license:closed'", 'Stringification');
+ok(!$plan->current, 'No current');
+ok($plan->next, 'Next posting');
+is($plan->current->to_string, '[0]', 'Current doc id');
+ok($plan->next, 'Next posting');
+is($plan->current->to_string, '[2]', 'Current doc id');
+ok(!$plan->next, 'No next posting');
+ok(!$plan->current, 'No Current doc id');
+
+ok($field = $cb->string('license')->ne('closed'), 'String field');
+is($field->to_string, "license!=closed", 'Stringification');
+ok($plan = $field->plan_for($index), 'Plan');
+is($plan->to_string, "not('license:closed')", 'Stringification');
+ok(!$plan->current, 'No current');
+ok($plan->next, 'Next posting');
+is($plan->current->to_string, '[1]', 'Current doc id');
+ok(!$plan->next, 'No next posting');
+ok(!$plan->current, 'No Current doc id');
+
 diag 'Test further';
 
 done_testing;

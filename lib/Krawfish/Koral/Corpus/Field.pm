@@ -1,6 +1,7 @@
 package Krawfish::Koral::Corpus::Field;
 use parent 'Krawfish::Koral::Corpus';
 use Krawfish::Corpus::Field;
+use Krawfish::Corpus::Negation;
 use strict;
 use warnings;
 
@@ -59,6 +60,15 @@ sub excludes {
 
 sub plan_for {
   my ($self, $index) = @_;
+
+  # Negative field
+  if ($self->match eq 'ne') {
+    return Krawfish::Corpus::Negation->new(
+      $index,
+      $self->to_term
+    );
+  };
+
   Krawfish::Corpus::Field->new(
     $index,
     $self->to_term
