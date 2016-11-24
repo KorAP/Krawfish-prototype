@@ -49,6 +49,12 @@ sub copy_info_from {
 };
 
 
+sub merge_info {
+  my ($self, $target) = @_;
+  copy_info_from($target, $self);
+};
+
+
 sub _info {
   my $self = shift;
   my ($type, $code, $msg, @param) = @_;

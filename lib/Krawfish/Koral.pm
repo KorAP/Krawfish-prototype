@@ -1,7 +1,7 @@
 package Krawfish::Koral;
+use parent 'Krawfish::Info';
 use strict;
 use warnings;
-use Krawfish::Info;
 use Krawfish::Koral::Query;
 use Krawfish::Koral::Query::Builder;
 use Krawfish::Koral::Corpus;
@@ -80,6 +80,8 @@ sub to_koral_query {
   if ($self->corpus) {
     $koral->{'corpus'} = $self->corpus->to_koral_fragment
   };
+
+  $self->merge_info($koral);
 
   return $koral;
 };
