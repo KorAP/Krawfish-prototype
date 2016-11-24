@@ -95,4 +95,17 @@ sub maybe_unsorded {
 
 sub is_classed { 1 };
 
+
+sub from_koral {
+  my ($class, $kq) = @_;
+  my $importer = $class->importer;
+
+  my $nr = $kq->{'classOut'} or warn 'No class defined';
+
+  # Import operand
+  my $op = $importer->all($kq->{operands}->[0]);
+
+  return $class->new($op, $nr);
+};
+
 1;

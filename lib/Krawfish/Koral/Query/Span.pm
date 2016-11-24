@@ -55,6 +55,9 @@ sub plan_for {
 
 sub maybe_unsorted { 0 };
 
+sub from_koral;
+# Todo: Change the term_type!
+
 sub to_string {
   return '<' . $_[0]->wrap->to_string . '>';
 };

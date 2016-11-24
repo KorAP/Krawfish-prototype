@@ -7,8 +7,6 @@ use strict;
 use warnings;
 use Scalar::Util qw/blessed/;
 
-# TODO: Support multiple tokens in a term group!
-
 sub new {
   my $class = shift;
   my $token = shift;
@@ -104,5 +102,29 @@ sub to_string {
 
 sub maybe_unsorted { 0 };
 
+sub from_koral {
+  my $class = shift;
+  my $kq = shift;
+  my $importer = $class->importer;
+
+  # No wrap
+  unless ($kq->{'wrap'}) {
+    return $class->new;
+  }
+
+  # Wrap is a term
+  else {
+    my $wrap = $kq->{wrap};
+    if ($wrap->{'@type'} eq 'koral:term') {
+      return $class->new($importer->term($wrap));
+    }
+    elsif ($wrap->{'@type'} eq 'koral:termGroup') {
+      return $class->new($importer->term_group($wrap));
+    }
+    else {
+      warn 'Wrap type not supported!'
+    };
+  }
+};
 
 1;

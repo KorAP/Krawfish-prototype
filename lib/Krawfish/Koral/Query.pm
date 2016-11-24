@@ -1,12 +1,13 @@
 package Krawfish::Koral::Query;
 use parent 'Krawfish::Info';
 use Krawfish::Koral::Query::Builder;
-use strict;
+use Krawfish::Koral::Query::Importer;
 use warnings;
+use strict;
 
 sub new {
   my $class = shift;
-  bless {
+  my $self = bless {
     any => 0,
     optional => 0,
     null => 0,
@@ -15,6 +16,12 @@ sub new {
     extended_left => 0,
     extended_right => 0
   }, $class;
+
+  if ($_[0]) {
+    return $self->from_koral(shift);
+  };
+
+  $self;
 };
 
 #########################################
@@ -80,8 +87,34 @@ sub maybe_unsorted { $_[0]->{maybe_unsorted} // 0 };
 #############################
 
 # Deserialization of KoralQuery
+# TODO: export this method from Importer
 sub from_koral {
-  ...
+  my ($class, $kq) = @_;
+  my $importer = Krawfish::Koral::Query::Importer->new;
+
+  my $type = $kq->{'@type'};
+  if ($type eq 'koral:group') {
+    my $op = $kq->{operation};
+    if ($op eq 'operation:sequence') {
+      return $importer->seq($kq);
+    }
+
+    elsif ($op eq 'operation:class') {
+      return $importer->class($kq);
+    }
+    else {
+      warn 'Operation ' . $op . ' not supported';
+    };
+  }
+
+  elsif ($type eq 'koral:token') {
+    return $importer->token($kq);
+  }
+  else {
+    warn $type . ' unknown';
+  };
+
+  return;
 };
 
 # Overwritten
@@ -96,6 +129,11 @@ sub to_string;
 # Create KoralQuery builder
 sub builder {
   return Krawfish::Koral::Query::Builder->new;
+};
+
+# Create KoralQuery builder
+sub importer {
+  return Krawfish::Koral::Query::Importer->new;
 };
 
 1;

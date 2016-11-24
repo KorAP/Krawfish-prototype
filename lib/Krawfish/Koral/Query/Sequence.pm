@@ -185,6 +185,16 @@ sub to_string {
   return join '', map { $_->to_string } @{$_[0]->{array}};
 };
 
+sub from_koral {
+  my $class = shift;
+  my $kq = shift;
+
+  my $importer = $class->importer;
+
+  return $class->new(
+    map { $importer->all($_) } @{$kq->{operands}}
+  );
+};
 
 1;
 

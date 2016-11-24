@@ -63,10 +63,27 @@ sub prefix {
 
 sub term_type {
   my $self = shift;
-  return 'token'     unless $self->prefix;
-  return 'span'      if $self->prefix eq '<>';
-  return 'attribute' if $self->prefix eq '@';
-  return 'relation';
+  if ($_[0]) {
+    if ($_[0] eq 'span') {
+      $self->prefix('<>');
+    }
+    elsif ($_[0] eq 'attribute') {
+      $self->prefix('@');
+    }
+    elsif ($_[0] eq 'relation') {
+
+      # Todo: This doesn't respect
+      # direction
+      $self->prefix('>');
+    };
+    return $self;
+  }
+  else {
+    return 'token'     unless $self->prefix;
+    return 'span'      if $self->prefix eq '<>';
+    return 'attribute' if $self->prefix eq '@';
+    return 'relation';
+  };
 };
 
 
@@ -91,11 +108,27 @@ sub layer {
 
 # Operation
 sub match {
-  if ($_[1]) {
-    $_[0]->[4] = $_[1];
-    return $_[0];
+  my $self = shift;
+  if ($_[0]) {
+    my $match = shift;
+
+    if ($match =~ s/^match://) {
+      if ($match eq 'eq') {
+        $match = '=';
+      }
+      elsif ($match eq 'ne') {
+        $match = '!=';
+      }
+      else {
+        warn 'Unknown match';
+        return;
+      }
+    };
+
+    $self->[4] = $match;
+    return $self;
   };
-  $_[0]->[4] // '=';
+  $self->[4] // '=';
 };
 
 
@@ -135,6 +168,10 @@ sub to_koral_fragment {
   $hash->{foundry} = $self->foundry if $self->foundry;
   $hash->{layer} = $self->layer if $self->layer;
   $hash->{value} = $self->value if $self->value;
+
+  if ($self->match eq '!=') {
+    $hash->{match} = 'match:ne';
+  };
 
   # TODO: REGEX!
 
@@ -254,5 +291,18 @@ sub is_extended { 0 };
 sub is_extended_right { 0 };
 sub is_extended_left { 0 };
 sub maybe_unsorted { 0 };
+
+sub from_koral {
+  my $class = shift;
+  my $kq = shift;
+  my $term = $class->new;
+  $term->foundry('' . $kq->{foundry}) if $kq->{foundry};
+  $term->layer('' . $kq->{layer}) if $kq->{layer};
+  $term->key('' . $kq->{key}) if $kq->{key};
+  $term->match('' . $kq->{match}) if $kq->{match};
+
+  # TODO: Support deserialization of regex!
+  return $term;
+};
 
 1;
