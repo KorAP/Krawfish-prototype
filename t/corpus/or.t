@@ -33,6 +33,12 @@ ok(my $plan = $query->plan_for($index), 'Planning');
 
 is($plan->to_string, "or('id:3','id:2')", 'Stringification');
 
+ok($plan->next, 'Init vc');
+is($plan->current->to_string, '[0]', 'First doc');
+ok($plan->next, 'Next doc');
+is($plan->current->to_string, '[1]', 'First doc');
+ok(!$plan->next, 'No more next doc');
+
 diag 'Test further';
 
 done_testing;
