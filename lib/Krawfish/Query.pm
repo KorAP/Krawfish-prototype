@@ -7,9 +7,9 @@ sub current {
   my $self = shift;
   return unless defined $self->{doc_id};
   return Krawfish::Posting->new(
-    doc_id => $self->{doc_id},
-    start  => $self->{start},
-    end    => $self->{end},
+    doc_id  => $self->{doc_id},
+    start   => $self->{start},
+    end     => $self->{end},
     payload => $self->{payload}
   );
 };
@@ -34,6 +34,8 @@ sub freq {
 };
 
 # Overwrite
-sub to_string;
+sub to_string {
+  ...
+};
 
 1;

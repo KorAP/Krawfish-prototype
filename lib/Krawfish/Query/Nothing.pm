@@ -1,10 +1,14 @@
 package Krawfish::Query::Nothing;
-use parent 'Krawfish::Koral::Query';
+use parent 'Krawfish::Query';
 use strict;
 use warnings;
 
 # This is a query that returns nothing
-
+sub new {
+  my $class = shift;
+  my $var;
+  bless \$var, $class;
+};
 
 sub current {
   return;

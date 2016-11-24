@@ -1,6 +1,7 @@
 package Krawfish::Koral::Corpus::Builder;
 use Krawfish::Koral::Corpus::Field;
-use Krawfish::Koral::Corpus::Group;
+use Krawfish::Koral::Corpus::FieldGroup;
+use Krawfish::Query::Nothing;
 use strict;
 use warnings;
 
@@ -10,15 +11,15 @@ sub new {
 };
 
 # Create 'and' group
-sub and {
+sub field_and {
   shift;
-  return Krawfish::Koral::Corpus::Group->new('and', @_);
+  return Krawfish::Koral::Corpus::FieldGroup->new('and', @_);
 };
 
 # Create 'or' group
-sub or {
+sub field_or {
   shift;
-  return Krawfish::Koral::Corpus::Group->new('or', @_);
+  return Krawfish::Koral::Corpus::FieldGroup->new('or', @_);
 };
 
 # Create 'string' field
@@ -38,6 +39,12 @@ sub regex {
   shift;
   return Krawfish::Koral::Corpus::Field->new('regex', @_);
 };
+
+# No match
+sub nothing {
+  Krawfish::Query::Nothing->new;
+};
+
 
 1;
 

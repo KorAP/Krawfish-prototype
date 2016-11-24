@@ -32,7 +32,6 @@ is($anno->[1]->{'@type'}, 'koral:span', 'Annotation span');
 is_deeply($anno->[1]->{'segments'}, [0,1], 'Annotation segments');
 is($anno->[1]->{'wrap'}->{'key'}, 'xy', 'Annotation key');
 
-
 is($anno->[3]->{'@type'}, 'koral:span', 'Annotation token');
 is($anno->[3]->{'wrap'}->{'foundry'}, 'opennlp', 'Annotation key');
 ok(!exists $anno->[3]->{'wrap'}->{'layer'}, 'Annotation key');
@@ -60,5 +59,23 @@ ok((!$anno->[0]->{segments}->[0] || $anno->[0]->{segments}->[0] == 0),
 is($anno->[2]->{'@type'}, 'koral:span', 'Span');
 is($anno->[2]->{segments}->[0], 0, 'Span');
 is($anno->[2]->{segments}->[1], 1, 'Span');
+
+
+# Docs with meta
+$doc = simple_doc({id => 5, author => 'Johann Wolfgang von Goethe'} => qw/aa bb aa bb/);
+my $fields = $doc->{document}->{fields};
+is_deeply($fields->[0], {
+  '@type' => 'koral:field',
+  'type' => 'type:string',
+  'key' => 'author',
+  'value' => 'Johann Wolfgang von Goethe'
+}, 'First key');
+
+is_deeply($fields->[1], {
+  '@type' => 'koral:field',
+  'value' => 5,
+  'key' => 'id',
+  'type' => 'type:string'
+}, 'First key');
 
 done_testing;

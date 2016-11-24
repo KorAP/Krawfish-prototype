@@ -9,6 +9,8 @@ use Scalar::Util qw!blessed!;
 use Mojo::JSON qw/encode_json decode_json/;
 use Mojo::Util qw/slurp/;
 
+# TODO: Add LiveDocs-PostingsList, that supports deletion
+#
 # TODO: Create Importer class
 #
 # TODO: Support Main Index and Auxiliary Indices with merging

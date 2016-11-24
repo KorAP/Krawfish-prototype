@@ -120,14 +120,11 @@ sub plan_for {
     return $single_op;
   };
 
-  # Build complex query
-  my $query;
-
   my $i = 0;
 
   # Check the frequency of all operands
   # Start with a query != null
-  $query = $ops->[$i++]->plan_for($index);
+  my $query = $ops->[$i++]->plan_for($index);
 
   while ($query->freq == 0 && $i < @$ops) {
     $query = $ops->[$i++]->plan_for($index);

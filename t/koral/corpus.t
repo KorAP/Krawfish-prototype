@@ -7,14 +7,14 @@ use_ok('Krawfish::Koral');
 
 my $koral = Krawfish::Koral->new;
 
-my $builder = $koral->corpus_builder;
+my $cb = $koral->corpus_builder;
 
 $koral->corpus(
-  $builder->or(
-    $builder->date('pub_date')->geq('2015-03'),
-    $builder->and(
-      $builder->string('author')->eq('Nils'),
-      $builder->regex('doc_id')->eq('WPD.*')
+  $cb->field_or(
+    $cb->date('pub_date')->geq('2015-03'),
+    $cb->field_and(
+      $cb->string('author')->eq('Nils'),
+      $cb->regex('doc_id')->eq('WPD.*')
     )
   )
 );

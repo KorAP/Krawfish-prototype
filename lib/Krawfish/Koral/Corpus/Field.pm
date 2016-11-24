@@ -10,9 +10,13 @@ use warnings;
 sub new {
   my $class = shift;
   bless {
-    type => shift,
+    key_type => shift,
     key => shift
   }, $class;
+};
+
+sub type {
+  'field';
 };
 
 sub eq {
@@ -80,8 +84,8 @@ sub match {
   $_[0]->{match} // 'eq';
 };
 
-sub type {
-  $_[0]->{type} // 'string';
+sub key_type {
+  $_[0]->{key_type} // 'string';
 };
 
 sub key {
@@ -100,7 +104,7 @@ sub to_koral_fragment {
     '@type' => 'koral:field',
     key => $self->key,
     match => 'match:' . $self->match,
-    type => 'type:' . $self->type
+    type => 'type:' . $self->key_type
   };
 
   # No value defined

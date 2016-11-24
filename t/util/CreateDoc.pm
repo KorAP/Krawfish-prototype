@@ -3,6 +3,11 @@ use warnings;
 
 # Convert: qw/aa bb aa bb/
 sub simple_doc {
+  my $fields;
+  if (ref $_[0] eq 'HASH') {
+    $fields = _fields(shift);
+  };
+
   my @list = @_;
 
   my @tokens;
@@ -10,12 +15,17 @@ sub simple_doc {
     push @tokens, _token(_key($_))
   };
 
-  return {
+  my $doc = {
     document => {
       annotations => \@tokens
     }
   };
+
+  # Add metadata fields
+  $doc->{document}->{fields} = $fields if $fields;
+  return $doc;
 };
+
 
 # Convert:   '[aa][bb][aa][bb]'
 #            '[aa|bb][bb][aa|bb][bb]'
@@ -105,6 +115,24 @@ sub _token {
   return $hash;
 };
 
+sub _fields {
+  my $hash = shift;
+  my @fields = ();
+  foreach my $key (sort keys %$hash) {
+    my $type = 'string';
+    if ($key =~ s/^([string])_//) {
+      $type = $1;
+    };
+
+    push(@fields, {
+      '@type' => 'koral:field',
+      'key' => $key,
+      'value' => $hash->{$key},
+      'type' => 'type:' . $type
+    });
+  };
+  \@fields;
+};
 
 # return tokenGroup object
 #sub _token_group {
