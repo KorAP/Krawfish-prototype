@@ -1,9 +1,7 @@
 use Test::More;
+use Test::Krawfish;
 use strict;
 use warnings;
-use Data::Dumper;
-use File::Basename 'dirname';
-use File::Spec::Functions 'catfile';
 
 
 use_ok('Krawfish::Koral');
@@ -14,13 +12,10 @@ sub cat_t {
   return catfile(dirname(__FILE__), '..', @_);
 };
 
-require '' . cat_t('util', 'CreateDoc.pm');
-require '' . cat_t('util', 'TestMatches.pm');
-
 
 my $index = Krawfish::Index->new;
 
-ok(defined $index->add(simple_doc(qw/first second third fourth fifth sixth/)), 'Add new document');
+ok_index($index, [qw/first second third fourth fifth sixth/], 'Add new document');
 
 my $koral = Krawfish::Koral->new;
 

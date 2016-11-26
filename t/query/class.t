@@ -1,22 +1,13 @@
 use Test::More;
+use Test::Krawfish;
 use strict;
 use warnings;
-use Data::Dumper;
-use File::Basename 'dirname';
-use File::Spec::Functions 'catfile';
-
-sub cat_t {
-  return catfile(dirname(__FILE__), '..', @_);
-};
-
-require '' . cat_t('util', 'CreateDoc.pm');
-require '' . cat_t('util', 'TestMatches.pm');
 
 use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Query::Builder');
 
 my $index = Krawfish::Index->new;
-ok(defined $index->add(simple_doc(qw/aa bb aa bb/)), 'Add new document');
+ok_index($index, [qw/aa bb aa bb/], 'Add new document');
 
 ok(my $qb = Krawfish::Koral::Query::Builder->new, 'Create QueryBuilder');
 ok(my $wrap = $qb->class($qb->token('bb'), 2), 'Class');

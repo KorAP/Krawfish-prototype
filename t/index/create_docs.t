@@ -1,13 +1,9 @@
 use Test::More;
+use Test::Krawfish;
 use strict;
 use warnings;
-use Data::Dumper;
-use File::Basename 'dirname';
-use File::Spec::Functions 'catfile';
 
-require '' . catfile(dirname(__FILE__), '..', 'util', 'CreateDoc.pm');
-
-my $doc = simple_doc(qw/aa bb aa bb/);
+my $doc = test_doc([qw/aa bb aa bb/]);
 
 ok(exists $doc->{document}, 'Doc exists');
 ok(exists $doc->{document}->{annotations}, 'Annotations exists');
@@ -17,7 +13,7 @@ is($anno->[0]->{'wrap'}->{'key'}, 'aa', '@type is valid');
 is($anno->[-1]->{'@type'}, 'koral:token', '@type is valid');
 is($anno->[-1]->{'wrap'}->{'key'}, 'bb', '@type is valid');
 
-$doc = complex_doc('<1:xy>[aa]<2:opennlp=z>[bb]</1>[corenlp/c=cc|dd]</2>');
+$doc = test_doc('<1:xy>[aa]<2:opennlp=z>[bb]</1>[corenlp/c=cc|dd]</2>');
 
 ok(exists $doc->{document}, 'Doc exists');
 
@@ -50,7 +46,7 @@ is($token_group->[0]->{layer}, 'c', 'Annotation key');
 is($token_group->[1]->{'@type'}, 'koral:term', 'Annotation type');
 is($token_group->[1]->{key}, 'dd', 'Annotation key');
 
-$doc = complex_doc('<1:aa><2:aa>[bb]</2>[bb]</1>');
+$doc = test_doc('<1:aa><2:aa>[bb]</2>[bb]</1>');
 $anno = $doc->{document}->{annotations};
 is($anno->[0]->{'@type'}, 'koral:span', 'Span');
 is($anno->[0]->{segments}->[0], 0, 'Span');
@@ -62,7 +58,7 @@ is($anno->[2]->{segments}->[1], 1, 'Span');
 
 
 # Docs with meta
-$doc = simple_doc({id => 5, author => 'Johann Wolfgang von Goethe'} => qw/aa bb aa bb/);
+$doc = test_doc({id => 5, author => 'Johann Wolfgang von Goethe'} => qw/aa bb aa bb/);
 my $fields = $doc->{document}->{fields};
 is_deeply($fields->[0], {
   '@type' => 'koral:field',

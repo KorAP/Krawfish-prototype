@@ -1,36 +1,100 @@
-use strict;
+package Test::Krawfish;
+use parent 'Test::Builder::Module';
 use warnings;
+use strict;
+use Test::More ();
+use File::Basename 'dirname';
+use File::Spec::Functions 'catfile';
+our @EXPORT = qw(test_doc test_file ok_index matches);
 
-# Convert: qw/aa bb aa bb/
-sub simple_doc {
-  my $fields;
+sub test_file {
+  my @file = @_;
+  return catfile(dirname(__FILE__), '..', '..', 't', 'data', @_);
+};
+
+sub test_doc {
+  my $kq = {};
+  my $doc = ($kq->{document} = {});
+
   if (ref $_[0] eq 'HASH') {
-    $fields = _fields(shift);
+    $doc->{fields} = _fields(shift);
   };
 
-  my @list = @_;
-
-  my @tokens;
-  foreach (@_) {
-    push @tokens, _token(_key($_))
+  if (ref $_[0] eq 'ARRAY') {
+    $doc->{annotations} = _simple_anno(shift);
+  }
+  else {
+    $doc->{annotations} = _complex_anno(shift);
   };
 
-  my $doc = {
-    document => {
-      annotations => \@tokens
-    }
+  return $kq;
+};
+
+sub ok_index {
+  my $index = shift;
+  my $meta;
+
+  my @param;
+
+  if (ref $_[0] eq 'HASH') {
+    push @param, shift;
   };
 
-  # Add metadata fields
-  $doc->{document}->{fields} = $fields if $fields;
-  return $doc;
+  push @param, shift;
+
+  my $kq = test_doc(@param);
+
+  my $desc = shift // 'Add example document';
+
+  local $Test::Builder::Level = $Test::Builder::Level + 1;
+
+  my $tb = Test::More->builder;
+  $tb->ok(defined $index->add($kq), 'Document indexed');
 };
 
 
-# Convert:   '[aa][bb][aa][bb]'
-#            '[aa|bb][bb][aa|bb][bb]'
-#            '<1:xy>[aa]<2:z>[bb]</1>[cc]</2>'
-sub complex_doc {
+sub matches {
+  my ($query, $matches, $desc) = @_;
+  my $tb = Test::More->builder;
+
+  $desc //= 'Test match';
+  $desc .= ' ';
+
+  # Iterate over matches
+  foreach (@$matches) {
+    unless ($query->next) {
+      $tb->fail($desc . '- next before ' . $_);
+      return;
+    };
+    unless ($query->current->to_string eq $_) {
+      $tb->fail(
+        $desc . '- mismatch of ' . $query->current->to_string . ' vs. ' . $_
+      );
+      return;
+    }
+  };
+
+  if ($query->next) {
+    $tb->fail($desc . '- more matches available');
+  };
+
+  $tb->ok($desc);
+};
+
+
+# Simple annotations
+sub _simple_anno {
+  my @tokens;
+  foreach (@{$_[0]}) {
+    push @tokens, _token(_key($_))
+  };
+
+  return \@tokens
+};
+
+
+# Complex annotations
+sub _complex_anno {
   my $string = shift;
 
   my @segments;
@@ -86,12 +150,9 @@ sub complex_doc {
 
   @tokens = sort _token_sort @tokens;
 
-  return {
-    document => {
-      annotations => \@tokens
-    }
-  };
+  return \@tokens;
 };
+
 
 # Return token object
 sub _token {
@@ -133,21 +194,6 @@ sub _fields {
   };
   \@fields;
 };
-
-# return tokenGroup object
-#sub _token_group {
-#  my $hash = {
-#    '@type' => 'koral:token',
-#    'wrap' => {
-#      '@type' => 'koral:termGroup',
-#      'operands' => shift
-#    }
-#  };
-#  if (defined $_[0]) {
-#    $hash->{'segments'} = [@_];
-#  };
-#  return $hash;
-#};
 
 sub _token_sort {
   return 0 unless $a->{segments} && $b->{segments};
@@ -199,5 +245,6 @@ sub _key {
   }
   return $hash;
 };
+
 
 1;

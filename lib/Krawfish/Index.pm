@@ -86,6 +86,7 @@ sub fields {
 
 
 # Add document to the index
+# TODO: Expect a KoralQuery document
 sub add {
   my $self = shift;
   my $doc = shift;
@@ -202,6 +203,8 @@ sub add {
 };
 
 
+# TODO: Use from_koral()->term
+# Potentially with a prefix
 sub _term {
   my $item = shift;
 
@@ -240,17 +243,19 @@ sub _segments {
 };
 
 
+# Apply (aka search) the index
 sub apply {
   my $self = shift;
   my $koral = shift;
 
   # Necessary for filtering
-  my $corpus = $koral->corpus->plan($self) or return;
+  my $corpus = $koral->corpus->prepare_for($self) or return;
 
-  my $query = $koral->query->plan($self) or return;
+  # Add VC to query as a constraint
+  my $query = $koral->query->prepare_for($self, $corpus) or return;
 
   # Get meta information
-  my $meta = $koral->meta->plan($self) or return;
+  my $meta = $koral->meta->prepare_for($self) or return;
 
   my $cb = shift;
   my @result = ();

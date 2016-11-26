@@ -1,25 +1,16 @@
 use Test::More;
+use Test::Krawfish;
 use strict;
 use warnings;
-use Data::Dumper;
-use File::Basename 'dirname';
-use File::Spec::Functions 'catfile';
-
 
 use_ok('Krawfish::Koral');
 use_ok('Krawfish::Index');
-
-sub cat_t {
-  return catfile(dirname(__FILE__), '..', @_);
-};
-
-require '' . cat_t('util', 'CreateDoc.pm');
 
 my $index = Krawfish::Index->new;
 my $koral = Krawfish::Koral->new;
 my $qb = $koral->query_builder;
 
-ok(defined $index->add(complex_doc('<1:aa>[aa]</1>[bb][aa][bb]')), 'Add new document');
+ok_index($index, '<1:aa>[aa]</1>[bb][aa][bb]', 'Add new document');
 
 # Exclusion planning
 

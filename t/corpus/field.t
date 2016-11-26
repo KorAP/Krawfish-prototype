@@ -1,24 +1,15 @@
 use Test::More;
+use Test::Krawfish;
 use strict;
 use warnings;
-use File::Basename 'dirname';
-use File::Spec::Functions 'catfile';
-use Data::Dumper;
-
-sub cat_t {
-  return catfile(dirname(__FILE__), '..', @_);
-};
-
-require '' . cat_t('util', 'CreateDoc.pm');
-require '' . cat_t('util', 'TestMatches.pm');
 
 use_ok('Krawfish::Koral::Corpus::Builder');
 use_ok('Krawfish::Index');
 
 my $index = Krawfish::Index->new;
-ok(defined $index->add(cat_t('data', 'doc2.jsonld')), 'Add new document');
-ok(defined $index->add(cat_t('data', 'doc1.jsonld')), 'Add new document');
-ok(defined $index->add(cat_t('data', 'doc3-segments.jsonld')), 'Add new document');
+ok(defined $index->add(test_file('doc2.jsonld')), 'Add new document');
+ok(defined $index->add(test_file('doc1.jsonld')), 'Add new document');
+ok(defined $index->add(test_file('doc3-segments.jsonld')), 'Add new document');
 
 ok(my $cb = Krawfish::Koral::Corpus::Builder->new, 'Create CorpusBuilder');
 
