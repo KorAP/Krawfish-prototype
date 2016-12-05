@@ -14,7 +14,7 @@ $spans->add(
   0   # depth
 );
 
-is($spans->stream, pack("L",45).'[20:3:0]', 'Stream');
+is($spans->raw, pack("L",45).'[20:3:0]', 'Stream');
 
 my $finger = Krawfish::Index::Stream::Finger->new($spans);
 
@@ -37,7 +37,5 @@ $current = $finger->current;
 is($current->doc_id, 80, 'Doc ID');
 is($current->start, 17, 'Start');
 is($current->end, 20, 'End');
-
-
 
 done_testing;

@@ -2,6 +2,7 @@ package Krawfish::Koral::Corpus::Builder;
 use Krawfish::Koral::Corpus::Field;
 use Krawfish::Koral::Corpus::FieldGroup;
 use Krawfish::Query::Nothing;
+use Krawfish::Koral::Corpus::Cache;
 use strict;
 use warnings;
 
@@ -45,6 +46,12 @@ sub nothing {
   Krawfish::Query::Nothing->new;
 };
 
+
+# Cache the result
+sub cache {
+  shift;
+  return Krawfish::Koral::Corpus::Cache->new(@_);
+};
 
 1;
 

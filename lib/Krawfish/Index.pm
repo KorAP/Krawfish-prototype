@@ -3,6 +3,7 @@ use Krawfish::Index::Dictionary;
 use Krawfish::Index::Offsets;
 use Krawfish::Index::PrimaryData;
 use Krawfish::Index::Fields;
+use Krawfish::Cache;
 use strict;
 use warnings;
 use Scalar::Util qw!blessed!;
@@ -45,6 +46,9 @@ sub new {
   $self->{fields} = Krawfish::Index::Fields->new(
     $self->{file}
   );
+
+  # Add cache
+  $self->{cache} = Krawfish::Cache->new;
 
   # TODO: Get last_doc_id from index file
   $self->{last_doc} = 0;

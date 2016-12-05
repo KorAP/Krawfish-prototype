@@ -1,0 +1,44 @@
+0.0.1 2016-12-05
+        Krawfish is a simple testbed search backend for KorAP,
+        to test some design concepts for Krill
+        (especially queries, query deserialization, Web API)
+        and some alternative features, like multiple tokenizations.
+
+        Currently Krawfish supports ...
+        - KoralQuery wrapping of
+          - Corpus Queries
+            - Fields
+            - fieldGroups
+          - Span Queries
+            - Classes
+            - Constraints
+            - Exclusions
+            - Positions
+            - Repetitions
+            - Sequences
+            - Terms
+            - Spans
+            - TermGroups
+            - Tokens
+            - Uniques
+        - Support for Query constructs
+          - Corpus queries
+            - Fields
+            - Ands
+            - Ors
+            - Negations
+          - Span queries
+            - Classes
+            - Constraints
+            - Exclusions
+            - Ors
+            - Positions
+            - Repetitions
+            - Terms
+            - Spans
+            - Uniques
+        - Support for Info messages
+        - Support for logging
+        - Simple stream mechanism for postings lists
+        - API draft
+        - Simple caching mechanism

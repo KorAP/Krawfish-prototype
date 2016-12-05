@@ -3,6 +3,8 @@ use Krawfish::Posting;
 use strict;
 use warnings;
 
+# TODO: Use Stream::Finger instead of PostingPointer
+
 # Points to a position in a postings list
 
 # TODO: Return different posting types

@@ -96,9 +96,22 @@ sub get_simple_16 {
 };
 
 
-sub stream {
+sub raw {
   $_[0]->{stream};
 };
+
+sub close {
+  ...
+};
+
+
+# Load the posting element in memory
+# unless it's already loaded
+sub load {
+  my ($self, $file) = @_;
+  ...
+};
+
 
 ########################
 # Conversion functions #
