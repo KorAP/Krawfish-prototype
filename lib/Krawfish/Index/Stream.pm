@@ -1,4 +1,4 @@
-package Krawfish::Index::BitStream;
+package Krawfish::Index::Stream;
 use strict;
 use warnings;
 

@@ -1,5 +1,6 @@
-package Krawfish::Index::Postings::Span;
-use parent 'Krawfish::Index::BitStream';
+package Krawfish::Index::Stream::Span;
+use parent 'Krawfish::Index::Stream';
+use Krawfish::Posting::Span;
 use strict;
 use warnings;
 
@@ -47,23 +48,24 @@ sub add {
 };
 
 
-# TODO: Get should use deltas provided by Fingers
+# Use finger for offset and deltas
 sub get {
-  my ($self, $offset) = @_;
+  my ($self, $finger) = @_;
+  my $offset = $finger->offset;
 
   my @return;
 
   # Get doc id
   ($offset, my $doc_id_delta) = $self->get_vint($offset);
-  my $doc_id = $self->{delta}->[2] // 0;
+  my $doc_id = $finger->delta->[0] // 0;
 
   push @return, ($doc_id + $doc_id_delta);
-  $self->{delta}->[2] = $doc_id + $doc_id_delta;
+  $finger->delta->[0] = $doc_id + $doc_id_delta;
 
   ($offset, my $pos_delta, my $end_delta, my $depth) = $self->get_simple_16($offset);
 
   # Get position - may be delta
-  my $pos = $self->{delta}->[3] // 0;
+  my $pos = $finger->delta->[2] // 0;
   if ($doc_id_delta == 0) {
     $pos += $pos_delta;
   }
@@ -72,10 +74,18 @@ sub get {
   };
 
   # set delta
-  $self->{delta}->[3] = $pos;
+  $finger->delta->[2] = $pos;
+
+  $finger->offset($offset);
 
   # Return values
-  return ($offset, [@return, $pos, $pos + $end_delta, $depth]);
+  return [@return, $pos, $pos + $end_delta, $depth];
+};
+
+
+sub posting {
+  shift;
+  return Krawfish::Posting::Span->new(@_);
 };
 
 

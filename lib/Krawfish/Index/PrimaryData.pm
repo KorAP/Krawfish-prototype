@@ -2,6 +2,8 @@ package Krawfish::Index::PrimaryData;
 use strict;
 use warnings;
 
+# Add text compression with random access
+
 sub new {
   my $class = shift;
   bless {
