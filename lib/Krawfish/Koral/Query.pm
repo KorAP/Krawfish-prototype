@@ -53,6 +53,7 @@ sub prepare_for {
 };
 
 # Plan a query for an index (to be overwritten)
+# TODO: Rename to_primitive(index)
 sub plan_for;
 
 sub is_any            { $_[0]->{any}            // 0 };

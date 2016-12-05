@@ -2,6 +2,7 @@ package Krawfish::Koral::Corpus::FieldGroup;
 use parent 'Krawfish::Koral::Corpus';
 use Krawfish::Log;
 use Krawfish::Corpus::Or;
+use Krawfish::Corpus::And;
 use strict;
 use warnings;
 
@@ -63,7 +64,19 @@ sub plan_for {
   }
 
   elsif ($self->operation eq 'and') {
-    ...
+
+    print_log('kq_fgroup', 'Prepare and-group') if DEBUG;
+
+    # Filter out all terms that do not occur
+    for (; $i < @$ops; $i++) {
+      my $option = $ops->[$i]->plan_for($index);
+      if ($option->freq != 0) {
+        $query = Krawfish::Corpus::And->new(
+          $query,
+          $option
+        )
+      };
+    };
   };
 
   if ($query->freq == 0) {

@@ -282,16 +282,96 @@ sub apply {
 
 __END__
 
-sub apply {
-  my $self = shift;
-  $self->{index} = shift;
+
+
+# Search using meta data
+# Can also be used to collect with a callback
+sub search {
+  my ($self, $koral, $cb) = @_;
+
+  my $query  = $koral->query;
+  my $corpus = $koral->corpus;
+  my $meta   = $koral->meta;
+
+  # Results
+  my $result = $koral->result;
+
+  my $search = $query->filter_by($corpus)->plan_for($self);
+
+  # Augment with facets
+  if ($meta->facets) {
+    $search = $meta->facets($search);
+  };
+
+  # Augment with sorting
+  if ($meta->sort) {
+    $search = $meta->sort($search);
+  };
+
+  my $count = 0;
+  while ($search->next) {
+    my $posting = $search->current;
+
+    # Based on the information, this will populate the match
+    $result->add_match($posting, $index);
+
+    last if ++$count > $meta->count;
+  };
+
+  # Total result count may already be available after sorting
+  # Otherwise count
+  if (!$meta->total_results && !$meta->cutoff) {
+    $count++ while $search->next;
+    $meta->total_results($count);
+  };
+
+  return $koral;
+};
+
+sub get_fields {
+  my ($self, $doc_id, $fields) = @_;
+};
+
+# This returns the posting's start and end position
+# when embedded in a span, e.g. <base/s=s>
+sub get_context_by_query {
+  my ($self, $posting, $query) = @_
+};
+
+sub get_annotations {
+  my ($self, $posting, $terms) = @_;
+
+  my %anno = ();
+
+  my $dict = $self->dict;
+  foreach my $term ($dict->terms($terms)) {
+    my $term_list = $dict->get($term);
+
+    # Skip to the correct document and the first position
+    next unless $term_list->next($posting->doc_id, $posting->start);
+
+    # Init annotation
+    my $anno = ($anno{$term} //= []);
+
+    # Iterate over all annotations
+    while ($term_list->current->end <= $posting->end) {
+
+      # Remember the annotations
+      push @$anno, $term_list->current->clone;
+
+      $term_list->next or next;
+    }
+
+    # Close (and forget) termlist
+    $term_list->close;
+  };
+
+  return \%anno;
 };
 
 
-sub filter_by {
-  my $self = shift;
-  $self->{filter} = shift;
-};
+
+
 
 sub items_per_page;
 

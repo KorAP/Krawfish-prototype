@@ -15,10 +15,14 @@ sub current {
 };
 
 # Overwrite
+# TODO: Accepts a target doc
+# TODO: Returns the doc_id of the current posting
 sub next;
 
 # Forward to next start position
-sub next_pos;
+sub next_greater_start;
+
+
 
 sub skip_doc {
   my $self = shift;
@@ -28,6 +32,14 @@ sub skip_doc {
   };
   return $self->{doc_id};
 };
+
+# In Lucene it's exemplified:
+# int advance(int target) {
+#   int doc;
+#   while ((doc = nextDoc()) < target) {
+#   }
+#   return doc;
+# }
 
 sub freq {
   -1;

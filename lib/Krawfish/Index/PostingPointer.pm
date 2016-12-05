@@ -6,7 +6,7 @@ use warnings;
 # Points to a position in a postings list
 
 # TODO: Return different posting types
-# Using current
+#       Using current
 
 sub new {
   my $class = shift;
@@ -23,7 +23,7 @@ sub freq {
 };
 
 sub term {
-  $_[0]->{list}->{term};
+  $_[0]->{list}->term;
 };
 
 sub next {
@@ -43,6 +43,10 @@ sub current {
 
 sub list {
   $_[0]->{list};
+};
+
+sub close {
+  ...
 };
 
 

@@ -37,6 +37,7 @@ sub get {
 };
 
 # Return terms of the term dictionary
+# TODO: This should return an iterator
 sub terms {
   my ($self, $re) = @_;
 

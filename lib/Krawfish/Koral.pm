@@ -91,27 +91,3 @@ sub to_koral_query {
 
 __END__
 
-sub search {
-  my $self = shift;
-  my $callback = shift;
-  my $token = Krawfish::Query::Token->new(
-    $self->{index},
-    $term
-  );
-
-  # Filter the results
-  if ($self->filter_by) {
-
-    # Filter the result
-    $token->filter_by($self->filter_by);
-  };
-
-  # Apply Sorting here
-
-  # Iterate over all matches
-  while ($self->next) {
-
-    # Call callback with match
-    $callback->($self->current) or return;
-  };
-};

@@ -17,6 +17,12 @@ use constant {
 
 @EXPORT = qw/NEXTA NEXTB MATCH/;
 
+# TODO: Next to NEXTA and NEXTB there should be flags for:
+#       NEXTX to STARTY   (Position skipping)
+#       NEXTX to ENDY     (Position skipping)
+#       NEXTX to ENDX     (Position skipping)
+#       NEXTX to STARTX+1 (Position skipping)
+
 # TODO: Improve by skipping to the same document
 
 sub new {
