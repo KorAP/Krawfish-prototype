@@ -32,6 +32,10 @@ sub next {
   return ($pos + 1) < $self->freq ? 1 : 0;
 };
 
+sub next_pos;
+
+sub next_doc;
+
 sub pos {
   return $_[0]->{pos};
 };
