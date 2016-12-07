@@ -20,6 +20,8 @@ use Mojo::Util qw/slurp/;
 # TODO: Maybe logarithmic merge
 # https://www.youtube.com/watch?v=VNjf2dxWH2Y&spfreload=5
 
+# TODO: Maybe 65.535 documents are enough per segment ...
+
 sub new {
   my $class = shift;
   my $file = shift;
@@ -47,6 +49,14 @@ sub new {
     $self->{file}
   );
 
+  # Create a list of docid -> uuid mappers
+  # This may be problematic as uuids may need to be uint64,
+  # this can grow for a segment with 65.000 docs up to ~ 500kb
+  $self->{identifier} = [];
+
+  # Collect fields to sort
+  $self->{sortable} = {};
+
   # Add cache
   $self->{cache} = Krawfish::Cache->new;
 
@@ -68,9 +78,12 @@ sub dict {
   $_[0]->{dict};
 };
 
+
+# Get info
 sub info {
   $_[0]->{info};
 };
+
 
 # Get offsets
 sub offsets {
@@ -82,6 +95,7 @@ sub offsets {
 sub primary {
   $_[0]->{primary};
 };
+
 
 # Get fields
 sub fields {
@@ -123,12 +137,24 @@ sub add {
 
   my $dict = $self->{dict};
 
+  # Store identifier for mappings
+  if ($doc->{id}) {
+    $self->{identifier}->[$doc_id] = $doc->{id};
+  };
+
   # Add metadata fields
   my $fields = $self->fields;
   foreach my $field (@{$doc->{fields}}) {
 
     # Add to document field (retrieval)
     $fields->store($doc_id, $field->{key}, $field->{value});
+
+    # Prepare field for sorting
+    if ($field->{sortable}) {
+
+      # How many entries need to be sorted
+      $self->{sortable}->{$field->{key}}++;
+    };
 
     # Add to postings lists (search)
     my $term = $field->{key} . ':' . $field->{value};
@@ -308,8 +334,8 @@ sub search {
   };
 
   # Augment with sorting
-  if ($meta->sort) {
-    $search = $meta->sort($search);
+  if ($meta->sorted_by) {
+    $search = $meta->sorted_by($search);
   };
 
   my $count = 0;

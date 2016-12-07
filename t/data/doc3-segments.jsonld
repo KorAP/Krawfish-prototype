@@ -3,6 +3,7 @@
   "document" : {
     "@type" : "koral:document",
     "primarydata" : "Der Bau-Leiter trug einen lustigen Bau-Helm.",
+    "id" : 3,
     "fields" : [
       {
         "@type" : "koral:field",

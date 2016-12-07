@@ -3,6 +3,8 @@
         to test some design concepts for Krill
         (especially queries, query deserialization, Web API)
         and some alternative features, like multiple tokenizations.
+        Krawfish is based on Krill and therefore heavily inspired by
+        Lucene and Lucy.
 
         Currently Krawfish supports ...
         - KoralQuery wrapping of

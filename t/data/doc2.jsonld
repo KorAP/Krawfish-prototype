@@ -3,6 +3,7 @@
   "document" : {
     "@type" : "koral:document",
     "primarydata" : "Der Hut stand dem jungen Mann sehr gut. Er betrachtete sich gern im Spiegel.",
+    "id" : 2,
     "fields" : [
       {
         "@type":"koral:field",
