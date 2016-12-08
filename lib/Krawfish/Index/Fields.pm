@@ -42,8 +42,23 @@ sub docs {
 
 
 # Sort documents by a field and attach a numerical rank.
-# Return a vector of ranks at doc id position.
+# Returns the maximum rank and a vector of ranks at doc id position.
 # Ranks can be set multiple timnes
+#
+# TODO:
+#   These ranks may also be used for facet search, because
+#   remembering the ranks and increment their values will
+#   return the most common k facets of the field quickly.
+#   Returning the fields per rank, however, may become
+#   a linear search for the first rank in the ranked fields,
+#   which may be slow.
+#   But nonetheless, the max_rank field may also give a hint,
+#   if the field is good for faceting! (unique ranks per field
+#   are bad, for example!)
+#
+# TODO:
+#   Return object
+#
 sub docs_ranked {
   my ($self, $field) = @_;
 
@@ -55,7 +70,7 @@ sub docs_ranked {
   #   numerically or based on a collation
 
   # Lookup at disk
-  return $self->{ranks}->{$field}->[1] if $self->{ranks}->{$field}->[1];
+  return @{$self->{ranks}->{$field}} if $self->{ranks}->{$field};
 
   # TODO:
   #   $max_rank is important, because it indicates
@@ -63,14 +78,14 @@ sub docs_ranked {
   #   the rank!
   #
   my ($max_rank, $ranked) = rank_str(
-    [map { $_->{field} } $self->{array}]
+    [grep { defined $_ } map { $_->{$field} } @{$self->{array}}]
   );
 
   # Store ranks for the future
   $self->{ranks}->{$field} = [$max_rank, $ranked];
 
   # Return ranked list
-  return $self->{ranks}->{$field};
+  return @{$self->{ranks}->{$field}};
 };
 
 

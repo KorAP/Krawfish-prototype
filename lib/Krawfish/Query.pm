@@ -12,6 +12,8 @@ sub current {
     end     => $self->{end},
     payload => $self->{payload}
   );
+
+  # TODO: May have an offset value as well
 };
 
 # Overwrite

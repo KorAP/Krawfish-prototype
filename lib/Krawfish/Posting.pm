@@ -35,6 +35,12 @@ sub payload {
 };
 
 
+# This will be overwritten for at least cached buffers
+# necessary for sorting
+sub offset {
+  undef;
+};
+
 # Stringify
 sub to_string {
   my $self = shift;

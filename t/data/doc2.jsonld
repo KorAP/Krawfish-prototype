@@ -16,6 +16,11 @@
         "key":"license",
         "value":"closed",
         "type":"type:string"
+      },
+      {
+        "@type":"koral:field",
+        "key":"corpus",
+        "value":"corpus-1"
       }
     ],
     "annotations" : [

@@ -316,6 +316,7 @@ __END__
 
 # Search using meta data
 # Can also be used to collect with a callback
+#
 sub search {
   my ($self, $koral, $cb) = @_;
 
