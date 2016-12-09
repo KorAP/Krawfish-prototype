@@ -1,6 +1,9 @@
 package Krawfish::Search::FieldFacets;
+use Krawfish::Log;
 use strict;
 use warnings;
+
+use constant DEBUG => 0;
 
 # This search construct will collect frequencies for fields
 # in buckets to make facet search possible
@@ -27,8 +30,9 @@ sub new {
   # Preload ranks
   foreach (@{$self->{facet_fields}}) {
 
-    # These may already be loaded in memory (for facets or sorting)
+    print_log('facet', 'Preload field_rank for ' . $_) if DEBUG;
 
+    # These may already be loaded in memory (for facets or sorting)
     (my $max_rank, $self->{ranks}->{$_}) = $fields->docs_ranked($_);
   };
 
@@ -42,11 +46,13 @@ sub next {
 
   my $field;
 
+  # Next query
   if ($self->{query}->next) {
     my $current = $self->{query}->current;
-
     my $doc_id = $current->doc_id;
     my $last_doc_id = $self->{doc_id};
+
+    print_log('facet', "Get facet info for $doc_id") if DEBUG;
 
     # Iterate over all fields and collect ranks
     foreach $field (@{$self->{facet_fields}}) {
@@ -55,12 +61,15 @@ sub next {
       my $rank = $self->{ranks}->{$field}->[$doc_id];
       # The rank may be ordered ordinally or lexicographic
 
+      print_log('facet', "  '$field' has rank $rank") if DEBUG;
+
       # Field exists for document
       if ($rank != 0) {
 
-        # Get the field bucket from memor
-        my $bucket = $self->{buckets}->{$field};
-        $bucket //= [];
+        # Get the field bucket from memory
+        my $bucket = ($self->{buckets}->{$field} //= []);
+
+        print_log('facet', '  bucket is initialized') if DEBUG;
 
          # This will contain 'doc_freq', 'freq', and an example 'doc_id'
         my $freq_bucket = $bucket->[$rank] //= [0, 0, $doc_id];
@@ -74,6 +83,11 @@ sub next {
 
         # Increment occurrence frequency
         $freq_bucket->[1]++;
+        print_log(
+          'facet',
+          "  '$field' has frequencies " .
+            $freq_bucket->[0] . '/' . $freq_bucket->[1]
+        ) if DEBUG;
       };
     };
 
@@ -103,7 +117,9 @@ sub facets {
   my $fields = $self->{index}->fields;
 
   # Iterate over all ranked buckets of the field
-  foreach my $rank (@$bucket) {
+  foreach my $rank (grep { defined $_ } @$bucket) {
+
+    print_log('facet', "Get rank $rank for $field") if DEBUG;
 
     # Get information from rank
     my ($doc_freq, $freq, $example_doc_id) = @$rank;

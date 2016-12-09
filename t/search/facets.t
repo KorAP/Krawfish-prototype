@@ -27,13 +27,15 @@ ok($count->next, 'Next');
 ok($count->next, 'Next');
 ok(!$count->next, 'No more nexts');
 
-# use Data::Dumper;
-# diag Dumper $count->facets('license');
+my $hash = $count->facets('license');
+is($hash->{free}->[0], 1, 'Document frequency');
+is($hash->{free}->[1], 1, 'frequency');
+is($hash->{closed}->[0], 1, 'Document frequency');
+is($hash->{closed}->[1], 1, 'frequency');
 
-#is($doc_freq, 2, 'Document frequency');
-#is($freq, 2, 'Occurrence frequency');
-
-diag 'Test further';
+$hash = $count->facets('corpus');
+is($hash->{'corpus-2'}->[0], 2, 'Document frequency');
+is($hash->{'corpus-2'}->[1], 2, 'frequency');
 
 done_testing;
 __END__

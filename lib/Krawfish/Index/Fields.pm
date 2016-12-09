@@ -1,6 +1,9 @@
 package Krawfish::Index::Fields;
+use Krawfish::Log;
 use strict;
 use warnings;
+
+use constant DEBUG => 0;
 
 sub new {
   my $class = shift;
@@ -20,6 +23,11 @@ sub store {
   # Preset fields with doc_id
   my $fields = ($self->{array}->[$doc_id] //= {});
 
+  print_log(
+    'fields',
+    'Store field ' . $key . ':' . $value . ' for ' . $doc_id
+  ) if DEBUG;
+
   # TODO:
   #   This needs to have information whether it's a string
   #   or an integer (mainly for sorting)
@@ -30,7 +38,18 @@ sub get {
   my $self = shift;
   my $doc_id = shift;
   my $doc = $self->{array}->[$doc_id];
-  return $doc->{$_[0]} if @_;
+
+  # Get specific field
+  if (@_) {
+    print_log(
+      'fields',
+      'Get field ' . $_[0] . ' for ' . $doc_id
+    ) if DEBUG;
+
+    return $doc->{$_[0]} ;
+  };
+
+  # Get all fields
   return $doc;
 };
 
@@ -62,6 +81,11 @@ sub docs {
 sub docs_ranked {
   my ($self, $field) = @_;
 
+  print_log(
+    'fields',
+    'Get rank vector for ' . $field
+  ) if DEBUG;
+
   # TODO:
   #   Currently ranks are set absolutely - but they should be set
   #   multiple times to make sorts for multiple fields
@@ -69,8 +93,11 @@ sub docs_ranked {
   # TODO: Check if the field needs to be sorted
   #   numerically or based on a collation
 
-  # Lookup at disk
-  return @{$self->{ranks}->{$field}} if $self->{ranks}->{$field};
+  if ($self->{ranks}->{$field}) {
+
+    # Lookup at disk
+    return @{$self->{ranks}->{$field}};
+  };
 
   # TODO:
   #   $max_rank is important, because it indicates
@@ -83,6 +110,13 @@ sub docs_ranked {
 
   # Store ranks for the future
   $self->{ranks}->{$field} = [$max_rank, $ranked];
+
+  if (DEBUG) {
+    print_log(
+      'fields',
+      'Return rank vector for ' . $field . ' with ' . join(',', @$ranked)
+    );
+  };
 
   # Return ranked list
   return @{$self->{ranks}->{$field}};
