@@ -1,4 +1,5 @@
 package Krawfish::Index::Fields;
+use Krawfish::Index::FieldsRank;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -78,7 +79,7 @@ sub docs {
 # TODO:
 #   Return object
 #
-sub docs_ranked {
+sub ranked_by {
   my ($self, $field) = @_;
 
   print_log(
@@ -93,74 +94,26 @@ sub docs_ranked {
   # TODO: Check if the field needs to be sorted
   #   numerically or based on a collation
 
-  if ($self->{ranks}->{$field}) {
+  my $ranks = $self->{ranks};
 
-    # Lookup at disk
-    return @{$self->{ranks}->{$field}};
-  };
+  # Lookup at disk
+  return $ranks->{$field} if $ranks->{$field};
 
-  # TODO:
-  #   $max_rank is important, because it indicates
-  #   how many bits per doc are necessary to encode
-  #   the rank!
-  #
-  my ($max_rank, $ranked) = rank_str(
+  # Add rank
+  $ranks->{$field} = Krawfish::Index::FieldsRank->new(
     [grep { defined $_ } map { $_->{$field} } @{$self->{array}}]
   );
-
-  # Store ranks for the future
-  $self->{ranks}->{$field} = [$max_rank, $ranked];
 
   if (DEBUG) {
     print_log(
       'fields',
-      'Return rank vector for ' . $field . ' with ' . join(',', @$ranked)
+      'Return rank vector for ' . $field
     );
   };
 
   # Return ranked list
-  return @{$self->{ranks}->{$field}};
+  return $ranks->{$field};
 };
 
-
-# Todo: use rank_num
-# SIMPLE ALGO: http://stackoverflow.com/questions/14834571/ranking-array-elements
-# COMPLEX ALGO: https://www.quora.com/How-to-rank-a-list-without-sorting-it
-# See http://orion.lcg.ufrj.br/Dr.Dobbs/books/book5/chap14.htm
-sub rank_str {
-  my ($array) = @_;
-
-  # Get sorted docs by field
-  my $pos = 0;
-  my @sorted = sort {
-    if ($a->[0] gt $b->[0]) {
-      return 1;
-    };
-    return -1;
-
-    # Add original position
-  } map { [$_ , $pos++] } @$array;
-
-  my @ranked;
-
-  my $rank = 0;
-  my $last = '';
-
-  # Iterate over sorted list
-  for my $i (0 .. $#sorted) {
-
-    # Need to start a new chunk?
-    if ($sorted[$i]->[0] ne $last) {
-      $rank++;
-      $last = $sorted[$i]->[0];
-    };
-
-    # Set rank
-    $ranked[$sorted[$i]->[1]] = $rank;
-  };
-
-  # Return max_rank and ranked list
-  return $rank, \@ranked;
-}
 
 1;

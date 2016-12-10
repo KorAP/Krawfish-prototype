@@ -10,13 +10,18 @@ use constant DEBUG => 0;
 
 # TODO:
 #   This should - as a by product - count frequencies
+#
+# TODO:
+#   Probably call this "Krawfish::Collect::Facets" and get
+#   a meta object for "Krawfish::Collect" with a next(),
+#   current() etc.
 
 sub new {
   my $class = shift;
   my $self = bless {
     query => shift,
     index => shift,
-    facet_fields => shift,
+    fields => shift,
     buckets => {}, # The buckets in memory
     ranks => {},    # The ranked lists - may be too large for memory!
     doc_id => undef
@@ -28,12 +33,12 @@ sub new {
   my $fields = $self->{index}->fields;
 
   # Preload ranks
-  foreach (@{$self->{facet_fields}}) {
+  foreach (@{$self->{fields}}) {
 
     print_log('facet', 'Preload field_rank for ' . $_) if DEBUG;
 
     # These may already be loaded in memory (for facets or sorting)
-    (my $max_rank, $self->{ranks}->{$_}) = $fields->docs_ranked($_);
+    $self->{ranks}->{$_} = $fields->ranked_by($_);
   };
 
   return $self;
@@ -55,10 +60,10 @@ sub next {
     print_log('facet', "Get facet info for $doc_id") if DEBUG;
 
     # Iterate over all fields and collect ranks
-    foreach $field (@{$self->{facet_fields}}) {
+    foreach $field (@{$self->{fields}}) {
 
       # Get rank for field
-      my $rank = $self->{ranks}->{$field}->[$doc_id];
+      my $rank = $self->{ranks}->{$field}->get($doc_id);
       # The rank may be ordered ordinally or lexicographic
 
       print_log('facet', "  '$field' has rank $rank") if DEBUG;
@@ -145,5 +150,22 @@ sub facets {
   # }
   return \%facets;
 };
+
+sub to_string {
+  my $self = shift;
+  my $str = 'collectFacets(';
+  $str .= '[' . join(',', map { _squote($_) } @{$self->{fields}}) . ']:';
+  $str .= $self->{query}->to_string;
+  return $str .')';
+};
+
+
+# From Mojo::Util
+sub _squote {
+  my $str = shift;
+  $str =~ s/(['\\])/\\$1/g;
+  return qq{'$str'};
+};
+
 
 1;

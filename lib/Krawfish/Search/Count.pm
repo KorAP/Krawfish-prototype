@@ -66,5 +66,11 @@ sub to_end {
   while ($self->next) { };
 };
 
+sub to_string {
+  my $self = shift;
+  my $str = 'collectCounts(';
+  $str .= $self->{query}->to_string;
+  return $str . ')';
+};
 
 1;

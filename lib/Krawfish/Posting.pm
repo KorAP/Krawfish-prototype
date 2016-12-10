@@ -41,6 +41,16 @@ sub offset {
   undef;
 };
 
+sub clone {
+  my $self = shift;
+  return __PACKAGE__->new(
+    doc_id => $self->doc_id,
+    start => $self->start,
+    end => $self->end,
+    payload => $self->payload->clone
+  );
+}
+
 # Stringify
 sub to_string {
   my $self = shift;

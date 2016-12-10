@@ -30,6 +30,7 @@ my ($doc_freq, $freq) = $count->frequencies;
 is($doc_freq, 2, 'Document frequency');
 is($freq, 2, 'Occurrence frequency');
 
+is($count->to_string, "collectCounts('Der')", 'Get counts');
 
 done_testing;
 __END__
