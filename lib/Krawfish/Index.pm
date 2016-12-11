@@ -324,14 +324,22 @@ sub search {
   my $corpus = $koral->corpus;
   my $meta   = $koral->meta;
 
-  # Results
+  # Initiate result object
   my $result = $koral->result;
 
+  # Get filtered search object
   my $search = $query->filter_by($corpus)->plan_for($self);
 
   # Augment with facets
+  # Will add to result info
   if ($meta->facets) {
     $search = $meta->facets($search);
+  };
+
+  # Augment with counting
+  # Will add to result info
+  if ($meta->count) {
+    $search = $meta->count($search);
   };
 
   # Augment with sorting
@@ -339,21 +347,28 @@ sub search {
     $search = $meta->sorted_by($search);
   };
 
-  my $count = 0;
-  while ($search->next) {
-    my $posting = $search->current;
-
-    # Based on the information, this will populate the match
-    $result->add_match($posting, $index);
-
-    last if ++$count > $meta->count;
+  # Augment with limitations
+  if ($meta->limit) {
+    $search = $meta->limit($search);
   };
 
-  # Total result count may already be available after sorting
-  # Otherwise count
-  if (!$meta->total_results && !$meta->cutoff) {
-    $count++ while $search->next;
-    $meta->total_results($count);
+  # Augment with field collector
+  # Will modify current match
+  $search = $meta->fields($search);
+
+  # Augment with id creator
+  # Will modify current match
+  $search = $meta->id_create($search);
+
+  # Augment with snmippet creator
+  # Will modify current match
+  $search = $meta->snippets($search);
+
+  # Iterate over all matches
+  while ($search->next) {
+
+    # Based on the information, this will populate the match
+    $result->add_match($search->current_match);
   };
 
   return $koral;

@@ -1,4 +1,4 @@
-package Krawfish::Search::Count;
+package Krawfish::Collect::Count;
 use strict;
 use warnings;
 

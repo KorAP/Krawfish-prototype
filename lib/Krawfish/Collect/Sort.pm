@@ -1,4 +1,4 @@
-package Krawfish::Search::FieldSort;
+package Krawfish::Collect::Sort;
 use Krawfish::Log;
 use strict;
 use warnings;

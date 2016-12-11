@@ -1,7 +1,10 @@
 package Krawfish::Koral::Query::Sequence;
 use parent 'Krawfish::Koral::Query';
+use Krawfish::Log;
 use strict;
 use warnings;
+
+use constant DEBUG => 0;
 
 sub new {
   my $class = shift;
@@ -82,12 +85,14 @@ sub _solve_problems {
       next;
     };
 
-    print "  >> " . $elements[$p]->to_string . " is problematic\n";
+    print_log('kq_seq', $elements[$p]->to_string . " is problematic") if DEBUG;
 
     # Problem has a following anchor
     if ($elements[$p+1] && $elements[$p+1]->maybe_anchor) {
       my $next = $elements[$p+1];
-      print "  >> Extend left with " . $next->to_string . "\n";
+
+      print_log('kq_seq', 'Extend left with ' . $next->to_string) if DEBUG;
+
       splice @elements, $p, 2, $self->builder->ext_left(
         $next,
         $elements[$p]
@@ -97,7 +102,9 @@ sub _solve_problems {
     # Problem has a preceeding anchor
     elsif ($elements[$p-1] && $elements[$p-1]->maybe_anchor) {
       my $previous = $elements[$p-1];
-      print "  >> Extend right with " . $previous->to_string . "\n";
+
+      print_log('kq_seq', 'Extend right with ' . $previous->to_string) if DEBUG;
+
       splice @elements, $p-1, 2, $self->builder->ext_right(
         $previous,
         $elements[$p]

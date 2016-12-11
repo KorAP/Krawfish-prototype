@@ -1,4 +1,4 @@
-package Krawfish::Search::FieldFacets;
+package Krawfish::Collect::Facets;
 use Krawfish::Log;
 use strict;
 use warnings;

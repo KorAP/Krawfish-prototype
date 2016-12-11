@@ -1,5 +1,4 @@
 package Krawfish::Koral::Meta;
-use Krawfish::Search::FieldFacets;
 use strict;
 use warnings;
 

@@ -5,7 +5,7 @@ use warnings;
 
 use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Query::Builder');
-use_ok('Krawfish::Search::FieldFacets');
+use_ok('Krawfish::Collect::Facets');
 
 my $index = Krawfish::Index->new;
 
@@ -17,7 +17,7 @@ my $kq = Krawfish::Koral::Query::Builder->new;
 my $query = $kq->token('Der');
 
 # Get facets object
-ok(my $facets = Krawfish::Search::FieldFacets->new(
+ok(my $facets = Krawfish::Collect::Facets->new(
   $query->prepare_for($index),
   $index,
   [qw/license corpus/]
