@@ -1,6 +1,9 @@
 package Krawfish::Search::FieldSort;
+use Krawfish::Log;
 use strict;
 use warnings;
+
+use constant DEBUG => 0;
 
 # TODO:
 #   Use a variant of insertion sort or (better) tree sort
@@ -12,12 +15,15 @@ use warnings;
 #   The best variant may be bucket sort with insertion sort. In case top_n was chosen,
 #   this may early make some buckets neglectable.
 #   Like this:
-#   1. Create 255 buckets. These buckets have
+#   1. Create 256 buckets. These buckets have
 #      1.1. A pointer to their contents and
 #      1.2. A counter, how many elements are in there.
 #           If the pointer is zero, no elements should
 #           be put into the bin (i.e. forget them).
 #      1.3. A bit vector marking equal elements
+#           May not be good - better add concrete pointers, because
+#           order will change regularly. Maybe only a single
+#           marker for duplicates
 #   2. Get a new item from the stream and add it to the bucket in question,
 #      in case this bucket does not point to 0.
 #      2.1. Do an insertion sort in the bucket.
@@ -57,7 +63,7 @@ sub new {
     index => shift,
     fields => shift,
     freq => 0,
-    pos => 0, # Temporary
+    pos => -1, # Temporary
     # top_k => shift // 0 # TODO!
   }, $class;
 
@@ -87,9 +93,14 @@ sub new {
   # TODO: This requires a cached buffer
   while ($query->next) {
 
+    print_log('sort', 'Get next element from query ' . $query->to_string) if DEBUG;
+
     # Add cloned
-    push @record_order, $query->current->clone;
+    my $element = $query->current->clone;
+    push @record_order, $element;
     $self->{freq}++;
+
+    print_log('sort', 'Clone ' . $element->to_string) if DEBUG;
 
     # TODO:
     # my $offset = $current->offset; # record-offset in cached buffer!
@@ -117,9 +128,13 @@ sub new {
     return $rank_a <=> $rank_b;
   } @record_order];
 
+  print_log(
+    'sort',
+    "Ordered by rank '$sort_by' is " . join(',', @{$self->{ordered}})
+  ) if DEBUG;
+
   return $self;
 
-  
 
   # TODO:
 
@@ -157,7 +172,7 @@ sub new {
 # Iterated through the ordered linked list
 sub next {
   my $self = shift;
-  if ($self->{pos}++ < $self->freq) {
+  if ($self->{pos}++ < ($self->freq - 1)) {
     return 1;
   };
   return;

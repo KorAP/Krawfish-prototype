@@ -25,14 +25,14 @@ ok(my $sort = Krawfish::Search::FieldSort->new(
 
 is($sort->freq, 3, 'List has frequency');
 ok($sort->next, 'Next');
+is($sort->current->doc_id, 0, 'Obj');
+ok($sort->next, 'Next');
 is($sort->current->doc_id, 1, 'Obj');
 ok($sort->next, 'Next');
 is($sort->current->doc_id, 2, 'Obj');
-ok($sort->next, 'Next');
-is($sort->current->doc_id, 3, 'Obj');
 ok(!$sort->next, 'No more nexts');
 
-is($sort->to_string, "collectSorted(['docID']:'Der')", 'Get counts');
+is($sort->to_string, "collectSorted(['docID']:or('Der','akron=Der'))", 'Get counts');
 
 done_testing;
 __END__
