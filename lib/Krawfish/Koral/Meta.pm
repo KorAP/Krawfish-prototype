@@ -4,20 +4,27 @@ use warnings;
 
 sub new {
   my $class = shift;
+  bless {
+    count => undef
+  }, $class;
 };
 
-sub fields;
+#sub fields;
 
-sub sort_by {
-  my $self = shift;
-  $self->{sorted_by} = [@_];
-  return @_;
+#sub sort_by {
+#  my $self = shift;
+#  $self->{sorted_by} = [@_];
+#  return @_;
+#};
+
+#sub start_index;
+
+#sub count;
+
+# Contains doc_freq and freq
+sub count {
+  $_[0]->{count}
 };
-
-sub start_index;
-
-sub count;
-
 
 sub plan_for {
   my ($self, $index) = @_;

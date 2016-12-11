@@ -1,4 +1,5 @@
-package Krawfish::Collect::Count;
+package Krawfish::Collection::Count;
+use parent 'Krawfish::Collection';
 use strict;
 use warnings;
 

@@ -5,7 +5,7 @@ use warnings;
 
 use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Query::Builder');
-use_ok('Krawfish::Collect::Count');
+use_ok('Krawfish::Collection::Count');
 
 my $index = Krawfish::Index->new;
 
@@ -17,7 +17,7 @@ my $kq = Krawfish::Koral::Query::Builder->new;
 my $query = $kq->token('Der');
 
 # Get count object
-ok(my $count = Krawfish::Collect::Count->new(
+ok(my $count = Krawfish::Collection::Count->new(
   $query->prepare_for($index)
 ), 'Create count object');
 

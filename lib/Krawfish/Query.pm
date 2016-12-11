@@ -25,7 +25,6 @@ sub next;
 sub next_greater_start;
 
 
-
 sub skip_doc {
   my $self = shift;
   my $doc_id = shift;
@@ -50,6 +49,12 @@ sub freq {
 # Overwrite
 sub to_string {
   ...
+};
+
+
+# Override in Krawfish::Collection
+sub current_match {
+  return undef;
 };
 
 1;
