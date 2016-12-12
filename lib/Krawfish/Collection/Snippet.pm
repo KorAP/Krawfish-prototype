@@ -1,17 +1,34 @@
 package Krawfish::Collection::Snippet;
 use parent 'Krawfish::Collection';
+use Krawfish::Collection::Snippet::Highlights;
 use Krawfish::Log;
 use strict;
 use warnings;
 
 use constant DEBUG => 1;
 
+# TODO:
+#  - ExpandToSpan
+#  - Context with chars and tokens
+
 sub new {
   my $class = shift;
-  bless {
-    query => shift,
-    index => shift
+  my %param = @_;
+
+  my $self = bless {
+    query => $param{query},
+    index => $param{index}
   }, $class;
+
+  $self->{segments} = $self->{index}->segments;
+
+  # Create highlight object
+  $self->{highlights} = Krawfish::Collection::Snippet::Highlights->new(
+    $param{highlights},
+    $self->{segments}
+  );
+
+  return $self;
 };
 
 
@@ -19,6 +36,7 @@ sub new {
 sub next {
   my $self = shift;
   $self->{match} = undef;
+#  $self->{highlights}->clear;
   return $self->{query}->next;
 };
 
@@ -41,6 +59,8 @@ sub current_match {
     0,
     500
   ) // '';
+
+  # TODO: $highlights
 
   $match->fields({snippet => $pd});
 

@@ -12,7 +12,7 @@ ok_index($index, {
   docID => 'doc-1',
   license => 'free',
   corpus => 'corpus-2'
-} => \'aa bb aa bb' => [qw/aa bb aa bb/], 'Add new document');
+} => [qw/aa bb aa bb/], 'Add new document');
 
 my $kq = Krawfish::Koral::Query::Builder->new;
 my $query = $kq->term_or('aa', 'bb');
@@ -25,8 +25,8 @@ is($prepare->to_string, "or('aa','bb')", 'Stringification');
 
 # Get facets object
 ok(my $snippet = Krawfish::Collection::Snippet->new(
-  $prepare,
-  $index
+  query => $prepare,
+  index => $index
 ), 'Create count object');
 
 ok($snippet->next, 'Next match');

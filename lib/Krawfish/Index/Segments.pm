@@ -1,9 +1,16 @@
-package Krawfish::Index::Offsets;
+package Krawfish::Index::Segments;
 use strict;
 use warnings;
 
-# TODO: Probably rename to "Segments"
 # Store offsets for direct access using doc id and pos
+
+# TODO:
+#   This may be implemented using a postings list, but inside positions,
+#   it should be possible to move backwards as well.
+#   The segments structure may be augmented with a skiplist
+#   and be a highly optimized position encoding, because character offsets
+#   should normally have values between 0 and 16.
+
 
 # Constructor
 sub new {
@@ -28,6 +35,7 @@ sub store {
 
 
 # Get offsets
+# TODO: Support caching!
 sub get {
   my $self = shift;
   my ($doc_id, $segment) = @_;

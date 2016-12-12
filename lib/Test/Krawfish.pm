@@ -1,4 +1,5 @@
 package Test::Krawfish;
+use Krawfish::Log;
 use parent 'Test::Builder::Module';
 use warnings;
 use strict;
@@ -7,10 +8,13 @@ use File::Basename 'dirname';
 use File::Spec::Functions 'catfile';
 our @EXPORT = qw(test_doc test_file ok_index matches);
 
+use constant DEBUG => 0;
+
 sub test_file {
   my @file = @_;
   return catfile(dirname(__FILE__), '..', '..', 't', 'data', @_);
 };
+
 
 sub test_doc {
   my $kq = {};
@@ -20,16 +24,19 @@ sub test_doc {
     $doc->{fields} = _fields(shift);
   };
 
-  if (ref $_[0] eq 'SCALAR') {
-    $doc->{primaryData} = ${shift()};
-  };
+
+  my ($pd, $anno, $segments);
 
   if (ref $_[0] eq 'ARRAY') {
-    $doc->{annotations} = _simple_anno(shift);
+    ($pd, $anno, $segments) = _simple_anno(shift);
   }
   else {
-    $doc->{annotations} = _complex_anno(shift);
+    ($pd, $anno, $segments) = _complex_anno(shift);
   };
+
+  $doc->{annotations} = $anno if $anno;
+  $doc->{primaryData} = $pd if $pd;
+  $doc->{segments} = $segments if $segments;
 
   return $kq;
 };
@@ -80,11 +87,27 @@ sub matches {
 # Simple annotations
 sub _simple_anno {
   my @tokens;
+  my $primary_data = join ' ', @{$_[0]};
+
+  print_log('test', "Primary data is '$primary_data'") if DEBUG;
+
+  my @offsets = ();
+  my $offset = 0;
   foreach (@{$_[0]}) {
-    push @tokens, _token(_key($_))
+    push @tokens, _token(_key($_));
+    my $end = $offset + length($_);
+    push @offsets, [$offset, $end];
+    $offset = $end + 1;
   };
 
-  return \@tokens
+  if (DEBUG) {
+    print_log(
+      'test',
+      'Offsets are ' . join(',', map { $_->[0] . '-' . $_->[1] } @offsets)
+    );
+  };
+
+  return $primary_data, \@tokens, _segments(\@offsets)
 };
 
 
@@ -95,14 +118,19 @@ sub _complex_anno {
   my @segments;
   my @tokens;
   my %spans;
+
+  # Segment data
   my $segment = 0;
+  my $offset = 0;
+  my (@primary_data, @offsets) = ();
 
   while ($string =~ /\G\s*(<[^>]+?>|\[[^\]]+?\])/g) {
     my $token = $1;
 
     # Found a token description
     if ($token =~ /^\[((?:[^\]\|]+?)\s*(?:\|\s*(?:[^\]\|]+?))*)\]$/) {
-      my @group = map { _key($_) } split(/\s*\|\s*/, $1);
+      my @split = split(/\s*\|\s*/, $1);
+      my @group = map { _key($_) } @split;
 
       # This is a token group
       if (@group > 1) {
@@ -117,6 +145,11 @@ sub _complex_anno {
         push @tokens, _token($group[0], $segment);
       };
 
+      # Use first token for primary data;
+      push @primary_data, $split[0];
+      my $end = $offset + length($split[0]);
+      push @offsets, [$offset, $end];
+      $offset = $end + 1;
       $segment++;
     }
 
@@ -144,8 +177,9 @@ sub _complex_anno {
   };
 
   @tokens = sort _token_sort @tokens;
+  my $primary_data = join(' ', @primary_data);
 
-  return \@tokens;
+  return $primary_data, \@tokens, _segments(\@offsets);
 };
 
 
@@ -188,6 +222,18 @@ sub _fields {
     });
   };
   \@fields;
+};
+
+sub _segments {
+  my $offsets = shift;
+  my @segments = ();
+  foreach (@$offsets) {
+    push @segments, {
+      '@type' => 'koral:segment',
+      'offsets' => $_
+    };
+  };
+  return \@segments;
 };
 
 sub _token_sort {

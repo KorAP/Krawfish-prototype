@@ -1,9 +1,10 @@
 package Krawfish::Index;
 use Krawfish::Index::Dictionary;
-use Krawfish::Index::Offsets;
+use Krawfish::Index::Segments;
 use Krawfish::Index::PrimaryData;
 use Krawfish::Index::Fields;
 use Krawfish::Cache;
+use Krawfish::Log;
 use strict;
 use warnings;
 use Scalar::Util qw!blessed!;
@@ -22,6 +23,9 @@ use Mojo::Util qw/slurp/;
 
 # TODO: Maybe 65.535 documents are enough per segment ...
 
+use constant DEBUG => 0;
+
+
 sub new {
   my $class = shift;
   my $file = shift;
@@ -35,7 +39,7 @@ sub new {
   );
 
   # Load offsets
-  $self->{offsets} = Krawfish::Index::Offsets->new(
+  $self->{segments} = Krawfish::Index::Segments->new(
     $self->{file}
   );
 
@@ -85,9 +89,9 @@ sub info {
 };
 
 
-# Get offsets
-sub offsets {
-  $_[0]->{offsets};
+# Get segments
+sub segments {
+  $_[0]->{segments};
 };
 
 
@@ -119,9 +123,13 @@ sub add {
   $doc = $doc->{document};
 
   # Store primary data
-  $self->primary->store($doc_id, $doc->{primaryData});
+  if ($doc->{primaryData}) {
+    $self->primary->store($doc_id, $doc->{primaryData});
 
-  my $offsets = $self->offsets;
+    print_log('index', 'Store primary data "' . $doc->{primaryData} . '"') if DEBUG;
+  };
+
+  my $segments = $self->segments;
 
   my $pos = 0;
   my @segments = ();
@@ -129,9 +137,17 @@ sub add {
   # Store segments
   if ($doc->{segments}) {
 
+    print_log('index', 'Store segments') if DEBUG;
+
     # Store all segment offsets
     foreach my $seg (@{$doc->{segments}}) {
-      $offsets->store($doc_id, $pos++, @{$seg->{offsets}});
+      if (DEBUG) {
+        print_log(
+          'index',
+          'Store segment: ' . $doc_id . ':' . $pos . '=' . join('-', @{$seg->{offsets}})
+        );
+      };
+      $segments->store($doc_id, $pos++, @{$seg->{offsets}});
     };
   };
 
@@ -200,7 +216,7 @@ sub add {
 
         # Store offsets
         if ($item->{offsets}) {
-          $offsets->store($doc_id, $pos, @{$item->{offsets}});
+          $segments->store($doc_id, $pos, @{$item->{offsets}});
         };
         $pos++;
       };

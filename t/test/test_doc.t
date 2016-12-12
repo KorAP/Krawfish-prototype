@@ -1,5 +1,6 @@
 use Test::More;
 use Test::Krawfish;
+use Data::Dumper;
 use strict;
 use warnings;
 
@@ -12,6 +13,15 @@ is($anno->[0]->{'@type'}, 'koral:token', '@type is valid');
 is($anno->[0]->{'wrap'}->{'key'}, 'aa', '@type is valid');
 is($anno->[-1]->{'@type'}, 'koral:token', '@type is valid');
 is($anno->[-1]->{'wrap'}->{'key'}, 'bb', '@type is valid');
+
+ok(my $segments = $doc->{document}->{segments}, 'Get segments');
+is_deeply($segments->[0]->{offsets}, [0,2], 'Segment');
+is_deeply($segments->[1]->{offsets}, [3,5], 'Segment');
+is_deeply($segments->[2]->{offsets}, [6,8], 'Segment');
+is_deeply($segments->[3]->{offsets}, [9,11], 'Segment');
+ok(!$segments->[4], 'No more segments');
+
+is($doc->{document}->{primaryData}, 'aa bb aa bb', 'Primary data');
 
 $doc = test_doc('<1:xy>[aa]<2:opennlp=z>[bb]</1>[corenlp/c=cc|dd]</2>');
 
@@ -46,6 +56,14 @@ is($token_group->[0]->{layer}, 'c', 'Annotation key');
 is($token_group->[1]->{'@type'}, 'koral:term', 'Annotation type');
 is($token_group->[1]->{key}, 'dd', 'Annotation key');
 
+is($doc->{document}->{primaryData}, 'aa bb corenlp/c=cc', 'Check primary data');
+ok($segments = $doc->{document}->{segments}, 'Get segments');
+
+is_deeply($segments->[0]->{offsets}, [0,2], 'Segment');
+is_deeply($segments->[1]->{offsets}, [3,5], 'Segment');
+is_deeply($segments->[2]->{offsets}, [6,18], 'Segment');
+ok(!$segments->[3], 'No more segments');
+
 $doc = test_doc('<1:aa><2:aa>[bb]</2>[bb]</1>');
 $anno = $doc->{document}->{annotations};
 is($anno->[0]->{'@type'}, 'koral:span', 'Span');
@@ -73,5 +91,6 @@ is_deeply($fields->[1], {
   'key' => 'id',
   'type' => 'type:string'
 }, 'First key');
+
 
 done_testing;
