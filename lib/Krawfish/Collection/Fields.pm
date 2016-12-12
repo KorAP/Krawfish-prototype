@@ -22,27 +22,7 @@ sub current_match {
   # Match is already set
   return $self->{match} if $self->{match};
 
-  # Get current match from query
-  my $match = $self->{query}->current_match;
-
-  print_log('c_fields', 'Fetch fields for current document') if DEBUG;
-
-  # Not yet defined
-  unless ($match) {
-
-    # Get current object
-    my $current = $self->{query}->current;
-
-    print_log('c_fields', 'Query has no current match for document ' . $current->doc_id) if DEBUG;
-
-    # Create new match
-    $match = Krawfish::Posting::Match->new(
-      doc_id => $current->doc_id,
-      start => $current->start,
-      end => $current->end,
-      payload => $current->payload->clone
-    );
-  };
+  my $match = $self->match_from_query;
 
   # Get fields object
   my $fields = $self->{index}->fields;

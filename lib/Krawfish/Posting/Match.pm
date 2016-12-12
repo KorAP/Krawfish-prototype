@@ -32,7 +32,9 @@ sub to_string {
     $str .= '$' . $self->payload->to_string;
   };
   $str .= '=';
-  $str .= join ';', map { $_ . '=' . _squote($self->{fields}->{$_}) } sort keys %{$self->{fields}};
+  $str .= join ';', map {
+    $_ . '=' . _squote($self->{fields}->{$_})
+  } sort keys %{$self->{fields}};
   return $str . ']';
 };
 

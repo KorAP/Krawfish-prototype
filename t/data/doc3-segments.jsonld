@@ -2,7 +2,7 @@
   "@context" : "http://korap.ids-mannheim.de/ns/koral/0.5/context.jsonld",
   "document" : {
     "@type" : "koral:document",
-    "primarydata" : "Der Bau-Leiter trug einen lustigen Bau-Helm.",
+    "primaryData" : "Der Bau-Leiter trug einen lustigen Bau-Helm.",
     "id" : 3,
     "fields" : [
       {

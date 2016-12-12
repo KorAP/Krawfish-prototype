@@ -20,6 +20,10 @@ sub test_doc {
     $doc->{fields} = _fields(shift);
   };
 
+  if (ref $_[0] eq 'SCALAR') {
+    $doc->{primaryData} = ${shift()};
+  };
+
   if (ref $_[0] eq 'ARRAY') {
     $doc->{annotations} = _simple_anno(shift);
   }
@@ -33,23 +37,14 @@ sub test_doc {
 sub ok_index {
   my $index = shift;
   my $meta;
+  my $kq = test_doc(@_);
 
-  my @param;
-
-  if (ref $_[0] eq 'HASH') {
-    push @param, shift;
-  };
-
-  push @param, shift;
-
-  my $kq = test_doc(@param);
-
-  my $desc = shift // 'Add example document';
+  my $desc = 'Add example document';
 
   local $Test::Builder::Level = $Test::Builder::Level + 1;
 
   my $tb = Test::More->builder;
-  $tb->ok(defined $index->add($kq), 'Document indexed');
+  $tb->ok(defined $index->add($kq), $desc);
 };
 
 
@@ -63,11 +58,11 @@ sub matches {
   # Iterate over matches
   foreach (@$matches) {
     unless ($query->next) {
-      $tb->fail($desc . '- next before ' . $_);
+      $tb->ok(0, $desc . '- next before ' . $_);
       return;
     };
     unless ($query->current->to_string eq $_) {
-      $tb->fail(
+      $tb->ok(0,
         $desc . '- mismatch of ' . $query->current->to_string . ' vs. ' . $_
       );
       return;
