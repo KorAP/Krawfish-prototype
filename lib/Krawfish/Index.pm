@@ -168,7 +168,7 @@ sub add {
     # Prepare field for sorting
     if ($field->{sortable}) {
 
-      # How many entries need to be sorted
+      # Which entries need to be sorted?
       $self->{sortable}->{$field->{key}}++;
     };
 

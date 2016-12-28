@@ -101,14 +101,14 @@ sub new {
   # TODO: This requires a cached buffer
   while ($query->next) {
 
-    print_log('sort', 'Get next element from query ' . $query->to_string) if DEBUG;
+    print_log('c_sort', 'Get next posting from query ' . $query->to_string) if DEBUG;
 
     # Add cloned
     my $element = $query->current->clone;
     push @record_order, $element;
     $self->{freq}++;
 
-    print_log('sort', 'Clone ' . $element->to_string) if DEBUG;
+    print_log('c_sort', 'Clone ' . $element->to_string) if DEBUG;
 
     # TODO:
     # my $offset = $current->offset; # record-offset in cached buffer!
@@ -129,15 +129,17 @@ sub new {
     # };
   };
 
+  print_log('c_sort', 'Check ranking') if DEBUG;
+
   my $max = $rank->max;
   $self->{ordered} = [sort {
     my $rank_a = $rank->get($a->doc_id) || ($max + 1);
-    my $rank_b = $rank->get($a->doc_id) || ($max + 1);
+    my $rank_b = $rank->get($b->doc_id) || ($max + 1);
     return $rank_a <=> $rank_b;
   } @record_order];
 
   print_log(
-    'sort',
+    'c_sort',
     "Ordered by rank '$sort_by' is " . join(',', @{$self->{ordered}})
   ) if DEBUG;
 

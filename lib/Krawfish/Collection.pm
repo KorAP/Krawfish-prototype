@@ -5,7 +5,7 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 sub current_match {
   my $self = shift;

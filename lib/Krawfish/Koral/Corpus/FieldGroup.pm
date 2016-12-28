@@ -45,6 +45,7 @@ sub plan_for {
   my $ops = $self->operands;
 
   # TODO: Order negatives before!
+  # TODO: Remove duplicates!
 
   my $i = 0;
 

@@ -9,12 +9,18 @@ use_ok('Krawfish::Collection::Sort');
 
 my $index = Krawfish::Index->new;
 
-ok(defined $index->add('t/data/doc1.jsonld'), 'Add new document');
-ok(defined $index->add('t/data/doc2.jsonld'), 'Add new document');
-ok(defined $index->add('t/data/doc3-segments.jsonld'), 'Add new document');
+ok_index($index, {
+  docID => 7
+} => [qw/aa bb/], 'Add complex document');
+ok_index($index, {
+  docID => 3,
+} => [qw/aa bb/], 'Add complex document');
+ok_index($index, {
+  docID => 1,
+} => [qw/aa bb/], 'Add complex document');
 
 my $kq = Krawfish::Koral::Query::Builder->new;
-my $query = $kq->term_or('Der', 'akron=Der');
+my $query = $kq->term_or('aa', 'bb');
 
 # Get sort object
 ok(my $sort = Krawfish::Collection::Sort->new(
@@ -23,16 +29,25 @@ ok(my $sort = Krawfish::Collection::Sort->new(
   ['docID']
 ), 'Create sort object');
 
-is($sort->freq, 3, 'List has frequency');
-ok($sort->next, 'Next');
-is($sort->current->doc_id, 0, 'Obj');
-ok($sort->next, 'Next');
-is($sort->current->doc_id, 1, 'Obj');
+is($sort->freq, 6, 'List has frequency');
 ok($sort->next, 'Next');
 is($sort->current->doc_id, 2, 'Obj');
-ok(!$sort->next, 'No more nexts');
+ok($sort->next, 'Next');
+is($sort->current->doc_id, 2, 'Obj');
 
-is($sort->to_string, "collectSorted(['docID']:or('Der','akron=Der'))", 'Get counts');
+is($sort->to_string, "collectSorted(['docID']:or('aa','bb'))", 'Get counts');
 
 done_testing;
 __END__
+
+
+ok($sort->next, 'Next');
+is($sort->current->doc_id, 1, 'Obj');
+ok($sort->next, 'Next');
+is($sort->current->doc_id, 1, 'Obj');
+ok($sort->next, 'Next');
+is($sort->current->doc_id, 0, 'Obj');
+ok($sort->next, 'Next');
+is($sort->current->doc_id, 0, 'Obj');
+ok(!$sort->next, 'No more nexts');
+
