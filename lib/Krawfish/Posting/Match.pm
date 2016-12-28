@@ -31,7 +31,7 @@ sub to_string {
   if ($self->payload->length) {
     $str .= '$' . $self->payload->to_string;
   };
-  $str .= '=';
+  $str .= '|';
   $str .= join ';', map {
     $_ . '=' . _squote($self->{fields}->{$_})
   } sort keys %{$self->{fields}};

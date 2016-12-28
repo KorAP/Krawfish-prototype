@@ -35,10 +35,10 @@ ok(my $fields = Krawfish::Collection::Fields->new(
 ), 'Create count object');
 
 ok($fields->next, 'Next');
-is($fields->current_match, "[0:0-1=corpus='corpus-2';docID='doc-1';license='free']",
+is($fields->current_match, "[0:0-1|corpus='corpus-2';license='free']",
    'Current match');
 ok($fields->next, 'Next');
-is($fields->current_match, "[1:0-1=corpus='corpus-3';docID='doc-2';license='closed']",
+is($fields->current_match, "[1:0-1|corpus='corpus-3';license='closed']",
    'Current match');
 ok(!$fields->next, 'No more next');
 

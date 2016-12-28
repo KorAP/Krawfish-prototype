@@ -30,11 +30,19 @@ sub current_match {
   # Retrieve field data of the document
   my $data = $fields->get($match->doc_id);
 
-  # TODO:
   #   Filter fields!
+  if ($self->{fields}) {
+    my %fields;
+    foreach (@{$self->{fields}}) {
+      $fields{$_} = $data->{$_} if $data->{$_};
+    };
 
-  # Add data to match
-  $match->fields($data);
+    # Add data to match
+    $match->fields(\%fields);
+  }
+  else {
+    $match->fields($data);
+  };
 
   $self->{match} = $match;
 

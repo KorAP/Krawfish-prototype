@@ -24,11 +24,8 @@ sub next {
   # Get next item
   if ($self->{query}->next) {
 
-    # Get current posting
-    my $current = $self->{query}->current;
-
-    # Get current doc id
-    my $doc_id = $current->doc_id;
+    # Get current posting doc_id
+    my $doc_id = $self->{query}->current->doc_id;
 
     # Document is new
     if (!defined($self->{doc_id}) || ($self->{doc_id} != $doc_id)) {
@@ -62,9 +59,10 @@ sub frequencies {
 
 
 # TODO: Optimize
-sub to_end {
+sub finish {
   my $self = shift;
   while ($self->next) { };
+  return 1;
 };
 
 sub to_string {

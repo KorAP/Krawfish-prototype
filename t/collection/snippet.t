@@ -30,13 +30,13 @@ ok(my $snippet = Krawfish::Collection::Snippet->new(
 ), 'Create count object');
 
 ok($snippet->next, 'Next match');
-is($snippet->current_match->to_string, "[0:0-1=snippet='aa bb aa bb']", 'Current match');
+is($snippet->current_match->to_string, "[0:0-1|snippet='aa bb aa bb']", 'Current match');
 ok($snippet->next, 'Next match');
-is($snippet->current_match->to_string, "[0:1-2=snippet='aa bb aa bb']", 'Current match');
+is($snippet->current_match->to_string, "[0:1-2|snippet='aa bb aa bb']", 'Current match');
 ok($snippet->next, 'Next match');
-is($snippet->current_match->to_string, "[0:2-3=snippet='aa bb aa bb']", 'Current match');
+is($snippet->current_match->to_string, "[0:2-3|snippet='aa bb aa bb']", 'Current match');
 ok($snippet->next, 'Next match');
-is($snippet->current_match->to_string, "[0:3-4=snippet='aa bb aa bb']", 'Current match');
+is($snippet->current_match->to_string, "[0:3-4|snippet='aa bb aa bb']", 'Current match');
 ok(!$snippet->next, 'No more match');
 
 diag 'Test further - with matches';
