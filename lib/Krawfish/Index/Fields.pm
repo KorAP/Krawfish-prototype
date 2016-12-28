@@ -24,6 +24,9 @@ sub store {
   # Preset fields with doc_id
   my $fields = ($self->{array}->[$doc_id] //= {});
 
+  # Delete cached ranks
+  delete $self->{ranks}->{$key};
+
   print_log(
     'fields',
     'Store field ' . $key . ':' . $value . ' for ' . $doc_id
