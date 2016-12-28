@@ -9,19 +9,19 @@ use warnings;
 use constant DEBUG => 0;
 
 our %FRAME = (
-  precedes => PRECEDES,
+  precedes         => PRECEDES,
   precedesDirectly => PRECEDES_DIRECTLY,
-  overlapsLeft => OVERLAPS_LEFT,
-  alignsLeft => ALIGNS_LEFT,
-  startsWith => STARTS_WITH,
-  matches => MATCHES,
-  isWithin => IS_WITHIN,
-  isAround => IS_AROUND,
-  endsWith => ENDS_WITH,
-  alignsRight => ALIGNS_RIGHT,
-  overlapsRight => OVERLAPS_RIGHT,
+  overlapsLeft     => OVERLAPS_LEFT,
+  alignsLeft       => ALIGNS_LEFT,
+  startsWith       => STARTS_WITH,
+  matches          => MATCHES,
+  isWithin         => IS_WITHIN,
+  isAround         => IS_AROUND,
+  endsWith         => ENDS_WITH,
+  alignsRight      => ALIGNS_RIGHT,
+  overlapsRight    => OVERLAPS_RIGHT,
   succeedsDirectly => SUCCEEDS_DIRECTLY,
-  succeeds => SUCCEEDS
+  succeeds         => SUCCEEDS
 );
 
 our $LEFT_FRAMES = PRECEDES | PRECEDES_DIRECTLY | OVERLAPS_LEFT | ALIGNS_LEFT | STARTS_WITH;

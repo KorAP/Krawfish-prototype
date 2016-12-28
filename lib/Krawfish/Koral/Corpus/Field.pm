@@ -30,6 +30,7 @@ sub ne {
   my $self = shift;
   $self->{match} = 'ne';
   $self->{value} = shift;
+  $self->is_negative(1);
   return $self;
 };
 
@@ -66,13 +67,17 @@ sub plan_for {
   my ($self, $index) = @_;
 
   # Negative field
-  if ($self->match eq 'ne') {
+  if ($self->is_negative) {
     return Krawfish::Corpus::Negation->new(
       $index,
-      $self->to_term
+      Krawfish::Corpus::Field->new(
+        $index,
+        $self->to_term
+      )
     );
   };
 
+  # Positive field
   Krawfish::Corpus::Field->new(
     $index,
     $self->to_term

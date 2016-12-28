@@ -1,3 +1,6 @@
+0.0.2 2016-12-28
+        - Improved negation for documents.
+
 0.0.1 2016-12-05
         Krawfish is a simple testbed search backend for KorAP,
         to test some design concepts for Krill

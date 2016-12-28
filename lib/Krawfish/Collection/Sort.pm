@@ -54,8 +54,16 @@ use constant DEBUG => 0;
 #   Whenever top X is requested, and there are matches > X with a max_rank Y,
 #   ignore all matches > Y. This also means, these matches do not need to be
 #   fine-sorted using secondary fields.
+#
 # TODO:
 #   This should - as a by product - count frequencies
+#
+# TODO:
+#   This should also release top items as early as possible
+#
+# TODO:
+#   This should bin-sort everything in case it's called using a streaming API
+#
 sub new {
   my $class = shift;
   my $self = bless {

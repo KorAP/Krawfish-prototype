@@ -25,6 +25,7 @@ ok(!$plan->current, 'No Current doc id');
 
 ok($field = $cb->string('license')->eq('closed'), 'String field');
 is($field->to_string, "license=closed", 'Stringification');
+ok(!$field->is_negative, 'Negative');
 ok($plan = $field->plan_for($index), 'Plan');
 is($plan->to_string, "'license:closed'", 'Stringification');
 ok(!$plan->current, 'No current');
@@ -37,6 +38,7 @@ ok(!$plan->current, 'No Current doc id');
 
 ok($field = $cb->string('license')->ne('closed'), 'String field');
 is($field->to_string, "license!=closed", 'Stringification');
+ok($field->is_negative, 'Negative');
 ok($plan = $field->plan_for($index), 'Plan');
 is($plan->to_string, "not('license:closed')", 'Stringification');
 ok(!$plan->current, 'No current');

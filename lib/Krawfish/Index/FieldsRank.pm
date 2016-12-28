@@ -7,6 +7,10 @@ use warnings;
 #   how many bits per doc are necessary to encode
 #   the rank!
 #
+# TODO:
+#   Use something like that:
+#   http://pempek.net/articles/2013/08/03/bit-packing-with-packedarray/
+#   https://github.com/gpakosz/PackedArray
 
 sub new {
   my $class = shift;
