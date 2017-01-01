@@ -1,4 +1,4 @@
-package Krawfish::Collection;
+package Krawfish::Result;
 use parent 'Krawfish::Query';
 use Krawfish::Posting::Match;
 use Krawfish::Log;

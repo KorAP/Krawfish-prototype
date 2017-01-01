@@ -1,4 +1,4 @@
-package Krawfish::Collection::Snippet::Highlights;
+package Krawfish::Result::Snippet::Highlights;
 use Krawfish::Log;
 use strict;
 use warnings;

@@ -1,6 +1,6 @@
-package Krawfish::Collection::Snippet;
-use parent 'Krawfish::Collection';
-use Krawfish::Collection::Snippet::Highlights;
+package Krawfish::Result::Snippet;
+use parent 'Krawfish::Result';
+use Krawfish::Result::Snippet::Highlights;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -23,7 +23,7 @@ sub new {
   $self->{segments} = $self->{index}->segments;
 
   # Create highlight object
-  $self->{highlights} = Krawfish::Collection::Snippet::Highlights->new(
+  $self->{highlights} = Krawfish::Result::Snippet::Highlights->new(
     $param{highlights},
     $self->{segments}
   );

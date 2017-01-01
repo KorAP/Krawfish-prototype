@@ -5,7 +5,7 @@ use warnings;
 
 use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Query::Builder');
-use_ok('Krawfish::Collection::Limit');
+use_ok('Krawfish::Result::Limit');
 
 my $index = Krawfish::Index->new;
 
@@ -17,7 +17,7 @@ my $kq = Krawfish::Koral::Query::Builder->new;
 my $query = $kq->term_or('Der', 'akron=Der');
 
 # Get sort object
-ok(my $sort = Krawfish::Collection::Limit->new(
+ok(my $sort = Krawfish::Result::Limit->new(
   $query->prepare_for($index),
   1,
   3

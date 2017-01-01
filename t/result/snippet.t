@@ -5,7 +5,7 @@ use warnings;
 
 use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Query::Builder');
-use_ok('Krawfish::Collection::Snippet');
+use_ok('Krawfish::Result::Snippet');
 
 my $index = Krawfish::Index->new;
 ok_index($index, {
@@ -24,7 +24,7 @@ my $prepare = $query->prepare_for($index);
 is($prepare->to_string, "or('aa','bb')", 'Stringification');
 
 # Get facets object
-ok(my $snippet = Krawfish::Collection::Snippet->new(
+ok(my $snippet = Krawfish::Result::Snippet->new(
   query => $prepare,
   index => $index
 ), 'Create count object');

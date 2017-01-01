@@ -5,7 +5,7 @@ use warnings;
 
 use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Query::Builder');
-use_ok('Krawfish::Collection::Sort');
+use_ok('Krawfish::Result::Sort');
 
 my $index = Krawfish::Index->new;
 
@@ -27,7 +27,7 @@ my $kq = Krawfish::Koral::Query::Builder->new;
 my $query = $kq->term_or('aa', 'bb');
 
 # Get sort object
-ok(my $sort = Krawfish::Collection::Sort->new(
+ok(my $sort = Krawfish::Result::Sort->new(
   $query->prepare_for($index),
   $index,
   ['docID']
@@ -54,7 +54,7 @@ is($sort->to_string, "collectSorted(['docID']:or('aa','bb'))", 'Get counts');
 $query = $kq->term('cc');
 
 # Get sort object
-ok($sort = Krawfish::Collection::Sort->new(
+ok($sort = Krawfish::Result::Sort->new(
   $query->prepare_for($index),
   $index,
   ['author']

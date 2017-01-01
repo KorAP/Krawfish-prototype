@@ -1,5 +1,5 @@
-package Krawfish::Collection::Fields;
-use parent 'Krawfish::Collection';
+package Krawfish::Result::Fields;
+use parent 'Krawfish::Result';
 use Krawfish::Log;
 use Krawfish::Posting::Match;
 use strict;
@@ -30,7 +30,7 @@ sub current_match {
   # Retrieve field data of the document
   my $data = $fields->get($match->doc_id);
 
-  #   Filter fields!
+  # Filter fields!
   if ($self->{fields}) {
     my %fields;
     foreach (@{$self->{fields}}) {
@@ -50,6 +50,7 @@ sub current_match {
 
   return $match;
 };
+
 
 sub next {
   my $self = shift;

@@ -1,4 +1,4 @@
-package Krawfish::Collection::Limit;
+package Krawfish::Result::Limit;
 use Krawfish::Log;
 use strict;
 use warnings;

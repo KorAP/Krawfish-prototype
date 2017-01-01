@@ -1,4 +1,4 @@
-package Krawfish::Collection::Facets;
+package Krawfish::Result::Facets;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -12,8 +12,8 @@ use constant DEBUG => 0;
 #   This should - as a by product - count frequencies
 #
 # TODO:
-#   Probably call this "Krawfish::Collection::Facets" and get
-#   a meta object for "Krawfish::Collection" with a next(),
+#   Probably call this "Krawfish::Result::Facets" and get
+#   a meta object for "Krawfish::Result" with a next(),
 #   current() etc.
 
 sub new {

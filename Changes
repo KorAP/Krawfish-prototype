@@ -1,5 +1,7 @@
-0.0.2 2016-12-28
+0.0.2 2017-01-01
         - Improved negation for documents.
+        - Renamed collections to results.
+        - First draft for aggregation functions.
 
 0.0.1 2016-12-05
         Krawfish is a simple testbed search backend for KorAP,

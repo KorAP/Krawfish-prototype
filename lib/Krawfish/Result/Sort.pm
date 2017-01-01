@@ -1,4 +1,4 @@
-package Krawfish::Collection::Sort;
+package Krawfish::Result::Sort;
 use Krawfish::Log;
 use strict;
 use warnings;
