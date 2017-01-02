@@ -1,88 +1,42 @@
-package Krawfish::Collection::Aggregate;
-use parent 'Krawfish::Collection';
-use Krawfish::Log;
-use Krawfish::Posting::Match;
+package Krawfish::Result::Aggregate;
+use parent 'Krawfish::Result';
+use Hash::Merge qw( merge );
 use strict;
 use warnings;
 
-# Aggregation queries will iterate through all matches
-# And may make actions sometimes
-# Warning: AVG as a single value won't work distributed!
-#
-# TODO: As aggregations only need unique IDs, it may be better to combine all
-#   aggregations in one stream
-
 use constant DEBUG => 0;
 
+# TODO: Sort all ops for each_match and each_doc support
 sub new {
   my $class = shift;
-  my $self = bless {
+  return bless {
+    last_doc_id => -1,
     query => shift,
-    index => shift,
-    op    => shift, # min, max, avg
-    field => shift,
-    count => 0,
-    value => undef,
-    doc_id => -1 # Aggregations need unique doc ids!
+    ops => shift,
+    last_doc_id => -1
   }, $class;
-
-  # Lift value list
-  $self->{list} = $self->{index}->field_values($self->{field});
-
-  if ($self->{op} eq 'min') {
-    $self->{sub} = sub {
-      $self->{value} = $self->{value} < $_[0] ? $_[0] : $self->{value};
-    };
-  }
-  elsif ($self->{op} eq 'max') {
-    $self->{sub} = sub {
-      $self->{value} = $self->{value} > $_[0] ? $_[0] : $self->{value};
-    };
-  }
-  elsif ($self->{op} eq 'sum') {
-    $self->{sub} = sub {
-      $self->{value} += $self->{value};
-    };
-  }
-  elsif ($self->{op} eq 'count') {
-    $self->{sub} = sub {
-      $self->{count}++;
-    };
-  }
-  elsif ($self->{op} eq 'avg') {
-    $self->{sub} = sub {
-      $self->{value} += $self->{value};
-      $self->{count}++;
-    };
-  };
-
-  return $self;
 };
 
 
 sub next {
   my $self = shift;
-
-  my $values = $self->{list};
-  my $value_current = $values->current;
-
   if ($self->{query}->next) {
     my $current = $self->{query}->current;
 
-    # Doc was already counted
-    return 1 if $current->doc_id == $self->{doc_id};
-    $self->{doc_id} = $current->doc_id;
+    if ($current->doc_id != $self->{last_doc_id}) {
 
-    # Current value has to catch up to the current doc
-    if ($value_current->doc_id < $current->doc_id) {
+      # Collect data of current operation
+      foreach (@{$self->{ops}}) {
+        $_->each_doc($current);
+      };
 
-      # Skip to doc id
-      $value_current = $values->skip_to($current->doc_id);
+      # Set last doc to current doc
+      $self->{last_doc_id} = $current->doc_id;
     };
 
-    # Check, if current value exists
-    if ($current_value->doc_id == $current->doc_id) {
-      $self->op($current_value->value);
+    # Collect data of current operation
+    foreach (@{$self->{ops}}) {
+      $_->each_match($current);
     };
 
     return 1;
@@ -92,38 +46,30 @@ sub next {
 };
 
 
-sub op {
-  $_[0]->{sub}->($_[1]);
-};
-
-
 sub current {
   return $_[0]->{query}->current;
 };
 
-
-sub aggregation {
+sub result {
   my $self = shift;
-  if ($self->{op} eq 'avg') {
-    return undef unless $self->{count};
-    return $self->{value} / $self->{count};
-  }
-  elsif ($self->{op} eq 'count') {
-    return $self->{count};
+  my $hash = {};
+  foreach my $op (@{$self->{ops}}) {
+    $hash = merge($hash, $op->result);
   };
-  return $self->{value};
+  return $hash;
 };
-
 
 sub to_string {
   my $self = shift;
-  my $str = 'aggr' . ucfirst($self->{op}) . '(';
+  my $str = 'aggregate(';
+  $str .= '[' . join(',', map { $_->to_string } @{$self->{ops}}) . ']:';
   $str .= $self->{query}->to_string;
   return $str . ')';
 };
 
+sub finish {
+  while ($_[0]->next) {};
+  return 1;
+};
 
 1;
-
-
-__END__
