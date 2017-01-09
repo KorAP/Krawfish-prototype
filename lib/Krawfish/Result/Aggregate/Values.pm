@@ -27,6 +27,7 @@ sub _init {
   $self->{list} =  $self->{index}->field_values($self->{field});
 };
 
+
 sub each_doc {
   my ($self, $current) = @_;
 
