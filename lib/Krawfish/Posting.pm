@@ -35,11 +35,26 @@ sub payload {
 };
 
 
+sub get_classes {
+  my ($self, $nrs) = @_;
+  # Check payload for relevant class and return start, end
+  # If no nrs are given, return all classes
+  ...
+};
+
+
+sub get_classes_sorted {
+  my ($self, $nrs) = @_;
+  # The same as get_classes, but ordered by start position
+  ...
+}
+
 # This will be overwritten for at least cached buffers
 # necessary for sorting
 sub offset {
   undef;
 };
+
 
 sub clone {
   my $self = shift;

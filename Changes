@@ -1,7 +1,8 @@
-0.0.2 2017-01-01
+0.0.2 2017-01-11
         - Improved negation for documents.
         - Renamed collections to results.
         - First draft for aggregation functions.
+        - Updated to Mojolicious 7.15.
 
 0.0.1 2016-12-05
         Krawfish is a simple testbed search backend for KorAP,

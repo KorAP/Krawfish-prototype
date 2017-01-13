@@ -9,7 +9,7 @@ use strict;
 use warnings;
 use Scalar::Util qw!blessed!;
 use Mojo::JSON qw/encode_json decode_json/;
-use Mojo::Util qw/slurp/;
+use Mojo::File;
 
 # TODO: Add LiveDocs-PostingsList, that supports deletion
 #
@@ -113,7 +113,7 @@ sub add {
   my $self = shift;
   my $doc = shift;
   unless (ref $doc) {
-    $doc = decode_json slurp $doc;
+    $doc = decode_json(Mojo::File->new($doc)->slurp);
   };
 
   # Get new doc_id

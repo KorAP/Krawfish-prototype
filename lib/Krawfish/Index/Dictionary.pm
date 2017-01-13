@@ -5,6 +5,7 @@ use Krawfish::Log;
 use Krawfish::Index::PostingsList;
 
 # TODO: Use Storable
+# TODO: Support case insensitivity
 
 use constant DEBUG => 0;
 

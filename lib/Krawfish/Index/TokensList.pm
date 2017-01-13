@@ -3,6 +3,9 @@ use constant DEBUG => 0;
 use strict;
 use warnings;
 
+# DEPRECATED!
+# A forward index will be used instead!
+
 # This is a forward index for tokens
 # This will be used for complex regular expressions,
 # grouping of class results

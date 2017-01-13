@@ -10,7 +10,14 @@ use warnings;
 #   The segments structure may be augmented with a skiplist
 #   and be a highly optimized position encoding, because character offsets
 #   should normally have values between 0 and 16.
-
+#
+#   It should also contain information about the first two characters
+#   of a term and possibly the last two characters, necessary to bucket sort terms.
+#   The characters are stored as UTF-8 or similar -
+#   it may be beneficial to have the most common characters need the least
+#   bits.
+#   Note that this information needs to store characters and not
+#   bytes, as bytes may not be helpful for sorting!
 
 # Constructor
 sub new {
@@ -41,5 +48,19 @@ sub get {
   my ($doc_id, $segment) = @_;
   return $self->{$doc_id . '#' . $segment};
 };
+
+
+# Define, how many start characters will be stored
+sub start_char_length {
+  2;
+}
+
+# Define, how many start characters will be stored
+sub end_char_length {
+  2;
+}
+
+# TODO: A Segment has ->start_offset, ->length, ->first_chars, ->last_chars, ->term_id
+# term_id may either be a term-id or a string
 
 1;
