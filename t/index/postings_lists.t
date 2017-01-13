@@ -12,8 +12,8 @@ my $dict = $index->dict;
 ok($dict->add('a')->append(0,2,3), 'Add entry');
 ok($dict->add('a')->append(1,5,6), 'Add entry');
 
-my $first = $dict->get('a');
-my $second = $dict->get('a');
+my $first = $dict->pointer('a');
+my $second = $dict->pointer('a');
 
 ok($first->next, 'Init posting list');
 is_deeply($first->current, [0,2,3], 'First posting');

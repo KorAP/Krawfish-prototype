@@ -3,6 +3,7 @@ use strict;
 use warnings;
 
 # Store offsets for direct access using doc id and pos
+# - in addition store term ids and characters for presorting
 
 # TODO:
 #   This may be implemented using a postings list, but inside positions,
@@ -18,12 +19,20 @@ use warnings;
 #   bits.
 #   Note that this information needs to store characters and not
 #   bytes, as bytes may not be helpful for sorting!
+#
+#   In addition, the term_id needs to be stored!
 
 # Constructor
 sub new {
   my $class = shift;
   bless {
-    file => shift
+    file => shift,
+
+    # Define, how many start characters will be stored
+    start_char_length => shift // 2,
+
+    # Define, how many start characters will be stored
+    end_char_length => shift // 2
   }, $class;
 };
 
@@ -33,10 +42,22 @@ sub store {
   my $self = shift;
 
   # Get data to store per segment
-  my ($doc_id, $segment, $start_char, $end_char) = @_;
+  my ($doc_id, $segment, $start_char, $end_char, $term, $term_id) = @_;
 
-  # Store all segments
-  $self->{$doc_id . '#' . $segment} = [$start_char, $end_char];
+  if ($term) {
+    # Get the first and last characters of the term
+    my ($first, $last) = (substr($term, 0, 2), scalar reverse substr($term, -2));
+
+    # Store all segments
+    $self->{$doc_id . '#' . $segment} = [$start_char, $end_char, $term_id, $first, $last];
+  }
+
+  # Temporary
+  else {
+    # Store all segments
+    $self->{$doc_id . '#' . $segment} = [$start_char, $end_char];
+  }
+
   return $self;
 };
 
@@ -48,19 +69,5 @@ sub get {
   my ($doc_id, $segment) = @_;
   return $self->{$doc_id . '#' . $segment};
 };
-
-
-# Define, how many start characters will be stored
-sub start_char_length {
-  2;
-}
-
-# Define, how many start characters will be stored
-sub end_char_length {
-  2;
-}
-
-# TODO: A Segment has ->start_offset, ->length, ->first_chars, ->last_chars, ->term_id
-# term_id may either be a term-id or a string
 
 1;

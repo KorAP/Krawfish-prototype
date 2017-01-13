@@ -11,9 +11,10 @@ use constant DEBUG => 0;
 # that may be fragmented.
 
 sub new {
-  my ($class, $index_file, $term) = @_;
+  my ($class, $index_file, $term, $term_id) = @_;
   bless {
     term => $term,
+    term_id => $term_id,
     index_file => $index_file,
     array => [],
     pointers => []
@@ -38,6 +39,10 @@ sub freq {
 
 sub term {
   return $_[0]->{term};
+};
+
+sub term_id {
+  return $_[0]->{term_id};
 };
 
 sub at {

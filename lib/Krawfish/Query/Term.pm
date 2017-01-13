@@ -13,7 +13,7 @@ use constant DEBUG => 0;
 
 sub new {
   my ($class, $index, $term) = @_;
-  my $postings = $index->dict->get($term)
+  my $postings = $index->dict->pointer($term)
     or return Krawfish::Query::Nothing->new;
   bless {
     postings => $postings,

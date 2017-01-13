@@ -23,6 +23,12 @@ use Mojo::File;
 
 # TODO: Maybe 65.535 documents are enough per segment ...
 
+# TODO: Build a forward index
+
+# TODO: With a forward index, the segments offsets will no longer
+#   point to character positions in the primary text but to
+#   segment positions in the forward index!
+
 use constant DEBUG => 0;
 
 
@@ -124,39 +130,21 @@ sub add {
 
   # Store primary data
   if ($doc->{primaryData}) {
+
+    # TODO: This may, in the future, contain the forward index instead
     $self->primary->store($doc_id, $doc->{primaryData});
 
     print_log('index', 'Store primary data "' . $doc->{primaryData} . '"') if DEBUG;
   };
 
-  my $segments = $self->segments;
-
   my $pos = 0;
-  my @segments = ();
-
-  # Store segments
-  if ($doc->{segments}) {
-
-    print_log('index', 'Store segments') if DEBUG;
-
-    # Store all segment offsets
-    foreach my $seg (@{$doc->{segments}}) {
-      if (DEBUG) {
-        print_log(
-          'index',
-          'Store segment: ' . $doc_id . ':' . $pos . '=' . join('-', @{$seg->{offsets}})
-        );
-      };
-      $segments->store($doc_id, $pos++, @{$seg->{offsets}});
-    };
-  };
-
-  my $dict = $self->{dict};
 
   # Store identifier for mappings
   if ($doc->{id}) {
     $self->{identifier}->[$doc_id] = $doc->{id};
   };
+
+  my $dict = $self->{dict};
 
   # Add metadata fields
   my $fields = $self->fields;
@@ -176,6 +164,42 @@ sub add {
     my $term = $field->{key} . ':' . $field->{value};
     my $post_list = $dict->add('+' . $term);
     $post_list->append($doc_id);
+  };
+
+  my $segments = $self->segments;
+
+  # The primary text is necessary for the segments index as well as
+  # for the forward index
+  my $primary = $doc->{primaryData};
+
+  # Store segments
+  if ($doc->{segments}) {
+
+    print_log('index', 'Store segments') if DEBUG;
+
+    # Store all segment offsets
+    foreach my $seg (@{$doc->{segments}}) {
+
+      # Get start and end of the segment
+      my ($start, $end) = @{$seg->{offsets}};
+
+      if (DEBUG) {
+        print_log(
+          'index',
+          'Store segment: ' . $doc_id . ':' . $pos . '=' . join('-', $start, $end)
+        );
+      };
+
+      # Get the term surface from the primary text
+      # TODO: Ensure that the offsets are valid!
+      my $term = substr($primary, $start, $end - $start);
+
+      # TODO: There may be a prefix necessary for surface forms
+      my $term_id = $dict->add('s:' . $term)->term_id;
+
+      # Store information to segment
+      $segments->store($doc_id, $pos++, $start, $end, $term_id, $term);
+    };
   };
 
   # Get all tokens

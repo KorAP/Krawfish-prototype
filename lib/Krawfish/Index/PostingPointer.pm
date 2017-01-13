@@ -17,6 +17,7 @@ sub new {
     pos => -1
   }, $class;
   $self->{freq} = $self->{list}->freq;
+  $self->{term_id} = $self->{list}->term_id;
   return $self;
 };
 
@@ -26,6 +27,10 @@ sub freq {
 
 sub term {
   $_[0]->{list}->term;
+};
+
+sub term_id {
+  $_[0]->{term_id};
 };
 
 sub next {

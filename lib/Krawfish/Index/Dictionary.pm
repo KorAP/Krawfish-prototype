@@ -14,27 +14,67 @@ sub new {
   my $file = shift;
   bless {
     file => $file,
-    hash => {}
+    hash => {},   # Contain the dictionary
+    array => [],  # Temporary helper array for term_id -> term mapping
+    last_term_id => 1
   }, $class;
 };
 
+
+# Add should return term-id (or term-string)
 sub add {
   my $self = shift;
   my $term = shift;
   print_log('dict', "Added term $term") if DEBUG;
-  $self->{hash}->{$term} //=
-    Krawfish::Index::PostingsList->new(
-      $self->{file}, $term
+
+  my $hash = $self->{hash};
+
+  # Term not in dictionary yet
+  unless (exists $hash->{$term}) {
+
+    # Increment term_id
+    # TODO: This may infact fail, as term_ids are limited in size.
+    #   For hapax legomena, a special null marker will be returned
+    my $term_id = $self->{last_term_id}++;
+
+    # Create new listobject
+    $hash->{$term} = Krawfish::Index::PostingsList->new(
+      $self->{file}, $term, $term_id
     );
-  return $self->{hash}->{$term};
+
+    # Store term for term_id mapping
+    $self->{array}->[$term_id] = $term;
+  };
+  return $hash->{$term};
 };
 
-# Return pointer
-sub get {
+# Return pointer in list
+sub pointer {
   my ($self, $term) = @_;
-  print_log('dict', 'Try to retrieve ' . $term) if DEBUG;
+  print_log('dict', 'Try to retrieve pointer ' . $term) if DEBUG;
   my $list = $self->{hash}->{$term} or return;
   return $list->pointer;
+};
+
+
+# Return the term from a term_id
+# This needs to be fast (can't be done like this)
+sub term_by_term_id {
+  my ($self, $term_id) = @_;
+  print_log('dict', 'Try to retrieve id ' . $term_id) if DEBUG;
+  return $self->{array}->[$term_id];
+};
+
+
+# Returns the term id by a term
+# Currently this is a bit complicated to the the round trip
+# Using the list
+sub term_id_by_term {
+  my ($self, $term) = @_;
+  print_log('dict', 'Try to retrieve term ' . $term) if DEBUG;
+  my $list = $self->{hash}->{$term};
+  return $list->term_id if $list;
+  return;
 };
 
 # Return terms of the term dictionary
