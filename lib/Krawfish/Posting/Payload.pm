@@ -45,9 +45,17 @@ sub clone {
   return $new;
 };
 
+
+# Stringify
 sub to_string {
   my $self = shift;
   return join ('|', map { join(',', @{$_}) } @$self );
+};
+
+
+# Get as array
+sub to_array {
+  @{$_[0]};
 };
 
 1;

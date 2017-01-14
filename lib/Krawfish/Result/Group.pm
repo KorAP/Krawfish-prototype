@@ -86,6 +86,8 @@ sub _init {
 
 
   # Store for retrieval
+  # TODO: Needs to be done in criterion to get terms by term_id
+  # TODO: Create Posting/Group object with to_hash() serialization
   my @array = ();
   foreach my $group (keys %groups) {
     my %hash = ();
@@ -125,6 +127,8 @@ sub current {
 # May return a hash reference with information
 sub current_group {
   $_[0]->{groups}->[$_[0]->{pos}];
+
+  
 };
 
 

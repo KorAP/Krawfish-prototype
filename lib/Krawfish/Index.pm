@@ -200,6 +200,8 @@ sub add {
       #   And the terms do not need to be stored in the dictionary for retrieval ...
       my $term_id = $dict->add('*' . $term)->term_id;
 
+      print_log('index', 'Surface form has term_id ' . $term_id) if DEBUG;
+
       # Store information to segment
       $segments->store($doc_id, $pos++, $start, $end, $term_id, $term);
     };

@@ -37,20 +37,58 @@ sub payload {
 
 sub get_classes {
   my ($self, $nrs) = @_;
+
   # Check payload for relevant class and return start, end
   # If no nrs are given, return all classes
   my @classes = ();
-  if ($nrs->[0] == 0)  {
+
+  # Better check with smartmatch
+  if (!$nrs || $nrs->[0] == 0)  {
     push @classes, [0, $self->start, $self->end]
   };
+
+  # No more payloads
+  return @classes unless $self->payload;
+
+  # Check payloads for classes
+  foreach my $pl ($self->payload->to_array) {
+
+    # Payload is class
+    if ($pl->[0] == PTI_CLASS) {
+
+      # Return all classes
+      unless ($nrs) {
+        push @classes, [$pl->[1], $pl->[2], $pl->[3]];
+      }
+
+      # Check if wanted
+      else {
+        # TODO: Optimize to not iterate over
+        # numbers multiple times
+        foreach (@$nrs) {
+
+          # TODO:
+          #   Be aware:
+          #   Classes can be set multiple times!
+          #   And classes can be with gaps!
+          if ($pl->[1] == $_) {
+            push @classes, [$pl->[1], $pl->[2], $pl->[3]];
+          };
+        };
+      };
+    };
+  };
+
+  # Get class information
   return @classes;
 };
 
-
+# Return classes sorted by start position
 sub get_classes_sorted {
   my ($self, $nrs) = @_;
   # The same as get_classes, but ordered by start position
-  return $self->get_classes($nrs);
+
+  return sort { $a->[1] <=> $b->[1] } $self->get_classes($nrs);
 }
 
 # This will be overwritten for at least cached buffers

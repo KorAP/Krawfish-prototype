@@ -18,7 +18,7 @@ sub new {
   my $class = shift;
   bless {
     segments   => shift, # Krawfish::Index::Segments object
-    nrs => @_ ? [sort @_] : [0],
+    nrs => @_ ? [sort @_] : undef,
     groups => {}
   }, $class;
 };
@@ -41,7 +41,7 @@ sub get_group {
   # Classes have nr, start, end
   foreach my $class (@classes) {
 
-    # WARNIG! CLASSES MAY OVERLAP SO SEGMENTS SHOULD BE CACHED OR BUFFERED!
+    # WARNING! CLASSES MAY OVERLAP SO SEGMENTS SHOULD BE CACHED OR BUFFERED!
 
     # Get start position
     my $start = $class->[START_POS];
@@ -62,7 +62,17 @@ sub get_group {
       push (@seq, $seg->[2]);
     };
 
-    $class_group{$class->[NR]} = join('___', @seq);
+    # Class not yet set
+    unless ($class_group{$class->[NR]}) {
+      $class_group{$class->[NR]} = join('___', @seq);
+    }
+
+    # There is a gap in the class, potentially an overlap!
+    # TODO: Resolve overlaps!
+    # TODO: Mark gaps!
+    else {
+      $class_group{$class->[NR]} .= '___' . join('___', @seq);
+    };
   };
 
   my $string = '';
@@ -75,7 +85,9 @@ sub get_group {
 
 
 sub to_string {
-  return 'classes[' . join(',', @{$_[0]->{nrs}}) . ']';
+  my $str = 'classes';
+  $str .= $_[0]->{nrs} ? '[' . join(',', @{$_[0]->{nrs}}) . ']' : '';
+  return $str;
 };
 
 1;

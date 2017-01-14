@@ -1,4 +1,5 @@
 package Krawfish::Index::Segments;
+use Krawfish::Log;
 use strict;
 use warnings;
 
@@ -24,6 +25,8 @@ use warnings;
 
 # TODO: Term-IDs may be better stored in a separate file, to keep the file small.
 
+use constant DEBUG => 0;
+
 # Constructor
 sub new {
   my $class = shift;
@@ -44,7 +47,7 @@ sub store {
   my $self = shift;
 
   # Get data to store per segment
-  my ($doc_id, $segment, $start_char, $end_char, $term, $term_id) = @_;
+  my ($doc_id, $segment, $start_char, $end_char, $term_id, $term) = @_;
 
   if ($term) {
     # Get the first and last characters of the term
@@ -52,6 +55,11 @@ sub store {
 
     # Store all segments
     $self->{$doc_id . '#' . $segment} = [$start_char, $end_char, $term_id, $first, $last];
+
+    if (DEBUG) {
+      print_log('segments', "Store segment at [$doc_id,$segment]");
+      print_log('segments', '  with ' . join(','),@{$self->{$doc_id . '#' . $segment}});
+    };
   }
 
   # Temporary
