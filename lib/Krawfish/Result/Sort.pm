@@ -6,6 +6,10 @@ use warnings;
 use constant DEBUG => 0;
 
 # TODO:
+#  Sort is currently limited to sorting for searching.
+#  It should also be able to sort groups or sort texts/documents/corpora
+
+# TODO:
 #   Use a variant of insertion sort or (better) tree sort
 #   http://jeffreystedfast.blogspot.de/2007/02/binary-insertion-sort.html
 #   The most natural way to sort would probably be a variant of bucket sort,
@@ -63,6 +67,10 @@ use constant DEBUG => 0;
 #
 # TODO:
 #   This should bin-sort everything in case it's called using a streaming API
+#
+#
+# TODO:
+#   Start with init at the beginning of next
 #
 sub new {
   my $class = shift;

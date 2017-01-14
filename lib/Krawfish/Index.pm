@@ -195,7 +195,10 @@ sub add {
       my $term = substr($primary, $start, $end - $start);
 
       # TODO: There may be a prefix necessary for surface forms
-      my $term_id = $dict->add('s:' . $term)->term_id;
+      # TODO: This may in fact be not necessary at all -
+      #   The segments may have their own IDs
+      #   And the terms do not need to be stored in the dictionary for retrieval ...
+      my $term_id = $dict->add('*' . $term)->term_id;
 
       # Store information to segment
       $segments->store($doc_id, $pos++, $start, $end, $term_id, $term);

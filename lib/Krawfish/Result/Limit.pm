@@ -48,6 +48,11 @@ sub current {
 # May return a hash reference with information
 sub current_match;
 
+
+# May return a hash reference with information
+sub current_group;
+
+
 # Stringify collector
 sub to_string {
   my $self = shift;

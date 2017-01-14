@@ -7,13 +7,18 @@ use warnings;
 #   The name is somehow misleading, as this will only
 #   group by surface terms.
 
-use constant DEBUG => 0;
+use constant {
+  DEBUG => 0,
+    NR => 0,
+    START_POS => 1,
+    END_POS => 2,
+};
 
 sub new {
   my $class = shift;
   bless {
     segments   => shift, # Krawfish::Index::Segments object
-    nrs => [@_],
+    nrs => @_ ? [sort @_] : [0],
     groups => {}
   }, $class;
 };
@@ -27,7 +32,9 @@ sub get_group {
   # Classes need to be sorted by start position
   # to be retrievable, in case the Segments-Stream
   # is implemented as a postingslist (probably not)
-  my @classes = $self->get_classes_sorted($self->{nrs});
+  my @classes = $match->get_classes_sorted($self->{nrs});
+
+  my $segments = $self->{segments};
 
   my %class_group;
 
@@ -37,7 +44,7 @@ sub get_group {
     # WARNIG! CLASSES MAY OVERLAP SO SEGMENTS SHOULD BE CACHED OR BUFFERED!
 
     # Get start position
-    my $start = $class->start;
+    my $start = $class->[START_POS];
 
     my @seq = ();
 
@@ -45,25 +52,30 @@ sub get_group {
     my $seg = $segments->get($match->doc_id, $start);
 
     # Push term id to segment
-    push (@seq, $seg->term_id);
+    # TODO: A segment should have accessors
+    push (@seq, $seg->[2]);
 
-    while ($start < $class->end -1) {
-      $seg = $segments->get($match->doc_id, $start++);
+    while ($start < ($class->[END_POS] -1)) {
+      $seg = $segments->get($match->doc_id, ++$start);
 
       # Push term id to segment
-      push (@seq, $seg->term_id);
+      push (@seq, $seg->[2]);
     };
 
-    $class_group{$class->nr} = join('|', @seq);
+    $class_group{$class->[NR]} = join('___', @seq);
   };
 
   my $string = '';
   foreach (sort {$a <=> $b} keys %class_group) {
-    $string .= $_ .':' . class_group{$_} . ';';
+    $string .= $_ .':' . $class_group{$_} . ';';
   };
 
   return $string;
 };
 
+
+sub to_string {
+  return 'classes[' . join(',', @{$_[0]->{nrs}}) . ']';
+};
 
 1;

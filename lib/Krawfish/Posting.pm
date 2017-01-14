@@ -39,14 +39,18 @@ sub get_classes {
   my ($self, $nrs) = @_;
   # Check payload for relevant class and return start, end
   # If no nrs are given, return all classes
-  ...
+  my @classes = ();
+  if ($nrs->[0] == 0)  {
+    push @classes, [0, $self->start, $self->end]
+  };
+  return @classes;
 };
 
 
 sub get_classes_sorted {
   my ($self, $nrs) = @_;
   # The same as get_classes, but ordered by start position
-  ...
+  return $self->get_classes($nrs);
 }
 
 # This will be overwritten for at least cached buffers

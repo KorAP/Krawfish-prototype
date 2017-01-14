@@ -1,4 +1,4 @@
-package Krawfish::Result::Limit;
+package Krawfish::Result::Group;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -28,9 +28,10 @@ use constant DEBUG => 0;
 # {
 #   criterion => [freq, doc_freq]
 # }
-# Where criterion may be a sequence of criteria
+# Where criterion is a classed sequence of criteria
 # with class information, like
 #   1:der|2:Baum => []
+# Sometimes it may indicate tokens instead of classes though ...
 
 # Construct grouping function
 sub new {
@@ -40,11 +41,11 @@ sub new {
 
     # This is a group criterion object, created outside, that defines the criterion
     criterion => shift,
-    classes => [@_],
+    pos => -1,
 
     # Group to fill with matches and group info
     # (as class1=>X, class2=>Y)
-    groups => {}
+    groups => []
   }, $class;
 };
 
@@ -52,15 +53,20 @@ sub new {
 # This could, nonetheless, be implemented like Facets ...
 sub _init {
   my $self = shift;
+
+  return if $self->{init}++;
+
   my $criterion = $self->{criterion};
   my $query = $self->{query};
 
   my %groups = ();
-  my $group, $current;
+  my ($group, $current);
   my $doc_id = -1;
 
+  # Iterate over all queries
   while ($query->next) {
 
+    # Get current query if there is any
     $current = $query->current or last;
 
     # Potentially create new group
@@ -78,24 +84,48 @@ sub _init {
     };
   };
 
-  return \%groups;
+
+  # Store for retrieval
+  my @array = ();
+  foreach my $group (keys %groups) {
+    my %hash = ();
+    while ($group =~ /\G(\d+):(.+?);/g) {
+      $hash{"class_$1"} = [split('___', $2)];
+    };
+    $hash{freq} = $groups{$group}->[0];
+    $hash{doc_freq} = $groups{$group}->[1];
+    push @array, \%hash;
+  };
+
+  $self->{groups} = \@array;
+  return;
+};
+
+
+sub freq {
+  my $self = shift;
+  scalar @{$self->{groups}}
 };
 
 sub next {
   my $self = shift;
-
-
-  return $criterion->groups;
+  $self->_init;
+  if ($self->{pos}++ < ($self->freq - 1)) {
+    return 1;
+  };
+  return;
 };
 
 
 sub current {
   $_[0]->{query}->current;
-}
+};
 
 
 # May return a hash reference with information
-sub current_group;
+sub current_group {
+  $_[0]->{groups}->[$_[0]->{pos}];
+};
 
 
 sub to_string {

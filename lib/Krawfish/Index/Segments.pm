@@ -22,6 +22,8 @@ use warnings;
 #
 #   In addition, the term_id needs to be stored!
 
+# TODO: Term-IDs may be better stored in a separate file, to keep the file small.
+
 # Constructor
 sub new {
   my $class = shift;
