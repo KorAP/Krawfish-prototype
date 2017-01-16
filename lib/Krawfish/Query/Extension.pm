@@ -4,8 +4,8 @@ use Krawfish::Query::Base::Dual;
 use strict;
 use warnings;
 
-# This query validates positional constraints
-# between spans and returns a valid forwarding mechanism
+# This query adds segments to the left or the right
+# of a matching span
 
 
 sub new {

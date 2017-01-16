@@ -22,7 +22,7 @@ is($query->to_string, '[akron=Bau-Leiter]', 'Stringification');
 
 # Create class criterion
 my $criterion = Krawfish::Result::Group::Classes->new(
-  $index->segments
+  $index
 );
 
 is($criterion->to_string, 'classes', 'Stringification');
@@ -58,7 +58,7 @@ is($query->to_string,
 
 # Create class criterion
 $criterion = Krawfish::Result::Group::Classes->new(
-  $index->segments,
+  $index,
   1,3
 );
 

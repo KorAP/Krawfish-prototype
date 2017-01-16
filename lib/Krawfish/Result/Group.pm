@@ -3,7 +3,9 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
+
+# TODO: Use Krawfish::Posting::Group;
 
 # Group snippets based on certain criteria, for example:
 # metadata!
@@ -49,6 +51,7 @@ sub new {
   }, $class;
 };
 
+
 # Go through all matches
 # This could, nonetheless, be implemented like Facets ...
 sub _init {
@@ -84,23 +87,16 @@ sub _init {
     };
   };
 
-
-  # Store for retrieval
-  # TODO: Needs to be done in criterion to get terms by term_id
-  # TODO: Create Posting/Group object with to_hash() serialization
+  # Value is stored as [criterion, freq, doc_freq]
+  # Sorted by freq by default
   my @array = ();
-  foreach my $group (keys %groups) {
-    my %hash = ();
-    while ($group =~ /\G(\d+):(.+?);/g) {
-      $hash{"class_$1"} = [split('___', $2)];
-    };
-    $hash{freq} = $groups{$group}->[0];
-    $hash{doc_freq} = $groups{$group}->[1];
-    push @array, \%hash;
+  foreach (sort { $groups{$a}->[0] <=> $groups{$b}->[0] } keys %groups) {
+    push @array, [$_, $groups{$_}->[0], $groups{$_}->[1]];
   };
 
+  # Store for retrieval
   $self->{groups} = \@array;
-  return;
+  return 1;
 };
 
 
@@ -119,16 +115,16 @@ sub next {
 };
 
 
-sub current {
-  $_[0]->{query}->current;
-};
+sub current;
 
 
-# May return a hash reference with information
+# Return a hash reference with information
 sub current_group {
-  $_[0]->{groups}->[$_[0]->{pos}];
+  my $self = shift;
+  my $group = $self->{groups}->[$self->{pos}];
 
-  
+  # Make a hash from criterion
+  return $self->{criterion}->to_hash(@$group);
 };
 
 

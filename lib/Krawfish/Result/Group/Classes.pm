@@ -17,7 +17,7 @@ use constant {
 sub new {
   my $class = shift;
   bless {
-    segments   => shift, # Krawfish::Index::Segments object
+    index   => shift,
     nrs => @_ ? [sort @_] : undef,
     groups => {}
   }, $class;
@@ -34,7 +34,7 @@ sub get_group {
   # is implemented as a postingslist (probably not)
   my @classes = $match->get_classes_sorted($self->{nrs});
 
-  my $segments = $self->{segments};
+  my $segments = $self->{index}->segments;
 
   my %class_group;
 
@@ -81,6 +81,23 @@ sub get_group {
   };
 
   return $string;
+};
+
+
+# Return group info as hash
+sub to_hash {
+  my ($self, $group, $freq, $doc_freq) = @_;
+
+  # Get dictionary object to convert terms to term id
+  my $dict = $self->{index}->dict;
+
+  my %hash = ();
+  while ($group =~ /\G(\d+):(.+?);/g) {
+    $hash{"class_$1"} = [ map { substr($dict->term_by_term_id($_), 1) } split('___', $2)];
+  };
+  $hash{freq} = $freq;
+  $hash{doc_freq} = $doc_freq;
+  return \%hash;
 };
 
 
