@@ -39,6 +39,8 @@ sub new {
     file => $file
   }, $class;
 
+  print_log('index', 'Instantiate new index') if DEBUG;
+
   # Load dictionary
   $self->{dict} = Krawfish::Index::Dictionary->new(
     $self->{file}

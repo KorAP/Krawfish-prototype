@@ -33,10 +33,10 @@ ok($wrap = $qb->position(['precedesDirectly'], $qb->token('aa'), $qb->token('bb'
 ok($seq = $wrap->plan_for($index), 'Rewrite');
 ok($seq->next, 'Init');
 is($seq->current->to_string, '[2:0-2]', 'Match');
-
 ok($seq->next, 'More');
 is($seq->current->to_string, '[2:2-4]', 'Match');
 ok(!$seq->next, 'No more');
+
 
 # Reset index - situation [aa]..[bb] -> [aa][bb]
 $index = Krawfish::Index->new;

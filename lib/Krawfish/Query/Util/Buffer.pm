@@ -21,7 +21,7 @@ sub new {
 sub next {
   my $self = shift;
   print_log('buffer', "Try to forward buffer finger: " . $self->to_string) if DEBUG;
-  print_log('buffer', "Finger: " . $self->finger . ' of ' . $self->size) if DEBUG;
+  # print_log('buffer', "Finger: " . $self->finger . ' of ' . $self->size) if DEBUG;
 
   $self->{finger}++;
 
@@ -55,10 +55,12 @@ sub finger {
 
 sub forward {
   $_[0]->{finger}++;
+  print_log('buffer', 'Move finger forward') if DEBUG;
 };
 
 sub backward {
   $_[0]->{finger}--;
+  print_log('buffer', 'Move finger backwards') if DEBUG;
 };
 
 # Remember item
@@ -97,6 +99,8 @@ sub size {
 sub forget {
   my $span = shift(@{$_[0]->{array}});
   print_log('buffer', "Forget span $span: " . $_[0]->to_string) if DEBUG;
+
+  # Move finger
   $_[0]->{finger}-- if $span;
   print_log('buffer', "Buffer is now " . $_[0]->to_string) if DEBUG;
   return 1;

@@ -1,7 +1,7 @@
 package Krawfish::Query::Exclusion;
-use parent 'Krawfish::Query::Position';
+use parent 'Krawfish::Query::Base::Dual';
 use Krawfish::Query::Base::Dual;
-use Krawfish::Query::Position;
+use Krawfish::Query::Position; # Export constants and @next_a and @next_b
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -38,15 +38,15 @@ use constant DEBUG => 0;
 sub new {
   my $class = shift;
   bless {
-    frames => shift,
-    first => shift,
-    second => shift,
+    frames  => shift,
+    first   => shift,
+    second  => shift,
     buffer  => Krawfish::Query::Util::Buffer->new,
   }, $class;
 
-
   # TODO: Return 'first', if second->freq == 0
 };
+
 
 sub check {
   my $self = shift;
@@ -76,19 +76,28 @@ sub check {
 
   # Span may forward with a
   elsif ($next_a[$case] & $frames) {
+    print_log('excl', 'No next b valid - so match') if DEBUG;
+
     # Set current
     $self->{doc_id} = $first->doc_id;
     $self->{start} = $first->start;
     $self->{end}   = $first->end;
     $self->{payload} = $first->payload->clone;
     print_log('excl', 'Set match to ' . $self->current->to_string) if DEBUG;
+
+    # TODO:
+    #   Forget all entries span_b in this frame, that have an spanb->end < spana->start
     return NEXTA | NEXTB | MATCH;
   }
-  elsif ($next_a[$case] == NULL_4) {
+
+  # No second span
+  elsif (!$second) {
+    print_log('excl', 'The case is null') if DEBUG;
+
     # Set current
     $self->{doc_id} = $first->doc_id;
-    $self->{start} = $first->start;
-    $self->{end}   = $first->end;
+    $self->{start}  = $first->start;
+    $self->{end}    = $first->end;
     $self->{payload} = $first->payload->clone;
     print_log('excl', 'Set match to ' . $self->current->to_string) if DEBUG;
     return NEXTA | MATCH;

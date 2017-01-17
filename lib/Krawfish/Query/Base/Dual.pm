@@ -53,6 +53,8 @@ sub next {
   my ($first, $second);
 
   while (1) {
+
+    # Check if there is no first span
     unless ($first = $self->{first}->current) {
       print_log('dual', 'No more first items, return false 1') if DEBUG;
 
@@ -60,8 +62,10 @@ sub next {
       return;
     };
 
+
+    # Check if there is no second span in buffer
     unless ($second = $self->{buffer}->current) {
-      print_log('dual', 'Buffer is empty') if DEBUG;
+      print_log('dual', 'Buffer has no current element') if DEBUG;
 
       # Check configuration
       my $check = $self->check($first, undef);
@@ -72,13 +76,14 @@ sub next {
       if ($check & NEXTA) {
 
         # Forward span
+        print_log('dual', 'Forward A') if DEBUG;
         $self->{first}->next;
       };
 
       # The configuration matches
       if ($check & MATCH) {
         print_log('dual', 'MATCH!') if DEBUG;
-        return 1 ;
+        return 1;
       };
 
       # Reset buffer
@@ -112,6 +117,7 @@ sub next {
           # Forget the current buffer
           $self->{buffer}->forget;
         }
+
         elsif (DEBUG) {
           print_log('dual', 'Next A and next B is possible') if DEBUG;
         };
@@ -124,6 +130,8 @@ sub next {
 
           # Check next posting
           if ($self->{second}->next) {
+            print_log('dual', 'Try to forward B') if DEBUG;
+
             $self->{buffer}->remember(
               $self->{second}->current
             );
@@ -134,22 +142,47 @@ sub next {
 
           # Check if nextA is supported
           elsif ($check & NEXTA) {
-            print_log('dual', 'Second has no further postings') if DEBUG;
+            print_log('dual', 'B has no further postings') if DEBUG;
 
-            # Check configuration
-            my $check = $self->check($first, undef);
+            # Check if the current match was
+            # already matched
+            unless ($check & MATCH) {
 
-            $self->{first}->next;
-            $self->{buffer}->to_start;
+              print_log('dual', 'Check is no match') if DEBUG;
+              # No it wasn't
 
-            if ($check & MATCH) {
+              # If not - check configuration would
+              # be valid even without a partner span
+              my $check = $self->check($first, undef);
+
+              print_log('dual', 'Forward A (1)') if DEBUG;
+              $self->{first}->next;
+              $self->{buffer}->to_start;
+
+              if ($check & MATCH) {
+                return 1;
+              };
+            }
+
+            # Current is a match
+            else {
+
+              print_log('dual', 'Check is a match') if DEBUG;
+
+              # Match was already matched
+              print_log('dual', 'Forward A (2)') if DEBUG;
+              $self->{first}->next;
+              $self->{buffer}->to_start;
               return 1;
             };
+
+            # TODO: Next should be default here
+            next;
           }
 
           # No, nothing
           else {
-            print_log('dual', 'There is no next second') if DEBUG;
+            print_log('dual', 'There is no next B') if DEBUG;
 
             # May be wrong (untested!)
             $self->{buffer}->forward;
@@ -187,22 +220,37 @@ sub next {
     # The first span is behind
     elsif ($first->doc_id < $second->doc_id) {
 
-      # TODO: This may be wrong, because there may be
-      # a second candidate in the same document
-      $self->{buffer}->clear;
+      print_log('dual', 'A is in a document < B') if DEBUG;
+
+      # Go to the next first
       unless ($self->{first}->next) {
         $self->{doc_id} = undef;
         return;
+      } elsif (DEBUG) {
+        print_log('dual', 'Forward A');
       };
     }
 
     # The second span is behind
     else {
-      $self->{buffer}->clear;
-      unless ($self->{second}->next) {
-        $self->{doc_id} = undef;
-        return;
+
+      # Remove all buffer items that are behind
+      while ($first->doc_id > $second->doc_id) {
+        $self->{buffer}->forget;
+        $second = $self->{buffer}->current;
+
+        unless ($second) {
+          unless ($self->{second}->next) {
+            $self->{doc_id} = undef;
+            return;
+          };
+        }
       };
+      #$self->{buffer}->clear;
+      #unless ($self->{second}->next) {
+      #  $self->{doc_id} = undef;
+      #  return;
+      #};
     };
   };
 
