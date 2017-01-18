@@ -33,7 +33,7 @@ my $group = Krawfish::Result::Group->new(
   $criterion
 );
 
-is($group->to_string, "collectGroups(classes:'akron=Bau-Leiter')", 'Stringification');
+is($group->to_string, "groupBy(classes:'akron=Bau-Leiter')", 'Stringification');
 
 ok($group->next, 'Go to next');
 
@@ -71,7 +71,7 @@ $group = Krawfish::Result::Group->new(
 );
 
 is($group->to_string,
-   "collectGroups(classes[1,3]:pos(2:class(1:'akron=Bau-Leiter')," .
+   "groupBy(classes[1,3]:pos(2:class(1:'akron=Bau-Leiter')," .
      "class(3:'opennlp/p=V')))",
    'Stringification'
  );

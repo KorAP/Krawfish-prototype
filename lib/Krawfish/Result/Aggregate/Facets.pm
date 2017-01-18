@@ -5,11 +5,17 @@ use warnings;
 
 use constant DEBUG => 0;
 
+# TODO: It may be beneficial to store example documents in the
+#   field ranks, too - so they don't need to be collected on the way ...
+#   See Group::Fields as well.
+
 sub new {
   my $class = shift;
   my $self = bless {
     index   => shift,
     field   => shift,
+
+    # TODO: May as well be groups ...
     buckets => [], # The buckets in memory
     freq    => undef
   }, $class;
@@ -20,7 +26,7 @@ sub _init {
 
   my $self = shift;
 
-  print_log('pdoc_facets', 'Load ranks for ' . $self->{field}) if DEBUG;
+  print_log('aggr_facets', 'Load ranks for ' . $self->{field}) if DEBUG;
 
   # Load the ranked list - may be too large for memory!
   $self->{rank} = $self->{index}->fields->ranked_by($self->{field});
@@ -43,7 +49,7 @@ sub each_doc {
     $self->{freq} = $self->{buckets}->[$rank] //= [0,0, $doc_id];
     $self->{freq}->[0]++;
 
-    print_log('pmatch_facets', $self->{field} . ' has frequencies') if DEBUG;
+    print_log('aggr_facets', $self->{field} . ' has frequencies') if DEBUG;
   }
 
   # Do not check rank
@@ -72,7 +78,7 @@ sub facets {
   # Iterate over all ranked buckets of the field
   foreach my $rank (grep { defined $_ } @{$self->{buckets}}) {
 
-    print_log('pmatch_facets', "Get rank $rank for $field") if DEBUG;
+    print_log('aggr_facets', "Get rank $rank for $field") if DEBUG;
 
     # Get information from rank
     my ($doc_freq, $freq, $example_doc_id) = @$rank;

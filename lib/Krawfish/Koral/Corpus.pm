@@ -13,8 +13,12 @@ sub new {
 # Query Planning methods and attributes #
 #########################################
 
+sub prepare_for {
+  shift->plan_for(@_);
+};
+
 # Rewrite query to actual query
-sub plan;
+sub plan_for;
 
 sub is_negative {
   my $self = shift;

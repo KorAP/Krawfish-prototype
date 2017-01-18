@@ -7,15 +7,19 @@ use constant DEBUG => 1;
 
 # TODO: Use Krawfish::Posting::Group;
 
-# Group snippets based on certain criteria, for example:
-# metadata!
-# - this is an extension to facets, where snippets are grouped
-#   based on a certain facet.
-# - having facets in a first step may improve the distributed aggregation
-#   (as the central node than knows, which facets are most or least common)
-# - this grouping doesn't seem beneficial - as the facet view already helps here
+# Group matches based on certain criteria, for example:
+# - for record matches
+#   - metadata!
+#   - This is useful to group document matches for corpus browsing!
+# - for span matches
+#   - metdata
+#     - this is an extension to facets, where snippet frequencies are grouped
+#       based on a certain facet.
+#     - having facets in a first step may improve the distributed aggregation
+#       (as the central node than knows, which facets are most or least common)
+#     - this grouping doesn't seem beneficial - as the facet view already helps here
 #
-# innertextual!
+#   - innertextual!
 # - has a certain identical class on surface
 # - has the same starting characters of a word
 # - has the same ending characters of a word
@@ -90,7 +94,7 @@ sub _init {
   # Value is stored as [criterion, freq, doc_freq]
   # Sorted by freq by default
   my @array = ();
-  foreach (sort { $groups{$a}->[0] <=> $groups{$b}->[0] } keys %groups) {
+  foreach (sort { $groups{$b}->[0] <=> $groups{$a}->[0] } keys %groups) {
     push @array, [$_, $groups{$_}->[0], $groups{$_}->[1]];
   };
 
@@ -130,7 +134,7 @@ sub current_group {
 
 sub to_string {
   my $self = shift;
-  my $str = 'collectGroups(';
+  my $str = 'groupBy(';
   $str .= $self->{criterion}->to_string . ':';
   $str .= $self->{query}->to_string;
   $str .= ')';

@@ -24,7 +24,7 @@ sub new {
 };
 
 
-# This will return a string, reflecting the group name of the list
+# Get the group signature for each match
 sub get_group {
   my ($self, $match) = @_;
 
@@ -86,16 +86,16 @@ sub get_group {
 
 # Return group info as hash
 sub to_hash {
-  my ($self, $group, $freq, $doc_freq) = @_;
+  my ($self, $signature, $doc_freq, $freq) = @_;
 
   # Get dictionary object to convert terms to term id
   my $dict = $self->{index}->dict;
 
   my %hash = ();
-  while ($group =~ /\G(\d+):(.+?);/g) {
+  while ($signature =~ /\G(\d+):(.+?);/g) {
     $hash{"class_$1"} = [ map { substr($dict->term_by_term_id($_), 1) } split('___', $2)];
   };
-  $hash{freq} = $freq;
+  $hash{freq} = $freq if defined $freq;
   $hash{doc_freq} = $doc_freq;
   return \%hash;
 };
