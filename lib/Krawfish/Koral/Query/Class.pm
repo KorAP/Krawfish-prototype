@@ -46,6 +46,11 @@ sub plan_for {
   );
 };
 
+sub filter_by {
+  my $self = shift;
+  $self->span->filter_by(shift);
+};
+
 sub to_string {
   my $self = shift;
   my $str = '{';

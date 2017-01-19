@@ -1,10 +1,11 @@
-0.0.2 2017-01-13
+0.0.2 2017-01-19
         - Improved negation for documents.
         - Renamed collections to results.
         - First draft for aggregation functions.
         - Updated to Mojolicious 7.15.
         - Added term retrieval by term_id.
         - First draft for grouping functions.
+        - Added preliminary support for virtual corpus filtering.
 
 0.0.1 2016-12-05
         Krawfish is a simple testbed search backend for KorAP,

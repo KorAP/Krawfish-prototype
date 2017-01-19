@@ -132,6 +132,15 @@ sub plan_for {
 };
 
 
+# Filter by corpus
+sub filter_by {
+  my $self = shift;
+  my $corpus_query = shift;
+  $self->{first}->filter_by($corpus_query);
+  $self->{second}->filter_by($corpus_query);
+};
+
+
 # List all positions of a frame
 sub _to_list {
   my ($self, $frame) = @_;

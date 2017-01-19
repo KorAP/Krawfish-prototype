@@ -1,6 +1,7 @@
 package Krawfish::Koral::Query::Term;
 use parent 'Krawfish::Koral::Query';
 use Krawfish::Query::Term;
+use Krawfish::Query::Filter;
 use Krawfish::Query::Nothing;
 use Krawfish::Log;
 use strict;
@@ -150,6 +151,13 @@ sub value {
   $_[0]->[6];
 };
 
+sub filter_by {
+  if ($_[1]) {
+    $_[0]->[7] = $_[1];
+    return $_[0];
+  };
+  $_[0]->[7];
+};
 
 sub is_regex {
   return index($_[0]->match, '~') == -1 ? 0 : 1;
@@ -268,12 +276,36 @@ sub plan_for {
     return $self->builder->nothing unless @terms;
 
     my $builder = $self->builder;
-    my $or = $builder->term_or(@terms)->plan_for($index);
+
+    my $or;
+
+    # Regex is filtered
+    if ($self->filter_by) {
+      $or = $builder->term_or(@terms)->filter_by($self->filter_by)->plan_for($index);
+    }
+    else {
+      $or = $builder->term_or(@terms)->plan_for($index);
+    };
     return $or;
+  };
+
+  # Term is filtered
+  if ($self->filter_by) {
+
+    my $filter = $self->filter_by->plan_for($index);
+
+    # Filter is empty
+    return $self->builder->nothing if $filter->freq == 0;
+
+    return Krawfish::Query::Filter->new(
+      Krawfish::Query::Term->new($index, $self->term),
+      $filter
+    );
   };
 
   return Krawfish::Query::Term->new($index, $self->term);
 };
+
 
 sub is_any {
   return 1 unless $_[0]->key;

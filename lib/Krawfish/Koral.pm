@@ -87,6 +87,51 @@ sub to_koral_query {
 };
 
 
+sub prepare_for {
+  my ($self, $index) = @_;
+
+  my $query;
+
+  # Corpus and query are given - filter!
+  if ($self->corpus && $self->query) {
+    $query = $self->query->filter_by($self->corpus)->prepare_for($index);
+  }
+
+  # Only corpus is given
+  elsif ($self->corpus) {
+    $query = $self->corpus->prepare_for($index);
+  }
+
+  # Only query is given
+  elsif ($self->query) {
+    $query = $self->query->prepare_for($index);
+  };
+
+  return $query;
+};
+
+
+sub to_string {
+  my $self = shift;
+  my $str = '';
+
+  if ($self->corpus && $self->query) {
+    $str .= 'filterBy(';
+    $str .= $self->query->to_string;
+    $str .= ',';
+    $str .= $self->corpus->to_string;
+    $str .= ')';
+  }
+  elsif ($self->corpus) {
+    $str .= $self->corpus->to_string;
+  }
+  elsif ($self->query) {
+    $str .= $self->query;
+  };
+
+  return $str;
+};
+
 1;
 
 __END__

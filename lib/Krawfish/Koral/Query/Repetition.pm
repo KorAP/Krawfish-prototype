@@ -155,6 +155,13 @@ sub plan_for {
 };
 
 
+# Filter by corpus
+sub filter_by {
+  my $self = shift;
+  $self->{plan}->filter_by(shift);
+};
+
+
 sub maybe_unsorted {
   $_[0]->{span}->maybe_unsorded;
 }

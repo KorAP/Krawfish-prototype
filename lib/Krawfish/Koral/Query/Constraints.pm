@@ -38,12 +38,24 @@ sub plan_for {
     push @constraints, $_->plan_for($index)
   };
 
-return Krawfish::Query::Constraints->new(
+  return Krawfish::Query::Constraints->new(
     \@constraints,
     $first,
     $second
   );
 };
+
+
+sub filter_by {
+  my $self = shift;
+  my $corpus_query = shift;
+  $self->{first}->filter_by($corpus_query);
+  $self->{second}->filter_by($corpus_query);
+
+  # TODO:
+  #   filter constraints
+};
+
 
 # TODO: Made helpers constrained knowing
 

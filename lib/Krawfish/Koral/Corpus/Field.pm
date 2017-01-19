@@ -86,6 +86,7 @@ sub plan_for {
 
 
 sub match {
+  # TODO: Support existence
   $_[0]->{match} // 'eq';
 };
 
@@ -137,6 +138,12 @@ sub to_string {
   my $self = shift;
   my $str = $self->{key};
   my $op = $self->match;
+
+  unless ($self->{value}) {
+    return $str unless $op eq 'excludes';
+    return '!' . $str;
+  };
+
   if ($op eq 'eq') {
     $str .= '=';
   }

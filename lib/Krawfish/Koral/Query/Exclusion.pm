@@ -72,6 +72,11 @@ sub plan_for {
   );
 };
 
+sub filter_by {
+  my $self = shift;
+  $self->{first}->filter_by(shift);
+};
+
 
 sub to_string {
   my $self = shift;

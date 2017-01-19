@@ -5,6 +5,9 @@ use Krawfish::Koral::Query::Importer;
 use warnings;
 use strict;
 
+# TODO: Support filter - and analyze query tree to add filter to term-queries
+# (That is probably more effective than filtering at the end!)
+
 sub new {
   my $class = shift;
   my $self = bless {
@@ -55,6 +58,9 @@ sub prepare_for {
 # Plan a query for an index (to be overwritten)
 # TODO: Rename to_primitive(index)
 sub plan_for;
+
+# Filter a query based on a document query
+sub filter_by;
 
 sub is_any            { $_[0]->{any}            // 0 };
 sub is_optional       { $_[0]->{optional}       // 0 };

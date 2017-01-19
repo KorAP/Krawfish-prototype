@@ -47,6 +47,10 @@ is($plan->current->to_string, '[1]', 'Current doc id');
 ok(!$plan->next, 'No next posting');
 ok(!$plan->current, 'No Current doc id');
 
+ok($field = $cb->string('license'), 'String field');
+is($field->to_string, "license", 'Stringification');
+
+
 diag 'Test further';
 
 done_testing;

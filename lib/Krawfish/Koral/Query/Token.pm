@@ -86,6 +86,11 @@ sub plan_for {
   return $self->wrap->plan_for($index);
 };
 
+# Filter by corpus
+sub filter_by {
+  ...
+};
+
 
 # Stringify
 sub to_string {

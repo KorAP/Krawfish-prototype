@@ -21,7 +21,8 @@ sub new {
 
   bless {
     operation => $operation,
-    operands => [@operands]
+    operands => [@operands],
+    filter => undef
   }
 };
 
@@ -213,6 +214,13 @@ sub plan_for {
 
   return $query;
 };
+
+# Filter by corpus
+sub filter_by {
+  my $self = shift;
+  $self->{filter} = shift;
+};
+
 
 sub maybe_unsorted { 0 };
 
