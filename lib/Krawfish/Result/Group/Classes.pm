@@ -17,9 +17,9 @@ use constant {
 sub new {
   my $class = shift;
   bless {
-    index   => shift,
+    index => shift,
     nrs => @_ ? [sort @_] : undef,
-    groups => {}
+    groups => {},
   }, $class;
 };
 

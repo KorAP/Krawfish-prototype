@@ -125,7 +125,7 @@ sub to_hash {
     my $doc_id = $example_docs->[$i]->[$rank];
 
     print_log('group_field', "Example doc is $doc_id") if DEBUG;
-    
+
     # Get field title
     my $field_title = $fields_obj->get(
       $example_docs->[$i]->[$rank],

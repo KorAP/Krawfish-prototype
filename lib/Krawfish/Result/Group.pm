@@ -3,7 +3,7 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # TODO: Use Krawfish::Posting::Group;
 
@@ -42,11 +42,13 @@ use constant DEBUG => 1;
 # Construct grouping function
 sub new {
   my $class = shift;
+  my ($query, $criterion, $index) = @_;
+
   bless {
-    query => shift,
+    query => $query,
 
     # This is a group criterion object, created outside, that defines the criterion
-    criterion => shift,
+    criterion => $criterion,
     pos => -1,
 
     # Group to fill with matches and group info
@@ -64,6 +66,7 @@ sub _init {
   return if $self->{init}++;
 
   my $criterion = $self->{criterion};
+
   my $query = $self->{query};
 
   my %groups = ();

@@ -10,9 +10,9 @@ use constant DEBUG => 0;
 sub new {
   my $class = shift;
   bless {
-    query => shift,
     index => shift,
-    fields => shift
+    query => shift,
+    fields => shift,
   }, $class;
 };
 

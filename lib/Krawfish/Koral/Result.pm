@@ -1,6 +1,47 @@
 package Krawfish::Koral::Result;
+use Krawfish::Koral::Result::Group;
 use strict;
 use warnings;
+
+sub new {
+  my $class = shift;
+  bless {
+    query => shiuft,
+    group_by => undef
+  }, $class;
+};
+
+
+sub group_by {
+  my ($self, $type, $param) = @_;
+  $type = lc $type;
+  if ($type eq 'fields') {
+    $self->{group} = Krawfish::Koral::Result::Group->by_fields(@$param);
+  };
+  return $self;
+};
+
+
+# Prepare for index
+sub prepare_for {
+  my ($self, $index) = shift;
+
+  my $koral_query;
+
+  # TODO: Prepare corpus
+  # TODO: Prepare query
+
+  # Group was set
+  if ($self->{group}) {
+
+    my $criterion = $self->{group};
+    $koral_query = Krawfish::Result::Group->new(
+      $koral_query,
+      $criterion,
+      $index
+    );
+  };
+};
 
 1;
 

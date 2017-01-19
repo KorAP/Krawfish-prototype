@@ -29,8 +29,8 @@ my $query = $kq->token('aa');
 
 # Get facets object
 ok(my $fields = Krawfish::Result::Fields->new(
-  $query->prepare_for($index),
   $index,
+  $query->prepare_for($index),
   [qw/license corpus/]
 ), 'Create count object');
 

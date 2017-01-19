@@ -32,7 +32,34 @@ is($op->[1]->{'@type'}, 'koral:token', 'Operand exists');
 is($op->[2]->{'@type'}, 'koral:span', 'Operand exists');
 
 
+# Create corpus
 $builder = $koral->corpus_builder;
+$koral->corpus(
+  $builder->field_and(
+    $builder->string('author')->eq('Peter'),
+    $builder->date('pubDate')->geq('2014-04-03')
+  )
+);
+
+$serial = $koral->to_koral_query;
+
+ok(my $c = $serial->{'corpus'}, 'Query is given');
+is($c->{'@type'}, 'koral:fieldGroup', '@type');
+is($c->{'operation'}, 'operation:and', 'operation');
+ok($op = $c->{'operands'}, 'Operands');
+
+is($op->[0]->{'@type'}, 'koral:field', 'Operand');
+is($op->[0]->{'type'}, 'type:string', 'Operand');
+is($op->[0]->{'key'}, 'author', 'Operand');
+is($op->[0]->{'value'}, 'Peter', 'Operand');
+is($op->[0]->{'match'}, 'match:eq', 'Operand');
+
+is($op->[1]->{'@type'}, 'koral:field', 'Operand');
+is($op->[1]->{'type'}, 'type:date', 'Operand');
+is($op->[1]->{'key'}, 'pubDate', 'Operand');
+is($op->[1]->{'value'}, '2014-04-03', 'Operand');
+is($op->[1]->{'match'}, 'match:geq', 'Operand');
+
 
 done_testing;
 __END__
