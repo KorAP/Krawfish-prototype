@@ -2,6 +2,7 @@ package Krawfish::Koral::Query;
 use parent 'Krawfish::Info';
 use Krawfish::Koral::Query::Builder;
 use Krawfish::Koral::Query::Importer;
+use Mojo::Util qw/md5_sum/;
 use warnings;
 use strict;
 
@@ -89,6 +90,10 @@ sub maybe_anchor      {
 # classes, the span has to me reordered.
 sub maybe_unsorted { $_[0]->{maybe_unsorted} // 0 };
 
+
+# Iterate over all subqueries and possibly replace them
+sub subqueries;
+
 #############################
 # Query Application methods #
 #############################
@@ -129,6 +134,16 @@ sub to_koral_fragment;
 
 # Overwritten
 sub to_string;
+
+# TODO: This may be optimizable and
+# implemented in all query and corpus wrappers
+sub to_signature {
+  md5_sum $_[0]->to_string;
+};
+
+# TODO: Returns a value of complexity of the query,
+# that can be used to decide, if a query should be cached.
+sub complexity;
 
 # Clone the query
 # sub clone;

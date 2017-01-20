@@ -87,6 +87,7 @@ sub to_koral_query {
 };
 
 
+# Prepare the query for index
 sub prepare_for {
   my ($self, $index) = @_;
 
@@ -94,18 +95,54 @@ sub prepare_for {
 
   # Corpus and query are given - filter!
   if ($self->corpus && $self->query) {
-    $query = $self->query->filter_by($self->corpus)->prepare_for($index);
+
+    # TODO: The filter should be a reference query!
+    $query = $self->query->filter_by($self->corpus);
   }
 
   # Only corpus is given
   elsif ($self->corpus) {
-    $query = $self->corpus->prepare_for($index);
+    $query = $self->corpus;
   }
 
   # Only query is given
   elsif ($self->query) {
-    $query = $self->query->prepare_for($index);
+    $query = $self->query;
   };
+
+  # TODO:
+  #  - Find identical subqueries
+  #  - This is especially useful for VC filtering,
+  #  - Terms (PostingsList) will automatically avoid
+  #    lifting posting lists multiple times.
+  #
+  # That means: create a buffered version of $self->corpus
+  #
+  # TODO: Make this part of ->plan_for($index, $refs)
+  #
+  # $query->replace_references;
+
+  # Prepare query
+  $query = $query->prepare_for($index);
+
+  return $query;
+};
+
+# Find identical subqueries and replace outer queries with
+# - references or
+# - cached queries
+sub replace_subqueries {
+  my ($self, $query) = @_;
+
+  # The reference store will collect signatures of subqueries
+  # To replace identical subqueries with reference pointers
+  my $refs = {};
+
+  # TODO: Load real cache!
+  # The cache is global and will replace subqueries that are
+  # already cached
+  my $cache = Krawfish::Cache->new;
+  $query->replace_subqueries($refs, $cache);
 
   return $query;
 };

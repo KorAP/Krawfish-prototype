@@ -272,7 +272,7 @@ sub is_extended {
 };
 
 
-sub maybe_unsorded {
+sub maybe_unsorted {
   my $self = shift;
   my $frames = $self->{frames};
 

@@ -6,6 +6,9 @@ use Krawfish::Index::PostingsList;
 
 # TODO: Use Storable
 # TODO: Support case insensitivity
+# TODO: Create forward index with term-ids
+# TODO: Support aliases (e.g. a surface term may have the
+#   same postings list throughout foundries)
 
 use constant DEBUG => 0;
 

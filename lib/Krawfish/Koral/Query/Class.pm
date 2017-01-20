@@ -26,6 +26,20 @@ sub to_koral_fragment {
 
 sub type { 'class' };
 
+# TODO: Make this part of plan_for
+sub replace_references {
+  my ($self, $refs) = @_;
+  my $sig = $self->signature;
+
+  # Subquery is identical to given query
+  if ($refs->{$sig}) {
+    ...
+  }
+  else {
+    $refs->{$sig} = $self->span;
+  };
+};
+
 sub plan_for {
   my ($self, $index) = @_;
 
@@ -46,10 +60,26 @@ sub plan_for {
   );
 };
 
+
+# Iterate over all subqueries and replace them
+# if necessary
+sub replace_subqueries {
+  my ($self, $cb) = @_;
+
+  # Check if the subspan should be replaced
+  if (my $replace = $cb->($self->span)) {
+
+    # Replace
+    $self->{span} = $replace;
+  };
+};
+
+
 sub filter_by {
   my $self = shift;
   $self->span->filter_by(shift);
 };
+
 
 sub to_string {
   my $self = shift;
@@ -58,45 +88,56 @@ sub to_string {
   return $str . $self->span->to_string . '}';
 };
 
+
 sub span {
   $_[0]->{span};
 };
+
 
 sub number {
   $_[0]->{number};
 };
 
+
 sub is_any {
   $_[0]->span->is_any;
 };
+
 
 sub is_optional {
   $_[0]->span->is_optional;
 };
 
+
 sub is_null {
   $_[0]->span->is_null;
 };
+
 
 sub is_negative {
   $_[0]->span->is_negative;
 };
 
+
 sub is_extended {
   $_[0]->span->is_extended;
 };
+
 
 sub is_extended_right {
   $_[0]->span->is_extended_right;
 };
 
+
 sub is_extended_left {
   $_[0]->span->is_extended_left;
 };
 
+
 sub maybe_unsorded {
   $_[0]->span->maybe_unsorted;
 };
+
 
 sub is_classed { 1 };
 
@@ -112,5 +153,6 @@ sub from_koral {
 
   return $class->new($op, $nr);
 };
+
 
 1;

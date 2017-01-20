@@ -55,6 +55,11 @@ sub startup {
   #   - alphabetic (per classes)
   $r->post('/group')->to('Index#group');
 
+  # TODO:
+  #   Provide a streaming API (possibly accessible via socket)
+  #   for matches (e.g. to rank or group them)
+  #   For example: return a string with all surface terms in a match,
+  #   possibly with context
 
   $r->post('/collect/:resultid')->to('Index#collect');
   $r->post('/statistics')->to('Corpus#statistics');

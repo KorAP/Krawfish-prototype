@@ -9,6 +9,10 @@ use Krawfish::Corpus::All;
 use strict;
 use warnings;
 
+# TODO: Sort operands by frequency -
+#   but for signaturing, sort them
+#   alphabetically (probably)
+
 use constant DEBUG => 0;
 
 sub new {
@@ -38,6 +42,91 @@ sub is_negative {
   };
   return 1;
 };
+
+# TODO:
+#   from managing gigabytes bool_optimiser.c
+#/* =========================================================================
+# * Function: OptimiseBoolTree
+# * Description: 
+# *      For case 2:
+# *        Do three major steps:
+# *        (i) put into standard form
+# *            -> put into DNF (disjunctive normal form - or of ands)
+# *            Use DeMorgan's, Double-negative, Distributive rules
+# *        (ii) simplify
+# *             apply idempotency rules
+# *        (iii) ameliorate
+# *              convert &! to diff nodes, order terms by frequency,...
+# *     Could also do the matching idempotency laws i.e. ...
+# *     (A | A), (A | !A), (A & !A), (A & A), (A & (A | B)), (A | (A & B)) 
+# *     Job for future.... ;-) 
+# * Input: 
+# * Output: 
+# * ========================================================================= */
+#/* =========================================================================
+# * Function: DoubleNeg
+# * Description: 
+# *      !(!(a) = a
+# *      Assumes binary tree.
+# * Input: 
+# * Output: 
+# * ========================================================================= */
+#/* =========================================================================
+# * Function: AndDeMorgan
+# * Description: 
+# *      DeMorgan's rule for 'not' of an 'and'  i.e. !(a & b) <=> (!a) | (!b)
+# *      Assumes Binary Tree
+# * Input: 
+# *      not of and tree
+# * Output: 
+# *      or of not trees
+# * ========================================================================= */
+#/* =========================================================================
+# * Function: OrDeMorgan
+# * Description: 
+# *      DeMorgan's rule for 'not' of an 'or' i.e. !(a | b) <=> (!a) & (!b)
+# *      Assumes Binary Tree
+# * Input: 
+# *      not of and tree
+# * Output: 
+# *      or of not trees
+# * ========================================================================= */
+#/* =========================================================================
+# * Function: PermeateNots
+# * Description: 
+# *      Use DeMorgan's and Double-negative
+# *      Assumes tree in binary form (i.e. No ands/ors collapsed)
+# * Input: 
+# * Output: 
+# * ========================================================================= */
+#/* =========================================================================
+# * Function: AndDistribute
+# * Description: 
+# *      (a | b) & A <=> (a & A) | (b & A)
+# * Input: 
+# *      binary tree of "AND" , "OR"s.
+# * Output: 
+# *      return 1 if changed the tree
+# *      return 0 if there was NO change (no distributive rule to apply)
+# * ========================================================================= */
+#/* =========================================================================
+# * Function: TF_Idempotent
+# * Description: 
+# *      Applies Idempotency laws which refer to True or False (hence "TF")
+# *      uses the true or false idempotent rules
+# * Input: 
+# *      operates on n-ary trees (not restricted to binary)
+# * Output: 
+# * ========================================================================= */
+#/* =========================================================================
+# * Function: AndSort
+# * Description: 
+# *      Sort the list of nodes by increasing doc_count 
+# *      Using some Neil Sharman code - pretty straight forward.
+# *      Note: not-terms are sent to the end of the list
+# * Input: 
+# * Output: 
+# * ========================================================================= */
 
 sub plan_for {
   my ($self, $index) = @_;

@@ -11,7 +11,12 @@ sub new {
 
 sub get {
   my $self = shift;
-  return $self->{shift};
+  return $self->{shift()};
+};
+
+sub exists {
+  my $self = shift;
+  return exists $self->{shift()};
 };
 
 sub set {

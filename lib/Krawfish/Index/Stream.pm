@@ -12,7 +12,10 @@ use warnings;
 #   BitStream may be loaded from a file and may
 #   load further elements, once it exceeds the boundaries
 #   of the current element
-
+#
+# This is similar to Reference Queries, so the mechanism
+# should probably be identical.
+#
 sub new {
   my $class = shift;
   bless {

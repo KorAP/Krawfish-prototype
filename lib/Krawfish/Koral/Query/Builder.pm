@@ -95,6 +95,13 @@ sub exclusion {
 };
 
 
+# Create reference query
+sub reference {
+  shift;
+  Krawfish::Koral::Query::Reference->new(shift);
+};
+
+
 sub constraints {
   shift;
   Krawfish::Koral::Query::Constraints->new(@_);
