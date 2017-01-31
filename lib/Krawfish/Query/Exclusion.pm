@@ -52,6 +52,18 @@ sub check {
   my $self = shift;
   my ($first, $second) = @_;
 
+  # Create configuration debug message
+  if (DEBUG) {
+    my $str = "Configuration is $first";
+    if ($second) {
+      $str .= ' vs ' . $second;
+    }
+    else {
+      $str .= ' only';
+    };
+    print_log('excl', $str);
+  };
+
   # Get the current configuration
   my $case = Krawfish::Query::Position::case($first, $second);
 
@@ -80,14 +92,15 @@ sub check {
 
     # Set current
     $self->{doc_id} = $first->doc_id;
-    $self->{start} = $first->start;
-    $self->{end}   = $first->end;
+    $self->{start}  = $first->start;
+    $self->{end}    = $first->end;
     $self->{payload} = $first->payload->clone;
     print_log('excl', 'Set match to ' . $self->current->to_string) if DEBUG;
 
     # TODO:
     #   Forget all entries span_b in this frame, that have an spanb->end < spana->start
-    return NEXTA | NEXTB | MATCH;
+    # Hmmm ...
+    return NEXTA | MATCH;
   }
 
   # No second span
@@ -104,8 +117,8 @@ sub check {
   };
 
   if (DEBUG) {
-    print_log('excl', "Next frames are ".Krawfish::Query::Position::_bits($next_a[$case])." and ");
-    print_log('excl', '                '.Krawfish::Query::Position::_bits($next_b[$case]));
+    print_log('excl', "Next frames are ".Krawfish::Query::Position::_bits($next_a[$case])." for A and ");
+    print_log('excl', '                '.Krawfish::Query::Position::_bits($next_b[$case])." for B");
     print_log('excl', '     for frames '.Krawfish::Query::Position::_bits($frames));
     print_log('excl', '     with case  '.Krawfish::Query::Position::_bits($case));
   };

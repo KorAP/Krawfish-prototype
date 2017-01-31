@@ -25,7 +25,7 @@ sub new {
     refs => {},
     refs_used => {},
     cache => Krawfish::Cache->new,
-    cache_measure => {}
+    cache_potential => {}
   }, $class;
 };
 
@@ -47,7 +47,7 @@ sub check_subqueries {
 
       # Mark this signature as probably useful for caching
       # This may based on $sub_query->complexity
-      $self->{cache_measure}->{$sig}++;
+      $self->{cache_potential}->{$sig}++;
 
       # The cache is already given
       if (my $cache = $self->{cache}->get($sig)) {
@@ -71,6 +71,13 @@ sub check_subqueries {
 
       # Check subquery
       $self->check_subqueries($sub_query);
+
+      # TODO: This is arbitrary!
+      if ($self->{cache_potential} > 100) {
+
+        # Return with a cache query
+        return Krawfish::Query::Cache->new($sub_query);
+      };
 
       # Do nothing
       return;

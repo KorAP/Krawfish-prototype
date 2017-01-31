@@ -252,6 +252,7 @@ sub add {
         $pos++;
       };
 
+      # Add token terms
       foreach (@keys) {
         my $post_list = $dict->add($_);
         $post_list->append($doc_id, @segments);

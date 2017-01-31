@@ -3,6 +3,7 @@ use Krawfish::Index::PostingPointer;
 use Krawfish::Log;
 use strict;
 use warnings;
+
 use constant DEBUG => 0;
 
 # TODO: Use different PostingsList for different term types

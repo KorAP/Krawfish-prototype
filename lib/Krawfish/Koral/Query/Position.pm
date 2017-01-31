@@ -8,6 +8,11 @@ use warnings;
 
 use constant DEBUG => 0;
 
+# TODO:
+#  The query optimizer may change order of operands, because
+#  the second operand should probably always be "simpler" regarding
+#  payloads, as it will be buffered.
+
 our %FRAME = (
   precedes         => PRECEDES,
   precedesDirectly => PRECEDES_DIRECTLY,

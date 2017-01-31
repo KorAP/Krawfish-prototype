@@ -7,34 +7,37 @@ use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Query::Builder');
 
 my $index = Krawfish::Index->new;
+ok(my $qb = Krawfish::Koral::Query::Builder->new, 'Create Koral::Builder');
+my ($wrap, $seq);
 
 # Der alte Mann ging über die Straße. Er trug einen lustigen Hut
 ok(defined $index->add(test_file('doc1.jsonld')), 'Add new document');
 # Der Hut stand dem jungen Mann sehr gut. Er betrachtete sich gern im Spiegel.
 ok(defined $index->add(test_file('doc2.jsonld')), 'Add new document');
 
-ok(my $qb = Krawfish::Koral::Query::Builder->new, 'Create Koral::Builder');
 
-ok(my $wrap = $qb->position(
+ok($wrap = $qb->position(
   ['precedesDirectly'],
   $qb->token('sehr'),
   $qb->token('gut')
 ), 'Sequence');
 
-ok(my $seq = $wrap->plan_for($index), 'Rewrite');
+ok($seq = $wrap->plan_for($index), 'Rewrite');
 
 ok($seq->next, 'Init');
 is($seq->current->to_string, '[1:6-8]', 'Match');
 ok(!$seq->next, 'No more');
 
+
+$index = Krawfish::Index->new;
 ok_index($index, [qw/aa bb aa bb/], 'Add new document');
 
 ok($wrap = $qb->position(['precedesDirectly'], $qb->token('aa'), $qb->token('bb')), 'Sequence');
 ok($seq = $wrap->plan_for($index), 'Rewrite');
 ok($seq->next, 'Init');
-is($seq->current->to_string, '[2:0-2]', 'Match');
+is($seq->current->to_string, '[0:0-2]', 'Match');
 ok($seq->next, 'More');
-is($seq->current->to_string, '[2:2-4]', 'Match');
+is($seq->current->to_string, '[0:2-4]', 'Match');
 ok(!$seq->next, 'No more');
 
 

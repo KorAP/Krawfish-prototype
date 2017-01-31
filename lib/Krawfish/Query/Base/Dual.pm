@@ -82,7 +82,7 @@ sub next {
 
       # The configuration matches
       if ($check & MATCH) {
-        print_log('dual', 'MATCH!') if DEBUG;
+        print_log('dual', "MATCH: $first vs $second!") if DEBUG;
         return 1;
       };
 
@@ -124,12 +124,12 @@ sub next {
 
         # Forward buffer - or span
         if (!($self->{buffer}->next)) {
-          # This will never be true
 
           print_log('dual', 'Unable to forward buffer - get next posting') if DEBUG;
 
           # Check next posting
           if ($self->{second}->next) {
+
             print_log('dual', 'Try to forward B') if DEBUG;
 
             $self->{buffer}->remember(
@@ -187,6 +187,15 @@ sub next {
             # May be wrong (untested!)
             $self->{buffer}->forward;
           };
+        }
+
+        # Buffer successfully forwarded
+        elsif (DEBUG) {
+          print_log('dual', 'Buffer was forwarded') if DEBUG;
+
+          # TODO:
+          #   There should be a check that old buffered B can't be possible
+          #   in the future so the old buffer entry can be forgotten.
         };
       }
 
@@ -212,7 +221,7 @@ sub next {
 
       # The configuration matches
       if ($check & MATCH) {
-        print_log('dual', 'MATCH!') if DEBUG;
+        print_log('dual', "MATCH: $first vs $second!") if DEBUG;
         return 1 ;
       };
     }
@@ -226,25 +235,73 @@ sub next {
       unless ($self->{first}->next) {
         $self->{doc_id} = undef;
         return;
-      } elsif (DEBUG) {
-        print_log('dual', 'Forward A');
+      }
+
+      # Forward was successful
+      else {
+        $self->{doc_id} = undef;
+        $self->{buffer}->to_start;
+        print_log('dual', 'Forward A to ' . $self->{first}->current) if DEBUG;
+        # next;
       };
     }
 
     # The second span is behind
     else {
 
+      print_log('dual', 'A is in a document > B') if DEBUG;
+
+
       # Remove all buffer items that are behind
       while ($first->doc_id > $second->doc_id) {
-        $self->{buffer}->forget;
-        $second = $self->{buffer}->current;
 
-        unless ($second) {
-          unless ($self->{second}->next) {
-            $self->{doc_id} = undef;
-            return;
+        if ($self->{buffer}->forget) {
+          $self->{buffer}->to_start;
+          if ($second = $self->{buffer}->current) {
+            next;
           };
+        };
+
+        print_log('dual', 'Unable to forward buffer - get next posting') if DEBUG;
+
+        # Todo:
+        #   Add skipping to buffer!
+
+        # Forward buffer - or span
+        # This is identical with above
+
+        # Check next posting
+        if ($self->{second}->next) {
+          print_log('dual', 'Try to forward B') if DEBUG;
+
+          $self->{buffer}->remember(
+            $self->{second}->current
+          );
+
+          # Position finger to last item
+          $self->{buffer}->to_end;
+          $second = $self->{buffer}->current;
+          next;
         }
+
+        # No, nothing
+        else {
+          print_log('dual', 'There is no next B') if DEBUG;
+
+          # May be wrong (untested!)
+          # $self->{buffer}->forward;
+          return;
+        };
+
+        #else {
+        #  $second = $self->{buffer}->current;
+        #  return;
+        #};
+#        if (!$second) {
+#          #  $self->{doc_id} = undef;
+#          #};
+#          return;
+#        }
       };
       #$self->{buffer}->clear;
       #unless ($self->{second}->next) {

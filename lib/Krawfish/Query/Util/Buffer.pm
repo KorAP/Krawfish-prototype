@@ -1,5 +1,6 @@
 package Krawfish::Query::Util::Buffer;
 use Krawfish::Log;
+use Carp qw/carp/;
 use strict;
 use warnings;
 
@@ -98,10 +99,17 @@ sub size {
 # Forget first element and reposition finger
 sub forget {
   my $span = shift(@{$_[0]->{array}});
+
+  unless ($span) {
+    carp 'Nothing to forget';
+    return;
+  };
+
   print_log('buffer', "Forget span $span: " . $_[0]->to_string) if DEBUG;
 
-  # Move finger
-  $_[0]->{finger}-- if $span;
+  # decrement finger
+  $_[0]->{finger}--;
+
   print_log('buffer', "Buffer is now " . $_[0]->to_string) if DEBUG;
   return 1;
 };
