@@ -7,7 +7,7 @@ use warnings;
 # Buffer contains a queue of spans, with a finger to point
 # on certain positions in the queue
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # Constructor
 sub new {

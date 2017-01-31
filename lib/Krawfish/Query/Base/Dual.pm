@@ -12,7 +12,7 @@ use constant {
   NEXTA  => 1,
   NEXTB  => 2,
   MATCH  => 4,
-  DEBUG  => 0
+  DEBUG  => 1
 };
 
 @EXPORT = qw/NEXTA NEXTB MATCH/;
@@ -82,7 +82,7 @@ sub next {
 
       # The configuration matches
       if ($check & MATCH) {
-        print_log('dual', "MATCH: $first vs $second!") if DEBUG;
+        print_log('dual', "! MATCH: $first vs $second!") if DEBUG;
         return 1;
       };
 
@@ -221,7 +221,7 @@ sub next {
 
       # The configuration matches
       if ($check & MATCH) {
-        print_log('dual', "MATCH: $first vs $second!") if DEBUG;
+        print_log('dual', "! MATCH: $first vs $second!") if DEBUG;
         return 1 ;
       };
     }
@@ -229,12 +229,27 @@ sub next {
     # The first span is behind
     elsif ($first->doc_id < $second->doc_id) {
 
+      my $check = $self->check($first, undef);
+
+      # Check current constellation
+
       print_log('dual', 'A is in a document < B') if DEBUG;
 
       # Go to the next first
       unless ($self->{first}->next) {
+        if ($check & MATCH) {
+          print_log('dual', "! MATCH: $first vs $second!") if DEBUG;
+          return 1;
+        };
+
         $self->{doc_id} = undef;
         return;
+      }
+
+      # Forward was successful and there was a match
+      elsif ($check & MATCH) {
+        print_log('dual', "! MATCH: $first vs $second!") if DEBUG;
+        return 1;
       }
 
       # Forward was successful
@@ -242,8 +257,8 @@ sub next {
         $self->{doc_id} = undef;
         $self->{buffer}->to_start;
         print_log('dual', 'Forward A to ' . $self->{first}->current) if DEBUG;
-        # next;
       };
+
     }
 
     # The second span is behind
