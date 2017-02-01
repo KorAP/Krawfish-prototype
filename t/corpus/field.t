@@ -7,6 +7,7 @@ use_ok('Krawfish::Koral::Corpus::Builder');
 use_ok('Krawfish::Index');
 
 my $index = Krawfish::Index->new;
+
 ok(defined $index->add(test_file('doc2.jsonld')), 'Add new document');
 ok(defined $index->add(test_file('doc1.jsonld')), 'Add new document');
 ok(defined $index->add(test_file('doc3-segments.jsonld')), 'Add new document');

@@ -5,14 +5,24 @@ use warnings;
 use strict;
 use Test::More ();
 use File::Basename 'dirname';
-use File::Spec::Functions 'catfile';
+use File::Spec::Functions qw/catfile rel2abs splitdir/;
 our @EXPORT = qw(test_doc test_file ok_index matches);
 
 use constant DEBUG => 0;
 
 sub test_file {
   my @file = @_;
-  return catfile(dirname(__FILE__), '..', '..', 't', 'data', @_);
+  my ($x, $fn) = caller();
+  my @caller_dir = splitdir(rel2abs(dirname($fn)));
+  my $i = 3;
+
+  # Remove path till 't'
+  while ($caller_dir[-1] ne 't') {
+    pop @caller_dir;
+    return if $i-- < 0;
+  };
+
+  return catfile(@caller_dir, 'data', @file);
 };
 
 
