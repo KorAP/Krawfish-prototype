@@ -87,7 +87,7 @@ sub matches {
   };
 
   if ($query->next) {
-    $tb->ok(0, $desc . '- more matches available');
+    $tb->ok(0, $desc . '- more matches available, e.g. ' . $query->current->to_string);
   };
 
   $tb->ok($desc);

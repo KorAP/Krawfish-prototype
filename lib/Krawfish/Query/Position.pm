@@ -4,6 +4,7 @@ use Krawfish::Log;
 use Krawfish::Query::Base::Dual;
 use strict;
 use warnings;
+use bytes;
 
 # This query validates positional constraints
 # between spans and returns a valid forwarding mechanism

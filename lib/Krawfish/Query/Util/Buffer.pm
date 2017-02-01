@@ -1,6 +1,7 @@
 package Krawfish::Query::Util::Buffer;
 use Krawfish::Log;
 use Carp qw/carp/;
+use bytes;
 use strict;
 use warnings;
 
@@ -79,6 +80,7 @@ sub first {
 
 
 # Reset finger to start position
+# TODO: Rename to "rewind"
 sub to_start {
   $_[0]->{finger} = 0;
   print_log('buffer', 'Reset buffer finger: ' . $_[0]->to_string) if DEBUG;

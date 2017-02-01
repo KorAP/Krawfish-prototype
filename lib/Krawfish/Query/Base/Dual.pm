@@ -5,6 +5,7 @@ use warnings;
 use Krawfish::Log;
 use Krawfish::Query::Util::Buffer;
 use Krawfish::Posting;
+use bytes;
 
 our @EXPORT;
 
@@ -23,7 +24,9 @@ use constant {
 #       NEXTX to ENDX     (Position skipping)
 #       NEXTX to STARTX+1 (Position skipping)
 
-# TODO: Improve by skipping to the same document
+# TODO:
+#   Improve by skipping to the same document
+#   (not for exclusion!)
 
 sub new {
   my $class = shift;
@@ -52,12 +55,12 @@ sub next {
 
   my ($first, $second);
 
+  # This is an infinite loop
   while (1) {
 
-    # Check if there is no first span
+    # Stop if there is no first span
     unless ($first = $self->{first}->current) {
       print_log('dual', 'No more first items, return false 1') if DEBUG;
-
       $self->{doc_id} = undef;
       return;
     };
@@ -67,39 +70,56 @@ sub next {
     unless ($second = $self->{buffer}->current) {
       print_log('dual', 'Buffer has no current element') if DEBUG;
 
-      # Check configuration
+      # Check configuration, because in the case of exclusion,
+      # a match may be valid even if no second operand exists
       my $check = $self->check($first, undef);
 
       print_log('dual', 'Final check is '. (0+$check)) if DEBUG;
 
-      # Expect a next_a
-      if ($check & NEXTA) {
-
-        # Forward span
-        print_log('dual', 'Forward A') if DEBUG;
-        $self->{first}->next;
-      };
-
-      # The configuration matches
+      # The configuration has a match
       if ($check & MATCH) {
-        print_log('dual', "! MATCH: $first vs " . ($second ? $second : 'NULL') . '!') if DEBUG;
+
+        # The configuration accepts forwarding A
+        if ($check & NEXTA) {
+
+          # Forward span
+          print_log('dual', 'Forward A') if DEBUG;
+          $self->{first}->next;
+
+          # Reset buffer
+          # TODO: Check if this is necessary
+          $self->{buffer}->to_start;
+        };
+
+        if (DEBUG) {
+          print_log('dual', "! MATCH: $first vs " . ($second ? $second : 'NULL') . '!');
+        };
+
+        # Configuration matches, even without a second operand
         return 1;
       };
 
-      # Reset buffer
-      $self->{buffer}->to_start;
+      # Fail
       $self->{doc_id} = undef;
       return;
-      # next;
     };
 
-    # TODO: Check if second may not be at the end
-    # of the buffer
 
-    # Equal documents - check!
+    # There is a first and a second operand
+
+
+    # TODO:
+    #   Check if second may not be at the end
+    #   of the buffer
+
+
+    # Both elements are in the same document
     if ($first->doc_id == $second->doc_id) {
-      print_log('dual', 'Documents are equal - check the configuration') if DEBUG;
-      print_log('dual', "Configuration is $first vs $second") if DEBUG;
+
+      if (DEBUG) {
+        print_log('dual', 'Documents are equal - check the configuration');
+        print_log('dual', "Configuration is $first vs $second");
+      };
 
       # Check configuration
       my $check = $self->check($first, $second);
@@ -226,22 +246,29 @@ sub next {
       };
     }
 
-    # The first span is behind
+    # The first operand is in a document behind the second operand
     elsif ($first->doc_id < $second->doc_id) {
 
+      # Check current constellation - without a second operand
       my $check = $self->check($first, undef);
-
-      # Check current constellation
 
       print_log('dual', 'A is in a document < B') if DEBUG;
 
       # Go to the next first
+      # TODO: May need a skip
+      # Forward was not successful
       unless ($self->{first}->next) {
+
+        # The check is fine - return true
         if ($check & MATCH) {
-          print_log('dual', "! MATCH: $first vs $second!") if DEBUG;
+          print_log('dual', "! MATCH: $first vs NULL!") if DEBUG;
+
+          # However - this means the following 'next' will fail as
+          # no A is given.
           return 1;
         };
 
+        # Remove doc_id marker and fail
         $self->{doc_id} = undef;
         return;
       }
@@ -254,67 +281,89 @@ sub next {
 
       # Forward was successful
       else {
-        $self->{doc_id} = undef;
         $self->{buffer}->to_start;
         print_log('dual', 'Forward A to ' . $self->{first}->current) if DEBUG;
-      };
 
+        # Go on!
+      };
     }
 
     # The second span is behind
+    # $first->doc_id > $second->doc_id
     else {
 
+      # Check current constellation - without a second operand
       my $check = $self->check($first, undef);
 
       print_log('dual', 'A is in a document > B') if DEBUG;
 
-      # Remove all buffer items that are behind
-      while ($first->doc_id > $second->doc_id) {
+      # Clean the buffer and move to start
+      # TODO:
+      #   In case the buffer supports skipping - skip!
+      #   Probably implement a buffer ->forget_till(doc_id)
+      #   Probably implement forget_and_rewind
+      if ($self->{buffer}->forget) {
 
-        # Clean the buffer and move to start
-        # TODO: In case the buffer supports skipping - skip!
-        if ($self->{buffer}->forget) {
-          $self->{buffer}->to_start;
-          if ($second = $self->{buffer}->current) {
-            next;
-          };
-        };
+        # Move to start
+        $self->{buffer}->to_start;
+        next if $self->{buffer}->current;
 
-        print_log('dual', 'Unable to forward buffer - get next posting') if DEBUG;
-
-        # Todo:
-        #   Add skipping!
-
-        # Check next posting
-        if ($self->{second}->next) {
-          print_log('dual', 'Try to forward B') if DEBUG;
-
-          # Add current posting to buffer
-          $self->{buffer}->remember(
-            $self->{second}->current
-          );
-
-          # Position finger to last item
-          $self->{buffer}->to_end;
-          $second = $self->{buffer}->current;
-          next;
-        }
-
-        # There is no next B
-        else {
-          print_log('dual', 'There is no next B') if DEBUG;
-
-          # TODO: This may need to match!
-          if ($check & MATCH) {
-            $self->{first}->next;
-            print_log('dual', "! MATCH: $first vs NULL!") if DEBUG;
-            return 1;
-          };
-
-          $self->{doc_id} = undef;
-          return;
-        };
+        # Go on!
       };
+
+      # Buffer forward did not work
+
+      print_log('dual', 'Unable to forward buffer - get next posting') if DEBUG;
+
+
+      # Todo:
+      #   Add skipping!
+
+      # Check next posting
+
+
+      # Go to the next second
+      # TODO: May need skip
+      # Forward was not succesful
+      if (!($self->{second}->next)) {
+        print_log('dual', 'There is no next B') if DEBUG;
+
+        # TODO: This may need to match!
+        if ($check & MATCH) {
+
+          print_log('dual', "! MATCH: $first vs NULL!") if DEBUG;
+
+          # Move first forward
+          # Because it matches it can't be skipped!
+          $self->{first}->next;
+          return 1;
+        };
+
+        # Remove doc_id marker and fail
+        $self->{doc_id} = undef;
+        return;
+      }
+
+      # Forward was successful
+      else {
+        print_log('dual', 'Try to forward B') if DEBUG;
+
+        # Add current posting to buffer
+        $self->{buffer}->remember(
+          $self->{second}->current
+        );
+
+        # Position finger to last item
+        $self->{buffer}->to_end;
+        # $second = $self->{buffer}->current;
+        # Go on!
+      };
+
+
+      ###########
+      # OLD HERE
+      #############
+
     };
   };
 
