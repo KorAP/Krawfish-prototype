@@ -77,7 +77,7 @@ sub matches {
   };
 
   if ($query->next) {
-    $tb->fail($desc . '- more matches available');
+    $tb->ok(0, $desc . '- more matches available');
   };
 
   $tb->ok($desc);

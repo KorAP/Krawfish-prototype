@@ -115,6 +115,26 @@ ok($wrap = $qb->position(['precedesDirectly'], $qb->token('aa'), $qb->token('bb'
 ok($seq = $wrap->plan_for($index), 'Rewrite');
 matches($seq, [qw/[0:0-2] [0:0-2] [0:0-2] [0:0-2] [0:2-4] [0:2-4] [0:2-4] [0:2-4]/]);
 
+
+# Reset index
+$index = Krawfish::Index->new;
+ok_index($index, '[aa|aa][bb|bb][aa|aa][bb|bb]', 'Add complex document');
+ok_index($index, '[aa]', 'Add complex document');
+ok_index($index, '[bb]', 'Add complex document');
+ok_index($index, '[aa|aa][bb|bb][aa|aa][bb|bb]', 'Add complex document');
+ok($qb = Krawfish::Koral::Query::Builder->new, 'Create Koral::Builder');
+ok($wrap = $qb->position(
+  ['precedesDirectly'],
+  $qb->token('aa'),
+  $qb->token('bb')
+), 'Sequence');
+ok($seq = $wrap->plan_for($index), 'Rewrite');
+matches($seq, [
+  qw/[0:0-2] [0:0-2] [0:0-2] [0:0-2] [0:2-4] [0:2-4] [0:2-4] [0:2-4]/,
+  qw/[3:0-2] [3:0-2] [3:0-2] [3:0-2] [3:2-4] [3:2-4] [3:2-4] [3:2-4]/
+]);
+
+
 diag 'Test further';
 
 done_testing;

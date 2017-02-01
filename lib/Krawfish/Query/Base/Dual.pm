@@ -82,7 +82,7 @@ sub next {
 
       # The configuration matches
       if ($check & MATCH) {
-        print_log('dual', "! MATCH: $first vs $second!") if DEBUG;
+        print_log('dual', "! MATCH: $first vs " . ($second ? $second : 'NULL') . '!') if DEBUG;
         return 1;
       };
 
@@ -264,12 +264,15 @@ sub next {
     # The second span is behind
     else {
 
-      print_log('dual', 'A is in a document > B') if DEBUG;
+      my $check = $self->check($first, undef);
 
+      print_log('dual', 'A is in a document > B') if DEBUG;
 
       # Remove all buffer items that are behind
       while ($first->doc_id > $second->doc_id) {
 
+        # Clean the buffer and move to start
+        # TODO: In case the buffer supports skipping - skip!
         if ($self->{buffer}->forget) {
           $self->{buffer}->to_start;
           if ($second = $self->{buffer}->current) {
@@ -280,15 +283,13 @@ sub next {
         print_log('dual', 'Unable to forward buffer - get next posting') if DEBUG;
 
         # Todo:
-        #   Add skipping to buffer!
-
-        # Forward buffer - or span
-        # This is identical with above
+        #   Add skipping!
 
         # Check next posting
         if ($self->{second}->next) {
           print_log('dual', 'Try to forward B') if DEBUG;
 
+          # Add current posting to buffer
           $self->{buffer}->remember(
             $self->{second}->current
           );
@@ -299,30 +300,21 @@ sub next {
           next;
         }
 
-        # No, nothing
+        # There is no next B
         else {
           print_log('dual', 'There is no next B') if DEBUG;
 
-          # May be wrong (untested!)
-          # $self->{buffer}->forward;
+          # TODO: This may need to match!
+          if ($check & MATCH) {
+            $self->{first}->next;
+            print_log('dual', "! MATCH: $first vs NULL!") if DEBUG;
+            return 1;
+          };
+
+          $self->{doc_id} = undef;
           return;
         };
-
-        #else {
-        #  $second = $self->{buffer}->current;
-        #  return;
-        #};
-#        if (!$second) {
-#          #  $self->{doc_id} = undef;
-#          #};
-#          return;
-#        }
       };
-      #$self->{buffer}->clear;
-      #unless ($self->{second}->next) {
-      #  $self->{doc_id} = undef;
-      #  return;
-      #};
     };
   };
 
