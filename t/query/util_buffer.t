@@ -28,7 +28,7 @@ ok(!$buff->current, 'No current');
 is($buff->size, 1, 'Size 0');
 is($buff->finger, 2, 'Finger 2');
 
-$buff->to_start;
+$buff->rewind;
 is($buff->size, 1, 'Size 0');
 is($buff->finger, 0, 'Size 0');
 is($buff->current, '[0:2-3]', 'Current');
@@ -55,7 +55,7 @@ is($buff->finger, 1, 'Finger 1');
 is($buff->to_string, '[0:5-6] <> ', 'Stringify');
 ok($buff->remember(Krawfish::Posting::Token->new(0,8,9)), 'Remember');
 is($buff->to_string, '[0:5-6] <[0:8-9]> ', 'Stringify');
-$buff->to_start;
+$buff->rewind;
 is($buff->to_string, ' <[0:5-6]> [0:8-9]', 'Stringify');
 $buff->to_end;
 is($buff->to_string, '[0:5-6] <[0:8-9]> ', 'Stringify');

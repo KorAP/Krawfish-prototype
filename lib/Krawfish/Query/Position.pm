@@ -2,6 +2,7 @@ package Krawfish::Query::Position;
 use parent 'Krawfish::Query::Base::Dual';
 use Krawfish::Log;
 use Krawfish::Query::Base::Dual;
+use Krawfish::Query::Util::Bits; # exports bitstring
 use strict;
 use warnings;
 use bytes;
@@ -31,7 +32,7 @@ use constant {
   OVERLAPS_RIGHT    => 0b0000_0100_0000_0000,
   SUCCEEDS_DIRECTLY => 0b0000_1000_0000_0000,
   SUCCEEDS          => 0b0001_0000_0000_0000,
-  DEBUG             => 0
+  DEBUG             => 1
 };
 
 # _IS_CONTAINED => STARTS_WITH | MATCHES | IS_AROUND | ENDS_WITH
@@ -312,14 +313,14 @@ sub new {
 # Check the configuration
 sub check {
   my $self = shift;
-  my ($first, $second) = @_;
+  my ($payload, $first, $second) = @_;
 
   # Get the current configuration
   my $case = case($first, $second);
   my $frames = $self->{frames};
 
-  print_log('pos', "The case is     " ._bits($case)  . " ($case)") if DEBUG;
-  print_log('pos', "for the frames  " ._bits($frames) . " ($frames)") if DEBUG;
+  print_log('pos', "The case is     " .bitstring($case)  . " ($case)") if DEBUG;
+  print_log('pos', "for the frames  " .bitstring($frames) . " ($frames)") if DEBUG;
 
   # Configuration is valid
   if ($case & $frames) {
@@ -348,17 +349,11 @@ sub check {
   };
 
   if (DEBUG) {
-    print_log('pos', "Next frames are "._bits($next_a[$case])." and ");
-    print_log('pos', '                '._bits($next_b[$case]));
+    print_log('pos', "Next frames are ".bitstring($next_a[$case])." and ");
+    print_log('pos', '                '.bitstring($next_b[$case]));
   };
 
   return $ret_val;
-};
-
-
-# May be better in an util, see Koral::Query::Position::_bits
-sub _bits ($) {
-  return unpack "b16", pack "s", shift;
 };
 
 

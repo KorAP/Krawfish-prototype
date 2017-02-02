@@ -8,7 +8,16 @@ use warnings;
 # Buffer contains a queue of spans, with a finger to point
 # on certain positions in the queue
 
-use constant DEBUG => 1;
+# TODO:
+#   Make this a Buffered Query, so it can have a simplified API
+#   For usage, with next (that may either use the buffer or the
+#   nested stream.
+#
+#   It may probably need
+#   ->rewind
+#   ->forget
+
+use constant DEBUG => 0;
 
 # Constructor
 sub new {
@@ -55,15 +64,18 @@ sub finger {
   $_[0]->{finger};
 };
 
+
 sub forward {
   $_[0]->{finger}++;
   print_log('buffer', 'Move finger forward') if DEBUG;
 };
 
+
 sub backward {
   $_[0]->{finger}--;
   print_log('buffer', 'Move finger backwards') if DEBUG;
 };
+
 
 # Remember item
 sub remember {
@@ -80,8 +92,7 @@ sub first {
 
 
 # Reset finger to start position
-# TODO: Rename to "rewind"
-sub to_start {
+sub rewind {
   $_[0]->{finger} = 0;
   print_log('buffer', 'Reset buffer finger: ' . $_[0]->to_string) if DEBUG;
 };
@@ -93,10 +104,12 @@ sub to_end {
   $self->{finger} = $self->size - 1;
 };
 
+
 # Check size
 sub size {
   return scalar @{$_[0]->{array}};
 };
+
 
 # Forget first element and reposition finger
 sub forget {
@@ -116,6 +129,8 @@ sub forget {
   return 1;
 };
 
+
+# Clear buffer
 sub clear {
   print_log('buffer', 'Clear buffer list') if DEBUG;
   $_[0]->{array} = [];
@@ -123,6 +138,7 @@ sub clear {
 };
 
 
+# Stringify buffer content
 sub to_string {
   my $self = shift;
   my $string = '';

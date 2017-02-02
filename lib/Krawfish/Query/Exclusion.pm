@@ -2,6 +2,7 @@ package Krawfish::Query::Exclusion;
 use parent 'Krawfish::Query::Base::Dual';
 use Krawfish::Query::Base::Dual;
 use Krawfish::Query::Position; # Export constants and @next_a and @next_b
+use Krawfish::Query::Util::Bits; # exports bitstring
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -50,7 +51,7 @@ sub new {
 
 sub check {
   my $self = shift;
-  my ($first, $second) = @_;
+  my ($payload, $first, $second) = @_;
 
   # Create configuration debug message
   if (DEBUG) {
@@ -73,8 +74,8 @@ sub check {
   if ($case & $frames) {
     if (DEBUG) {
       print_log('excl', "Excluded span occurs - next with A");
-      print_log('excl', '     for frames '.Krawfish::Query::Position::_bits($frames));
-      print_log('excl', '     with case  '.Krawfish::Query::Position::_bits($case));
+      print_log('excl', '     for frames '.bitstring($frames));
+      print_log('excl', '     with case  '.bitstring($case));
     };
     return NEXTA;
   };
@@ -117,10 +118,10 @@ sub check {
   };
 
   if (DEBUG) {
-    print_log('excl', "Next frames are ".Krawfish::Query::Position::_bits($next_a[$case])." for A and ");
-    print_log('excl', '                '.Krawfish::Query::Position::_bits($next_b[$case])." for B");
-    print_log('excl', '     for frames '.Krawfish::Query::Position::_bits($frames));
-    print_log('excl', '     with case  '.Krawfish::Query::Position::_bits($case));
+    print_log('excl', "Next frames are ".bitstring($next_a[$case])." for A and ");
+    print_log('excl', '                '.bitstring($next_b[$case])." for B");
+    print_log('excl', '     for frames '.bitstring($frames));
+    print_log('excl', '     with case  '.bitstring($case));
   };
 
   return $ret_val;

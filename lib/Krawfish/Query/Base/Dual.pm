@@ -9,24 +9,39 @@ use bytes;
 
 our @EXPORT;
 
-use constant {
-  NEXTA  => 1,
-  NEXTB  => 2,
-  MATCH  => 4,
-  DEBUG  => 1
-};
+# TODO:
+#   Wrap second query in a buffered query instead of
+#   dealing with buffer resizing etc. here!
 
-@EXPORT = qw/NEXTA NEXTB MATCH/;
+# TODO:
+#   Reuse payload - init in constructor!
 
-# TODO: Next to NEXTA and NEXTB there should be flags for:
-#       NEXTX to STARTY   (Position skipping)
-#       NEXTX to ENDY     (Position skipping)
-#       NEXTX to ENDX     (Position skipping)
-#       NEXTX to STARTX+1 (Position skipping)
+# TODO:
+#   Next to
+#     NEXTA and NEXTB there should be flags for:
+#     NEXTX to STARTY   (Position skipping)
+#     NEXTX to ENDY     (Position skipping)
+#     NEXTX to ENDX     (Position skipping)
+#     NEXTX to STARTX+1 (Position skipping)
 
 # TODO:
 #   Improve by skipping to the same document
 #   (not for exclusion!)
+
+# TODO:
+#   Possibly do NOT buffer every match - that's especially
+#   costly for skipping and in case the posting is already
+#   either buffered (part of a nested query) or lifted
+#   (part of a postings list)
+
+use constant {
+  NEXTA  => 1,
+  NEXTB  => 2,
+  MATCH  => 4,
+  DEBUG  => 0
+};
+
+@EXPORT = qw/NEXTA NEXTB MATCH/;
 
 sub new {
   my $class = shift;
@@ -52,6 +67,7 @@ sub init {
 sub next {
   my $self = shift;
   $self->init;
+  my $payload = Krawfish::Posting::Payload->new;
 
   my ($first, $second);
 
@@ -72,7 +88,7 @@ sub next {
 
       # Check configuration, because in the case of exclusion,
       # a match may be valid even if no second operand exists
-      my $check = $self->check($first, undef);
+      my $check = $self->check($payload, $first, undef);
 
       print_log('dual', 'Final check is '. (0+$check)) if DEBUG;
 
@@ -88,7 +104,7 @@ sub next {
 
           # Reset buffer
           # TODO: Check if this is necessary
-          $self->{buffer}->to_start;
+          $self->{buffer}->rewind;
         };
 
         if (DEBUG) {
@@ -122,7 +138,10 @@ sub next {
       };
 
       # Check configuration
-      my $check = $self->check($first, $second);
+      # TODO:
+      #   THIS SHOULD BE A CONSTRAINED CHECK WITH PAYLOAD
+      #   AND POSSIBLY CLASSES PASSED!
+      my $check = $self->check($payload, $first, $second);
 
       print_log('dual', 'Next step after check returned ' . (0 + $check)) if DEBUG;
 
@@ -139,7 +158,7 @@ sub next {
         }
 
         elsif (DEBUG) {
-          print_log('dual', 'Next A and next B is possible') if DEBUG;
+          print_log('dual', 'Next A and next B is possible');
         };
 
         # Forward buffer - or span
@@ -173,11 +192,11 @@ sub next {
 
               # If not - check configuration would
               # be valid even without a partner span
-              my $check = $self->check($first, undef);
+              my $check = $self->check($payload, $first, undef);
 
               print_log('dual', 'Forward A (1)') if DEBUG;
               $self->{first}->next;
-              $self->{buffer}->to_start;
+              $self->{buffer}->rewind;
 
               if ($check & MATCH) {
                 return 1;
@@ -192,7 +211,7 @@ sub next {
               # Match was already matched
               print_log('dual', 'Forward A (2)') if DEBUG;
               $self->{first}->next;
-              $self->{buffer}->to_start;
+              $self->{buffer}->rewind;
               return 1;
             };
 
@@ -229,12 +248,12 @@ sub next {
         # May point to no current
 
         # Reset buffer
-        $self->{buffer}->to_start;
+        $self->{buffer}->rewind;
       }
 
       # No forwarding
       else {
-        $self->{buffer}->clear;
+        # $self->{buffer}->clear;
         $self->{doc_id} = undef;
         return;
       };
@@ -250,7 +269,7 @@ sub next {
     elsif ($first->doc_id < $second->doc_id) {
 
       # Check current constellation - without a second operand
-      my $check = $self->check($first, undef);
+      my $check = $self->check($payload, $first, undef);
 
       print_log('dual', 'A is in a document < B') if DEBUG;
 
@@ -281,7 +300,7 @@ sub next {
 
       # Forward was successful
       else {
-        $self->{buffer}->to_start;
+        $self->{buffer}->rewind;
         print_log('dual', 'Forward A to ' . $self->{first}->current) if DEBUG;
 
         # Go on!
@@ -293,7 +312,7 @@ sub next {
     else {
 
       # Check current constellation - without a second operand
-      my $check = $self->check($first, undef);
+      my $check = $self->check($payload, $first, undef);
 
       print_log('dual', 'A is in a document > B') if DEBUG;
 
@@ -305,7 +324,9 @@ sub next {
       if ($self->{buffer}->forget) {
 
         # Move to start
-        $self->{buffer}->to_start;
+        $self->{buffer}->rewind;
+
+        # Check if there is an element on the buffer
         next if $self->{buffer}->current;
 
         # Go on!
@@ -358,12 +379,6 @@ sub next {
         # $second = $self->{buffer}->current;
         # Go on!
       };
-
-
-      ###########
-      # OLD HERE
-      #############
-
     };
   };
 

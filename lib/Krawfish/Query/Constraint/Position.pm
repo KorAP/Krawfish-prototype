@@ -1,12 +1,14 @@
 package Krawfish::Query::Constraint::Position;
 use parent 'Exporter';
 use Krawfish::Log;
+use Krawfish::Query::Util::Bits; # exports bitstring()
 use strict;
 use warnings;
 
 use bytes;
 use constant {
   NULL_4            => 0b0000_0000_0000_0000,
+
   PRECEDES          => 0b0000_0000_0000_0001,
   PRECEDES_DIRECTLY => 0b0000_0000_0000_0010,
   OVERLAPS_LEFT     => 0b0000_0000_0000_0100,
@@ -303,8 +305,8 @@ sub check {
   my $case = case($first, $second);
   my $frames = $self->{frames};
 
-  print_log('posC', "The case is     " ._bits($case)  . " ($case)") if DEBUG;
-  print_log('posC', "for the frames  " ._bits($frames) . " ($frames)") if DEBUG;
+  print_log('posC', "The case is     " . bitstring($case)   . " ($case)") if DEBUG;
+  print_log('posC', "for the frames  " . bitstring($frames) . " ($frames)") if DEBUG;
 
   # Configuration is valid
   if ($case & $frames) {
@@ -327,8 +329,8 @@ sub check {
   };
 
   if (DEBUG) {
-    print_log('posC', "Next frames are "._bits($next_a[$case])." and ");
-    print_log('posC', '                '._bits($next_b[$case]));
+    print_log('posC', "Next frames are ".bitstring($next_a[$case])." and ");
+    print_log('posC', '                '.bitstring($next_b[$case]));
   };
   return $ret_val;
 };
@@ -420,10 +422,6 @@ sub case {
   return MATCHES;
 };
 
-# May be better in an util, see Koral::Query::Position::_bits
-sub _bits ($) {
-  return unpack "b16", pack "s", shift;
-};
 
 sub to_string {
   'pos=' . (0 + $_[0]->{frames});

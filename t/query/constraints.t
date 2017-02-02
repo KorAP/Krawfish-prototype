@@ -23,7 +23,12 @@ my $wrap = $qb->constraints(
 is($wrap->to_string, "constr(pos=precedesDirectly:[aa],[bb])", 'Query is valid');
 ok(my $query = $wrap->plan_for($index), 'Planning');
 is($query->to_string, "constr(pos=2:'aa','bb')", 'Query is valid');
+
 matches($query, [qw/[0:0-2] [0:0-2] [0:0-2] [0:0-2]/]);
+
+done_testing;
+__END__
+
 
 $index = Krawfish::Index->new;
 ok_index($index, [qw/aa bb aa bb aa bb/], 'Add complex document');
