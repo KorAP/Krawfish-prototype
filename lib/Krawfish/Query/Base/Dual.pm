@@ -14,14 +14,6 @@ our @EXPORT;
 #   dealing with buffer resizing etc. here!
 
 # TODO:
-#   Next to
-#     NEXTA and NEXTB there should be flags for:
-#     NEXTX to STARTY   (Position skipping)
-#     NEXTX to ENDY     (Position skipping)
-#     NEXTX to ENDX     (Position skipping)
-#     NEXTX to STARTX+1 (Position skipping)
-
-# TODO:
 #   Improve by skipping to the same document
 #   (not for exclusion!)
 
@@ -35,7 +27,7 @@ use constant {
   NEXTA  => 1,
   NEXTB  => 2,
   MATCH  => 4,
-  DEBUG  => 1
+  DEBUG  => 0
 };
 
 @EXPORT = qw/NEXTA NEXTB MATCH/;

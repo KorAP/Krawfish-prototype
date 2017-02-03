@@ -9,10 +9,14 @@ use warnings;
 #   but a pointer to a query buffer.
 #
 #   Maybe use a Util::MultiBuffer
-#
-# Support a BufferedRef query mechanism, that will be used for identical subqueries.
+
+# Support a BufferedRef query mechanism,
+# that will be used for identical subqueries.
 # This is especially important for filtering.
-# This Buffered Reference supports multiple fingers at different positions in the query.
+# This Buffered Reference supports multiple
+# fingers at different positions in the query.
+
+# The ring buffer query is well suited for this.
 
 sub new {
   my $class = shift;
@@ -25,14 +29,16 @@ sub new {
   bless {
     query => shift,
   }, $class;
-}
+};
+
 
 sub new {
   my $self = shift;
-  my 
 };
 
+
 sub next;
+
 
 sub to_string {
   my $self = shift;

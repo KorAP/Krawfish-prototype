@@ -8,7 +8,7 @@ use Mojo::JSON;
 use strict;
 use warnings;
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # TODO:
 #  The query optimizer may change order of operands, because
