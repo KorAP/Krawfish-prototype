@@ -29,7 +29,7 @@ $wrap = $qb->seq(
 
 is($wrap->to_string, '{1:[aa]}{2:[bb]}', 'Stringification');
 ok($class = $wrap->plan_for($index), 'Rewrite');
-is($class->to_string, "pos(2:class(1:'aa'),class(2:'bb'))", 'stringification');
+is($class->to_string, "constr(pos=2:class(1:'aa'),class(2:'bb'))", 'stringification');
 
 ok($class->next, 'More');
 is($class->current->to_string, '[0:0-2$0,1,0,1|0,2,1,2]', 'Match');

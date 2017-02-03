@@ -5,10 +5,12 @@ use Krawfish::Query::Util::Bits; # exports bitstring()
 use strict;
 use warnings;
 
+# This constraint validates positions
+# between spans and returns a valid forwarding mechanism
+
 use bytes;
 use constant {
   NULL_4            => 0b0000_0000_0000_0000,
-
   PRECEDES          => 0b0000_0000_0000_0001,
   PRECEDES_DIRECTLY => 0b0000_0000_0000_0010,
   OVERLAPS_LEFT     => 0b0000_0000_0000_0100,
@@ -296,7 +298,9 @@ $next_b[SUCCEEDS] =
              ALIGNS_RIGHT
              OVERLAPS_RIGHT
              SUCCEEDS_DIRECTLY
-             SUCCEEDS/;
+             SUCCEEDS
+             @next_a
+             @next_b/;
 
 
 # Check the configuration

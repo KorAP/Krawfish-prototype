@@ -7,6 +7,10 @@ use strict;
 use warnings;
 use bytes;
 
+warn 'DEPRECATED!!!!!';
+
+return 0;
+
 # This query validates positional constraints
 # between spans and returns a valid forwarding mechanism
 

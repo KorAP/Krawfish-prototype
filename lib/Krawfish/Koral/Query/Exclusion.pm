@@ -1,6 +1,5 @@
 package Krawfish::Koral::Query::Exclusion;
 use parent 'Krawfish::Koral::Query::Position';
-use Krawfish::Query::Position;
 use Krawfish::Query::Exclusion;
 use Mojo::JSON;
 use strict;

@@ -2,7 +2,8 @@ package Krawfish::Koral::Query::TermGroup;
 use parent 'Krawfish::Koral::Query';
 use Krawfish::Koral::Query::Term;
 use Krawfish::Query::Or;
-use Krawfish::Query::Position;
+use Krawfish::Query::Constraints;
+use Krawfish::Query::Constraint::Position;
 use Krawfish::Log;
 use Scalar::Util qw/blessed/;
 use strict;
@@ -158,8 +159,8 @@ sub plan_for {
       my $option = $ops->[$i]->plan_for($index);
 
       if ($option->freq != 0) {
-        $query = Krawfish::Query::Position->new(
-          MATCHES,
+        $query = Krawfish::Query::Constraints->new(
+          [Krawfish::Query::Constraint::Position->new(MATCHES)],
           $query,
           $option
         );

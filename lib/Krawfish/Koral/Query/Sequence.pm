@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 # TODO: Optimize if there is an identical subquery
-#   in a direct sequence, make this a repetition!!!
+#   in a direct sequence - make this a repetition!!!
 
 use constant DEBUG => 0;
 

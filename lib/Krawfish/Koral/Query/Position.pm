@@ -1,12 +1,14 @@
 package Krawfish::Koral::Query::Position;
 use parent 'Krawfish::Koral::Query';
-use Krawfish::Query::Position;
+use Krawfish::Query::Constraints;
+use Krawfish::Query::Constraint::Position;
+use Krawfish::Query::Util::Bits;
 use Krawfish::Log;
 use Mojo::JSON;
 use strict;
 use warnings;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # TODO:
 #  The query optimizer may change order of operands, because
@@ -29,8 +31,18 @@ our %FRAME = (
   succeeds         => SUCCEEDS
 );
 
-our $LEFT_FRAMES = PRECEDES | PRECEDES_DIRECTLY | OVERLAPS_LEFT | ALIGNS_LEFT | STARTS_WITH;
-our $RIGHT_FRAMES = SUCCEEDS | SUCCEEDS_DIRECTLY | OVERLAPS_RIGHT | ALIGNS_RIGHT | ENDS_WITH;
+our $LEFT_FRAMES =
+  PRECEDES |
+  PRECEDES_DIRECTLY |
+  OVERLAPS_LEFT |
+  ALIGNS_LEFT |
+  STARTS_WITH;
+our $RIGHT_FRAMES =
+  SUCCEEDS |
+  SUCCEEDS_DIRECTLY |
+  OVERLAPS_RIGHT |
+  ALIGNS_RIGHT |
+  ENDS_WITH;
 
 
 sub new {
@@ -91,16 +103,16 @@ sub plan_for {
     if ($frames & $valid_frames) {
       if (DEBUG) {
         print_log('k_pos', 'Frames match valid frames');
-        print_log('k_pos', '  ' . _bits($frames) . ' & ');
-        print_log('k_pos', '  ' . _bits($valid_frames) . ' = true');
+        print_log('k_pos', '  ' . bitstring($frames) . ' & ');
+        print_log('k_pos', '  ' . bitstring($valid_frames) . ' = true');
       };
 
       # Frames has no match with invalid frames
       unless ($frames & ~$valid_frames) {
         if (DEBUG) {
           print_log('k_pos', 'Frames don\'t match invalid frames');
-          print_log('k_pos', '  ' . _bits($frames) . ' & ');
-          print_log('k_pos', '  ' . _bits(~$valid_frames) . ' = false');
+          print_log('k_pos', '  ' . bitstring($frames) . ' & ');
+          print_log('k_pos', '  ' . bitstring(~$valid_frames) . ' = false');
           print_log('k_pos', 'Can eliminate null query');
         };
         return $first->plan_for($index);
@@ -129,8 +141,8 @@ sub plan_for {
     return $self->builder->nothing;
   };
 
-  return Krawfish::Query::Position->new(
-    $self->{frames},
+  return Krawfish::Query::Constraints->new(
+    [Krawfish::Query::Constraint::Position->new($self->{frames})],
     $first_plan,
     $second_plan
   );
@@ -291,12 +303,6 @@ sub maybe_unsorted {
   return 1 if $frames & $LEFT_FRAMES && $frames & $RIGHT_FRAMES;
 };
 
-
-
-# May be better in an util, see Koral::Position::_bits
-sub _bits ($) {
-  return unpack "b16", pack "s", shift;
-};
 
 1;
 

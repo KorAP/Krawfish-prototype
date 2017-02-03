@@ -31,7 +31,7 @@ ok(!$query->is_null, 'Isn\'t null');
 ok(!$query->is_negative, 'Isn\'t negative');
 ok(!$query->is_extended, 'Isn\'t extended');
 is($query->to_string, '[first&second]', 'Stringification');
-is($query->plan_for($index)->to_string, "pos(32:'first','second')", 'Planned Stringification');
+is($query->plan_for($index)->to_string, "constr(pos=32:'first','second')", 'Planned Stringification');
 
 $query = $qb->token(
   $qb->term_or('opennlp/c=NP', 'tt/p=NN')
@@ -59,7 +59,7 @@ ok(!$query->is_negative, 'Isn\'t negative');
 ok(!$query->is_extended, 'Isn\'t extended');
 is($query->to_string, '[(first&second)|(third&fourth)]', 'Stringification');
 is($query->plan_for($index)->to_string,
-   "or(pos(32:'first','second'),pos(32:'third','fourth'))",
+   "or(constr(pos=32:'first','second'),constr(pos=32:'third','fourth'))",
    'Planned Stringification');
 
 $query = $qb->token(
@@ -80,7 +80,7 @@ ok(!$query->is_negative, 'Isn\'t negative');
 ok(!$query->is_extended, 'Isn\'t extended');
 is($query->to_string, '[(first&second)|(third&(fourth|fifth))|sixth]', 'Stringification');
 is($query->plan_for($index)->to_string,
-   "or(or(pos(32:'first','second'),pos(32:'third',or('fourth','fifth'))),'sixth')",
+   "or(or(constr(pos=32:'first','second'),constr(pos=32:'third',or('fourth','fifth'))),'sixth')",
    'Planned Stringification');
 
 # Group with null
@@ -121,7 +121,7 @@ $query = $qb->token(
 );
 is($query->to_string, '[(first&!third)&(second&!fourth)]', 'Stringifications');
 is($query->plan_for($index)->to_string,
-   "excl(32:pos(32:'first','second'),or('third','fourth'))",
+   "excl(32:constr(pos=32:'first','second'),or('third','fourth'))",
    'Planned Stringification');
 
 # And group with not-founds
@@ -134,7 +134,7 @@ $query = $qb->token(
 );
 is($query->to_string, '[(first&opennlp/c!=NN)&(second&tt/p!=ADJA)]', 'Stringifications');
 is($query->plan_for($index)->to_string,
-   "pos(32:'first','second')",
+   "constr(pos=32:'first','second')",
    'Planned Stringification');
 
 done_testing;

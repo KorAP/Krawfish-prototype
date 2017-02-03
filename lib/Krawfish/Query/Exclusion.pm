@@ -1,7 +1,7 @@
 package Krawfish::Query::Exclusion;
 use parent 'Krawfish::Query::Base::Dual';
 use Krawfish::Query::Base::Dual;
-use Krawfish::Query::Position; # Export constants and @next_a and @next_b
+use Krawfish::Query::Constraint::Position; # Export constants and @next_a and @next_b
 use Krawfish::Query::Util::Bits; # exports bitstring
 use Krawfish::Log;
 use strict;
@@ -66,7 +66,7 @@ sub check {
   };
 
   # Get the current configuration
-  my $case = Krawfish::Query::Position::case($first, $second);
+  my $case = Krawfish::Query::Constraint::Position::case($first, $second);
 
   my $frames = $self->{frames};
 

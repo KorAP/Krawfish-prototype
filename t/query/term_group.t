@@ -31,7 +31,7 @@ $token = $qb->token(
 );
 is($token->to_string, '[(aa&!bb)|(bb&cc)]', 'Stringification');
 ok($plan = $token->plan_for($index), 'Planning');
-is($plan->to_string, "or(excl(32:'aa','bb'),pos(32:'bb','cc'))", 'Stringification');
+is($plan->to_string, "or(excl(32:'aa','bb'),constr(pos=32:'bb','cc'))", 'Stringification');
 matches($plan, ['[0:1-2]', '[0:2-3]','[0:3-4]']);
 
 

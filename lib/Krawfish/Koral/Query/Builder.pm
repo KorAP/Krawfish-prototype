@@ -83,7 +83,7 @@ sub span {
 
 # Position construct
 sub position {
-  shift;
+  my $self = shift;
   Krawfish::Koral::Query::Position->new(@_);
 };
 

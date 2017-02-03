@@ -20,7 +20,7 @@ ok(my $wrap = $qb->position(
 
 is($wrap->to_string, 'pos(4:{1:[aa]+},{2:[bb]+})', 'Stringification');
 ok(my $ov = $wrap->plan_for($index), 'Rewrite');
-is($ov->to_string, "pos(4:class(1:rep(1-100:'aa')),class(2:rep(1-100:'bb')))", 'Stringification');
+is($ov->to_string, "constr(pos=4:class(1:rep(1-100:'aa')),class(2:rep(1-100:'bb')))", 'Stringification');
 
 
 # [<0  {1> 2}] 3
