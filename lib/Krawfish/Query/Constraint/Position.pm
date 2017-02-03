@@ -44,6 +44,9 @@ sub new {
 # next_a may result in configuration B and
 # next_b may result in configuration C
 # These configurations were precomputed
+$next_a[NULL_4] = NULL_4;
+$next_b[NULL_4] = NULL_4;
+
 $next_a[PRECEDES] =
   PRECEDES |
   PRECEDES_DIRECTLY |
@@ -299,7 +302,7 @@ $next_b[SUCCEEDS] =
 # Check the configuration
 sub check {
   my $self = shift;
-  my ($payload, $first, $second) = @_;
+  my ($first, $second) = @_;
 
   # Get the current configuration
   my $case = case($first, $second);
@@ -341,6 +344,9 @@ sub check {
 sub case {
   my $span_a = shift;
   my $span_b = shift;
+
+  return NULL_4 if !$span_a || !$span_b;
+
 
   # A starts after B
   # [b..[a..

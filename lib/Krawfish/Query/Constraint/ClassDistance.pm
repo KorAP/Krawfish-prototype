@@ -13,11 +13,11 @@ sub new {
 
 sub check {
   my $self = shift;
-  my ($payload, $first, $second) = @_;
+  my ($first, $second) = @_;
 
   # [a]..[b]
   if ($first->end < $second->start) {
-    $payload->add(
+    $first->payload->add(
       0,
       $$self,
       $first->end,
@@ -27,7 +27,7 @@ sub check {
 
   # [b]..[a]
   elsif ($second->end < $first->start) {
-    $payload->add(
+    $first->payload->add(
       0,
       $$self,
       $second->end,

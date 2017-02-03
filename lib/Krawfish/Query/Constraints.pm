@@ -4,15 +4,11 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-# TODO:
-#   Payload may not be needed to send to check. Always add
-#   to first operand payload and then merge!
-
 use constant {
   NEXTA => 1,
   NEXTB => 2,
   MATCH => 4,
-  DEBUG => 0
+  DEBUG => 1
 };
 
 # TODO: Improve by skipping to the same document
@@ -23,14 +19,18 @@ sub new {
     constraints => shift,
     first => shift,
     second => shift,
+
+    # TODO:
+    #   Second operand should be nested in buffer by Dual
     buffer  => Krawfish::Query::Util::Buffer->new
   }, $class;
 };
 
 
+# Check all constraints sequentially
 sub check {
   my $self = shift;
-  my ($payload, $first, $second) = @_;
+  my ($first, $second) = @_;
 
   # Initialize the return value
   my $ret_val = 0b0111;
@@ -38,8 +38,12 @@ sub check {
   # Iterate
   foreach (@{$self->{constraints}}) {
 
+    # TODO:
+    #   Under certain circumstances it may be
+    #   faster to 
+
     # Check constrained
-    my $check = $_->check($payload, $first, $second);
+    my $check = $_->check($first, $second);
 
     # Combine NEXTA and NEXTB rules
     $ret_val &= $check;
@@ -53,10 +57,12 @@ sub check {
   };
 
   # Match!
-  $self->{doc_id} = $first->doc_id;
-  $self->{start} = $first->start < $second->start ? $first->start : $second->start;
-  $self->{end}   = $first->end > $second->end ? $first->end : $second->end;
+  $self->{doc_id}  = $first->doc_id;
+  $self->{start}   = $first->start < $second->start ? $first->start : $second->start;
+  $self->{end}     = $first->end > $second->end ? $first->end : $second->end;
   $self->{payload} = $first->payload->clone->copy_from($second->payload);
+
+  print_log('constr', 'Constraint matches: ' . $self->current->to_string) if DEBUG;
 
   return $ret_val | MATCH;
 };

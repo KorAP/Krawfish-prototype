@@ -14,9 +14,6 @@ our @EXPORT;
 #   dealing with buffer resizing etc. here!
 
 # TODO:
-#   Reuse payload - init in constructor!
-
-# TODO:
 #   Next to
 #     NEXTA and NEXTB there should be flags for:
 #     NEXTX to STARTY   (Position skipping)
@@ -38,7 +35,7 @@ use constant {
   NEXTA  => 1,
   NEXTB  => 2,
   MATCH  => 4,
-  DEBUG  => 0
+  DEBUG  => 1
 };
 
 @EXPORT = qw/NEXTA NEXTB MATCH/;
@@ -67,7 +64,6 @@ sub init {
 sub next {
   my $self = shift;
   $self->init;
-  my $payload = Krawfish::Posting::Payload->new;
 
   my ($first, $second);
 
@@ -88,7 +84,7 @@ sub next {
 
       # Check configuration, because in the case of exclusion,
       # a match may be valid even if no second operand exists
-      my $check = $self->check($payload, $first, undef);
+      my $check = $self->check($first, undef);
 
       print_log('dual', 'Final check is '. (0+$check)) if DEBUG;
 
@@ -138,10 +134,7 @@ sub next {
       };
 
       # Check configuration
-      # TODO:
-      #   THIS SHOULD BE A CONSTRAINED CHECK WITH PAYLOAD
-      #   AND POSSIBLY CLASSES PASSED!
-      my $check = $self->check($payload, $first, $second);
+      my $check = $self->check($first, $second);
 
       print_log('dual', 'Next step after check returned ' . (0 + $check)) if DEBUG;
 
@@ -181,6 +174,7 @@ sub next {
 
           # Check if nextA is supported
           elsif ($check & NEXTA) {
+
             print_log('dual', 'B has no further postings') if DEBUG;
 
             # Check if the current match was
@@ -192,13 +186,17 @@ sub next {
 
               # If not - check configuration would
               # be valid even without a partner span
-              my $check = $self->check($payload, $first, undef);
+              my $check = $self->check($first, undef);
 
               print_log('dual', 'Forward A (1)') if DEBUG;
               $self->{first}->next;
               $self->{buffer}->rewind;
 
               if ($check & MATCH) {
+
+                if (DEBUG) {
+                  print_log('dual', "! MATCH: $first vs NULL!");
+                };
                 return 1;
               };
             }
@@ -206,10 +204,13 @@ sub next {
             # Current is a match
             else {
 
-              print_log('dual', 'Check is a match') if DEBUG;
+              if (DEBUG) {
+                print_log('dual', "! MATCH: $first vs $second!");
 
-              # Match was already matched
-              print_log('dual', 'Forward A (2)') if DEBUG;
+                # Match was already matched
+                print_log('dual', 'Forward A (2)');
+              };
+
               $self->{first}->next;
               $self->{buffer}->rewind;
               return 1;
@@ -269,7 +270,7 @@ sub next {
     elsif ($first->doc_id < $second->doc_id) {
 
       # Check current constellation - without a second operand
-      my $check = $self->check($payload, $first, undef);
+      my $check = $self->check($first, undef);
 
       print_log('dual', 'A is in a document < B') if DEBUG;
 
@@ -312,7 +313,7 @@ sub next {
     else {
 
       # Check current constellation - without a second operand
-      my $check = $self->check($payload, $first, undef);
+      my $check = $self->check($first, undef);
 
       print_log('dual', 'A is in a document > B') if DEBUG;
 

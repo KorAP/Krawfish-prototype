@@ -51,7 +51,7 @@ sub new {
 
 sub check {
   my $self = shift;
-  my ($payload, $first, $second) = @_;
+  my ($first, $second) = @_;
 
   # Create configuration debug message
   if (DEBUG) {

@@ -313,7 +313,7 @@ sub new {
 # Check the configuration
 sub check {
   my $self = shift;
-  my ($payload, $first, $second) = @_;
+  my ($first, $second) = @_;
 
   # Get the current configuration
   my $case = case($first, $second);
