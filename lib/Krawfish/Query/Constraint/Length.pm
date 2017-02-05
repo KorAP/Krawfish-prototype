@@ -10,8 +10,17 @@ sub new {
   my $class = shift;
   bless {
     min => shift,
-    max => shift
+    max => shift,
+    tokens => shift
   }, $class;
+};
+
+sub min {
+  $_[0]->[0];
+};
+
+sub max {
+  $_[0]->[1];
 };
 
 
@@ -28,5 +37,6 @@ sub check {
   }
   return 0;
 };
+
 
 1;

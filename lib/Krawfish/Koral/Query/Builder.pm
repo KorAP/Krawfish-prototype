@@ -11,6 +11,7 @@ use Krawfish::Koral::Query::Exclusion;
 use Krawfish::Koral::Query::Unique;
 use Krawfish::Koral::Query::Class;
 use Krawfish::Koral::Query::Constraints;
+use Krawfish::Koral::Query::Length;
 use Krawfish::Query::Nothing;
 
 # TODO: Not all constraints need to be wrapped
@@ -115,6 +116,11 @@ sub c_position {
 sub c_class_distance {
   shift;
   Krawfish::Koral::Query::Constraint::ClassDistance->new(@_);
+};
+
+sub length {
+  shift;
+  Krawfish::Koral::Query::Length->new(@_);
 };
 
 sub class {

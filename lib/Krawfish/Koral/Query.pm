@@ -158,6 +158,19 @@ sub importer {
   return Krawfish::Koral::Query::Importer->new;
 };
 
+
+# Serialization helper
+sub boundary {
+  my $self = shift;
+  my %hash = (
+    '@type' => 'koral:boundary'
+  );
+  $hash{min} = $self->{min} if defined $self->{min};
+  $hash{max} = $self->{max} if defined $self->{max};
+  return \%hash;
+}
+
+
 1;
 
 

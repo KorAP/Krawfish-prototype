@@ -59,23 +59,12 @@ sub to_koral_fragment {
   return {
     '@type' => 'koral:group',
     'operation' => 'operation:repetition',
-    'boundary' => $self->_boundary,
+    'boundary' => $self->boundary,
     'operands' => [
       $self->{span}->to_koral_fragment
     ]
   };
 };
-
-
-sub _boundary {
-  my $self = shift;
-  my %hash = (
-    '@type' => 'koral:boundary'
-  );
-  $hash{min} = $self->{min} if defined $self->{min};
-  $hash{max} = $self->{max} if defined $self->{max};
-  return \%hash;
-}
 
 
 #########################################
