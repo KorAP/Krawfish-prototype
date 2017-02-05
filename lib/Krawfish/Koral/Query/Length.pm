@@ -1,7 +1,7 @@
 package Krawfish::Koral::Query::Length;
 use parent 'Krawfish::Koral::Query';
 use Scalar::Util qw/looks_like_number/;
-# use Krawfish::Query::Length;
+use Krawfish::Query::Length;
 use strict;
 use warnings;
 
