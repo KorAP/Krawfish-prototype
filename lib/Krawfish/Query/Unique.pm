@@ -25,7 +25,7 @@ sub next {
 
     print_log('unique', 'Found ' . $current->to_string) if DEBUG;
 
-    unless ($current->compare($self->{last})) {
+    unless ($current->is_identical($self->{last})) {
 
       print_log('unique', 'Span is unique') if DEBUG;
 

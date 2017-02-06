@@ -35,6 +35,29 @@ sub payload {
 };
 
 
+# Compare posting order
+sub compare {
+  my ($self, $post) = @_;
+  return 1 unless $post;
+
+  # First has a small
+  if ($self->doc_id > $post->doc_id) {
+    return -1;
+  }
+  elsif ($self->doc_id == $post->doc_id) {
+    if ($self->start > $post->start) {
+      return -1;
+    }
+    elsif ($self->start == $post->start) {
+      if ($self->end > $post->end) {
+        return -1;
+      };
+    };
+  };
+  return 1;
+};
+
+
 sub get_classes {
   my ($self, $nrs) = @_;
 
@@ -123,7 +146,8 @@ sub to_string {
   return $str . ']';
 };
 
-sub compare {
+
+sub is_identical {
   my ($self, $comp) = @_;
   return unless $comp;
   return $self->to_string eq $comp->to_string;
