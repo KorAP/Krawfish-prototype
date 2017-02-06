@@ -57,7 +57,7 @@ ok(my $serialized = Krawfish::Koral::Query->from_koral($fragment), 'Parse serial
 
 is($deserialized, $serialized->to_string, 'In/Out equivalence');
 
-diag 'Test Further';
+diag 'Test further';
 
 done_testing;
 

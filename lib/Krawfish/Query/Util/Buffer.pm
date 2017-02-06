@@ -12,29 +12,6 @@ use warnings;
 #   See for an example implementation listpack.c (redis):
 #   - https://gist.github.com/antirez/66ffab20190ece8a7485bd9accfbc175
 
-# TODO:
-#   - Implement this as a ring buffer, with a read, a write, and a start
-#     pointer
-#     https://en.wikipedia.org/wiki/Circular_buffer
-#   - For reference queries, multiple start and current pointers
-#     may be needed,
-#     or the start pointer needs to be forwarded manually based
-#     on external bookkeeping
-#     In addition an absolute start value may be needed, that can
-#     be moved forward (and be overwritte) the moment all
-#     start pointers are > abs_start
-#     This may be done with a reference counter per element
-#     (meaning if abs_start is null, abs_start can be removed).
-#
-#     Buffer: <start><end/capacity>
-#     BufferPointer: <start><current>
-#     Ring-Elements: <refcount(8bits for 255 pointers)><length><elem>
-#
-#     If a next() points to the end of the buffer, a new element
-#     is retrieved from the real stream.
-#
-#     Possibly make it possible to enlarge the buffer size, when it
-#     (rarely) is to small. This should occur only in rare circumstances!
 
 # TODO:
 #   Make this a Buffered Query, so it can have a simplified API
@@ -93,10 +70,10 @@ sub finger {
 };
 
 
-sub forward {
-  $_[0]->{finger}++;
-  print_log('buffer', 'Move finger forward') if DEBUG;
-};
+#sub forward {
+#  $_[0]->{finger}++;
+#  print_log('buffer', 'Move finger forward') if DEBUG;
+#};
 
 
 sub backward {

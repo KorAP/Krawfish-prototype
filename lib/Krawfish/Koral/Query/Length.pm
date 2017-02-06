@@ -86,6 +86,7 @@ sub plan_for {
   my $self = shift;
   my $index = shift;
 
+  # Nothing set
   return Krawfish::Query::Nothing->new if $self->is_null;
 
   my $span = $self->{span}->plan_for($index);
@@ -95,7 +96,8 @@ sub plan_for {
     return $span;
   };
 
-  # Todo: May be more complicated for things like 1..undef
+  # TODO: Add constraint instead of query, if implemented
+
   return Krawfish::Query::Length->new(
     $span,
     $self->{min},
@@ -119,7 +121,7 @@ sub maybe_unsorted {
 };
 
 sub from_koral;
-# Todo: Change the term_type!
+
 
 sub to_string {
   my $self = shift;

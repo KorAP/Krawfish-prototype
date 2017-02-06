@@ -217,7 +217,7 @@ sub next {
             print_log('dual', 'There is no next B') if DEBUG;
 
             # May be wrong (untested!)
-            $self->{buffer}->forward;
+            $self->{buffer}->next;
           };
         }
 
