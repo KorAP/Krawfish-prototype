@@ -1,16 +1,21 @@
-package Krawfish::Query::Constraint::Length;
+package Krawfish::Query::Length;
+use Krawfish::Log;
 use strict;
 use warnings;
 
+use constant DEBUG => 0;
+
 # TODO: This should respect different tokenizations!
 
+# Constructor
 sub new {
   my $class = shift;
   bless {
-    span => shift,
-    min => shift,
-    max => shift,
-    tokens => shift
+    span    => shift,
+    min     => shift // 0,
+    max     => shift,
+    tokens  => shift,
+    current => undef
   }, $class;
 };
 
@@ -23,12 +28,45 @@ sub next {
   # Check if the length is between the given boundaries
   while ($span->next) {
 
+    # Get current span
     my $current = $span->current;
 
-    if (
-      ($current->start + $self->min <= $current->end) &&
-        ($current->start + $self->max >= $current->end)
-      ) {
+    my $length = $current->end - $current->start;
+
+    print_log('length', "Check length $length") if DEBUG;
+
+    # Max is given
+    if ($self->{max}) {
+
+      # min and max are identical
+      if ($self->{min} == $self->{max} && $length == $self->{min}) {
+
+        print_log('length', "! Length $length has the length " . $self->{min}) if DEBUG;
+
+        $self->{current} = $current;
+        return 1;
+      }
+
+      # in min and max
+      elsif ($length >= $self->{min} && $length <= $self->{max}) {
+
+        if (DEBUG) {
+          print_log(
+            'length',
+            "! Length $length is between " . $self->{min} . '-' . $self->{max}
+          );
+        };
+
+        $self->{current} = $current;
+        return 1;
+      };
+    }
+
+    # length >= min
+    elsif ($length > $self->{min}) {
+
+      print_log('length', '! Length is larger than ' . $self->{min}) if DEBUG;
+
       $self->{current} = $current;
       return 1;
     };
@@ -39,27 +77,13 @@ sub next {
 };
 
 
+# Get current posting
 sub current {
   return $_[0]->{current};
 };
 
-sub start {
-  return $_[0]->{current}->start;
-};
 
-sub end {
-  return $_[0]->{current}->end;
-};
-
-sub payload {
-  return $_[0]->{current}->payload;
-};
-
-sub doc_id {
-  return $_[0]->{current}->doc_id;
-};
-
-
+# Stringification
 sub to_string {
   my $self = shift;
   my $str = 'length(';

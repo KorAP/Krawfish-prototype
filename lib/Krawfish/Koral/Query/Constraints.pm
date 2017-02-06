@@ -54,6 +54,8 @@ sub filter_by {
 
   # TODO:
   #   filter constraints
+
+  return $self;
 };
 
 

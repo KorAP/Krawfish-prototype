@@ -1,6 +1,7 @@
 package Krawfish::Koral::Query::Length;
 use parent 'Krawfish::Koral::Query';
 use Scalar::Util qw/looks_like_number/;
+use Krawfish::Query::Nothing;
 use Krawfish::Query::Length;
 use strict;
 use warnings;
@@ -20,7 +21,7 @@ sub new {
 
   # Two parameters
   elsif (@_ == 2) {
-    if (looks_like_number($_[1])) {
+    unless (looks_like_number($_[1])) {
       $min = $max = $_[0];
       $token = $_[1];
     }
@@ -81,33 +82,63 @@ sub to_koral_fragment {
 };
 
 
-
-# TODO
-
-
 sub plan_for {
   my $self = shift;
   my $index = shift;
+
+  return Krawfish::Query::Nothing->new if $self->is_null;
+
+  my $span = $self->{span}->plan_for($index);
+
+  # No boundaries given
+  if (!$self->{min} && !$self->{max}) {
+    return $span;
+  };
+
   # Todo: May be more complicated for things like 1..undef
-  return Krawfish::Query::Span->new(
-    $index,
-    $self->wrap->term
+  return Krawfish::Query::Length->new(
+    $span,
+    $self->{min},
+    $self->{max},
+    $self->{token}
   );
 };
 
+
 # Filter by corpus
 sub filter_by {
-  ...
+  my $self = shift;
+  my $corpus_query = shift;
+  $self->{span}->filter_by($corpus_query);
+  return $self;
 };
 
 
-sub maybe_unsorted { 0 };
+sub maybe_unsorted {
+  $_[0]->{span}->maybe_unsorted;
+};
 
 sub from_koral;
 # Todo: Change the term_type!
 
 sub to_string {
-  return '<' . $_[0]->wrap->to_string . '>';
+  my $self = shift;
+  my $str = 'length(';
+  $str .= $self->{min} // '0';
+  $str .= '-';
+  $str .= $self->{max} // 'inf';
+  $str .= ';' . $self->{token} if $self->{token};
+  $str .= ':';
+  $str .= $self->{span}->to_string;
+  return $str . ')';
 };
+
+sub is_any { $_[0]->{span}->is_any };
+sub is_optional { $_[0]->{span}->is_optional };
+sub is_null { $_[0]->{span}->is_null };
+sub is_negative { $_[0]->{span}->is_negative };
+sub is_extended_right { $_[0]->{span}->is_extended_right };
+sub is_extended_left { $_[0]->{span}->is_extended_left };
+sub freq { $_[0]->{span}->freq; };
 
 1;
