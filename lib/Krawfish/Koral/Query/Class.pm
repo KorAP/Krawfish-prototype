@@ -27,18 +27,18 @@ sub to_koral_fragment {
 sub type { 'class' };
 
 # TODO: Make this part of plan_for
-sub replace_references {
-  my ($self, $refs) = @_;
-  my $sig = $self->signature;
-
-  # Subquery is identical to given query
-  if ($refs->{$sig}) {
-    ...
-  }
-  else {
-    $refs->{$sig} = $self->span;
-  };
-};
+#sub replace_references {
+#  my ($self, $refs) = @_;
+#  my $sig = $self->signature;
+#
+#  # Subquery is identical to given query
+#  if ($refs->{$sig}) {
+#    ...
+#  }
+#  else {
+#    $refs->{$sig} = $self->span;
+#  };
+#};
 
 sub plan_for {
   my ($self, $index) = @_;
@@ -63,16 +63,16 @@ sub plan_for {
 
 # Iterate over all subqueries and replace them
 # if necessary
-sub replace_subqueries {
-  my ($self, $cb) = @_;
-
-  # Check if the subspan should be replaced
-  if (my $replace = $cb->($self->span)) {
-
-    # Replace
-    $self->{span} = $replace;
-  };
-};
+#sub replace_subqueries {
+#  my ($self, $cb) = @_;
+#
+#  # Check if the subspan should be replaced
+#  if (my $replace = $cb->($self->span)) {
+#
+#    # Replace
+#    $self->{span} = $replace;
+#  };
+#};
 
 
 sub filter_by {

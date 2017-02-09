@@ -24,10 +24,19 @@ use Mojo::File;
 # TODO: Maybe 65.535 documents are enough per segment ...
 
 # TODO: Build a forward index
-
 # TODO: With a forward index, the segments offsets will no longer
 #   point to character positions in the primary text but to
 #   segment positions in the forward index!
+
+# TODO:
+#   Reranking a field is not necessary, if the field value is already given.
+#   In that case, look up the dictionary if the value is already given,
+#   take the example doc of that field value and add the rank of that
+#   doc for the new doc.
+#   If the field is not yet given, take the next or previous value in dictionary
+#   order and use the rank to rerank the field (see K::I::Dictionary).
+#   BUT: This only works if the field has the same collation as the
+#   dictionary!
 
 use constant DEBUG => 0;
 

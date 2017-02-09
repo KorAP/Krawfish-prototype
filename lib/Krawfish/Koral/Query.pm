@@ -6,9 +6,6 @@ use Mojo::Util qw/md5_sum/;
 use warnings;
 use strict;
 
-# TODO: Support filter - and analyze query tree to add filter to term-queries
-# (That is probably more effective than filtering at the end!)
-
 sub new {
   my $class = shift;
   my $self = bless {

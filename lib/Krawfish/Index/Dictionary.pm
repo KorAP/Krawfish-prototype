@@ -9,6 +9,18 @@ use Krawfish::Index::PostingsList;
 # TODO: Create forward index with term-ids
 # TODO: Support aliases (e.g. a surface term may have the
 #   same postings list throughout foundries)
+#
+# TODO:
+#   For fields it's necessary to have methods to add
+#   a term and retrieve entries before and after, in case
+#   a term is not yet added. This gives the possibility
+#   to retrieve ranks for this field value and rerank the
+#   field rank in place (meaning the new value has the
+#   rank of the next value in the dictionary and in the
+#   FieldsRank all documents with a rank > the new
+#   rank value needs to be incremented.
+#   However, keep in mind: That only works for fields
+#   with the same collation mechanism as the dictionary.
 
 use constant DEBUG => 0;
 
@@ -19,7 +31,8 @@ sub new {
     file => $file,
     hash => {},   # Contain the dictionary
     array => [],  # Temporary helper array for term_id -> term mapping
-    last_term_id => 1
+    last_term_id => 1,
+    collation => undef # TODO: Collation needs to be defined!
   }, $class;
 };
 

@@ -1,7 +1,6 @@
 package Krawfish::Koral::Query::Length;
 use parent 'Krawfish::Koral::Query';
 use Scalar::Util qw/looks_like_number/;
-use Krawfish::Query::Nothing;
 use Krawfish::Query::Length;
 use strict;
 use warnings;
@@ -87,7 +86,9 @@ sub plan_for {
   my $index = shift;
 
   # Nothing set
-  return Krawfish::Query::Nothing->new if $self->is_null;
+  if ($self->freq == 0) {
+    return $self->builder->nothing;
+  };
 
   my $span = $self->{span}->plan_for($index);
 

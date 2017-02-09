@@ -1,24 +1,38 @@
 package Krawfish::Query::Base::Sorted;
 use parent 'Krawfish::Query';
+use Krawfish::Log;
 use strict;
 use warnings;
 
-# Implement as ring buffer (for cache locality in
-# opposite to double linked list).
+use constant DEBUG => 1;
+
+# TODO:
+#   Implement as an overwriting ring buffer (FIFO) with
+#   byte precision.
+#
+# The recent element indicates the last freed element,
+# to know, whenever a sorting fails (i.e. an element has
+# an ordering earlier then the earliest element.
 #
 # TODO:
 #   0 points to the last bubbled element. That means, if an element
 #   tries to be buffered that needs to be before this element, a warning
 #   should be issued, that the buffer was exceeded!
 
+# Elements have:
+# <size><data>
+
 sub new {
   my $class = shift;
   bless {
-    span => shift,
-    capacity => shift,
-    size => 0,
-    last => 0,
-    buffer => []
+    span     => shift,
+    capacity => shift, # The size of the buffer, in the future given in bytes
+    offset   => 0,     # The numerical offset for numbered access
+    size     => 0,     # The number of elements in the buffer
+    recent   => 0,     # Pointer to the last freed element in the buffer
+    first    => 0,     # Pointer to the first  element in the buffer
+    last     => 0,     # Pointer to the last element in the buffer
+    buffer   => []     # Array holding all elements in the buffer
   }, $class;
 };
 
@@ -32,7 +46,17 @@ sub next {
 
     # Sort buffer
     my $last_index = $self->buffer_last;
+
+    print_log('sortbuf', "Last position in buffer is $last_index") if DEBUG;
+
     my $buffer_post = $self->buffer_get($last_index);
+
+    if (DEBUG) {
+      print_log(
+        'sortbuf',
+        'Last buffer element is ' . ($buffer_post ? '' : 'not') . ' given'
+      );
+    };
 
     # Compare next posting with last element in buffer
     while ($next_post->compare($buffer_post) == -1) {
@@ -60,12 +84,26 @@ sub next {
 };
 
 # Return index to last added element
-sub buffer_last {
+sub buffer_last;
+
+# Points to the latest freed element in the buffer
+# (normally this is -1 to first)
+sub buffer_recent {
+  return $_[0]->{recent};
 };
 
-sub buffer_push;
+
+# Points to the first accessible element in the buffer
+sub buffer_first {
+  return $_[0]->{first};
+};
+
+# sub buffer_push;
 sub buffer_shift;
 sub buffer_get;
-sub buffer_insert_after;
+sub buffer_insert_after {
+  my ($self, $index, $element) = @_;
+  
+};
 
 1;

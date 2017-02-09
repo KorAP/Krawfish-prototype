@@ -1,6 +1,9 @@
 package Krawfish::Query;
+use Krawfish::Log;
 use strict;
 use warnings;
+
+use constant DEBUG => 0;
 
 # Current span object
 sub current {
@@ -26,12 +29,17 @@ sub next_greater_start;
 
 
 sub skip_doc {
-  my $self = shift;
-  my $doc_id = shift;
-  while ($self->{doc_id} && $self->{doc_id} < $doc_id) {
-    $self->next;
+  my ($self, $doc_id) = @_;
+
+  warn 'Skipping is not implemented yet';
+
+  print_log('query', 'Skip to ' . $doc_id) if DEBUG;
+
+  while (!$self->current || $self->current->doc_id < $doc_id) {
+    $self->next or return;
   };
-  return $self->{doc_id};
+
+  return $self->current->doc_id;
 };
 
 # In Lucene it's exemplified:

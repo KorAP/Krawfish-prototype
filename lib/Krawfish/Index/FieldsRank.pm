@@ -11,7 +11,7 @@ use warnings;
 #   Use something like that:
 #   http://pempek.net/articles/2013/08/03/bit-packing-with-packedarray/
 #   https://github.com/gpakosz/PackedArray
-
+#
 sub new {
   my $class = shift;
   my $field_array = shift;
@@ -29,6 +29,12 @@ sub new {
 
 sub get {
   $_[0]->{ranked}->[$_[1]];
+};
+
+
+# Return the rank on a scale of 0-255
+sub get_mapped {
+  ...
 };
 
 sub max {

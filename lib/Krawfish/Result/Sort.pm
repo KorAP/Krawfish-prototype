@@ -5,10 +5,18 @@ use warnings;
 
 use constant DEBUG => 0;
 
+# Sorting can be optimized by an appended filter, in case there is no need
+# for counting all matches and documents.
+
 # TODO:
 #  Sort is currently limited to sorting for searching.
 #  It should also be able to sort groups or sort texts/documents/corpora
-
+#
+# TODO:
+#   This may even help filtering: Whenever a document is matched with a rank
+#   that can be ignored (i.e. below the buckets of interest), skip the whole document.
+#   This could in fact be done manipulating the external virtual corpus filter!
+#
 # TODO:
 #   Use a variant of insertion sort or (better) tree sort
 #   http://jeffreystedfast.blogspot.de/2007/02/binary-insertion-sort.html

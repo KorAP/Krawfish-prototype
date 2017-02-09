@@ -14,6 +14,11 @@ use Krawfish::Koral::Document;
 # Krawfish::Koral::Corpus
 # Krawfish::Koral::Meta
 
+# TODO:
+#   Filtering needs to be supported multiple times,
+#   so when one filter is applied (virtual corpus),
+#   another one can be filtered before (bin-sorting).
+
 use constant CONTEXT => 'http://korap.ids-mannheim.de/ns/koral/0.6/context.jsonld';
 
 sub new {
@@ -96,7 +101,6 @@ sub prepare_for {
   # Corpus and query are given - filter!
   if ($self->corpus && $self->query) {
 
-    # TODO: The filter should be a reference query!
     $query = $self->query->filter_by($self->corpus);
   }
 
@@ -111,6 +115,12 @@ sub prepare_for {
   };
 
   # TODO:
+  # if ($self->sorting && $self->sorting->filter) {
+  #   # Filter matches using a sort filter
+  #   $query = $self->query->filter_by($self->sorting->filter);
+  # };
+
+  # TODO:
   #  - Find identical subqueries
   #  - This is especially useful for VC filtering,
   #  - Terms (PostingsList) will automatically avoid
@@ -121,6 +131,7 @@ sub prepare_for {
   # TODO: Make this part of ->plan_for($index, $refs)
   #
   # $query->replace_references;
+
 
   # Prepare query
   $query = $query->prepare_for($index);
