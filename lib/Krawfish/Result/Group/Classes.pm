@@ -30,36 +30,36 @@ sub get_group {
 
   # Get all classes from the match
   # Classes need to be sorted by start position
-  # to be retrievable, in case the Segments-Stream
+  # to be retrievable, in case the subtokens-Stream
   # is implemented as a postingslist (probably not)
   my @classes = $match->get_classes_sorted($self->{nrs});
 
-  my $segments = $self->{index}->segments;
+  my $subtokens = $self->{index}->subtokens;
 
   my %class_group;
 
   # Classes have nr, start, end
   foreach my $class (@classes) {
 
-    # WARNING! CLASSES MAY OVERLAP SO SEGMENTS SHOULD BE CACHED OR BUFFERED!
+    # WARNING! CLASSES MAY OVERLAP SO SUBTOKENS SHOULD BE CACHED OR BUFFERED!
 
     # Get start position
     my $start = $class->[START_POS];
 
     my @seq = ();
 
-    # Receive segment
-    my $seg = $segments->get($match->doc_id, $start);
+    # Receive subtoken
+    my $subt = $subtokens->get($match->doc_id, $start);
 
-    # Push term id to segment
-    # TODO: A segment should have accessors
-    push (@seq, $seg->[2]);
+    # Push term id to subtoken
+    # TODO: A subtoken should have accessors
+    push (@seq, $subt->[2]);
 
     while ($start < ($class->[END_POS] -1)) {
-      $seg = $segments->get($match->doc_id, ++$start);
+      $subt = $subtokens->get($match->doc_id, ++$start);
 
-      # Push term id to segment
-      push (@seq, $seg->[2]);
+      # Push term id to subtoken
+      push (@seq, $subt->[2]);
     };
 
     # Class not yet set

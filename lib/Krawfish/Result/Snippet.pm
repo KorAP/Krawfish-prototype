@@ -20,12 +20,12 @@ sub new {
     index => $param{index}
   }, $class;
 
-  $self->{segments} = $self->{index}->segments;
+  $self->{subtokens} = $self->{index}->subtokens;
 
   # Create highlight object
   $self->{highlights} = Krawfish::Result::Snippet::Highlights->new(
     $param{highlights},
-    $self->{segments}
+    $self->{subtokens}
   );
 
   return $self;

@@ -10,7 +10,7 @@ my $index = Krawfish::Index->new;
 ok_index($index, [qw/aa bb aa bb/], 'Add new document');
 
 my $highlights = Krawfish::Result::Snippet::Highlights->new(
-  [2,3] => $index->segments
+  [2,3] => $index->subtokens
 );
 
 my $posting = Krawfish::Posting->new(

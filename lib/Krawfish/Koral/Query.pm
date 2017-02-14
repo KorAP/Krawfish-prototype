@@ -30,6 +30,7 @@ sub new {
 #########################################
 
 # Prepare a query for an index
+# TODO: Rename to compile()
 sub prepare_for {
   my ($self, $index) = @_;
 

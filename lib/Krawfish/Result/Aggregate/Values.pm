@@ -40,7 +40,7 @@ sub each_doc {
   if ($value_current->doc_id < $current->doc_id) {
 
     # Skip to the requested doc_id (or beyond)
-    $value_current = $values->skip_to($current->doc_id);
+    $value_current = $values->skip_doc($current->doc_id);
   };
 
   if ($current_value->doc_id == $current->doc_id) {

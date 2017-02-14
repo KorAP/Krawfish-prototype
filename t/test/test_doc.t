@@ -14,12 +14,12 @@ is($anno->[0]->{'wrap'}->{'key'}, 'aa', '@type is valid');
 is($anno->[-1]->{'@type'}, 'koral:token', '@type is valid');
 is($anno->[-1]->{'wrap'}->{'key'}, 'bb', '@type is valid');
 
-ok(my $segments = $doc->{document}->{segments}, 'Get segments');
-is_deeply($segments->[0]->{offsets}, [0,2], 'Segment');
-is_deeply($segments->[1]->{offsets}, [3,5], 'Segment');
-is_deeply($segments->[2]->{offsets}, [6,8], 'Segment');
-is_deeply($segments->[3]->{offsets}, [9,11], 'Segment');
-ok(!$segments->[4], 'No more segments');
+ok(my $subtokens = $doc->{document}->{subtokens}, 'Get subtokens');
+is_deeply($subtokens->[0]->{offsets}, [0,2], 'Subtoken');
+is_deeply($subtokens->[1]->{offsets}, [3,5], 'Subtoken');
+is_deeply($subtokens->[2]->{offsets}, [6,8], 'Subtoken');
+is_deeply($subtokens->[3]->{offsets}, [9,11], 'Subtoken');
+ok(!$subtokens->[4], 'No more subtokens');
 
 is($doc->{document}->{primaryData}, 'aa bb aa bb', 'Primary data');
 
@@ -32,10 +32,10 @@ $anno = $doc->{document}->{annotations};
 
 is($anno->[0]->{'@type'}, 'koral:token', 'Annotation token');
 is($anno->[0]->{'wrap'}->{'key'}, 'aa', 'Annotation key');
-is_deeply($anno->[0]->{'segments'}, [0], 'Annotation segments');
+is_deeply($anno->[0]->{'subtokens'}, [0], 'Annotation subtokens');
 
 is($anno->[1]->{'@type'}, 'koral:span', 'Annotation span');
-is_deeply($anno->[1]->{'segments'}, [0,1], 'Annotation segments');
+is_deeply($anno->[1]->{'subtokens'}, [0,1], 'Annotation subtokens');
 is($anno->[1]->{'wrap'}->{'key'}, 'xy', 'Annotation key');
 
 is($anno->[3]->{'@type'}, 'koral:span', 'Annotation token');
@@ -46,7 +46,7 @@ is($anno->[3]->{'wrap'}->{'key'}, 'z', 'Annotation key');
 is($anno->[-1]->{'@type'}, 'koral:token', 'Annotation tokenGroup');
 ok(exists $anno->[-1]->{'wrap'}, 'Annotation wrap exists');
 is($anno->[-1]->{'wrap'}->{'@type'}, 'koral:termGroup', 'Annotation wrap exists');
-is_deeply($anno->[-1]->{'segments'}, [2], 'Annotation segments');
+is_deeply($anno->[-1]->{'subtokens'}, [2], 'Annotation subtokens');
 
 my $token_group = $anno->[-1]->{'wrap'}->{operands};
 is($token_group->[0]->{'@type'}, 'koral:term', 'Annotation type');
@@ -57,22 +57,22 @@ is($token_group->[1]->{'@type'}, 'koral:term', 'Annotation type');
 is($token_group->[1]->{key}, 'dd', 'Annotation key');
 
 is($doc->{document}->{primaryData}, 'aa bb corenlp/c=cc', 'Check primary data');
-ok($segments = $doc->{document}->{segments}, 'Get segments');
+ok($subtokens = $doc->{document}->{subtokens}, 'Get subtokens');
 
-is_deeply($segments->[0]->{offsets}, [0,2], 'Segment');
-is_deeply($segments->[1]->{offsets}, [3,5], 'Segment');
-is_deeply($segments->[2]->{offsets}, [6,18], 'Segment');
-ok(!$segments->[3], 'No more segments');
+is_deeply($subtokens->[0]->{offsets}, [0,2], 'Subtoken');
+is_deeply($subtokens->[1]->{offsets}, [3,5], 'Subtoken');
+is_deeply($subtokens->[2]->{offsets}, [6,18], 'Subtoken');
+ok(!$subtokens->[3], 'No more subtokens');
 
 $doc = test_doc('<1:aa><2:aa>[bb]</2>[bb]</1>');
 $anno = $doc->{document}->{annotations};
 is($anno->[0]->{'@type'}, 'koral:span', 'Span');
-is($anno->[0]->{segments}->[0], 0, 'Span');
-ok((!$anno->[0]->{segments}->[0] || $anno->[0]->{segments}->[0] == 0),
+is($anno->[0]->{subtokens}->[0], 0, 'Span');
+ok((!$anno->[0]->{subtokens}->[0] || $anno->[0]->{subtokens}->[0] == 0),
     'Span');
 is($anno->[2]->{'@type'}, 'koral:span', 'Span');
-is($anno->[2]->{segments}->[0], 0, 'Span');
-is($anno->[2]->{segments}->[1], 1, 'Span');
+is($anno->[2]->{subtokens}->[0], 0, 'Span');
+is($anno->[2]->{subtokens}->[1], 1, 'Span');
 
 
 # Docs with meta

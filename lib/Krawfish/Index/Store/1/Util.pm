@@ -1,4 +1,4 @@
-package Krawfish::Index::Store::Util;
+package Krawfish::Index::Store::V1::Util;
 use parent 'Exporter';
 use strict;
 use warnings;

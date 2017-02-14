@@ -11,20 +11,20 @@ sub to_snippet {
   my $self = shift;
 
   my $offsets = $self->index->offsets;
-  my $start_segment = $offsets->get(
+  my $start_subtoken = $offsets->get(
     $self->doc_id,
     $self->start
   );
 
-  my $end_segment = $offsets->get(
+  my $end_subtoken = $offsets->get(
     $self->doc_id,
     $self->end
   );
 
   return $self->index->primary->get(
     $self->doc_id,
-    $start_segment,
-    $end_segment
+    $start_subtoken,
+    $end_subtoken
   );
 };
 

@@ -1,4 +1,4 @@
-package Krawfish::Index::Store::Stream;
+package Krawfish::Index::Store::V1::Stream;
 use strict;
 use warnings;
 

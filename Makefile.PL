@@ -14,7 +14,8 @@ WriteMakefile(
   },
   PREREQ_PM => {
     'Mojolicious' => '7.23',
-    'Scalar::Util' => 0
+    'Scalar::Util' => 0,
+    'Data::BitStream' => 0
   },
   test => {
     TESTS => 't/*.t t/**/*.t'

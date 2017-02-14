@@ -12,6 +12,13 @@ use warnings;
 #   merge. Then, convert the forward index based on this table without
 #   dictionary lookup.
 #
+# TODO:
+#   This is great for retrieving pagebreaks, annotations, primary data,
+#   perhaps help on regex ...
+#   But can this help to expand the context of a match to a certain element context?
+#   Probably by retrieving the data with a certain maximum offset (say left 100 subtokens, right 100 subtokens)
+#   and first check for the expanding element start on the left, then move to the right.
+#
 sub new {
   my $class = shift;
   bless {
@@ -32,6 +39,10 @@ sub get {
   return substr($self->{forward}->[$doc_id], $offset, $end - $offset);
 };
 
+sub get_expanded {
+  ...
+};
+
 
 # Return a stream of elements (primary text and annotations)
 sub get_annotated {
@@ -40,7 +51,17 @@ sub get_annotated {
   ...
 };
 
+# Return a stream of elements (primary text and annotations)
+# that is within a certain element
+sub get_annotated_expanded {
+  my $self = shift;
+  my ($doc_id, $offset, $length, $foundry, $max_exp, $layer, $element) = @_;
+  ...
+};
+
+
 # Return the surface string only
+# This should be as fast as possible, as it is used for aggregations
 sub get_surface {
   my ($self, $doc_id, $offset, $length) = @_;
   ...

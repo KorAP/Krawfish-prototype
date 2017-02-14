@@ -1,10 +1,11 @@
-package Krawfish::Index::Store::ForwardIndex;
+package Krawfish::Index::Store::V1::ForwardIndex;
 use Krawfish::Index::Store::Util qw/enc_string
                                     dec_string
                                     enc_varint
                                     dec_varint/;
 use strict;
 use warnings;
+use Data::BitStream;
 
 # TODO:
 #   The store should be versioned!
@@ -68,13 +69,24 @@ sub add_term_id {
 # Flush the buffer
 sub _flush {
   my $self = shift;
+
+  # Calculate the subtoken length
+  # TODO: Store in 2 bytes
+  my $length = length(
+    $self->{buffer} . $self->{plain_tail}
+  );
+
+  # Add subtoken to stream
   $self->{stream} .=
     SUBTOKEN_MARKER .
-    (length($self->{buffer} . $self->{plain_tail}) + 1) .
+    $length .
     $self->{buffer} .
     PLAIN_MARKER .
-    $self->{plain_tail};
+    $self->{plain_tail} .
+    $length;
 
+  # TODO: For next() add PLAIN_MARKER and 2x length
+  # TODO: For previous() add SUBTOKEN_MARKER, PLAIN_MARKER and 1x length
   $self->{buffer} = '';
   $self->{plain_tail} = '';
   $self->{plain_pos} = 0;
@@ -104,6 +116,15 @@ sub add_term {
   }
 };
 
+# TODO: May return a subtoken object
+sub get {
+  my ($self, $offset) = @_;
+
+  # TODO: Check for SUBTOKEN_MARKER
+  # read length
+  my $subtoken_length = substr($self->{buffer}, $offset, 1, 3);
+  ...
+};
 
 # Add plain string
 # for example punctuation, whitespace etc.

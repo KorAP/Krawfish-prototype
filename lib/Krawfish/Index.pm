@@ -1,6 +1,6 @@
 package Krawfish::Index;
 use Krawfish::Index::Dictionary;
-use Krawfish::Index::Segments;
+use Krawfish::Index::Subtokens;
 use Krawfish::Index::PrimaryData;
 use Krawfish::Index::Fields;
 use Krawfish::Cache;
@@ -24,9 +24,9 @@ use Mojo::File;
 # TODO: Maybe 65.535 documents are enough per segment ...
 
 # TODO: Build a forward index
-# TODO: With a forward index, the segments offsets will no longer
+# TODO: With a forward index, the subtokens offsets will no longer
 #   point to character positions in the primary text but to
-#   segment positions in the forward index!
+#   subtoken positions in the forward index!
 
 # TODO:
 #   Reranking a field is not necessary, if the field value is already given.
@@ -56,7 +56,7 @@ sub new {
   );
 
   # Load offsets
-  $self->{segments} = Krawfish::Index::Segments->new(
+  $self->{subtokens} = Krawfish::Index::Subtokens->new(
     $self->{file}
   );
 
@@ -106,9 +106,9 @@ sub info {
 };
 
 
-# Get segments
-sub segments {
-  $_[0]->{segments};
+# Get subtokens
+sub subtokens {
+  $_[0]->{subtokens};
 };
 
 
@@ -177,27 +177,27 @@ sub add {
     $post_list->append($doc_id);
   };
 
-  my $segments = $self->segments;
+  my $subtokens = $self->subtokens;
 
-  # The primary text is necessary for the segments index as well as
+  # The primary text is necessary for the subtoken index as well as
   # for the forward index
   my $primary = $doc->{primaryData};
 
-  # Store segments
-  if ($doc->{segments}) {
+  # Store subtokens
+  if ($doc->{subtokens}) {
 
-    print_log('index', 'Store segments') if DEBUG;
+    print_log('index', 'Store subtokens') if DEBUG;
 
-    # Store all segment offsets
-    foreach my $seg (@{$doc->{segments}}) {
+    # Store all subtoken offsets
+    foreach my $seg (@{$doc->{subtokens}}) {
 
-      # Get start and end of the segment
+      # Get start and end of the subtoken
       my ($start, $end) = @{$seg->{offsets}};
 
       if (DEBUG) {
         print_log(
           'index',
-          'Store segment: ' . $doc_id . ':' . $pos . '=' . join('-', $start, $end)
+          'Store subtoken: ' . $doc_id . ':' . $pos . '=' . join('-', $start, $end)
         );
       };
 
@@ -207,14 +207,14 @@ sub add {
 
       # TODO: There may be a prefix necessary for surface forms
       # TODO: This may in fact be not necessary at all -
-      #   The segments may have their own IDs
+      #   The subtokens may have their own IDs
       #   And the terms do not need to be stored in the dictionary for retrieval ...
       my $term_id = $dict->add('*' . $term)->term_id;
 
       print_log('index', 'Surface form has term_id ' . $term_id) if DEBUG;
 
-      # Store information to segment
-      $segments->store($doc_id, $pos++, $start, $end, $term_id, $term);
+      # Store information to subtoken
+      $subtokens->store($doc_id, $pos++, $start, $end, $term_id, $term);
     };
   };
 
@@ -248,15 +248,15 @@ sub add {
       };
 
       # Append posting to postings list
-      my @segments = _segments($item);
+      my @subtokens = _subtokens($item);
 
-      # No segments defined
-      unless (scalar @segments) {
-        push @segments, $pos;
+      # No subtokens defined
+      unless (scalar @subtokens) {
+        push @subtokens, $pos;
 
         # Store offsets
         if ($item->{offsets}) {
-          $segments->store($doc_id, $pos, @{$item->{offsets}});
+          $subtokens->store($doc_id, $pos, @{$item->{offsets}});
         };
         $pos++;
       };
@@ -264,7 +264,7 @@ sub add {
       # Add token terms
       foreach (@keys) {
         my $post_list = $dict->add($_);
-        $post_list->append($doc_id, @segments);
+        $post_list->append($doc_id, @subtokens);
       };
     }
 
@@ -279,9 +279,9 @@ sub add {
       # Append posting to posting list
       $post_list->append(
         $doc_id,
-        $item->{segments}->[0],
-        # The end is AFTER the second segment
-        $item->{segments}->[-1] + 1
+        $item->{subtokens}->[0],
+        # The end is AFTER the second subtoken
+        $item->{subtokens}->[-1] + 1
       );
     };
   };
@@ -308,19 +308,19 @@ sub _term {
 }
 
 
-# Return segment list or nothing
-sub _segments {
+# Return subtoken list or nothing
+sub _subtokens {
   my $item = shift;
   my @posting;
 
-  if ($item->{segments}) {
+  if ($item->{subtokens}) {
 
     # Remove!
-    push @posting, $item->{segments}->[0];
+    push @posting, $item->{subtokens}->[0];
 
-    if ($item->{segments}->[1]) {
-      # The end is AFTER the second segment
-      push @posting, $item->{segments}->[1] + 1;
+    if ($item->{subtokens}->[1]) {
+      # The end is AFTER the second subtoken
+      push @posting, $item->{subtokens}->[1] + 1;
     };
 
     return @posting;

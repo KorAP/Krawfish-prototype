@@ -35,18 +35,18 @@ sub test_doc {
   };
 
 
-  my ($pd, $anno, $segments);
+  my ($pd, $anno, $subtokens);
 
   if (ref $_[0] eq 'ARRAY') {
-    ($pd, $anno, $segments) = _simple_anno(shift);
+    ($pd, $anno, $subtokens) = _simple_anno(shift);
   }
   else {
-    ($pd, $anno, $segments) = _complex_anno(shift);
+    ($pd, $anno, $subtokens) = _complex_anno(shift);
   };
 
   $doc->{annotations} = $anno if $anno;
   $doc->{primaryData} = $pd if $pd;
-  $doc->{segments} = $segments if $segments;
+  $doc->{subtokens} = $subtokens if $subtokens;
 
   return $kq;
 };
@@ -117,7 +117,7 @@ sub _simple_anno {
     );
   };
 
-  return $primary_data, \@tokens, _segments(\@offsets)
+  return $primary_data, \@tokens, _subtokens(\@offsets)
 };
 
 
@@ -125,12 +125,12 @@ sub _simple_anno {
 sub _complex_anno {
   my $string = shift;
 
-  my @segments;
+  my @subtokens;
   my @tokens;
   my %spans;
 
-  # Segment data
-  my $segment = 0;
+  # Subtoken data
+  my $subtoken = 0;
   my $offset = 0;
   my (@primary_data, @offsets) = ();
 
@@ -146,13 +146,13 @@ sub _complex_anno {
       if (@group > 1) {
 
         # Push group to token list
-        push @tokens, _token(\@group, $segment);
+        push @tokens, _token(\@group, $subtoken);
       }
 
       # Only a single token available
       else {
         # Push token to token list
-        push @tokens, _token($group[0], $segment);
+        push @tokens, _token($group[0], $subtoken);
       };
 
       # Use first token for primary data;
@@ -160,12 +160,12 @@ sub _complex_anno {
       my $end = $offset + length($split[0]);
       push @offsets, [$offset, $end];
       $offset = $end + 1;
-      $segment++;
+      $subtoken++;
     }
 
     # Found a span opening
     elsif ($token =~ /^<(\d)+:([^>]+?)>$/) {
-      my $span = _span($2, $segment);
+      my $span = _span($2, $subtoken);
 
       # Remember span to modify
       $spans{$1} = $span;
@@ -175,9 +175,9 @@ sub _complex_anno {
     # Found a span closing
     elsif ($token =~ /^<\/(\d+?)>$/) {
       if (exists $spans{$1}) {
-        my $seg = $segment -1;
-        if ($seg != $spans{$1}->{segments}->[0]) {
-          push @{$spans{$1}->{segments}}, $segment -1;
+        my $seg = $subtoken -1;
+        if ($seg != $spans{$1}->{subtokens}->[0]) {
+          push @{$spans{$1}->{subtokens}}, $subtoken -1;
         };
       }
       else {
@@ -189,7 +189,7 @@ sub _complex_anno {
   @tokens = sort _token_sort @tokens;
   my $primary_data = join(' ', @primary_data);
 
-  return $primary_data, \@tokens, _segments(\@offsets);
+  return $primary_data, \@tokens, _subtokens(\@offsets);
 };
 
 
@@ -200,7 +200,7 @@ sub _token {
     '@type' => 'koral:token'
   };
   if (defined $_[0]) {
-    $hash->{'segments'} = [@_];
+    $hash->{'subtokens'} = [@_];
   };
 
   if (ref $tokens eq 'ARRAY') {
@@ -234,22 +234,22 @@ sub _fields {
   \@fields;
 };
 
-sub _segments {
+sub _subtokens {
   my $offsets = shift;
-  my @segments = ();
+  my @subtokens = ();
   foreach (@$offsets) {
-    push @segments, {
-      '@type' => 'koral:segment',
+    push @subtokens, {
+      '@type' => 'koral:subtoken',
       'offsets' => $_
     };
   };
-  return \@segments;
+  return \@subtokens;
 };
 
 sub _token_sort {
-  return 0 unless $a->{segments} && $b->{segments};
-  my $seg_a = $a->{segments};
-  my $seg_b = $b->{segments};
+  return 0 unless $a->{subtokens} && $b->{subtokens};
+  my $seg_a = $a->{subtokens};
+  my $seg_b = $b->{subtokens};
   if ($seg_a->[0] < $seg_b->[0]) {
     return -1;
   }
@@ -272,7 +272,7 @@ sub _span {
     '@type' => 'koral:span',
     'wrap' => _key(shift)
   };
-  $key->{'segments'} = [shift];
+  $key->{'subtokens'} = [shift];
   return $key;
 };
 

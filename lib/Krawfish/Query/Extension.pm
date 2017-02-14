@@ -4,7 +4,7 @@ use Krawfish::Query::Base::Dual;
 use strict;
 use warnings;
 
-# This query adds segments to the left or the right
+# This query adds subtokens to the left or the right
 # of a matching span
 
 
