@@ -71,7 +71,7 @@ use warnings;
 #   TODO: Term-IDs may be better stored in a separate file, to keep the file small.
 
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # Constructor
 sub new {
@@ -100,6 +100,7 @@ sub store {
   # Get data to store per segment
   my ($doc_id, $segment, $start_char, $end_char, $term_id, $term) = @_;
 
+  # TODO: THIS IS PROBABLY NOT NECESSARY!
   if ($term) {
     # Get the first and last characters of the term
     my ($first, $last) = (substr($term, 0, 2), scalar reverse substr($term, -2));

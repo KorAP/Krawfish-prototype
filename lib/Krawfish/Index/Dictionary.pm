@@ -34,6 +34,22 @@ use Krawfish::Index::PostingsList;
 #   In Lucy the dictionary is stored in a list
 #   using incremental encoding / front coding.
 #
+
+# PREFIXES:
+#   terms: *
+#   subterms: ~
+#   fields: + (need to be )
+
+#
+# TERMS: The dictionary will have one value lists with data,
+#        accessible by their term_id position in the list:
+#
+#  ([leaf-backref][freq][postinglistpos])*
+#
+# SUBTERMS: The dictionary will have one list with data,
+#           accessible by their sub_term_id position in the list:
+#  ([leaf-backref][prefix-rank][suffix-rank])*
+#
 use constant DEBUG => 0;
 
 sub new {
@@ -42,15 +58,26 @@ sub new {
   bless {
     file => $file,
     hash => {},   # Contain the dictionary
-    array => [],  # Temporary helper array for term_id -> term mapping
+
+    prefix_rank => [],
+    suffix_rank => [],
+
+    # Temporary helper arrays for (sub)term_id -> (sub)term mapping
+    term_array => [],
+    subterm_array => [],
+
+    # Bookkeeping for (sub)term_ids
     last_term_id => 1,
-    collation => undef # TODO: Collation needs to be defined!
+    last_subterm_id => 1,
+
+    # TODO: Collation needs to be defined!
+    collation => undef
   }, $class;
 };
 
 
 # Add should return term-id (or term-string)
-sub add {
+sub add_term {
   my $self = shift;
   my $term = shift;
 
@@ -72,16 +99,41 @@ sub add {
     );
 
     # Store term for term_id mapping
-    $self->{array}->[$term_id] = $term;
+    $self->{term_array}->[$term_id] = $term;
   };
   return $hash->{$term};
 };
 
-sub add_subtoken {
-  my ($self, $term) = @_;
 
-  # TODO: Add a rank to the term!
-  return $self->add('*' . $term);
+# Add subterm to dictionary
+# The subterm does not need to be searched, so the mechanism is only used
+# to guarantee that subterms are unique.
+# There may be a better data structure for this, though.
+sub add_subterm {
+  my ($self, $subterm) = @_;
+
+  print_log('dict', "Added subterm $subterm") if DEBUG;
+
+  my $hash = $self->{hash};
+  my $subterm_id;
+
+  # Subterm not in dictionary yet
+  unless ($subterm_id = $hash->{'~' . $subterm}) {
+
+    # Increment sub_term_id
+    # TODO: This may infact fail, as term_ids are limited in size.
+    #   For hapax legomena, a special null marker will be returned
+    $subterm_id = $self->{last_subterm_id}++;
+
+    # TODO: Based on the subterms, the rankings will be processed
+
+    # Store subterm for term_id mapping
+    $self->{subterm_array}->[$subterm_id] = $subterm;
+
+    # Add subterm to set
+    $hash->{'~' . $subterm} = $subterm_id;
+  };
+  return $subterm_id;
 };
 
 
@@ -98,20 +150,27 @@ sub pointer {
 # This needs to be fast (can't be done like this)
 sub term_by_term_id {
   my ($self, $term_id) = @_;
-  print_log('dict', 'Try to retrieve id ' . $term_id) if DEBUG;
-  return $self->{array}->[$term_id];
+  print_log('dict', 'Try to retrieve term id ' . $term_id) if DEBUG;
+  return $self->{term_array}->[$term_id];
 };
 
-# Returns a rank value by a certain term_id
-sub rank_by_term_id;
-sub rev_rank_by_term_id;
+sub subterm_by_subterm_id {
+  my ($self, $subterm_id) = @_;
+  print_log('dict', 'Try to retrieve subterm id ' . $subterm_id) if DEBUG;
+  return $self->{subterm_array}->[$subterm_id];
+
+};
+
+# Returns a rank value by a certain subterm_id
+sub rank_by_subterm_id;
+sub rev_rank_by_subterm_id;
 
 # if a term has no term_id it also has no rank,
 # so this will return the rank of the preceeding term in the dictionary.
 # TODO: When having matches stored in buckets, there is always a bool accompanied
 # to the rank, saying the rank is exact or not.
-sub rank_by_term;
-sub rev_rank_by_term;
+# sub rank_by_subterm;
+# sub rev_rank_by_subterm;
 
 # Returns the term id by a term
 # Currently this is a bit complicated to the round trip
@@ -124,6 +183,7 @@ sub term_id_by_term {
   return;
 };
 
+
 # Return terms of the term dictionary
 # TODO: This should return an iterator
 sub terms {
@@ -135,5 +195,20 @@ sub terms {
 
   return keys %{$self->{hash}};
 };
+
+sub process_subterm_ranks {
+  # For prefix rank:
+  # Iterate over prefix tree in alphabetical order
+  # and generate a rank for the subtree of the subterm.
+  # ...
+  # For suffix rank:
+  # Iterate over prefix tree
+  # and sort by suffix using
+  # bucketsort or mergesort to
+  # create a sorted rank
+  ...
+};
+
+
 
 1;

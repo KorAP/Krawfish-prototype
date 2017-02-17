@@ -58,7 +58,7 @@ sub get_group {
     while ($start < ($class->[END_POS] -1)) {
       $subt = $subtokens->get($match->doc_id, ++$start);
 
-      # Push term id to subtoken
+      # Push subterm id to subtoken
       push (@seq, $subt->[2]);
     };
 
@@ -93,7 +93,12 @@ sub to_hash {
 
   my %hash = ();
   while ($signature =~ /\G(\d+):(.+?);/g) {
-    $hash{"class_$1"} = [ map { substr($dict->term_by_term_id($_), 1) } split('___', $2)];
+
+    if (DEBUG) {
+      print_log('g_class', "Build class $1 for signature $2");
+    };
+
+    $hash{"class_$1"} = [ map { $dict->subterm_by_subterm_id($_) } split('___', $2)];
   };
   $hash{freq} = $freq if defined $freq;
   $hash{doc_freq} = $doc_freq;

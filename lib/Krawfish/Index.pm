@@ -38,7 +38,7 @@ use Mojo::File;
 #   BUT: This only works if the field has the same collation as the
 #   dictionary!
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 
 sub new {
@@ -173,7 +173,7 @@ sub add {
 
     # Add to postings lists (search)
     my $term = $field->{key} . ':' . $field->{value};
-    my $post_list = $dict->add('+' . $term);
+    my $post_list = $dict->add_term('+' . $term);
     $post_list->append($doc_id);
   };
 
@@ -209,12 +209,21 @@ sub add {
       # TODO: This may in fact be not necessary at all -
       #   The subtokens may have their own IDs
       #   And the terms do not need to be stored in the dictionary for retrieval ...
-      my $term_id = $dict->add_subtoken($term)->term_id;
 
-      print_log('index', 'Surface form has term_id ' . $term_id) if DEBUG;
+      # Add as a subterm
+      my $subterm_id = $dict->add_subterm($term);
+
+      print_log('index', 'Surface form has subterm_id ' . $subterm_id) if DEBUG;
 
       # Store information to subtoken
-      $subtokens->store($doc_id, $pos++, $start, $end, $term_id, $term);
+      $subtokens->store(
+        $doc_id,
+        $pos++,
+        $start,
+        $end,
+        $subterm_id,
+        $term # Probably not necessary!
+      );
     };
   };
 
@@ -263,7 +272,7 @@ sub add {
 
       # Add token terms
       foreach (@keys) {
-        my $post_list = $dict->add($_);
+        my $post_list = $dict->add_term($_);
         $post_list->append($doc_id, @subtokens);
       };
     }
@@ -274,7 +283,7 @@ sub add {
       # Create key string
       my $key = '<>' . _term($item->{wrap});
 
-      my $post_list = $dict->add($key);
+      my $post_list = $dict->add_term($key);
 
       # Append posting to posting list
       $post_list->append(

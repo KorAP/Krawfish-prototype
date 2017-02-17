@@ -9,8 +9,8 @@ ok(my $index = Krawfish::Index->new, 'New index');
 
 my $dict = $index->dict;
 
-ok($dict->add('a')->append(0,2,3), 'Add entry');
-ok($dict->add('a')->append(1,5,6), 'Add entry');
+ok($dict->add_term('a')->append(0,2,3), 'Add entry');
+ok($dict->add_term('a')->append(1,5,6), 'Add entry');
 
 my $first = $dict->pointer('a');
 my $second = $dict->pointer('a');
