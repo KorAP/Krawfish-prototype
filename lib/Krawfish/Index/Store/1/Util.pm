@@ -19,6 +19,10 @@ our @EXPORT_OK = qw/enc_varint
 #
 # The second parameter is the compression scheme, that may vary based on the language,
 # or the data type (e.g. plain data)
+#
+# See https://en.wikipedia.org/wiki/Universal_code_(data_compression)
+# for other encodings.
+
 sub enc_string ($$) {
   warn 'Short string encoding not implemented yet';
   return $_[0];

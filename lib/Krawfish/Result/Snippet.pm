@@ -36,11 +36,12 @@ sub new {
 sub next {
   my $self = shift;
   $self->{match} = undef;
-#  $self->{highlights}->clear;
+  # $self->{highlights}->clear;
   return $self->{query}->next;
 };
 
 
+# Return the current match
 sub current_match {
   my $self = shift;
 
@@ -68,12 +69,15 @@ sub current_match {
   return $match;
 };
 
+
+# Stringification
 sub to_string {
   my $self = shift;
   my $str = 'collectSnippet(';
   $str .= $self->{query}->to_string;
   return $str . ')';
 };
+
 
 # From Mojo::Util
 sub _squote {

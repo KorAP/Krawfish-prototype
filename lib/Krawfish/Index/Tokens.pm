@@ -5,6 +5,8 @@ use warnings;
 
 # See Krawfish::Index::Subtokens
 
+# There is one token list per tokenization
+
 # The Tokens list has the following jobs:
 #
 # * Check if the number of tokens between two subtokens is
@@ -20,6 +22,12 @@ use warnings;
 # * Get the number of tokens per doc_id
 #   API: ->count($doc_id)
 #        or ->freq($doc_id)
+#
+# This is a special PostingsList to store the length of tokens
+# in subtokens. It may also be used for extensions and distances
+# with tokens (instead of subtokens)
+# Structure may be: ([docid-delta]([seg-pos-delta][length-varbit])*)*
+# The problem is, this won't make it possible to go back and forth.
 #
 
 # Get an array of start positions that are in the range of min/max

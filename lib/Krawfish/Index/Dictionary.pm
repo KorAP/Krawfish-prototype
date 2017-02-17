@@ -21,7 +21,19 @@ use Krawfish::Index::PostingsList;
 #   rank value needs to be incremented.
 #   However, keep in mind: That only works for fields
 #   with the same collation mechanism as the dictionary.
-
+#
+# TODO:
+#   For surface terms in subtoken-boundaries (ONLY),
+#   store a prefix-rank and a suffix rank,
+#   to make it easy to sort surface terms by their term_id on the fly.
+#   A data structure that supports relational ordering (let's say
+#   the previous term has the rank 3 and the folowing has the term
+#   4 and you want to add it as 3.5) would be nice
+#
+# TODO:
+#   In Lucy the dictionary is stored in a list
+#   using incremental encoding / front coding.
+#
 use constant DEBUG => 0;
 
 sub new {
@@ -41,6 +53,7 @@ sub new {
 sub add {
   my $self = shift;
   my $term = shift;
+
   print_log('dict', "Added term $term") if DEBUG;
 
   my $hash = $self->{hash};
@@ -64,6 +77,14 @@ sub add {
   return $hash->{$term};
 };
 
+sub add_subtoken {
+  my ($self, $term) = @_;
+
+  # TODO: Add a rank to the term!
+  return $self->add('*' . $term);
+};
+
+
 # Return pointer in list
 sub pointer {
   my ($self, $term) = @_;
@@ -81,10 +102,20 @@ sub term_by_term_id {
   return $self->{array}->[$term_id];
 };
 
+# Returns a rank value by a certain term_id
+sub rank_by_term_id;
+sub rev_rank_by_term_id;
+
+# if a term has no term_id it also has no rank,
+# so this will return the rank of the preceeding term in the dictionary.
+# TODO: When having matches stored in buckets, there is always a bool accompanied
+# to the rank, saying the rank is exact or not.
+sub rank_by_term;
+sub rev_rank_by_term;
 
 # Returns the term id by a term
-# Currently this is a bit complicated to the the round trip
-# Using the list
+# Currently this is a bit complicated to the round trip
+# Using the postings list - should be stored directly in the dictionary!
 sub term_id_by_term {
   my ($self, $term) = @_;
   print_log('dict', 'Try to retrieve term ' . $term) if DEBUG;

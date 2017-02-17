@@ -209,7 +209,7 @@ sub add {
       # TODO: This may in fact be not necessary at all -
       #   The subtokens may have their own IDs
       #   And the terms do not need to be stored in the dictionary for retrieval ...
-      my $term_id = $dict->add('*' . $term)->term_id;
+      my $term_id = $dict->add_subtoken($term)->term_id;
 
       print_log('index', 'Surface form has term_id ' . $term_id) if DEBUG;
 

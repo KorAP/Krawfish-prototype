@@ -19,6 +19,11 @@ use warnings;
 #   Probably by retrieving the data with a certain maximum offset (say left 100 subtokens, right 100 subtokens)
 #   and first check for the expanding element start on the left, then move to the right.
 #
+# TODO:
+#   In case the term IDs are retrieved for surface sorting,
+#   it may be useful to not have much data in memory.
+#   Look into K::I::Subtokens for use of $term_ids there. It may not be crucial though.
+
 sub new {
   my $class = shift;
   bless {

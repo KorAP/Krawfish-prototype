@@ -2,6 +2,11 @@ package Krawfish::Index::FieldsRank;
 use strict;
 use warnings;
 
+# The FieldsRank is associated to a certain field
+# (like author) and may return the rank of the
+# field (e.g. by lexicographic ordering) for
+# a certain document ID.
+
 # TODO:
 #   $max_rank is important, because it indicates
 #   how many bits per doc are necessary to encode
@@ -31,6 +36,25 @@ sub get {
   $_[0]->{ranked}->[$_[1]];
 };
 
+
+# Get rank if the value is littler than
+# a given value, otherwise return 0.
+# This may be beneficially implemented.
+sub get_lt {
+  my ($self, $doc_id, $value) = @_;
+  my $rank = $self->get($doc_id);
+  return $rank if $rank < $value;
+};
+
+
+# Get rank if the value is greater than
+# a given value, otherwise return 0.
+# This may be beneficially implemented.
+sub get_gt {
+  my ($self, $doc_id, $value) = @_;
+  my $rank = $self->get($doc_id);
+  return $rank if $rank > $value;
+};
 
 # Return the rank on a scale of 0-255
 sub get_mapped {
