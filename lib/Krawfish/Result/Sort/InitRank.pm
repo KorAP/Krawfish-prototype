@@ -1,5 +1,5 @@
 package Krawfish::Result::Sort::InitRank;
-use Krawfish::Query::Util::BucketSort;
+use Krawfish::Util::BucketSort;
 use strict;
 use warnings;
 

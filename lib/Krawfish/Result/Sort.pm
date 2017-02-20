@@ -7,7 +7,7 @@ use warnings;
 
 use constant DEBUG => 0;
 
-# See Krawfish::Query::Util::Buckets
+# See Krawfish::Util::Buckets
 
 # TODO:
 #  Sort is currently limited to sorting for searching.

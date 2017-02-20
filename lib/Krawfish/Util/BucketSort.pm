@@ -1,5 +1,5 @@
-package Krawfish::Query::Util::BucketSort;
-use Krawfish::Query::Util::BucketSort::Bucket;
+package Krawfish::Util::BucketSort;
+use Krawfish::Util::BucketSort::Bucket;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -78,7 +78,7 @@ sub new {
 
   my @buckets = ();
   foreach (0 .. 255) {
-    push @buckets, Krawfish::Query::Util::Buckets::Bucket->new;
+    push @buckets, Krawfish::Util::Buckets::Bucket->new;
   };
 
   bless {

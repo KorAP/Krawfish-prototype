@@ -3,10 +3,10 @@ use strict;
 use warnings;
 use Test::More;
 
-use_ok('Krawfish::Query::Util::Buffer');
+use_ok('Krawfish::Util::Buffer');
 use_ok('Krawfish::Posting::Token');
 
-ok(my $buff = Krawfish::Query::Util::Buffer->new, 'New candidates');
+ok(my $buff = Krawfish::Util::Buffer->new, 'New candidates');
 
 ok(!$buff->current, 'No current');
 is($buff->size, 0, 'Size 0');

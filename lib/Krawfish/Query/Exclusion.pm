@@ -2,7 +2,7 @@ package Krawfish::Query::Exclusion;
 use parent 'Krawfish::Query::Base::Dual';
 use Krawfish::Query::Base::Dual;
 use Krawfish::Query::Constraint::Position; # Export constants and @next_a and @next_b
-use Krawfish::Query::Util::Bits; # exports bitstring
+use Krawfish::Util::Bits; # exports bitstring
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -42,7 +42,7 @@ sub new {
     frames  => shift,
     first   => shift,
     second  => shift,
-    buffer  => Krawfish::Query::Util::Buffer->new,
+    buffer  => Krawfish::Util::Buffer->new,
   }, $class;
 
   # TODO: Return 'first', if second->freq == 0

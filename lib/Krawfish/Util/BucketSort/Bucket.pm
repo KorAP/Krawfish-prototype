@@ -1,5 +1,5 @@
-package Krawfish::Query::Util::BucketSort::Bucket;
-use Krawfish::Query::Util::BucketSort::Record;
+package Krawfish::Util::BucketSort::Bucket;
+use Krawfish::Util::BucketSort::Record;
 use Krawfish::Log;
 use strict;
 use warnings;

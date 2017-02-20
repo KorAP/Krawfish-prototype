@@ -1,4 +1,4 @@
-package Krawfish::Query::Util::RingBuffer;
+package Krawfish::Util::RingBuffer;
 use strict;
 use warnings;
 

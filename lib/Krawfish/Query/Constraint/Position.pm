@@ -1,7 +1,7 @@
 package Krawfish::Query::Constraint::Position;
 use parent 'Exporter';
 use Krawfish::Log;
-use Krawfish::Query::Util::Bits; # exports bitstring()
+use Krawfish::Util::Bits; # exports bitstring()
 use strict;
 use warnings;
 

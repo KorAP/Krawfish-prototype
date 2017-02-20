@@ -1,4 +1,4 @@
-package Krawfish::Query::Util::Bits;
+package Krawfish::Util::Bits;
 use parent 'Exporter';
 use bytes;
 use strict;

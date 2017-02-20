@@ -1,6 +1,6 @@
 package Krawfish::Query::Repetition;
 use parent 'Krawfish::Query';
-use Krawfish::Query::Util::Buffer;
+use Krawfish::Util::Buffer;
 use Krawfish::Log;
 use Krawfish::Posting;
 use strict;
@@ -21,7 +21,7 @@ sub new {
     span => shift,
     min => shift,
     max => shift,
-    buffer => Krawfish::Query::Util::Buffer->new
+    buffer => Krawfish::Util::Buffer->new
   }, $class;
 };
 

@@ -1,4 +1,4 @@
-package Krawfish::Query::Util::Buffer;
+package Krawfish::Util::Buffer;
 use Krawfish::Log;
 use Carp qw/carp/;
 use bytes;

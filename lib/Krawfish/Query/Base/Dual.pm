@@ -3,7 +3,7 @@ use parent 'Exporter', 'Krawfish::Query';
 use strict;
 use warnings;
 use Krawfish::Log;
-use Krawfish::Query::Util::Buffer;
+use Krawfish::Util::Buffer;
 use Krawfish::Posting;
 use bytes;
 
@@ -37,7 +37,7 @@ sub new {
   bless {
     first => shift,
     second => shift,
-    buffer  => Krawfish::Query::Util::Buffer->new
+    buffer  => Krawfish::Util::Buffer->new
   }, $class;
 };
 

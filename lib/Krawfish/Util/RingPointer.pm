@@ -1,4 +1,4 @@
-package Krawfish::Query::Util::RingPointer;
+package Krawfish::Util::RingPointer;
 use strict;
 use warnings;
 

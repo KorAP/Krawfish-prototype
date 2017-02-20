@@ -1,5 +1,6 @@
 package Krawfish::Query::Constraints;
 use parent 'Krawfish::Query::Base::Dual';
+use Krawfish::Util::Buffer;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -22,7 +23,7 @@ sub new {
 
     # TODO:
     #   Second operand should be nested in buffer by Dual
-    buffer  => Krawfish::Query::Util::Buffer->new
+    buffer  => Krawfish::Util::Buffer->new
   }, $class;
 };
 

@@ -1,4 +1,4 @@
-package Krawfish::Query::BucketSort::List;
+package Krawfish::Util::BucketSort::List;
 use strict;
 use warnings;
 

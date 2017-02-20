@@ -2,7 +2,7 @@ package Krawfish::Koral::Query::Position;
 use parent 'Krawfish::Koral::Query';
 use Krawfish::Query::Constraints;
 use Krawfish::Query::Constraint::Position;
-use Krawfish::Query::Util::Bits;
+use Krawfish::Util::Bits;
 use Krawfish::Log;
 use Mojo::JSON;
 use strict;
