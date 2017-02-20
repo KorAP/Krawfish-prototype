@@ -59,10 +59,12 @@ sub new {
     file => $file,
     hash => {},   # Contain the dictionary
 
+    # This will probably be one array in the future
     prefix_rank => [],
     suffix_rank => [],
+    ranked => 0,
 
-    # Temporary helper arrays for (sub)term_id -> (sub)term mapping
+    # TEMP helper arrays for (sub)term_id -> (sub)term mapping
     term_array => [],
     subterm_array => [],
 
@@ -125,6 +127,8 @@ sub add_subterm {
     #   For hapax legomena, a special null marker will be returned
     $subterm_id = $self->{last_subterm_id}++;
 
+    $self->{ranked} = 0;
+
     # TODO: Based on the subterms, the rankings will be processed
 
     # Store subterm for term_id mapping
@@ -133,6 +137,7 @@ sub add_subterm {
     # Add subterm to set
     $hash->{'~' . $subterm} = $subterm_id;
   };
+
   return $subterm_id;
 };
 
@@ -162,8 +167,17 @@ sub subterm_by_subterm_id {
 };
 
 # Returns a rank value by a certain subterm_id
-sub rank_by_subterm_id;
-sub rev_rank_by_subterm_id;
+sub prefix_rank_by_subterm_id {
+  my ($self, $subterm_id) = @_;
+  $self->process_subterm_ranks;
+  $self->{prefix_rank}->[$subterm_id];
+};
+
+sub suffix_rank_by_subterm_id {
+  my ($self, $subterm_id) = @_;
+  $self->process_subterm_ranks;
+  $self->{suffix_rank}->[$subterm_id];
+};
 
 # if a term has no term_id it also has no rank,
 # so this will return the rank of the preceeding term in the dictionary.
@@ -197,6 +211,9 @@ sub terms {
 };
 
 sub process_subterm_ranks {
+  return if $_[0]->{ranked};
+  my $self = shift;
+  # TODO:
   # For prefix rank:
   # Iterate over prefix tree in alphabetical order
   # and generate a rank for the subtree of the subterm.
@@ -206,7 +223,25 @@ sub process_subterm_ranks {
   # and sort by suffix using
   # bucketsort or mergesort to
   # create a sorted rank
-  ...
+
+  # Iterate over all subterms alphabetically
+  my $i = 0;
+  my @subt = grep { index($_, '~') == 0 } keys %{$self->{hash}};
+  foreach my $subterm (sort @subt) {
+
+    # Set subterm_id to prefix rank
+    $self->{prefix_rank}->[$i++] = $self->{hash}->{$subterm};
+  };
+
+  # Iterate over all subterms based on their suffixes
+  $i = 0;
+  foreach my $subterm (sort { reverse($a) cmp reverse($b) } @subt) {
+
+    # Set subterm_id to prefix rank
+    $self->{suffix_rank}->[$i++] = $self->{hash}->{$subterm};
+  };
+
+  $_[0]->{ranked} = 1;
 };
 
 

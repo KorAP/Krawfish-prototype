@@ -8,6 +8,8 @@ use constant DEBUG => 0;
 # Sorting can be optimized by an appended filter, in case there is no need
 # for counting all matches and documents.
 
+# See Krawfish::Query::Util::Buckets
+
 # TODO:
 #  Sort is currently limited to sorting for searching.
 #  It should also be able to sort groups or sort texts/documents/corpora
@@ -16,51 +18,6 @@ use constant DEBUG => 0;
 #   This may even help filtering: Whenever a document is matched with a rank
 #   that can be ignored (i.e. below the buckets of interest), skip the whole document.
 #   This could in fact be done manipulating the external virtual corpus filter!
-#
-# TODO:
-#   Use a variant of insertion sort or (better) tree sort
-#   http://jeffreystedfast.blogspot.de/2007/02/binary-insertion-sort.html
-#   The most natural way to sort would probably be a variant of bucket sort,
-#   but this would perform poorly in case the field to sort has only
-#   a single rank, which would be the case, if the corpus query would require
-#   this.
-#   The best variant may be bucket sort with insertion sort. In case top_n was chosen,
-#   this may early make some buckets neglectable.
-#   Like this:
-#   1. Create 256 buckets. These buckets have
-#      1.1. A pointer to their contents and
-#      1.2. A counter, how many elements are in there.
-#           If the pointer is zero, no elements should
-#           be put into the bin (i.e. forget them).
-#      1.3. A bit vector marking equal elements
-#           May not be good - better add concrete pointers, because
-#           order will change regularly. Maybe only a single
-#           marker for duplicates
-#   2. Get a new item from the stream and add it to the bucket in question,
-#      in case this bucket does not point to 0.
-#      2.1. Do an insertion sort in the bucket.
-#      2.2. If the elements are equal, put the element behind the equal element
-#           and set the duplicate flag.
-#   3. Increment the counter of the bucket.
-#   4. If the number of sorted elements is (n % top_n) == 0
-#      iterate through all buckets from the top and calculate the sum
-#      of the contents.
-#      4.1. If the sum exceeds top_n, clean up the following bucket pointers
-#           and let them point to 0.
-#      4.2. Stop if a pointer is 0.
-#   5. Go to 2 until all elements are consumed.
-#   6. From the top bucket, check all duplicates, and sort them after the next field
-#   7. Go to 6. unless all fields are sorted.
-#   8. Check for remaining duplicates in the buckets and sort them by the uid field.
-#   9. Return top_n in bucket order.
-#
-#   It would be great, if the ordered values in the buckets could be used
-#   for traversing directly - without copying the structure any further.
-#   As the top-buckets will always receive items, they will probably need more space than the others
-#   (although, this is not true all the time)
-#
-#   To calculate the sum of the preceeding array, vector intrinsics may be useful:
-#   http://stackoverflow.com/questions/11872952/simd-the-following-code
 #
 # TODO:
 #   Whenever top X is requested, and there are matches > X with a max_rank Y,

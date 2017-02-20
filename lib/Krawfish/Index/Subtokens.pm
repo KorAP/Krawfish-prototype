@@ -98,26 +98,26 @@ sub store {
   my $self = shift;
 
   # Get data to store per segment
-  my ($doc_id, $segment, $start_char, $end_char, $term_id, $term) = @_;
+  my ($doc_id, $subtoken, $start_char, $end_char, $subterm_id, $subterm) = @_;
 
   # TODO: THIS IS PROBABLY NOT NECESSARY!
-  if ($term) {
+  if ($subterm) {
     # Get the first and last characters of the term
-    my ($first, $last) = (substr($term, 0, 2), scalar reverse substr($term, -2));
+    my ($first, $last) = (substr($subterm, 0, 2), scalar reverse substr($subterm, -2));
 
     # Store all segments
-    $self->{$doc_id . '#' . $segment} = [$start_char, $end_char, $term_id, $first, $last];
+    $self->{$doc_id . '#' . $subtoken} = [$start_char, $end_char, $subterm_id, $first, $last];
 
     if (DEBUG) {
-      print_log('segments', "Store segment at [$doc_id,$segment]");
-      print_log('segments', '  with ' . join(','),@{$self->{$doc_id . '#' . $segment}});
+      print_log('segments', "Store subtoken at [$doc_id,$subtoken]");
+      print_log('segments', '  with ' . join(','),@{$self->{$doc_id . '#' . $subtoken}});
     };
   }
 
   # Temporary
   else {
     # Store all segments
-    $self->{$doc_id . '#' . $segment} = [$start_char, $end_char];
+    $self->{$doc_id . '#' . $subtoken} = [$start_char, $end_char];
   }
 
   return $self;
@@ -136,7 +136,9 @@ sub get {
 sub append {
   my $self = shift;
   my ($token, $doc_id, $pos, $end) = @_;
-  print_log('toklist', "Appended $token with $doc_id, $pos" . ($end ? "-$end" : '')) if DEBUG;
+  if (DEBUG) {
+    print_log('toklist', "Appended $token with $doc_id, $pos" . ($end ? "-$end" : ''));
+  };
   push(@{$self->{array}}, [$doc_id, $pos, $end]);
 };
 

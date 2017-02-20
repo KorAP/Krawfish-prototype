@@ -14,6 +14,7 @@ use constant {
     END_POS => 2,
 };
 
+
 sub new {
   my $class = shift;
   bless {
