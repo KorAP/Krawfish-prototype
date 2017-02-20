@@ -140,7 +140,7 @@ sub to_string {
   my $str = 'groupBy(';
   $str .= $self->{criterion}->to_string . ':';
   $str .= $self->{query}->to_string;
-  $str .= ')';
+  return $str . ')';
 };
 
 1;

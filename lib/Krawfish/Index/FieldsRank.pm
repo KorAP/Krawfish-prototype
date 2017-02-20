@@ -56,8 +56,10 @@ sub get_gt {
   return $rank if $rank > $value;
 };
 
-# Return the rank on a scale of 0-255
-sub get_mapped {
+# Return the rank << to the most significant position,
+# so the first byte used for bucket sort will always
+# Check for the most significant AND meaningful bits
+sub get_significant {
   ...
 };
 

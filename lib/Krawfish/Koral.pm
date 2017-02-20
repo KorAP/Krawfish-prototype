@@ -63,11 +63,16 @@ sub corpus_builder {
   Krawfish::Koral::Corpus::Builder->new;
 };
 
+sub sorting {
+  ...
+};
+
 sub meta { ... };
 
 # sub response { ... };
 
 sub from_koral_query {
+  ...
 };
 
 # Serialization of KoralQuery
@@ -101,6 +106,7 @@ sub prepare_for {
   # Corpus and query are given - filter!
   if ($self->corpus && $self->query) {
 
+    # Add corpus filter
     $query = $self->query->filter_by($self->corpus);
   }
 
@@ -113,6 +119,11 @@ sub prepare_for {
   elsif ($self->query) {
     $query = $self->query;
   };
+
+  # TODO:
+  # The following operations will invalidate sort filtering:
+  # - grouping
+  # - aggregate (except result is already cached)
 
   # TODO:
   # if ($self->sorting && $self->sorting->filter) {

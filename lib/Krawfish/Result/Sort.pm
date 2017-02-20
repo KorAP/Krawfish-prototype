@@ -1,12 +1,11 @@
 package Krawfish::Result::Sort;
+# use Krawfish::Result::Sort::InitRank;
+# use Krawfish::Result::Sort::Rank;
 use Krawfish::Log;
 use strict;
 use warnings;
 
 use constant DEBUG => 0;
-
-# Sorting can be optimized by an appended filter, in case there is no need
-# for counting all matches and documents.
 
 # See Krawfish::Query::Util::Buckets
 
@@ -37,6 +36,7 @@ use constant DEBUG => 0;
 # TODO:
 #   Start with init at the beginning of next
 #
+
 sub new {
   my $class = shift;
   my $self = bless {
@@ -62,6 +62,7 @@ sub new {
   # First sort criteria
   my $i = 0;
   my $sort_by = $self->{fields}->[$i++];
+  # TODO: Use '::FirstPass'!
   my $rank = $field_obj->ranked_by($sort_by);
 
   # TODO:
@@ -167,10 +168,12 @@ sub freq {
   $_[0]->{freq};
 };
 
+
 sub current {
   my $self = shift;
   return $self->{ordered}->[$self->{pos}] // undef;
 };
+
 
 sub to_string {
   my $self = shift;
@@ -179,6 +182,7 @@ sub to_string {
   $str .= $self->{query}->to_string;
   return $str . ')';
 };
+
 
 # From Mojo::Util
 sub _squote {
