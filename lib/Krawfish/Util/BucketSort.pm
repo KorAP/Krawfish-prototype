@@ -1,9 +1,12 @@
 package Krawfish::Util::BucketSort;
-use Krawfish::Util::BucketSort::Bucket;
-use Krawfish::Log;
 use strict;
 use warnings;
+use Krawfish::Util::BucketSort::Bucket;
+use Krawfish::Log;
+use POSIX qw/floor ceil/;
 use bytes;
+
+use constant DEBUG => 1;
 
 # All K::Q::Util packages may move to K::Util ...
 
@@ -73,30 +76,54 @@ use bytes;
 # somehow ... maybe by a separated link with the bucket pointers.
 
 sub new {
-  my $class = shift;
-  my $top_k = shift;
+  my ($class, $top_k, $max_rank) = @_;
+
+  # TODO: Optimize
+  # if ($max_rank < 256) {
+  #   ...
+  # };
 
   my @buckets = ();
   foreach (0 .. 255) {
-    push @buckets, Krawfish::Util::Buckets::Bucket->new;
+    push @buckets, Krawfish::Util::BucketSort::Bucket->new;
   };
 
   bless {
-    top_k => $top_k,
-    buckets => \@buckets,
-    max_bucket => 256
+    top_k      => $top_k,
+    buckets    => \@buckets,
+    max_rank   => $max_rank,  # TODO: This is temporary!
+    max_bucket => 256,        # All buckets are initially valid
+    pos => -1,
+    pos_bucket => 0
   }, $class;
+};
+
+
+# Scale rank down to 0-255
+sub _temp_bucket_nr ($$) {
+  my ($rank, $max_rank) = @_;
+  my $ret = ceil(($rank / $max_rank) * 256) -1;
+  return $ret < 0 ? 0 : $ret;
 };
 
 
 sub add {
   my ($self, $rank, $record) = @_;
 
-  # This returns the first 8 bits from the rank
-  my $bucket_nr = bytes::substr($rank, 0, 1);
+  if ($self->{pos} != -1) {
+    warn 'Not allowed to add to sort';
+    return;
+  };
+
+  # TODO:
+  # This should return the first 8 bits from the rank!
+  # my $bucket_nr = bytes::substr($rank, 0, 1);
+  my $bucket_nr = _temp_bucket_nr($rank, $self->{max_rank});
+
+  print_log('buckets', "Add record to bucket $bucket_nr") if DEBUG;
 
   # Check, if bucket is valid
-  return unless $bucket_nr > $self->{max_bucket};
+  return if $bucket_nr > $self->{max_bucket};
 
   # Buckets have the structure:
   # [valid|pointer|counter]
@@ -105,15 +132,33 @@ sub add {
   # Insert (sorted)
   $bucket->insert($rank, $record);
 
+  print_log('buckets', 'Record inserted with rank information') if DEBUG;
+
+  # TODO:
+  #   Simple optimization before SIMD instructions can be used:
+  #   Wait until top_k * 2 entries are sorted, then run the counter
+  #   through all buckets once before doing it as before
+
   # Bucket is in max
   return 1 if $bucket_nr == $self->{max_bucket};
 
   # Increment bucket counter
   while ($bucket = $self->{buckets}->[$bucket_nr++]) {
 
-    # Increnment bucket and invalidate if exceeding
+    # Increment bucket and invalidate if exceeding
+    # TODO: This incrementation may better be done using SIMD instructions
     if ($bucket->incr > $self->{top_k}) {
-      $self->{max_bucket} = $bucket_nr - 1;
+
+      print_log('buckets', 'Bucket count is greater than top_k') if DEBUG;
+
+      # Bucket is no longer of interest
+      $bucket->clear;
+
+      $self->{max_bucket} = $bucket_nr -1;
+
+      print_log('buckets', 'New max bucket is ' . $self->{max_bucket}) if DEBUG;
+
+      # TODO: Potentially clear up all following buckets as well
       last;
     };
   };
@@ -122,7 +167,46 @@ sub add {
 };
 
 
-# Returns the top k results in sorted bucket order
-sub next;
+# Returns the top k records in sorted bucket order
+# That means, there may be duplicate entries
+sub next {
+  my $self = shift;
+
+  # Get next bucket
+  while (my $bucket = $self->{buckets}->[$self->{pos_bucket}]) {
+
+    print_log('buckets', 'Read record from bucket ' . $self->{pos_bucket}) if DEBUG;
+
+    # Return record from bucket ...
+    return 1 if $bucket->next;
+
+    print_log('buckets', 'No more records from ' . $self->{pos_bucket}) if DEBUG;
+
+    # ... or move to next bucket
+    # and forget current!
+    $bucket->clear;
+    $self->{pos_bucket}++;
+
+    # Max bucket is reached
+    return if $self->{pos_bucket} > $self->{max_bucket};
+  };
+
+  # Nothing to return
+  return;
+};
+
+sub current {
+  $_[0]->{buckets}->[$_[0]->{pos_bucket}]->current;
+};
+
+sub to_histogram {
+  my $self = shift;
+  my $str = '';
+  foreach (0..255) {
+    my $hist = $self->{buckets}->[$_]->to_histogram or next;
+    $str .= sprintf("%3d", $_) . ': ' . $hist  . "\n";
+  };
+  $str;
+};
 
 1;
