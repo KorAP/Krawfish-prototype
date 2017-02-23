@@ -15,6 +15,14 @@ use POSIX qw/floor/;
 # TODO:
 #   For grouping it may be beneficial to allow witness storing as well,
 #   having a method add() that fails, in case the rank is already there.
+#
+# TODO:
+#   Potentially use a faster heap variant
+#
+# TODO:
+#   Check
+#   https://github.com/apache/lucy/blob/62cdcf930dc871fb95b5c99fc86e93afe7a3e344/core/Lucy/Search/HitQueue.c
+#   https://github.com/apache/lucy/blob/master/core/Lucy/Util/PriorityQueue.c
 
 use constant {
   DEBUG => 0,
@@ -163,7 +171,61 @@ sub length {
 };
 
 
+# This will convert the max-heap destructible
+# to a min-first array in-place
+sub reverse_array {
+  my $self = shift;
 
+  # Get array
+  my $array = $self->{array};
+
+  my ($rank, $duplicates) = (0, 0);
+  my $temp;
+  my $length = $self->{index} - 1;
+
+  # Get the next bottom node until list is at the end
+  for (my $i = $length; $i >= 0; $i--) {
+
+    print_log(
+      'prio',
+      '> Add value of rank ' .
+        $array->[0]->[RANK] .
+        ' to array at index ' .
+        $i
+      ) if DEBUG;
+
+    # Copy value
+    $temp = $array->[0];
+
+    # If the rank is identical - add to duplicates
+    if ($rank == $array->[0]->[RANK]) {
+      $duplicates++;
+    }
+    else {
+
+      # there are duplicates
+      if ($duplicates) {
+        $array->[$i+1]->[SAME] = $duplicates + 1;
+        $duplicates = 0;
+      };
+
+      # remember rank
+      $rank = $array->[0]->[RANK];
+    };
+
+    # Remove top
+    $self->_remove_single_top;
+
+    $array->[$i] = $temp;
+    $array->[$i]->[SAME] = 0;
+  };
+
+  $#{$self->{array}} = $length;
+  return $self->{array};
+};
+
+
+# Remove the top X elements from the heap
 sub remove_tops {
   my $self = shift;
 
@@ -220,10 +282,12 @@ sub mark_top_duplicates {
 };
 
 
+# Return tree stringification
 sub to_tree {
   my $self = shift;
   return join('', map { '[' . $_->[RANK] . ']' } @{$self->{array}}[0..$self->{index}-1]);
 };
+
 
 # Remove a single top entry
 sub _remove_single_top {
