@@ -8,6 +8,8 @@ use constant DEBUG => 0;
 # This will check the segments length -
 # currently other word lengths are not supported
 
+# See https://en.wikipedia.org/wiki/Selection_algorithm
+# for algorithms to find the median or similar.
 
 sub new {
   my $class = shift;

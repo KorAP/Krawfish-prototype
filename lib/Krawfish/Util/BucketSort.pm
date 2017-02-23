@@ -10,6 +10,13 @@ use constant DEBUG => 1;
 
 # All K::Q::Util packages may move to K::Util ...
 
+
+# TODO:
+#   BucketSort may not be well suited for top_k sorting,
+#   but it may be useful for grouping - because after
+#   sorting all matches into 256 buckets, groups can be constructed in parallel!
+
+
 # This implements the datastructure for all bucket sorts algorithms.
 # It will initially
 

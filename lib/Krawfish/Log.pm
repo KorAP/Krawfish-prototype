@@ -7,7 +7,11 @@ our @EXPORT = 'print_log';
 
 sub print_log {
   my $package = shift;
-  printf "  >%10.10s | %s\n", $package, join(' ' ,@_);
+  foreach (@_) {
+    foreach (split("\n", $_)) {
+      printf "  >%10.10s | %s\n", $package, $_;
+    };
+  };
 };
 
 

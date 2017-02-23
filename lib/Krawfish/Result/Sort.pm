@@ -37,6 +37,12 @@ use constant DEBUG => 0;
 #   Start with init at the beginning of next
 #
 
+# TODO:
+# - Sorting should not only support top_k but also limit!
+#   By that, all top_k matches will be sorted in the first pass,
+#   but in the second pass, matches in the offset may not
+#   necessarily be perfectly sorted by further passes.
+
 sub new {
   my $class = shift;
   my $self = bless {

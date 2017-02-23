@@ -1,10 +1,27 @@
-package Krawfish::Result::Sort;
+package Krawfish::Result::Sort::Alphabet;
 use Krawfish::Log;
 use strict;
 use warnings;
 
 use constant DEBUG => 0;
 
+# Sort result alphabetically.
+# Requires a class or the match - and based on the start + end, the term_ids are requested
+# and added per match as an array.
+# Then the matches are sorted one term_id position after the other.
+#
+# In case the ordering is reverse alphabetically, the term_id array is reversed as well.
+#
+# In case the term_id array has no equal length, the shorter array is preferred.
+#
+# EXAMPLE:
+#   match1: [term_1, term_2, term_3]
+#   match2: [term_1, term_2, term_3]
+#
+# This is necessary for all alphabetical sortings!
+
+
+# ---- old:
 # Sort by characters of a certain segment (either the first or the last).
 # This will require to open the offset file to get the first two characters
 # for bucket sorting per token and then request the
