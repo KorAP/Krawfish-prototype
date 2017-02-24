@@ -82,8 +82,6 @@ is($sorter->length, 5, 'Length');
 ok( $sorter->insert(4, 'Baum 27'),  'Add record to sorter - 4');
 is($sorter->max_rank, 4, 'Check new max rank');
 
-# diag Dumper $sorter->{array};
-
 is_deeply($sorter->reverse_array, [
   [1,0,'Baum 25'],
   [2,0,'Baum 16'],
@@ -92,9 +90,6 @@ is_deeply($sorter->reverse_array, [
   [4,0,'Baum 27'],
   [4,0,'Baum 24'],
 ], 'Reverse array');
-
-
-
 
 done_testing;
 __END__

@@ -25,7 +25,7 @@ use POSIX qw/floor/;
 #   https://github.com/apache/lucy/blob/master/core/Lucy/Util/PriorityQueue.c
 
 use constant {
-  DEBUG => 0,
+  DEBUG => 1,
   RANK  => 0,
   SAME  => 1, # 0 means: not checked yet!
   VALUE => 2
@@ -221,6 +221,7 @@ sub reverse_array {
   };
 
   $#{$self->{array}} = $length;
+  $self->{index} = $length;
   return $self->{array};
 };
 
