@@ -6,7 +6,7 @@ use Krawfish::Log;
 use POSIX qw/floor ceil/;
 use bytes;
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # All K::Q::Util packages may move to K::Util ...
 

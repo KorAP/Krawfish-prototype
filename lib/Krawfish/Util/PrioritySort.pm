@@ -25,7 +25,7 @@ use POSIX qw/floor/;
 #   https://github.com/apache/lucy/blob/master/core/Lucy/Util/PriorityQueue.c
 
 use constant {
-  DEBUG => 1,
+  DEBUG => 0,
   RANK  => 0,
   SAME  => 1, # 0 means: not checked yet!
   VALUE => 2
@@ -48,6 +48,8 @@ sub new {
 # Insert node to the heap
 # Each node in the priority queue has the following values:
 # [rank, same, value]
+# The SAME value is either 0 (unknown), 1 initialized,
+# or larger (2 means there are 2 identical ranks etc.)
 sub insert {
   my ($self, $rank, $value) = @_;
 
@@ -117,11 +119,15 @@ sub insert {
 
     # Increment same value - although it may not
     # yet be initialized
-    unless ($array->[0]->[SAME]++) {
+    if ($array->[0]->[SAME]++ == 0) {
 
       # In that case mark all top duplicates
       # Use reference - may as well be passed as a value
       $self->mark_top_duplicates;
+    }
+
+    elsif (DEBUG) {
+      print_log('prio', 'Top duplicate value increased');
     };
   };
 
@@ -131,18 +137,21 @@ sub insert {
     print_log('prio', "Index has reached top_k") if DEBUG;
 
     if ($self->length > $self->{top_k}) {
-      my $same = $array->[0]->[SAME];
+
+      my $same = $array->[0]->[SAME] || 1;
 
       if (DEBUG) {
         print_log(
           'prio',
-          "First element has $same duplicates - by a length of " . $self->length
+          "First element has $same identicals - by a length of " . $self->length .
+            ' and requested k=' . $self->{top_k}
         );
       };
 
       # The max element exceeds the list now
       if (($self->length - $same) >= $self->{top_k}) {
-        $self->remove_tops;
+        print_log('prio', 'When removing top, k is still valid') if DEBUG;
+        $self->remove_tops($same);
       };
     };
 
@@ -158,6 +167,9 @@ sub insert {
   return 1;
 };
 
+sub top_identicals {
+  $_[0]->{array}->[0]->[SAME] || 1;
+};
 
 # Get the maximum rank
 sub max_rank {
@@ -175,6 +187,8 @@ sub length {
 # to a min-first array in-place
 sub reverse_array {
   my $self = shift;
+
+  print_log('prio', 'Reverse array in-place') if DEBUG;
 
   # Get array
   my $array = $self->{array};
@@ -220,6 +234,10 @@ sub reverse_array {
     $array->[$i]->[SAME] = 0;
   };
 
+  if ($duplicates) {
+    $array->[0]->[SAME] = $duplicates + 1;
+  };
+
   $#{$self->{array}} = $length;
   $self->{index} = $length;
   return $self->{array};
@@ -228,12 +246,11 @@ sub reverse_array {
 
 # Remove the top X elements from the heap
 sub remove_tops {
-  my $self = shift;
+  my ($self, $same) = @_;
 
   print_log('prio', "Remove top nodes") if DEBUG;
 
   my $array = $self->{array};
-  my $same = $array->[0]->[SAME] || 1;
 
   print_log('prio', "There are $same top nodes to delete") if DEBUG;
 
@@ -272,12 +289,17 @@ sub swap {
 sub mark_top_duplicates {
   my $self = shift;
 
+  my $top_node = $self->{array}->[0];
   my $count_ref = 0;
-  $self->_sum_same(0, \$count_ref);
+  $self->_sum_same(
+    0,
+    $top_node->[RANK],
+    \$count_ref
+  );
   if ($count_ref) {
-    $self->{array}->[0]->[SAME] = $count_ref - 1;
+    $top_node->[SAME] = $count_ref;
     if (DEBUG) {
-      print_log('prio', "Mark all top duplicates with same value " . ($count_ref - 1));
+      print_log('prio', "Mark top element with count " . ($count_ref));
     }
   };
 };
@@ -286,7 +308,9 @@ sub mark_top_duplicates {
 # Return tree stringification
 sub to_tree {
   my $self = shift;
-  return join('', map { '[' . $_->[RANK] . ']' } @{$self->{array}}[0..$self->{index}-1]);
+  return join('', map {
+    '[' . $_->[RANK] . ($_->[SAME] ? ':' . $_->[SAME] : '') . ']'
+  } @{$self->{array}}[0..$self->{index}-1]);
 };
 
 
@@ -331,26 +355,28 @@ sub _remove_single_top {
 
 # Sum up all duplicates
 sub _sum_same {
-  my ($self, $node_i, $count_ref) = @_;
+  my ($self, $node_i, $rank, $count_ref) = @_;
 
   my $array = $self->{array};
 
-  # Get rank (may as well be passed
-  my $rank = $array->[$node_i]->[RANK];
+  print_log('prio', "Found node with rank $rank at index $node_i") if DEBUG;
 
   # Increment duplicate count
   $$count_ref++;
 
   # Left child
-  my $left_child = $self->{array}->[2 * $node_i + 1];
-  if ($left_child && $left_child->[RANK] == $rank) {
-    $self->_sum_same(2 * $node_i + 1, $count_ref);
-  };
+  my $left_i = 2 * $node_i + 1;
+  if ($left_i < $self->{index}) {
+    if ($array->[$left_i]->[RANK] == $rank) {
+      $self->_sum_same($left_i, $rank, $count_ref);
+    };
 
-  # Right child
-  my $right_child = $self->{array}->[2 * $node_i + 2];
-  if ($right_child && $right_child->[RANK] == $rank) {
-    $self->_sum_same(2 * $node_i + 2, $count_ref);
+    # Right child
+    if (($left_i + 1) < $self->{index}) {
+      if ($array->[$left_i+1]->[RANK] == $rank) {
+        $self->_sum_same($left_i+1, $rank, $count_ref);
+      };
+    };
   };
 };
 

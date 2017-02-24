@@ -38,7 +38,7 @@ use Mojo::File;
 #   BUT: This only works if the field has the same collation as the
 #   dictionary!
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 
 sub new {
@@ -93,6 +93,10 @@ sub last_doc {
   $_[0]->{last_doc};
 };
 
+# Alias for last doc
+sub max_rank {
+  $_[0]->{last_doc};
+};
 
 # Get term dictionary
 sub dict {

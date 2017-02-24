@@ -5,7 +5,7 @@ use warnings;
 
 use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Query::Builder');
-use_ok('Krawfish::Result::Sort::InitRank');
+use_ok('Krawfish::Result::Sort::Priority');
 
 my $index = Krawfish::Index->new;
 
@@ -26,11 +26,14 @@ my $kq = Krawfish::Koral::Query::Builder->new;
 
 my $query = $kq->term_or('aa', 'bb');
 
+# Set maximum rank reference to the last doc id of the index
+my $max_rank = $index->max_rank;
+
 # Get sort object
-my $max_rank = 80_000;
-ok(my $sort = Krawfish::Result::Sort::InitRank->new(
+ok(my $sort = Krawfish::Result::Sort::Priority->new(
   query => $query->prepare_for($index),
-  field_rank => $index->fields->ranked_by('docID'),
+  field => 'docID',
+  fields => $index->fields,
   top_k => 2,
   max_rank_ref => \$max_rank
 ), 'Create sort object');
@@ -41,44 +44,36 @@ ok($sort->next, 'Next');
 is($sort->current->doc_id, 2, 'Obj');
 ok(!$sort->next, 'No more next');
 
-done_testing;
-__END__
-
-is($sort->freq, 6, 'List has frequency');
-ok($sort->next, 'Next');
-is($sort->current->doc_id, 1, 'Obj');
-ok($sort->next, 'Next');
-is($sort->current->doc_id, 1, 'Obj');
-ok($sort->next, 'Next');
-is($sort->current->doc_id, 0, 'Obj');
-ok($sort->next, 'Next');
-is($sort->current->doc_id, 0, 'Obj');
-ok(!$sort->next, 'No more nexts');
-
-is($sort->to_string, "collectSorted(['docID']:or('aa','bb'))", 'Get counts');
-
-
-$query = $kq->term('cc');
-
-# Get sort object
-ok($sort = Krawfish::Result::Sort->new(
-  $query->prepare_for($index),
-  $index,
-  ['author']
+# Next try
+$max_rank = $index->max_rank;
+ok($sort = Krawfish::Result::Sort::Priority->new(
+  query => $query->prepare_for($index),
+  fields => $index->fields,
+  field => 'docID',
+  desc => 1,
+  top_k => 3,
+  max_rank_ref => \$max_rank
 ), 'Create sort object');
 
-is($sort->freq, 2, 'List has frequency');
+# Although top_k is set,
+# the list exceeds the limit
+ok($sort->next, 'First next');
+is($sort->current->doc_id, 0, 'Obj');
+is($sort->duplicates, 2, 'Duplicates');
 ok($sort->next, 'Next');
+is($sort->current->doc_id, 0, 'Obj');
+is($sort->duplicates, 1, 'Duplicates');
+ok($sort->next, 'No more next');
 is($sort->current->doc_id, 1, 'Obj');
-ok($sort->next, 'Next');
-is($sort->current->doc_id, 2, 'Obj');
-ok(!$sort->next, 'No more nexts');
+is($sort->duplicates, 2, 'Duplicates');
+ok($sort->next, 'No more next');
+is($sort->current->doc_id, 1, 'Obj');
+is($sort->duplicates, 1, 'Duplicates');
+ok(!$sort->next, 'No more next');
 
-is($sort->to_string, "collectSorted(['author']:'cc')", 'Get counts');
-
+is($sort->to_string, "prioritySort(^,docID:or('aa','bb'))", 'Stringification');
 
 done_testing;
 __END__
-
 
 

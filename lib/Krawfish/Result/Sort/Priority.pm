@@ -1,4 +1,4 @@
-package Krawfish::Result::Sort::InitRank;
+package Krawfish::Result::Sort::Priority;
 use Krawfish::Util::PrioritySort;
 use Krawfish::Log;
 use Data::Dumper;
@@ -12,7 +12,8 @@ sub new {
   my %param = @_;
 
   my $query = $param{query};
-  my $field_rank  = $param{field_rank};
+  my $fields  = $param{fields};
+  my $field  = $param{field};
 
   my $top_k = $param{top_k};
   my $offset = $param{offset};
@@ -23,7 +24,8 @@ sub new {
   my $queue = Krawfish::Util::PrioritySort->new($top_k, $max_rank_ref);
 
   return bless {
-    field_rank => $field_rank,
+    field_rank => $fields->ranked_by($field),
+    field => $field,
     desc => $desc,
     query => $query,
     queue => $queue,
@@ -49,6 +51,8 @@ sub _init {
 
   my $query = $self->{query};
   my $queue = $self->{queue};
+  my $last_doc_id = -1;
+  my $rank;
 
   # Pass through all queries
   while ($query->next) {
@@ -60,11 +64,19 @@ sub _init {
     # Clone record
     my $record = $query->current->clone;
 
-    # Get stored rank
-    my $rank = $field_rank->get($record->doc_id);
+    # Fetch rank if doc_id changes
+    if ($record->doc_id != $last_doc_id) {
 
-    # Revert if maximum rank is set
-    $rank = $max - $rank if $max;
+      # Get stored rank
+      $rank = $field_rank->get($record->doc_id);
+
+      # Revert if maximum rank is set
+      $rank = $max - $rank if $max;
+    };
+
+    if (DEBUG) {
+      print_log('i_sort', 'Rank for doc id ' . $record->doc_id . " is $rank");
+    };
 
     # Insert into priority queue
     $queue->insert($rank, $record);
@@ -85,12 +97,23 @@ sub next {
   return;
 };
 
+
 sub current {
   my $self = shift;
   # 2 is the index of the value
   print_log('i_sort', 'Get match from index ' . $self->{pos}) if DEBUG;
 
   return $self->{list}->[$self->{pos}]->[2];
+};
+
+
+# Return the number of duplicates of the current match
+sub duplicates {
+  my $self = shift;
+
+  print_log('i_sort', 'Check for duplicates from index ' . $self->{pos}) if DEBUG;
+
+  return $self->{list}->[$self->{pos}]->[1] || 1;
 };
 
 # This returns an additional data structure with key/value pairs
@@ -101,7 +124,7 @@ sub current_sort;
 
 sub to_string {
   my $self = shift;
-  my $str = 'initRankSort(';
+  my $str = 'prioritySort(';
   $str .= $self->{desc} ? '^' : 'v';
   $str .= ',' . $self->{field} . ':';
   $str .= $self->{query}->to_string;

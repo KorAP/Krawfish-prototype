@@ -71,7 +71,7 @@ use warnings;
 #   TODO: Term-IDs may be better stored in a separate file, to keep the file small.
 
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # Constructor
 sub new {
@@ -109,8 +109,8 @@ sub store {
     $self->{$doc_id . '#' . $subtoken} = [$start_char, $end_char, $subterm_id, $first, $last];
 
     if (DEBUG) {
-      print_log('segments', "Store subtoken at [$doc_id,$subtoken]");
-      print_log('segments', '  with ' . join(','),@{$self->{$doc_id . '#' . $subtoken}});
+      print_log('stokens', "Store subtoken at [$doc_id,$subtoken]");
+      print_log('stokens', '  with ' . join(','),@{$self->{$doc_id . '#' . $subtoken}});
     };
   }
 
