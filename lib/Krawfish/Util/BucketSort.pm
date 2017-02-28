@@ -8,17 +8,11 @@ use bytes;
 
 use constant DEBUG => 0;
 
-# All K::Q::Util packages may move to K::Util ...
-
-
-# TODO:
-#   BucketSort may not be well suited for top_k sorting,
-#   but it may be useful for grouping - because after
-#   sorting all matches into 256 buckets, groups can be constructed in parallel!
-
-
 # This implements the datastructure for all bucket sorts algorithms.
-# It will initially
+#
+# BucketSorting will be used for complete sorting, e.g. for using
+# the streaming API and potentially useful for grouping - because after
+# sorting all matches into 256 buckets, groups can be constructed in parallel!
 
 # TODO:
 #   Use a variant of insertion sort or (better) tree sort

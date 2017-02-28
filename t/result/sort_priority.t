@@ -59,16 +59,16 @@ ok($sort = Krawfish::Result::Sort::Priority->new(
 # the list exceeds the limit
 ok($sort->next, 'First next');
 is($sort->current->doc_id, 0, 'Obj');
-is($sort->duplicates, 2, 'Duplicates');
+is($sort->duplicate_rank, 2, 'Duplicates');
 ok($sort->next, 'Next');
 is($sort->current->doc_id, 0, 'Obj');
-is($sort->duplicates, 1, 'Duplicates');
+is($sort->duplicate_rank, 1, 'Duplicates');
 ok($sort->next, 'No more next');
 is($sort->current->doc_id, 1, 'Obj');
-is($sort->duplicates, 2, 'Duplicates');
+is($sort->duplicate_rank, 2, 'Duplicates');
 ok($sort->next, 'No more next');
 is($sort->current->doc_id, 1, 'Obj');
-is($sort->duplicates, 1, 'Duplicates');
+is($sort->duplicate_rank, 1, 'Duplicates');
 ok(!$sort->next, 'No more next');
 
 is($sort->to_string, "prioritySort(^,docID:or('aa','bb'))", 'Stringification');

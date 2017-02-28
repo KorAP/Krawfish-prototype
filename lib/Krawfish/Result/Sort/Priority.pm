@@ -14,11 +14,12 @@ sub new {
   my $query = $param{query};
   my $fields  = $param{fields};
   my $field  = $param{field};
+  my $desc = $param{desc} ? 1 : 0;
 
   my $top_k = $param{top_k};
-  my $offset = $param{offset};
+
+  # TODO: my $offset = $param{offset};
   my $max_rank_ref = $param{max_rank_ref};
-  my $desc = $param{desc} ? 1 : 0;
 
   # Create priority queue
   my $queue = Krawfish::Util::PrioritySort->new($top_k, $max_rank_ref);
@@ -58,7 +59,7 @@ sub _init {
   while ($query->next) {
 
     if (DEBUG) {
-      print_log('i_sort', 'Get next posting from ' . $query->to_string);
+      print_log('p_sort', 'Get next posting from ' . $query->to_string);
     };
 
     # Clone record
@@ -75,7 +76,7 @@ sub _init {
     };
 
     if (DEBUG) {
-      print_log('i_sort', 'Rank for doc id ' . $record->doc_id . " is $rank");
+      print_log('p_sort', 'Rank for doc id ' . $record->doc_id . " is $rank");
     };
 
     # Insert into priority queue
@@ -88,6 +89,7 @@ sub _init {
 };
 
 
+# Get next element from list
 sub next {
   my $self = shift;
   $self->_init;
@@ -98,29 +100,37 @@ sub next {
 };
 
 
+# Get current element
 sub current {
   my $self = shift;
+
   # 2 is the index of the value
-  print_log('i_sort', 'Get match from index ' . $self->{pos}) if DEBUG;
+  if (DEBUG) {
+    print_log('p_sort', 'Get match from index ' . $self->{pos});
+  };
 
   return $self->{list}->[$self->{pos}]->[2];
 };
 
 
 # Return the number of duplicates of the current match
-sub duplicates {
+sub duplicate_rank {
   my $self = shift;
 
-  print_log('i_sort', 'Check for duplicates from index ' . $self->{pos}) if DEBUG;
+  if (DEBUG) {
+    print_log('p_sort', 'Check for duplicates from index ' . $self->{pos});
+  };
 
   return $self->{list}->[$self->{pos}]->[1] || 1;
 };
 
+
 # This returns an additional data structure with key/value pairs
 # in sorted order to document the sort criteria.
 # Like: [[class_1 => 'cba'], [author => 'Goethe']]...
-# This is beneficial for the cluster-merge-sort
+# This is necessary for the cluster-merge-sort
 sub current_sort;
+
 
 sub to_string {
   my $self = shift;

@@ -5,12 +5,19 @@ use Data::Dumper;
 use Krawfish::Log;
 use POSIX qw/floor/;
 
+# TODO: use enqueue and dequeue
+
 # This establishes a priority queue for ranked elements that
 # supports equal ranks that can later be sorted based on other criteria.
 # This can be used as a first pass sorting - probably simpler than bucket sort:
 # http://stackoverflow.com/questions/7272534/finding-the-first-n-largest-elements-in-an-array
 #
 # The priority queue is based on a simple binary max heap.
+#
+# TODO:
+#   Create a variant, that keeps a separated count for
+#   "matches_in_doc", so matches in the same document only
+#   have one node and need to be ranked only once.
 #
 # TODO:
 #   For grouping it may be beneficial to allow witness storing as well,
@@ -61,7 +68,8 @@ sub insert {
     return;
   };
 
-  my $array = $self->{array};
+  # Array structure of the queue
+  my $array  = $self->{array};
   my $node_i = $self->{index};
 
   $self->{index}++;
@@ -119,6 +127,9 @@ sub insert {
 
     # Increment same value - although it may not
     # yet be initialized
+
+    # TODO:
+    #   Do incr_top_duplicate($node)
     if ($array->[0]->[SAME]++ == 0) {
 
       # In that case mark all top duplicates
@@ -138,7 +149,9 @@ sub insert {
 
     if ($self->length > $self->{top_k}) {
 
-      my $same = $array->[0]->[SAME] || 1;
+      # Get top identicals
+
+      my $same = $self->top_identicals;
 
       if (DEBUG) {
         print_log(
@@ -167,9 +180,11 @@ sub insert {
   return 1;
 };
 
+# Get the top identicals
 sub top_identicals {
   $_[0]->{array}->[0]->[SAME] || 1;
 };
+
 
 # Get the maximum rank
 sub max_rank {
@@ -177,7 +192,7 @@ sub max_rank {
 };
 
 
-# get the length of the queue
+# Get the length of the queue
 sub length {
   $_[0]->{index};
 };
@@ -185,6 +200,8 @@ sub length {
 
 # This will convert the max-heap destructible
 # to a min-first array in-place
+# TODO:
+#   This should work with nodes!
 sub reverse_array {
   my $self = shift;
 
@@ -279,6 +296,8 @@ sub swap {
 
   print_log('prio', "Swap indices $node_1 and $node_2") if DEBUG;
 
+  # TODO:
+  #   There may be a directive!
   my $temp = $array->[$node_1];
   $array->[$node_1] = $array->[$node_2];
   $array->[$node_2] = $temp;

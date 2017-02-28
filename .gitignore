@@ -18,4 +18,5 @@ pm_to_blib
 *.db
 *.old
 .*
+*.go
 !.gitignore

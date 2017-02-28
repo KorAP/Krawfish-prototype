@@ -46,6 +46,12 @@ use Krawfish::Index::PostingsList;
 #
 #  ([leaf-backref][freq][postinglistpos])*
 #
+#  However - it may be useful to have the postinglistpos
+#  separated per segment, so it's
+#  seg1:[postinglistpos1][postinglistpos2][0][postinglistpos4]
+#  seg1:[postinglistpos1][postinglistpos2][postinglistpos3][0]
+#  ...
+#
 # SUBTERMS: The dictionary will have one list with data,
 #           accessible by their sub_term_id position in the list:
 #  ([leaf-backref][prefix-rank][suffix-rank])*
