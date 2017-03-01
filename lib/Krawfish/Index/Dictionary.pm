@@ -4,6 +4,29 @@ use warnings;
 use Krawfish::Log;
 use Krawfish::Index::PostingsList;
 
+# TODO:
+#   In production the dictionary will be implemented using
+#   two data structures:
+#   - A dynamic TST (either balancing or self-optimizing)
+#   - A static complete TST (compact, fast (de)serializale,
+#     cache-optimized, small)
+#   - The dynamic tree is used to add new terms.
+#     It potentially can also delete terms or mark terms (nodes)
+#     as being deleted.
+#   - The dynamic and the static tree are searchable
+#     (though it's acceptable if the dynamic TST is slower)
+#   - The dynamic and the static trees support reverse lookup
+#     (that is, retrieving the term by a term id)
+#   - The static tree does not support adding or
+#     deleting of nodes.
+#   - The dynamic tree can be serialized to a static tree
+#   - The dynamic tree can merge (while being serialized)
+#     with a static tree.
+#   - Whenever the dynamic tree contains a reasonable
+#     amount of terms, it can merge with a second static
+#     dictionary in memory, write to disc,
+#     and exchange the old dictionary with the new one.
+
 # TODO: Use Storable
 # TODO: Support case insensitivity
 # TODO: Create forward index with term-ids
@@ -34,7 +57,6 @@ use Krawfish::Index::PostingsList;
 #   In Lucy the dictionary is stored in a list
 #   using incremental encoding / front coding.
 #
-
 # PREFIXES:
 #   terms: *
 #   subterms: ~
