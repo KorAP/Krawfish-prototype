@@ -58,15 +58,22 @@ sub new {
 # The SAME value is either 0 (unknown), 1 initialized,
 # or larger (2 means there are 2 identical ranks etc.)
 sub insert {
-  my ($self, $rank, $value) = @_;
-
-  print_log('prio', "Insert with rank $rank") if DEBUG;
+  my ($self, $node) = @_;
 
   # Rank is beyond useful
-  if ($rank > ${$self->{max_rank_ref}}) {
+  if ($node->[RANK] > ${$self->{max_rank_ref}}) {
     print_log('prio', "Rank is larger than max rank") if DEBUG;
     return;
   };
+
+  return $_[0]->enqueue($_[1]);
+};
+
+
+sub enqueue {
+  my ($self, $node) = @_;
+
+  print_log('prio', "Insert with rank " . $node->[RANK]) if DEBUG;
 
   # Array structure of the queue
   my $array  = $self->{array};
@@ -74,7 +81,7 @@ sub insert {
 
   $self->{index}++;
 
-  $array->[$node_i] = [$rank, 0, $value];
+  $array->[$node_i] = $node;
 
   print_log('prio', "Add new node to index $node_i") if DEBUG;
 
@@ -87,11 +94,11 @@ sub insert {
     my $parent_i = _parent_i($node_i);
 
     # Parent rank is smaller
-    if ($array->[$parent_i]->[RANK] < $rank) {
+    if ($array->[$parent_i]->[RANK] < $node->[RANK]) {
 
       print_log('prio', 'Parent rank ' .
                   $array->[$parent_i]->[RANK] .
-                  " is smaller than $rank") if DEBUG;
+                  " is smaller than " . $node->[RANK]) if DEBUG;
 
       # Swap values
       $self->swap($node_i, $parent_i);
@@ -99,9 +106,9 @@ sub insert {
     }
 
     # Entry is same
-    elsif ($array->[$parent_i]->[RANK] == $rank) {
+    elsif ($array->[$parent_i]->[RANK] == $node->[RANK]) {
 
-      print_log('prio', "Parent rank $rank is equal") if DEBUG;
+      print_log('prio', "Parent rank " . $node->[RANK] . " is equal") if DEBUG;
 
       $is_same = 1;
       last;
@@ -112,7 +119,7 @@ sub insert {
 
       print_log('prio', 'Parent rank ' .
                   $array->[$parent_i]->[RANK] .
-                  " is greater than $rank") if DEBUG;
+                  " is greater than " . $node->[RANK]) if DEBUG;
 
       last;
     };
@@ -121,25 +128,24 @@ sub insert {
   print_log('prio', 'Tree is ' . $self->to_tree) if DEBUG;
 
   # The rank is identical to the top rank and it's a same
-  if ($is_same && $rank == ${$self->{max_rank_ref}}) {
+  if ($is_same && $node->[RANK] == ${$self->{max_rank_ref}}) {
 
     print_log('prio', "Rank is duplicate at top") if DEBUG;
 
-    # Increment same value - although it may not
-    # yet be initialized
-
-    # TODO:
-    #   Do incr_top_duplicate($node)
-    if ($array->[0]->[SAME]++ == 0) {
+    # SAME is not yet be initialized
+    if ($array->[0]->[SAME] == 0) {
 
       # In that case mark all top duplicates
       # Use reference - may as well be passed as a value
       $self->mark_top_duplicates;
     }
-
-    elsif (DEBUG) {
-      print_log('prio', 'Top duplicate value increased');
-    };
+    else {
+      #   Do incr_top_duplicate($node)
+      $self->incr_top_duplicate($node);
+      if (DEBUG) {
+        print_log('prio', 'Top duplicate value increased');
+      };
+    }
   };
 
   # Remove top nodes
@@ -179,6 +185,13 @@ sub insert {
 
   return 1;
 };
+
+
+# Increment identicals
+sub incr_top_duplicate {
+  $_[0]->{array}->[0]->[SAME]++;
+};
+
 
 # Get the top identicals
 sub top_identicals {
@@ -296,8 +309,6 @@ sub swap {
 
   print_log('prio', "Swap indices $node_1 and $node_2") if DEBUG;
 
-  # TODO:
-  #   There may be a directive!
   my $temp = $array->[$node_1];
   $array->[$node_1] = $array->[$node_2];
   $array->[$node_2] = $temp;
