@@ -2,6 +2,10 @@ package Krawfish::Index::Store::Dynamic::Dictionary;
 use strict;
 use warnings;
 
+# TODO:
+#   Add parent transitions and support
+#   term(leaf-node)
+
 use constant {
   SPLIT_CHAR => 0,
   LO_KID => 1,

@@ -5,7 +5,6 @@ use warnings;
 use Memoize;
 use POSIX qw/floor/;
 
-
 use constant {
   SPLIT_CHAR => 0,
   LO_KID => 1,
@@ -48,6 +47,8 @@ sub from_dynamic {
 
 
 # Search for string
+# TODO:
+#   Support collation my $diff = collation_cmp($char, $node_char);
 sub search {
   my ($self, $str) = @_;
   my @char = (split(//, $str), TERM_CHAR);
@@ -56,7 +57,8 @@ sub search {
   my $pos = 0;
 
   # Length of the root bst
-  my $length = $self->[$pos] * 2; # Length (e.g. 4 bytes char + 4 bytes xor)
+  # Length (e.g. 4 bytes char + 4 bytes xor)
+  my $length = $self->[$pos] * 2;
   my $node_i = 1;
   my $node_char;
   my $i = 0;
@@ -75,9 +77,6 @@ sub search {
       # Move to left child
       # pos is the ternary node offset, 1 is the length
       $node_i = lo_kid($node_i);
-
-      # No right child available
-      return if $node_i > ($length + $pos);
     }
 
     # Check for left child
@@ -87,9 +86,6 @@ sub search {
       # Move to right child
       # pos is the ternary node offset, 1 is the intermediate xor
       $node_i = hi_kid($node_i);
-
-      # No right child available
-      return if $node_i > ($length + $pos);
     }
 
     # Follow the transition
@@ -115,7 +111,11 @@ sub search {
       # Get the root node offset
       $node_i = 1;
       $i++;
+      next;
     };
+
+    # No right child available
+    return if $node_i > ($length + $pos);
   };
   undef;
 };
@@ -138,6 +138,13 @@ sub search_approximative;
 
 sub search_regex;
 
+# Merge static tree with dynamic tree
+sub merge;
+
+# Return iterator of term ids
+sub in_prefix_order;
+
+sub in_suffix_order;
 
 
 
@@ -226,9 +233,8 @@ sub convert_to_array {
       # The eq-xor-pointer is initially treated as a mirror,
       # as if the node is a leaf node
       push @array, (
-        #        ord(encode("UCS-2LE", $_->[SPLIT_CHAR])),
-        $_->[SPLIT_CHAR],
-        # ($node_offset ^ 0)
+        # encode("UCS-2LE", $_->[SPLIT_CHAR]),
+        $_->[SPLIT_CHAR]
       );
 
       # TODO:
