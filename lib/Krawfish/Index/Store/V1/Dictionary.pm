@@ -90,12 +90,12 @@ sub search {
 
     # Follow the transition
     else {
+      $pos = $self->[$pos + $node_i + 1] ^ $pos; # Use only as a single link
+
       if (DEBUG) {
         print_log('v1_dict', "$char == $node_char");
-        print_log('v1_dict', 'xor-node is ' . $self->[$pos + $node_i + 1]);
+        print_log('v1_dict', "xor-node is $pos");
       };
-
-      $pos = $self->[$pos + $node_i + 1]; #  ^ $pos; # Use only as a single link
 
       if ($char eq TERM_CHAR) {
         print_log('v1_dict', "Found term_id $pos for $str") if DEBUG;
@@ -147,35 +147,6 @@ sub in_prefix_order;
 sub in_suffix_order;
 
 
-
-# Traverse the current level tree in-order to
-# get nodes in alphabetic order
-sub _in_order {
-  my $dynamic_node = shift;
-
-  my @stack = ();
-  my @results = ();
-  my $length = 0;
-
-  while (scalar(@stack) != 0 || $dynamic_node->[SPLIT_CHAR]) {
-
-    if ($dynamic_node->[SPLIT_CHAR]) {
-      push @stack, $dynamic_node;
-      $dynamic_node = $dynamic_node->[LO_KID];
-    }
-
-    else {
-      $dynamic_node = pop @stack;
-      push @results, $dynamic_node;
-      $length++;
-      $dynamic_node = $dynamic_node->[HI_KID];
-    };
-  };
-
-  return ($length, \@results);
-};
-
-
 # Store the TST with complete binary search trees at each
 # character level and XOR chains from eq to root node and next node
 # to make bidirectional vertical traversal simple
@@ -224,7 +195,7 @@ sub convert_to_array {
     $curr_offset = $#array;
 
     if ($parent_offset > 0) {
-      $array[$parent_offset] = $curr_offset;
+      $array[$parent_offset] ^= $curr_offset; # = $curr_offset
     };
 
     foreach (@$chars) {
@@ -242,17 +213,45 @@ sub convert_to_array {
       #   This is a final stream (may be separate from @array), that supports
       #   O(1) for term id request and O(n) for term retrieval
       if ($_->[SPLIT_CHAR] eq TERM_CHAR) {
-        push @array, $_->[TERM_ID];
+        push @array, $_->[TERM_ID] ^ $curr_offset;
       }
       # Push temporary eq
       else {
-        push @array, 0;
+        push @array, 0 ^ $curr_offset; # 0
         push @queue, [$curr_offset, $#array, $_->[EQ_KID]];
       };
     };
   };
 
   return \@array;
+};
+
+
+# Traverse the current level tree in-order to
+# get nodes in alphabetic order
+sub _in_order {
+  my $dynamic_node = shift;
+
+  my @stack = ();
+  my @results = ();
+  my $length = 0;
+
+  while (scalar(@stack) != 0 || $dynamic_node->[SPLIT_CHAR]) {
+
+    if ($dynamic_node->[SPLIT_CHAR]) {
+      push @stack, $dynamic_node;
+      $dynamic_node = $dynamic_node->[LO_KID];
+    }
+
+    else {
+      $dynamic_node = pop @stack;
+      push @results, $dynamic_node;
+      $length++;
+      $dynamic_node = $dynamic_node->[HI_KID];
+    };
+  };
+
+  return ($length, \@results);
 };
 
 
