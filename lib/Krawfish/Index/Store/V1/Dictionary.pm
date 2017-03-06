@@ -59,12 +59,13 @@ sub search {
   my $length = $self->[$pos] * 2; # Length (e.g. 4 bytes char + 4 bytes xor)
   my $node_i = 1;
   my $node_char;
+  my $i = 0;
 
   # Character at node position
   while ($node_char = $self->[$pos + $node_i]) {
 
     # Check for right child
-    my $char = $char[0];
+    my $char = $char[$i] or return;
 
     print_log('v1_dict', "$char vs $node_char") if DEBUG;
 
@@ -108,9 +109,12 @@ sub search {
       # Move eq-node
       print_log('v1_dict', "Next node is at offset $pos") if DEBUG;
 
+      # Get the length of the BST
       $length = $self->[$pos] * 2;
+
+      # Get the root node offset
       $node_i = 1;
-      shift @char;
+      $i++;
     };
   };
   undef;
@@ -135,52 +139,6 @@ sub search_approximative;
 sub search_regex;
 
 
-
-
-
-
-
-
-# Nils Diewald:
-#   That's my trial to create a maximum compact dictionary
-sub XXX_breadth_first {
-  my $dynamic_node = shift;
-
-  # Do a breadth-first search per node
-  my @queue = ($dynamic_node);
-  my @results = ();
-
-  while (scalar(@queue) != 0) {
-
-    # Get the first item
-    $dynamic_node = shift @queue;
-
-    push @queue, $dynamic_node->[LO_KID] if $dynamic_node->[LO_KID]->[0];
-    push @queue, $dynamic_node->[HI_KID] if $dynamic_node->[HI_KID]->[0];
-    push @results, $dynamic_node->[SPLIT_CHAR];
-  };
-
-  return \@results;
-};
-
-
-sub XXX_depth_first {
-  my $dynamic_node = shift;
-
-  my @stack = ($dynamic_node);
-  my @results = ();
-
-  while (scalar(@stack) != 0) {
-    $dynamic_node = pop @stack;
-
-    push @stack, $dynamic_node->[LO_KID] if $dynamic_node->[LO_KID]->[0];
-    push @stack, $dynamic_node->[HI_KID] if $dynamic_node->[HI_KID]->[0];
-
-    push @results, $dynamic_node->[SPLIT_CHAR];
-  };
-
-  return \@results;
-};
 
 
 # Traverse the current level tree in-order to
@@ -376,3 +334,55 @@ sub _complete_middle {
 
 
 1;
+
+
+__END__
+
+
+
+
+
+
+
+
+# Nils Diewald:
+#   That's my trial to create a maximum compact dictionary
+sub XXX_breadth_first {
+  my $dynamic_node = shift;
+
+  # Do a breadth-first search per node
+  my @queue = ($dynamic_node);
+  my @results = ();
+
+  while (scalar(@queue) != 0) {
+
+    # Get the first item
+    $dynamic_node = shift @queue;
+
+    push @queue, $dynamic_node->[LO_KID] if $dynamic_node->[LO_KID]->[0];
+    push @queue, $dynamic_node->[HI_KID] if $dynamic_node->[HI_KID]->[0];
+    push @results, $dynamic_node->[SPLIT_CHAR];
+  };
+
+  return \@results;
+};
+
+
+sub XXX_depth_first {
+  my $dynamic_node = shift;
+
+  my @stack = ($dynamic_node);
+  my @results = ();
+
+  while (scalar(@stack) != 0) {
+    $dynamic_node = pop @stack;
+
+    push @stack, $dynamic_node->[LO_KID] if $dynamic_node->[LO_KID]->[0];
+    push @stack, $dynamic_node->[HI_KID] if $dynamic_node->[HI_KID]->[0];
+
+    push @results, $dynamic_node->[SPLIT_CHAR];
+  };
+
+  return \@results;
+};
+

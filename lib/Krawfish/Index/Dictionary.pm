@@ -243,7 +243,7 @@ sub process_subterm_ranks {
   my $self = shift;
   # TODO:
   # For prefix rank:
-  # Iterate over prefix tree in alphabetical order
+  # Iterate over prefix tree in in-node order
   # and generate a rank for the subtree of the subterm.
   # ...
   # For suffix rank:

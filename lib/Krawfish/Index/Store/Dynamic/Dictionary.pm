@@ -19,20 +19,21 @@ sub new {
 
 sub insert {
   # Iterative implementation of string insertion.
-  my ($self, $str, $term_id) = @_;
+  my ($self, $term, $term_id) = @_;
 
   # The string ends with a terminal transition
-  my (@char) = (split(//, $str), TERM_CHAR);
+  my (@char) = (split(//, $term), TERM_CHAR);
 
   my $ref = $self;
   my $retval = undef;
+  my $i = 0;
 
-  while (@char) {
+  # Fetch first character
+  while (my $char = $char[$i]) {
 
-    my $char = $char[0];
-
-    if (! defined $ref->[SPLIT_CHAR]) { # We use defined() to avoid
-      # auto-vivification.
+    # We use defined() to avoid
+    # auto-vivification.
+    if (! defined $ref->[SPLIT_CHAR]) {
 
       # create a new node
       $ref->[LO_KID] = [];
@@ -54,10 +55,11 @@ sub insert {
       }
       else {
         $ref = $ref->[EQ_KID];
-        shift @char;
+        $i++;
       };
     };
   };
+
   $retval;
 };
 
