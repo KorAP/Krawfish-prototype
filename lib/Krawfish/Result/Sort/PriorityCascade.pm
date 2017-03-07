@@ -23,6 +23,15 @@ use constant DEBUG => 1;
 #   Unless, of course, the sorting happens on the
 #   alphabetical level (e.g.)
 
+# TODO:
+#   It's possible that fields return a rank of 0, indicating that
+#   the field is not yet ranked.
+#   In that case these fields have to be looked up, in case they are
+#   potentially in the result set (meaning they are ranked before/after
+#   the last accepted rank field). If so, they need to be rememembered.
+#   After a sort turn, the non-ranked fields are sorted in the ranked
+#   fields. The field can be reranked any time.
+
 sub new {
   my $class = shift;
   my %param = @_;

@@ -17,6 +17,9 @@ use warnings;
 #   http://pempek.net/articles/2013/08/03/bit-packing-with-packedarray/
 #   https://github.com/gpakosz/PackedArray
 #
+# TODO:
+#   Rank 0 may be used to indicate a field that is not ranked yet.
+#
 sub new {
   my $class = shift;
   my $field_array = shift;
@@ -32,6 +35,8 @@ sub new {
   }, $class;
 };
 
+# This may return 0 for "not ranked yet" or -1 for
+# "field not available for document".
 sub get {
   $_[0]->{ranked}->[$_[1]];
 };
@@ -71,6 +76,8 @@ sub max {
 # SIMPLE ALGO: http://stackoverflow.com/questions/14834571/ranking-array-elements
 # COMPLEX ALGO: https://www.quora.com/How-to-rank-a-list-without-sorting-it
 # See http://orion.lcg.ufrj.br/Dr.Dobbs/books/book5/chap14.htm
+# Use collations:
+#   http://userguide.icu-project.org/collation
 sub _rank_str {
   my ($array) = @_;
 

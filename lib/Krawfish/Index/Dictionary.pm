@@ -57,6 +57,12 @@ use Krawfish::Index::PostingsList;
 #   In Lucy the dictionary is stored in a list
 #   using incremental encoding / front coding.
 #
+# TODO:
+#   Add suffix_search("ig"), in case the user searches for ".*ig".
+#   This may e.g. use a binary search in the suffix ranking.
+#   Alternatively, if trigrams are indexed, this would of course
+#   look for 'ig$'.
+#
 # PREFIXES:
 #   terms: *
 #   subterms: ~
@@ -238,9 +244,21 @@ sub terms {
   return keys %{$self->{hash}};
 };
 
+
+# TODO:
+#   This should be incremental. Whenever there are terms not yet ranked
+#   (or ranked 0), they should first be preranked using binary search
+#   (like "after rank 456") and then inserted when the rank is copied.
 sub process_subterm_ranks {
   return if $_[0]->{ranked};
   my $self = shift;
+
+  # Accept a collation for sorting
+  # see
+  # - https://dev.mysql.com/doc/refman/5.7/en/adding-collation.html
+  # - http://www.unicode.org/reports/tr10/tr10-30.html
+  my $collation = shift;
+
   # TODO:
   # For prefix rank:
   # Iterate over prefix tree in in-node order
@@ -271,7 +289,6 @@ sub process_subterm_ranks {
 
   $_[0]->{ranked} = 1;
 };
-
 
 
 1;

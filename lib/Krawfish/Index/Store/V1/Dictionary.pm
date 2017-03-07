@@ -12,7 +12,7 @@ use constant {
   HI_KID => 3,
   TERM_ID => 4,
   TERM_CHAR => '00',
-  DEBUG => 0
+  DEBUG => 1
 };
 
 # This is a very compact representation of a Ternary Search Tree.
@@ -31,10 +31,18 @@ use constant {
 # The parent is identifiable by
 # - floor($node_i - 1) / 2
 
+# TODO: Support collations
+# - https://msdn.microsoft.com/en-us/library/ms143726.aspx
+# - http://userguide.icu-project.org/collation
+
+
 # from_array
 sub new {
   my $class = shift;
-  bless [@_], $class;
+  bless [
+    [@_],
+    [] # term index
+  ], $class;
 };
 
 
@@ -42,7 +50,7 @@ sub new {
 sub from_dynamic {
   my $class = shift;
   my $dynamic = shift;
-  bless convert_to_array($dynamic), $class;
+  bless [convert_to_array($dynamic)], $class;
 };
 
 
@@ -56,15 +64,17 @@ sub search {
   # Root node
   my $pos = 0;
 
+  my $array = $self->[0];
+
   # Length of the root bst
   # Length (e.g. 4 bytes char + 4 bytes xor)
-  my $length = $self->[$pos] * 2;
+  my $length = $array->[$pos] * 2;
   my $node_i = 1;
   my $node_char;
   my $i = 0;
 
   # Character at node position
-  while ($node_char = $self->[$pos + $node_i]) {
+  while ($node_char = $array->[$pos + $node_i]) {
 
     # Check for right child
     my $char = $char[$i] or return;
@@ -90,7 +100,9 @@ sub search {
 
     # Follow the transition
     else {
-      $pos = $self->[$pos + $node_i + 1] ^ $pos; # Use only as a single link
+
+      # Get eq node and xor the result
+      $pos = $array->[$pos + $node_i + 1] ^ $pos;
 
       if (DEBUG) {
         print_log('v1_dict', "$char == $node_char");
@@ -106,7 +118,7 @@ sub search {
       print_log('v1_dict', "Next node is at offset $pos") if DEBUG;
 
       # Get the length of the BST
-      $length = $self->[$pos] * 2;
+      $length = $array->[$pos] * 2;
 
       # Get the root node offset
       $node_i = 1;
@@ -142,6 +154,9 @@ sub search_regex;
 sub merge;
 
 # Return iterator of term ids
+# TODO:
+#   Be aware, this is only in collation
+#   order of the insertion, that may not be very helpful.
 sub in_prefix_order;
 
 sub in_suffix_order;
@@ -173,6 +188,7 @@ sub convert_to_array {
   #
   my @queue = ([$node_offset, $parent_offset, $dynamic_node]);
   my @array = ();
+  my @term_ids = ();
 
   # Iterate in a breadth-first manner
   while (scalar(@queue) > 0) {
@@ -213,17 +229,81 @@ sub convert_to_array {
       #   This is a final stream (may be separate from @array), that supports
       #   O(1) for term id request and O(n) for term retrieval
       if ($_->[SPLIT_CHAR] eq TERM_CHAR) {
-        push @array, $_->[TERM_ID] ^ $curr_offset;
+        # push @array, $parent_offset ^ $_->[TERM_ID]; #
+        push @array, $curr_offset ^ $_->[TERM_ID];
+
+        # store leaf node in term_id array
+        $term_ids[$_->[TERM_ID]] = $#array;
       }
       # Push temporary eq
       else {
-        push @array, 0 ^ $curr_offset; # 0
+#        push @array, $parent_offset; # $curr_offset; # It's rather initialized 0 ^ $curr_offset
+        push @array, $curr_offset; # It's rather initialized 0 ^ $curr_offset
         push @queue, [$curr_offset, $#array, $_->[EQ_KID]];
       };
     };
   };
 
-  return \@array;
+  return \@array, \@term_ids;
+};
+
+
+sub to_string {
+  my $self = shift;
+  my $marker = shift // 101;
+  my @array = @{$self->[0]}[0..100];
+  @array = grep { $_ } @array;
+
+  my $i = 0;
+  @array = map { $i++ == $marker ? "[$marker:$_]" : $_ } @array;
+  '<' . join(',', @array) . '>';
+};
+
+sub term_by_term_id {
+  my ($self, $term_id) = @_;
+
+  # TODO:
+  #   Check that term_id is < max_term_id
+
+  my ($array, $term_ids) = ($self->[0], $self->[1]);
+
+  # Get the leaf node
+  my $pos = $term_ids->[$term_id];
+  my $curr_offset = $array->[$pos];
+
+  my $parent_i = $curr_offset ^ $term_id;
+
+  if (DEBUG) {
+    print_log(
+      'v1_dict',
+      "Leave node position of $term_id is $pos with first eq $curr_offset",
+      "Parent node is at offset $parent_i"
+    );
+  };
+
+  return;
+
+  my $parent_char = $array->[$parent_i + 1];
+
+  print_log('v1_dict', "First parent is $parent_char") if DEBUG;
+
+
+  my @chars;
+
+  my ($eq);
+
+
+  my $i = 0;
+  while ($eq) {
+    warn $array->[$eq];
+
+    # Add char at the end of the string
+    unshift @chars, $array->[$eq-1];
+    $eq = $array->[$eq] ^ $eq;
+    last if $i++ > 10;
+  };
+
+  return join '', @chars;
 };
 
 

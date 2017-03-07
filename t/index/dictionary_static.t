@@ -34,4 +34,7 @@ is($complete->search('abb'), 2, 'abb is part of the TST');
 is($complete->search('abc'), 1, 'abc is part of the TST');
 is($complete->search('bc'), 4, 'ab is part of the TST');
 
+#diag $complete->to_string(11);
+#is($complete->term_by_term_id(4), '', 'Term by term id');
+
 done_testing;

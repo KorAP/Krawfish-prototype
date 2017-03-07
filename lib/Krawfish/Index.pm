@@ -29,6 +29,14 @@ use Mojo::File;
 #   subtoken positions in the forward index!
 
 # TODO:
+#   Currently ranking is not collation based. It should be possible
+#   to define a collation per field and
+#   use one collation for prefix and suffix sorting.
+#   It may be beneficial to make a different sorting possible (though it's
+#   probably acceptable to make it slow)
+#   Use http://userguide.icu-project.org/collation
+
+# TODO:
 #   Reranking a field is not necessary, if the field value is already given.
 #   In that case, look up the dictionary if the value is already given,
 #   take the example doc of that field value and add the rank of that

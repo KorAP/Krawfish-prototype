@@ -46,6 +46,10 @@ sub new {
 # next_a may result in configuration B and
 # next_b may result in configuration C
 # These configurations were precomputed
+
+# TODO:
+#   Currently these are stored in an array of 4096 elements
+#   - that's rather wasteful.
 $next_a[NULL_4] = NULL_4;
 $next_b[NULL_4] = NULL_4;
 
