@@ -5,18 +5,17 @@ use Data::Dumper;
 use strict;
 use warnings;
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 sub new {
   my $class = shift;
   my %param = @_;
 
-  my $query = $param{query};
-  my $fields  = $param{fields};
+  my $query  = $param{query};
+  my $fields = $param{fields};
   my $field  = $param{field};
-  my $desc = $param{desc} ? 1 : 0;
-
-  my $top_k = $param{top_k};
+  my $desc   = $param{desc} ? 1 : 0;
+  my $top_k  = $param{top_k};
 
   # TODO: my $offset = $param{offset};
   my $max_rank_ref = $param{max_rank_ref};
@@ -80,7 +79,7 @@ sub _init {
     };
 
     # Insert into priority queue
-    $queue->insert($rank, $record);
+    $queue->insert([$rank, 0, $record]);
   };
 
   # Get the rank reference

@@ -6,7 +6,7 @@ use warnings;
 # TODO:
 #   The position should be stored in BucketSort, not in the bucket
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # The count is the sum of all counts before
 sub new {

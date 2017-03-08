@@ -3,6 +3,8 @@ use parent 'Krawfish::Util::PrioritySort';
 use warnings;
 use Krawfish::Log;
 
+# TODO: Probably rename from IN_DOC to IN_COLL
+
 use constant {
   DEBUG => 0,
   RANK => 0,
@@ -31,20 +33,17 @@ sub length {
   $_[0]->{match_count};
 };
 
-sub insert {
+# TODO: May accept rank, in_doc, value instead of nodes
+# sub insert;
+
+sub incr {
   my ($self, $node) = @_;
+  $self->{match_count} += $node->[IN_DOC];
+};
 
-  # Rank is beyond useful
-  if ($node->[RANK] > ${$self->{max_rank_ref}}) {
-    print_log('prio', "Rank is larger than max rank") if DEBUG;
-    return;
-  };
-
-  if ($self->enqueue($node)) {
-    $self->{match_count} += $node->[IN_DOC];
-  };
-  
-  return 1;
+sub decr {
+  my ($self, $node) = @_;
+  $self->{match_count} -= $node->[IN_DOC];
 };
 
 
@@ -55,15 +54,28 @@ sub incr_top_duplicate {
 };
 
 
-
-1;
-
-__END__
-
+# Return tree stringification
+sub to_tree {
+  my $self = shift;
+  return
+    join('', map {
+    '[' . $_->[RANK] .
+      ($_->[SAME] ? ':' . $_->[SAME] : '') .
+      ($_->[IN_DOC] ? 'x' . $_->[IN_DOC] : '') .
+      ']'
+  } @{$self->{array}}[0..$self->{index}-1]);
+};
 
 
 sub top_identicals {
   my $top = $_[0]->{array}->[0];
+
+  if ($top->[SAME] > 1) {
+    warn 'Undefined yet!';
+  }
+  else {
+    return $top->[IN_DOC]
+  };
 
   # TODO:
   # - Go through all same nodes and get
@@ -78,7 +90,11 @@ sub top_identicals {
 };
 
 
-sub to_tree;
+1;
+
+
+__END__
+
 
 sub mark_top_duplicates {
   ...

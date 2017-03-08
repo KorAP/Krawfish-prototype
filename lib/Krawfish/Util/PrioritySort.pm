@@ -30,7 +30,10 @@ use POSIX qw/floor/;
 #   Check
 #   https://github.com/apache/lucy/blob/62cdcf930dc871fb95b5c99fc86e93afe7a3e344/core/Lucy/Search/HitQueue.c
 #   https://github.com/apache/lucy/blob/master/core/Lucy/Util/PriorityQueue.c
-
+#
+# Identicals can mean: Have the same rank. It may also mean: Are part of a collection
+# with the same rank. For example, multiple matches in a document.
+#
 use constant {
   DEBUG => 0,
   RANK  => 0,
@@ -66,7 +69,7 @@ sub insert {
     return;
   };
 
-  return $_[0]->enqueue($_[1]);
+  return $self->enqueue($node);
 };
 
 
@@ -125,7 +128,9 @@ sub enqueue {
     };
   };
 
-  print_log('prio', 'Tree is ' . $self->to_tree) if DEBUG;
+  if (DEBUG) {
+    print_log('prio', 'Tree is ' . $self->to_tree);
+  };
 
   # The rank is identical to the top rank and it's a same
   if ($is_same && $node->[RANK] == ${$self->{max_rank_ref}}) {
@@ -147,6 +152,9 @@ sub enqueue {
       };
     }
   };
+
+  # Increment tree node size
+  $self->incr($node);
 
   # Remove top nodes
   if ($self->length >= $self->{top_k}) {
@@ -178,7 +186,7 @@ sub enqueue {
     ${$self->{max_rank_ref}} = $array->[0]->[RANK];
 
     if (DEBUG) {
-      print_log('prio', 'Tree is ' . $self->to_tree);
+      print_log('prio', 'Tree with length ' . $self->length . ' is ' . $self->to_tree);
       print_log('prio', "New maximum rank is " .$array->[0]->[RANK]);
     };
   };
@@ -343,6 +351,8 @@ sub to_tree {
   } @{$self->{array}}[0..$self->{index}-1]);
 };
 
+sub incr {};
+sub decr {};
 
 # Remove a single top entry
 sub _remove_single_top {
@@ -350,6 +360,9 @@ sub _remove_single_top {
 
   # Place the last element in the first position and swap
   my $array = $self->{array};
+
+  # Decrement values
+  $self->decr($array->[0]);
 
   $array->[0] = $array->[--$self->{index}];
 

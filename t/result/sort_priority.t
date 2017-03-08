@@ -39,6 +39,7 @@ ok(my $sort = Krawfish::Result::Sort::Priority->new(
 ), 'Create sort object');
 
 ok($sort->next, 'First next');
+
 is($sort->current->doc_id, 2, 'Obj');
 ok($sort->next, 'Next');
 is($sort->current->doc_id, 2, 'Obj');

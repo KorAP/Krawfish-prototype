@@ -3,7 +3,7 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # -1 is match highlight
 # $annotation_nr_counter = 256;
