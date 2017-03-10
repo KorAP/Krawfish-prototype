@@ -5,6 +5,20 @@ use warnings;
 # TODO:
 #   Add parent transitions and support
 #   term(leaf-node)
+#
+# TODO:
+#   The self-optimizing application should also
+#   be used for autosuggestions.
+#   This will be a separate datastructure
+#   that optimizes on update (when a user searches for a term).
+#   The dictionary should have a node-count and a node-limit.
+#   When the node limit is exceeded on update, the datastructure
+#   will remove the randomized least significant dictionary entries,
+#   until the node-limit is again fine.
+#   That will require the APIs:
+#   ->prefix_lookup($prefix, $top_k);
+#   ->update($term, $so-action)
+#   ->remove_least_significant_term();
 
 use constant {
   SPLIT_CHAR => 0,
@@ -112,5 +126,37 @@ sub search {
 
 
 sub search_i;
+
+sub prefix_lookup {
+  my ($self, $prefix, $top_k) = @_;
+  ...
+};
+
+sub update {
+  my ($self, $prefix, $so_strategy) = @_;
+  ...
+};
+
+# Remove least significant term
+sub remove_lst {
+  my $self = shift;
+  # On every level:
+  my $node;
+  if (!$node->[LO_KID] && !$node->[HI_KID]) {
+    $node = $node->[EQ_KID];
+  }
+  elsif ($node->[LO_KID] && $node->[HI_KID]) {
+    $node = int(rand(2)) ? $node->[LO_KID] : $node->[HI_KID];
+  }
+  elsif ($node->[LO_KID]) {
+    $node = $node->[LO_KID];
+  }
+  else {
+    $node = $node->[HI_KID];
+  };
+
+  # Delete node
+  ...
+};
 
 1;

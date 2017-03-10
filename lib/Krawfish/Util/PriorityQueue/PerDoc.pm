@@ -6,7 +6,7 @@ use Krawfish::Log;
 # TODO: Probably rename from IN_DOC to IN_COLL
 
 use constant {
-  DEBUG => 0,
+  DEBUG => 1,
   RANK => 0,
   SAME => 1,
   VALUE => 2,
@@ -36,11 +36,14 @@ sub length {
 # TODO: May accept rank, in_doc, value instead of nodes
 # sub insert;
 
+# Increment match count
 sub incr {
   my ($self, $node) = @_;
   $self->{match_count} += $node->[IN_DOC];
 };
 
+
+# decrement match count
 sub decr {
   my ($self, $node) = @_;
   $self->{match_count} -= $node->[IN_DOC];
@@ -66,8 +69,7 @@ sub to_tree {
   } @{$self->{array}}[0..$self->{index}-1]);
 };
 
-
-sub top_identicals {
+sub top_identical_matches {
   my $top = $_[0]->{array}->[0];
 
   if ($top->[SAME] > 1) {

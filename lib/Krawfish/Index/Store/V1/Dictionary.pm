@@ -5,15 +5,25 @@ use warnings;
 use Memoize;
 use POSIX qw/floor/;
 
+# This is necessary to deal with the dynamic structure
 use constant {
   SPLIT_CHAR => 0,
-  LO_KID => 1,
-  EQ_KID => 2,
-  HI_KID => 3,
-  TERM_ID => 4,
-  TERM_CHAR => '00',
-  DEBUG => 0
+  LO_KID     => 1,
+  EQ_KID     => 2,
+  HI_KID     => 3,
+  TERM_ID    => 4,
+  TERM_CHAR  => '00',
+  DEBUG      => 0
 };
+
+# TODO:
+#   - The datastructure should be rather like:
+#     (([LENGTH-first-bit-not-set][xor][char])|([xor-first-bit-set][char]))*
+#     Because then there is no need for length-1 information.
+#     It may also be beneficial to have the information of a leaf node
+#     directly encoded in the xor, though this may be complicated,
+#     leaving only 30bit for xor
+#   - Characters are stored as UTF-32
 
 # This is a very compact representation of a Ternary Search Tree.
 # On each letter node, the binary search tree is complete and stored

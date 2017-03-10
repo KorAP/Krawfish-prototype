@@ -35,6 +35,12 @@ ok(!$sorter->insert(node(23, 3, 'Baum 6; Baum 7; Baum 8')),
 ok($sorter->insert(node(5, 1, 'Baum 9')), 'Add record to sorter - 5/1');
 is($sorter->length, 6, 'Length');
 
+ok($sorter->insert(node(5, 2, 'Baum 10')), 'Add record to sorter - 5/2');
+is($sorter->length, 6, 'Length');
+
+ok($sorter->insert(node(5, 7, 'Baum 11')), 'Add record to sorter - 5/2');
+is($sorter->length, 10, 'Length');
+
 diag 'Test with same rank and multi in-docs!';
 
 done_testing;

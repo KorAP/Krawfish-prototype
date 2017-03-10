@@ -35,7 +35,7 @@ use POSIX qw/floor/;
 # with the same rank. For example, multiple matches in a document.
 #
 use constant {
-  DEBUG => 0,
+  DEBUG => 1,
   RANK  => 0,
   SAME  => 1, # 0 means: not checked yet!
   VALUE => 2
@@ -165,20 +165,20 @@ sub enqueue {
 
       # Get top identicals
 
-      my $same = $self->top_identicals;
+      my $identicals = $self->top_identical_matches;
 
       if (DEBUG) {
         print_log(
           'prio',
-          "First element has $same identicals - by a length of " . $self->length .
-            ' and requested k=' . $self->{top_k}
+          "First element has $identicals identical matches - by a length of "
+            . $self->length . ' and requested k=' . $self->{top_k}
         );
       };
 
       # The max element exceeds the list now
-      if (($self->length - $same) >= $self->{top_k}) {
+      if (($self->length - $identicals) >= $self->{top_k}) {
         print_log('prio', 'When removing top, k is still valid') if DEBUG;
-        $self->remove_tops($same);
+        $self->remove_tops($self->top_identical_nodes);
       };
     };
 
@@ -202,7 +202,12 @@ sub incr_top_duplicate {
 
 
 # Get the top identicals
-sub top_identicals {
+sub top_identical_matches {
+  $_[0]->{array}->[0]->[SAME] || 1;
+};
+
+# In this implementation, this is identical to matches
+sub top_identical_nodes {
   $_[0]->{array}->[0]->[SAME] || 1;
 };
 

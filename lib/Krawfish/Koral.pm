@@ -19,6 +19,11 @@ use Krawfish::Koral::Document;
 #   so when one filter is applied (virtual corpus),
 #   another one can be filtered before (bin-sorting).
 
+# TODO:
+#   When a user searches a term in a query,
+#   this should issue an update in the autosuggestion
+#   dictionary.
+
 use constant CONTEXT => 'http://korap.ids-mannheim.de/ns/koral/0.6/context.jsonld';
 
 sub new {

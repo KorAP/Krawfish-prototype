@@ -72,6 +72,9 @@ sub startup {
   $r->delete('/corpus/:uid')->to('Index#delete');
   $r->delete('/corpus/:csigle/:dsigle/:tsigle')->to('Index#delete');
 
+  # TODO: Maybe websocket
+  $r->get('/suggest')->to('Dictionary#suggest');
+
   # TODO: Commit?
 };
 
