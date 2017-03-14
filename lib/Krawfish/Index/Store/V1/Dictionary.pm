@@ -13,7 +13,7 @@ use constant {
   HI_KID     => 3,
   TERM_ID    => 4,
   TERM_CHAR  => '00',
-  DEBUG      => 0
+  DEBUG      => 1
 };
 
 # TODO:
@@ -64,6 +64,16 @@ sub from_dynamic {
 };
 
 
+# read with header
+# This may first be done in the parent dictionary module
+# and then be delegated to the right version
+sub from_file;
+
+
+# write a header
+sub to_file;
+
+
 # Search for string
 # TODO:
 #   Support collation my $diff = collation_cmp($char, $node_char);
@@ -91,6 +101,7 @@ sub search {
 
     print_log('v1_dict', "$char vs $node_char") if DEBUG;
 
+    # Check for right child
     if ($char lt $node_char) {
       print_log('v1_dict', "$char < $node_char") if DEBUG;
 
@@ -181,12 +192,14 @@ sub convert_to_array {
   #   - Use a stack or something similar to store the info and
   #     keep next/previous-diff-xor for the eq nodes.
   #   - All characters need to be treated as UCS2 (2-byte encoding)
+  #     or utf-32 (4-byte encoding)
   my $dynamic_node = shift;
 
   # Init with the first offset
-  my $parent_offset = 0;
-  my $node_offset = 0;
-  my $curr_offset = 0;
+  my $parent_offset  = 0;
+  my $node_offset    = 0;
+  my $curr_offset    = 0;
+  my $gparent_offset = 0;
 
   # Iterate over the tree breadth-first
   # TODO:
@@ -196,9 +209,11 @@ sub convert_to_array {
   #   In that case unique suffixes are stored in one page,
   #   which may be faster.
   #
-  my @queue = ([$node_offset, $parent_offset, $dynamic_node]);
+  my @queue = ([$node_offset, $parent_offset, $dynamic_node, $gparent_offset]);
   my @array = ();
   my @term_ids = ();
+
+  my $parent_of_bst = 0;
 
   # Iterate in a breadth-first manner
   while (scalar(@queue) > 0) {
@@ -206,13 +221,10 @@ sub convert_to_array {
     # Get offset information
     # - The node offset is the position of the parent pointer
     # - The offset is the position of the parent root
-    ($node_offset, $parent_offset, $dynamic_node) = @{shift @queue};
+    ($node_offset, $parent_offset, $dynamic_node, $gparent_offset) = @{shift @queue};
 
     # Get the current letter node as an array
     my ($length, $chars) = _complete_level_sort($dynamic_node);
-
-    # TODO:
-    #   Fix the parent nodes xor-eq-value
 
     # The next node array starts with a length indicator
     push @array, $length;
@@ -220,8 +232,31 @@ sub convert_to_array {
     # The current root position
     $curr_offset = $#array;
 
+    # Fix the parent nodes xor-eq-value
     if ($parent_offset > 0) {
+
+      if (DEBUG) {
+        # print_log('v1_dict', "The current bst parent is $parent_of_bst") if DEBUG;
+
+        print_log('v1_dict', "Fix the current parent eq node");
+        print_log('v1_dict',
+                  '  ' . $array[$parent_offset - 1] .
+                    " at $node_offset/$curr_offset with $gparent_offset:     " .
+                    $gparent_offset .
+                    " xor $parent_offset = " .
+                    ($gparent_offset ^ $parent_offset),
+          );
+      };
+
+      # TODO:
       $array[$parent_offset] ^= $curr_offset; # = $curr_offset
+    }
+
+    elsif (DEBUG) {
+      print_log(
+        'v1_dict',
+        "curr_offset is $curr_offset with parent_offset = $parent_offset"
+      );
     };
 
     foreach (@$chars) {
@@ -240,6 +275,7 @@ sub convert_to_array {
       #   O(1) for term id request and O(n) for term retrieval
       if ($_->[SPLIT_CHAR] eq TERM_CHAR) {
         # push @array, $parent_offset ^ $_->[TERM_ID]; #
+
         push @array, $curr_offset ^ $_->[TERM_ID];
 
         # store leaf node in term_id array
@@ -247,11 +283,16 @@ sub convert_to_array {
       }
       # Push temporary eq
       else {
-#        push @array, $parent_offset; # $curr_offset; # It's rather initialized 0 ^ $curr_offset
+        #        push @array, $parent_offset; # $curr_offset;
+        # It's rather initialized 0 ^ $curr_offset
         push @array, $curr_offset; # It's rather initialized 0 ^ $curr_offset
-        push @queue, [$curr_offset, $#array, $_->[EQ_KID]];
+
+        # Push the current EQ node on the queue
+        push @queue, [$curr_offset, $#array, $_->[EQ_KID], $parent_offset];
       };
     };
+
+    $parent_of_bst = $curr_offset;
   };
 
   return \@array, \@term_ids;

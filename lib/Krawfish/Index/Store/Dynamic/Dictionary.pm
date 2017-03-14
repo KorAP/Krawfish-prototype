@@ -7,6 +7,9 @@ use warnings;
 #   term(leaf-node)
 #
 # TODO:
+#   Add alias transitions, that point to a list of term ids.
+#
+# TODO:
 #   The self-optimizing application should also
 #   be used for autosuggestions.
 #   This will be a separate datastructure
@@ -26,7 +29,8 @@ use constant {
   EQ_KID => 2,
   HI_KID => 3,
   TERM_ID => 4,
-  TERM_CHAR => '00'
+  TERM_CHAR => '00',
+  ALIAS_CHAR => '01'
 };
 
 # Code is based on Tree::Ternary
@@ -125,7 +129,26 @@ sub search {
 };
 
 
-sub search_i;
+# TODO:
+#   Insert a term and store a term_id as an alias.
+#   If the term already exist, add the term_id to the term id array.
+#   This is useful for casefolded terms, that may refold to multiple
+#   term_ids (therefore useful for case insensitive searching).
+#   Or for accent insensitive searches.
+#   Another use case are cached regular expressions, like /.+?ratu.+?/,
+#   that are costly to search the dictionary for, but may easily be stored as an alias collection!
+sub insert_alias {
+  my ($self, $term, $term_id) = @_;
+  ...
+};
+
+
+# This will return an array of term ids,
+# in case the term is stored as an alias.
+# Otherwise the array has only one item.
+sub search_alias;
+
+
 
 sub prefix_lookup {
   my ($self, $prefix, $top_k) = @_;

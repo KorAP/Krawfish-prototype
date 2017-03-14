@@ -225,6 +225,13 @@ sub add {
       # Add as a subterm
       my $subterm_id = $dict->add_subterm($term);
 
+      # TODO:
+      #   Check somehow, if the term is new. If so, then {
+      #     TODO: Store case insensitive term
+      #       $dict->add_subterm_casefolded(fold_case($term), $subterm_id);
+      #       $dict->add_subterm_without_diacritics(remove_diacritics($term), $subterm_id);
+      #   }
+
       print_log('index', 'Surface form has subterm_id ' . $subterm_id) if DEBUG;
 
       # Store information to subtoken
