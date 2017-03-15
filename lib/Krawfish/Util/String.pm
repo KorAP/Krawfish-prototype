@@ -28,7 +28,7 @@ sub remove_diacritics {
   $norm =~ s/\p{InCombiningDiacriticalMarks}//g;
 
   # Deal with some special cases ...
-  $norm =~ tr/ıŁłđĐø/iLldDo/;
+  $norm =~ tr/ıŁłđĐÐØø/iLldDDOo/;
   return normalize('C', $norm);
 };
 

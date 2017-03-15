@@ -25,6 +25,12 @@ use constant {
 #     leaving only 30bit for xor
 #   - Characters are stored as UTF-32
 
+# TODO:
+#   - Benchmark deep first organization in favor of breadth-first!
+#     It may be beneficial to go deep-first on retrieval because of cache-
+#     prefetching (so a string with a linked list at the end is probably
+#     in the same page completely!)
+
 # This is a very compact representation of a Ternary Search Tree.
 # On each letter node, the binary search tree is complete and stored
 # in an array. The parental relation is implemented using a

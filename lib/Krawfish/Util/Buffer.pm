@@ -54,7 +54,7 @@ sub next {
 # Return the current element of the buffer
 sub current {
   my $self = shift;
-  return if $self->{finger} > $self->size;
+  return if $self->{finger} >= $self->size;
   return $self->{array}->[$self->{finger}];
 };
 

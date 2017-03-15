@@ -37,6 +37,14 @@ is(remove_diacritics('łŁđĐ'), 'lLdD');
 is(remove_diacritics('ţŢşŞçÇ'), 'tTsScC');
 is(remove_diacritics('øı'), 'oi');
 
+is(remove_diacritics(
+  q{Bonjour ça va? C'est l'été! Ich möchte ä Ä á à â ê é è ë Ë É ï Ï î í ì ó ò ô ö Ö Ü ü ù ú û Û ý Ý ç Ç ñ Ñ}),
+  q{Bonjour ca va? C'est l'ete! Ich mochte a A a a a e e e e E E i I i i i o o o o O U u u u u U y Y c C n N});
+
+# https://docs.seneca.nl/Smartsite-Docs/Features-Modules/Add-On_Modules/Faceted_Search/FS_Reference/FTS_and_iFTS_technical_background_information/Diacritics_and_Unicode.html
+is(remove_diacritics(
+  q/!"#$'()*+,-.0123456789:;=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_` abcdefghijklmnoprstuvwxyz{|}~¡¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿−ÀÁÂ ÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ/),
+  q/!"#$'()*+,-.0123456789:;=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_` abcdefghijklmnoprstuvwxyz{|}~¡¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿−AAA AAAÆCEEEEIIIIDNOOOOO×OUUUUYÞßaaaaaaæceeeeiiiiðnooooo÷ouuuuyþy/);
 done_testing;
 __END__
 
