@@ -332,20 +332,20 @@ sub swap {
 sub mark_top_duplicates {
   my $self = shift;
 
-  my $top_node = $self->{array}->[0];
-  my $count_ref = 0;
-  $self->_sum_same(
+  my $count_same = 0;
+
+  $self->on_same_top(
     0,
-    $top_node->[RANK],
-    \$count_ref
+    sub { $count_same++ }
   );
-  if ($count_ref) {
-    $top_node->[SAME] = $count_ref;
+
+  if ($count_same) {
+    $self->{array}->[0]->[SAME] = $count_same;
     if (DEBUG) {
-      print_log('prio', "Mark top element with count " . ($count_ref));
+      print_log('prio', "Mark top element with count $count_same");
     }
   };
-};
+}
 
 
 # Return tree stringification
@@ -356,7 +356,9 @@ sub to_tree {
   } @{$self->{array}}[0..$self->{index}-1]);
 };
 
+
 sub incr {};
+
 sub decr {};
 
 # Remove a single top entry
@@ -401,28 +403,25 @@ sub _remove_single_top {
 };
 
 
-# Sum up all duplicates
-sub _sum_same {
-  my ($self, $node_i, $rank, $count_ref) = @_;
 
+sub on_same_top {
+  my ($self, $node_i, $cb) = @_;
   my $array = $self->{array};
+  my $rank = $array->[$node_i]->[RANK];
 
-  print_log('prio', "Found node with rank $rank at index $node_i") if DEBUG;
-
-  # Increment duplicate count
-  $$count_ref++;
+  $cb->($node_i);
 
   # Left child
   my $left_i = 2 * $node_i + 1;
   if ($left_i < $self->{index}) {
     if ($array->[$left_i]->[RANK] == $rank) {
-      $self->_sum_same($left_i, $rank, $count_ref);
+      $self->on_same_top($left_i, $cb);
     };
 
     # Right child
     if (($left_i + 1) < $self->{index}) {
       if ($array->[$left_i+1]->[RANK] == $rank) {
-        $self->_sum_same($left_i+1, $rank, $count_ref);
+        $self->on_same_top($left_i+1, $cb);
       };
     };
   };

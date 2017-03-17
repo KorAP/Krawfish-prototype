@@ -155,7 +155,7 @@ sub to_string {
   $string .= $self->{array}->[$finger] // '';
   $string .= '> ';
 
-  foreach ($finger + 1 .. $self->size) {
+  foreach ($finger + 1 .. ($self->size - 1)) {
     $string .= ($self->{array}->[$_] // '');
   };
 

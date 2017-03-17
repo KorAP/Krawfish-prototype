@@ -56,6 +56,7 @@ is($buff->to_string, '[0:5-6] <> ', 'Stringify');
 ok($buff->remember(Krawfish::Posting::Token->new(0,8,9)), 'Remember');
 is($buff->to_string, '[0:5-6] <[0:8-9]> ', 'Stringify');
 $buff->rewind;
+
 is($buff->to_string, ' <[0:5-6]> [0:8-9]', 'Stringify');
 $buff->to_end;
 is($buff->to_string, '[0:5-6] <[0:8-9]> ', 'Stringify');
