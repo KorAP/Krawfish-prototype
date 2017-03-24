@@ -5,13 +5,13 @@ use warnings;
 
 use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Query::Builder');
-use_ok('Krawfish::Result::Sort::Priority');
+use_ok('Krawfish::Result::Sort::PriorityCascade');
 
 my $index = Krawfish::Index->new;
 
 ok_index($index, {
   docID => 7,
-  author => 'Carol'
+  author => 'Arthur'
 } => [qw/aa bb/], 'Add complex document');
 ok_index($index, {
   docID => 3,
@@ -30,10 +30,13 @@ my $query = $kq->term_or('aa', 'bb');
 my $max_rank = $index->max_rank;
 
 # Get sort object
-ok(my $sort = Krawfish::Result::Sort::Priority->new(
+ok(my $sort = Krawfish::Result::Sort::PriorityCascade->new(
   query => $query->prepare_for($index),
-  field => 'docID',
-  fields => $index->fields,
+  index => $index,
+  fields => [
+    ['author'],  # Order by author with highest priority
+    ['docID', 1] # Then by descending doc id
+  ],
   top_k => 2,
   max_rank_ref => \$max_rank
 ), 'Create sort object');
@@ -42,10 +45,15 @@ ok(my $sort = Krawfish::Result::Sort::Priority->new(
 # so the doc-id=1 document will show up first
 ok($sort->next, 'First next');
 
+done_testing;
+__END__
+
 is($sort->current->doc_id, 2, 'Obj');
 ok($sort->next, 'Next');
 is($sort->current->doc_id, 2, 'Obj');
 ok(!$sort->next, 'No more next');
+
+
 
 # Next try
 $max_rank = $index->max_rank;

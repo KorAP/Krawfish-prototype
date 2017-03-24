@@ -5,13 +5,14 @@ use warnings;
 use Krawfish::Log;
 
 # TODO: Probably rename from IN_DOC to IN_COLL
+# TODO: Probably rename to PriorityQueue::Bundle
 
 use constant {
-  DEBUG => 1,
-  RANK => 0,
-  SAME => 1,
-  VALUE => 2,
-  MATCHES => 3,
+  DEBUG       => 1,
+  RANK        => 0,
+  SAME        => 1,
+  VALUE       => 2,
+  MATCHES     => 3,
   MATCHES_ALL => 4
 };
 
@@ -53,6 +54,8 @@ sub decr {
 
 sub incr_top_duplicate {
   my ($self, $node) = @_;
+  return unless $self->{array}->[0];
+
   $self->{array}->[0]->[SAME]++;
   $self->{array}->[0]->[MATCHES_ALL] += $node->[MATCHES];
 };
@@ -73,12 +76,19 @@ sub to_tree {
 
 # Returns the number of identical ranked matches
 sub top_identical_matches {
-  my $top = $_[0]->{array}->[0];
+
+  # Get top item
+  my $top = $_[0]->{array}->[0] or return 0;
+
+  # There are some equally ranked items in the heap
   if ($top->[SAME] > 1) {
+
+    # Return the sum of all identically ranked matches
     return $top->[MATCHES_ALL];
   };
 
-  return $top->[MATCHES];
+  # Return the number of matches
+  return $top->[MATCHES] // 1;
 };
 
 
@@ -115,7 +125,3 @@ sub mark_top_duplicates {
 
 
 __END__
-
-
-
-1;

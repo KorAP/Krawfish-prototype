@@ -1,14 +1,12 @@
 package Krawfish::Result::Sort::PriorityCascade;
-use Krawfish::Util::PrioritySort;
+use Krawfish::Util::PriorityQueue::PerDoc;
+use Krawfish::Posting::Bundle;
 use Krawfish::Log;
 use Data::Dumper;
 use strict;
 use warnings;
 
 use constant DEBUG => 0;
-
-# TODO:
-#   Use Krawfish::Util::PrioritySortPerDoc
 
 # TODO:
 #   my $offset = $param{offset};
@@ -32,6 +30,11 @@ use constant DEBUG => 0;
 #   After a sort turn, the non-ranked fields are sorted in the ranked
 #   fields. The field can be reranked any time.
 
+# TODO:
+#   Ranks should respect the ranking mechanism of FieldsRank and
+#   TermRank, where only even values are fine and odd values need
+#   to be sorted in a separate step.
+
 sub new {
   my $class = shift;
   my %param = @_;
@@ -52,28 +55,32 @@ sub new {
   # if a document can't be part of the result set
   my $max_rank_ref;
   if (defined $param{max_rank_ref}) {
+
+    # Get reference from definition
     $max_rank_ref = $param{max_rank_ref};
   }
   else {
-    my $max_rank = $index->max_rank;
-    $max_rank_ref = \$max_rank;
+
+    # Create a new reference
+    $max_rank_ref = \(my $max_rank = $index->max_rank);
   };
 
   # Create initial priority queue
-  my $queue = Krawfish::Util::PrioritySort->new(
-    $self->{top_k},
-    $self->{max_rank_ref}
+  my $queue = Krawfish::Util::PriorityQueue::PerDoc->new(
+    $top_k,
+    $max_rank_ref
   );
 
+  # Construct
   return bless {
-    fields => $fields,
-    index => $index,
-    top_k => $top_k,
-    query => $query,
-    queue => $queue,
-#    max_rank_ref => $max_rank_ref,
-    list => undef,
-    pos => -1
+    fields       => $fields,
+    index        => $index,
+    top_k        => $top_k,
+    query        => $query,
+    queue        => $queue,
+    max_rank_ref => $max_rank_ref,
+    buffer       => Krawfish::Util::Buffer->new,
+    pos          => -1
   }, $class;
 };
 
@@ -81,78 +88,129 @@ sub new {
 sub _init {
   my $self = shift;
 
+  # Result already initiated
   return if $self->{init}++;
 
   my $query = $self->{query};
 
-  # Get first criterion
+  # Get first sorting criterion
   my ($field, $desc) = @{$self->{fields}->[0]};
 
   # Get ranking
-  my $ranking = $fields->ranked_by($field);
+  my $ranking = $self->{index}->fields->ranked_by($field);
 
   # Get maximum rank if descending order
   my $max = $ranking->max if $desc;
 
+  # Get maximum accepted rank from queue
+  my $max_rank_ref = $self->{max_rank_ref};
+
+  my $last_doc_id = -1;
+  my $rank;
+  my $queue = $self->{queue};
+
+  # Store the last match buffered
+  my $match;
+
   # Pass through all queries
-  while ($query->next) {
+  while ($match || ($query->next && ($match = $query->current))) {
 
     if (DEBUG) {
       print_log('p_sort', 'Get next posting from ' . $query->to_string);
     };
 
-    # Clone record (is that necessary?)
-    my $record = $query->current->clone;
+    # Get stored rank
+    $rank = $ranking->get($match->doc_id);
 
-    # Fetch rank if doc_id changes
-    if ($record->doc_id != $last_doc_id) {
-
-      # Get stored rank
-      $rank = $ranking->get($record->doc_id);
-
-      # Revert if maximum rank is set
-      $rank = $max - $rank if $max;
-    };
+    # Revert if maximum rank is set
+    $rank = $max - $rank if $max;
 
     if (DEBUG) {
-      print_log('p_sort', 'Rank for doc id ' . $record->doc_id . " is $rank");
+      print_log('p_sort', 'Rank for doc id ' . $match->doc_id . " is $rank");
     };
 
-    # Insert into priority queue
-    $queue->insert($rank, $record);
+    # Precheck if the match is relevant
+    if ($rank <= $$max_rank_ref) {
+
+      # Create new bundle of matches
+      my $bundle = Krawfish::Posting::Bundle->new($match->clone);
+      # Remember doc_id
+      $last_doc_id = $match->doc_id;
+      $match = undef;
+
+      # Iterate over next queries
+      while ($query->next) {
+
+        # New match should join the bundle
+        if ($query->current->doc_id == $last_doc_id) {
+
+          # Add match to bundle
+          $bundle->add($query->current);
+        }
+
+        # New match is new
+        else {
+
+          # Remember match for the next tome
+          $match = $query->current;
+          last;
+        };
+      };
+
+      # Insert into priority queue
+      $queue->insert([$rank, 0, $bundle, $bundle->length]) if $bundle;
+    }
+
+    # Document is irrelevant
+    else {
+      $match = undef;
+    };
   };
 
   # Get the rank reference
-  $self->{list} = $queue->reverse_array;
-  $self->{length} = $queue->length;
+  # $self->{list} = $queue->reverse_array;
+  # $self->{length} = $queue->length;
 };
 
 
 sub next {
   my $self = shift;
+
+  # Initialize query - this will do a full run!
   $self->_init;
 
   my $level = 1;
-  while ($self->duplicate_rank > 1) {
-    my ($field, $desc) = @{$self->{fields}->[$level++]};
 
-    if ($desc) {
-      my $ranking = $fields->ranked_by($field);
-      my $max = $ranking->max if $desc;
+  if ($self->{pos} > $self->{top_k}) {
+    return;
+  };
+
+  my $queue = $self->{queue};
+
+  # IDEA: Push queues on a stack!
+
+  # Get the first element from the identical topics
+  if ($queue->top_identical_matches > 1) {
+
+    warn 'Found ' . $queue->top_identical_matches;
+#    my ($field, $desc) = @{$self->{fields}->[$level++]};
+#
+#    if ($desc) {
+#      my $ranking = $fields->ranked_by($field);
+#      my $max = $ranking->max if $desc;
 
       # TODO:
       #   Reuse the queue with adjusted top_k
       #   and probably sort in-place!
       #   there may be a better in-place
       #   algorithm though
-    };
+#    };
   };
 
-  
-  if ($self->{pos}++ < $self->{length}) {
-    return 1;
-  };
-  return;
+#  if ($self->{pos}++ < $self->{length}) {
+#    return 1;
+#  };
+#  return;
 };
 
 

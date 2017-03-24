@@ -17,6 +17,14 @@ use constant {
 };
 
 # TODO:
+#   It's probably WAY simpler to just store the values in alphabetic
+#   order and use a binary search on it instead of doing binary tree search.
+#   This will also simplify merge().
+#   AND
+#   Use linear search for small arrays, see
+#   https://schani.wordpress.com/2010/04/30/linear-vs-binary-search/
+
+# TODO:
 #   - The datastructure should be rather like:
 #     (([LENGTH-first-bit-not-set][xor][char])|([xor-first-bit-set][char]))*
 #     Because then there is no need for length-1 information.

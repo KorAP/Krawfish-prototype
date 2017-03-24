@@ -2,7 +2,7 @@ use Test::More;
 use strict;
 use warnings;
 
-use_ok('Krawfish::Posting::Matches');
+use_ok('Krawfish::Posting::Bundle');
 use_ok('Krawfish::Posting::Match');
 
 my $match = Krawfish::Posting::Match->new(
@@ -11,7 +11,7 @@ my $match = Krawfish::Posting::Match->new(
   end => 5
 );
 
-my $matches = Krawfish::Posting::Matches->new($match);
+my $matches = Krawfish::Posting::Bundle->new($match);
 
 is($matches->to_string, '[1:2-5|]', 'Stringification');
 

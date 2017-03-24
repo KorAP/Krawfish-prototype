@@ -17,7 +17,6 @@ sub new {
   my $desc   = $param{desc} ? 1 : 0;
   my $top_k  = $param{top_k};
 
-  # TODO: my $offset = $param{offset};
   my $max_rank_ref = $param{max_rank_ref};
 
   # Create priority queue
