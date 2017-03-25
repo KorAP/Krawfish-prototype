@@ -195,6 +195,8 @@ sub enqueue {
 };
 
 
+
+
 # Increment identicals
 sub incr_top_duplicate {
   $_[0]->{array}->[0]->[SAME]++;
@@ -228,6 +230,8 @@ sub length {
 # to a min-first array in-place
 # TODO:
 #   This should work with nodes!
+# TODO:
+#   Rewrite for perdoc
 sub reverse_array {
   my $self = shift;
 
@@ -362,6 +366,8 @@ sub incr {};
 sub decr {};
 
 # Remove a single top entry
+# TODO:
+#   Rename to dequeue
 sub _remove_single_top {
   my $self = shift;
 

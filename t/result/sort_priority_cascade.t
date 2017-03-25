@@ -37,6 +37,7 @@ ok(my $sort = Krawfish::Result::Sort::PriorityCascade->new(
     ['author'],  # Order by author with highest priority
     ['docID', 1] # Then by descending doc id
   ],
+  unique => 'docID',
   top_k => 2,
   max_rank_ref => \$max_rank
 ), 'Create sort object');
@@ -44,6 +45,9 @@ ok(my $sort = Krawfish::Result::Sort::PriorityCascade->new(
 # This will be sorted by the doc id,
 # so the doc-id=1 document will show up first
 ok($sort->next, 'First next');
+
+
+diag 'Test with unique field ';
 
 done_testing;
 __END__

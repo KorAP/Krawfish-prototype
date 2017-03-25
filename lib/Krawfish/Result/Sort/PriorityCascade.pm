@@ -6,7 +6,12 @@ use Data::Dumper;
 use strict;
 use warnings;
 
-use constant DEBUG => 0;
+use constant {
+  DEBUG => 0,
+    SAME => 1,
+    VALUE => 2,
+    MATCHES => 3
+};
 
 # TODO:
 #   my $offset = $param{offset};
@@ -39,16 +44,21 @@ sub new {
   my $class = shift;
   my %param = @_;
 
+  # TODO:
+  #   Check for mandatory parameters
   my $query = $param{query};
 
   # This is the index element
-  my $index  = $param{index};
+  my $index = $param{index};
   my $top_k = $param{top_k};
 
   # This is the fields element
   # It has the structure [[field], [field, 1]]
   # where the second value is the descending marker
   my $fields = $param{fields};
+
+  # For final field distinction, use unique field
+  push @$fields, [$param{unique}];
 
   # The maximum ranking value may be used
   # by outside filters to know in advance,
@@ -80,6 +90,8 @@ sub new {
     queue        => $queue,
     max_rank_ref => $max_rank_ref,
     buffer       => Krawfish::Util::Buffer->new,
+    list         => undef,
+    sorted       => [],
     pos          => -1
   }, $class;
 };
@@ -168,31 +180,50 @@ sub _init {
   };
 
   # Get the rank reference
-  # $self->{list} = $queue->reverse_array;
-  # $self->{length} = $queue->length;
+  $self->{list} = $queue->reverse_array;
 };
 
 
+# Move to the next item in the sorted list
 sub next {
   my $self = shift;
 
-  # Initialize query - this will do a full run!
-  $self->_init;
-
-  my $level = 1;
-
-  if ($self->{pos} > $self->{top_k}) {
+  if ($self->{pos}++ > $self->{top_k}) {
+    $self->{current} = undef;
     return;
   };
 
-  my $queue = $self->{queue};
+  # Initialize query - this will do a full run on the first field level!
+  $self->_init;
 
-  # IDEA: Push queues on a stack!
+  # Get the list values
+  my $list = $self->{list};
 
-  # Get the first element from the identical topics
-  if ($queue->top_identical_matches > 1) {
+  # There are sorted results in the result list
+  if (scalar @{$self->{sorted}}) {
 
-    warn 'Found ' . $queue->top_identical_matches;
+    # Make this current
+    $self->{current} = shift @{$self->{sorted}};
+    return 1;
+  };
+
+  # The result list is empty - sort next items
+
+  # There is nothing to sort further
+  unless (scalar @$list) {
+    $self->{current} = undef;
+    return;
+  }
+
+  # The first item in the list has multiple identical ranks
+  if ($list->[0]->[SAME] > 1) {
+
+    # TODO:
+    #   Depending on how many identical ranks exist,
+    #   here the next strategy should be chosen.
+    #   Either sort in place, or sort using heapsort again.
+    my $level = 1;
+    warn 'Found multiple matches at first node';
 #    my ($field, $desc) = @{$self->{fields}->[$level++]};
 #
 #    if ($desc) {
@@ -205,14 +236,28 @@ sub next {
       #   there may be a better in-place
       #   algorithm though
 #    };
+  }
+
+  # There are matches on the list without identical ranks
+  else {
+
+    # Get the top list entry
+    my $top = shift @$list;
+
+    # Push matches to result list
+    push @{$self->{result}}, @{$top->[VALUE]};
   };
 
-#  if ($self->{pos}++ < $self->{length}) {
-#    return 1;
-#  };
-#  return;
+  # Make this current
+  $self->{current} = shift @{$self->{sorted}};
+  return 1;
 };
 
+
+# Return the current match
+sub current {
+  $_[0]->{current};
+};
 
 # Return the number of duplicates of the current match
 sub duplicate_rank {
