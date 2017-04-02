@@ -27,7 +27,7 @@ ok_index($index, {
 my $kq = Krawfish::Koral::Query::Builder->new;
 my $query = $kq->token('aa');
 
-# Get facets object
+# Get fields object
 ok(my $fields = Krawfish::Result::Fields->new(
   $index,
   $query->prepare_for($index),
@@ -35,6 +35,7 @@ ok(my $fields = Krawfish::Result::Fields->new(
 ), 'Create count object');
 
 ok($fields->next, 'Next');
+is($fields->current->to_string, '[0:0-1]', 'Current object');
 is($fields->current_match, "[0:0-1|corpus='corpus-2';license='free']",
    'Current match');
 ok($fields->next, 'Next');
@@ -42,7 +43,46 @@ is($fields->current_match, "[1:0-1|corpus='corpus-3';license='closed']",
    'Current match');
 ok(!$fields->next, 'No more next');
 
-diag 'Test further with multiple fields';
+
+# Fields for multiple spans
+$query = $kq->term_or('aa', 'bb');
+
+
+# Get fields object
+ok($fields = Krawfish::Result::Fields->new(
+  $index,
+  $query->prepare_for($index),
+  [qw/license corpus/]
+), 'Create count object');
+
+ok($fields->next, 'Next');
+is($fields->current->to_string, '[0:0-1]', 'Current object');
+is($fields->current_match, "[0:0-1|corpus='corpus-2';license='free']",
+   'Current match');
+
+ok($fields->next, 'Next');
+is($fields->current->to_string, '[0:1-2]', 'Current object');
+is($fields->current_match, "[0:1-2|corpus='corpus-2';license='free']",
+   'Current match');
+
+ok($fields->next, 'Next');
+is($fields->current->to_string, '[1:0-1]', 'Current object');
+is($fields->current_match, "[1:0-1|corpus='corpus-3';license='closed']",
+   'Current match');
+
+ok($fields->next, 'Next');
+is($fields->current->to_string, '[1:1-2]', 'Current object');
+is($fields->current_match, "[1:1-2|corpus='corpus-3';license='closed']",
+   'Current match');
+
+ok($fields->next, 'Next');
+is($fields->current->to_string, '[2:0-1]', 'Current object');
+is($fields->current_match, "[2:0-1|corpus='corpus-1';license='free']",
+   'Current match');
+
+ok(!$fields->next, 'Next');
 
 done_testing;
 __END__
+
+
