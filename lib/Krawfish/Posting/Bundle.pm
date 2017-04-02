@@ -1,9 +1,11 @@
 package Krawfish::Posting::Bundle;
+use parent 'Krawfish::Posting';
 use overload '""' => sub { $_[0]->to_string }, fallback => 1;
 use warnings;
 use strict;
 
-# This is a container class for multiple Krawfish::Posting objects
+# This is a container class for multiple
+# Krawfish::Posting objects
 
 # Constructor
 sub new {
@@ -19,8 +21,38 @@ sub new {
   $self;
 };
 
+
+# Return document id of the bundle
 sub doc_id {
+  return unless $_[0]->length;
   $_[0]->[0]->doc_id;
+};
+
+
+# Start position not available
+sub start {
+  warn 'Not available on bundle';
+  0;
+};
+
+
+# End position not available
+sub end {
+  warn 'Not available on bundle';
+  0;
+};
+
+
+# Clone posting object
+sub clone {
+  my $self = shift;
+  return __PACKAGE__->new(@$self);
+};
+
+
+# Payload not really available
+sub payload {
+  Krawfish::Posting::Payload->new;
 };
 
 
@@ -33,7 +65,11 @@ sub length {
 # Add match to match array
 sub add {
   my ($self, $obj) = @_;
+
+  # Not an object
   return unless $obj;
+
+  # Push object to list
   if ($obj->isa('Krawfish::Posting')) {
     push @$self, $obj;
     return 1;
@@ -45,8 +81,13 @@ sub add {
 # Stringify bundle
 sub to_string {
   my $self = shift;
-  return join ('', map { $_->to_string } @$self);
+  return '[' . join ('|', map { $_->to_string } @$self) . ']';
 };
 
+
+# Unbundle bundle
+sub unbundle {
+  return @{$_[0]};
+};
 
 1;

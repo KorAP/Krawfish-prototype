@@ -13,10 +13,10 @@ my $match = Krawfish::Posting::Match->new(
 
 my $matches = Krawfish::Posting::Bundle->new($match);
 
-is($matches->to_string, '[1:2-5|]', 'Stringification');
+is($matches->to_string, '[[1:2-5]]', 'Stringification');
 
 ok($matches->add(Krawfish::Posting::Match->new(doc_id => 3, start => 5, end => 6)), 'Add');
 
-is($matches->to_string, '[1:2-5|][3:5-6|]', 'Stringification');
+is($matches->to_string, '[[1:2-5]|[3:5-6]]', 'Stringification');
 
 done_testing;

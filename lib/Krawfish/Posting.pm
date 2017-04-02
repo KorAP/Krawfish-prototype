@@ -153,4 +153,5 @@ sub is_identical {
   return $self->to_string eq $comp->to_string;
 };
 
+
 1;

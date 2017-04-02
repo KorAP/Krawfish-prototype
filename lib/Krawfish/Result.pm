@@ -19,6 +19,11 @@ sub current_match {
 };
 
 
+sub current {
+  shift->{query}->current;
+};
+
+
 sub match_from_query {
   my $self = shift;
 
@@ -33,7 +38,7 @@ sub match_from_query {
     print_log('c_collect', 'No match found yet') if DEBUG;
 
     # Get current object
-    my $current = $self->{query}->current;
+    my $current = $self->current;
 
     print_log('c_collect', 'Current posting is '. $self->{query}->to_string) if DEBUG;
 

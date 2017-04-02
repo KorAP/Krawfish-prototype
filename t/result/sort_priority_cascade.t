@@ -6,6 +6,7 @@ use warnings;
 use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Query::Builder');
 use_ok('Krawfish::Result::Sort::PriorityCascade');
+use_ok('Krawfish::Result::Fields');
 
 my $index = Krawfish::Index->new;
 
@@ -35,60 +36,45 @@ ok(my $sort = Krawfish::Result::Sort::PriorityCascade->new(
   index => $index,
   fields => [
     ['author'],  # Order by author with highest priority
-    ['docID', 1] # Then by descending doc id
+    ['docID']    # Then by doc id
   ],
   unique => 'docID',
-  top_k => 2,
+  top_k => 3,
   max_rank_ref => \$max_rank
 ), 'Create sort object');
 
+
+ok(my $sort_fields = Krawfish::Result::Fields->new(
+  $index,
+  $sort,
+  ['author', 'docID']
+), 'Create fields object');
+
+
 # This will be sorted by the doc id,
 # so the doc-id=1 document will show up first
-ok($sort->next, 'First next');
+ok($sort_fields->next, 'First next');
+is($sort_fields->current_match->to_string,
+   q![1:0-1|author='Arthur';docID='3']!, 'Match');
+is($sort_fields->current->doc_id, 1, 'DocID');
 
+
+ok($sort_fields->next, 'Next');
+is($sort_fields->current_match->to_string,
+   q![1:1-2|author='Arthur';docID='3']!, 'Match');
+is($sort_fields->current->doc_id, 1, 'DocID');
+
+
+ok($sort_fields->next, 'Next');
+is($sort_fields->current_match->to_string,
+   q![0:0-1|author='Arthur';docID='7']!, 'Match');
+is($sort_fields->current->doc_id, 0, 'DocID');
+
+
+ok(!$sort_fields->next, 'Next');
 
 diag 'Test with unique field ';
 
 done_testing;
 __END__
-
-is($sort->current->doc_id, 2, 'Obj');
-ok($sort->next, 'Next');
-is($sort->current->doc_id, 2, 'Obj');
-ok(!$sort->next, 'No more next');
-
-
-
-# Next try
-$max_rank = $index->max_rank;
-ok($sort = Krawfish::Result::Sort::Priority->new(
-  query => $query->prepare_for($index),
-  fields => $index->fields,
-  field => 'docID',
-  desc => 1,
-  top_k => 3,
-  max_rank_ref => \$max_rank
-), 'Create sort object');
-
-# Although top_k is set,
-# the list exceeds the limit
-ok($sort->next, 'First next');
-is($sort->current->doc_id, 0, 'Obj');
-is($sort->duplicate_rank, 2, 'Duplicates');
-ok($sort->next, 'Next');
-is($sort->current->doc_id, 0, 'Obj');
-is($sort->duplicate_rank, 1, 'Duplicates');
-ok($sort->next, 'No more next');
-is($sort->current->doc_id, 1, 'Obj');
-is($sort->duplicate_rank, 2, 'Duplicates');
-ok($sort->next, 'No more next');
-is($sort->current->doc_id, 1, 'Obj');
-is($sort->duplicate_rank, 1, 'Duplicates');
-ok(!$sort->next, 'No more next');
-
-is($sort->to_string, "prioritySort(^,docID:or('aa','bb'))", 'Stringification');
-
-done_testing;
-__END__
-
 

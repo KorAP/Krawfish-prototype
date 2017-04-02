@@ -13,6 +13,8 @@ use Mojo::File;
 
 # TODO: Add LiveDocs-PostingsList, that supports deletion
 #
+# TODO: Support multiple tokenized texts for parallel corpora
+#
 # TODO: Create Importer class
 #
 # TODO: Support Main Index and Auxiliary Indices with merging

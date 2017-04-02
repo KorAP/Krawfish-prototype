@@ -7,6 +7,7 @@ use warnings;
 
 use constant DEBUG => 0;
 
+# Constructor
 sub new {
   my $class = shift;
   bless {
@@ -16,11 +17,21 @@ sub new {
   }, $class;
 };
 
+
+# Get current match
 sub current_match {
   my $self = shift;
 
   # Match is already set
-  return $self->{match} if $self->{match};
+  if ($self->{match}) {
+    if (DEBUG) {
+      print_log(
+        'c_fields',
+        'Match already defined ' . $self->{match}->to_string
+      );
+    };
+    return $self->{match};
+  };
 
   my $match = $self->match_from_query;
 
@@ -32,6 +43,7 @@ sub current_match {
 
   # Filter fields!
   if ($self->{fields}) {
+
     my %fields;
     foreach (@{$self->{fields}}) {
       $fields{$_} = $data->{$_} if $data->{$_};
@@ -52,10 +64,12 @@ sub current_match {
 };
 
 
+# Next match
 sub next {
   my $self = shift;
   $self->{match} = undef;
   return $self->{query}->next;
 };
+
 
 1;
