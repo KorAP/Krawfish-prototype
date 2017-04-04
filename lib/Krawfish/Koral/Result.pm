@@ -6,7 +6,7 @@ use warnings;
 sub new {
   my $class = shift;
   bless {
-    query => shiuft,
+    query => shift,
     group_by => undef
   }, $class;
 };

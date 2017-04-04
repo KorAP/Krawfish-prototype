@@ -12,7 +12,7 @@ sub new {
   bless {
     query => shift,
     start_index => shift,
-    items_per_page => shift,
+    items_per_page => shift // 0,
     pos => 0
   }, $class;
 };
@@ -31,7 +31,8 @@ sub next {
   };
 
   # Position is under limit
-  if ($self->{pos} < ($self->{start_index} + $self->{items_per_page})) {
+  if (!$self->{items_per_page} ||
+        $self->{pos} < ($self->{start_index} + $self->{items_per_page})) {
     $self->{pos}++;
     print_log('limit', 'Collect match at position ' . $self->{pos}) if DEBUG;
     return $query->next;
@@ -56,8 +57,8 @@ sub current_group;
 # Stringify collector
 sub to_string {
   my $self = shift;
-  my $end = $self->{start_index} + $self->{items_per_page};
-  my $str = 'collectLimit(';
+  my $end = $self->{items_per_page} ? ($self->{start_index} + $self->{items_per_page}) : '';
+  my $str = 'resultLimit(';
   $str .= '[' . $self->{start_index} . '-' . $end . ']:';
   $str .= $self->{query}->to_string;
   return $str . ')';

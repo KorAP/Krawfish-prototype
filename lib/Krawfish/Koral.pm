@@ -7,6 +7,7 @@ use Krawfish::Koral::Query::Builder;
 use Krawfish::Koral::Corpus;
 use Krawfish::Koral::Corpus::Builder;
 use Krawfish::Koral::Meta;
+use Krawfish::Koral::Meta::Builder;
 use Krawfish::Koral::Document;
 
 # TODO:
@@ -24,7 +25,9 @@ use Krawfish::Koral::Document;
 #   this should issue an update in the autosuggestion
 #   dictionary.
 
-use constant CONTEXT => 'http://korap.ids-mannheim.de/ns/koral/0.6/context.jsonld';
+use constant {
+  CONTEXT => 'http://korap.ids-mannheim.de/ns/koral/0.6/context.jsonld'
+};
 
 sub new {
   my $class = shift;
@@ -68,11 +71,21 @@ sub corpus_builder {
   Krawfish::Koral::Corpus::Builder->new;
 };
 
+sub meta {
+  my $self = shift;
+  $self->{meta} = shift if $_[0];
+  return $self->{meta};
+};
+
+sub meta_builder {
+  Krawfish::Koral::Meta::Builder->new;
+};
+
+
 sub sorting {
   ...
 };
 
-sub meta { ... };
 
 # sub response { ... };
 
@@ -124,6 +137,15 @@ sub prepare_for {
   elsif ($self->query) {
     $query = $self->query;
   };
+
+  # If meta is defined, prepare results
+  if ($self->meta) {
+    $query = $self->meta->search_for($query);
+  };
+
+#  if ($meta->sorting) {
+#    $query = $meta->sort($query);
+#  };
 
   # TODO:
   # The following operations will invalidate sort filtering:
@@ -190,8 +212,10 @@ sub to_string {
     $str .= $self->corpus->to_string;
   }
   elsif ($self->query) {
-    $str .= $self->query;
+    $str .= $self->query->to_string;
   };
+
+  warn 'Stringification is not well defined';
 
   return $str;
 };

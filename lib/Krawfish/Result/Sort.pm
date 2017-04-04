@@ -9,6 +9,11 @@ use constant DEBUG => 0;
 
 # See Krawfish::Util::Buckets
 
+
+# TODO:
+#   Replace with Krawfish::Result::Sort::PriorityCascade
+
+
 # TODO:
 #  Sort is currently limited to sorting for searching.
 #  It should also be able to sort groups or sort texts/documents/corpora
@@ -183,7 +188,7 @@ sub current {
 
 sub to_string {
   my $self = shift;
-  my $str = 'collectSorted(';
+  my $str = 'resultSorted(';
   $str .= '[' . join(',', map { _squote($_) } @{$self->{fields}}) . ']:';
   $str .= $self->{query}->to_string;
   return $str . ')';

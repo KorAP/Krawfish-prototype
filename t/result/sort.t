@@ -48,7 +48,7 @@ ok($sort->next, 'Next');
 is($sort->current->doc_id, 0, 'Obj');
 ok(!$sort->next, 'No more nexts');
 
-is($sort->to_string, "collectSorted(['docID']:or('aa','bb'))", 'Get counts');
+is($sort->to_string, "resultSorted(['docID']:or('aa','bb'))", 'Get counts');
 
 
 $query = $kq->term('cc');
@@ -67,7 +67,7 @@ ok($sort->next, 'Next');
 is($sort->current->doc_id, 2, 'Obj');
 ok(!$sort->next, 'No more nexts');
 
-is($sort->to_string, "collectSorted(['author']:'cc')", 'Get counts');
+is($sort->to_string, "resultSorted(['author']:'cc')", 'Get counts');
 
 
 done_testing;

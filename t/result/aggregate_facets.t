@@ -31,11 +31,11 @@ my $facet_corpus = Krawfish::Result::Aggregate::Facets->new(
 ok(my $aggr = Krawfish::Result::Aggregate->new(
   $query->prepare_for($index),
   [$facet_license, $facet_corpus]
-), 'Create count object');
+), 'Create facet object');
 
 is(
   $aggr->to_string,
-  "aggregate([facet:license,facet:corpus]:'Der')",
+  "aggregate([facet:'license',facet:'corpus']:'Der')",
   'Stringification'
 );
 

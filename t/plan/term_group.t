@@ -139,8 +139,3 @@ is($query->plan_for($index)->to_string,
 
 done_testing;
 __END__
-
-
-done_testing;
-__END__
-

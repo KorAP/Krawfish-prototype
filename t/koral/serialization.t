@@ -17,6 +17,10 @@ $koral->query(
   )
 );
 
+is($koral->to_string,
+   '[Der][]<opennlp/c=NP>',
+   'Stringification');
+
 my $serial = $koral->to_koral_query;
 
 like($serial->{'@context'}, qr!korap\.ids-mannheim\.de!, 'Context is valid');
@@ -41,6 +45,9 @@ $koral->corpus(
   )
 );
 
+is($koral->to_string,
+   'filterBy([Der][]<opennlp/c=NP>,author=Peter&pubDate>=2014-04-03)', 'Stringification');
+
 $serial = $koral->to_koral_query;
 
 ok(my $c = $serial->{'corpus'}, 'Query is given');
@@ -59,7 +66,6 @@ is($op->[1]->{'type'}, 'type:date', 'Operand');
 is($op->[1]->{'key'}, 'pubDate', 'Operand');
 is($op->[1]->{'value'}, '2014-04-03', 'Operand');
 is($op->[1]->{'match'}, 'match:geq', 'Operand');
-
 
 done_testing;
 __END__

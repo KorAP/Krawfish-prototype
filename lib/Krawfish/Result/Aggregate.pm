@@ -6,6 +6,14 @@ use warnings;
 
 use constant DEBUG => 0;
 
+# TODO:
+#   See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html
+
+# TODO:
+#   Aggregates should be sortable either <asc> or <desc>,
+#   and should have a count limitation, may be even a start_index and an items_per_page
+
+
 # TODO: Sort all ops for each_match and each_doc support
 sub new {
   my $class = shift;

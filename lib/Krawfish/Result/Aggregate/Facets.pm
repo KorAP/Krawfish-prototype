@@ -106,8 +106,17 @@ sub facets {
 };
 
 sub to_string {
-  return 'facet:' . $_[0]->{field};
+  return 'facet:' . _squote($_[0]->{field});
 };
+
+
+# From Mojo::Util
+sub _squote {
+  my $str = shift;
+  $str =~ s/(['\\])/\\$1/g;
+  return qq{'$str'};
+};
+
 
 sub result {
   my $self = shift;

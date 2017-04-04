@@ -29,7 +29,7 @@ ok($sort->next, 'Next');
 is($sort->current->doc_id, 2, 'Obj');
 ok(!$sort->next, 'No more nexts');
 
-is($sort->to_string, "collectLimit([1-4]:or('Der','akron=Der'))", 'Stringification');
+is($sort->to_string, "resultLimit([1-4]:or('Der','akron=Der'))", 'Stringification');
 
 done_testing;
 __END__

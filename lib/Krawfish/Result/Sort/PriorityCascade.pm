@@ -21,19 +21,11 @@ use constant {
 #   or cluster scenario - so let's forget about it
 
 # TODO:
-#   matches in the same document will ALWAYS have duplicate
-#   markers, although it does not make sense to lift
-#   subsequent fields for them.
-#   They should be, probably, stored in identical records!
-#   Unless, of course, the sorting happens on the
-#   alphabetical level (e.g.)
-
-# TODO:
 #   It's possible that fields return a rank of 0, indicating that
 #   the field is not yet ranked.
 #   In that case these fields have to be looked up, in case they are
 #   potentially in the result set (meaning they are ranked before/after
-#   the last accepted rank field). If so, they need to be rememembered.
+#   the last accepted rank field). If so, they need to be remembered.
 #   After a sort turn, the non-ranked fields are sorted in the ranked
 #   fields. The field can be reranked any time.
 
@@ -451,6 +443,25 @@ sub duplicate_rank {
 
   return $self->{list}->[$self->{pos}]->[1] || 1;
 };
+
+
+sub to_string {
+  my $self = shift;
+  my $str = 'resultSorted([';
+  $str .= join(',', map { _squote($_->[0]) . ($_->[1] ? '>' : '<') } @{$self->{fields}});
+  $str .= ']';
+  $str .= ',0-' . $self->{top_k} if $self->{top_k};
+  $str .= ':' . $self->{query}->to_string;
+  return $str . ')';
+};
+
+# From Mojo::Util
+sub _squote {
+  my $str = shift;
+  $str =~ s/(['\\])/\\$1/g;
+  return qq{'$str'};
+};
+
 
 
 1;
