@@ -1,9 +1,10 @@
 package Krawfish::Result::Aggregate::Values;
+use parent 'Krawfish::Result::Aggregate::Base';
 use Krawfish::Log;
 use strict;
 use warnings;
 
-# TODO: Rename to FieldCount
+# TODO: Rename to FieldCalc
 
 use constant DEBUG => 0;
 

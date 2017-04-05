@@ -1,4 +1,5 @@
 package Krawfish::Result::Aggregate::Facets;
+use parent 'Krawfish::Result::Aggregate::Base';
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -8,6 +9,10 @@ use constant DEBUG => 0;
 # TODO: It may be beneficial to store example documents in the
 #   field ranks, too - so they don't need to be collected on the way ...
 #   See Group::Fields as well.
+#
+# TODO:
+#   Field aggregates should be sortable either <asc> or <desc>,
+#   and should have a count limitation, may be even a start_index and an items_per_page
 
 sub new {
   my $class = shift;
@@ -33,16 +38,21 @@ sub _init {
 };
 
 
-# Only preload if necessary
+# On every doc
 sub each_doc {
   my $self = shift;
   $self->_init;
-
   my $current = shift;
 
   my $doc_id = $current->doc_id;
+
+  # Get the document rank
   my $rank = $self->{rank}->get($doc_id);
 
+  # Rank exists
+  # TODO:
+  #   Check if zero don't mean, the field
+  #   is not ranked yet!
   if ($rank != 0) {
 
     # This will contain 'doc_freq', 'freq', and an example 'doc_id'
@@ -59,6 +69,7 @@ sub each_doc {
 };
 
 
+# On every match
 sub each_match {
   if ($_[0]->{freq}) {
     $_[0]->{freq}->[1]++;
@@ -66,10 +77,11 @@ sub each_match {
 };
 
 
-sub facets {
-  my $self = shift;
+# finish the results
+sub on_finish {
+  my ($self, $result) = @_;
 
-  # Fields
+  # Get fields
   my $fields = $self->{index}->fields;
   my $field = $self->{field};
 
@@ -102,7 +114,8 @@ sub facets {
   #   1998 => [5, 89],
   #   1999 => [3, 20]
   # }
-  return \%facets;
+  my $facet_result = ($result->{facets} //= {});
+  $facet_result->{$self->{field}} = \%facets;
 };
 
 sub to_string {
@@ -117,14 +130,5 @@ sub _squote {
   return qq{'$str'};
 };
 
-
-sub result {
-  my $self = shift;
-  return {
-    facets => {
-      $self->{field} => $self->facets
-    }
-  };
-};
 
 1;

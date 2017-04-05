@@ -43,13 +43,13 @@ ok($aggr->next, 'Next');
 ok($aggr->next, 'Next');
 ok(!$aggr->next, 'No more nexts');
 
-my $hash = $facet_license->facets;
+my $hash = $aggr->result->{facets}->{license};
 is($hash->{free}->[0], 1, 'Document frequency');
 is($hash->{free}->[1], 1, 'frequency');
 is($hash->{closed}->[0], 1, 'Document frequency');
 is($hash->{closed}->[1], 1, 'frequency');
 
-$hash = $facet_corpus->facets;
+$hash = $aggr->result->{facets}->{corpus};
 is($hash->{'corpus-2'}->[0], 2, 'Document frequency');
 is($hash->{'corpus-2'}->[1], 2, 'frequency');
 
@@ -64,6 +64,10 @@ is_deeply($aggr->result, {
     }
   }
 }, 'aggregated results');
+
+done_testing;
+__END__
+
 
 done_testing;
 __END__

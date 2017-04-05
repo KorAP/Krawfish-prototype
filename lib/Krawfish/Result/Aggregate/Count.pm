@@ -1,46 +1,24 @@
 package Krawfish::Result::Aggregate::Count;
+use parent 'Krawfish::Result::Aggregate::Base';
 use Krawfish::Log;
 use strict;
 use warnings;
 
 use constant DEBUG => 0;
 
-sub new {
-  my $class = shift;
-  bless {
-    doc_freq => 0,
-    freq     => 0
-  }, $class;
-};
-
-
-# Only preload if necessary
+# Add to totalResources immediately
 sub each_doc {
-  $_[0]->{doc_freq}++;
+  $_[2]->{totalResources}++;
 };
 
 
+# Add to totalResults immediately
 sub each_match {
-  $_[0]->{freq}++;
+  $_[2]->{totalResults}++;
 };
 
 
-sub doc_freq {
-  $_[0]->{doc_freq}
-};
-
-sub freq {
-  $_[0]->{freq}
-};
-
-sub result {
-  my $self = shift;
-  return {
-    totalResults => $self->{freq},
-    totalResources => $self->{doc_freq}
-  };
-};
-
+# Stringification
 sub to_string {
   'count'
 };

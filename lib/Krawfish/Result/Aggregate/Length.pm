@@ -1,4 +1,5 @@
 package Krawfish::Result::Aggregate::Length;
+use parent 'Krawfish::Result::Aggregate::Base';
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -14,17 +15,15 @@ use constant DEBUG => 0;
 sub new {
   my $class = shift;
   bless {
-    min => 32_000,
-    max => 0,
-    sum => 0,
+    min  => 32_000,
+    max  => 0,
+    sum  => 0,
     freq => 0
   }, $class;
 };
 
 
-sub each_doc {};
-
-
+# On every match
 sub each_match {
   my ($self, $current) = @_;
   my $length = $current->end - $current->start;
@@ -35,19 +34,21 @@ sub each_match {
 };
 
 
-sub result {
-  my $self = shift;
+# Finish the aggregation
+sub on_finish {
+  my ($self, $result) = @_;
+
   return if $self->{freq} == 0;
-  return {
-    length => {
-      min  => $self->{min},
-      max  => $self->{max},
-      sum  => $self->{sum},
-      avg  => $self->{sum} / $self->{freq}
-    }
+  $result->{length} = {
+    min  => $self->{min},
+    max  => $self->{max},
+    sum  => $self->{sum},
+    avg  => $self->{sum} / $self->{freq}
   };
 };
 
+
+# Stringification
 sub to_string {
   'length'
 };
