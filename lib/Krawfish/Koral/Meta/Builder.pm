@@ -25,4 +25,11 @@ sub field_sort_desc_by {
 };
 
 
+sub field_count {
+  my $self = shift;
+  $self->{field_count} //= [];
+  push @{$self->{field_count}}, shift;
+  $self;
+};
+
 1;

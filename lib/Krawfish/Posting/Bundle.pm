@@ -4,6 +4,9 @@ use overload '""' => sub { $_[0]->to_string }, fallback => 1;
 use warnings;
 use strict;
 
+# TODO:
+#   This is quite similar to K::P::Group
+
 # This is a container class for multiple
 # Krawfish::Posting objects
 

@@ -60,5 +60,26 @@ is($koral->prepare_for($index)->to_string,
    q!resultLimit([2-]:resultSorted(['author'<,'docID'<]:aggregate([facet:'author']:constr(pos=2:'Der','<>opennlp/c=NP'))))!,
    'Stringification');
 
+
+# Meta definition with count
+$koral->meta(
+  $koral->meta_builder->count(1)
+);
+
+is($koral->prepare_for($index)->to_string,
+   q!resultSorted(['docID'<]:aggregate([count]:constr(pos=2:'Der','<>opennlp/c=NP')))!,
+   'Stringification');
+
+
+# Meta definition with length
+$koral->meta(
+  $koral->meta_builder->length(1)
+);
+
+is($koral->prepare_for($index)->to_string,
+   q!resultSorted(['docID'<]:aggregate([length]:constr(pos=2:'Der','<>opennlp/c=NP')))!,
+   'Stringification');
+
+
 done_testing;
 __END__

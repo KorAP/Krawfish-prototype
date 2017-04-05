@@ -5,6 +5,9 @@ use Krawfish::Result::Sort::PriorityCascade;
 use Krawfish::Result::Limit;
 use Krawfish::Result::Aggregate;
 use Krawfish::Result::Aggregate::Facets;
+use Krawfish::Result::Aggregate::Count;
+use Krawfish::Result::Aggregate::Length;
+use Krawfish::Result::Aggregate::Values;
 use strict;
 use warnings;
 
@@ -19,7 +22,9 @@ sub new {
     query => undef,
     items_per_page => undef,
     field_sort => [],
+    field_count => undef,
     facets => undef,
+    count => undef,
     start_index => 0
   }, $class;
 };
@@ -55,14 +60,28 @@ sub facets {
 };
 
 
-# Contains doc_freq and freq ???
-#sub count {
-#  $_[0]->{count};
-#};
+# Count doc_freq and freq
+sub count {
+  my $self = shift;
+  return $self->{count} unless @_;
+  $self->{count} = shift;
+  return $self;
+};
+
+
+# Get lengths of results
+sub length {
+  my $self = shift;
+  return $self->{length} unless @_;
+  $self->{length} = shift;
+  return $self;
+};
+
 
 sub prepare_for {
   shift->plan_for(@_);
-}
+};
+
 
 sub plan_for {
   my ($self, $index) = @_;
@@ -93,39 +112,64 @@ sub plan_for {
     };
   };
 
+  # Count field values
+  if ($self->{field_count}) {
+
+    # This should have more parameters, like count
+    foreach (@{$self->{field_count}}) {
+      push @aggr, Krawfish::Result::Aggregate::Values->new($index, $_);
+    };
+  };
+
+  # Add frequency and document frequency count to result
+  # TODO:
+  #   This may be obsolete in some cases, because other aggregations already
+  #   count frequencies.
+  if ($self->{count}) {
+    push @aggr, Krawfish::Result::Aggregate::Count->new;
+  };
+
+  if ($self->{length}) {
+    push @aggr, Krawfish::Result::Aggregate::Length->new;
+  };
+
   # Augment the query with aggregations
+  # TODO:
+  #   It may be better to have one aggregation object, that can be filled!
+  #   like ->query($query)->aggregate_on($aggr)->prepare_for($index);
+  #   and after the query is through, the aggregation map contains data
   if (@aggr) {
     $query = Krawfish::Result::Aggregate->new($query, \@aggr);
   };
 
   # Sort the result
-  if ($self->{field_sort}) {
+  # This is mandatory!
 
-    # Precalculate top_k value
-    my $top_k = undef;
-    if ($self->items_per_page) {
+  # Precalculate top_k value
+  my $top_k = undef;
+  if ($self->items_per_page) {
 
-      # Top k is defined
-      $top_k = $self->items_per_page + ($self->start_index // 0);
-    };
-
-    # TODO:
-    #   Check for fields that are either not part
-    #   of the index or are identified in
-    #   the corpus query (it makes no sense to
-    #   sort for author, if author=Fontane is
-    #   required)
-    $query = Krawfish::Result::Sort::PriorityCascade->new(
-      query => $query,
-      index => $index,
-      fields => $self->{field_sort},
-      unique => UNIQUE_FIELD,
-      top_k => $top_k,
-      max_rank_ref => $max_doc_rank_ref
-    );
-
-    print_log('kq_meta', "Field sort with: " . $query->to_string) if DEBUG;
+    # Top k is defined
+    $top_k = $self->items_per_page + ($self->start_index // 0);
   };
+
+  # TODO:
+  #   Check for fields that are either not part
+  #   of the index or are identified in
+  #   the corpus query (it makes no sense to
+  #   sort for author, if author=Fontane is
+  #   required)
+  $query = Krawfish::Result::Sort::PriorityCascade->new(
+    query => $query,
+    index => $index,
+    fields => $self->{field_sort},
+    unique => UNIQUE_FIELD,
+    top_k => $top_k,
+    max_rank_ref => $max_doc_rank_ref
+  );
+
+  print_log('kq_meta', "Field sort with: " . $query->to_string) if DEBUG;
+
 
   # Limit the result
   if ($self->items_per_page || $self->start_index) {
@@ -139,28 +183,17 @@ sub plan_for {
   # The order needs to be:
   # snippet(
   #   fields(
-  #     limit(
-  #       sorted(
-  #         faceted(
-  #           count(Q)
+  #     limit( -
+  #       sorted( -
+  #         faceted( -
+  #           count(Q) -
   #         )
   #       )
   #     )
   #   )
   # )
-  #
-  # if ($self->faceted_by) {
-  #   $query = Krawfish::Search::FieldFacets->new(
-  #      $query,
-  #      $index,
-  #      $self->faceted_by
-  #   );
-  # };
-  #
-  # if ($self->sorted_by) {
-  #   Krawfish::Search::FieldSort->new(@{$self->sorted_by});
-  # }
 
+  # Return the query
   return $query;
 };
 

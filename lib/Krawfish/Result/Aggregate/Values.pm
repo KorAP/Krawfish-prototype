@@ -3,13 +3,18 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
+# TODO: Rename to FieldCount
+
 use constant DEBUG => 0;
 
 sub new {
   my $class = shift;
   bless {
     index => shift, # Index
+
+    # This needs to be a numerical field!
     field => shift, # Field name
+
     list  => undef, # List of numerical field values (e.g. sentence)
 
     # Init values
@@ -20,14 +25,19 @@ sub new {
   }, $class;
 };
 
+
+# Initialize aggregation
 sub _init {
   return if $_[0]->{list};
 
   my $self = shift;
+
+  # Get numerical field values for this field
   $self->{list} =  $self->{index}->field_values($self->{field});
 };
 
 
+# Release for each doc
 sub each_doc {
   my ($self, $current) = @_;
 
@@ -43,7 +53,7 @@ sub each_doc {
     $value_current = $values->skip_doc($current->doc_id);
   };
 
-  if ($current_value->doc_id == $current->doc_id) {
+  if ($value_current->doc_id == $current->doc_id) {
     my $value = $value_current->value;
     $self->{min} = $self->{min} < $value ? $self->{min} : $value;
     $self->{max} = $self->{max} > $value ? $self->{max} : $value;
@@ -59,6 +69,7 @@ sub to_string {
 }
 
 sub result {
+  my $self = shift;
   return if $self->{count} == 0;
   return {
     aggregate => {
