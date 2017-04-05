@@ -30,7 +30,7 @@ $koral->meta(
 );
 
 is($koral->prepare_for($index)->to_string,
-   q!resultLimit([0-3]:resultSorted(['author'<,'docID'<],0-3:constr(pos=2:'Der','<>opennlp/c=NP')))!,
+   q!resultLimit([0-3]:resultSorted(['author'<,'id'<],0-3:constr(pos=2:'Der','<>opennlp/c=NP')))!,
    'Stringification');
 
 # Meta definition with start index
@@ -39,7 +39,7 @@ $koral->meta(
 );
 
 is($koral->prepare_for($index)->to_string,
-   q!resultLimit([2-7]:resultSorted(['author'<,'docID'<],0-7:constr(pos=2:'Der','<>opennlp/c=NP')))!,
+   q!resultLimit([2-7]:resultSorted(['author'<,'id'<],0-7:constr(pos=2:'Der','<>opennlp/c=NP')))!,
    'Stringification');
 
 # Meta definition with facets
@@ -48,7 +48,7 @@ $koral->meta(
 );
 
 is($koral->prepare_for($index)->to_string,
-   q!resultLimit([2-]:resultSorted(['author'<,'docID'<]:aggregate([facet:'author']:constr(pos=2:'Der','<>opennlp/c=NP'))))!,
+   q!resultLimit([2-]:resultSorted(['author'<,'id'<]:aggregate([facet:'author']:constr(pos=2:'Der','<>opennlp/c=NP'))))!,
    'Stringification');
 
 # Meta definition with facets (different order)
@@ -57,7 +57,7 @@ $koral->meta(
 );
 
 is($koral->prepare_for($index)->to_string,
-   q!resultLimit([2-]:resultSorted(['author'<,'docID'<]:aggregate([facet:'author']:constr(pos=2:'Der','<>opennlp/c=NP'))))!,
+   q!resultLimit([2-]:resultSorted(['author'<,'id'<]:aggregate([facet:'author']:constr(pos=2:'Der','<>opennlp/c=NP'))))!,
    'Stringification');
 
 
@@ -67,7 +67,7 @@ $koral->meta(
 );
 
 is($koral->prepare_for($index)->to_string,
-   q!resultSorted(['docID'<]:aggregate([count]:constr(pos=2:'Der','<>opennlp/c=NP')))!,
+   q!resultSorted(['id'<]:aggregate([count]:constr(pos=2:'Der','<>opennlp/c=NP')))!,
    'Stringification');
 
 
@@ -77,7 +77,7 @@ $koral->meta(
 );
 
 is($koral->prepare_for($index)->to_string,
-   q!resultSorted(['docID'<]:aggregate([length]:constr(pos=2:'Der','<>opennlp/c=NP')))!,
+   q!resultSorted(['id'<]:aggregate([length]:constr(pos=2:'Der','<>opennlp/c=NP')))!,
    'Stringification');
 
 

@@ -13,7 +13,7 @@ use warnings;
 
 use constant {
   DEBUG => 1,
-  UNIQUE_FIELD => 'docID'
+  UNIQUE_FIELD => 'id'
 };
 
 sub new {

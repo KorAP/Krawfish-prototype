@@ -4,84 +4,96 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-# TODO: Rename to FieldCalc
+# TODO: Rename to FieldCalc or FieldSum
 
-use constant DEBUG => 0;
+use constant {
+  DEBUG          => 0,
+  MIN_INIT_VALUE => 32_000
+};
 
 sub new {
   my $class = shift;
-  bless {
-    index => shift, # Index
+  my $index = shift;
+  my $self = bless {
+    index => $index, # Index
 
-    # This needs to be a numerical field!
-    field => shift, # Field name
+    # This need to be a numerical fields!
+    fields => shift,
+    # TODO: May need to be translated into field_term_ids
 
-    list  => undef, # List of numerical field values (e.g. sentence)
-
-    # Init values
-    min   => 32_000,
-    max   => 0,
-    sum   => 0,
-    count => 0
+    # TODO:
+    #   It may be more efficient to store a list of numerical
+    #   field values here (e.g. sentence)
+    fields_obj  => $index->fields,
+    aggregate => {}
   }, $class;
-};
 
+  # Initiate aggregation maps
+  foreach (@{$self->{fields}}) {
+    $self->{aggregate}->{$_} = {
+      min   => MIN_INIT_VALUE,
+      max   => 0,
+      sum   => 0,
+      freq => 0
+    };
+  };
 
-# Initialize aggregation
-sub _init {
-  return if $_[0]->{list};
-
-  my $self = shift;
-
-  # Get numerical field values for this field
-  $self->{list} =  $self->{index}->field_values($self->{field});
+  return $self;
 };
 
 
 # Release for each doc
 sub each_doc {
-  my ($self, $current) = @_;
+  my ($self, $current, $result) = @_;
 
-  $self->_init;
+  my $fields = $self->{fields_obj};
 
-  my $values = $self->{list};
-  my $value_current = $values->current;
+  # my $value_current = $values->current;
 
   # Current value has to catch up to the current doc
-  if ($value_current->doc_id < $current->doc_id) {
+  # if ($value_current->doc_id < $current->doc_id) {
 
     # Skip to the requested doc_id (or beyond)
-    $value_current = $values->skip_doc($current->doc_id);
-  };
+    # $value_current = $values->skip_doc($current->doc_id);
+  # };
 
-  if ($value_current->doc_id == $current->doc_id) {
-    my $value = $value_current->value;
-    $self->{min} = $self->{min} < $value ? $self->{min} : $value;
-    $self->{max} = $self->{max} > $value ? $self->{max} : $value;
-    $self->{sum} += $value;
-    $self->{count}++;
+  # Get document fields
+  my $doc_fields = $fields->get($current->doc_id);
+
+  # Get aggregation information
+  my $aggr = $self->{aggregate};
+
+  foreach my $field (@{$self->{fields}}) {
+
+    # Get field value
+    my $value = $doc_fields->{$field};
+
+    next unless defined $value;
+
+    # Get field in aggregation
+    my $field_aggr = $aggr->{$field};
+
+    $field_aggr->{min} = $field_aggr->{min} < $value ? $field_aggr->{min} : $value;
+    $field_aggr->{max} = $field_aggr->{max} > $value ? $field_aggr->{max} : $value;
+    $field_aggr->{sum} += $value;
+    $field_aggr->{freq}++;
   };
 };
 
-sub each_match {};
 
+# Stringification
 sub to_string {
   return 'values:' . $_[0]->{field};
-}
+};
 
-sub result {
-  my $self = shift;
-  return if $self->{count} == 0;
-  return {
-    aggregate => {
-      $self->{field} => {
-        min => $self->{min},
-        max => $self->{max},
-        sum => $self->{sum},
-        count => $self->{count},
-        avg => $self->{sum} / $self->{count}
-      }
-    }
+
+# Finish the aggregation
+sub on_finish {
+  my ($self, $result) = @_;
+  my $aggr = ($result->{aggregate} = $self->{aggregate});
+  foreach (values %{$aggr}) {
+    next unless $_->{freq};
+    $_->{avg} = $_->{sum} / $_->{freq};
   };
 };
 

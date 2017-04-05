@@ -9,13 +9,22 @@
         "@type" : "koral:field",
         "key" : "docID",
         "value" : "doc-3",
-        "type" : "type:string"
+        "type" : "type:string",
+        "sortable":true        
       },
       {
         "@type":"koral:field",
         "key":"license",
         "value":"closed",
-        "type":"type:string"
+        "type":"type:string",
+        "sortable":true
+      },
+      {
+        "@type":"koral:field",
+        "key":"textLength",
+        "value": 8,
+        "type":"type:integer",
+        "sortable":true
       }
     ],
     "subtokens" : [

@@ -48,6 +48,12 @@ use Mojo::File;
 #   BUT: This only works if the field has the same collation as the
 #   dictionary!
 
+# TODO:
+#   field names should have term_ids, so should foundries and layers, but
+#   probably not field values and annotation values.
+#   terms may have term_ids and subterms should have subterm_ids
+
+
 use constant DEBUG => 0;
 
 
@@ -75,7 +81,7 @@ sub new {
     $self->{file}
   );
 
-  # Load primary
+  # Load fields
   $self->{fields} = Krawfish::Index::Fields->new(
     $self->{file}
   );
@@ -87,6 +93,9 @@ sub new {
 
   # Collect fields to sort
   $self->{sortable} = {};
+
+  # Collect values to sum
+  $self->{summable} = {};
 
   # Add cache
   $self->{cache} = Krawfish::Cache->new;
@@ -103,10 +112,12 @@ sub last_doc {
   $_[0]->{last_doc};
 };
 
+
 # Alias for last doc
 sub max_rank {
   $_[0]->{last_doc};
 };
+
 
 # Get term dictionary
 sub dict {
@@ -135,6 +146,12 @@ sub primary {
 # Get fields
 sub fields {
   $_[0]->{fields};
+};
+
+
+# Get field values for addition
+sub field_values {
+  $_[0]->{field_values};
 };
 
 
@@ -175,8 +192,15 @@ sub add {
   my $fields = $self->fields;
   foreach my $field (@{$doc->{fields}}) {
 
+    # TODO:
+    #   Also store 'id' as a field value
+
     # Add to document field (retrieval)
     $fields->store($doc_id, $field->{key}, $field->{value});
+
+    # Prepare for summarization
+    # if ($field->{type} eq 'type:integer') {
+    # };
 
     # Prepare field for sorting
     if ($field->{sortable}) {
@@ -184,6 +208,13 @@ sub add {
       # Which entries need to be sorted?
       $self->{sortable}->{$field->{key}}++;
     };
+
+    # Prepare field for summing
+    # if ($field->{summable}) {
+    #
+    #   # Which entries need to be summable
+    #   $self->{summable}->{$field->{key}}++;
+    # };
 
     # Add to postings lists (search)
     my $term = $field->{key} . ':' . $field->{value};
@@ -463,6 +494,7 @@ sub search {
 
 sub get_fields {
   my ($self, $doc_id, $fields) = @_;
+  ...
 };
 
 # This returns the posting's start and end position
