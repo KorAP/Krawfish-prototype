@@ -59,7 +59,9 @@ sub prepare_for {
 sub plan_for;
 
 # Filter a query based on a document query
-sub filter_by;
+sub filter_by {
+  ...
+};
 
 sub is_any            { $_[0]->{any}            // 0 };
 sub is_optional       { $_[0]->{optional}       // 0 };

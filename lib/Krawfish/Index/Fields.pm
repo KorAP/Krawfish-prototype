@@ -4,23 +4,6 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-# TODO:
-#   field names should have term_ids
-#   all values should be stored in a sequential order
-#   augmented by a skip list.
-#
-#   [i:doc_id][i:doc_field_length]([i:field_id][i:value_length][str:value])*
-#
-#   The fields are stored in ascending field_id order,
-#   so its fast to find the correct value.
-#   The first bit of the field length may indicate,
-#   if the field is a string or a numerical value.
-#
-#   This may also have a next() and skip_doc() API
-#   to move to the expected document in a sequential way,
-#   which may be the case for Aggregate::Value. In that case,
-#   a pointer mechanism is required.
-
 use constant DEBUG => 0;
 
 sub new {

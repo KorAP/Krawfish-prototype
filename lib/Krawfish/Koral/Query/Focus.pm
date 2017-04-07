@@ -47,4 +47,11 @@ sub plan_for {
   return Krawfish::Query::Base::Sorted->new($span, 1000);
 };
 
+
+# Filter by corpus
+sub filter_by {
+  my ($self, $corpus_query) = @_;
+  $self->{span}->filter_by($corpus_query);
+}
+
 1;

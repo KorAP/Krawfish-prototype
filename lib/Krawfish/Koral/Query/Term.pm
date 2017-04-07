@@ -8,6 +8,7 @@ use strict;
 use warnings;
 
 # TODO: Support escaping! Especially for regex!
+# TODO: Filter multiple corpora
 
 use constant DEBUG => 0;
 

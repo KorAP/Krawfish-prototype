@@ -4,6 +4,9 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
+# THIS IS DEPRECATED!
+# USE K::R::Sort::Filter instead!
+
 # Construct a sortfilter
 sub new {
   my ($class, $query, $bucket, $ranks) = @_;

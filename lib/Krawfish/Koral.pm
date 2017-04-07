@@ -122,7 +122,16 @@ sub prepare_for {
   my $query;
 
   # Corpus and query are given - filter!
-  if ($self->corpus && $self->query) {
+  if ($self->query && $self->corpus) {
+
+    my $corpus = $self->corpus;
+
+    # Meta is defined
+    if ($self->meta) {
+
+      # Wrap in sort filter if available
+      $corpus = $self->meta->sort_filter($corpus);
+    };
 
     # Add corpus filter
     $query = $self->query->filter_by($self->corpus);
@@ -131,21 +140,22 @@ sub prepare_for {
   # Only corpus is given
   elsif ($self->corpus) {
     $query = $self->corpus;
+
+    # Wrap in sort filter if available
+    $query = $self->meta->sort_filter($query, $index) if $self->meta;
   }
 
   # Only query is given
   elsif ($self->query) {
     $query = $self->query;
+
+    # TODO:
+    #   Somehow do sort_filtering here with a corpus based
+    #   on non-deleted documents or so.
   };
 
   # If meta is defined, prepare results
-  if ($self->meta) {
-    $query = $self->meta->search_for($query);
-  };
-
-#  if ($meta->sorting) {
-#    $query = $meta->sort($query);
-#  };
+  $query = $self->meta->search_for($query) if $self->meta;
 
   # TODO:
   # The following operations will invalidate sort filtering:

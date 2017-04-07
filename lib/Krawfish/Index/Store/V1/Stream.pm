@@ -27,6 +27,14 @@ sub _init {
 };
 
 sub skip_doc;
+
 sub next;
+
+# This appends a byte sequence to a stream
+# and updates the skiplist
+sub append {
+  my ($self, $doc_id, $bytes) = @_;
+  ...
+};
 
 1;

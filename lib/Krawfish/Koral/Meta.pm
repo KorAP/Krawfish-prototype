@@ -1,6 +1,7 @@
 package Krawfish::Koral::Meta;
 use parent 'Krawfish::Info';
 use Krawfish::Log;
+use Krawfish::Result::Sort::Filter;
 use Krawfish::Result::Sort::PriorityCascade;
 use Krawfish::Result::Limit;
 use Krawfish::Result::Aggregate;
@@ -25,13 +26,15 @@ sub new {
     field_count => undef,
     facets => undef,
     count => undef,
-    start_index => 0
+    start_index => 0,
+    max_doc_rank_ref => \(my $init = 0)
   }, $class;
 };
 
+# Nest the query
 sub search_for {
-  my $self = shift;
-  $self->{query} = shift;
+  my ($self, $query) = @_;
+  $self->{query} = $query;
   return $self;
 };
 
@@ -43,6 +46,7 @@ sub items_per_page {
   $self->{items_per_page} = shift;
   return $self;
 };
+
 
 sub start_index {
   my $self = shift;
@@ -83,24 +87,71 @@ sub prepare_for {
 };
 
 
+# Check if the meta query is filterable
+sub sort_filter {
+  my ($self, $query, $index) = @_;
+
+  # No sort defined
+  return $query unless $self->{field_sort};
+
+  # Sort is not restricted
+  return $query unless $self->{items_per_page};
+
+  # Filtering not applicable because
+  # all matches need to be found
+  if ($self->{facets} ||
+        $self->{field_count} ||
+        $self->{count} ||
+        $self->{length}) {
+    return $query;
+  };
+
+  # Get first run field
+  my ($field, $desc) = @{$self->{field_sort}->[0]};
+
+  # Create rank filter
+  $query = Krawfish::Result::Sort::Filter->new(
+    query        => $query,
+    max_rank_ref => $self->max_doc_rank_ref,
+    field        => $field,
+    desc         => $desc,
+    index        => $index
+  );
+
+  print_log('kq_meta', 'Query is qualified for sort filtering') if DEBUG;
+
+  return $query;
+};
+
+
+# Return max_doc_rank reference
+sub max_doc_rank_ref {
+  my $self = shift;
+
+  # Set value to reference
+  ${$self->{max_doc_rank_ref}} = shift if @_;
+
+  return $self->{max_doc_rank_ref};
+};
+
+
 sub plan_for {
   my ($self, $index) = @_;
 
-  # TODO: Should filter over rank!
+  # Get the query
   my $query = $self->{query} or return;
 
-  # Prepare the nested query
-  $query = $query->prepare_for($index);
-
-  # Get the maximum rank for fields, aka the document number
-  my $max_doc_rank = $index->max_rank;
-
-  # This is a shared value for faster filtering
-  my $max_doc_rank_ref = \$max_doc_rank;
 
   # TODO:
   #   The dictionary should also have a max_rank!
 
+
+  # Get the maximum rank for fields, aka the document number
+  # and init the shared value for faster filtering
+  my $max_doc_rank_ref = $self->max_doc_rank_ref($index->max_rank);
+
+  # Prepare the nested query
+  $query = $query->prepare_for($index);
 
   my @aggr;
   # Add facets to the result
