@@ -3,6 +3,13 @@ use Krawfish::Query::Constraint::Position;
 use strict;
 use warnings;
 
+# TODO:
+#   It should be noted that optimization should
+#   keep skip_position() in mind. so in situations
+#   like <a><b>, the <b> can be skiped to a position
+#   equal to the end of <a>, while <a> can't be skipped
+#   to end at the beginning of <b>.
+
 our %FRAME = (
   precedes => PRECEDES,
   precedesDirectly => PRECEDES_DIRECTLY,

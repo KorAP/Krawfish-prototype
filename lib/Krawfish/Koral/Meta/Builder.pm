@@ -1,5 +1,7 @@
 package Krawfish::Koral::Meta::Builder;
 use parent 'Krawfish::Koral::Meta';
+use Krawfish::Koral::Meta::Sort::Field;
+use Krawfish::Koral::Meta::Sort;
 use strict;
 use warnings;
 

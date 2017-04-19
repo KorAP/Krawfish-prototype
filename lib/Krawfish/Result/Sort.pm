@@ -7,6 +7,15 @@ use warnings;
 
 use constant DEBUG => 0;
 
+
+# TODO: Rename to Krawfish::Result::Segment::Sort
+#
+# TODO:
+#   Do not sort based on RANKS but based on Criteria.
+#   So, in case the first criterion is a field rank,
+#   use PriorityCascade, otherwise use e.g. Arbitrary PriorityQueue
+
+
 # See Krawfish::Util::Buckets
 
 

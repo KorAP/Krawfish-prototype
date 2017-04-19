@@ -4,6 +4,9 @@ use warnings;
 use Krawfish::Log;
 use Krawfish::Result::Sort;
 
+# All meta-queries need the nesting query for
+# plan_for
+
 use constant DEBUG => 0;
 
 # TODO: Should differ between
@@ -11,18 +14,52 @@ use constant DEBUG => 0;
 # and
 # - sort_by_class()
 
-# fields => [[asc => 'author', desc => 'title']]
+# TODO: should support criteria instead
+# criteria => [[field => asc => 'author', field =>desc => 'title']]
 sub new {
   my $class = shift;
-  my $query = shift;
-  my @fields = @_;
   bless {
-    query => $query,
-    fields => \@fields,
-    filterable => 0
+    criteria => [@_],
+    top_k => undef
   }, $class;
 };
 
+sub top_k {
+  my $self = shift;
+  return $self->{top_k} unless @_;
+  $self->{top_k} = shift;
+};
+
+# Order sort
+sub plan_for {
+  my ($self, $index, $query) = @_;
+  ...
+};
+
+
+sub type { 'sort' };
+
+
+sub to_koral_fragment {
+  ...
+};
+
+
+# Stringify sort
+sub to_string {
+  my $self = shift;
+  my $str = 'sort(';
+  foreach my $criterion (@{$self->{criteria}}) {
+    $str .= $criterion->to_string;
+  };
+  return $str . ')';
+};
+
+
+1;
+
+
+__END__
 
 # Sorting can be optimized by an appended filter, in case there is no need
 # for counting all matches and documents.

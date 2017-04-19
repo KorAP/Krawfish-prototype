@@ -27,6 +27,11 @@ use Krawfish::Index::PostingsList;
 #     dictionary in memory, write to disc,
 #     and exchange the old dictionary with the new one.
 
+# TODO:
+#   - While field ranks are done using rank files per segment,
+#     surface terms need to be reranked all the time -
+#     Or there are segment-wide ranks as well ...
+
 # TODO: Use Storable
 # TODO: Support case insensitivity
 # TODO: Create forward index with term-ids

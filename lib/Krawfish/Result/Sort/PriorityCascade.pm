@@ -7,6 +7,8 @@ use Data::Dumper;
 use strict;
 use warnings;
 
+# This is only based on criteria that return ranks
+
 use constant {
   DEBUG   => 0,
   RANK    => 0,
@@ -50,6 +52,7 @@ sub new {
   # It has the structure [[field], [field, 1]]
   # where the second value is the descending marker
   my $fields = $param{fields};
+  # TODO: Change to criterion!
 
   # For final field distinction, use unique field
   push @$fields, [$param{unique}];

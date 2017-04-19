@@ -4,6 +4,11 @@ use strict;
 use warnings;
 use Krawfish::Log;
 
+# TODO: This currently only works with ranks,
+#       it may be more beneficial to work with criteria.
+#       So instead to compare ranks, a Criterion object will
+#       compare arbitrary data in the "rank"-field
+
 # TODO: Probably rename from IN_DOC to IN_COLL
 # TODO: Probably rename to PriorityQueue::Bundle
 # TODO: Turn reverse_array into an iterator

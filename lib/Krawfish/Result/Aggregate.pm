@@ -6,6 +6,9 @@ use warnings;
 
 use constant DEBUG => 0;
 
+# TODO: Rename to Krawfish::Result::Segment::Aggregate
+
+
 # TODO:
 #   See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html
 
