@@ -11,6 +11,10 @@ use Scalar::Util qw!blessed!;
 use Mojo::JSON qw/encode_json decode_json/;
 use Mojo::File;
 
+# TODO: This should be a base class for K::I::Static and K::I::Dynamic
+
+
+
 # TODO: Add LiveDocs-PostingsList, that supports deletion
 #
 # TODO: Support multiple tokenized texts for parallel corpora
@@ -89,6 +93,9 @@ sub new {
   # Create a list of docid -> uuid mappers
   # This may be problematic as uuids may need to be uint64,
   # this can grow for a segment with 65.000 docs up to ~ 500kb
+  # Or ~ 7MB for 1,000,000 documents
+  # But this means it's possible to store
+  # 18.446.744.073.709.551.615 documents in the index
   $self->{identifier} = [];
 
   # Collect fields to sort
@@ -157,6 +164,7 @@ sub field_values {
 
 # Add document to the index
 # TODO: Expect a KoralQuery document
+# TODO: This should be specific to Krawfish::Index::Dynamic;
 sub add {
   my $self = shift;
   my $doc = shift;
@@ -182,6 +190,8 @@ sub add {
   my $pos = 0;
 
   # Store identifier for mappings
+  # But what is the purpose of the identifier?
+  # Isn't it okay to be slow here ... ?
   if ($doc->{id}) {
     $self->{identifier}->[$doc_id] = $doc->{id};
   };

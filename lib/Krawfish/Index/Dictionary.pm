@@ -5,27 +5,40 @@ use Krawfish::Log;
 use Krawfish::Index::PostingsList;
 
 # TODO:
+#   This should be the base class for K::I::Dictionary::Dynamic
+#   and K::II::Dictionary::Static
+
+# TODO:
 #   In production the dictionary will be implemented using
 #   two data structures:
 #   - A dynamic TST (either balancing or self-optimizing)
-#   - A static complete TST (compact, fast (de)serializale,
+#   - A static TST (compact, fast (de)serializale,
 #     cache-optimized, small)
-#   - The dynamic tree is used to add new terms.
-#     It potentially can also delete terms or mark terms (nodes)
-#     as being deleted.
+#   - The dynamic tree is used to add new terms
+#     in case this is needed for the dynamic segment
 #   - The dynamic and the static tree are searchable
-#     (though it's acceptable if the dynamic TST is slower)
+#     (though it's acceptable if the dynamic TST is slower
+#     or less optimized regarding memory consumption)
 #   - The dynamic and the static trees support reverse lookup
 #     (that is, retrieving the term by a term id)
-#   - The static tree does not support adding or
-#     deleting of nodes.
+#   - The static tree does not support adding.
+#   - Both trees support deleting of nodes:
+#     - The dynamic dictionary directly
+#     - The static dictionary by marking branches as not
+#       followable
 #   - The dynamic tree can be serialized to a static tree
-#   - The dynamic tree can merge (while being serialized)
+#   - The dynamic tree can be merged (while being serialized)
 #     with a static tree.
-#   - Whenever the dynamic tree contains a reasonable
-#     amount of terms, it can merge with a second static
-#     dictionary in memory, write to disc,
-#     and exchange the old dictionary with the new one.
+#   - When both trees are merged, removed terms are ignored.
+#   - The dynamic dictionary will be merged with the static dictionary
+#     whenever a dynamic segment is merged with a static segment
+#     and comes with a non-empty dynamic dictionary
+
+# TODO:
+#   - The dictionary is cleaned up only once in a while.
+#     Then all terms with no postingslists in any segment
+#     Will be marked as removed, so they will be ignored when the
+#     static dictionary is merged with the dynamic dictionary.
 
 # TODO:
 #   - While field ranks are done using rank files per segment,
@@ -49,6 +62,12 @@ use Krawfish::Index::PostingsList;
 #   rank value needs to be incremented.
 #   However, keep in mind: That only works for fields
 #   with the same collation mechanism as the dictionary.
+#   Maybe it's better to have redundant rank-lists
+#   (including surface forms) per field,
+#   that are only used for ranking and reranking
+#   (but never for live-searching, so they can be stored
+#   compressed on disk and can be decompressed for reranking)
+
 #
 # TODO:
 #   For surface terms in subtoken-boundaries (ONLY),

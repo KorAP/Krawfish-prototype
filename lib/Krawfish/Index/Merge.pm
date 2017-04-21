@@ -2,6 +2,14 @@ package Krawfish::Index::Merge;
 use strict;
 use warnings;
 
+# There are two types of segments:
+# a) multiple static segments
+# b) One dynamic segment
+#
+# All new documents are added to the dynamic index,
+# But searches are done 
+
+
 sub new {
   my ($class, $index_a, $index_b) = @_;
   bless {
@@ -20,6 +28,8 @@ sub merge {
   #   - This is also necessary for reranking
   $self->_merge_fields;
 
+  # - concatenate docid->uuid field mappers
+  $self->_merge_identifier_lists;
 
   # - concatenate all subtoken lists
   $self->_merge_subtoken_lists;
@@ -33,6 +43,32 @@ sub merge {
 
   # - Concatenate and update primary files / forward index
   $self->_merge_primary_data;
+
+  # In case the second index is dynamic, also
+  # Merge the dictionaries
+  if ($index_b->is_dynamic) {
+    $index_a->dict->merge($index_b->dynamic_dict);
+  };
+
+  # Launch the newly created index
+  $self->_launch;
+};
+
+sub _launch {
+  # TODO:
+  #   - If the dictionary is new
+  #       - lock the whole index
+  #       - Switch to the new dictionary
+  #       - remove the old dictionary
+  #       - remove segment A
+  #       - remove segment B
+  #       - activate the new segment
+  #     else
+  #       - lock segment A
+  #       - lock segment B
+  #       - activate the new segment
+  #       - remove segment A
+  #       - remove segment B
 };
 
 sub _merge_postings_lists {
@@ -41,7 +77,10 @@ sub _merge_postings_lists {
   #   - Add SkipLists to postings lists
   #   - Update position information in dictionary
   #     (or rather in the pointer file per segment)
-  #
+  #   - Decrement all document ids for deleted documents
+  #   - Add the maximum doc_id of the first segment to
+  #     all documents of the second index
+  #   - Calculate new freq value
 };
 
 sub _merge_fields {
