@@ -1,4 +1,4 @@
-package Krawfish::Index::TermRank;
+package Krawfish::Index::Rank::SubTerms;
 use parent 'Krawfish::Index::Rank';
 use strict;
 use warnings;
@@ -8,9 +8,6 @@ use warnings;
 # That means per node there are two Term-Ranks
 # per direction (prefix and suffix):
 # One static and one dynamic.
-#
-# TODO:
-#   may be renamed to SubTermRank
 #
 # TODO:
 #   should have a similar API as FieldsRank!

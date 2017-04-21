@@ -1,4 +1,4 @@
-package Krawfish::Index::FieldsRank;
+package Krawfish::Index::Rank::Fields;
 use parent 'Krawfish::Index::Rank';
 use strict;
 use warnings;
@@ -93,9 +93,6 @@ sub get_significant {
   ...
 };
 
-sub max {
-  $_[0]->{max};
-}
 
 # Todo: use rank_num
 # SIMPLE ALGO: http://stackoverflow.com/questions/14834571/ranking-array-elements

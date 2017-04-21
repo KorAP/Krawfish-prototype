@@ -1,5 +1,5 @@
 package Krawfish::Index::Fields;
-use Krawfish::Index::FieldsRank;
+use Krawfish::Index::Rank::Fields;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -105,7 +105,7 @@ sub ranked_by {
   return $ranks->{$field} if $ranks->{$field};
 
   # Add rank
-  $ranks->{$field} = Krawfish::Index::FieldsRank->new(
+  $ranks->{$field} = Krawfish::Index::Rank::Fields->new(
     [grep { defined $_ } map { $_->{$field} } @{$self->{array}}]
   );
 

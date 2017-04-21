@@ -66,4 +66,15 @@ use warnings;
 #   In case, a field is only set for a couple of documents, a different
 #   strategy may be valid.
 
+sub max {
+  $_[0]->{max};
+};
+
+
+# Needs to be implemented
+# in the child modules
+sub merge {
+  ...
+};
+
 1;
