@@ -75,6 +75,11 @@ sub startup {
   # TODO: Maybe websocket
   $r->get('/suggest')->to('Dictionary#suggest');
 
+  # TODO:
+  #   some routes for experimental endpoints
+  my $experimental = $r->get('/experimental');
+  $r->get('/distribution')->to('Distribution#dist');
+
   # TODO: Commit?
 };
 

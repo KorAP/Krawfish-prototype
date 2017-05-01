@@ -2,18 +2,16 @@ package Krawfish::Index::Rank;
 use strict;
 use warnings;
 
-# This should be the base class for FieldsRank
-# and TermRank
-
-
 # TODO:
-#   Maybe each segment should have a rank-file that does not
-#   store the ranks per doc, but all fields
-#   in sorted order with their ranks.
-#   This file will only be consulted for reranking,
+#   Each field, the prefixes for subterms, and the
+#   suffixes for subterms have - in addition to the
+#   dictionary - a rank-file that does not only
+#   store the ranks per doc, but all values
+#   in sorted order, respecting a certain collation.
+#
+#   This file will only be consulted for reranking (merging),
 #   so it may be compressed on disk and potentially
 #   stored with incremental encoding/front coding
-#   The same should be true for TermRank.
 
 # TODO:
 #   Ranking is simple:
