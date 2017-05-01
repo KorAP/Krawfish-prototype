@@ -1,4 +1,4 @@
-package Krawfish::Result::Fields;
+package Krawfish::Result::Segment::Fields;
 use parent 'Krawfish::Result';
 use Krawfish::Log;
 use Krawfish::Posting::Match;
@@ -6,6 +6,9 @@ use strict;
 use warnings;
 
 use constant DEBUG => 0;
+
+# This will enrich each match with specific field information
+# Needs to be called on the segment level
 
 # Constructor
 sub new {

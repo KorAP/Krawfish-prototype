@@ -400,6 +400,10 @@ sub _in_order {
 };
 
 
+# THE REST IS NOT NECESSARY WHEN STORING IN ALPHABETIC ORDER
+# FOR BINARY SEARCH OR SEQUENTIAL SEARCH
+
+
 # Sort the nodes to create
 # a complete binary search tree
 # see http://stackoverflow.com/questions/19301938/create-a-complete-binary-search-tree-from-list#26896494
