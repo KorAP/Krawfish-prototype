@@ -36,10 +36,10 @@ ok(my $fields = Krawfish::Result::Segment::Fields->new(
 
 ok($fields->next, 'Next');
 is($fields->current->to_string, '[0:0-1]', 'Current object');
-is($fields->current_match, "[0:0-1|corpus='corpus-2';license='free']",
+is($fields->current_match->to_string, "[0:0-1|corpus='corpus-2';license='free']",
    'Current match');
 ok($fields->next, 'Next');
-is($fields->current_match, "[1:0-1|corpus='corpus-3';license='closed']",
+is($fields->current_match->to_string, "[1:0-1|corpus='corpus-3';license='closed']",
    'Current match');
 ok(!$fields->next, 'No more next');
 
@@ -57,27 +57,27 @@ ok($fields = Krawfish::Result::Segment::Fields->new(
 
 ok($fields->next, 'Next');
 is($fields->current->to_string, '[0:0-1]', 'Current object');
-is($fields->current_match, "[0:0-1|corpus='corpus-2';license='free']",
+is($fields->current_match->to_string, "[0:0-1|corpus='corpus-2';license='free']",
    'Current match');
 
 ok($fields->next, 'Next');
 is($fields->current->to_string, '[0:1-2]', 'Current object');
-is($fields->current_match, "[0:1-2|corpus='corpus-2';license='free']",
+is($fields->current_match->to_string, "[0:1-2|corpus='corpus-2';license='free']",
    'Current match');
 
 ok($fields->next, 'Next');
 is($fields->current->to_string, '[1:0-1]', 'Current object');
-is($fields->current_match, "[1:0-1|corpus='corpus-3';license='closed']",
+is($fields->current_match->to_string, "[1:0-1|corpus='corpus-3';license='closed']",
    'Current match');
 
 ok($fields->next, 'Next');
 is($fields->current->to_string, '[1:1-2]', 'Current object');
-is($fields->current_match, "[1:1-2|corpus='corpus-3';license='closed']",
+is($fields->current_match->to_string, "[1:1-2|corpus='corpus-3';license='closed']",
    'Current match');
 
 ok($fields->next, 'Next');
 is($fields->current->to_string, '[2:0-1]', 'Current object');
-is($fields->current_match, "[2:0-1|corpus='corpus-1';license='free']",
+is($fields->current_match->to_string, "[2:0-1|corpus='corpus-1';license='free']",
    'Current match');
 
 ok(!$fields->next, 'Next');

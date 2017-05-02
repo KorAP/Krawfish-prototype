@@ -1,7 +1,25 @@
 package Krawfish::Koral::Result;
-use Krawfish::Koral::Result::Group;
 use strict;
 use warnings;
+
+sub new {
+  my $class = shift;
+  bless {
+    matches => []
+  }, $class;
+};
+
+sub add_matches {
+  my ($self, $match) = @_;
+  push @{$self->{matches}}, $match->to_koral;
+};
+
+1;
+
+__END__
+
+use Krawfish::Koral::Result::Group;
+
 
 sub new {
   my $class = shift;
@@ -42,10 +60,6 @@ sub prepare_for {
     );
   };
 };
-
-1;
-
-__END__
 
 sub add_match {
   my ($self, $posting, $index) = @_;

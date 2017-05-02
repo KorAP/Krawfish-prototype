@@ -64,7 +64,11 @@ sub startup {
   $r->post('/collect/:resultid')->to('Index#collect');
   $r->post('/statistics')->to('Corpus#statistics');
 
-  $r->get('/corpus/:csigle/:dsigle/:tsigle')->to('Corpus#match');
+  $r->get('/corpus/:corpus_id/')->to('Corpus#corpus');
+  $r->get('/corpus/:corpus_id/:doc_id')->to('Corpus#doc');
+  $r->get('/corpus/:corpus_id/:doc_id/:text_id')->to('Corpus#text');
+  $r->get('/corpus/:corpus_id/:doc_id/:text_id/:match')->to('Corpus#match');
+
 
   $r->put('/corpus/:uid')->to('Index#add');
   $r->put('/corpus/:csigle/:dsigle/:tsigle')->to('Index#add');

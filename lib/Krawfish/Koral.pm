@@ -102,16 +102,43 @@ sub to_koral_query {
   };
 
   if ($self->query) {
-    $koral->{'query'} = $self->query->to_koral_fragment
+    $koral->{query} = $self->query->to_koral_fragment
   };
 
   if ($self->corpus) {
-    $koral->{'corpus'} = $self->corpus->to_koral_fragment
+    $koral->{corpus} = $self->corpus->to_koral_fragment
   };
 
   $self->merge_info($koral);
 
   return $koral;
+};
+
+
+# Get KoralQuery with results
+sub to_result {
+  my ($self, $index) = @_;
+
+  # Get KoralQuery object
+  my $koral = $self->to_koral_query;
+
+  # Prepare query
+  my $query = $self->prepare_for($index);
+
+  # TODO:
+  #   This is only for matches - not for groups
+  while ($query->next) {
+
+    # Add matches to koral
+    $koral->add_match(
+
+      # Get current match
+      $query->current_match
+    )
+  };
+
+  # Get result hash (e.g. totalResults)
+  $koral->{result} = $query->result;
 };
 
 
