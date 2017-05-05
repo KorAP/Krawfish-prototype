@@ -1,10 +1,11 @@
 package Krawfish::Query::Term;
 use parent 'Krawfish::Query';
-use Krawfish::Index::PostingsList;
 use Krawfish::Posting::Token;
 use Krawfish::Log;
 use strict;
 use warnings;
+
+# TODO: Probably inherit from PostingPointer
 
 # TODO: Support filters and skip
 # return Nothing if get returns undef
@@ -57,10 +58,20 @@ sub freq {
   $_[0]->{postings}->freq;
 };
 
+sub freq_in_doc {
+  $_[0]->{postings}->freq_in_doc;
+};
+
 sub to_string {
   return "'" . $_[0]->term . "'";
 };
 
+
+sub skip_doc {
+  $_[0]->{postings}->skip_doc($_[1]);
+};
+
 1;
+
 
 __END__

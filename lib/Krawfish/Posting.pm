@@ -35,6 +35,11 @@ sub payload {
 };
 
 
+# Flags for corpus classes
+sub flags {
+  return $_[0]->{flags} //= 0b0000_0000_0000_0000;
+};
+
 # Compare posting order
 sub compare {
   my ($self, $post) = @_;

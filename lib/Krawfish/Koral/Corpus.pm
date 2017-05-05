@@ -20,6 +20,13 @@ sub prepare_for {
 # Rewrite query to actual query
 sub plan_for;
 
+# This will check for subcorpora
+# having classes. Subcorpora with classes
+# can't be cached.
+sub has_classes {
+  ...;
+};
+
 sub is_negative {
   my $self = shift;
   if (scalar @_ == 1) {

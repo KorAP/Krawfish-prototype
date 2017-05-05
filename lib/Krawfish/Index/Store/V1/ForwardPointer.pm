@@ -2,6 +2,11 @@ package Krawfish::Index::Store::V1::ForwardPointer;
 use strict;
 use warnings;
 
+# TODO:
+#   For use in the cooccurrence-analysis,
+#   this needs fast access to documents AND positions.
+#   It needs next() and previous() methods.
+
 sub new {
   my $class = shift;
   bless {
@@ -27,5 +32,7 @@ sub get {
 
 
 sub next {}
+
+sub previous {};
 
 1;

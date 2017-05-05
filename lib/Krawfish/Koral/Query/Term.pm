@@ -10,6 +10,9 @@ use warnings;
 # TODO: Support escaping! Especially for regex!
 # TODO: Filter multiple corpora
 
+# TODO: Term building should be part of
+#   a utility class Krawfish::Util::Koral::Term or so
+
 use constant DEBUG => 0;
 
 sub new {
@@ -187,8 +190,14 @@ sub to_koral_fragment {
   return $hash;
 };
 
+# TODO:
+#   Support fragment, where a term string
+#   may end with / or = to be used for
+#   suggestions
+
+# stringify term
 sub to_string {
-  my $self = shift;
+  my ($self, $fragment) = @_;
 
   if ($self->is_null) {
     return 0

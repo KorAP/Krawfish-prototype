@@ -24,22 +24,67 @@ sub current {
 # TODO: Returns the doc_id of the current posting
 sub next;
 
+
+# This is only relevant for term posting lists
+sub next_doc {
+  my $self = shift;
+  my $current_doc_id = $self->current->doc_id;
+  do {
+    $self->next or return;
+  } until ($self->current->doc_id > $current_doc_id);
+  return 1;
+};
+
+
 # Forward to next start position
 sub next_greater_start;
 
+sub freq_in_doc {
+  warn 'freq_in_doc only supported for term queries (see PostingPointer)';
+};
 
+
+# Skip to (or beyond) a certain document id
 sub skip_doc {
   my ($self, $doc_id) = @_;
-
-  warn 'Skipping is not implemented yet';
 
   print_log('query', 'Skip to ' . $doc_id) if DEBUG;
 
   while (!$self->current || $self->current->doc_id < $doc_id) {
-    $self->next or return;
+    $self->next_doc or return;
   };
 
   return $self->current->doc_id;
+};
+
+
+# Move both spans to the same document
+sub same_doc {
+  my ($self, $second) = @_;
+
+  my $first_c = $self->current or return;
+  my $second_c = $second->current or return;
+
+  # Iterate to the first matching document
+  while ($first_c->doc_id != $second_c->doc_id) {
+    print_log('query', 'Current span is not in docs') if DEBUG;
+
+    # Forward the first span to advance to the document of the second span
+    if ($first_c->doc_id < $second_c->doc_id) {
+      print_log('query', 'Forward first') if DEBUG;
+      $self->skip_doc($second_c->doc_id) or return;
+      $first_c = $self->current;
+    }
+
+    # Forward the second span to advance to the document of the first span
+    else {
+      print_log('filter', 'Forward second') if DEBUG;
+      $second->skip_doc($first_c->doc_id) or return;
+      $second_c = $second->current;
+    };
+  };
+
+  return 1;
 };
 
 # In Lucene it's exemplified:

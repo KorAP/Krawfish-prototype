@@ -22,6 +22,10 @@ sub new {
   }, $class;
 };
 
+
+# Add term data to array
+# This may need to be done in a bunch per doc
+# to be able to set tf
 sub append {
   my $self = shift;
   my (@data) = @_;

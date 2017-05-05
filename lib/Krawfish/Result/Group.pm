@@ -11,6 +11,9 @@ use constant DEBUG => 0;
 # - for record matches
 #   - metadata!
 #   - This is useful to group document matches for corpus browsing!
+#   - BUT: This would probably need a witness mechanism, so for a match,
+#     some fields can be loaded, e.g. a matching document sigle will return
+#     the document title.
 # - for span matches
 #   - metdata
 #     - this is an extension to facets, where snippet frequencies are grouped
@@ -30,14 +33,35 @@ use constant DEBUG => 0;
 #
 # This is already possible in C2 so it needs to be implemented!
 
-# A group has the following structure:
+# A group has the following structure for matches:
 # {
 #   criterion => [freq, doc_freq]
 # }
+#
+# For docs, freq and doc_freq are identical
+#
 # Where criterion is a classed sequence of criteria
 # with class information, like
 #   1:der|2:Baum => []
 # Sometimes it may indicate tokens instead of classes though ...
+#
+# With a witness, the group has:
+# {
+#   criterion => [freq, doc_freq, match]
+# }
+# The match can be anything - so it may even be a first example snippet.
+#
+# But with a compare() corpus, there may be more:
+#
+# {
+#   criterion => [freq, doc_freq, freq, doc_freq, freq, doc_freq, ...]
+# }
+
+
+
+# WARNING!
+# This kind of result can not be limited or sorted on an earlier level,
+# as the number of matches is only clear after everything is aggregated.
 
 # Construct grouping function
 sub new {

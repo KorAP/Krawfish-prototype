@@ -15,6 +15,13 @@ sub startup {
     }
   );
 
+
+  $self->helper(
+    'krawfish.node.dictionary' => sub {
+      ...
+    }
+  );
+
   # Router
   my $r = $self->routes;
 
@@ -64,6 +71,11 @@ sub startup {
   $r->post('/collect/:resultid')->to('Index#collect');
   $r->post('/statistics')->to('Corpus#statistics');
 
+  # This is an API for co-occurrence processing.
+  # It accepts a virtual corpus in the body
+  # and a list of terms, that need frequency informations
+  $r->post('/frequencies')->to('Corpus#Frequencies');
+
   $r->get('/corpus/:corpus_id/')->to('Corpus#corpus');
   $r->get('/corpus/:corpus_id/:doc_id')->to('Corpus#doc');
   $r->get('/corpus/:corpus_id/:doc_id/:text_id')->to('Corpus#text');
@@ -76,7 +88,7 @@ sub startup {
   $r->delete('/corpus/:uid')->to('Index#delete');
   $r->delete('/corpus/:csigle/:dsigle/:tsigle')->to('Index#delete');
 
-  # TODO: Maybe websocket
+  # Web sockets only make sense for the central node
   $r->get('/suggest')->to('Dictionary#suggest');
 
   # TODO:

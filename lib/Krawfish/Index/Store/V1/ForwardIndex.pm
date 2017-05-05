@@ -8,9 +8,6 @@ use warnings;
 use Data::BitStream;
 
 # TODO:
-#   The store should be versioned!
-#
-# TODO:
 #   This should probably be renamed to ForwardStream,
 #   while the index needs to contain an index pointing to the
 #   offsets for the documents in question!
@@ -25,8 +22,6 @@ use Data::BitStream;
 #
 #   The plain text contains blanks, commata, etc.
 #   The subtokens point to byte offsets in the highly compressed forward index.
-#
-
 
 use constant {
   SUBTOKEN_MARKER    => 0b0000_0000,

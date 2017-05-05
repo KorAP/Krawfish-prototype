@@ -10,6 +10,8 @@ use warnings;
 # more efficient than merging with an or() operator.
 #
 # This can be used, e.g., for tagged corpora.
+#
+# However - this may not be necessary at all.
 
 sub new {
   my ($class, $index, $vector) = @_;

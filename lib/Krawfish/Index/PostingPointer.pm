@@ -1,7 +1,18 @@
 package Krawfish::Index::PostingPointer;
+use parent 'Krawfish::Query';
+use Krawfish::Log;
 use Krawfish::Posting;
 use strict;
 use warnings;
+
+use constant {
+  DEBUG => 0,
+    DOC_ID => 0
+};
+
+# TODO: Implement skipping efficiently!!!
+# TODO: Implement next_doc efficiently!!!
+# TODO: Implement freq_in_doc efficiently!!!
 
 # TODO: Use Stream::Finger instead of PostingPointer
 
@@ -12,57 +23,97 @@ use warnings;
 
 sub new {
   my $class = shift;
-  my $self = bless {
+  bless {
     list => shift,
     pos => -1
   }, $class;
-  $self->{freq} = $self->{list}->freq;
-  $self->{term_id} = $self->{list}->term_id;
-  return $self;
 };
 
 sub freq {
-  $_[0]->{freq};
+  $_[0]->{list}->freq;
 };
 
+
+# Get the term from the list
 sub term {
   $_[0]->{list}->term;
 };
 
+
 sub term_id {
-  $_[0]->{term_id};
+  $_[0]->{list}->term_id;
 };
 
+
+# Forward position
 sub next {
   my $self = shift;
   my $pos = $self->{pos}++;
   return ($pos + 1) < $self->freq ? 1 : 0;
 };
 
-sub next_pos;
 
-sub next_doc;
+# Get the frequency of the term in the document
+# This is just a temporary implementation
+sub freq_in_doc {
+  my $self = shift;
+
+  print_log('ppointer', 'TEMP SLOW Get the frequency of the term in the doc');
+
+  # This is the doc_id
+  my $current_doc_id = $self->current->[DOC_ID];
+  my $pos = $self->{pos};
+  my $freq = 0;
+  my $all_freq = $self->freq;
+
+  # Move to the start of the document
+  while ($pos > 0 && $self->{list}->at($pos-1)->[DOC_ID] == $current_doc_id) {
+    $pos--;
+  };
+
+  # Move to the end of the document
+  while ($pos < $self->freq && $self->{list}->at($pos++)->[DOC_ID] == $current_doc_id) {
+    $freq++;
+  };
+
+  # Return the frequency
+  return $freq;
+};
+
 
 sub pos {
   return $_[0]->{pos};
 };
 
+
+# This does NOT return a posting, so it may be called differently
+# This is called by different term types - so this could be named current_data
 sub current {
   my $self = shift;
   $self->{list}->at($self->pos);
 };
 
-sub list {
-  $_[0]->{list};
-};
 
 sub close {
   ...
 };
 
 
-# sub skip_doc_to;
-# sub skip_pos_to;
+sub list {
+  return $_[0]->{list};
+};
 
+
+# Skip to a certain document
+sub skip_doc {
+  my ($self, $doc_id) = @_;
+
+  print_log('ppointer', 'TEMP SLOW Skip to next document') if DEBUG;
+
+  while (!$self->current || $self->current->[DOC_ID] < $doc_id) {
+    $self->next or return;
+  };
+  return 1;
+};
 
 1;

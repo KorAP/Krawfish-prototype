@@ -24,6 +24,10 @@ use warnings;
 #   it may be useful to not have much data in memory.
 #   Look into K::I::Subtokens for use of $term_ids there. It may not be crucial though.
 
+# TODO:
+#   The forward index needs fast access to documents and positions,
+#   to get term ids from contexts for use in the co-occurrence analysis.
+
 sub new {
   my $class = shift;
   bless {

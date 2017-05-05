@@ -38,7 +38,8 @@ sub next {
   my $span = $self->{span}->current or return;
   my $doc = $self->{docs}->current or return;
 
-  # to_same_doc
+  # TODO:
+  #   Replace with same_doc
   while ($span->doc_id != $doc->doc_id) {
     print_log('filter', 'Current span is not in docs') if DEBUG;
 
@@ -74,5 +75,25 @@ sub to_string {
   $str .= $self->{docs}->to_string;
   return $str . ')';
 };
+
+
+# Get the frequency of the term in a corpus
+sub freq {
+  my $self = shift;
+  my $freq = 0;
+
+  $self->init;
+
+  print_log('filter', 'Count valid spans') if DEBUG;
+
+  # Iterate over all docs and collect frequencies
+  while ($self->{span}->same_doc($self->{docs})) {
+    $freq += $self->{span}->freq_in_doc;
+    $self->{span}->next_doc or last;
+  };
+
+  return $freq;
+};
+
 
 1;
