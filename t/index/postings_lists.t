@@ -16,15 +16,15 @@ my $first = $dict->pointer('a');
 my $second = $dict->pointer('a');
 
 ok($first->next, 'Init posting list');
-is_deeply($first->current, [0,2,3], 'First posting');
+is_deeply($first->current, '[0$2,3]', 'First posting');
 ok($first->next, 'More postings');
-is_deeply($first->current, [1,5,6], 'First posting');
+is_deeply($first->current, '[1$5,6]', 'First posting');
 ok(!$first->next, 'No more postings');
 
 ok($second->next, 'Init posting list');
-is_deeply($second->current, [0,2,3], 'First posting');
+is_deeply($second->current, '[0$2,3]', 'First posting');
 ok($second->next, 'More postings');
-is_deeply($second->current, [1,5,6], 'First posting');
+is_deeply($second->current, '[1$5,6]', 'First posting');
 ok(!$second->next, 'No more postings');
 
 done_testing;

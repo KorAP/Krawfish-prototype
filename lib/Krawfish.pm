@@ -73,8 +73,8 @@ sub startup {
 
   # This is an API for co-occurrence processing.
   # It accepts a virtual corpus in the body
-  # and a list of terms, that need frequency informations
-  $r->post('/frequencies')->to('Corpus#Frequencies');
+  # and a list of terms, that need term frequency information
+  $r->post('/freq')->to('Corpus#Frequencies');
 
   $r->get('/corpus/:corpus_id/')->to('Corpus#corpus');
   $r->get('/corpus/:corpus_id/:doc_id')->to('Corpus#doc');
@@ -90,6 +90,13 @@ sub startup {
 
   # Web sockets only make sense for the central node
   $r->get('/suggest')->to('Dictionary#suggest');
+
+  # Send a Virtual corpus and return an id vector
+  # This is necessary for archiving and migration.
+  # It accepts a virtual corpus and returns a vector of
+  # text siglen
+  $r->post('/vc/ids')->to('VirtualCorpus#ids');
+  $r->get('/vc/:vc_id/ids')->to('VirtualCorpus#ids');
 
   # TODO:
   #   some routes for experimental endpoints

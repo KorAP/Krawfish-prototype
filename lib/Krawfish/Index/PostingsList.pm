@@ -11,6 +11,8 @@ use constant DEBUG => 0;
 # TODO: Split postinglists, so they have different sizes,
 # that may be fragmented.
 
+# TODO: Return K::P::Data for at()
+
 sub new {
   my ($class, $index_file, $term, $term_id) = @_;
   bless {

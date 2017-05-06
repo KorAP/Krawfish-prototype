@@ -19,8 +19,11 @@ use warnings;
 #
 #   This may also have a next() and skip_doc() API
 #   to move to the expected document in a sequential way,
-#   which may be the case for Aggregate::Value. In that case,
-#   a pointer mechanism is required.
+#   which may be the case for Aggregate::Values. (Although,
+#   this may be better to be stored in a different mechanism.)
+#   In that case, a pointer mechanism is required.
+#   Another good use-case is the fast collection of text siglen
+#   for the virtualcorpus->textsiglen-vector method.
 
 # Tie to a file
 sub new {

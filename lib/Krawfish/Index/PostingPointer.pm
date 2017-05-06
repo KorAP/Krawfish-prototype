@@ -1,6 +1,7 @@
 package Krawfish::Index::PostingPointer;
 use parent 'Krawfish::Query';
 use Krawfish::Log;
+use Krawfish::Posting::Data;
 use Krawfish::Posting;
 use strict;
 use warnings;
@@ -61,18 +62,19 @@ sub freq_in_doc {
   print_log('ppointer', 'TEMP SLOW Get the frequency of the term in the doc');
 
   # This is the doc_id
-  my $current_doc_id = $self->current->[DOC_ID];
+  my $current_doc_id = $self->current->doc_id;
   my $pos = $self->{pos};
   my $freq = 0;
   my $all_freq = $self->freq;
 
+
   # Move to the start of the document
-  while ($pos > 0 && $self->{list}->at($pos-1)->[DOC_ID] == $current_doc_id) {
+  while ($pos > 0 && ($self->{list}->at($pos-1)->[DOC_ID] == $current_doc_id)) {
     $pos--;
   };
 
   # Move to the end of the document
-  while ($pos < $self->freq && $self->{list}->at($pos++)->[DOC_ID] == $current_doc_id) {
+  while ($pos < $self->freq && ($self->{list}->at($pos++)->[DOC_ID] == $current_doc_id)) {
     $freq++;
   };
 
@@ -90,7 +92,12 @@ sub pos {
 # This is called by different term types - so this could be named current_data
 sub current {
   my $self = shift;
-  $self->{list}->at($self->pos);
+
+  my $data = $self->{list}->at($self->pos) or return;
+
+  Krawfish::Posting::Data->new(
+    $data
+  );
 };
 
 
@@ -110,7 +117,7 @@ sub skip_doc {
 
   print_log('ppointer', 'TEMP SLOW Skip to next document') if DEBUG;
 
-  while (!$self->current || $self->current->[DOC_ID] < $doc_id) {
+  while (!$self->current || $self->current->doc_id < $doc_id) {
     $self->next or return;
   };
   return 1;

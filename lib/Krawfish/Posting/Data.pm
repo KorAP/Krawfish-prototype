@@ -1,24 +1,22 @@
 package Krawfish::Posting::Data;
 use overload '""' => sub { $_[0]->to_string }, fallback => 1;
-use Krawfish::Posting::Payload;
 use strict;
 use warnings;
 
 sub new {
-  my $class = shift;
-  bless [@_], $class;
+  my ($class, $data) = @_;
+  bless [@$data], $class;
 };
 
 sub doc_id {
   $_[0]->[0];
 };
 
-sub start;
-
-sub end;
-
-sub payload;
-
-sub flags;
+sub to_string {
+  my $self = shift;
+  my $str = '[' . $self->doc_id;
+  $str .= $self->[1] ? '$' . join(',',@{$self}[1..$#{$self}]) : '';
+  return $str . ']';
+};
 
 1;
