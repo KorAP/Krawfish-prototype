@@ -6,7 +6,9 @@ use warnings;
 
 use constant DEBUG => 0;
 
-# TODO: Use different PostingsList for different term types
+# TODO:
+#   Use different PostingsList (or rather different PostingPointer)
+#   for different term types
 #
 # TODO: Split postinglists, so they have different sizes,
 # that may be fragmented.

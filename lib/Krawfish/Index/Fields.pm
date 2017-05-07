@@ -16,6 +16,8 @@ sub new {
   }, $class;
 };
 
+# Todo: Probably store multiple key/values at once
+
 sub store {
   my $self = shift;
   my $doc_id = shift;

@@ -8,12 +8,13 @@ use warnings;
 
 use constant {
   DEBUG => 0,
-    DOC_ID => 0
+  DOC_ID => 0
 };
 
 # TODO: Implement skipping efficiently!!!
 # TODO: Implement next_doc efficiently!!!
 # TODO: Implement freq_in_doc efficiently!!!
+# TODO: Add direct access to doc_id!
 
 # TODO: Use Stream::Finger instead of PostingPointer
 
