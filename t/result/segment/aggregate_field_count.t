@@ -5,8 +5,8 @@ use warnings;
 
 use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Query::Builder');
-use_ok('Krawfish::Result::Aggregate');
-use_ok('Krawfish::Result::Aggregate::Values');
+use_ok('Krawfish::Result::Segment::Aggregate');
+use_ok('Krawfish::Result::Segment::Aggregate::Values');
 
 my $index = Krawfish::Index->new;
 
@@ -28,10 +28,10 @@ my $kq = Krawfish::Koral::Query::Builder->new;
 
 my $query = $kq->token('bb');
 
-my $field_count = Krawfish::Result::Aggregate::Values->new($index, ['size', 'docID']);
+my $field_count = Krawfish::Result::Segment::Aggregate::Values->new($index, ['size', 'docID']);
 
 # Get count object
-ok(my $aggr = Krawfish::Result::Aggregate->new(
+ok(my $aggr = Krawfish::Result::Segment::Aggregate->new(
   $query->prepare_for($index),
   [$field_count]
 ), 'Create field count object');

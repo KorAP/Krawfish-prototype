@@ -4,11 +4,11 @@ use Krawfish::Log;
 use Krawfish::Result::Sort::Filter;
 use Krawfish::Result::Sort::PriorityCascade;
 use Krawfish::Result::Limit;
-use Krawfish::Result::Aggregate;
-use Krawfish::Result::Aggregate::Facets;
-use Krawfish::Result::Aggregate::Count;
-use Krawfish::Result::Aggregate::Length;
-use Krawfish::Result::Aggregate::Values;
+use Krawfish::Result::Segment::Aggregate;
+use Krawfish::Result::Segment::Aggregate::Facets;
+use Krawfish::Result::Segment::Aggregate::Count;
+use Krawfish::Result::Segment::Aggregate::Length;
+use Krawfish::Result::Segment::Aggregate::Values;
 use strict;
 use warnings;
 
@@ -159,7 +159,7 @@ sub plan_for {
 
     # This should have more parameters, like count
     foreach (@{$self->{facets}}) {
-      push @aggr, Krawfish::Result::Aggregate::Facets->new($index, $_);
+      push @aggr, Krawfish::Result::Segment::Aggregate::Facets->new($index, $_);
     };
   };
 
@@ -168,7 +168,7 @@ sub plan_for {
 
     # This should have more parameters, like count
     foreach (@{$self->{field_count}}) {
-      push @aggr, Krawfish::Result::Aggregate::Values->new($index, $_);
+      push @aggr, Krawfish::Result::Segment::Aggregate::Values->new($index, $_);
     };
   };
 
@@ -177,11 +177,11 @@ sub plan_for {
   #   This may be obsolete in some cases, because other aggregations already
   #   count frequencies.
   if ($self->{count}) {
-    push @aggr, Krawfish::Result::Aggregate::Count->new;
+    push @aggr, Krawfish::Result::Segment::Aggregate::Count->new;
   };
 
   if ($self->{length}) {
-    push @aggr, Krawfish::Result::Aggregate::Length->new;
+    push @aggr, Krawfish::Result::Segment::Aggregate::Length->new;
   };
 
   # Augment the query with aggregations
@@ -190,7 +190,7 @@ sub plan_for {
   #   like ->query($query)->aggregate_on($aggr)->prepare_for($index);
   #   and after the query is through, the aggregation map contains data
   if (@aggr) {
-    $query = Krawfish::Result::Aggregate->new($query, \@aggr);
+    $query = Krawfish::Result::Segment::Aggregate->new($query, \@aggr);
   };
 
   # Sort the result

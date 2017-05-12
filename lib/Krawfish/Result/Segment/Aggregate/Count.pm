@@ -1,8 +1,11 @@
-package Krawfish::Result::Aggregate::Count;
-use parent 'Krawfish::Result::Aggregate::Base';
+package Krawfish::Result::Segment::Aggregate::Count;
+use parent 'Krawfish::Result::Segment::Aggregate::Base';
 use Krawfish::Log;
 use strict;
 use warnings;
+
+# TODO: Rename to frequencies
+# TODO: Support virtual corpus classes
 
 use constant DEBUG => 0;
 

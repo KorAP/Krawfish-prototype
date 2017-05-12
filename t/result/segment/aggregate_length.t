@@ -5,8 +5,8 @@ use warnings;
 
 use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Query::Builder');
-use_ok('Krawfish::Result::Aggregate');
-use_ok('Krawfish::Result::Aggregate::Length');
+use_ok('Krawfish::Result::Segment::Aggregate');
+use_ok('Krawfish::Result::Segment::Aggregate::Length');
 
 my $index = Krawfish::Index->new;
 
@@ -25,10 +25,10 @@ my $kq = Krawfish::Koral::Query::Builder->new;
 
 my $query = $kq->span('s');
 
-my $length = Krawfish::Result::Aggregate::Length->new;
+my $length = Krawfish::Result::Segment::Aggregate::Length->new;
 
 # Get length object
-ok(my $aggr = Krawfish::Result::Aggregate->new(
+ok(my $aggr = Krawfish::Result::Segment::Aggregate->new(
   $query->prepare_for($index),
   [$length]
 ), 'Create length object');

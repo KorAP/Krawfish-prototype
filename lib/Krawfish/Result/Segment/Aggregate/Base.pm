@@ -1,4 +1,4 @@
-package Krawfish::Result::Aggregate::Base;
+package Krawfish::Result::Segment::Aggregate::Base;
 use strict;
 use warnings;
 

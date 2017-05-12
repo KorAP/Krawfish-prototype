@@ -5,8 +5,8 @@ use warnings;
 
 use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Query::Builder');
-use_ok('Krawfish::Result::Aggregate');
-use_ok('Krawfish::Result::Aggregate::Facets');
+use_ok('Krawfish::Result::Segment::Aggregate');
+use_ok('Krawfish::Result::Segment::Aggregate::Facets');
 
 my $index = Krawfish::Index->new;
 
@@ -17,18 +17,18 @@ ok(defined $index->add('t/data/doc3-segments.jsonld'), 'Add new document');
 my $kq = Krawfish::Koral::Query::Builder->new;
 my $query = $kq->token('Der');
 
-my $facet_license = Krawfish::Result::Aggregate::Facets->new(
+my $facet_license = Krawfish::Result::Segment::Aggregate::Facets->new(
   $index,
   'license'
 );
 
-my $facet_corpus = Krawfish::Result::Aggregate::Facets->new(
+my $facet_corpus = Krawfish::Result::Segment::Aggregate::Facets->new(
   $index,
   'corpus'
 );
 
 # Get facets object
-ok(my $aggr = Krawfish::Result::Aggregate->new(
+ok(my $aggr = Krawfish::Result::Segment::Aggregate->new(
   $query->prepare_for($index),
   [$facet_license, $facet_corpus]
 ), 'Create facet object');

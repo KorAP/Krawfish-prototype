@@ -5,8 +5,8 @@ use warnings;
 
 use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Query::Builder');
-use_ok('Krawfish::Result::Aggregate');
-use_ok('Krawfish::Result::Aggregate::Count');
+use_ok('Krawfish::Result::Segment::Aggregate');
+use_ok('Krawfish::Result::Segment::Aggregate::Count');
 
 my $index = Krawfish::Index->new;
 
@@ -25,10 +25,10 @@ my $kq = Krawfish::Koral::Query::Builder->new;
 
 my $query = $kq->token('bb');
 
-my $count = Krawfish::Result::Aggregate::Count->new;
+my $count = Krawfish::Result::Segment::Aggregate::Count->new;
 
 # Get count object
-ok(my $aggr = Krawfish::Result::Aggregate->new(
+ok(my $aggr = Krawfish::Result::Segment::Aggregate->new(
   $query->prepare_for($index),
   [$count]
 ), 'Create count object');
@@ -44,10 +44,10 @@ is($aggr->result->{totalResults}, 2, 'Occurrence frequency');
 is($aggr->to_string, "aggregate([count]:'bb')", 'Get counts');
 $query = $kq->token('cc');
 
-$count = Krawfish::Result::Aggregate::Count->new;
+$count = Krawfish::Result::Segment::Aggregate::Count->new;
 
 # Get count object
-ok($aggr = Krawfish::Result::Aggregate->new(
+ok($aggr = Krawfish::Result::Segment::Aggregate->new(
   $query->prepare_for($index),
   [$count]
 ), 'Create count object');

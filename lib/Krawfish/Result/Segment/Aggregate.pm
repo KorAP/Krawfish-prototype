@@ -1,13 +1,13 @@
-package Krawfish::Result::Aggregate;
+package Krawfish::Result::Segment::Aggregate;
 use parent 'Krawfish::Result';
-use Hash::Merge qw( merge );
+# use Hash::Merge qw( merge );
 use strict;
 use warnings;
 
 use constant DEBUG => 0;
 
-# TODO: Rename to Krawfish::Result::Segment::Aggregate
-
+# Aggregate values of matches per document and
+# per match.
 
 # TODO:
 #   See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html
