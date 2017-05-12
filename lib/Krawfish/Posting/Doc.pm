@@ -13,6 +13,9 @@ sub doc_id {
   return ${$_[0]};
 };
 
+sub flags {
+};
+
 sub to_string {
   '[' . ${$_[0]} . ']';
 };

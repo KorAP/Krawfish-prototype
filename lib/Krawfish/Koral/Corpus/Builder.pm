@@ -1,6 +1,7 @@
 package Krawfish::Koral::Corpus::Builder;
 use Krawfish::Koral::Corpus::Field;
 use Krawfish::Koral::Corpus::FieldGroup;
+use Krawfish::Koral::Corpus::Class;
 use Krawfish::Query::Nothing;
 use Krawfish::Koral::Corpus::Cache;
 use strict;
@@ -21,6 +22,11 @@ sub field_and {
 sub field_or {
   shift;
   return Krawfish::Koral::Corpus::FieldGroup->new('or', @_);
+};
+
+sub class {
+  shift;
+  return Krawfish::Koral::Corpus::Class->new(@_);
 };
 
 # Create 'string' field

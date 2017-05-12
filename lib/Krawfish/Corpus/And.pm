@@ -4,6 +4,9 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
+# TODO:
+#   Create a version of AndWithFlags
+
 use constant DEBUG => 0;
 
 sub new {

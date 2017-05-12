@@ -24,6 +24,12 @@ sub plan_for;
 # having classes. Subcorpora with classes
 # can't be cached.
 sub has_classes {
+  0;
+};
+
+# This will remove classes
+# in subcorpora
+sub plan_without_classes_for {
   ...;
 };
 

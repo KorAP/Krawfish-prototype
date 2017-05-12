@@ -2,7 +2,9 @@ package Krawfish::Koral::Corpus::FieldGroup;
 use parent 'Krawfish::Koral::Corpus';
 use Krawfish::Log;
 use Krawfish::Corpus::Or;
+use Krawfish::Corpus::OrWithFlags;
 use Krawfish::Corpus::And;
+use Krawfish::Corpus::AndWithFlags;
 use Krawfish::Corpus::Without;
 use Krawfish::Corpus::Negation;
 use Krawfish::Corpus::All;
@@ -131,10 +133,13 @@ sub is_negative {
 sub plan_for {
   my ($self, $index) = @_;
 
-  my $ops = $self->operands;
-
   # TODO: Order negatives before!
   # TODO: Remove duplicates!
+
+  my $ops = $self->operands;
+
+  # Has classes
+  my $has_classes = $self->has_classes;
 
   my $i = 0;
 
@@ -142,6 +147,8 @@ sub plan_for {
   # Start with a query != null
   my $first = $ops->[$i];
   my $query_neg = $first->is_negative;
+
+  # First operand is negative - remember this
   if ($query_neg) {
 
     # Set to positive
@@ -167,14 +174,28 @@ sub plan_for {
     for (; $i < @$ops; $i++) {
       my $option = $ops->[$i]->plan_for($index);
       if ($option->freq != 0) {
-        $query = Krawfish::Corpus::Or->new(
-          $query,
-          $option
-        )
+
+        # Create group with classes
+        if ($has_classes) {
+          $query = Krawfish::Corpus::OrWithFlags->new(
+            $query,
+            $option
+          )
+        }
+
+        # Create group without classes
+        else {
+          $query = Krawfish::Corpus::Or->new(
+            $query,
+            $option
+          )
+        };
       };
     };
   }
 
+
+  # Create 'and'-group
   elsif ($self->operation eq 'and') {
 
     print_log('kq_fgroup', 'Prepare and-group') if DEBUG;
@@ -185,6 +206,8 @@ sub plan_for {
     for (; $i < @$ops; $i++) {
 
       my $next = $ops->[$i];
+
+      # The next operand
       $option_neg = $next->is_negative;
       if ($option_neg) {
         # Set to positive
@@ -199,17 +222,35 @@ sub plan_for {
       # Both operands are negative
       if ($query_neg || $option_neg) {
 
-
+        # Both operands are negative
         if ($query_neg && $option_neg) {
-          $query = Krawfish::Corpus::Or->new(
-            $query,
-            $option
-          );
+
+          # Create group with classes
+          if ($has_classes) {
+            $query = Krawfish::Corpus::OrWithFlags->new(
+              $query,
+              $option
+            );
+          }
+
+
+          # Create group without classes
+          else {
+            $query = Krawfish::Corpus::Or->new(
+              $query,
+              $option
+            );
+          };
           $query_neg = 1;
         }
 
         # Option is negative
         elsif ($option_neg) {
+
+          if ($has_classes) {
+            warn 'Not yet supported for classes';
+          };
+
           $query = Krawfish::Corpus::Without->new(
             $query,
             $option
@@ -219,6 +260,11 @@ sub plan_for {
 
         # Base query is negative - reorder query
         else {
+
+          if ($has_classes) {
+            warn 'Not yet supported for classes';
+          };
+
           $query = Krawfish::Corpus::Without->new(
             $option,
             $query
@@ -229,10 +275,23 @@ sub plan_for {
 
       # No negative query
       else {
-        $query = Krawfish::Corpus::And->new(
-          $query,
-          $option
-        );
+
+        # Create group with classes
+        if ($has_classes) {
+          $query = Krawfish::Corpus::AndWithFlags->new(
+            $query,
+            $option
+          );
+        }
+
+        # Create group without classes
+        else {
+          $query = Krawfish::Corpus::And->new(
+            $query,
+            $option
+          );
+        };
+
       };
     };
   };
@@ -253,6 +312,20 @@ sub plan_for {
 };
 
 
+# Check for classes
+sub has_classes {
+  my $self = shift;
+
+  # Check operands for classes
+  foreach (@{$self->operands}) {
+
+    # Has classes
+    return 1 if $_->has_classes;
+  };
+  return;
+};
+
+# Return koral
 sub to_koral_fragment {
   my $self = shift;
   return {
@@ -261,6 +334,7 @@ sub to_koral_fragment {
     operands => [ map { $_->to_koral_fragment } @{$self->{operands}} ]
   };
 };
+
 
 sub to_string {
   my $self = shift;

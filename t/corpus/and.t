@@ -122,6 +122,13 @@ ok($plan = $query->plan_for($index), 'Planning');
 is($plan->to_string, "without(without('genre:novel','author:Peter'),'age:4')",
    'Stringification');
 
+diag 'Test further';
+
+# Especially:
+# - First operand is negative, second is positive
+#   etc.
+# - First operands have freq=0, first valid is negative
+
 
 done_testing;
 __END__

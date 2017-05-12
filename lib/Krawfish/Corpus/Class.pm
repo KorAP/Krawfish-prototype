@@ -1,4 +1,5 @@
 package Krawfish::Corpus::Class;
+use parent 'Krawfish::Corpus';
 use Krawfish::Util::Bits 'bitstring';
 use Krawfish::Log;
 use strict;
@@ -15,13 +16,16 @@ use warnings;
 # only 8 classes are supported.
 
 # TODO:
-#   Alternatively there could be a Compare()
-#   query
+#   Alternatively there could be a Compare() query
 
 use constant DEBUG => 0;
 
+# Constructor
 sub new {
   my ($class, $corpus, $number) = @_;
+
+  # Check boundaries for class numbers
+  return if $number < 1 || $number > 16;
 
   # 2 bytes flag for 16 classes
   my $flag = 0b0000_0000_0000_0000 | (1 << ($number - 1));
@@ -49,7 +53,13 @@ sub next {
     $self->{doc_id} = $current->doc_id;
     $self->{flags} = $current->flags | $self->{flag};
 
-    print_log('class', 'Classed corpus matched: ' . $self->current->to_string) if DEBUG;
+    if (DEBUG) {
+      print_log(
+        'class',
+        'Classed {' . $self->{number} . '} ' .
+          'corpus matched: ' . $self->current->to_string
+        );
+    };
 
     return 1;
   };
@@ -62,7 +72,7 @@ sub skip_to;
 
 sub to_string {
   my $self = shift;
-  my $str = 'corpusClass(';
+  my $str = 'class(';
   $str .= $self->{number} . ':';
   $str .= $self->{corpus}->to_string . ')';
   return $str;

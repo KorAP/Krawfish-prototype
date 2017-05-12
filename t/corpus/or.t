@@ -50,5 +50,10 @@ matches($plan, [qw/[0] [1] [4]/], 'Matches');
 
 diag 'Test further';
 
+# Especially:
+# - First operand is negative, second is positive
+# - First operands have freq=0, first valid is negative
+
+
 done_testing;
 __END__
