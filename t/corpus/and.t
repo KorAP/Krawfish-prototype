@@ -39,12 +39,12 @@ ok(my $query = $cb->field_and(
   $cb->string('age')->eq('4')
 ), 'Create corpus query');
 
-is($query->to_string, 'author=Peter&age=4', 'Stringification');
+is($query->to_string, 'age=4&author=Peter', 'Stringification');
 ok(!$query->is_negative, 'Check negativity');
 
 ok(my $plan = $query->plan_for($index), 'Planning');
 
-is($plan->to_string, "and('author:Peter','age:4')", 'Stringification');
+is($plan->to_string, "and('age:4','author:Peter')", 'Stringification');
 
 ok($plan->next, 'Init vc');
 is($plan->current->to_string, '[0]', 'First doc');
@@ -61,12 +61,12 @@ ok($query = $cb->field_or(
   $cb->string('id')->eq(2)
 ), 'Create corpus query');
 
-is($query->to_string, '(author=Peter&age=3)|id=2', 'Stringification');
+is($query->to_string, '(age=3&author=Peter)|id=2', 'Stringification');
 ok(!$query->is_negative, 'Check negativity');
 
 ok($plan = $query->plan_for($index), 'Planning');
 
-is($plan->to_string, "or(and('author:Peter','age:3'),'id:2')", 'Stringification');
+is($plan->to_string, "or(and('age:3','author:Peter'),'id:2')", 'Stringification');
 
 ok($plan->next, 'Init vc');
 is($plan->current->to_string, '[0]', 'First doc');
@@ -81,7 +81,7 @@ ok($query = $cb->field_and(
 ),
 , 'Create corpus query');
 
-is($query->to_string, 'author=Peter&age!=4', 'Stringification');
+is($query->to_string, 'age!=4&author=Peter', 'Stringification');
 ok(!$query->is_negative, 'Check negativity');
 
 ok($plan = $query->plan_for($index), 'Planning');
@@ -99,10 +99,10 @@ ok($query = $cb->field_and(
 ),
 , 'Create corpus query');
 
-is($query->to_string, 'author!=Peter&age!=4', 'Stringification');
+is($query->to_string, 'age!=4&author!=Peter', 'Stringification');
 ok($query->is_negative, 'Check negativity');
 ok($plan = $query->plan_for($index), 'Planning');
-is($plan->to_string, "not(or('author:Peter','age:4'))", 'Stringification');
+is($plan->to_string, "not(or('age:4','author:Peter'))", 'Stringification');
 
 ok($plan->next, 'More next');
 is($plan->current->to_string, '[3]', 'First doc');
@@ -116,10 +116,12 @@ ok($query = $cb->field_and(
 ),
 , 'Create corpus query');
 
-is($query->to_string, 'genre=novel&author!=Peter&age!=4', 'Stringification');
+ok(!$query->has_classes, 'Contains classes');
+
+is($query->to_string, 'age!=4&author!=Peter&genre=novel', 'Stringification');
 ok(!$query->is_negative, 'Check negativity');
 ok($plan = $query->plan_for($index), 'Planning');
-is($plan->to_string, "without(without('genre:novel','author:Peter'),'age:4')",
+is($plan->to_string, "without('genre:novel',or('age:4','author:Peter'))",
    'Stringification');
 
 diag 'Test further';

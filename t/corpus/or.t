@@ -18,11 +18,12 @@ ok(my $query = $cb->field_or(
   $cb->string('id')->eq('2')
 ), 'Create corpus query');
 
-is($query->to_string, 'id=3|id=2', 'Stringification');
+ok(!$query->has_classes, 'Has no classes');
+is($query->to_string, 'id=2|id=3', 'Stringification');
 
 ok(my $plan = $query->plan_for($index), 'Planning');
 
-is($plan->to_string, "or('id:3','id:2')", 'Stringification');
+is($plan->to_string, "or('id:2','id:3')", 'Stringification');
 
 ok($plan->next, 'Init vc');
 is($plan->current->to_string, '[0]', 'First doc');
@@ -40,13 +41,27 @@ ok($query = $cb->field_or(
   $cb->string('id')->eq('9')
 ), 'Create corpus query');
 
-is($query->to_string, 'id=3|id=2|id=9', 'Stringification');
+is($query->to_string, 'id=2|id=3|id=9', 'Stringification');
 
 ok($plan = $query->plan_for($index), 'Planning');
 
-is($plan->to_string, "or(or('id:3','id:2'),'id:9')", 'Stringification');
+is($plan->to_string, "or(or('id:2','id:3'),'id:9')", 'Stringification');
 
 matches($plan, [qw/[0] [1] [4]/], 'Matches');
+
+
+# Indexed 2,3,5,7,9
+ok($query = $cb->field_or(
+  $cb->string('id')->ne('2'),
+  $cb->string('id')->eq('5')
+), 'Create corpus query');
+
+is($query->to_string, 'id!=2|id=5', 'Stringification');
+ok($plan = $query->plan_for($index), 'Planning');
+# is($plan->to_string, "not('id:2')", 'Stringification');
+
+matches($plan, [qw/[0] [1] [2] [3] [4]/], 'Matches');
+
 
 diag 'Test further';
 

@@ -42,7 +42,7 @@ ok(my $query = $cb->field_or(
   $cb->string('age')->eq('7')
 ), 'Create corpus query');
 
-is($query->to_string, 'author=Peter|age=7', 'Stringification');
+is($query->to_string, 'age=7|author=Peter', 'Stringification');
 ok(!$query->is_negative, 'Check negativity');
 
 # Create class criterion
@@ -59,7 +59,7 @@ my $group = Krawfish::Result::Group->new(
   $criterion
 );
 
-is($group->to_string, "groupBy(fields[author]:or('author:Peter','age:7'))", 'Stringification');
+is($group->to_string, "groupBy(fields[author]:or('age:7','author:Peter'))", 'Stringification');
 
 ok($group->next, 'Go to next');
 

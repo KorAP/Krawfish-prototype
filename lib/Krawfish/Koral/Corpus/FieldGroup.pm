@@ -15,7 +15,7 @@ use warnings;
 #   but for signaturing, sort them
 #   alphabetically (probably)
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 sub new {
   my $class = shift;
@@ -37,6 +37,13 @@ sub operands {
   $_[0]->{operands}
 };
 
+# Create operands in order
+sub operands_in_order {
+  my $self = shift;
+  my $ops = $self->{operands};
+  return [ sort { $a->to_string cmp $b->to_string } @$ops ];
+};
+
 sub is_negative {
   my $self = shift;
   foreach (@{$self->operands}) {
@@ -44,6 +51,20 @@ sub is_negative {
   };
   return 1;
 };
+
+# Check https://de.wikipedia.org/wiki/Boolesche_Algebra
+# for optimizations
+# TODO:
+#    and(a,a) -> a ; or(a,a) -> a
+#    or(and(a,b),and(a,c)) -> and(a,or(b,c))
+#    and(or(a,b),or(a,c)) -> or(a,and(b,c))
+#    not(not(a)) -> a
+#    and(a,or(a,b)) -> a
+#    or(a,and(a,b)) -> a
+
+# DeMorgan:
+#    or(not(a),not(b))  -> not(and(a,b))
+#    and(not(a),not(b)) -> not(or(a,b))
 
 # TODO:
 #   from managing gigabytes bool_optimiser.c
@@ -112,14 +133,6 @@ sub is_negative {
 # *      return 0 if there was NO change (no distributive rule to apply)
 # * ========================================================================= */
 #/* =========================================================================
-# * Function: TF_Idempotent
-# * Description: 
-# *      Applies Idempotency laws which refer to True or False (hence "TF")
-# *      uses the true or false idempotent rules
-# * Input: 
-# *      operates on n-ary trees (not restricted to binary)
-# * Output: 
-# * ========================================================================= */
 #/* =========================================================================
 # * Function: AndSort
 # * Description: 
@@ -130,13 +143,22 @@ sub is_negative {
 # * Output: 
 # * ========================================================================= */
 
+# From managing gigabytes bool_optimiser.c
+# - function: TF_Idempotent -> DONE
+
+
 sub plan_for {
   my ($self, $index) = @_;
 
   # TODO: Order negatives before!
   # TODO: Remove duplicates!
 
-  my $ops = $self->operands;
+  if (DEBUG) {
+    print_log('kq_fgroup', 'Prepare group') if DEBUG;
+  };
+
+  # Get operands in alphabetical order
+  my $ops = $self->operands_in_order;
 
   # Has classes
   my $has_classes = $self->has_classes;
@@ -154,6 +176,7 @@ sub plan_for {
     # Set to positive
     $first->is_negative(0);
   };
+
   my $query = $first->plan_for($index);
   $i++;
 
@@ -170,16 +193,32 @@ sub plan_for {
 
     print_log('kq_fgroup', 'Prepare or-group') if DEBUG;
 
+    my $option_neg = 0;
+
     # Filter out all terms that do not occur
     for (; $i < @$ops; $i++) {
-      my $option = $ops->[$i]->plan_for($index);
-      if ($option->freq != 0) {
+
+      # Get query operation for next operand
+      # TODO: Check for negation!
+      my $next = $ops->[$i]->plan_for($index);
+
+      # Check for itempotence
+      if ($query->to_string eq $next->to_string) {
+        print_log('kq_fgroup', 'Subcorpora are idempotent') if DEBUG;
+        next;
+      };
+
+      if ($next->freq != 0) {
+
+        if ($query_neg) {
+          warn '****';
+        };
 
         # Create group with classes
         if ($has_classes) {
           $query = Krawfish::Corpus::OrWithFlags->new(
             $query,
-            $option
+            $next
           )
         }
 
@@ -187,7 +226,7 @@ sub plan_for {
         else {
           $query = Krawfish::Corpus::Or->new(
             $query,
-            $option
+            $next
           )
         };
       };
@@ -209,11 +248,24 @@ sub plan_for {
 
       # The next operand
       $option_neg = $next->is_negative;
+
+      # Second operand is negative - remember this
       if ($option_neg) {
+
         # Set to positive
         $next->is_negative(0);
       };
+
+
+      # Plan option
       my $option = $next->plan_for($index);
+
+
+      # Check for itempotence
+      if ($query->to_string eq $option->to_string) {
+        print_log('kq_fgroup', 'Subcorpora are idempotent') if DEBUG;
+        next;
+      };
 
       # Do not add useless options
       # TODO: What if it is part of a negation???
@@ -342,7 +394,7 @@ sub to_string {
 
   join $op, map {
     $_->type eq 'fieldGroup' ? '(' . $_->to_string . ')' : $_->to_string
-  } @{$self->operands};
+  } @{$self->operands_in_order};
 };
 
 1;
