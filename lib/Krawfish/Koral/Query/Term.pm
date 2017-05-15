@@ -52,6 +52,8 @@ sub new {
 
 sub type { 'term' };
 
+sub is_leaf { 1 };
+
 sub field {
   if ($_[1]) {
     $_[0]->[0] = $_[1];
@@ -199,9 +201,7 @@ sub to_koral_fragment {
 sub to_string {
   my ($self, $fragment) = @_;
 
-  if ($self->is_null) {
-    return 0
-  };
+  return 0 if $self->is_null;
 
   my $str = '';
 
@@ -236,7 +236,8 @@ sub to_string {
   $str;
 };
 
-sub term {
+
+sub to_term {
   my $self = shift;
   return if $self->is_null;
 
@@ -256,9 +257,9 @@ sub term {
   return $str . $term;
 };
 
-sub term_escaped {
+sub to_term_escaped {
   my $self = shift;
-  my $term = $self->term;
+  my $term = $self->to_term;
   if ($term =~ m!^((?:[^:]+?\:)?(?:[^/]+?\/)?(?:[^=]+?)\=)(.+?)$!) {
     return quotemeta($1). $2;
   };
@@ -275,7 +276,7 @@ sub plan_for {
   if ($self->is_regex) {
 
     # Get terms
-    my $term = $self->term_escaped;
+    my $term = $self->to_term_escaped;
     my @terms = $index->dict->terms(qr/^$term$/);
 
     if (DEBUG) {
@@ -308,12 +309,12 @@ sub plan_for {
     return $self->builder->nothing if $filter->freq == 0;
 
     return Krawfish::Query::Filter->new(
-      Krawfish::Query::Term->new($index, $self->term),
+      Krawfish::Query::Term->new($index, $self->to_term),
       $filter
     );
   };
 
-  return Krawfish::Query::Term->new($index, $self->term);
+  return Krawfish::Query::Term->new($index, $self->to_term);
 };
 
 

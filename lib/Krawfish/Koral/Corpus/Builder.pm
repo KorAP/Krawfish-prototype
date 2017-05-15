@@ -2,7 +2,7 @@ package Krawfish::Koral::Corpus::Builder;
 use Krawfish::Koral::Corpus::Field;
 use Krawfish::Koral::Corpus::FieldGroup;
 use Krawfish::Koral::Corpus::Class;
-use Krawfish::Query::Nothing;
+use Krawfish::Koral::Corpus::Nothing;
 use Krawfish::Koral::Corpus::Cache;
 use strict;
 use warnings;
@@ -23,6 +23,26 @@ sub field_or {
   shift;
   return Krawfish::Koral::Corpus::FieldGroup->new('or', @_);
 };
+
+sub any {
+  shift;
+  my $any = Krawfish::Koral::Corpus::FieldGroup->new('or');
+  $any->is_any(1);
+  $any;
+};
+
+sub null {
+  shift;
+  my $null = Krawfish::Koral::Corpus::FieldGroup->new('or');
+  $null->is_null(1);
+  $null;
+};
+
+# No match
+sub nothing {
+  Krawfish::Koral::Corpus::Nothing->new;
+};
+
 
 sub class {
   shift;
@@ -46,12 +66,6 @@ sub regex {
   shift;
   return Krawfish::Koral::Corpus::Field->new('regex', @_);
 };
-
-# No match
-sub nothing {
-  Krawfish::Query::Nothing->new;
-};
-
 
 # Cache the result
 sub cache {

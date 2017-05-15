@@ -100,7 +100,9 @@ ok($query = $cb->field_and(
 , 'Create corpus query');
 
 is($query->to_string, 'age!=4&author!=Peter', 'Stringification');
-ok($query->is_negative, 'Check negativity');
+ok(!$query->is_negative, 'Check negativity');
+ok($query->planned_tree, 'Plan the tree');
+is($query->to_string, 'age!=4&author!=Peter', 'Planned tree stringification');
 ok($plan = $query->plan_for($index), 'Planning');
 is($plan->to_string, "not(or('age:4','author:Peter'))", 'Stringification');
 

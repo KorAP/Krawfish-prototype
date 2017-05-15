@@ -1,5 +1,6 @@
 package Krawfish::Koral::Query::TermGroup;
 use parent 'Krawfish::Koral::Query';
+# TODO: Use BooleanTree
 use Krawfish::Koral::Query::Term;
 use Krawfish::Query::Or;
 use Krawfish::Query::Constraints;
@@ -67,6 +68,9 @@ sub operands {
 #         )
 #       )
 
+
+# TODO:
+#   Use Koral::Util::BooleanTree
 sub plan_for {
   my $self = shift;
   my $index = shift;

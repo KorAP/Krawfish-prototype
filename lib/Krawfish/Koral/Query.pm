@@ -1,5 +1,6 @@
 package Krawfish::Koral::Query;
 use parent 'Krawfish::Info';
+# TODO: Use the same parent as Koral::Corpus
 use Krawfish::Koral::Query::Builder;
 use Krawfish::Koral::Query::Importer;
 use Mojo::Util qw/md5_sum/;
@@ -65,13 +66,38 @@ sub filter_by {
 
 sub is_any            { $_[0]->{any}            // 0 };
 sub is_optional       { $_[0]->{optional}       // 0 };
+
+# Null is empty - e.g. in
+# Der >alte*< Mann,
 sub is_null           { $_[0]->{null}           // 0 };
-sub is_negative       { $_[0]->{negative}       // 0 };
+
+# Nothing matches nowhere - e.g. in
+# Der [alte & !alte] Mann
+sub is_nothing        { $_[0]->{nothing}        // 0 };
+
+sub is_leaf           { 0 };
 sub is_extended_right { $_[0]->{extended_right} // 0 };
 sub is_extended_left  { $_[0]->{extended_left}  // 0 };
 sub is_extended       { $_[0]->is_extended_right || $_[0]->is_extended_left // 0 };
 sub freq              { -1 };
 sub type              { '' };
+
+
+sub is_negative {
+  my $self = shift;
+  if (scalar @_ == 1) {
+    $self->{negative} = shift;
+  };
+  return $self->{negative} // 0;
+};
+
+
+sub toggle_negative {
+  my $self = shift;
+  $self->is_negative($self->is_negative ? 0 : 1);
+  return $self;
+};
+
 
 # TODO: Probably better to be renamed "potential_anchor"
 sub maybe_anchor      {
@@ -115,7 +141,7 @@ sub from_koral {
       return $importer->class($kq);
     }
     else {
-      warn 'Operation ' . $op . ' not supported';
+      warn 'Operation ' . $op . ' no supported';
     };
   }
 

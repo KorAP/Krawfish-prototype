@@ -19,6 +19,8 @@ sub type {
   'field';
 };
 
+sub is_leaf { 1 };
+
 sub eq {
   my $self = shift;
   $self->{match} = 'eq';
@@ -136,6 +138,9 @@ sub to_koral_fragment {
 
 sub to_string {
   my $self = shift;
+
+  return 0 if $self->is_null;
+
   my $str = $self->{key};
   my $op = $self->match;
 
@@ -167,6 +172,7 @@ sub to_string {
   };
   return $str . $self->{value};
 };
+
 
 sub to_term {
   my $self = shift;

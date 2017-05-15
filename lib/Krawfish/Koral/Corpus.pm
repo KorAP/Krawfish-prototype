@@ -1,8 +1,17 @@
 package Krawfish::Koral::Corpus;
+use parent 'Krawfish::Info';
+# TODO: Use the same parent as Koral::Query
+use Krawfish::Koral::Corpus::Builder;
 use strict;
 use warnings;
 
 # Creation of virtual corpus
+
+# TODO:
+#  Probably rename
+#    is_nothing -> is_nowhere
+#  and
+#    is_any     -> is_everywhere
 
 sub new {
   my $class = shift;
@@ -39,6 +48,45 @@ sub is_negative {
     $self->{negative} = shift;
   };
   return $self->{negative} // 0;
+};
+
+sub toggle_negative {
+  my $self = shift;
+  $self->is_negative($self->is_negative ? 0 : 1);
+  return $self;
+};
+
+
+# Matches everything
+sub is_any {
+  my $self = shift;
+  if (defined $_[0]) {
+    $self->{any} = shift;
+  };
+  return $self->{any} // 0;
+};
+
+
+# Matches nowhere
+# (in the sequence sense of "der >alte*< Mann")
+sub is_null {
+  0;
+};
+
+sub is_nothing {
+  my $self = shift;
+  if (defined $_[0]) {
+    $self->{nothing} = shift;
+  };
+  return $self->{nothing} // 0;
+};
+
+sub is_leaf { 0 };
+
+
+# Create KoralQuery builder
+sub builder {
+  return Krawfish::Koral::Corpus::Builder->new;
 };
 
 

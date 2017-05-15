@@ -1,5 +1,5 @@
 package Krawfish::Koral::Corpus::FieldGroup;
-use parent 'Krawfish::Koral::Corpus';
+use parent ('Krawfish::Koral::Corpus', 'Krawfish::Koral::Util::BooleanTree');
 use Krawfish::Log;
 use Krawfish::Corpus::Or;
 use Krawfish::Corpus::OrWithFlags;
@@ -17,6 +17,7 @@ use warnings;
 
 use constant DEBUG => 1;
 
+
 sub new {
   my $class = shift;
   bless {
@@ -25,17 +26,26 @@ sub new {
   }, $class;
 };
 
+
 sub type {
   'fieldGroup';
 };
+
 
 sub operation {
   $_[0]->{operation};
 };
 
+
 sub operands {
-  $_[0]->{operands}
+  my $self = shift;
+  if (@_) {
+    print_log('kq_fgroup', 'Set operands') if DEBUG;
+    $self->{operands} = shift;
+  };
+  return $self->{operands};
 };
+
 
 # Create operands in order
 sub operands_in_order {
@@ -43,108 +53,6 @@ sub operands_in_order {
   my $ops = $self->{operands};
   return [ sort { $a->to_string cmp $b->to_string } @$ops ];
 };
-
-sub is_negative {
-  my $self = shift;
-  foreach (@{$self->operands}) {
-    return unless $_->is_negative;
-  };
-  return 1;
-};
-
-# Check https://de.wikipedia.org/wiki/Boolesche_Algebra
-# for optimizations
-# TODO:
-#    and(a,a) -> a ; or(a,a) -> a
-#    or(and(a,b),and(a,c)) -> and(a,or(b,c))
-#    and(or(a,b),or(a,c)) -> or(a,and(b,c))
-#    not(not(a)) -> a
-#    and(a,or(a,b)) -> a
-#    or(a,and(a,b)) -> a
-
-# DeMorgan:
-#    or(not(a),not(b))  -> not(and(a,b))
-#    and(not(a),not(b)) -> not(or(a,b))
-
-# TODO:
-#   from managing gigabytes bool_optimiser.c
-#/* =========================================================================
-# * Function: OptimiseBoolTree
-# * Description: 
-# *      For case 2:
-# *        Do three major steps:
-# *        (i) put into standard form
-# *            -> put into DNF (disjunctive normal form - or of ands)
-# *            Use DeMorgan's, Double-negative, Distributive rules
-# *        (ii) simplify
-# *             apply idempotency rules
-# *        (iii) ameliorate
-# *              convert &! to diff nodes, order terms by frequency,...
-# *     Could also do the matching idempotency laws i.e. ...
-# *     (A | A), (A | !A), (A & !A), (A & A), (A & (A | B)), (A | (A & B)) 
-# *     Job for future.... ;-) 
-# * Input: 
-# * Output: 
-# * ========================================================================= */
-#/* =========================================================================
-# * Function: DoubleNeg
-# * Description: 
-# *      !(!(a) = a
-# *      Assumes binary tree.
-# * Input: 
-# * Output: 
-# * ========================================================================= */
-#/* =========================================================================
-# * Function: AndDeMorgan
-# * Description: 
-# *      DeMorgan's rule for 'not' of an 'and'  i.e. !(a & b) <=> (!a) | (!b)
-# *      Assumes Binary Tree
-# * Input: 
-# *      not of and tree
-# * Output: 
-# *      or of not trees
-# * ========================================================================= */
-#/* =========================================================================
-# * Function: OrDeMorgan
-# * Description: 
-# *      DeMorgan's rule for 'not' of an 'or' i.e. !(a | b) <=> (!a) & (!b)
-# *      Assumes Binary Tree
-# * Input: 
-# *      not of and tree
-# * Output: 
-# *      or of not trees
-# * ========================================================================= */
-#/* =========================================================================
-# * Function: PermeateNots
-# * Description: 
-# *      Use DeMorgan's and Double-negative
-# *      Assumes tree in binary form (i.e. No ands/ors collapsed)
-# * Input: 
-# * Output: 
-# * ========================================================================= */
-#/* =========================================================================
-# * Function: AndDistribute
-# * Description: 
-# *      (a | b) & A <=> (a & A) | (b & A)
-# * Input: 
-# *      binary tree of "AND" , "OR"s.
-# * Output: 
-# *      return 1 if changed the tree
-# *      return 0 if there was NO change (no distributive rule to apply)
-# * ========================================================================= */
-#/* =========================================================================
-#/* =========================================================================
-# * Function: AndSort
-# * Description: 
-# *      Sort the list of nodes by increasing doc_count 
-# *      Using some Neil Sharman code - pretty straight forward.
-# *      Note: not-terms are sent to the end of the list
-# * Input: 
-# * Output: 
-# * ========================================================================= */
-
-# From managing gigabytes bool_optimiser.c
-# - function: TF_Idempotent -> DONE
 
 
 sub plan_for {
@@ -377,6 +285,7 @@ sub has_classes {
   return;
 };
 
+
 # Return koral
 sub to_koral_fragment {
   my $self = shift;
@@ -392,9 +301,17 @@ sub to_string {
   my $self = shift;
   my $op = $self->operation eq 'and' ? '&' : '|';
 
-  join $op, map {
-    $_->type eq 'fieldGroup' ? '(' . $_->to_string . ')' : $_->to_string
-  } @{$self->operands_in_order};
+  my $str = $self->is_negative ? '!' : '';
+  $str . join($op, map {
+    $_->type eq 'fieldGroup' ?
+      (
+        $_->is_any ?
+          '[1]' :
+          '(' . $_->to_string . ')'
+        )
+      :
+      $_->to_string
+  } @{$self->operands_in_order});
 };
 
 1;
