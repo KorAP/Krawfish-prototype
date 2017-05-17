@@ -30,10 +30,41 @@ sub eq {
 
 sub ne {
   my $self = shift;
-  $self->{match} = 'ne';
+  $self->{match} = 'eq';
   $self->{value} = shift;
   $self->is_negative(1);
   return $self;
+};
+
+sub is_negative {
+  my $self = shift;
+  if (scalar @_ == 1) {
+    $self->{negative} = shift;
+
+    my $op = $self->match;
+    if ($self->{negative}) {
+
+      # Reverse operation
+      if ($op eq 'eq') {
+        $self->{match} = 'ne';
+      }
+      elsif ($op eq 'contains') {
+        $self->{match} = 'excludes'
+      };
+    }
+
+    else {
+
+      # Reverse operation
+      if ($op eq 'ne') {
+        $self->{match} = 'eq';
+      }
+      elsif ($op eq 'excludes') {
+        $self->{match} = 'contains'
+      };
+    };
+  };
+  return $self->{negative} // 0;
 };
 
 sub geq {
@@ -88,13 +119,17 @@ sub plan_for {
 
 
 sub match {
+  my $self = shift;
+
   # TODO: Support existence
-  $_[0]->{match} // 'eq';
+  return ($self->{match} // 'eq');
 };
+
 
 sub key_type {
   $_[0]->{key_type} // 'string';
 };
+
 
 sub key {
   $_[0]->{key};
@@ -104,6 +139,7 @@ sub key {
 sub value {
   $_[0]->{value};
 };
+
 
 sub to_koral_fragment {
   my $self = shift;

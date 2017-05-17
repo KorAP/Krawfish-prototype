@@ -38,12 +38,16 @@ is($op->[2]->{'@type'}, 'koral:span', 'Operand exists');
 
 # Create corpus
 $builder = $koral->corpus_builder;
-$koral->corpus(
-  $builder->field_and(
-    $builder->string('author')->eq('Peter'),
-    $builder->date('pubDate')->geq('2014-04-03')
-  )
+
+my $corpus_query = $builder->field_and(
+  $builder->string('author')->eq('Peter'),
+  $builder->date('pubDate')->geq('2014-04-03')
 );
+
+is($corpus_query->to_string, 'author=Peter&pubDate>=2014-04-03',
+   'Stringification of corpus query');
+
+$koral->corpus($corpus_query);
 
 is($koral->to_string,
    'filterBy([Der][]<opennlp/c=NP>,author=Peter&pubDate>=2014-04-03)', 'Stringification');

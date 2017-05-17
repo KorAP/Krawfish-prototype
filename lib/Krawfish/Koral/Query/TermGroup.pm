@@ -32,8 +32,22 @@ sub type { 'termGroup' };
 
 # TEMPORARILY
 sub is_negative {
+  warn 'Negativity on TermGroup not implemented yet!';
   0;
 };
+
+
+sub build_or {
+  shift;
+  __PACKAGE__->new('or',@_);
+};
+
+
+sub build_and {
+  shift;
+  __PACKAGE__->new('and', @_);
+};
+
 
 sub operation {
   $_[0]->{operation};

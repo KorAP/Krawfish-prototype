@@ -92,7 +92,8 @@ sub current {
 }
 
 sub freq {
-  $_[0]->last_doc - $_[0]->{query}->freq;
+  my $self = shift;
+  $self->{last_doc_id} - $self->{query}->freq;
 };
 
 sub to_string {

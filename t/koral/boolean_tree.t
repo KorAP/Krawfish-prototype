@@ -199,11 +199,58 @@ ok($tree->is_any, 'Anything');
 is($tree->to_string, '', 'no string');
 
 
-diag 'Check with negativity';
+
+# DeMorgan simple with OR
+$tree = $cb->field_or(
+  $cb->string('x')->ne('1'),
+  $cb->string('y')->ne('1'),
+  $cb->string('z')->ne('1'),
+);
+
+is($tree->to_string, 'x!=1|y!=1|z!=1', 'Plain groups');
+$tree->planned_tree;
+is($tree->to_string, '!(x=1&y=1&z=1)', 'no string');
+
+
+# DeMorgan simple with AND
+$tree = $cb->field_and(
+  $cb->string('x')->ne('1'),
+  $cb->string('y')->ne('1'),
+  $cb->string('z')->ne('1'),
+);
+
+is($tree->to_string, 'x!=1&y!=1&z!=1', 'Plain groups');
+$tree->planned_tree;
+is($tree->to_string, '!(x=1|y=1|z=1)', 'no string');
+
+
+# DeMorgan grouping with OR
+$tree = $cb->field_or(
+  $cb->string('a')->ne('1'),
+  $cb->string('b')->eq('1'),
+  $cb->string('c')->ne('1'),
+  $cb->string('d')->eq('1'),
+  $cb->string('e')->ne('1'),
+  $cb->string('f')->eq('1'),
+);
+
+is($tree->to_string, 'a!=1|b=1|c!=1|d=1|e!=1|f=1', 'Plain groups');
+$tree->planned_tree;
+is($tree->to_string, '(!(a=1&c=1&e=1))|b=1|d=1|f=1', 'no string');
+
+# TODO: This may require a direct andNot() serialization with the all-query
+
+diag 'Check with negativity and >=, <=, exists etc.';
 
 
 done_testing;
 __END__
+
+
+
+
+
+
 
 # Solve grouping with negative groups
 $tree = $cb->field_and(

@@ -18,6 +18,7 @@ sub field_and {
   return Krawfish::Koral::Corpus::FieldGroup->new('and', @_);
 };
 
+
 # Create 'or' group
 sub field_or {
   shift;

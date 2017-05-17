@@ -6,12 +6,11 @@ use warnings;
 
 # This can be used by Koral::FieldGroup and Koral::TermGroup
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # Check https://de.wikipedia.org/wiki/Boolesche_Algebra
 # for optimizations
 # TODO:
-#    and(a,a) -> a ; or(a,a) -> a
 #    or(and(a,b),and(a,c)) -> and(a,or(b,c))
 #    and(or(a,b),or(a,c)) -> or(a,and(b,c))
 #    not(not(a)) -> a
@@ -110,10 +109,10 @@ sub planned_tree {
       $op->planned_tree
     };
   };
-  $self
-    ->_clean_and_flatten
+  $self->_clean_and_flatten
     ->_resolve_idempotence
-    ->_remove_nested_idempotence;
+    ->_remove_nested_idempotence
+    ->_resolve_demorgan;
 };
 
 
@@ -122,6 +121,8 @@ sub planned_tree {
 # a | a = a
 sub _resolve_idempotence {
   my $self = shift;
+
+  print_log('kq_bool', 'Resolve idempotence for ' . $self->to_string) if DEBUG;
 
   return $self if $self->is_nothing || $self->is_any;
 
@@ -170,6 +171,8 @@ sub _resolve_idempotence {
 sub _remove_nested_idempotence {
   my $self = shift;
 
+  print_log('kq_bool', 'Remove nested idempotence for ' . $self->to_string) if DEBUG;
+
   return $self if $self->is_nothing || $self->is_any;
 
   my $ops = $self->operands;
@@ -205,6 +208,17 @@ sub _remove_nested_idempotence {
     };
   };
 
+  if (DEBUG) {
+    print_log(
+      'kq_bool',
+      'Index lists created for ' . $self->to_string . ':',
+      '  Groups: ' . join(', ', @groups),
+      '  Plains: ' . join(', ', @plains),
+      '  Neg:    ' . join(', ', @neg),
+      '  Pos:    ' . join(', ', @pos),
+    );
+  };
+
   # Check for any or nothing
   # (A | !A) -> (any)
   # (A & !A) -> (nothing)
@@ -212,7 +226,16 @@ sub _remove_nested_idempotence {
     foreach my $pos_i (@pos) {
 
       # Compare terms
-      if ($ops->[$neg_i]->to_term eq $ops->[$neg_i]->to_term) {
+      if ($ops->[$neg_i]->to_term eq $ops->[$pos_i]->to_term) {
+
+        if (DEBUG) {
+          print_log(
+            'kq_bool',
+            'Found idempotent group for ' .
+              $self->operation .
+              '(' . $ops->[$neg_i]->to_string . ',' . $ops->[$pos_i]->to_string . ')'
+            );
+        };
 
         if ($self->operation eq 'or') {
 
@@ -237,6 +260,8 @@ sub _remove_nested_idempotence {
   my @remove_groups = ();
 
   # Iterate over all groups and plains
+  # (A & (A | B)) -> A
+  # (A | (A & B)) -> A
   foreach my $plain_i (@plains) {
     foreach my $group_i (@groups) {
 
@@ -250,6 +275,10 @@ sub _remove_nested_idempotence {
         if ($_->to_string eq $ops->[$plain_i]->to_string) {
 
           unless ($_->has_classes) {
+            if (DEBUG) {
+              print_log('kq_bool', 'Remove nested idempotence in ' . $self->to_string);
+            };
+
             push @remove_groups, $group_i;
           }
           else {
@@ -354,12 +383,18 @@ sub _clean_and_flatten {
 
       # Simple ungroup
       if (!$op->is_negative && $op->operation eq $self->operation) {
+
+        print_log('kq_bool', 'Group can be embedded') if DEBUG;
+
         splice @$ops, $i, 1, @$operands;
         $i+= $nr;
       }
 
       # Resolve grouped deMorgan-negativity
       elsif ($op->is_negative && $op->operation ne $self->operation) {
+
+        print_log('kq_bool', 'Group can be resolved with demorgan') if DEBUG;
+
         splice @$ops, $i, 1, map { $_->toggle_negative; $_ } @$operands;
         $i+= $nr;
       };
@@ -370,33 +405,107 @@ sub _clean_and_flatten {
 
   $self->operands($ops);
 
+  print_log('kq_bool', 'Group is now ' . $self->to_string) if DEBUG;
+
   $self;
 };
 
 
-# Resolve demorgan
+# Resolve DeMorgan
 # !a & !b = !(a | b)
 # !a | !b = !(a & b)
-sub resolve_demorgan {
+# Afterwards the group will only contain a single negative element
+sub _resolve_demorgan {
   my $self = shift;
 
+  print_log('kq_bool', 'Resolve DeMorgan') if DEBUG;
+
   # Split negative and operands
-  my (@neg, @ops) = ();
+  my (@neg, @pos) = ();
+  my $ops = $self->operands;
 
   # Iterate over operands
-  foreach (@{$self->operands}) {
-    if ($_->is_negative) {
-      push @neg, $_;
+  for (my $i = 0; $i < @$ops; $i++) {
+
+    # Check if negative
+    if ($ops->[$i]->is_negative) {
+      push @neg, $i;
     }
     else {
-      push @ops, $_;
+      push @pos, $i;
     };
   };
 
   # Found no negative operands
   return $self unless @neg;
 
-  # if ($self->)
+  if (DEBUG) {
+    print_log(
+      'kq_bool',
+      'Index lists created for ' . $self->to_string . ':',
+      '  Neg:    ' . join(', ', @neg),
+      '  Pos:    ' . join(', ', @pos),
+    );
+  };
+
+  # Everything is negative
+  unless (@pos) {
+
+    print_log('kq_bool', 'The whole group is negative') if DEBUG;
+
+    foreach (@neg) {
+      $ops->[$_]->toggle_negative;
+    };
+    $self->toggle_operation;
+    # TODO:
+    #   Better add toggle_negative
+    $self->is_negative(1);
+    return $self;
+  };
+
+  # There is more than one negative operand
+  if (@neg > 1) {
+
+    # Group all negative operands
+    # and apply demorgan
+    my @new_group = ();
+
+    # Get all negative items and create a new group
+    foreach (uniq reverse sort @neg) {
+
+      # Remove from old group
+      my $op = splice(@$ops, $_, 1);
+
+      # Reset negativity
+      $op->is_negative(0);
+
+      # Put in new group
+      push(@new_group, $op);
+    };
+
+    my $new_group;
+
+    # Get reverted DeMorgan group
+    if ($self->operation eq 'and') {
+      $new_group = $self->build_or(@new_group);
+    }
+
+    else {
+      $new_group = $self->build_and(@new_group);
+    };
+
+    # Set group to negative
+    $new_group->is_negative(1);
+
+    push @$ops, $new_group;
+  }
+
+  # Only a single negative element
+  else {
+    warn 'Not implemented single negativity yet';
+  };
+
+  return $self;
 };
 
 

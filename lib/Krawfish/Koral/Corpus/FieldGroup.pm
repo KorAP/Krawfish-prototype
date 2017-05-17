@@ -15,7 +15,7 @@ use warnings;
 #   but for signaturing, sort them
 #   alphabetically (probably)
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 
 sub new {
@@ -34,6 +34,29 @@ sub type {
 
 sub operation {
   $_[0]->{operation};
+};
+
+
+sub build_or {
+  shift;
+  __PACKAGE__->new('or',@_);
+};
+
+
+sub build_and {
+  shift;
+  __PACKAGE__->new('and', @_);
+};
+
+
+sub toggle_operation {
+  my $self = shift;
+  if ($self->{operation} eq 'or') {
+    $self->{operation} = 'and';
+  }
+  elsif ($self->{operation} eq 'and') {
+    $self->{operation} = 'or';
+  };
 };
 
 
@@ -76,14 +99,14 @@ sub plan_for {
   # Check the frequency of all operands
   # Start with a query != null
   my $first = $ops->[$i];
-  my $query_neg = $first->is_negative;
+  my $query_neg = $self->is_negative;
 
   # First operand is negative - remember this
-  if ($query_neg) {
-
-    # Set to positive
-    $first->is_negative(0);
-  };
+#  if ($query_neg) {
+#
+#    # Set to positive
+#    $first->is_negative(0);
+#  };
 
   my $query = $first->plan_for($index);
   $i++;
@@ -301,8 +324,9 @@ sub to_string {
   my $self = shift;
   my $op = $self->operation eq 'and' ? '&' : '|';
 
-  my $str = $self->is_negative ? '!' : '';
-  $str . join($op, map {
+  my $str = $self->is_negative ? '!(' : '';
+
+  $str .= join($op, map {
     $_->type eq 'fieldGroup' ?
       (
         $_->is_any ?
@@ -311,7 +335,10 @@ sub to_string {
         )
       :
       $_->to_string
-  } @{$self->operands_in_order});
+    } @{$self->operands_in_order});
+
+  $str .= $self->is_negative ? ')' : '';
+  $str;
 };
 
 1;

@@ -102,9 +102,14 @@ ok($query = $cb->field_and(
 is($query->to_string, 'age!=4&author!=Peter', 'Stringification');
 ok(!$query->is_negative, 'Check negativity');
 ok($query->planned_tree, 'Plan the tree');
-is($query->to_string, 'age!=4&author!=Peter', 'Planned tree stringification');
+is($query->to_string, '!(age=4|author=Peter)', 'Planned tree stringification');
+
 ok($plan = $query->plan_for($index), 'Planning');
 is($plan->to_string, "not(or('age:4','author:Peter'))", 'Stringification');
+
+done_testing;
+__END__
+
 
 ok($plan->next, 'More next');
 is($plan->current->to_string, '[3]', 'First doc');
