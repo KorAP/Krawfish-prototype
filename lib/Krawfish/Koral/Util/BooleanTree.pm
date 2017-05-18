@@ -6,7 +6,18 @@ use warnings;
 
 # This can be used by Koral::FieldGroup and Koral::TermGroup
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
+
+
+# To disjunctive normal form / DNF
+sub _normalize {
+  
+};
+
+# TODO:
+#  - Deal with classes:
+#    (A | !A) -> 1, aber ({1:A} | {2:!A}) -> ({1:A} | {2:!A})
+#    (A & !A) -> 0, und ({1:A} & {2:!A}) -> 0
 
 # Check https://de.wikipedia.org/wiki/Boolesche_Algebra
 # for optimizations
@@ -457,9 +468,7 @@ sub _resolve_demorgan {
       $ops->[$_]->toggle_negative;
     };
     $self->toggle_operation;
-    # TODO:
-    #   Better add toggle_negative
-    $self->is_negative(1);
+    $self->toggle_negative;
     return $self;
   };
 

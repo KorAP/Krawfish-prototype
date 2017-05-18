@@ -238,14 +238,99 @@ is($tree->to_string, 'a!=1|b=1|c!=1|d=1|e!=1|f=1', 'Plain groups');
 $tree->planned_tree;
 is($tree->to_string, '(!(a=1&c=1&e=1))|b=1|d=1|f=1', 'no string');
 
-# TODO: This may require a direct andNot() serialization with the all-query
+# DeMorgan grouping with AND
+$tree = $cb->field_and(
+  $cb->string('a')->ne('1'),
+  $cb->string('b')->eq('1'),
+  $cb->string('c')->ne('1'),
+  $cb->string('d')->eq('1'),
+  $cb->string('e')->ne('1'),
+  $cb->string('f')->eq('1'),
+);
 
-diag 'Check with negativity and >=, <=, exists etc.';
+is($tree->to_string, 'a!=1&b=1&c!=1&d=1&e!=1&f=1', 'Plain groups');
+$tree->planned_tree;
+
+# TODO: This may require a direct andNot() serialization with the all-query
+is($tree->to_string, '(!(a=1|c=1|e=1))&b=1&d=1&f=1', 'no string');
+
+
+
+# Remove double negativity
+$tree = $cb->field_and(
+  $cb->string('a')->ne('1'),
+)->toggle_negative;
+
+is($tree->to_string, '!(a!=1)', 'Plain groups');
+$tree->planned_tree;
+is($tree->to_string, 'a=1', 'simple string');
+
+
+# Remove double negativity with groups
+$tree = $cb->field_and(
+  $cb->string('a')->ne('1'),
+  $cb->string('b')->ne('1'),
+)->toggle_negative;
+
+is($tree->to_string, '!(a!=1&b!=1)', 'Plain groups');
+$tree->planned_tree;
+is($tree->to_string, 'a=1|b=1', 'simple string');
+
+
+# Remove double negativity with nested groups (1)
+$tree = $cb->field_and(
+  $cb->field_or(
+    $cb->field_and(
+      $cb->string('a')->ne('1'),
+      $cb->string('b')->ne('1'),
+    )->toggle_negative
+  )->toggle_negative
+)->toggle_negative;
+
+is($tree->to_string, '!((!((!(a!=1&b!=1)))))', 'Plain groups');
+$tree->planned_tree;
+is($tree->to_string, 'a=1|b=1', 'simple string');
+
+
+# Remove double negativity with nested groups (2)
+$tree = $cb->field_or(
+  $cb->string('b')->ne('1'),
+  $cb->field_and(
+    $cb->string('c')->ne('1'),
+    $cb->string('d')->ne('1'),
+  )->toggle_negative
+)->toggle_negative;
+
+is($tree->to_string, '!((!(c!=1&d!=1))|b!=1)', 'Plain groups');
+$tree->planned_tree;
+is($tree->to_string, '!(b!=1|c=1|d=1)', 'simple string');
+# !((!(a=1|c=1|d=1))&b=1)
+
+
+diag 'Check with negativity for >=, <=, exists etc.';
 
 
 done_testing;
 __END__
 
+
+
+
+$tree = $cb->field_and(
+  $cb->string('a')->ne('1'),
+  $cb->field_or(
+    $cb->string('b')->ne('1'),
+    $cb->field_and(
+      $cb->string('c')->ne('1'),
+      $cb->string('d')->ne('1'),
+    )->toggle_negative
+  )->toggle_negative
+)->toggle_negative;
+
+is($tree->to_string, '!((!((!(c!=1&d!=1))|b!=1))&a!=1)', 'Plain groups');
+$tree->planned_tree;
+is($tree->to_string, '', 'simple string');
+# !((!(a=1|c=1|d=1))&b=1)
 
 
 
