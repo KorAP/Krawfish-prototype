@@ -8,7 +8,7 @@ use warnings;
 
 # There is a special behaviour, called "gaps":
 # If gaps is true, the operands may have a different
-# tokenization and do nmot necessarily match with the tokenization for
+# tokenization and do not necessarily match with the tokenization for
 # the inbetweens.
 #
 # Example:
