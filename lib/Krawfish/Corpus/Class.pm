@@ -15,6 +15,12 @@ use warnings;
 # the classes position, meaning
 # only 8 classes are supported.
 
+# Class queries may also be useful to
+# have insights into the distribution
+# of a virtual corpus, e.g.
+#  {1:lang=de}|{2:lang!=de}
+# getting the stats.
+
 # TODO:
 #   Alternatively there could be a Compare() query
 

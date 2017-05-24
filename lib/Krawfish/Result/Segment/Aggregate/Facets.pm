@@ -1,5 +1,6 @@
 package Krawfish::Result::Segment::Aggregate::Facets;
 use parent 'Krawfish::Result::Segment::Aggregate::Base';
+use Krawfish::Util::String qw/squote/;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -119,15 +120,7 @@ sub on_finish {
 };
 
 sub to_string {
-  return 'facet:' . _squote($_[0]->{field});
-};
-
-
-# From Mojo::Util
-sub _squote {
-  my $str = shift;
-  $str =~ s/(['\\])/\\$1/g;
-  return qq{'$str'};
+  return 'facet:' . squote($_[0]->{field});
 };
 
 

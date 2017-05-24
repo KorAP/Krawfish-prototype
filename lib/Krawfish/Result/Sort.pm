@@ -1,6 +1,7 @@
 package Krawfish::Result::Sort;
 # use Krawfish::Result::Sort::InitRank;
 # use Krawfish::Result::Sort::Rank;
+use Krawfish::Util::String qw/squote/;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -198,17 +199,9 @@ sub current {
 sub to_string {
   my $self = shift;
   my $str = 'resultSorted(';
-  $str .= '[' . join(',', map { _squote($_) } @{$self->{fields}}) . ']:';
+  $str .= '[' . join(',', map { squote($_) } @{$self->{fields}}) . ']:';
   $str .= $self->{query}->to_string;
   return $str . ')';
-};
-
-
-# From Mojo::Util
-sub _squote {
-  my $str = shift;
-  $str =~ s/(['\\])/\\$1/g;
-  return qq{'$str'};
 };
 
 

@@ -1,5 +1,6 @@
 package Krawfish::Result::Sort::PriorityCascade;
 use parent 'Krawfish::Result';
+use Krawfish::Util::String qw/squote/;
 use Krawfish::Util::PriorityQueue::PerDoc;
 use Krawfish::Posting::Bundle;
 use Krawfish::Log;
@@ -451,20 +452,12 @@ sub duplicate_rank {
 sub to_string {
   my $self = shift;
   my $str = 'resultSorted([';
-  $str .= join(',', map { _squote($_->[0]) . ($_->[1] ? '>' : '<') } @{$self->{fields}});
+  $str .= join(',', map { squote($_->[0]) . ($_->[1] ? '>' : '<') } @{$self->{fields}});
   $str .= ']';
   $str .= ',0-' . $self->{top_k} if $self->{top_k};
   $str .= ':' . $self->{query}->to_string;
   return $str . ')';
 };
-
-# From Mojo::Util
-sub _squote {
-  my $str = shift;
-  $str =~ s/(['\\])/\\$1/g;
-  return qq{'$str'};
-};
-
 
 
 1;

@@ -79,12 +79,4 @@ sub to_string {
 };
 
 
-# From Mojo::Util
-sub _squote {
-  my $str = shift;
-  $str =~ s/(['\\])/\\$1/g;
-  return qq{'$str'};
-};
-
-
 1;

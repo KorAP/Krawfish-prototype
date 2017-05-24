@@ -35,10 +35,6 @@ sub next_doc {
   return 1;
 };
 
-
-# Forward to next start position
-sub next_greater_start;
-
 sub freq_in_doc {
   warn 'freq_in_doc only supported for term queries (see PostingPointer)';
 };
@@ -55,6 +51,26 @@ sub skip_doc {
   };
 
   return $self->current->doc_id;
+};
+
+
+# Skip to (or beyond) a certain position
+# Returns true, if the new current is positioned
+# in the same document beyond the given pos.
+# Otherwise returns false.
+sub skip_pos {
+  my ($self, $pos) = @_;
+  my $current = $self->current or return;
+  my $doc_id = $current->doc_id;
+
+  while ($current->doc_id == $doc_id) {
+    if ($current->start < $pos) {
+      $self->next;
+      next;
+    };
+    return 1;
+  };
+  return;
 };
 
 

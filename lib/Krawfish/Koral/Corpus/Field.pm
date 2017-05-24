@@ -5,7 +5,10 @@ use Krawfish::Corpus::Negation;
 use strict;
 use warnings;
 
-# TODO: Check for valid parameters
+# TODO:
+#   - Check for valid parameters
+#   - Only support positive terms
+#   - Wrap in negative field!
 
 sub new {
   my $class = shift;
@@ -21,6 +24,7 @@ sub type {
 
 sub is_leaf { 1 };
 
+# Equal
 sub eq {
   my $self = shift;
   $self->{match} = 'eq';
@@ -28,6 +32,8 @@ sub eq {
   return $self;
 };
 
+
+# Not equal
 sub ne {
   my $self = shift;
   $self->{match} = 'eq';
@@ -36,6 +42,8 @@ sub ne {
   return $self;
 };
 
+
+# Check for negativity
 sub is_negative {
   my $self = shift;
   if (scalar @_ == 1) {
@@ -81,6 +89,8 @@ sub leq {
   return $self;
 };
 
+
+# Contains the value in multi-token field
 sub contains {
   my $self = shift;
   $self->{match} = 'contains';
@@ -88,11 +98,16 @@ sub contains {
   return $self;
 };
 
+
+# Does not contain the value in multi-token field
 sub excludes {
   my $self = shift;
   $self->{match} = 'excludes';
   $self->{value} = shift;
   return $self;
+};
+
+sub can_toggle_negativity {
 };
 
 

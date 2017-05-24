@@ -7,7 +7,7 @@ use Unicode::Normalize qw/getCombinClass normalize/;
 use parent 'Exporter';
 use utf8;
 
-our @EXPORT = qw/fold_case remove_diacritics normalize_nfkc/;
+our @EXPORT = qw/fold_case remove_diacritics normalize_nfkc squote/;
 
 
 # Helper package for unicode handling
@@ -43,6 +43,13 @@ sub _list_props {
 # Normalize to KC form
 sub normalize_nfkc {
   return normalize('KC',$_[0]);
+};
+
+# From Mojo::Util
+sub squote {
+  my $str = shift;
+  $str =~ s/(['\\])/\\$1/g;
+  return qq{'$str'};
 };
 
 1;

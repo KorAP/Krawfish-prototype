@@ -34,4 +34,17 @@ sub field_count {
   $self;
 };
 
+sub limit {
+  my $self = shift;
+  if (@_ == 2) {
+    $self->start_index(shift());
+    $self->items_per_page(shift());
+  }
+  else {
+    $self->start_index(0);
+    $self->items_per_page(shift());
+  };
+  $self;
+};
+
 1;

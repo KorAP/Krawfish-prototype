@@ -1,7 +1,12 @@
 package Krawfish::Query::Constraint::NotBetween;
-use Krawfish::Query::Constraint::Position; # Export constants
 use strict;
 use warnings;
+
+use constant {
+  NEXTA => 1,
+  NEXTB => 2,
+  MATCH => 4
+};
 
 # Check, if a negative token is in between.
 # Like [orth=Der][orth!=alte][orth=Mann].
@@ -10,20 +15,24 @@ use warnings;
 #   Ensure, when this constraint is used,
 #   that the constraint precedes(first,second) is true.
 
-use constant ALL_MATCH => NEXTA | NEXTB | MATCH;
+
+
+use constant ALL_MATCH => (NEXTA | NEXTB | MATCH);
 
 sub new {
   my $class = shift;
   bless {
-    query => shift
+    query => shift,
+    buffer => Krawfish::Util::Buffer->new
   }, $class;
 };
 
 
-sub _init {
+sub init {
   my $self = shift;
-  return if $self->{_init}++;
+  return if $self->{init}++;
   $self->{query}->next;
+#  $self->{buffer}->remember($self->{query}->current);
 };
 
 
@@ -31,7 +40,10 @@ sub check {
   my $self = shift;
   my ($payload, $first, $second) = @_;
 
-  $self->_init;
+  $self->init;
+
+  # TODO:
+  #   Use buffer API here
 
   my $query = $self->{query};
 
@@ -52,7 +64,7 @@ sub check {
     };
 
     # [NEG]..[FIRST] | [NEG][FIRST] | [FIRST[NEG]..]
-    if ($negativ->start < $first->end) {
+    if ($negative->start < $first->end) {
 
       # Move negative query to at least the end of the next position
       $query->next_pos($first->end);

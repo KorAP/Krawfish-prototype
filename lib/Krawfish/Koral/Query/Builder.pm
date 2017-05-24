@@ -17,6 +17,7 @@ use Krawfish::Query::Nothing;
 # TODO: Not all constraints need to be wrapped
 use Krawfish::Koral::Query::Constraint::Position;
 use Krawfish::Koral::Query::Constraint::ClassDistance;
+use Krawfish::Koral::Query::Constraint::NotBetween;
 
 sub new {
   my $class = shift;
@@ -116,6 +117,11 @@ sub c_position {
 sub c_class_distance {
   shift;
   Krawfish::Koral::Query::Constraint::ClassDistance->new(@_);
+};
+
+sub c_not_between {
+  shift;
+  Krawfish::Koral::Query::Constraint::NotBetween->new(@_);
 };
 
 sub length {

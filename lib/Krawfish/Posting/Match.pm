@@ -1,5 +1,6 @@
 package Krawfish::Posting::Match;
 use parent 'Krawfish::Posting';
+use Krawfish::Util::String qw/squote/;
 use JSON::XS;
 use warnings;
 use strict;
@@ -35,18 +36,11 @@ sub to_string {
   if ($self->{fields}) {
     $str .= '|';
     $str .= join ';', map {
-      $_ . '=' . _squote($self->{fields}->{$_})
+      $_ . '=' . squote($self->{fields}->{$_})
     } sort keys %{$self->{fields}};
   };
 
   return $str . ']';
-};
-
-# From Mojo::Util
-sub _squote {
-  my $str = shift;
-  $str =~ s/(['\\])/\\$1/g;
-  return qq{'$str'};
 };
 
 

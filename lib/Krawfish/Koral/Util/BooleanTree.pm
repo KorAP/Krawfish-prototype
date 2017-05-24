@@ -8,10 +8,14 @@ use warnings;
 
 use constant DEBUG => 1;
 
+# TODO:
+#   To simplify this, it may be useful to use Negation instead of is_negative().
+#   This means, fields with "ne" won't be "ne"-fields, but become not(term).
+#   It's also easier to detect double negation.
+
 
 # To disjunctive normal form / DNF
 sub _normalize {
-  
 };
 
 # TODO:
@@ -113,8 +117,11 @@ sub _normalize {
 # - function: TF_Idempotent -> DONE
 
 
+# TODO:
+#   This should return a cloned query instead of in-place creation
 sub planned_tree {
   my $self = shift;
+
   foreach my $op (@{$self->operands}) {
     if ($op && $op->type eq $self->type) {
       $op->planned_tree

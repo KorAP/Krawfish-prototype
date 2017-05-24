@@ -83,10 +83,10 @@ sub startup {
 
 
   $r->put('/corpus/:uid')->to('Index#add');
-  $r->put('/corpus/:csigle/:dsigle/:tsigle')->to('Index#add');
+  $r->put('/corpus/:corpus_id/:doc_id/:text_id')->to('Index#add');
 
   $r->delete('/corpus/:uid')->to('Index#delete');
-  $r->delete('/corpus/:csigle/:dsigle/:tsigle')->to('Index#delete');
+  $r->delete('/corpus/:corpus_sigle/:doc_id/:text_id')->to('Index#delete');
 
   # Web sockets only make sense for the central node
   $r->get('/suggest')->to('Dictionary#suggest');

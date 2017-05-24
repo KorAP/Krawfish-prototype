@@ -7,6 +7,8 @@ use warnings;
 # TODO: Optimize if there is an identical subquery
 #   in a direct sequence - make this a repetition!!!
 
+# Todo: Check for queries like "Der {[pos!=ADJ]*} Mann"
+
 use constant DEBUG => 0;
 
 sub new {
