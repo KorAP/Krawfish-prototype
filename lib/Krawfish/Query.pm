@@ -3,7 +3,7 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # Current span object
 sub current {
@@ -29,6 +29,9 @@ sub next;
 sub next_doc {
   my $self = shift;
   my $current_doc_id = $self->current->doc_id;
+
+  print_log('query', "Go to next doc following $current_doc_id") if DEBUG;
+
   do {
     $self->next or return;
   } until ($self->current->doc_id > $current_doc_id);
@@ -44,7 +47,7 @@ sub freq_in_doc {
 sub skip_doc {
   my ($self, $doc_id) = @_;
 
-  print_log('query', 'Skip to ' . $doc_id) if DEBUG;
+  print_log('query', 'Skip to doc id ' . $doc_id) if DEBUG;
 
   while (!$self->current || $self->current->doc_id < $doc_id) {
     $self->next_doc or return;
@@ -63,12 +66,16 @@ sub skip_pos {
   my $current = $self->current or return;
   my $doc_id = $current->doc_id;
 
-  while ($current->doc_id == $doc_id) {
+  while (($current = $self->current) && $current->doc_id == $doc_id) {
+
     if ($current->start < $pos) {
+      print_log('query', "Skip " . $current->to_string .
+                  " to pos $pos in doc id $doc_id") if DEBUG;
       $self->next;
-      next;
+    }
+    else {
+      return 1;
     };
-    return 1;
   };
   return;
 };

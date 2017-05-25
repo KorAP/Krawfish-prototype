@@ -1,6 +1,5 @@
 package Krawfish::Koral::Query::Constraint::NotBetween;
 use Krawfish::Query::Constraint::NotBetween;
-use Krawfish::Util::String qw/squote/;
 use strict;
 use warnings;
 
@@ -13,7 +12,7 @@ sub new {
 
 sub to_string {
   my $self = shift;
-  return 'notBetween=' . squote($self->{query}->to_string);
+  return 'notBetween=' . $self->{query}->to_string;
 };
 
 sub plan_for {

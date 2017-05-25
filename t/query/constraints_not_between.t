@@ -7,8 +7,9 @@ use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Query::Builder');
 
 my $index = Krawfish::Index->new;
-ok_index($index, '[aa|aa][cc][bb|bb]', 'Add complex document');
-ok_index($index, '[aa|aa][dd][bb|bb]', 'Add complex document');
+ok_index($index, '[aa|xx][cc][bb|yy]', 'Add complex document');
+ok_index($index, '[aa|xx][dd][bb|yy]', 'Add complex document');
+ok_index($index, '[aa|xx][cc][bb|yy]', 'Add complex document');
 
 my $qb = Krawfish::Koral::Query::Builder->new;
 
@@ -21,11 +22,14 @@ my $query = $qb->constraints(
   $qb->token('bb')
 );
 
-is($query->to_string, 'constr(pos=precedes,notBetween=\'[cc]\':[aa],[bb])', 'Stringification');
+is($query->to_string, 'constr(pos=precedes,notBetween=[cc]:[aa],[bb])', 'Stringification');
 
 ok(my $plan = $query->plan_for($index), 'Planning');
 
-is($plan->to_string, "constr(pos=2:'aa','bb')", 'Query is valid');
+is($plan->to_string, "constr(pos=1,notBetween='cc':'aa','bb')", 'Query is valid');
+
+matches($plan, [qw/[1:0-3]/]);
+
 
 
 done_testing;
@@ -33,7 +37,6 @@ __END__
 
 
 
-matches($query, [qw/[0:0-2] [0:0-2] [0:0-2] [0:0-2]/]);
 
 # From t/query/positions.t
 
