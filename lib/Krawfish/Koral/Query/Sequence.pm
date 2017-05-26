@@ -11,6 +11,13 @@ use warnings;
 
 use constant DEBUG => 0;
 
+# TODO:
+#   Make problem solving a separate class in
+#   Krawfish::Koral::Util::Sequence, similar to the Boolean stuff!
+#
+# Also: Split this in a serializable logical node phase and an index
+# bound segment phase!
+
 sub new {
   my $class = shift;
   my $self = $class->SUPER::new;

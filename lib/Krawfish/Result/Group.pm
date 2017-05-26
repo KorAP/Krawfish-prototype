@@ -51,10 +51,16 @@ use constant DEBUG => 0;
 # }
 # The match can be anything - so it may even be a first example snippet.
 #
-# But with a compare() corpus, there may be more:
+# But with a multiple class() corpora, there may be more:
 #
 # {
 #   criterion => [freq, doc_freq, freq, doc_freq, freq, doc_freq, ...]
+# }
+#
+# or even
+#
+# {
+#   criterion => [freq, doc_freq, match, freq, doc_freq, match, freq, doc_freq, match ...]
 # }
 
 
@@ -104,7 +110,15 @@ sub _init {
     $current = $query->current or last;
 
     # Potentially create new group
-    $group = ($groups{$criterion->get_group($current)} //= [0,0]);
+    $group = ($groups{
+      $criterion->get_group($current)
+    } //= [0,0]);
+
+    # TODO: Should work with classes!
+    #   Like
+    #   foreach my $nr ($match->get_corpus_classes) {
+    #     $group->[$nr * 2]++;
+    #   }
 
     # Increment freq
     $group->[0]++;
@@ -113,6 +127,8 @@ sub _init {
 
       # Increment doc_freq
       $group->[1]++;
+
+      # TODO: If requested, add a witness!
 
       $doc_id = $current->doc_id;
     };
@@ -136,6 +152,8 @@ sub freq {
   scalar @{$self->{groups}}
 };
 
+
+# Next will move a position value
 sub next {
   my $self = shift;
   $self->_init;

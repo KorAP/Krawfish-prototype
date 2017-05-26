@@ -6,12 +6,6 @@ use warnings;
 # Check, if a negative token is in between.
 # Like [orth=Der][orth!=alte][orth=Mann].
 
-# TODO:
-#   Ensure, when this constraint is used,
-#   that the constraint precedes(first,second) is true.
-
-
-
 use constant {
   NEXTA => 1,
   NEXTB => 2,
@@ -29,18 +23,25 @@ sub new {
 };
 
 
+# Initialize in-between query
 sub init {
   my $self = shift;
   return if $self->{init}++;
   print_log('notC', 'Init notBetween query') if DEBUG;
   $self->{query}->next;
-  return;
 };
 
 
 sub check {
   my $self = shift;
   my ($first, $second, $payload) = @_;
+
+  # If ordering is reversed, swap
+  if ($first->start > $second->start) {
+    my $temp = $first;
+    $first = $second;
+    $second = $temp;
+  };
 
   $self->init;
 
@@ -57,6 +58,8 @@ sub check {
               )
   };
 
+  # No negative between query match exists
+  return ALL_MATCH unless $query->current;
 
   if ($query->current->doc_id < $first->doc_id) {
     if (DEBUG) {

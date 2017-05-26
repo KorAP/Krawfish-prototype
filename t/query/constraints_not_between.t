@@ -30,6 +30,7 @@ is($plan->to_string, "constr(pos=1,notBetween='cc':'aa','bb')", 'Query is valid'
 
 matches($plan, [qw/[1:0-3]/]);
 
+diag 'Further testing with repetitions at the beginning and inbetween';
 
 
 done_testing;

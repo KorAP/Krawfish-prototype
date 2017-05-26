@@ -4,6 +4,13 @@ use Krawfish::Query::Constraints;
 use strict;
 use warnings;
 
+# TODO:
+#   In the logical planning phase
+#   - ensure no constraints are doubled
+#   - position constraints are merged
+#   - not_between has a c_position('precedes','follows') constraint
+#     in front.
+
 sub new {
   my $class = shift;
   bless {
@@ -19,6 +26,8 @@ sub to_koral_fragment {
 
 sub type { 'constraints' };
 
+
+# Plan for index
 sub plan_for {
   my ($self, $index) = @_;
 

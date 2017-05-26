@@ -9,6 +9,7 @@ sub new {
   my $class = shift;
   bless {
     segments   => shift, # Krawfish::Index::Segments object
+    # TODO: May as well be a subtoken object
     from_start => shift,  # boolean - otherwise from end
     char_count => shift
     nrs => [@_]
@@ -20,7 +21,7 @@ sub get_group {
   my ($self, $match) = @_;
 
   # Get all classes from the match
-  my @classes = $self->get_classes($self->{nrs});
+  my @classes = $match->get_classes($self->{nrs});
 
   my $segments = $self->{segments};
 
