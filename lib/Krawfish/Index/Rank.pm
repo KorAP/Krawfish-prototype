@@ -2,6 +2,8 @@ package Krawfish::Index::Rank;
 use strict;
 use warnings;
 
+# Base class for ranking of fields and subterms
+
 # TODO:
 #   Each field, the prefixes for subterms, and the
 #   suffixes for subterms have - in addition to the
@@ -74,5 +76,6 @@ sub max {
 sub merge {
   ...
 };
+
 
 1;

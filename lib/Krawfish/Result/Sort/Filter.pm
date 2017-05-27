@@ -6,6 +6,10 @@ use warnings;
 
 use constant DEBUG => 0;
 
+# This is a corpus query implementation
+#
+# TODO: Better move to Krawfish::Corpus
+
 sub new {
   my $class = shift;
   my %param = @_;

@@ -50,6 +50,15 @@ sub startup {
   #   - field value aggregated information
   $r->post('/search')->to('Index#search');
 
+  # TODO:
+  #   For offsets like "give me all results from page 5" it's beneficial
+  #   to have a socket connection to all nodes, probably using protobuf
+  #   or similar, that returns first only the sorting vector, before retrieving
+  #   the snippet results.
+  #   The same mechanism is probably also useful for sorting per node
+  #   because it means that snippets are not important.
+  # $r->post('/search')->to('Index#search_dynamic');
+
   # Group matches
   # This will return a list of matching groups,
   # that can be based on classes

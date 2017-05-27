@@ -1,4 +1,4 @@
-package Krawfish::Result::Sort::PriorityCascade;
+package Krawfish::Result::Segment::Sort;
 use parent 'Krawfish::Result';
 use Krawfish::Util::String qw/squote/;
 use Krawfish::Util::PriorityQueue::PerDoc;
@@ -8,13 +8,7 @@ use Data::Dumper;
 use strict;
 use warnings;
 
-warn 'DEPRECATED';
-
-# This is deprecated in favor of K::R::S::Sort::Ranks
-
-
-
-# This is only based on criteria that return ranks
+# This is the general sorting implementation based on ranks.
 
 use constant {
   DEBUG   => 0,
@@ -43,6 +37,9 @@ use constant {
 #   TermRank, where only even values are fine and odd values need
 #   to be sorted in a separate step.
 
+# TODO:
+#   It should be possible to add the sorting criteria.
+
 sub new {
   my $class = shift;
   my %param = @_;
@@ -55,14 +52,16 @@ sub new {
   my $index = $param{index};
   my $top_k = $param{top_k};
 
-  # This is the fields element
-  # It has the structure [[field], [field, 1]]
-  # where the second value is the descending marker
-  my $fields = $param{fields};
-  # TODO: Change to criterion!
+  # This is the criterion element
+  # It has the structure [rank-criterion]*
+  # where the second value is the descending marker,
+  # that reverses the rank.
+  my $ranks = $param{ranks};
 
   # For final field distinction, use unique field
-  push @$fields, [$param{unique}];
+  push @$ranks, Krawfish::Result::Segment::Sort::Ranks::Field->new(
+    $param{unique}
+  );
 
   # The maximum ranking value may be used
   # by outside filters to know in advance,
