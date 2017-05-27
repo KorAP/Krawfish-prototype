@@ -59,6 +59,14 @@ sub prepare_for {
 # TODO: Rename to_primitive(index)
 sub plan_for;
 
+
+# This will remove classes
+# in subqueries
+sub plan_without_classes_for {
+  shift->plan_for(@_);
+};
+
+
 # Filter a query based on a document query
 sub filter_by {
   ...

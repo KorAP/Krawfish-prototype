@@ -44,7 +44,10 @@ sub plan_for {
 
   my @constraints = ();
   foreach (@{$self->{constraints}}) {
-    push @constraints, $_->plan_for($index)
+
+    # Plan may result in a null-query
+    my $plan = $_->plan_for($index) or next;
+    push @constraints, $plan;
   };
 
   return Krawfish::Query::Constraints->new(

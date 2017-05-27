@@ -40,6 +40,13 @@ sub type { 'class' };
 #  };
 #};
 
+sub plan_without_classes_for {
+  my ($self, $index) = @_;
+  return $self->span->plan_for($index);
+};
+
+
+
 sub plan_for {
   my ($self, $index) = @_;
 

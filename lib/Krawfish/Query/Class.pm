@@ -46,7 +46,7 @@ sub next {
 sub to_string {
   my $self = shift;
   my $str = 'class(';
-  $str .= $self->{number} . ':';
+  $str .= (0+$self->{number}) . ':';
   $str .= $self->{span}->to_string . ')';
   return $str;
 };

@@ -39,7 +39,8 @@ sub has_classes {
 # This will remove classes
 # in subcorpora
 sub plan_without_classes_for {
-  ...;
+  warn 'Not yet implemented';
+  shift->plan_for(@_);
 };
 
 sub is_negative {
