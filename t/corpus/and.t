@@ -42,7 +42,7 @@ ok(my $query = $cb->field_and(
 is($query->to_string, 'age=4&author=Peter', 'Stringification');
 ok(!$query->is_negative, 'Check negativity');
 
-ok(my $plan = $query->plan_for($index), 'Planning');
+ok(my $plan = $query->root_normalize->optimize($index), 'Planning');
 
 is($plan->to_string, "and('age:4','author:Peter')", 'Stringification');
 
@@ -64,7 +64,7 @@ ok($query = $cb->field_or(
 is($query->to_string, '(age=3&author=Peter)|id=2', 'Stringification');
 ok(!$query->is_negative, 'Check negativity');
 
-ok($plan = $query->plan_for($index), 'Planning');
+ok($plan = $query->root_normalize->optimize($index), 'Planning');
 
 is($plan->to_string, "or(and('age:3','author:Peter'),'id:2')", 'Stringification');
 
@@ -84,12 +84,17 @@ ok($query = $cb->field_and(
 is($query->to_string, 'age!=4&author=Peter', 'Stringification');
 ok(!$query->is_negative, 'Check negativity');
 
-ok($plan = $query->plan_for($index), 'Planning');
-is($plan->to_string, "without('author:Peter','age:4')", 'Stringification');
+ok(my $norm = $query->root_normalize, 'Plan logically');
+is($norm->to_string, "author=Peter&!age=4", 'Stringification');
 
-ok($plan->next, 'Init vc');
-is($plan->current->to_string, '[1]', 'First doc');
-ok(!$plan->next, 'No more next');
+ok(my $opt = $norm->optimize($index), 'Planning');
+is($opt->to_string, "andNot('author:Peter','age:4')", 'Stringification');
+
+
+
+ok($opt->next, 'Init vc');
+is($opt->current->to_string, '[1]', 'First doc');
+ok(!$opt->next, 'No more next');
 
 
 # Complex virtual corpus with negation
@@ -101,14 +106,21 @@ ok($query = $cb->field_and(
 
 is($query->to_string, 'age!=4&author!=Peter', 'Stringification');
 ok(!$query->is_negative, 'Check negativity');
-ok($query->planned_tree, 'Plan the tree');
-is($query->to_string, '!(age=4|author=Peter)', 'Planned tree stringification');
+#ok($query->planned_tree, 'Plan the tree');
+#is($query->to_string, '!(age=4|author=Peter)', 'Planned tree stringification');
 
-ok($plan = $query->plan_for($index), 'Planning');
+
+ok($plan = $query->root_normalize, 'Planning');
+is($plan->to_string, "[1]&!(age=4|author=Peter)", 'Stringification');
+
+ok($plan = $plan->optimize($index), 'Optimizing');
 is($plan->to_string, "not(or('age:4','author:Peter'))", 'Stringification');
 
 done_testing;
 __END__
+
+
+
 
 
 ok($plan->next, 'More next');
@@ -122,6 +134,10 @@ ok($query = $cb->field_and(
   $cb->string('age')->ne(4)
 ),
 , 'Create corpus query');
+
+done_testing;
+__END__
+
 
 ok(!$query->has_classes, 'Contains classes');
 

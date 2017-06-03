@@ -3,6 +3,7 @@ use Krawfish::Index::Dictionary;
 use Krawfish::Index::Subtokens;
 use Krawfish::Index::PrimaryData;
 use Krawfish::Index::Fields;
+use Krawfish::Index::PostingsLive;
 use Krawfish::Cache;
 use Krawfish::Log;
 use strict;
@@ -13,9 +14,9 @@ use Mojo::File;
 
 # TODO: This should be a base class for K::I::Static and K::I::Dynamic
 
-
-
 # TODO: Add LiveDocs-PostingsList, that supports deletion
+# TODO: Live should store the last_doc value
+
 #
 # TODO: Support multiple tokenized texts for parallel corpora
 #
@@ -90,6 +91,11 @@ sub new {
     $self->{file}
   );
 
+  # Load live document pointer
+  $self->{live} = Krawfish::Index::PostingsLive->new(
+    $self->{file}
+  );
+
   # Create a list of docid -> uuid mappers
   # This may be problematic as uuids may need to be uint64,
   # this can grow for a segment with 65.000 docs up to ~ 500kb
@@ -107,22 +113,19 @@ sub new {
   # Add cache
   $self->{cache} = Krawfish::Cache->new;
 
-  # TODO: Get last_doc_id from index file
-  $self->{last_doc} = 0;
-
   return $self;
 };
 
 
 # Get last document index
 sub last_doc {
-  $_[0]->{last_doc};
+  $_[0]->{live}->max;
 };
 
 
 # Alias for last doc
 sub max_rank {
-  $_[0]->{last_doc};
+  $_[0]->{live}->max;
 };
 
 
@@ -141,6 +144,12 @@ sub info {
 # Get subtokens
 sub subtokens {
   $_[0]->{subtokens};
+};
+
+
+# Get live documents
+sub live {
+  $_[0]->{live};
 };
 
 
@@ -174,7 +183,7 @@ sub add {
   };
 
   # Get new doc_id
-  my $doc_id = $self->{last_doc}++;
+  my $doc_id = $self->live->incr;
 
   # Get document
   $doc = $doc->{document};

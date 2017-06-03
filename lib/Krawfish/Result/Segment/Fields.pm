@@ -1,7 +1,6 @@
 package Krawfish::Result::Segment::Fields;
 use parent 'Krawfish::Result';
 use Krawfish::Log;
-use Krawfish::Posting::Match;
 use strict;
 use warnings;
 
@@ -17,6 +16,7 @@ sub new {
     index => shift,
     query => shift,
     fields => shift,
+    match => undef
   }, $class;
 };
 

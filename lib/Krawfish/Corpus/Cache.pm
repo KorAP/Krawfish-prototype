@@ -5,6 +5,18 @@ use Krawfish::Cache;
 use strict;
 use warnings;
 
+# Caching is not always a good thing. Caching is only applyable
+# to certain subqueries, caching may slow down the queries, when the
+# cache is not indexed, caching as for now has to be done on the
+# index level only and caching will probably need an "invalidate all
+# caches" mechanism whenever an index changes.
+# See
+#   http://mysqlserverteam.com/mysql-8-0-retiring-support-for-the-query-cache/
+# for further opinions. But caching may be beneficial in our scenario
+# for the use of virtual corpora, so we should definitely use it.
+# Caches may also be implemented optimized (like with Roaring BitSets)
+# to make them very effective.
+
 # TODO:
 #  There should probably be a multi-step analysis
 #  for caching.

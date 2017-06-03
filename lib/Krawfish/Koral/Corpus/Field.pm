@@ -111,6 +111,16 @@ sub can_toggle_negativity {
 };
 
 
+sub optimize {
+  my ($self, $index) = @_;
+
+  # Positive field
+  Krawfish::Corpus::Field->new(
+    $index,
+    $self->to_term
+  );
+};
+
 sub plan_for {
   my ($self, $index) = @_;
 

@@ -6,6 +6,11 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
+
+# TODO: Remove in favor of WithOut!
+
+
+
 use constant DEBUG => 0;
 
 # TODO: Support deleted docs

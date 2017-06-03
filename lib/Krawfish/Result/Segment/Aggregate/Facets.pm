@@ -10,6 +10,7 @@ use constant DEBUG => 0;
 # TODO: It may be beneficial to store example documents in the
 #   field ranks, too - so they don't need to be collected on the way ...
 #   See Group::Fields as well.
+#   For this, add a "witness" field
 #
 # TODO:
 #   Field aggregates should be sortable either <asc> or <desc>,

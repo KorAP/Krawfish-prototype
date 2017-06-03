@@ -9,14 +9,13 @@ use warnings;
 use constant DEBUG => 1;
 
 # TODO:
+#   Change andNot([1],X) to not(x),
+#   so this can be used for tokenGroups without a change
+
+# TODO:
 #   To simplify this, it may be useful to use Negation instead of is_negative().
 #   This means, fields with "ne" won't be "ne"-fields, but become not(term).
 #   It's also easier to detect double negation.
-
-
-# To disjunctive normal form / DNF
-sub _normalize {
-};
 
 # TODO:
 #  - Deal with classes:
@@ -29,7 +28,7 @@ sub _normalize {
 #    or(and(a,b),and(a,c)) -> and(a,or(b,c))
 #    and(or(a,b),or(a,c)) -> or(a,and(b,c))
 #    not(not(a)) -> a
-#    and(a,or(a,b)) -> a
+#    and(a,or(a,b)) -> a !! (Relevant for VCs!)
 #    or(a,and(a,b)) -> a
 
 # DeMorgan:
@@ -119,18 +118,26 @@ sub _normalize {
 
 # TODO:
 #   This should return a cloned query instead of in-place creation
-sub planned_tree {
+sub normalize {
   my $self = shift;
 
+  # Recursive normalize
   foreach my $op (@{$self->operands}) {
+
+    # Operand is group!
     if ($op && $op->type eq $self->type) {
-      $op->planned_tree
+      $op->normalize
     };
   };
+
+  # Apply normalization
+  # The return value may not be a group,
+  # but an andNot or a leaf after the final step
   $self->_clean_and_flatten
     ->_resolve_idempotence
     ->_remove_nested_idempotence
-    ->_resolve_demorgan;
+    ->_resolve_demorgan
+    ->_replace_negative;
 };
 
 
@@ -396,6 +403,8 @@ sub _clean_and_flatten {
     elsif ($op->type eq $self->type) {
 
       # Get nested operands
+      # TODO:
+      #   Rename to $ops
       my $operands = $op->operands;
       my $nr = @$operands;
 
@@ -438,6 +447,8 @@ sub _resolve_demorgan {
 
   print_log('kq_bool', 'Resolve DeMorgan') if DEBUG;
 
+  return $self if $self->is_nothing || $self->is_any;
+
   # Split negative and operands
   my (@neg, @pos) = ();
   my $ops = $self->operands;
@@ -479,33 +490,50 @@ sub _resolve_demorgan {
     return $self;
   };
 
-  # There is more than one negative operand
-  if (@neg > 1) {
+  # There are no negative operands
+  return $self unless @neg;
 
-    # Group all negative operands
-    # and apply demorgan
-    my @new_group = ();
+  # There are negative operands
 
-    # Get all negative items and create a new group
-    foreach (uniq reverse sort @neg) {
+  # Group all negative operands
+  # and apply demorgan
+  my @new_group = ();
 
-      # Remove from old group
-      my $op = splice(@$ops, $_, 1);
+  print_log('kq_bool', 'Create group with negation') if DEBUG;
 
-      # Reset negativity
-      $op->is_negative(0);
+  # Get all negative items and create a new group
+  foreach (uniq reverse sort @neg) {
 
-      # Put in new group
-      push(@new_group, $op);
-    };
+    # Remove from old group
+    my $neg_op = splice(@$ops, $_, 1);
+
+    # Reset negativity
+    $neg_op->is_negative(0);
+
+    # Put in new group
+    push(@new_group, $neg_op);
+  };
+
+  # Only a single negative operand
+  if (scalar(@new_group) == 1) {
+
+    # Reintroduce negativity
+    $new_group[0]->is_negative(1);
+
+    # Add negative operand at the end
+    push @$ops, $new_group[0];
+  }
+
+  # Create a group with negative operands
+  else {
 
     my $new_group;
 
     # Get reverted DeMorgan group
     if ($self->operation eq 'and') {
       $new_group = $self->build_or(@new_group);
+      # Create an andNot group in the next step
     }
-
     else {
       $new_group = $self->build_and(@new_group);
     };
@@ -514,16 +542,89 @@ sub _resolve_demorgan {
     $new_group->is_negative(1);
 
     push @$ops, $new_group;
-  }
-
-  # Only a single negative element
-  else {
-    warn 'Not implemented single negativity yet';
   };
 
   return $self;
 };
 
+
+# To make queries with negation more efficient,
+# replace (a & !b) with andNot(a,b)
+# and (a | !b) with (a | andNot([1],b))
+  sub _replace_negative {
+  my $self = shift;
+
+  print_log('kq_bool', 'Replace negations') if DEBUG;
+
+  # Check for negativity in groups to toggle all or nothing
+  if ($self->is_negative) {
+
+    # ![1] -> [0]
+    if ($self->is_any) {
+      $self->is_any(0);
+      $self->is_nothing(1);
+      $self->is_negative(0);
+    }
+
+    # ![0] -> [1]
+    elsif ($self->is_nothing) {
+      $self->is_any(1);
+      $self->is_nothing(0);
+      $self->is_negative(0);
+    };
+  };
+
+  # Return if any or nothing
+  return $self if $self->is_any || $self->is_nothing;
+
+  my $ops = $self->operands;
+
+  # There is only a single operand
+  if (@$ops == 1) {
+
+    # Only operand is negative
+    # return !a -> andNot(any,a)
+    if ($self->is_negative) {
+      $self->is_negative(0);
+      return $self->build_and_not(
+        $self->build_any,
+        $self
+      );
+    };
+
+    # Only operand does not need a group
+    return $ops->[0];
+  };
+
+  print_log('kq_bool', 'Check final operand on negativity') if DEBUG;
+
+  # There is only one single negative operand possible!
+  # And it's at the end!
+
+  # All operands are positive
+  return $self unless $ops->[-1]->is_negative;
+
+  # Group all positive operands
+  print_log('kq_bool', 'Create group with negation') if DEBUG;
+
+  if ($self->is_negative) {
+    warn 'Behaviour on negativity is currently not supported here';
+  };
+
+  # Remove the negative operand
+  my $neg = pop @$ops;
+
+  # Switch negativity
+  $neg->is_negative(0);
+
+  # There is exactly one positive operand
+  if (@$ops == 2) {
+    return $self->build_and_not($ops->[0], $neg);
+  };
+
+  # There are multiple positive operands - create a new group
+  return $self->build_and_not($self, $neg);
+};
 
 1;
 

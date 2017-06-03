@@ -73,6 +73,7 @@ use warnings;
 
 use constant DEBUG => 0;
 
+
 # Constructor
 sub new {
   my $class = shift;
@@ -91,6 +92,7 @@ sub new {
     pos => -1,
   }, $class;
 };
+
 
 # TODO: Better store length ...
 # Store offsets
@@ -142,11 +144,14 @@ sub append {
   push(@{$self->{array}}, [$doc_id, $pos, $end]);
 };
 
+
 sub next;
+
 
 sub pos {
   return $_[0]->{pos};
 };
+
 
 sub token {
   return $_[0]->{array}->[$_[0]->pos];
@@ -155,11 +160,27 @@ sub token {
 
 sub freq;
 
+
 sub skip_to_doc;
+
 
 sub skip_to_pos;
 
 
+# This may require random access for sorting based on term ids
+sub get_term_id {
+  my $self = shift;
+  my ($doc_id, $pos) = @_;
+  ...
+};
+
+
+# This may require random access for sorting based on term ids
+sub get_term_ids {
+  my $self = shift;
+  my ($doc_id, $start, $end) = @_;
+  ...
+};
 
 
 1;

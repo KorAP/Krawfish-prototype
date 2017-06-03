@@ -1,6 +1,5 @@
 package Krawfish::Result::Segment::Aggregate;
 use parent 'Krawfish::Result';
-# use Hash::Merge qw( merge );
 use strict;
 use warnings;
 

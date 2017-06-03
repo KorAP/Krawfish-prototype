@@ -5,7 +5,7 @@ use JSON::XS;
 use warnings;
 use strict;
 
-# Add field to match
+# Get or set field to match
 sub fields {
   my $self = shift;
   my $data = shift;
@@ -19,6 +19,23 @@ sub fields {
 
   return $fields
 };
+
+
+# Get or set term ids to match
+sub term_ids {
+  my $self = shift;
+  my ($class_nr, $data) = @_;
+  my $term_ids = ($self->{term_ids} //= []);
+
+  # No data to be set
+  unless ($data) {
+    return ($term_ids->[$class_nr] //= []);
+  }
+  else {
+    return $term_ids->[$class_nr] = $data;
+  };
+};
+
 
 sub to_string {
   my $self = shift;
@@ -38,6 +55,14 @@ sub to_string {
     $str .= join ';', map {
       $_ . '=' . squote($self->{fields}->{$_})
     } sort keys %{$self->{fields}};
+  };
+
+  if ($self->{term_ids}) {
+    $str .= '|term_ids=';
+    foreach (my $i = 0; $i <= $#{$self->{term_ids}}; $i++) {
+      my $list = $self->{term_ids} or next;
+      $str .= (0 + $i) . ':' . join(',', @$list);
+    };
   };
 
   return $str . ']';

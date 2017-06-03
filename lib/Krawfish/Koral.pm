@@ -10,6 +10,17 @@ use Krawfish::Koral::Meta;
 use Krawfish::Koral::Meta::Builder;
 use Krawfish::Koral::Document;
 
+# Parse a koral query and transform to an actual
+# index query.
+#
+# Procession order:
+#   a) parsing/building                       (cluster)
+#   b) normalization                          (cluster)
+#   c) referencing (no multiple leaf lifting) (cluster)
+#   d) expansion (some normalization)         (node)
+#   e) caching                                (segment)
+#   f) reordering based on frequencies        (segment)
+
 # TODO:
 # Krawfish::Koral::Query
 # Krawfish::Koral::Corpus

@@ -7,6 +7,9 @@ use warnings;
 #   The name is somehow misleading, as this will only
 #   group by surface terms.
 
+# TODO:
+#   Refer to Krawfish::Result::Segment::TermIDs!
+
 use constant {
   DEBUG => 0,
     NR => 0,

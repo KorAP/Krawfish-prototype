@@ -62,7 +62,7 @@ sub freq {
 
 sub to_string {
   my $self = shift;
-  return 'without(' . $self->{first}->to_string . ',' . $self->{second}->to_string . ')';
+  return 'andNot(' . $self->{first}->to_string . ',' . $self->{second}->to_string . ')';
 };
 
 1;

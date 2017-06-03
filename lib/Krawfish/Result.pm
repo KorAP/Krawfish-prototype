@@ -24,6 +24,9 @@ sub current {
 };
 
 
+# Based on the current query this returns either
+# a predefined match (when nesting) or creates a match
+# based on the query
 sub match_from_query {
   my $self = shift;
 

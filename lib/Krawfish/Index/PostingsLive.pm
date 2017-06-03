@@ -2,6 +2,10 @@ package Krawfish::Index::PostingsLive;
 
 # Similar interface as Krawfish::Index::PostingsList
 
+# TODO:
+#   In addition, this will store the maximum
+#   number of documents.
+
 use strict;
 use warnings;
 
@@ -11,20 +15,24 @@ use warnings;
 #   PostingPointer
 
 sub new {
-  my ($class, $index_file, $max) = @_;
+  my ($class, $file) = @_;
   bless {
-    index_file => $index_file,
+    file => $file,
     deletes => [],
     pointers => [],
-    max => $max # Maximum number of documents
+    max => 0 # Maximum number of documents
   }, $class;
+};
+
+sub incr {
+  return $_[0]->{max}++;
 };
 
 # Delete documents
 # Accepts a list of document identifier of the segment
 # TODO:
 #   it may be easier to delete by a given corpus query
-sub delete_by_ids {
+sub delete {
   my $self = shift;
   foreach (@_) {
     push @{$self->{deletes}}, $_;
@@ -35,16 +43,19 @@ sub delete_by_ids {
   # (because they are in order, if you search for them)
   # and then merge sort with the already given deletion list
   $self->{deletes} = [sort @{$self->{deletes}}];
+  return $self;
 };
 
 
 sub freq {
-  $_[0]->{max} - scalar @{$self->{deletes}}
+  my $self = shift;
+  $self->{max} - scalar @{$self->{deletes}}
 }
 
 sub pointer {
   my $self = shift;
-  Krawfish::Index::PostingLivePointer->new($self);
+  # Krawfish::Index::PostingLivePointer->new($self);
+  return $self;
 };
 
 sub to_string {

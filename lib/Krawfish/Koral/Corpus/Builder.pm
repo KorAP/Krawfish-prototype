@@ -4,6 +4,7 @@ use Krawfish::Koral::Corpus::FieldGroup;
 use Krawfish::Koral::Corpus::Class;
 use Krawfish::Koral::Corpus::Nothing;
 use Krawfish::Koral::Corpus::Cache;
+use Krawfish::Koral::Corpus::AndNot;
 use strict;
 use warnings;
 
@@ -25,11 +26,16 @@ sub field_or {
   return Krawfish::Koral::Corpus::FieldGroup->new('or', @_);
 };
 
+# Create 'and' group
+sub field_and_not {
+  shift;
+  return Krawfish::Koral::Corpus::AndNot->new(@_);
+};
+
+
 sub any {
   shift;
-  my $any = Krawfish::Koral::Corpus::FieldGroup->new('or');
-  $any->is_any(1);
-  $any;
+  Krawfish::Koral::Corpus::Any->new;
 };
 
 sub null {
