@@ -42,6 +42,8 @@ sub append {
   push (@{$self->{array}}, [@data]);
 };
 
+
+# Number of all postings in the index
 sub freq {
   return scalar @{$_[0]->{array}};
 };

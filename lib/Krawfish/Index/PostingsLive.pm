@@ -1,31 +1,43 @@
 package Krawfish::Index::PostingsLive;
+use List::MoreUtils qw/uniq/;
+use Krawfish::Index::PostingLivePointer;
+use strict;
+use warnings;
 
-# Similar interface as Krawfish::Index::PostingsList
+# Similar interface as Krawfish::Index::PostingsList,
+# but has a "delete" method.
 
 # TODO:
 #   In addition, this will store the maximum
 #   number of documents.
 
-use strict;
-use warnings;
-
-# TODO:
-#   Has a "delete" method and works
-#   otherwise identical to PostingsList and
-#   PostingPointer
 
 sub new {
-  my ($class, $file) = @_;
+  my ($class, $index_file) = @_;
   bless {
-    file => $file,
+    index_file => $index_file,
     deletes => [],
     pointers => [],
     max => 0 # Maximum number of documents
   }, $class;
 };
 
+
+# Increment maximum number of documents
+# (aka last_doc_id)
 sub incr {
   return $_[0]->{max}++;
+};
+
+
+# get or set maximum document value
+# aka last_doc
+sub last_doc {
+  my $self = shift;
+  if (@_) {
+    $self->{max} = shift;
+  };
+  return $self->{max};
 };
 
 # Delete documents
@@ -42,20 +54,26 @@ sub delete {
   # first create a list of naturally ordered document IDs
   # (because they are in order, if you search for them)
   # and then merge sort with the already given deletion list
-  $self->{deletes} = [sort @{$self->{deletes}}];
+  $self->{deletes} = [uniq sort @{$self->{deletes}}];
   return $self;
 };
 
 
+# Number of all live documents
 sub freq {
   my $self = shift;
   $self->{max} - scalar @{$self->{deletes}}
 }
 
+
 sub pointer {
   my $self = shift;
-  # Krawfish::Index::PostingLivePointer->new($self);
-  return $self;
+  # This requires a list copy, so chenages in the list
+  # do not change pointer behavious
+  Krawfish::Index::PostingLivePointer->new(
+    $self->{deletes},
+    $self->{max}
+  );
 };
 
 sub to_string {
@@ -63,18 +81,5 @@ sub to_string {
   '~' . join(',', map { '[' . $_ . ']' } @{$self->{deletes}});
 };
 
-# Pointer actions
-sub next {
-  my $self = shift;
-  my $pos = $self->{pos}++;
-
-  if ($pos + 1 < $self->freq) {
-    if ($self->{deletes}) {
-      ...
-    }
-  };
-
-  return;
-};
 
 1;

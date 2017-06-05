@@ -2,6 +2,8 @@ package Krawfish::Posting::Doc;
 use strict;
 use warnings;
 
+# Make identical with DocWithFlags!
+
 sub new {
   my $class = shift;
   my $id = shift;
