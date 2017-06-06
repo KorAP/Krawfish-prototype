@@ -11,7 +11,8 @@ ok($lives->last_doc(10), 'Set last document');
 is($lives->last_doc, 10, 'Get last document');
 is($lives->freq, 10, 'Get freq');
 
-ok($lives->delete(7,3,4), 'Delete three documents');
+ok(!$lives->delete(7,3,4), 'Delete three documents in wrong order');
+ok($lives->delete(3, 4, 7), 'Delete three documents');
 is($lives->freq, 7, 'Get freq');
 
 # Get one pointer
@@ -63,8 +64,7 @@ ok(!$p2->skip_doc(12), 'Skipped to 9');
 is($p2->doc_id, 11, 'Get doc_id');
 
 
-done_testing;
-__END__
+# Test with real index
 
 use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Corpus::Builder');
@@ -104,12 +104,21 @@ is($query->to_string, 'author=Peter', 'Stringification');
 ok(my $plan = $query->normalize->finalize, 'Planning');
 is($plan->to_string, '[1]&author=Peter', 'Stringification');
 
-ok($plan = $plan->optimize($index), 'Optimizing');
-is($plan->to_string, "and([1],'author:Peter')", 'Stringification');
+ok(my $fin = $plan->optimize($index), 'Optimizing');
+is($fin->to_string, "and([1],'author:Peter')", 'Stringification');
 
-matches($plan, [qw/[0] [1] [2]/]);
+matches($fin, [qw/[0] [1] [2]/]);
 
 ok($index->live->delete(1), 'Document deleted directly');
+
+ok($fin = $plan->optimize($index), 'Optimizing');
+matches($fin, [qw/[0] [2]/]);
+
+
+
+done_testing;
+__END__
+
 
 
 

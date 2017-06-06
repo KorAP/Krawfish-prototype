@@ -22,7 +22,7 @@ sub new {
     if $live->freq == 0;
 
   bless {
-    live => $index->live->pointer
+    live => $live
   }, $class;
 };
 
@@ -39,15 +39,27 @@ sub freq {
 };
 
 
+# TODO:
+# This currently does not support flags
 sub current {
   my $live = $_[0]->{live};
-  return if $live->pos == -1;
-  return unless $live->current;
+
+  return if $live->doc_id == -1 || (
+    $live->doc_id > $live->last_doc
+  );
+
+  print_log('cq_any', 'Current doc_id is ' . $live->current) if DEBUG;
+
   Krawfish::Posting::Doc->new(
-    @{$live->current}
+    $live->current
   );
 };
 
+
+sub skip_doc {
+  my $self = shift;
+  return $self->{live}->skip_doc(@_);
+};
 
 sub to_string {
   '[1]';

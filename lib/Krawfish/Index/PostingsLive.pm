@@ -41,20 +41,27 @@ sub last_doc {
 };
 
 # Delete documents
-# Accepts a list of document identifier of the segment
-# TODO:
-#   it may be easier to delete by a given corpus query
+# Accepts an ordered list of document identifier of the segment
 sub delete {
   my $self = shift;
+
+  # Check for sorting - this is necessary for transaction based
+  # merge sort
+  my $old = -1;
+  my @list;
   foreach (@_) {
-    push @{$self->{deletes}}, $_;
+    if ($_ <= $old) {
+      return;
+    };
+    $old = $_;
+    push @list, $_;
   };
 
   # In the store, this should probably
   # first create a list of naturally ordered document IDs
   # (because they are in order, if you search for them)
   # and then merge sort with the already given deletion list
-  $self->{deletes} = [uniq sort @{$self->{deletes}}];
+  $self->{deletes} = [uniq sort (@{$self->{deletes}}, @list)];
   return $self;
 };
 

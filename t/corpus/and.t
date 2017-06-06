@@ -42,7 +42,7 @@ ok(my $query = $cb->field_and(
 is($query->to_string, 'age=4&author=Peter', 'Stringification');
 ok(!$query->is_negative, 'Check negativity');
 
-ok(my $plan = $query->root_normalize->optimize($index), 'Planning');
+ok(my $plan = $query->normalize->optimize($index), 'Planning');
 
 is($plan->to_string, "and('age:4','author:Peter')", 'Stringification');
 
@@ -64,7 +64,7 @@ ok($query = $cb->field_or(
 is($query->to_string, '(age=3&author=Peter)|id=2', 'Stringification');
 ok(!$query->is_negative, 'Check negativity');
 
-ok($plan = $query->root_normalize->optimize($index), 'Planning');
+ok($plan = $query->normalize->optimize($index), 'Planning');
 
 is($plan->to_string, "or(and('age:3','author:Peter'),'id:2')", 'Stringification');
 
@@ -84,7 +84,7 @@ ok($query = $cb->field_and(
 is($query->to_string, 'age!=4&author=Peter', 'Stringification');
 ok(!$query->is_negative, 'Check negativity');
 
-ok(my $norm = $query->root_normalize, 'Plan logically');
+ok(my $norm = $query->normalize, 'Plan logically');
 is($norm->to_string, "author=Peter&!age=4", 'Stringification');
 
 ok(my $opt = $norm->optimize($index), 'Planning');
@@ -106,15 +106,17 @@ ok($query = $cb->field_and(
 
 is($query->to_string, 'age!=4&author!=Peter', 'Stringification');
 ok(!$query->is_negative, 'Check negativity');
-#ok($query->planned_tree, 'Plan the tree');
-#is($query->to_string, '!(age=4|author=Peter)', 'Planned tree stringification');
 
 
-ok($plan = $query->root_normalize, 'Planning');
+ok($plan = $query->normalize, 'Planning');
+is($plan->to_string, "!(age=4|author=Peter)", 'Stringification');
+ok($plan = $plan->finalize, 'Planning');
 is($plan->to_string, "[1]&!(age=4|author=Peter)", 'Stringification');
 
 ok($plan = $plan->optimize($index), 'Optimizing');
-is($plan->to_string, "not(or('age:4','author:Peter'))", 'Stringification');
+is($plan->to_string, "andNot([1],or('age:4','author:Peter'))", 'Stringification');
+
+
 
 done_testing;
 __END__

@@ -9,7 +9,7 @@ use warnings;
 #   so a new delete during searching doesn't interfere with the list!
 
 use constant {
-  DEBUG => 1
+  DEBUG => 0
 };
 
 # Points to a position in a live list
@@ -133,6 +133,10 @@ sub skip_doc {
   return $self->{doc_id} = $doc_id;
 };
 
+sub last_doc {
+  $_[0]->{last_doc_id};
+};
+
 sub to_string {
   '[1]';
 };
@@ -175,7 +179,7 @@ sub current {
   my $self = shift;
 
   # Document id beyond document vector
-  return if $self->{doc_id} > $self->{freq};
+  # return if $self->{doc_id} > $self->last_doc;
 
   # Return document id
   return $self->{doc_id};

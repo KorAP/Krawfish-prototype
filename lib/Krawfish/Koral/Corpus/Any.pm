@@ -32,8 +32,8 @@ sub to_string {
 };
 
 sub optimize {
-  my ($self, $index) = @_;
-  return $index->lives->pointer; # Krawfish::Corpus::All->new($index);
+  shift;
+  return Krawfish::Corpus::All->new(shift());
 };
 
 

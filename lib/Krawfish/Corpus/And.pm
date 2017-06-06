@@ -24,9 +24,12 @@ sub init  {
   $_[0]->{second}->next;
 };
 
+
 sub next {
   my $self = shift;
   $self->init;
+
+  print_log('vc_and', 'Next and operation') if DEBUG;
 
   my $first = $self->{first}->current;
   my $second = $self->{second}->current;
@@ -34,6 +37,9 @@ sub next {
   return unless $first || $second;
 
   while ($first && $second) {
+
+    print_log('vc_and', 'Both operands available') if DEBUG;
+
     if ($first->doc_id == $second->doc_id) {
       $self->{doc_id} = $first->doc_id;
       $self->{first}->next;
