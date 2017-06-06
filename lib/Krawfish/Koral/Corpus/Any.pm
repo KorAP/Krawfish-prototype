@@ -33,7 +33,7 @@ sub to_string {
 
 sub optimize {
   my ($self, $index) = @_;
-  return Krawfish::Corpus::All->new($index);
+  return $index->lives->pointer; # Krawfish::Corpus::All->new($index);
 };
 
 

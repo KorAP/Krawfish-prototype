@@ -119,13 +119,13 @@ sub new {
 
 # Get last document index
 sub last_doc {
-  $_[0]->{live}->max;
+  $_[0]->{live}->last_doc;
 };
 
 
 # Alias for last doc
 sub max_rank {
-  $_[0]->{live}->max;
+  $_[0]->{live}->last_doc;
 };
 
 
