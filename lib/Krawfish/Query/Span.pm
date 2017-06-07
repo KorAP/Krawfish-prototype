@@ -8,6 +8,7 @@ use warnings;
 # TODO: Store elements with the length of the elements
 # in segments instead of the end position!
 
+
 # TODO: Probably rename to posting - and return a posting
 # that augments the given payload
 sub current {

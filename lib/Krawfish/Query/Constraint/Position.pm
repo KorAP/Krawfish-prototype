@@ -8,6 +8,15 @@ use warnings;
 # This constraint validates positions
 # between spans and returns a valid forwarding mechanism
 
+
+# TODO:
+#   Sometimes the max_length assumption for first and second query
+#   could help to skip_pos() to more interesting positions.
+#   for example in
+#     endsWith(<s>, der)
+#   knowing that <s> in a document has the max_length of 14,
+#   $first->skip_pos($second->start - $first->max_length) may be useful!
+
 use bytes;
 use constant {
   NULL_4            => 0b0000_0000_0000_0000,
@@ -40,7 +49,6 @@ sub new {
     frames => shift
   }, $class;
 };
-
 
 # In case of a configuration A,
 # next_a may result in configuration B and

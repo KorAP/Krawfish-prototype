@@ -6,9 +6,11 @@ use Krawfish::Index::PostingsLive;
 
 
 ok(my $lives = Krawfish::Index::PostingsLive->new(), 'Get live list');
+is($lives->freq, 0, 'Get freq');
 
-ok($lives->last_doc(10), 'Set last document');
-is($lives->last_doc, 10, 'Get last document');
+# Just fake some documents by level up the next_doc_id value
+ok($lives->next_doc_id(10), 'Set last document');
+is($lives->next_doc_id, 10, 'Get last document');
 is($lives->freq, 10, 'Get freq');
 
 ok(!$lives->delete(7,3,4), 'Delete three documents in wrong order');
@@ -22,6 +24,7 @@ is($p1->to_string, '[1]', 'Stringify');
 
 is($p1->doc_id, -1, 'Get doc_id');
 ok($p1->next, 'Next');
+
 is($p1->doc_id, 0, 'Get doc_id');
 ok($p1->next, 'Next');
 is($p1->doc_id, 1, 'Get doc_id');
@@ -29,39 +32,43 @@ ok($p1->next, 'Next');
 is($p1->doc_id, 2, 'Get doc_id');
 ok($p1->next, 'Next');
 is($p1->doc_id, 5, 'Get doc_id');
+
 ok($p1->next, 'Next');
 is($p1->doc_id, 6, 'Get doc_id');
-is($p1->configuration, '0,1,2,!3,!4,5,<6>,![7],8,9,10', 'Configuration');
+is($p1->configuration, '0,1,2,!3,!4,5,<6>,![7],8,9', 'Configuration');
+
 ok($p1->next, 'Next');
 is($p1->doc_id, 8, 'Get doc_id');
-is($p1->configuration, '0,1,2,!3,!4,5,6,!7,<8>,9,10', 'Configuration');
+is($p1->configuration, '0,1,2,!3,!4,5,6,!7,<8>,9', 'Configuration');
 ok($p1->next, 'Next');
 is($p1->doc_id, 9, 'Get doc_id');
-ok($p1->next, 'Next');
+ok(!$p1->next, 'Next');
 is($p1->doc_id, 10, 'Get doc_id');
 ok(!$p1->next, 'Next');
-is($p1->doc_id, 11, 'Get doc_id');
+is($p1->doc_id, 10, 'Get doc_id');
 ok(!$p1->next, 'Next');
-is($p1->doc_id, 11, 'Get doc_id');
+is($p1->doc_id, 10, 'Get doc_id');
 
 # Get one pointer
 ok(my $p2 = $lives->pointer, 'Get pointer');
 is($p2->freq, 7, 'Get freq');
 is($p2->to_string, '[1]', 'Stringify');
+
 is($p2->skip_doc(3), 5, 'Skipped to 3');
+
 is($p2->doc_id, 5, 'Get doc_id');
 is($p2->skip_doc(6), 6, 'Skipped to 6');
 is($p2->doc_id, 6, 'Get doc_id');
 is($p2->skip_doc(9), 9, 'Skipped to 9');
 is($p2->doc_id, 9, 'Get doc_id');
-is($p2->skip_doc(10), 10, 'Skipped to 9');
+
+ok(!$p2->skip_doc(10), 'Skipped to 9');
+is($p2->doc_id, 10, 'Get doc_id');
+ok(!$p2->skip_doc(11), 'Skipped to 9');
+is($p2->doc_id, 10, 'Get doc_id');
+ok(!$p2->skip_doc(12), 'Skipped to 9');
 is($p2->doc_id, 10, 'Get doc_id');
 
-ok(!$p2->skip_doc(11), 'Skipped to 9');
-is($p2->doc_id, 11, 'Get doc_id');
-
-ok(!$p2->skip_doc(12), 'Skipped to 9');
-is($p2->doc_id, 11, 'Get doc_id');
 
 
 # Test with real index
@@ -119,8 +126,3 @@ matches($fin, [qw/[0] [2]/]);
 done_testing;
 __END__
 
-
-
-
-done_testing;
-__END__

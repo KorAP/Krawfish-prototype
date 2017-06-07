@@ -21,7 +21,7 @@ ok(my $query = $cb->field_or(
 ok(!$query->has_classes, 'Has no classes');
 is($query->to_string, 'id=2|id=3', 'Stringification');
 
-ok(my $plan = $query->plan_for($index), 'Planning');
+ok(my $plan = $query->normalize->optimize($index), 'Planning');
 
 is($plan->to_string, "or('id:2','id:3')", 'Stringification');
 
@@ -43,12 +43,11 @@ ok($query = $cb->field_or(
 
 is($query->to_string, 'id=2|id=3|id=9', 'Stringification');
 
-ok($plan = $query->plan_for($index), 'Planning');
+ok($plan = $query->normalize->optimize($index), 'Planning');
 
 is($plan->to_string, "or(or('id:2','id:3'),'id:9')", 'Stringification');
 
 matches($plan, [qw/[0] [1] [4]/], 'Matches');
-
 
 # Indexed 2,3,5,7,9
 ok($query = $cb->field_or(
@@ -57,10 +56,10 @@ ok($query = $cb->field_or(
 ), 'Create corpus query');
 
 is($query->to_string, 'id!=2|id=5', 'Stringification');
-ok($plan = $query->plan_for($index), 'Planning');
-# is($plan->to_string, "not('id:2')", 'Stringification');
+ok($plan = $query->normalize->finalize->optimize($index), 'Planning');
+is($plan->to_string, "and([1],or(andNot([1],'id:2'),'id:5'))", 'Stringification');
 
-matches($plan, [qw/[0] [1] [2] [3] [4]/], 'Matches');
+# matches($plan, [qw/[0] [1] [2] [3] [4]/], 'Matches');
 
 
 diag 'Test further';

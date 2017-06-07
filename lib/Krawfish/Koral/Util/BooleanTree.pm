@@ -551,7 +551,7 @@ sub _resolve_demorgan {
 # To make queries with negation more efficient,
 # replace (a & !b) with andNot(a,b)
 # and (a | !b) with (a | andNot([1],b))
-  sub _replace_negative {
+sub _replace_negative {
   my $self = shift;
 
   print_log('kq_bool', 'Replace negations') if DEBUG;
@@ -617,13 +617,27 @@ sub _resolve_demorgan {
   # Switch negativity
   $neg->is_negative(0);
 
-  # There is exactly one positive operand
-  if (@$ops == 2) {
-    return $self->build_and_not($ops->[0], $neg);
+  if ($self->operation eq 'and') {
+
+    # There is exactly one positive operand
+    if (@$ops == 1) {
+      return $self->build_and_not($ops->[0], $neg);
+    };
+
+    # There are multiple positive operands - create a new group
+    return $self->build_and_not($self, $neg);
+  }
+
+  elsif ($self->operation eq 'or') {
+
+    push @$ops, $self->build_and_not(
+      $self->build_any,
+      $neg
+    );
+    return $self;
   };
 
-  # There are multiple positive operands - create a new group
-  return $self->build_and_not($self, $neg);
+  warn 'Unknown field operation';
 };
 
 1;

@@ -6,7 +6,7 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # TODO:
 #   Rename to "Any"
@@ -29,7 +29,7 @@ sub new {
 sub next {
   my $self = shift;
 
-  print_log('cq_any', 'Next live doc') if DEBUG;
+  print_log('vc_any', 'Next live doc') if DEBUG;
 
   return $self->{live}->next;
 };
@@ -45,10 +45,10 @@ sub current {
   my $live = $_[0]->{live};
 
   return if $live->doc_id == -1 || (
-    $live->doc_id > $live->last_doc
+    $live->doc_id >= $live->next_doc_id
   );
 
-  print_log('cq_any', 'Current doc_id is ' . $live->current) if DEBUG;
+  print_log('vc_any', 'Current doc_id is ' . $live->current) if DEBUG;
 
   Krawfish::Posting::Doc->new(
     $live->current
@@ -60,6 +60,7 @@ sub skip_doc {
   my $self = shift;
   return $self->{live}->skip_doc(@_);
 };
+
 
 sub to_string {
   '[1]';

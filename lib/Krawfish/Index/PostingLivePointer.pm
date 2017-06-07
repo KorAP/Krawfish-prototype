@@ -9,7 +9,7 @@ use warnings;
 #   so a new delete during searching doesn't interfere with the list!
 
 use constant {
-  DEBUG => 0
+  DEBUG => 1
 };
 
 # Points to a position in a live list
@@ -21,7 +21,7 @@ sub new {
   my $class = shift;
   my $self = bless {
     list_copy => [@{shift()}],
-    last_doc_id => shift,
+    next_doc_id => shift,
     pos => 0,
     doc_id => -1
   }, $class;
@@ -29,10 +29,11 @@ sub new {
   print_log('live_p', 'Initialize live pointer') if DEBUG;
 
   # Set frequency
-  $self->{freq} = $self->{last_doc_id} - scalar @{$self->{list_copy}};
+  $self->{freq} = $self->{next_doc_id} - scalar @{$self->{list_copy}};
 
   # Add stop marker to the list
-  push(@{$self->{list_copy}}, $self->{last_doc_id} + 2);
+  # This means, the next document id with this pointer is always deleted
+  push @{$self->{list_copy}}, $self->{next_doc_id};
 
   $self;
 };
@@ -57,26 +58,37 @@ sub next {
   print_log('live_p', 'Next live doc id') if DEBUG;
 
   # Increment document id
-  my $doc_id = ++$self->{doc_id};
+  my $doc_id = $self->{doc_id};
+
+  return if $doc_id == $self->{next_doc_id};
 
   my $list = $self->{list_copy};
+  $doc_id++;
 
-  # The position is either deleted or the current position is outside doc vector
-  # There is a stop marker at the end of the deletion list.
+  if (DEBUG) {
+    print_log('live_p', "Check doc_id $doc_id against " . $list->[$self->{pos}]);
+  };
+
+  # The position is either deleted or the current position
+  # is outside doc vector
+  # meaning it hits the stop marker
   while ($doc_id >= $list->[$self->{pos}]) {
 
     print_log('live_p', 'Current doc_id is either deleted or beyond') if DEBUG;
 
     if ($doc_id == $list->[$self->{pos}]) {
 
-      # Increment document id
-      $doc_id = ++$self->{doc_id};
+      print_log('live_p', 'Current doc_id is deleted') if DEBUG;
 
-      if ($doc_id > $self->{last_doc_id}) {
-        $self->{doc_id} = $self->{last_doc_id} + 1;
+      # Doc id is outside the current doc vector
+      if ($doc_id >= $self->{next_doc_id}) {
+        $self->{doc_id} = $self->{next_doc_id};
         print_log('live_p', 'doc_id has reached final position') if DEBUG;
         return;
       };
+
+      # Increment document id
+      $doc_id++;
     };
 
     # Move forward in deletes list
@@ -84,13 +96,13 @@ sub next {
   };
 
   # Doc_id is not outside the document vector
-  if ($doc_id <= $self->{last_doc_id}) {
+  if ($doc_id < $self->{next_doc_id}) {
+    $self->{doc_id} = $doc_id;
     print_log('live_p', 'Current doc_id is fine') if DEBUG;
     return 1;
   };
 
   print_log('live_p', 'doc_id has reached final position') if DEBUG;
-  $self->{doc_id} = $self->{last_doc_id} + 1;
   return;
 };
 
@@ -105,8 +117,8 @@ sub skip_doc {
 
   my $doc_id = shift;
 
-  if ($doc_id > $self->{last_doc_id} || $doc_id < $self->{doc_id}) {
-    $self->{doc_id} = $self->{last_doc_id} + 1;
+  if ($doc_id >= $self->{next_doc_id} || $doc_id < $self->{doc_id}) {
+    $self->{doc_id} = $self->{next_doc_id};
     return;
   };
 
@@ -127,14 +139,14 @@ sub skip_doc {
   };
 
   # TODO: Can this happen?
-  return if $doc_id > $self->{last_doc_id};
+  return if $doc_id >= $self->{next_doc_id};
 
   # Set document id
   return $self->{doc_id} = $doc_id;
 };
 
-sub last_doc {
-  $_[0]->{last_doc_id};
+sub next_doc_id {
+  $_[0]->{next_doc_id};
 };
 
 sub to_string {
@@ -148,7 +160,7 @@ sub configuration {
 
   my @list = ();
 
-  for (my $i = 0; $i <= $self->{last_doc_id}; $i++) {
+  for (my $i = 0; $i < $self->{next_doc_id}; $i++) {
     if (defined $del[0] && $i == $del[0]) {
       push @list, '!' . ($i == $pos ? "[$i]" : $i);
       shift @del;

@@ -108,14 +108,17 @@ is($query->to_string, 'age!=4&author!=Peter', 'Stringification');
 ok(!$query->is_negative, 'Check negativity');
 
 
+# Plan a query and finalize it
 ok($plan = $query->normalize, 'Planning');
 is($plan->to_string, "!(age=4|author=Peter)", 'Stringification');
 ok($plan = $plan->finalize, 'Planning');
 is($plan->to_string, "[1]&!(age=4|author=Peter)", 'Stringification');
-
 ok($plan = $plan->optimize($index), 'Optimizing');
 is($plan->to_string, "andNot([1],or('age:4','author:Peter'))", 'Stringification');
 
+ok($plan->next, 'More next');
+is($plan->current->to_string, '[3]', 'First doc');
+ok(!$plan->next, 'No more next');
 
 
 done_testing;
@@ -125,9 +128,6 @@ __END__
 
 
 
-ok($plan->next, 'More next');
-is($plan->current->to_string, '[3]', 'First doc');
-ok(!$plan->next, 'No more next');
 
 # Complex virtual corpus with negation
 ok($query = $cb->field_and(
@@ -136,10 +136,6 @@ ok($query = $cb->field_and(
   $cb->string('age')->ne(4)
 ),
 , 'Create corpus query');
-
-done_testing;
-__END__
-
 
 ok(!$query->has_classes, 'Contains classes');
 

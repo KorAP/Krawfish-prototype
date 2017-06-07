@@ -25,6 +25,12 @@ sub current {
 sub next;
 
 
+# TODO:
+# This is a value that should probably be stored
+# at span-beginnings and can help to jump through very long
+# sequences of spans
+sub max_length;
+
 # This is only relevant for term posting lists
 sub next_doc {
   my $self = shift;

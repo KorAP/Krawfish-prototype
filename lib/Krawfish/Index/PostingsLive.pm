@@ -18,7 +18,7 @@ sub new {
     index_file => $index_file,
     deletes => [],
     pointers => [],
-    max => 0 # Maximum number of documents
+    next_doc_id => 0
   }, $class;
 };
 
@@ -26,19 +26,20 @@ sub new {
 # Increment maximum number of documents
 # (aka last_doc_id)
 sub incr {
-  return $_[0]->{max}++;
+  return $_[0]->{next_doc_id}++;
 };
 
 
 # get or set maximum document value
 # aka last_doc
-sub last_doc {
+sub next_doc_id {
   my $self = shift;
   if (@_) {
-    $self->{max} = shift;
+    $self->{next_doc_id} = shift;
   };
-  return $self->{max};
+  return $self->{next_doc_id};
 };
+
 
 # Delete documents
 # Accepts an ordered list of document identifier of the segment
@@ -69,8 +70,8 @@ sub delete {
 # Number of all live documents
 sub freq {
   my $self = shift;
-  $self->{max} - scalar @{$self->{deletes}}
-}
+  return $self->{next_doc_id} - scalar @{$self->{deletes}}
+};
 
 
 sub pointer {
@@ -79,7 +80,7 @@ sub pointer {
   # do not change pointer behavious
   Krawfish::Index::PostingLivePointer->new(
     $self->{deletes},
-    $self->{max}
+    $self->{next_doc_id}
   );
 };
 
