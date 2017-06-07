@@ -55,7 +55,7 @@ is($criterion->to_string, 'fields[author]', 'Stringification');
 
 # Create group
 my $group = Krawfish::Result::Group->new(
-  $query->prepare_for($index),
+  $query->normalize->optimize($index),
   $criterion
 );
 

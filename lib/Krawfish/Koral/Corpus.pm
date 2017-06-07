@@ -6,7 +6,7 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # Creation of virtual corpus
 
@@ -25,32 +25,59 @@ sub new {
 # Query Planning methods and attributes #
 #########################################
 
-sub prepare_for {
+sub plan_for {
+  my ($self, $index) = @_;
+  $self
+    ->normalize
+    ->finalize
+    ->refer
+    ->inflate
+    ->cache
+    ->optimize($index);
+};
+
+
+# This will remove classes
+# in subcorpora
+sub plan_without_classes_for {
+  warn 'Not yet implemented';
   shift->plan_for(@_);
 };
 
 
-# Rewrite query to actual query
-sub plan_for {
-  warn 'DEPRECATED'
-};
-
-
+# Normalize the query
 sub normalize {
   $_[0];
 };
 
-sub memoize {
+
+# Refer to common subqueries
+sub refer {
   $_[0];
 };
 
+
+# Expand regular expressions ...
+sub inflate {
+  $_[0];
+};
+
+
+# Check for cached subqueries
+sub cache {
+  $_[0];
+};
+
+
+# Optimize for an index
 sub optimize;
+
 
 # Normalize to be on the root
 sub finalize {
   my $self = shift;
 
-  print_log('kq_corpus', 'Finalize tree') if DEBUG;
+  print_log('kq_corpus', 'Finalize tree or field') if DEBUG;
 
   if ($self->is_negative) {
 
@@ -58,11 +85,15 @@ sub finalize {
 
     # Toggle negativity
     $self->is_negative(0);
+
+  print_log('kq_corpus', 'Do an "andNot" on any') if DEBUG;
     return $self->builder->field_and_not(
       $self->builder->any,
       $self
     );
   }
+
+  print_log('kq_corpus', 'Do an "and" on any') if DEBUG;
 
   return $self->builder->field_and(
     $self->builder->any,
@@ -78,13 +109,6 @@ sub has_classes {
   0;
 };
 
-
-# This will remove classes
-# in subcorpora
-sub plan_without_classes_for {
-  warn 'Not yet implemented';
-  shift->plan_for(@_);
-};
 
 
 sub is_negative {

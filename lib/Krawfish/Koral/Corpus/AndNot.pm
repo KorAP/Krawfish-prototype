@@ -5,7 +5,7 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 sub new {
   my $class = shift;
@@ -95,42 +95,6 @@ sub to_string {
       $_->to_string
     } ($self->{pos}, $self->{neg})) . ')';
 };
-
-
-
-
-
-
-
-sub plan_for {
-
-  warn 'DEPRECATED';
-  my ($self, $index) = @_;
-  my $pos = $self->{pos};
-  my $neg = $self->{neg};
-
-  if (DEBUG) {
-    print_log('kq_andnot', 'Plan andnot') if DEBUG;
-  };
-
-  # Get the positive query
-  my $pos_query = $pos->plan_for($index);
-
-  if ($pos_query->freq == 0) {
-    return Krawfish::Query::Nothing->new;
-  };
-
-  # Get the negative query
-  my $neg_query = $neg->plan_for($index);
-
-  if ($neg_query->freq == 0) {
-    return $pos_query;
-  };
-
-  return Krawfish::Corpus::Without->new($pos_query, $neg_query);
-};
-
-
 
 
 1;

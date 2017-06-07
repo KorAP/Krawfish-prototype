@@ -13,7 +13,8 @@ sub new {
   my $class = shift;
   bless {
     first => shift,
-    second => shift
+    second => shift,
+    doc_id => undef
   }, $class;
 };
 
@@ -34,7 +35,10 @@ sub next {
   my $first = $self->{first}->current;
   my $second = $self->{second}->current;
 
-  return unless $first || $second;
+  unless ($first || $second) {
+     $self->{doc_id} = undef;
+     return;
+  };
 
   while ($first && $second) {
 
@@ -69,7 +73,7 @@ sub next {
   };
 
   $self->{doc_id} = undef;
-  return 0;
+  return;
 };
 
 

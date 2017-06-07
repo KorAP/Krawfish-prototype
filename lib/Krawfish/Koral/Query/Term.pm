@@ -13,7 +13,7 @@ use warnings;
 # TODO: Term building should be part of
 #   a utility class Krawfish::Util::Koral::Term or so
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 sub new {
   my $class = shift;
@@ -148,6 +148,7 @@ sub key {
   $_[0]->[5];
 };
 
+
 # Value of the term
 sub value {
   if ($_[1]) {
@@ -157,6 +158,7 @@ sub value {
   $_[0]->[6];
 };
 
+
 sub filter_by {
   if ($_[1]) {
     $_[0]->[7] = $_[1];
@@ -165,9 +167,11 @@ sub filter_by {
   $_[0]->[7];
 };
 
+
 sub is_regex {
   return index($_[0]->match, '~') == -1 ? 0 : 1;
 };
+
 
 # Create koral fragment
 sub to_koral_fragment {
@@ -192,10 +196,12 @@ sub to_koral_fragment {
   return $hash;
 };
 
+
 # TODO:
 #   Support fragment, where a term string
 #   may end with / or = to be used for
 #   suggestions
+
 
 # stringify term
 sub to_string {
@@ -257,6 +263,7 @@ sub to_term {
   return $str . $term;
 };
 
+
 sub to_term_escaped {
   my $self = shift;
   my $term = $self->to_term;
@@ -265,6 +272,7 @@ sub to_term_escaped {
   };
   return $term;
 };
+
 
 sub plan_for {
   my $self = shift;
@@ -281,7 +289,7 @@ sub plan_for {
 
     if (DEBUG) {
       print_log('regex', 'Expand /^' . $term . '$/');
-      print_log('regex', 'to ' . substr(join(',',@terms),0,50));
+      print_log('regex', 'to ' . substr(join(',', @terms), 0, 50));
     };
 
     return $self->builder->nothing unless @terms;
@@ -303,7 +311,11 @@ sub plan_for {
   # Term is filtered
   if ($self->filter_by) {
 
+    print_log('kq_term', 'Apply the term filter on ' . $self->filter_by->to_string) if DEBUG;
+
     my $filter = $self->filter_by->plan_for($index);
+
+    print_log('kq_term', 'Filter serialization is ' . $filter->to_string) if DEBUG;
 
     # Filter is empty
     return $self->builder->nothing if $filter->freq == 0;

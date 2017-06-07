@@ -9,7 +9,7 @@ use constant DEBUG => 0;
 sub new {
   my $class = shift;
   bless {
-    span => shift
+    corpus => shift
   }, $class;
 };
 
@@ -17,12 +17,13 @@ sub type {
   'cache';
 };
 
-sub plan_for {
+
+sub optimize {
   my ($self, $index) = @_;
 
   my $query;
-  unless ($query = $self->{span}->plan_for($index)) {
-    $self->copy_info_from($self->{span});
+  unless ($query = $self->{corpus}->plan_for($index)) {
+    $self->copy_info_from($self->{corpus});
     return;
   };
 
@@ -35,12 +36,12 @@ sub plan_for {
 
 
 sub to_koral_fragment {
-  return $_[0]->{span}->to_koral_fragment;
+  return $_[0]->{corpus}->to_koral_fragment;
 };
 
 
 sub to_string {
-  return $_[0]->{span}->to_string;
+  return $_[0]->{corpus}->to_string;
 };
 
 

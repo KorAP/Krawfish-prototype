@@ -120,6 +120,8 @@ sub optimize {
   my $i = 0;
   my $first = $ops->[$i];
 
+  print_log('kq_fgroup', 'Initial query is ' . $self->to_string) if DEBUG;
+
   my $query = $first->optimize($index);
   $i++;
 
@@ -166,6 +168,11 @@ sub optimize {
           $query,
           $next
         );
+      }
+
+      # One operand is not existing
+      else {
+        return Krawfish::Query::Nothing->new;
       };
     };
   }
@@ -228,6 +235,10 @@ sub to_string {
 };
 
 
+1;
+
+
+__END__
 
 # Deprecated
 sub plan_for {
@@ -445,5 +456,3 @@ sub plan_for {
 
   return $query;
 };
-
-1;

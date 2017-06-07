@@ -5,6 +5,8 @@ use Krawfish::Corpus::Negation;
 use strict;
 use warnings;
 
+use constant DEBUG => 1;
+
 # TODO:
 #   - Check for valid parameters
 #   - Only support positive terms
@@ -114,32 +116,23 @@ sub can_toggle_negativity {
 sub optimize {
   my ($self, $index) = @_;
 
-  # Positive field
-  Krawfish::Corpus::Field->new(
-    $index,
-    $self->to_term
-  );
-};
-
-sub plan_for {
-  my ($self, $index) = @_;
-
   # Negative field
   if ($self->is_negative) {
-    return Krawfish::Corpus::Negation->new(
-      $index,
-      Krawfish::Corpus::Field->new(
-        $index,
-        $self->to_term
-      )
-    );
+    warn 'Fields are not allowed to be negative';
+    return;
   };
 
   # Positive field
-  Krawfish::Corpus::Field->new(
+  my $query = Krawfish::Corpus::Field->new(
     $index,
     $self->to_term
   );
+
+  if ($query->freq == 0) {
+    return Krawfish::Query::Nothing->new;
+  };
+
+  return $query;
 };
 
 

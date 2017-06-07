@@ -43,7 +43,7 @@ is($koral->to_string, 'filterBy(bb,author=Arthur)', 'Stringification');
 $query = $koral->prepare_for($index);
 
 # Can't match anywhere:
-is($query->to_string, "filter('bb','author:Arthur')", 'Planned stringification');
+is($query->to_string, "filter('bb',and([1],'author:Arthur'))", 'Planned stringification');
 
 ok($query->next, 'Get next filtered match');
 is($query->current->to_string, '[1:1-2]', 'Stringification');

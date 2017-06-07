@@ -45,29 +45,12 @@ sub normalize {
   $self;
 };
 
+
 sub optimize {
   my ($self, $index) = @_;
 
   # Plan corpus
   my $corpus = $self->operand->optimize($index);
-
-  # Create class query
-  return Krawfish::Corpus::Class->new(
-    $corpus,
-    $self->number
-  );
-
-};
-
-
-
-sub plan_for {
-  my ($self, $index) = @_;
-
-  warn 'DEPRECATED!';
-
-  # Plan corpus
-  my $corpus = $self->operand->plan_for($index);
 
   # Create class query
   return Krawfish::Corpus::Class->new(
