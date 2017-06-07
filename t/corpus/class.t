@@ -68,7 +68,7 @@ is_deeply($query->to_koral_fragment, {
   ]
 }, 'Stringification');
 
-ok(my $plan = $query->plan_for($index), 'Planning');
+ok(my $plan = $query->normalize->optimize($index), 'Planning');
 
 is($plan->to_string,
    "or(class(2:'author:David'),class(3:'age:24'))",
