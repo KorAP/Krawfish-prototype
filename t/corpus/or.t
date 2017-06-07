@@ -57,7 +57,7 @@ ok($query = $cb->field_or(
 
 is($query->to_string, 'id!=2|id=5', 'Stringification');
 ok($plan = $query->normalize->finalize->optimize($index), 'Planning');
-is($plan->to_string, "and([1],or(andNot([1],'id:2'),'id:5'))", 'Stringification');
+is($plan->to_string, "and(or(andNot([1],'id:2'),'id:5'),[1])", 'Stringification');
 
 # matches($plan, [qw/[0] [1] [2] [3] [4]/], 'Matches');
 

@@ -441,11 +441,11 @@ sub _clean_and_flatten {
 # Resolve DeMorgan
 # !a & !b = !(a | b)
 # !a | !b = !(a & b)
-# Afterwards the group will only contain a single negative element
+# Afterwards the group will only contain a single negative element at the end
 sub _resolve_demorgan {
   my $self = shift;
 
-  print_log('kq_bool', 'Resolve DeMorgan') if DEBUG;
+  print_log('kq_bool', 'Resolve DeMorgan in ' . $self->to_string) if DEBUG;
 
   return $self if $self->is_nothing || $self->is_any;
 
@@ -499,10 +499,12 @@ sub _resolve_demorgan {
   # and apply demorgan
   my @new_group = ();
 
-  print_log('kq_bool', 'Create group with negation') if DEBUG;
-
   # Get all negative items and create a new group
   foreach (uniq reverse sort @neg) {
+
+    if (DEBUG) {
+      print_log('kq_bool', 'Add operand to group: ' . $ops->[$_]->to_string);
+    };
 
     # Remove from old group
     my $neg_op = splice(@$ops, $_, 1);
@@ -517,6 +519,8 @@ sub _resolve_demorgan {
   # Only a single negative operand
   if (scalar(@new_group) == 1) {
 
+    print_log('kq_bool', 'Single negative operand') if DEBUG;
+
     # Reintroduce negativity
     $new_group[0]->is_negative(1);
 
@@ -527,13 +531,18 @@ sub _resolve_demorgan {
   # Create a group with negative operands
   else {
 
+    print_log('kq_bool', 'Create group with negation') if DEBUG;
+
     my $new_group;
 
     # Get reverted DeMorgan group
     if ($self->operation eq 'and') {
+
       $new_group = $self->build_or(@new_group);
       # Create an andNot group in the next step
     }
+
+    # For 'or' operation
     else {
       $new_group = $self->build_and(@new_group);
     };
@@ -543,6 +552,10 @@ sub _resolve_demorgan {
 
     push @$ops, $new_group;
   };
+
+  # $self->operands($ops);
+
+  print_log('kq_bool', 'Group is now ' . $self->to_string) if DEBUG;
 
   return $self;
 };
@@ -554,7 +567,7 @@ sub _resolve_demorgan {
 sub _replace_negative {
   my $self = shift;
 
-  print_log('kq_bool', 'Replace negations') if DEBUG;
+  print_log('kq_bool', 'Replace negations in ' . $self->to_string) if DEBUG;
 
   # Check for negativity in groups to toggle all or nothing
   if ($self->is_negative) {
@@ -607,15 +620,17 @@ sub _replace_negative {
   # Group all positive operands
   print_log('kq_bool', 'Create group with negation') if DEBUG;
 
-  if ($self->is_negative) {
-    warn 'Behaviour on negativity is currently not supported here';
-  };
+  #if ($self->is_negative) {
+  #  warn 'Behaviour on negativity is currently not supported here';
+  #};
 
   # Remove the negative operand
   my $neg = pop @$ops;
 
   # Switch negativity
   $neg->is_negative(0);
+
+  print_log('kq_bool', 'Remove negative operand is reversed: ' . $neg->to_string) if DEBUG;
 
   if ($self->operation eq 'and') {
 

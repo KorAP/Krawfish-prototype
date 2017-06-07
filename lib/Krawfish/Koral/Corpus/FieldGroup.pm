@@ -27,7 +27,7 @@ use warnings;
 #   but for signaturing, sort them
 #   alphabetically (probably)
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 
 sub new {

@@ -16,9 +16,8 @@ my $tree = $cb->field_and(
 );
 
 # Remove empty elements
-$tree->planned_tree;
+$tree->normalize;
 is($tree->to_string, 'age=4&author=Peter', 'Resolve idempotence');
-
 
 # Solve grouping
 $tree = $cb->field_and(
@@ -35,7 +34,7 @@ $tree = $cb->field_and(
 );
 
 is($tree->to_string, 'a=1&(b=2&c=3&(d=4&d=4&e=5))', 'Plain groups');
-$tree->planned_tree;
+$tree->normalize;
 is($tree->to_string, 'a=1&b=2&c=3&d=4&e=5', 'Remove empty');
 
 
@@ -54,7 +53,7 @@ $tree = $cb->field_and(
 );
 
 is($tree->to_string, 'a=1&(b=2&c=3&(d=4|d=4|e=5))', 'Plain groups');
-$tree->planned_tree;
+$tree->normalize;
 is($tree->to_string, 'a=1&b=2&c=3&(d=4|e=5)', 'Remove empty');
 
 
@@ -69,7 +68,7 @@ $tree = $cb->field_and(
 );
 
 is($tree->to_string, 'a=1&(a=1|b=1)&c=1', 'Plain groups');
-$tree->planned_tree;
+$tree->normalize;
 is($tree->to_string, 'a=1&c=1', 'Remove empty');
 
 
@@ -94,7 +93,7 @@ $tree = $cb->field_and(
 );
 
 is($tree->to_string, '(a=1|a=1|z=1)&(a=1|x=1)&b=1&(f=1|g=1)&x=1&z=1', 'Plain groups');
-$tree->planned_tree;
+$tree->normalize;
 is($tree->to_string, 'b=1&(f=1|g=1)&x=1&z=1', 'Remove empty');
 
 
@@ -106,7 +105,7 @@ $tree = $cb->field_and(
 );
 
 is($tree->to_string, 'a!=1&a=1', 'Plain groups');
-$tree->planned_tree;
+$tree->normalize;
 ok($tree->is_nothing, 'Matches nowhere');
 ok(!$tree->is_any, 'Matches everywhere');
 is($tree->to_string, '', 'Remove empty');
@@ -121,7 +120,7 @@ $tree = $cb->field_or(
 );
 
 is($tree->to_string, '(a!=1&a=1)|x=1|z=1', 'Plain groups');
-$tree->planned_tree;
+$tree->normalize;
 is($tree->to_string, 'x=1|z=1', 'Remove empty');
 
 
@@ -133,7 +132,7 @@ $tree = $cb->field_or(
 );
 
 is($tree->to_string, 'a!=1|a=1', 'Plain groups');
-$tree->planned_tree;
+$tree->normalize;
 ok($tree->is_any, 'Matches everywhere');
 ok(!$tree->is_nothing, 'Matches nowhere');
 is($tree->to_string, '', 'Remove empty');
@@ -150,7 +149,7 @@ $tree = $cb->field_or(
 );
 
 is($tree->to_string, '(a!=1&a=1)|x=1|z=1', 'Plain groups');
-$tree->planned_tree;
+$tree->normalize;
 is($tree->to_string, 'x=1|z=1', 'Remove empty');
 
 
@@ -163,7 +162,7 @@ $tree = $cb->field_or(
 );
 
 is($tree->to_string, '[0]|x=1|z=1', 'Plain groups');
-$tree->planned_tree;
+$tree->normalize;
 ok(!$tree->is_nothing, 'No Nothing');
 is($tree->to_string, 'x=1|z=1', 'Remove empty');
 
@@ -176,7 +175,7 @@ $tree = $cb->field_and(
 );
 
 is($tree->to_string, '[0]&x=1&z=1', 'Plain groups');
-$tree->planned_tree;
+$tree->normalize;
 ok($tree->is_nothing, 'Nothing');
 is($tree->to_string, '', 'Nothing');
 
@@ -190,7 +189,7 @@ $tree = $cb->field_or(
 );
 
 is($tree->to_string, '[1]|x=1|z=1', 'Plain groups');
-$tree->planned_tree;
+$tree->normalize;
 ok(!$tree->is_nothing, 'No Nothing');
 ok($tree->is_any, 'Anything');
 is($tree->to_string, '', 'no string');
@@ -205,7 +204,7 @@ $tree = $cb->field_and(
 );
 
 is($tree->to_string, '[1]&x=1&z=1', 'Plain groups');
-$tree->planned_tree;
+$tree->normalize;
 ok(!$tree->is_nothing, 'No Nothing');
 ok(!$tree->is_any, 'No Anything');
 is($tree->to_string, 'x=1&z=1', 'no string');
@@ -220,7 +219,7 @@ $tree = $cb->field_or(
 );
 
 is($tree->to_string, 'x!=1|y!=1|z!=1', 'Plain groups');
-$tree->planned_tree;
+$tree->normalize;
 is($tree->to_string, '!(x=1&y=1&z=1)', 'no string');
 
 
@@ -233,7 +232,7 @@ $tree = $cb->field_and(
 );
 
 is($tree->to_string, 'x!=1&y!=1&z!=1', 'Plain groups');
-$tree->planned_tree;
+$tree->normalize;
 is($tree->to_string, '!(x=1|y=1|z=1)', 'no string');
 
 
@@ -248,8 +247,8 @@ $tree = $cb->field_or(
 );
 
 is($tree->to_string, 'a!=1|b=1|c!=1|d=1|e!=1|f=1', 'Plain groups');
-$tree->planned_tree;
-is($tree->to_string, '(!(a=1&c=1&e=1))' . '|b=1|d=1|f=1', 'no string');
+$tree->normalize;
+is($tree->to_string, '([1]&!(a=1&c=1&e=1))' . '|b=1|d=1|f=1', 'no string');
 
 # DeMorgan grouping with AND
 $tree = $cb->field_and(
@@ -262,11 +261,10 @@ $tree = $cb->field_and(
 );
 
 is($tree->to_string, 'a!=1&b=1&c!=1&d=1&e!=1&f=1', 'Plain groups');
-$tree->planned_tree;
+$tree = $tree->normalize;
 
 # TODO: This may require a direct andNot() serialization with the all-query
-is($tree->to_string, '(!(a=1|c=1|e=1))&'.'b=1&d=1&f=1', 'no string');
-
+is($tree->to_string, '((b=1&d=1&f=1)&!(a=1|c=1|e=1))', 'no string');
 
 # Remove double negativity
 # !(!a) -> a
@@ -275,7 +273,7 @@ $tree = $cb->field_and(
 )->toggle_negative;
 
 is($tree->to_string, '!(a!=1)', 'Plain groups');
-$tree->planned_tree;
+$tree = $tree->normalize;
 is($tree->to_string, 'a=1', 'simple string');
 
 
@@ -286,7 +284,7 @@ $tree = $cb->field_and(
 )->toggle_negative;
 
 is($tree->to_string, '!(a!=1&b!=1)', 'Plain groups');
-$tree->planned_tree;
+$tree = $tree->normalize;
 is($tree->to_string, 'a=1|b=1', 'simple string');
 
 
@@ -301,9 +299,8 @@ $tree = $cb->field_and(
 )->toggle_negative;
 
 is($tree->to_string, '!((!((!(a!=1&b!=1)))))', 'Plain groups');
-$tree->planned_tree;
+$tree = $tree->normalize;
 is($tree->to_string, 'a=1|b=1', 'simple string');
-
 
 # Remove double negativity with nested groups (2)
 $tree = $cb->field_or(
@@ -315,10 +312,10 @@ $tree = $cb->field_or(
 )->toggle_negative;
 
 is($tree->to_string, '!((!(c!=1&d!=1))|b!=1)', 'Plain groups');
-$tree->planned_tree;
-is($tree->to_string, '!(b!=1|c=1|d=1)', 'simple string');
-# !((!(a=1|c=1|d=1))&b=1)
-
+$tree = $tree->normalize;
+is($tree->to_string, '!(([1]&!b=1)|c=1|d=1)', 'simple string');
+$tree = $tree->finalize;
+is($tree->to_string, '([1]&!(([1]&!b=1)|c=1|d=1))', 'simple string');
 
 diag 'Check with negativity for >=, <=, exists etc.';
 

@@ -79,7 +79,7 @@ sub to_string {
 
   my $op = '&!';
 
-  return join($op, map {
+  return '(' . join($op, map {
     $_->type eq 'fieldGroup' ?
       (
         $_->is_any ?
@@ -93,7 +93,7 @@ sub to_string {
         )
       :
       $_->to_string
-    } ($self->{pos}, $self->{neg}));
+    } ($self->{pos}, $self->{neg})) . ')';
 };
 
 

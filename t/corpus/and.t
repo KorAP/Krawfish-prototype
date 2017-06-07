@@ -85,7 +85,7 @@ is($query->to_string, 'age!=4&author=Peter', 'Stringification');
 ok(!$query->is_negative, 'Check negativity');
 
 ok(my $norm = $query->normalize, 'Plan logically');
-is($norm->to_string, "author=Peter&!age=4", 'Stringification');
+is($norm->to_string, "(author=Peter&!age=4)", 'Stringification');
 
 ok(my $opt = $norm->optimize($index), 'Planning');
 is($opt->to_string, "andNot('author:Peter','age:4')", 'Stringification');
@@ -112,7 +112,7 @@ ok(!$query->is_negative, 'Check negativity');
 ok($plan = $query->normalize, 'Planning');
 is($plan->to_string, "!(age=4|author=Peter)", 'Stringification');
 ok($plan = $plan->finalize, 'Planning');
-is($plan->to_string, "[1]&!(age=4|author=Peter)", 'Stringification');
+is($plan->to_string, "([1]&!(age=4|author=Peter))", 'Stringification');
 ok($plan = $plan->optimize($index), 'Optimizing');
 is($plan->to_string, "andNot([1],or('age:4','author:Peter'))", 'Stringification');
 

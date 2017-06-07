@@ -5,6 +5,9 @@ use Data::Dumper;
 use Krawfish::Log;
 use POSIX qw/floor/;
 
+# See http://lemire.me/blog/2017/06/06/quickly-returning-the-top-k-elements-computer-science-vs-the-real-world/
+
+
 # TODO: use enqueue and dequeue
 
 # This establishes a priority queue for ranked elements that
