@@ -1,9 +1,12 @@
 package Krawfish::Koral::Query::Exclusion;
 use parent 'Krawfish::Koral::Query::Position';
 use Krawfish::Query::Exclusion;
+use Krawfish::Log;
 use Mojo::JSON;
 use strict;
 use warnings;
+
+use constant DEBUG => 1;
 
 sub new {
   my $class = shift;
@@ -42,8 +45,60 @@ sub to_koral_fragment {
 
 sub type { 'exclusion' };
 
+sub normalize {
+  my $self = shift;
+
+  print_log('kq_excl', 'Normalize exclusion') if DEBUG;
+
+  my $frames = $self->{frames};
+  my $first = $self->{first};
+  my $second = $self->{second};
+
+  # Todo:
+  #   Find a common way to do this
+  my ($first_norm, $second_norm);
+  unless ($first_norm = $first->normalize) {
+    $self->copy_info_from($first);
+    return;
+  };
+
+  unless ($second_norm = $second->normalize) {
+    $self->copy_info_from($second);
+    return;
+  };
+
+  $self->{first} = $first_norm;
+  $self->{second} = $second_norm;
+
+  return $self;
+};
+
+sub optimize {
+  my ($self, $index) = @_;
+
+  print_log('kq_excl', 'Optimize exclusion') if DEBUG;
+
+  my $frames = $self->{frames};
+  my $first = $self->{first}->optimize($index);
+  my $second = $self->{second}->optimize($index);
+
+  # Second object does not occur
+  if ($second->freq == 0) {
+    return $first;
+  };
+
+  return Krawfish::Query::Exclusion->new(
+    $self->{frames},
+    $first,
+    $second
+  );
+};
+
 sub plan_for {
   my ($self, $index) = @_;
+
+  warn 'DEPRECATED';
+
   my $frames = $self->{frames};
   my $first = $self->{first};
   my $second = $self->{second};

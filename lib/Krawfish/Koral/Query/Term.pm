@@ -54,6 +54,8 @@ sub type { 'term' };
 
 sub is_leaf { 1 };
 
+sub is_nothing { 0 };
+
 sub field {
   if ($_[1]) {
     $_[0]->[0] = $_[1];
@@ -274,6 +276,91 @@ sub to_term_escaped {
 };
 
 
+
+sub normalize {
+  my $self = shift;
+
+  # There is a filter - normalize
+  if ($self->filter_by) {
+
+    # Normalize filter
+    my $filter = $self->filter_by($self->filter_by->normalize);
+
+    # Filter is nothing
+    return $self->builder->nothing if $filter->is_nothing;
+  };
+
+  # return $self->is_negative || $self->is_null;
+  return $self;
+};
+
+
+
+sub inflate {
+  my ($self, $dict) = @_;
+
+  # There is a filter - normalize
+  if ($self->filter_by) {
+
+    # Normalize filter
+    my $filter = $self->filter_by($self->filter_by->inflate($dict));
+
+    # Filter is nothing
+    return $self->builder->nothing if $filter->is_nothing;
+  };
+
+  # Do not inflate
+  return $self unless $self->is_regex;
+
+  # Get terms
+  my $term = $self->to_term_escaped;
+
+  # Get terms from dictionary
+  my @terms = $dict->terms(qr/^$term$/);
+
+  if (DEBUG) {
+    print_log('regex', 'Expand /^' . $term . '$/');
+    print_log('regex', 'to ' . substr(join(',', @terms), 0, 50));
+  };
+
+  return $self->builder->nothing unless @terms;
+
+  # TODO:
+  #   Use refer?
+  return $self->builder->term_or(@terms)->normalize;
+};
+
+
+
+sub optimize {
+  my ($self, $index) = @_;
+
+  # TODO:
+  #   I don't know if this is fine here
+
+  # Term is filtered
+  if ($self->filter_by) {
+
+    print_log('kq_term', 'Apply the term filter on ' . $self->filter_by->to_string) if DEBUG;
+
+    my $filter = $self->filter_by->optimize($index);
+
+    print_log('kq_term', 'Filter serialization is ' . $filter->to_string) if DEBUG;
+
+    # Filter is empty
+    return $self->builder->nothing if $filter->freq == 0;
+
+    return Krawfish::Query::Filter->new(
+      Krawfish::Query::Term->new($index, $self->to_term),
+      $filter
+    );
+  };
+
+  return Krawfish::Query::Term->new($index, $self->to_term);
+};
+
+
+
 sub plan_for {
   my $self = shift;
   my $index = shift;
@@ -339,9 +426,24 @@ sub is_null {
   return 1 unless $_[0]->key;
   return;
 };
+
 sub is_negative {
-  $_[0]->match eq '!=' ? 1 : 0;
+  my $self = shift;
+  if (scalar @_ == 1) {
+    my $neg = shift;
+
+    if ($neg && $self->match eq '=') {
+      $self->match('!=');
+    }
+    elsif (!$neg && $self->match eq '!=') {
+      $self->match('=');
+    };
+  };
+  $self->match eq '!=' ? 1 : 0;
 };
+
+
+
 sub is_extended { 0 };
 sub is_extended_right { 0 };
 sub is_extended_left { 0 };

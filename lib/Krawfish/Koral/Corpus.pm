@@ -31,7 +31,7 @@ sub plan_for {
     ->normalize
     ->finalize
     ->refer
-    ->inflate
+    ->inflate($index)
     ->cache
     ->optimize($index);
 };

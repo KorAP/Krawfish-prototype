@@ -121,20 +121,21 @@ use constant DEBUG => 1;
 sub normalize {
   my $self = shift;
 
+  $self = $self->_clean_and_flatten;
+
   # Recursive normalize
   foreach my $op (@{$self->operands}) {
 
     # Operand is group!
-    if ($op && $op->type eq $self->type) {
+    if ($op) { #  && $op->type eq $self->type) {
       $op->normalize
-    };
+    }
   };
 
   # Apply normalization
   # The return value may not be a group,
   # but an andNot or a leaf after the final step
-  $self->_clean_and_flatten
-    ->_resolve_idempotence
+  return $self->_resolve_idempotence
     ->_remove_nested_idempotence
     ->_resolve_demorgan
     ->_replace_negative;
@@ -354,6 +355,8 @@ sub _clean_and_flatten {
     # Get operand under scrutiny
     my $op = $ops->[$i];
 
+    print_log('kq_bool', 'Clean ' . $op->to_string) if DEBUG;
+
     # Remove empty elements
     if (!defined($op) || $op->is_null) {
       splice @$ops, $i, 1;
@@ -567,7 +570,7 @@ sub _resolve_demorgan {
 sub _replace_negative {
   my $self = shift;
 
-  print_log('kq_bool', 'Replace negations in ' . $self->to_string) if DEBUG;
+  print_log('kq_bool', 'Replace Negations in ' . $self->to_string) if DEBUG;
 
   # Check for negativity in groups to toggle all or nothing
   if ($self->is_negative) {
@@ -620,9 +623,6 @@ sub _replace_negative {
   # Group all positive operands
   print_log('kq_bool', 'Create group with negation') if DEBUG;
 
-  #if ($self->is_negative) {
-  #  warn 'Behaviour on negativity is currently not supported here';
-  #};
 
   # Remove the negative operand
   my $neg = pop @$ops;
@@ -630,20 +630,27 @@ sub _replace_negative {
   # Switch negativity
   $neg->is_negative(0);
 
-  print_log('kq_bool', 'Remove negative operand is reversed: ' . $neg->to_string) if DEBUG;
+  print_log('kq_bool', 'Negative operand is removed and reversed: ' . $neg->to_string) if DEBUG;
 
+  # Deal with operations differently
   if ($self->operation eq 'and') {
+
+    print_log('kq_bool', 'Operation is "and"') if DEBUG;
 
     # There is exactly one positive operand
     if (@$ops == 1) {
       return $self->build_and_not($ops->[0], $neg);
     };
 
+    print_log('kq_bool', 'Operation on multiple operands') if DEBUG;
+
     # There are multiple positive operands - create a new group
     return $self->build_and_not($self, $neg);
   }
 
   elsif ($self->operation eq 'or') {
+
+    print_log('kq_bool', 'Operation is "or"') if DEBUG;
 
     push @$ops, $self->build_and_not(
       $self->build_any,

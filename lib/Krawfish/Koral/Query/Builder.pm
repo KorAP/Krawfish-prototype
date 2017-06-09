@@ -21,7 +21,8 @@ use Krawfish::Koral::Query::Constraint::NotBetween;
 
 sub new {
   my $class = shift;
-  bless [], $class;
+  my $text_span = shift // 'base/s=t';
+  bless [$text_span], $class;
 };
 
 #########################
@@ -82,6 +83,16 @@ sub span {
   Krawfish::Koral::Query::Span->new(@_);
 };
 
+
+# Create an in-text construct
+sub in_text {
+  my $self = shift;
+  return $self->position(
+    ['endsWith', 'isAround', 'startsWith', 'matches'],
+    $self->span($self->[0]),
+    shift
+  );
+};
 
 # Position construct
 sub position {

@@ -3,9 +3,12 @@ use parent 'Krawfish::Koral::Query';
 use Krawfish::Koral::Query::Token;
 use Krawfish::Koral::Query::Term;
 use Krawfish::Query::Term;
+use Krawfish::Log;
 use strict;
 use warnings;
 use Scalar::Util qw/blessed/;
+
+use constant DEBUG => 1;
 
 sub new {
   my $class = shift;
@@ -58,10 +61,47 @@ sub is_any {
   return;
 };
 
+sub normalize {
+  my $self = shift;
+  print_log('kq_token', 'Normalize wrapper') if DEBUG;
+  $self->{wrap} = $self->wrap->normalize;
+  return $self;
+};
+
+
+sub optimize {
+  my ($self, $index) = @_;
+
+  # Token is null
+  if ($self->is_null) {
+    $self->error(000, 'Unable to search for null tokens');
+    return;
+  };
+
+  # No term defined
+  unless ($self->wrap) {
+    $self->error(000, 'Unable to search for any tokens');
+    return;
+  };
+
+  # Create token query
+  if ($self->wrap->type eq 'term') {
+    return Krawfish::Query::Term->new(
+      $index,
+      $self->wrap->to_string
+    );
+  };
+
+  print_log('kq_token', 'Optimize and return wrap token') if DEBUG;
+  return $self->wrap->optimize($index);
+};
+
 
 # Query planning
 sub plan_for {
   my ($self, $index) = @_;
+
+  warn 'DEPRECATED';
 
   # Token is null
   if ($self->is_null) {
@@ -85,6 +125,8 @@ sub plan_for {
 
   return $self->wrap->plan_for($index);
 };
+
+
 
 # Filter by corpus
 sub filter_by {

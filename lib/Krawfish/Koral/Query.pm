@@ -7,6 +7,10 @@ use Mojo::Util qw/md5_sum/;
 use warnings;
 use strict;
 
+# TODO:
+#   - rename 'nothing' to 'nowhere'
+#   - rename 'any' to 'anywhere'
+
 sub new {
   my $class = shift;
   my $self = bless {
@@ -30,11 +34,65 @@ sub new {
 # Query Planning methods and attributes #
 #########################################
 
+sub plan_for_new {
+  my ($self, $index) = @_;
+  $self
+    ->normalize
+    ->finalize
+    ->refer
+    ->inflate($index->dict)
+    ->cache
+    ->optimize($index);
+};
+
+# Normalize the query
+sub normalize;
+
+
+# Refer to common subqueries
+sub refer {
+  $_[0];
+};
+
+
+# Expand regular expressions ...
+sub inflate;
+
+
+# Check for cached subqueries
+sub cache {
+  $_[0];
+};
+
+
+# Optimize for an index
+sub optimize;
+
+
+sub finalize {
+  my $self = shift;
+
+  my $query = $self;
+
+  # There is a possible 'any' extension,
+  # that may exceed the text
+  if ($query->is_extended_right) {
+    return $self->builder->in_text($query);
+  };
+
+  # Return the planned query
+  # TODO: Check for serialization errors
+  return $query;
+};
+
+
 # Prepare a query for an index
 # TODO: Rename to compile()
 sub prepare_for {
   my ($self, $index) = @_;
 
+  warn 'DEPRECATED';
+  
   my $query = $self;
 
   # There is a possible 'any' extension,

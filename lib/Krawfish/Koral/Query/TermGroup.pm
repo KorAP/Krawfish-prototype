@@ -1,6 +1,5 @@
 package Krawfish::Koral::Query::TermGroup;
-use parent 'Krawfish::Koral::Query';
-# TODO: Use BooleanTree
+use parent ('Krawfish::Koral::Util::BooleanTree','Krawfish::Koral::Query');
 use Krawfish::Koral::Query::Term;
 use Krawfish::Query::Or;
 use Krawfish::Query::Constraints;
@@ -10,7 +9,15 @@ use Scalar::Util qw/blessed/;
 use strict;
 use warnings;
 
-use constant DEBUG => 0;
+# TODO:
+#   Preparation should be:
+#   -> normalize()
+#   -> finalize()
+#   -> memoize(cache)
+#   -> optimize(index)
+
+use constant DEBUG => 1;
+
 
 sub new {
   my $class = shift;
@@ -28,12 +35,8 @@ sub new {
   }
 };
 
-sub type { 'termGroup' };
-
-# TEMPORARILY
-sub is_negative {
-  warn 'Negativity on TermGroup not implemented yet!';
-  0;
+sub type {
+  'termGroup'
 };
 
 
@@ -49,13 +52,47 @@ sub build_and {
 };
 
 
+# Build AndNot group
+sub build_and_not {
+  my $self = shift;
+  my $query = $self->builder->exclusion(['matches'], @_);
+  print_log('kq_tgroup', 'Create andNot: ' . $query->to_string) if DEBUG;
+  $query;
+};
+
+
 sub operation {
   $_[0]->{operation};
 };
 
 sub operands {
-  $_[0]->{operands};
+  my $self = shift;
+  if (@_) {
+    print_log('kq_tgroup', 'Set operands') if DEBUG;
+    $self->{operands} = shift;
+  };
+  $self->{operands};
 };
+
+
+# Create operands in order
+sub operands_in_order {
+  my $self = shift;
+  my $ops = $self->{operands};
+  return [ sort { $a->to_string cmp $b->to_string } @$ops ];
+};
+
+
+sub toggle_operation {
+  my $self = shift;
+  if ($self->{operation} eq 'or') {
+    $self->{operation} = 'and';
+  }
+  elsif ($self->{operation} eq 'and') {
+    $self->{operation} = 'or';
+  };
+};
+
 
 # TODO: Flatten or groups in a first pass!
 # TODO: In case, the group is 'and' and there is at
@@ -82,11 +119,96 @@ sub operands {
 #         )
 #       )
 
+# This is rather identical to FieldGroup
+sub optimize {
+  my ($self, $index) = @_;
+
+    # Get operands in alphabetical order
+  my $ops = $self->operands_in_order;
+
+  # Check the frequency of all operands
+  # Start with a query != null
+  my $i = 0;
+  my $first = $ops->[$i];
+
+  print_log('kq_tgroup', 'Initial query is ' . $self->to_string) if DEBUG;
+
+  my $query = $first->optimize($index);
+  $i++;
+
+  # Check unless
+  while ($query->freq == 0 && $i < @$ops) {
+    $first = $ops->[$i++];
+    $query = $first->optimize($index);
+    $i++;
+  };
+
+  if ($self->operation eq 'or') {
+    print_log('kq_tgroup', 'Prepare or-group') if DEBUG;
+
+    # Filter out all terms that do not occur
+    for (; $i < @$ops; $i++) {
+
+      # Get query operation for next operand
+      # TODO: Check for negation!
+      my $next = $ops->[$i]->optimize($index);
+
+      if ($next->freq != 0) {
+
+        # TODO: Distinguish here between classes and non-classes!
+        $query = Krawfish::Query::Or->new(
+          $query,
+          $next
+        );
+      };
+    };
+  }
+
+  elsif ($self->operation eq 'and') {
+    print_log('kq_tgroup', 'Prepare and-group') if DEBUG;
+
+    # Filter out all terms that do not occur
+    for (; $i < @$ops; $i++) {
+
+      # Get query operation for next operand
+      my $next = $ops->[$i]->optimize($index);
+
+      if ($next->freq != 0) {
+
+        # TODO: Distinguish here between classes and non-classes!
+        $query = Krawfish::Query::Constraints->new(
+          [Krawfish::Query::Constraint::Position->new(MATCHES)],
+          $query,
+          $next
+        );
+      }
+
+      # One operand is not existing
+      else {
+        return Krawfish::Query::Nothing->new;
+      };
+    };
+  }
+  else {
+    warn 'Should never happen!';
+  };
+
+  if ($query->freq == 0) {
+    return Krawfish::Query::Nothing->new;
+  };
+
+  return $query;
+};
+
+
 
 # TODO:
 #   Use Koral::Util::BooleanTree
 sub plan_for {
   my $self = shift;
+
+  warn 'DEPRECATED';
+
   my $index = shift;
   my $ops = $self->operands;
 
