@@ -123,7 +123,6 @@ is($tree->to_string, '(a!=1&a=1)|x=1|z=1', 'Plain groups');
 $tree->normalize;
 is($tree->to_string, 'x=1|z=1', 'Remove empty');
 
-
 # Remove negative idempotence in OR
 # (a | !a) -> [1]
 $tree = $cb->field_or(

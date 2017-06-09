@@ -121,6 +121,10 @@ use constant DEBUG => 1;
 sub normalize {
   my $self = shift;
 
+  # TODO:
+  # probably reiterate on all operands in that order.
+  # foreach (qw/_clean_and_flatten/) { ... }
+
   $self = $self->_clean_and_flatten;
 
   # Recursive normalize
@@ -135,7 +139,9 @@ sub normalize {
   # Apply normalization
   # The return value may not be a group,
   # but an andNot or a leaf after the final step
-  return $self->_resolve_idempotence
+  return $self
+    ->_clean_and_flatten
+    ->_resolve_idempotence
     ->_remove_nested_idempotence
     ->_resolve_demorgan
     ->_replace_negative;
@@ -354,8 +360,6 @@ sub _clean_and_flatten {
 
     # Get operand under scrutiny
     my $op = $ops->[$i];
-
-    print_log('kq_bool', 'Clean ' . $op->to_string) if DEBUG;
 
     # Remove empty elements
     if (!defined($op) || $op->is_null) {
