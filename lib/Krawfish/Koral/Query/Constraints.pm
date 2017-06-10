@@ -22,14 +22,94 @@ sub new {
 
 sub to_koral_fragment {
   ...
-};
+ };
 
 sub type { 'constraints' };
+
+sub constraints {
+  my $self = shift;
+  if (@_) {
+    $self->{constraints} = shift;
+  };
+  return $self->{constraints};
+};
+
+
+sub normalize {
+  my $self = shift;
+
+  my ($first, $second);
+  unless ($first = $self->{first}->normalize) {
+    $self->copy_info_from($self->{first});
+    return;
+  };
+
+  unless ($second = $self->{second}->normalize) {
+    $self->copy_info_from($self->{second});
+    return;
+  };
+
+  # TODO merge position constraints!
+  my @constraints = ();
+  my $last;
+  foreach (@{$self->constraints_in_order}) {
+
+    # Ignore idempotence
+    my $c = $_->to_string;
+    next if $last eq $c;
+    $last = $c;
+
+    # Plan may result in a null-query
+    # TODO: Coüpy warnings etc.
+    my $norm = $_->normalize or next;
+    push @constraints, $norm;
+  };
+
+  # Set constraints
+  $self->constraints(\@constraints);
+
+  return $self;
+};
+
+sub optimize {
+  my ($self, $index) = @_;
+
+  my $first = $self->{first}->optimize($index);
+  if ($first->freq == 0) {
+    return Krawfish::Query::Nothing->new;
+  };
+
+  my $second = $self->{second}->optimize($index);
+  if ($second->freq == 0) {
+    return Krawfish::Query::Nothing->new;
+  };
+
+  my @constraints = ();
+  foreach (@{$self->constraints_in_order}) {
+    my $opt = $_->optimize($index) or next;
+    push @constraints, $opt;
+  };
+
+  return Krawfish::Query::Constraints->new(
+    \@constraints,
+    $first,
+    $second
+  );
+};
+
+sub constraints_in_order {
+  my $self = shift;
+  my $constr = $self->{constraints};
+  return [ sort { $a->to_string cmp $b->to_string } @$constr ];
+};
+
 
 
 # Plan for index
 sub plan_for {
   my ($self, $index) = @_;
+
+  warn 'DEPRECATED';
 
   my ($first, $second);
   unless ($first = $self->{first}->plan_for($index)) {

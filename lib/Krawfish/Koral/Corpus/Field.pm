@@ -109,8 +109,7 @@ sub excludes {
   return $self;
 };
 
-sub can_toggle_negativity {
-};
+sub can_toggle_negativity;
 
 
 sub optimize {
@@ -137,10 +136,8 @@ sub optimize {
 
 
 sub match {
-  my $self = shift;
-
   # TODO: Support existence
-  return ($self->{match} // 'eq');
+  return ($_[0]->{match} // 'eq');
 };
 
 

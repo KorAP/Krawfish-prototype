@@ -47,8 +47,41 @@ sub plan_without_classes_for {
 
 
 
+sub normalize {
+  my $self = shift;
+
+  my $span;
+  unless ($span = $self->span->normalize) {
+    $self->copy_info_from($self->span);
+    return;
+  };
+
+  $self->span($span);
+  return $self;
+};
+
+
+sub optimize {
+  my ($self, $index) = @_;
+
+  my $span = $self->span->optimize($index);
+
+  # Span has no match
+  if ($span->freq == 0) {
+    return $self->builder->nothing;
+  };
+
+  return Krawfish::Query::Class->new(
+    $span,
+    $self->number
+  );
+};
+
+
 sub plan_for {
   my ($self, $index) = @_;
+
+  warn 'DEPRECATED';
 
   my $span;
   unless ($span = $self->span->plan_for($index)) {
@@ -97,6 +130,9 @@ sub to_string {
 
 
 sub span {
+  if (@_ == 2) {
+    $_[0]->{span} = $_[1];
+  };
   $_[0]->{span};
 };
 

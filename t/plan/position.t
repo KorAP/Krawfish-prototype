@@ -15,7 +15,8 @@ my $koral = Krawfish::Koral->new;
 my $builder = $koral->query_builder;
 
 # Position planning
-
+done_testing;
+__END__
 
 # isAround(<opennlp/c=NP>, Der)
 my $query = $builder->position(
