@@ -97,7 +97,11 @@ sub in_text {
 # Position construct
 sub position {
   my $self = shift;
-  Krawfish::Koral::Query::Position->new(@_);
+  my $frames = shift;
+  return $self->constraints(
+    [$self->c_position(@$frames)],
+    @_
+  );
 };
 
 

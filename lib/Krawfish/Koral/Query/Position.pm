@@ -11,9 +11,15 @@ use warnings;
 use constant DEBUG => 0;
 
 # TODO:
+#   This is identical to Koral::Constraint::Position,
+#   so it should be DEPRECATED!
+
+
+# TODO:
 #  The query optimizer may change order of operands, because
 #  the second operand should probably always be "simpler" regarding
 #  payloads, as it will be buffered.
+
 
 our %FRAME = (
   precedes         => PRECEDES,
@@ -84,6 +90,8 @@ sub plan_for {
   my $frames = $self->{frames};
   my $first = $self->{first};
   my $second = $self->{second};
+
+  warn 'DEPRECATED';
 
   if ($frames == NULL_4) {
     $self->error(000, 'No valid frame defined');

@@ -43,7 +43,26 @@ sub to_koral_fragment {
   return $span;
 };
 
+
+# TODO: Some error handling
+sub normalize {
+  return $_[0];
+};
+
+
+# Todo: May be more complicated
+sub optimize {
+  my ($self, $index) = @_;
+  return Krawfish::Query::Span->new(
+    $index,
+    $self->wrap->to_term
+  );
+};
+
+
 sub plan_for {
+
+  warn 'DEPRECATED';
   my $self = shift;
   my $index = shift;
   # Todo: May be more complicated

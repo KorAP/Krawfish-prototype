@@ -14,10 +14,6 @@ my $koral = Krawfish::Koral->new;
 
 my $builder = $koral->query_builder;
 
-# Position planning
-done_testing;
-__END__
-
 # isAround(<opennlp/c=NP>, Der)
 my $query = $builder->position(
   ['isAround'],
@@ -29,9 +25,15 @@ ok(!$query->is_optional, 'Isn\'t optional');
 ok(!$query->is_null, 'Isn\'t null');
 ok(!$query->is_negative, 'Isn\'t negative');
 ok(!$query->is_extended, 'Isn\'t extended');
-is($query->to_string, 'pos(128:<opennlp/c=NP>,[Der])', 'Stringification');
-is($query->prepare_for($index)->to_string, "constr(pos=128:'<>opennlp/c=NP','Der')", 'Planned Stringification');
+is($query->to_string, 'constr(pos=isAround:<opennlp/c=NP>,[Der])', 'Stringification');
+ok($query = $query->normalize, 'Normalize');
+is($query->to_string, 'constr(pos=isAround:<opennlp/c=NP>,[Der])', 'Stringification');
+
+# is($query->prepare_for($index)->to_string, "constr(pos=128:'<>opennlp/c=NP','Der')", 'Planned Stringification');
 ok(!$query->has_error, 'Builder has no error');
+
+done_testing;
+__END__
 
 
 #####################

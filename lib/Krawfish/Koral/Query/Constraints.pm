@@ -51,7 +51,7 @@ sub normalize {
 
   # TODO merge position constraints!
   my @constraints = ();
-  my $last;
+  my $last = '';
   foreach (@{$self->constraints_in_order}) {
 
     # Ignore idempotence
@@ -60,7 +60,7 @@ sub normalize {
     $last = $c;
 
     # Plan may result in a null-query
-    # TODO: Coüpy warnings etc.
+    # TODO: Copy warnings etc.
     my $norm = $_->normalize or next;
     push @constraints, $norm;
   };

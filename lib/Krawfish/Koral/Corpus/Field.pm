@@ -111,6 +111,10 @@ sub excludes {
 
 sub can_toggle_negativity;
 
+sub inflate {
+  # Inflate for RegEx and existence!
+  ...
+};
 
 sub optimize {
   my ($self, $index) = @_;

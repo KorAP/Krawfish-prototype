@@ -68,6 +68,10 @@ sub _to_frame {
   return $frame;
 };
 
+sub normalize {
+  $_[0];
+};
+
 sub plan_for {
   my $self = shift;
   Krawfish::Query::Constraint::Position->new($$self);
