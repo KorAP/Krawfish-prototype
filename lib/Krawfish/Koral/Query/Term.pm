@@ -295,7 +295,6 @@ sub normalize {
 };
 
 
-
 sub inflate {
   my ($self, $dict) = @_;
 
@@ -315,12 +314,14 @@ sub inflate {
   # Get terms
   my $term = $self->to_term_escaped;
 
+  print_log('kq_term', 'Inflate /^' . $term . '$/');
+
   # Get terms from dictionary
   my @terms = $dict->terms(qr/^$term$/);
 
   if (DEBUG) {
-    print_log('regex', 'Expand /^' . $term . '$/');
-    print_log('regex', 'to ' . substr(join(',', @terms), 0, 50));
+    print_log('kq_term', 'Expand /^' . $term . '$/');
+    print_log('kq_term', 'to ' . (@terms > 0 ? substr(join(',', @terms), 0, 50) : '[0]'));
   };
 
   return $self->builder->nothing unless @terms;
@@ -375,8 +376,8 @@ sub plan_for {
     my @terms = $index->dict->terms(qr/^$term$/);
 
     if (DEBUG) {
-      print_log('regex', 'Expand /^' . $term . '$/');
-      print_log('regex', 'to ' . substr(join(',', @terms), 0, 50));
+      print_log('kq_term', 'Expand /^' . $term . '$/');
+      print_log('kq_term', 'to ' . substr(join(',', @terms), 0, 50));
     };
 
     return $self->builder->nothing unless @terms;

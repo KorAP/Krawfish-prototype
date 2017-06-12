@@ -153,6 +153,26 @@ sub to_result {
 };
 
 
+# TODO:
+#   This is the new entry point!
+sub prepare_for_cluster {
+  # ->normalize->finalize->refer
+  ...
+};
+
+sub prepare_for_node {
+  # ->inflate($dict)
+  # WARN! This may require a new normalization, but it should be kept in mind that this
+  # also may require double added warnings!
+  ...
+};
+
+sub prepare_for_segment {
+  # ->cache->optimize($index)
+  ...
+};
+
+
 # Prepare the query for index
 sub prepare_for {
   my ($self, $index) = @_;

@@ -33,6 +33,32 @@ ok(!$query->is_extended, 'Isn\'t extended');
 is($query->to_string, '[]', 'Stringification');
 ok(!$query->plan_for($index), 'Planned Stringification');
 
+$query = $builder->token(
+  $builder->term_and(
+    $builder->term('a'),
+    $builder->term_neg('a')
+  )
+);
+is($query->to_string, '[a&!a]', 'Stringification');
+ok($query = $query->normalize, 'Normalization');
+is($query->to_string, '[0]', 'Stringification');
+
+
+$query = $builder->token(
+  $builder->term_or(
+    $builder->term_and(
+      $builder->term('a'),
+      $builder->term_neg('a')
+    ),
+    $builder->term_and(
+      $builder->term('b'),
+      $builder->term_neg('b')
+    ),
+    $builder->term('c')
+  )
+);
+is($query->to_string, '[(a&!a)|(b&!b)|c]', 'Stringification');
+
 
 done_testing;
 

@@ -1,12 +1,15 @@
 package Krawfish::Koral::Query::Span;
 use parent 'Krawfish::Koral::Query';
 use Krawfish::Koral::Query::Term;
+use Krawfish::Log;
 use Krawfish::Query::Span;
 use Scalar::Util qw/blessed/;
 use strict;
 use warnings;
 
 # Todo: Support frequency here!
+
+use constant DEBUG => 1;
 
 sub new {
   my $class = shift;
@@ -49,6 +52,14 @@ sub normalize {
   return $_[0];
 };
 
+sub inflate {
+  my ($self, $dict) = @_;
+
+  print_log('kq_span', 'Inflate span') if DEBUG;
+
+  $self->{wrap} = $self->wrap->inflate($dict);
+  return $self;
+};
 
 # Todo: May be more complicated
 sub optimize {

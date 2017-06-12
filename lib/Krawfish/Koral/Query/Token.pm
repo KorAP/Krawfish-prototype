@@ -64,13 +64,21 @@ sub is_any {
 sub normalize {
   my $self = shift;
   print_log('kq_token', 'Normalize wrapper') if DEBUG;
-  $self->{wrap} = $self->wrap->normalize;
+  if ($self->wrap) {
+    $self->{wrap} = $self->wrap->normalize;
+  };
   return $self;
 };
 
+sub inflate {
+  my ($self, $dict) = @_;
+  print_log('kq_token', 'Inflate wrapper') if DEBUG;
+  $self->{wrap} = $self->wrap->inflate($dict);
+  return $self;
+};
 
-sub optimize {
-  my ($self, $index) = @_;
+sub finalize {
+  my $self = shift;
 
   # Token is null
   if ($self->is_null) {
@@ -83,6 +91,12 @@ sub optimize {
     $self->error(000, 'Unable to search for any tokens');
     return;
   };
+
+  return $self;
+};
+
+sub optimize {
+  my ($self, $index) = @_;
 
   # Create token query
   if ($self->wrap->type eq 'term') {

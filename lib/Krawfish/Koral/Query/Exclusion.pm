@@ -54,6 +54,13 @@ sub normalize {
   my $first = $self->{first};
   my $second = $self->{second};
 
+  # There is nothing to exclude
+  if ($second->is_nothing) {
+
+    # Match complete $first
+    return $first;
+  };
+
   # Todo:
   #   Find a common way to do this
   my ($first_norm, $second_norm);
@@ -70,6 +77,16 @@ sub normalize {
   $self->{first} = $first_norm;
   $self->{second} = $second_norm;
 
+  return $self;
+};
+
+sub inflate {
+  my ($self, $dict) = @_;
+
+  print_log('kq_excl', 'Inflate exclusion') if DEBUG;
+
+  $self->{first} = $self->{first}->inflate($dict);
+  $self->{second} = $self->{second}->inflate($dict);
   return $self;
 };
 

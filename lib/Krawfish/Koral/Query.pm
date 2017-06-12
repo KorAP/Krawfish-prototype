@@ -134,7 +134,7 @@ sub is_any            { $_[0]->{any}            // 0 };
 sub is_optional       { $_[0]->{optional}       // 0 };
 
 # Null is empty - e.g. in
-# Der >alte*< Mann,
+# Der >alte{0}< Mann
 sub is_null           { $_[0]->{null}           // 0 };
 
 # Nothing matches nowhere - e.g. in

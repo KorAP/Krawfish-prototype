@@ -101,9 +101,102 @@ sub is_extended_right {
 sub type { 'repetition' };
 
 
+
+# Normalize the query
+sub normalize {
+  my $self = shift;
+
+  # Copy messages from span serialization
+  my $span;
+  unless ($span = $self->{span}->normalize) {
+    $self->copy_info_from($self->{span});
+    return;
+  };
+
+  $self->{span} = $span;
+
+  my $min = $self->{min};
+  my $max = $self->{max};
+
+  $min //= 0;
+
+  if (!$max || $max > $MAX) {
+    $self->warning(000, 'Maximum value is limited', $MAX);
+    $max = $MAX;
+  };
+
+  if ($min > $max) {
+    $self->error(000, 'Minimum has to be greater than maximum in repetition');
+    return;
+  };
+
+  if ($min < 0) {
+    $self->warning(000, 'Minimum has to be greater or equal than 0');
+    $min = 0;
+  };
+
+  $self->min($min);
+  $self->max($max);
+  return $self;
+};
+
+
+# Finalize the query
+sub finalize {
+  my $self = shift;
+
+  my $min = $self->{min};
+  my $max = $self->{max};
+
+  # Some errors
+
+  if ($min == 0) {
+    $self->warning(000, 'Optionality is ignored');
+    $self->min(1);
+  };
+
+  # Copy messages from span serialization
+  my $span;
+  unless ($span = $self->{span}->finalize) {
+    $self->copy_info_from($self->{span});
+    return;
+  };
+
+  if ($min == 1 && $max == 1) {
+    return $span;
+  };
+
+  # Finalize the span
+  $self->{span} = $span;
+
+  return $self;
+};
+
+
+# Optimize for index
+sub optimize {
+  my ($self, $index) = @_;
+
+  # optimize span query
+  my $span = $self->{span}->optimize($index);
+
+  # Span matches nowhere
+  return $span if $span->freq == 0;
+
+  # Create repetition span
+  return Krawfish::Query::Repetition->new(
+    $span,
+    $self->{min},
+    $self->{max}
+  );
+};
+
+
 sub plan_for {
   my $self = shift;
   my $index = shift;
+
+  warn 'DEPRECATED';
 
   # Copy messages from span serialization
   my $span;

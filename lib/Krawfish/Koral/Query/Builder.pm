@@ -12,7 +12,7 @@ use Krawfish::Koral::Query::Unique;
 use Krawfish::Koral::Query::Class;
 use Krawfish::Koral::Query::Constraints;
 use Krawfish::Koral::Query::Length;
-use Krawfish::Query::Nothing;
+use Krawfish::Koral::Query::Nothing;
 
 # TODO: Not all constraints need to be wrapped
 use Krawfish::Koral::Query::Constraint::Position;
@@ -168,7 +168,7 @@ sub null {
 
 # No match
 sub nothing {
-  Krawfish::Query::Nothing->new;
+  Krawfish::Koral::Query::Nothing->new;
 };
 
 

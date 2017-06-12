@@ -4,6 +4,9 @@ use strict;
 use warnings;
 
 # TODO:
+#   Add error etc. and base this on Krawfish::Query::Constraint::Base.
+
+# TODO:
 #   It should be noted that optimization should
 #   keep skip_position() in mind. so in situations
 #   like <a><b>, the <b> can be skiped to a position
@@ -30,6 +33,14 @@ sub new {
   my $class = shift;
   my $frames = _to_frame(@_);
   bless \$frames, $class;
+};
+
+sub frames {
+  ${$_[0]};
+};
+
+sub type {
+  'constr_pos';
 };
 
 sub to_string {
@@ -68,12 +79,29 @@ sub _to_frame {
   return $frame;
 };
 
+# Normalize options of the constraint
 sub normalize {
-  $_[0];
+  my $self = shift;
+
+  # Frame is zero
+  if ($$self == NULL_4) {
+    # $self->error(000, 'No valid frame defined');
+    return;
+  };
+
+  return $self;
 };
+
+
+sub optimize {
+  my $self = shift;
+  Krawfish::Query::Constraint::Position->new($$self);
+};
+
 
 sub plan_for {
   my $self = shift;
+  warn 'DEPRECATED';
   Krawfish::Query::Constraint::Position->new($$self);
 };
 

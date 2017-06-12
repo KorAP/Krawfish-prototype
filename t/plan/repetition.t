@@ -25,10 +25,17 @@ ok(!$rep->is_extended, 'Is not extended');
 ok(!$rep->is_extended_right, 'Is not extended to the right');
 ok(!$rep->is_extended_left, 'Is not extended to the left');
 
-# TODO: Probably better to warn here
-ok(!$rep->plan_for($index), 'Unable to stringify');
-ok($rep->has_error, 'Error set');
-is($rep->error->[0]->[1], 'Optionality is ignored', 'Error');
+is($rep->to_string, '[hey]{0,3}', 'Normalization');
+ok($rep = $rep->normalize, 'Normalization');
+is($rep->to_string, '[hey]{0,3}', 'Normalization');
+ok(!$rep->has_error, 'Error set');
+ok($rep = $rep->finalize, 'Normalization');
+ok($rep->has_warning, 'Error set');
+is($rep->warning->[0]->[1], 'Optionality is ignored', 'Error');
+is($rep->to_string, '[hey]{1,3}', 'Normalization');
+ok($rep = $rep->optimize($index), 'Normalization');
+is($rep->to_string, "rep(1-3:'hey')", 'Normalization');
+
 
 # [hey]{1,3}
 $rep = $builder->repeat($builder->token('hey'), 1, 3);
@@ -40,8 +47,15 @@ ok(!$rep->is_negative, 'Is not negative');
 ok(!$rep->is_extended, 'Is not extended');
 ok(!$rep->is_extended_right, 'Is not extended to the right');
 ok(!$rep->is_extended_left, 'Is not extended to the left');
-is($rep->plan_for($index)->to_string, "rep(1-3:'hey')", 'Stringification');
+ok($rep = $rep->normalize, 'Normalization');
 ok(!$rep->has_error, 'Error not set');
+is($rep->to_string, '[hey]{1,3}', 'Stringification');
+ok($rep = $rep->finalize, 'Normalization');
+ok(!$rep->has_error, 'Error not set');
+is($rep->to_string, '[hey]{1,3}', 'Stringification');
+ok($rep = $rep->optimize($index), 'Normalization');
+is($rep->to_string, "rep(1-3:'hey')", 'Normalization');
+
 
 # [hey]{2,}
 $rep = $builder->repeat($builder->token('hey'), 2, undef);
@@ -53,8 +67,16 @@ ok(!$rep->is_negative, 'Is not negative');
 ok(!$rep->is_extended, 'Is not extended');
 ok(!$rep->is_extended_right, 'Is not extended to the right');
 ok(!$rep->is_extended_left, 'Is not extended to the left');
-is($rep->plan_for($index)->to_string, "rep(2-100:'hey')", 'Stringification');
+ok($rep = $rep->normalize, 'Normalization');
 ok(!$rep->has_error, 'Error not set');
+ok($rep->has_warning, 'Error not set');
+is($rep->to_string, '[hey]{2,100}', 'Stringification');
+ok($rep = $rep->finalize, 'Normalization');
+ok(!$rep->has_error, 'Error not set');
+is($rep->to_string, '[hey]{2,100}', 'Stringification');
+ok($rep = $rep->optimize($index), 'Normalization');
+is($rep->to_string, "rep(2-100:'hey')", 'Normalization');
+
 
 # [hey]*
 $rep = $builder->repeat($builder->token('hey'), undef, undef);
@@ -66,9 +88,22 @@ ok(!$rep->is_negative, 'Is not negative');
 ok(!$rep->is_extended, 'Is not extended');
 ok(!$rep->is_extended_right, 'Is not extended to the right');
 ok(!$rep->is_extended_left, 'Is not extended to the left');
-ok(!$rep->plan_for($index), 'Unplannable');
-ok($rep->has_error, 'Error set');
-is($rep->error->[0]->[1], 'Optionality is ignored', 'Error');
+ok($rep = $rep->normalize, 'Normalization');
+ok(!$rep->has_error, 'Error not set');
+ok($rep->has_warning, 'Error not set');
+is($rep->to_string, '[hey]{0,100}', 'Stringification');
+ok($rep = $rep->finalize, 'Normalization');
+ok(!$rep->has_error, 'Error not set');
+ok($rep->has_warning, 'Error not set');
+is($rep->warning->[0]->[1], 'Maximum value is limited', 'Error');
+is($rep->warning->[1]->[1], 'Optionality is ignored', 'Error');
+is($rep->to_string, '[hey]{1,100}', 'Stringification');
+ok($rep = $rep->optimize($index), 'Normalization');
+is($rep->to_string, "rep(1-100:'hey')", 'Normalization');
+
+
+
+
 
 # [hey]{0,2}
 $rep = $builder->repeat($builder->token('hey'), undef, 2);
@@ -80,9 +115,17 @@ ok(!$rep->is_negative, 'Is not negative');
 ok(!$rep->is_extended, 'Is not extended');
 ok(!$rep->is_extended_right, 'Is not extended to the right');
 ok(!$rep->is_extended_left, 'Is not extended to the left');
-ok(!$rep->plan_for($index), 'Unplannable');
-ok($rep->has_error, 'Error set');
-is($rep->error->[0]->[1], 'Optionality is ignored', 'Error');
+ok($rep = $rep->normalize, 'Normalization');
+ok(!$rep->has_error, 'Error not set');
+ok(!$rep->has_warning, 'Error not set');
+is($rep->to_string, '[hey]{0,2}', 'Stringification');
+ok($rep = $rep->finalize, 'Normalization');
+ok($rep->has_warning, 'Error not set');
+ok(!$rep->has_error, 'Error not set');
+is($rep->to_string, '[hey]{1,2}', 'Stringification');
+is($rep->warning->[0]->[1], 'Optionality is ignored', 'Error');
+ok($rep = $rep->optimize($index), 'Normalization');
+is($rep->to_string, "rep(1-2:'hey')", 'Normalization');
 
 # [hey]{3}
 $rep = $builder->repeat($builder->token('hey'), 3, 3);
@@ -94,8 +137,20 @@ ok(!$rep->is_negative, 'Is not negative');
 ok(!$rep->is_extended, 'Is not extended');
 ok(!$rep->is_extended_right, 'Is not extended to the right');
 ok(!$rep->is_extended_left, 'Is not extended to the left');
-is($rep->plan_for($index)->to_string, "rep(3-3:'hey')", 'Planned');
+
+ok($rep = $rep->normalize, 'Normalization');
 ok(!$rep->has_error, 'Error not set');
+ok(!$rep->has_warning, 'Error not set');
+is($rep->to_string, '[hey]{3}', 'Stringification');
+ok($rep = $rep->finalize, 'Normalization');
+ok(!$rep->has_warning, 'Error not set');
+ok(!$rep->has_error, 'Error not set');
+is($rep->to_string, '[hey]{3}', 'Stringification');
+ok($rep = $rep->optimize($index), 'Normalization');
+is($rep->to_string, "rep(3-3:'hey')", 'Normalization');
+
+
+
 
 # []{2,4}
 $rep = $builder->repeat($builder->token, 2, 4);
@@ -107,9 +162,16 @@ ok(!$rep->is_negative, 'Is not negative');
 ok($rep->is_extended, 'Is extended');
 ok($rep->is_extended_right, 'Is extended to the right');
 ok(!$rep->is_extended_left, 'Is not extended to the left');
-ok(!$rep->plan_for($index), 'Unplannable');
-ok($rep->has_error, 'Error set');
+
+ok($rep = $rep->normalize, 'Normalization');
+ok(!$rep->has_error, 'Error not set');
+ok(!$rep->has_warning, 'Error not set');
+is($rep->to_string, '[]{2,4}', 'Stringification');
+ok(!$rep->finalize, 'Normalization');
+ok(!$rep->has_warning, 'Error not set');
+ok($rep->has_error, 'Error not set');
 is($rep->error->[0]->[1], 'Unable to search for any tokens', 'Error');
+
 
 # []{,4}
 $rep = $builder->repeat($builder->token, 0, 4);
@@ -121,9 +183,16 @@ ok(!$rep->is_negative, 'Is not negative');
 ok($rep->is_extended, 'Is extended');
 ok($rep->is_extended_right, 'Is extended to the right');
 ok(!$rep->is_extended_left, 'Is not extended to the left');
-ok(!$rep->plan_for($index), 'Unplannable');
-ok($rep->has_error, 'Error set');
+ok($rep = $rep->normalize, 'Normalization');
+ok(!$rep->has_error, 'Error not set');
+ok(!$rep->has_warning, 'Error not set');
+is($rep->to_string, '[]{0,4}', 'Stringification');
+ok(!$rep->finalize, 'Normalization');
+ok($rep->has_warning, 'Error not set');
+is($rep->warning->[0]->[1], 'Optionality is ignored', 'Error');
+ok($rep->has_error, 'Error not set');
 is($rep->error->[0]->[1], 'Unable to search for any tokens', 'Error');
+
 
 # []{4,}
 $rep = $builder->repeat($builder->token, 4, undef);
@@ -135,9 +204,17 @@ ok(!$rep->is_negative, 'Is not negative');
 ok($rep->is_extended, 'Is extended');
 ok($rep->is_extended_right, 'Is extended to the right');
 ok(!$rep->is_extended_left, 'Is not extended to the left');
-ok(!$rep->plan_for($index), 'Unplannable');
-ok($rep->has_error, 'Error set');
+
+ok($rep = $rep->normalize, 'Normalization');
+ok(!$rep->has_error, 'Error not set');
+ok($rep->has_warning, 'Warning set');
+is($rep->warning->[0]->[1], 'Maximum value is limited', 'Error');
+is($rep->to_string, '[]{4,100}', 'Stringification');
+ok(!$rep->finalize, 'Normalization');
+ok($rep->has_warning, 'Error not set');
+ok($rep->has_error, 'Error not set');
 is($rep->error->[0]->[1], 'Unable to search for any tokens', 'Error');
+
 
 # []{8}
 $rep = $builder->repeat($builder->token, 8);
@@ -149,8 +226,14 @@ ok(!$rep->is_negative, 'Is not negative');
 ok($rep->is_extended, 'Is extended');
 ok($rep->is_extended_right, 'Is extended to the right');
 ok(!$rep->is_extended_left, 'Is not extended to the left');
-ok(!$rep->plan_for($index), 'Unplannable');
-ok($rep->has_error, 'Error set');
+
+ok($rep = $rep->normalize, 'Normalization');
+ok(!$rep->has_error, 'Error not set');
+ok(!$rep->has_warning, 'Warning set');
+is($rep->to_string, '[]{8}', 'Stringification');
+ok(!$rep->finalize, 'Normalization');
+ok(!$rep->has_warning, 'Error not set');
+ok($rep->has_error, 'Error not set');
 is($rep->error->[0]->[1], 'Unable to search for any tokens', 'Error');
 
 # <x>{2,3}
@@ -163,8 +246,16 @@ ok(!$rep->is_negative, 'Is not negative');
 ok(!$rep->is_extended, 'Is not extended');
 ok(!$rep->is_extended_right, 'Is not extended to the right');
 ok(!$rep->is_extended_left, 'Is not extended to the left');
+ok($rep = $rep->normalize, 'Normalization');
+ok(!$rep->has_error, 'Error not set');
+ok(!$rep->has_warning, 'Warning set');
+is($rep->to_string, '<aaa>{2,3}', 'Stringification');
+ok($rep = $rep->finalize, 'Normalization');
+ok(!$rep->has_warning, 'Error not set');
+ok(!$rep->has_error, 'Error not set');
+ok($rep = $rep->optimize($index), 'Normalization');
+is($rep->to_string, "rep(2-3:'<>aaa')", 'Stringification');
 
-is($rep->plan_for($index)->to_string, "rep(2-3:'<>aaa')", 'Planned');
 
 
 done_testing;
