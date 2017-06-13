@@ -365,11 +365,12 @@ sub filter_by {
 
 sub maybe_unsorted { 0 };
 
-sub is_any {
-  my $self = shift;
-  return 1 if @{$self->operands} == 0;
-  return 0;
-};
+#sub is_any {
+#  my $self = shift;
+  # return 0 if $self->is_nothing;
+  # return 1 if @{$self->operands} == 0;
+#  return $self->{any};
+#};
 
 sub to_string {
   my $self = shift;

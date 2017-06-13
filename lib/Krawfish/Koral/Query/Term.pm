@@ -256,7 +256,8 @@ sub to_term {
   $str .= $self->prefix if $self->prefix;
   my $term = $self->to_string;
   if ($self->match ne '=') {
-    $term =~ s/!?[=~]/=/i;
+    $term =~ s/!?[=~]/=/;
+    $term =~ s/^!//;
   };
   if ($self->is_regex) {
     $term =~ s!^/!!;

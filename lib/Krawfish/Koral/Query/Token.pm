@@ -61,14 +61,19 @@ sub is_any {
   return;
 };
 
+
 sub normalize {
   my $self = shift;
   print_log('kq_token', 'Normalize wrapper') if DEBUG;
   if ($self->wrap) {
     $self->{wrap} = $self->wrap->normalize;
+    if ($self->{wrap}->is_nothing || $self->{wrap}->is_any) {
+      return $self->{wrap};
+    };
   };
   return $self;
 };
+
 
 sub inflate {
   my ($self, $dict) = @_;
@@ -150,11 +155,17 @@ sub filter_by {
 
 # Stringify
 sub to_string {
-  my $string = '[' . ($_[0]->wrap ? $_[0]->wrap->to_string : '') . ']';
-  if ($_[0]->is_null) {
+  my $self = shift;
+
+  if ($self->is_nothing) {
+    return '[0]';
+  };
+
+  my $string = '[' . ($self->wrap ? $self->wrap->to_string : '') . ']';
+  if ($self->is_null) {
     $string .= '{0}';
   }
-  elsif ($_[0]->is_optional) {
+  elsif ($self->is_optional) {
     $string .= '?';
   };
   return $string;

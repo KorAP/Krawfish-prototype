@@ -4,19 +4,25 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-# TODO: Optimize if there is an identical subquery
+# TODO:
+#   Optimize if there is an identical subquery
 #   in a direct sequence - make this a repetition!!!
 
-# Todo: Check for queries like "Der {[pos!=ADJ]*} Mann"
-
-use constant DEBUG => 0;
+# TODO:
+#   Check for queries like "Der {[pos!=ADJ]*} Mann"
 
 # TODO:
 #   Make problem solving a separate class in
 #   Krawfish::Koral::Util::Sequence, similar to the Boolean stuff!
-#
-# Also: Split this in a serializable logical node phase and an index
-# bound segment phase!
+#   Also: Split this in a serializable logical node phase and an index
+#   bound segment phase!
+
+# TODO:
+#   Negative extensions are succeedsDirectly-exclusions wrapped in
+#   an extension.
+
+use constant DEBUG => 0;
+
 
 sub new {
   my $class = shift;

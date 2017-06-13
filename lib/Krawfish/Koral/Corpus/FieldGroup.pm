@@ -188,6 +188,13 @@ sub optimize {
 };
 
 
+#sub is_any {
+#  my $self = shift;
+#  return 0 if $self->is_nothing;
+#  return 1 if @{$self->operands} == 0;
+#  return 0;
+#};
+
 # Check for classes
 sub has_classes {
   my $self = shift;

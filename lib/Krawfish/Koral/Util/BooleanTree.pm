@@ -142,6 +142,7 @@ sub normalize {
   return $self
     ->_clean_and_flatten
     ->_resolve_idempotence
+#    ->_resolve_negative_idempotence
     ->_remove_nested_idempotence
     ->_resolve_demorgan
     ->_replace_negative;
@@ -191,6 +192,9 @@ sub _resolve_idempotence {
   $self;
 };
 
+sub _resolve_negative_idempotence {
+  ...
+};
 
 # Remove matching idempotence
 # (A & (A | B)) -> A
@@ -257,6 +261,14 @@ sub _remove_nested_idempotence {
   foreach my $neg_i (@neg) {
     foreach my $pos_i (@pos) {
 
+      if (DEBUG) {
+        print_log(
+          'kq_tool',
+          'Compare ' . $ops->[$neg_i]->to_term . ' and ' .
+            $ops->[$pos_i]->to_term
+          );
+      };
+
       # Compare terms
       if ($ops->[$neg_i]->to_term eq $ops->[$pos_i]->to_term) {
 
@@ -282,6 +294,8 @@ sub _remove_nested_idempotence {
 
         # Remove all operands
         $self->operands([]);
+
+        print_log('xxx', $self->is_any);
 
         # Stop further processing
         return $self;
@@ -595,7 +609,12 @@ sub _replace_negative {
   };
 
   # Return if any or nothing
-  return $self if $self->is_any || $self->is_nothing;
+  if ($self->is_any) {
+    return $self;
+  }
+  elsif ($self->is_nothing) {
+    return $self->builder->nothing;
+  };
 
   my $ops = $self->operands;
 

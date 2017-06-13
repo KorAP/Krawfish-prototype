@@ -86,6 +86,17 @@ sub finalize {
 };
 
 
+sub remove_unused_classes {
+  my ($self, $classes) = @_;
+  my $used = $self->uses_classes;
+  # Pass classes required for highlighting or grouping,
+  # and take classes from uses_classes() into account.
+  # This is not done recursively, as it first needs to
+  # gather all classes and then can remove them.
+};
+
+
+
 # Prepare a query for an index
 # TODO: Rename to compile()
 sub prepare_for {
@@ -130,7 +141,16 @@ sub filter_by {
   ...
 };
 
-sub is_any            { $_[0]->{any}            // 0 };
+# sub is_any            { $_[0]->{any}            // 0 };
+# Matches everything
+sub is_any {
+  my $self = shift;
+  if (defined $_[0]) {
+    $self->{any} = shift;
+  };
+  return $self->{any} // 0;
+};
+
 sub is_optional       { $_[0]->{optional}       // 0 };
 
 # Null is empty - e.g. in
@@ -139,7 +159,14 @@ sub is_null           { $_[0]->{null}           // 0 };
 
 # Nothing matches nowhere - e.g. in
 # Der [alte & !alte] Mann
-sub is_nothing        { $_[0]->{nothing}        // 0 };
+# sub is_nothing        { $_[0]->{nothing}        // 0 };
+sub is_nothing {
+  my $self = shift;
+  if (defined $_[0]) {
+    $self->{nothing} = shift;
+  };
+  return $self->{nothing} // 0;
+};
 
 sub is_leaf           { 0 };
 sub is_extended_right { $_[0]->{extended_right} // 0 };
@@ -148,6 +175,9 @@ sub is_extended       { $_[0]->is_extended_right || $_[0]->is_extended_left // 0
 sub freq              { -1 };
 sub type              { '' };
 
+# Returns a list of classes used by the query,
+# e.g. in a focus() context.
+sub uses_classes;
 
 sub is_negative {
   my $self = shift;

@@ -3,6 +3,17 @@ use parent 'Krawfish::Koral::Query';
 use strict;
 use warnings;
 
+
+# TODO:
+#   An extension with a negative part will
+#   not be part of this.
+#
+#     der [!alte]
+#
+#   will be
+#
+#     extend(right,excl([succeedsDirectly], der, alte))
+
 sub new {
   my $class = shift;
   my $self = $class->SUPER::new;
