@@ -38,6 +38,13 @@ use constant {
 #   to be sorted in a separate step.
 
 # TODO:
+#   It may be beneficial to have the binary heap space limited
+#   and do a quickselect whenever the heap is full - to prevent full
+#   sort, see
+#   http://lemire.me/blog/2017/06/14/quickselect-versus-binary-heap-for-top-k-queries/
+#   https://plus.google.com/+googleguava/posts/QMD74vZ5dxc
+
+# TODO:
 #   It should be possible to add the sorting criteria.
 
 sub new {

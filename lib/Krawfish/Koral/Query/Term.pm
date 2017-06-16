@@ -13,6 +13,10 @@ use warnings;
 # TODO: Term building should be part of
 #   a utility class Krawfish::Util::Koral::Term or so
 
+
+# TODO:
+#   Rename to_term to to_neutral!
+
 use constant DEBUG => 1;
 
 sub new {
@@ -244,6 +248,10 @@ sub to_string {
   $str;
 };
 
+
+sub to_neutral {
+  return $_[0]->to_term;
+};
 
 sub to_term {
   my $self = shift;

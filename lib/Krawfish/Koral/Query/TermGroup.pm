@@ -54,10 +54,18 @@ sub build_and {
 
 # Build AndNot group
 sub build_and_not {
-  my $self = shift;
-  my $query = $self->builder->exclusion(['matches'], @_);
+  my ($self, $pos, $neg) = @_;
+  my $query = $self->builder->exclusion(['matches'], $pos, $neg);
   print_log('kq_tgroup', 'Create andNot: ' . $query->to_string) if DEBUG;
   $query;
+};
+
+
+sub build_any {
+  shift;
+  my $any = Krawfish::Koral::Query::TermGroup->new;
+  $any->is_any(1);
+  return $any;
 };
 
 
@@ -374,10 +382,51 @@ sub maybe_unsorted { 0 };
 
 sub to_string {
   my $self = shift;
+
+  my $str = '';
+
+  if ($self->is_negative) {
+
+    if ($self->is_nothing) {
+      return '1';
+    }
+    elsif ($self->is_any) {
+      return '0';
+    }
+    else {
+      $str .= '!';
+    };
+  }
+
+  # matches
+  elsif ($self->is_nothing) {
+    return '0';
+  }
+
+  # Matches everywhere
+  elsif ($self->is_any) {
+    return '1';
+  };
+
+
   my $op = $self->operation eq 'and' ? '&' : '|';
-  join $op, map {
+  my $inner = join $op, map {
     $_->type eq 'termGroup' ? '(' . $_->to_string . ')' : $_->to_string
-  } @{$self->operands};
+  } @{$self->operands_in_order};
+  if ($str) {
+    return "$str($inner)";
+  };
+  return $inner;
+};
+
+
+sub to_neutral {
+  my $self = shift;
+  my $string = $self->to_string;
+  if ($self->is_negative) {
+    $string =~ s/^!\((.+?)\)$/$1/o;
+  };
+  $string;
 };
 
 1;

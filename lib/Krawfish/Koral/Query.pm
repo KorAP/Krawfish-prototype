@@ -10,6 +10,8 @@ use strict;
 # TODO:
 #   - rename 'nothing' to 'nowhere'
 #   - rename 'any' to 'anywhere'
+#   - extended_* may be queried
+#     automatically without parameter
 
 sub new {
   my $class = shift;
@@ -256,6 +258,11 @@ sub to_koral_fragment;
 
 # Overwritten
 sub to_string;
+
+sub to_neutral {
+  $_[0]->to_string;
+};
+
 
 # TODO: This may be optimizable and
 # implemented in all query and corpus wrappers

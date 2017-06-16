@@ -57,6 +57,7 @@ sub to_koral_fragment {
 
 # Overwrite is any
 sub is_any {
+  return if $_[0]->is_nothing;
   return 1 unless $_[0]->wrap;
   return;
 };
@@ -67,7 +68,15 @@ sub normalize {
   print_log('kq_token', 'Normalize wrapper') if DEBUG;
   if ($self->wrap) {
     $self->{wrap} = $self->wrap->normalize;
-    if ($self->{wrap}->is_nothing || $self->{wrap}->is_any) {
+    if ($self->{wrap}->is_nothing) {
+      $self->{wrap} = undef;
+      $self->is_nothing(1);
+    }
+    elsif ($self->{wrap}->is_any) {
+      $self->{wrap} = undef;
+      $self->is_any(1);
+    }
+    elsif (!$self->is_optional && !$self->is_negative) {
       return $self->{wrap};
     };
   };
@@ -157,17 +166,27 @@ sub filter_by {
 sub to_string {
   my $self = shift;
 
+  my $string = '[';
   if ($self->is_nothing) {
-    return '[0]';
-  };
+    $string .= '0';
+  }
+  elsif ($self->is_any) {
+    $string .= '';
+  }
+  elsif ($self->wrap) {
+    $string .= $self->wrap->to_string;
+  }
 
-  my $string = '[' . ($self->wrap ? $self->wrap->to_string : '') . ']';
+  $string .= ']';
+
   if ($self->is_null) {
     $string .= '{0}';
   }
+
   elsif ($self->is_optional) {
     $string .= '?';
   };
+
   return $string;
 };
 

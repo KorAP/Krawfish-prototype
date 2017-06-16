@@ -139,12 +139,13 @@ sub normalize {
   # Apply normalization
   # The return value may not be a group,
   # but an andNot or a leaf after the final step
+  #
+  # The order is important!
   return $self
     ->_clean_and_flatten
     ->_resolve_idempotence
-#    ->_resolve_negative_idempotence
-    ->_remove_nested_idempotence
     ->_resolve_demorgan
+    ->_remove_nested_idempotence
     ->_replace_negative;
 };
 
@@ -192,9 +193,6 @@ sub _resolve_idempotence {
   $self;
 };
 
-sub _resolve_negative_idempotence {
-  ...
-};
 
 # Remove matching idempotence
 # (A & (A | B)) -> A
@@ -213,7 +211,7 @@ sub _remove_nested_idempotence {
 
   my $ops = $self->operands;
 
-  my (@plains, @groups, @pos, @neg);
+  my (@plains, @neg_group, @pos_group, @pos, @neg);
 
   # TODO:
   #  Deal with classes
@@ -225,7 +223,13 @@ sub _remove_nested_idempotence {
           # Operations are reversed
           $ops->[$i]->operation ne $self->operation) {
 
-      push @groups, $i;
+      if ($ops->[$i]->is_negative) {
+        push @neg_group, $i;
+      }
+
+      else {
+        push @pos_group, $i;
+      };
     }
 
     # Operand is leaf
@@ -248,7 +252,8 @@ sub _remove_nested_idempotence {
     print_log(
       'kq_bool',
       'Index lists created for ' . $self->to_string . ':',
-      '  Groups: ' . join(', ', @groups),
+      '  Pos-Group: ' . join(', ', @pos_group),
+      '  Neg-Group: ' . join(', ', @neg_group),
       '  Plains: ' . join(', ', @plains),
       '  Neg:    ' . join(', ', @neg),
       '  Pos:    ' . join(', ', @pos),
@@ -258,19 +263,19 @@ sub _remove_nested_idempotence {
   # Check for any or nothing
   # (A | !A) -> (any)
   # (A & !A) -> (nothing)
-  foreach my $neg_i (@neg) {
-    foreach my $pos_i (@pos) {
+  foreach my $neg_i (@neg, @neg_group) {
+    foreach my $pos_i (@pos, @pos_group) {
 
       if (DEBUG) {
         print_log(
           'kq_tool',
-          'Compare ' . $ops->[$neg_i]->to_term . ' and ' .
-            $ops->[$pos_i]->to_term
+          'Compare ' . $ops->[$neg_i]->to_neutral . ' and ' .
+            $ops->[$pos_i]->to_neutral
           );
       };
 
       # Compare terms
-      if ($ops->[$neg_i]->to_term eq $ops->[$pos_i]->to_term) {
+      if ($ops->[$neg_i]->to_neutral eq $ops->[$pos_i]->to_neutral) {
 
         if (DEBUG) {
           print_log(
@@ -289,13 +294,12 @@ sub _remove_nested_idempotence {
         elsif ($self->operation eq 'and') {
 
           # Matches nothing
+
           $self->is_nothing(1);
         };
 
         # Remove all operands
         $self->operands([]);
-
-        print_log('xxx', $self->is_any);
 
         # Stop further processing
         return $self;
@@ -309,7 +313,7 @@ sub _remove_nested_idempotence {
   # (A & (A | B)) -> A
   # (A | (A & B)) -> A
   foreach my $plain_i (@plains) {
-    foreach my $group_i (@groups) {
+    foreach my $group_i (@pos_group) {
 
       # Get group operands
       my $group_ops = $ops->[$group_i]->operands;
@@ -320,7 +324,7 @@ sub _remove_nested_idempotence {
         # Nested operand is identical
         if ($_->to_string eq $ops->[$plain_i]->to_string) {
 
-          unless ($_->has_classes) {
+          unless (0) { # $_->has_classes) {
             if (DEBUG) {
               print_log('kq_bool', 'Remove nested idempotence in ' . $self->to_string);
             };
@@ -571,7 +575,9 @@ sub _resolve_demorgan {
     # Set group to negative
     $new_group->is_negative(1);
 
-    push @$ops, $new_group;
+
+    # Be aware this could lead to heavy and unnecessary recursion
+    push @$ops, $new_group->normalize;
   };
 
   # $self->operands($ops);
@@ -609,12 +615,7 @@ sub _replace_negative {
   };
 
   # Return if any or nothing
-  if ($self->is_any) {
-    return $self;
-  }
-  elsif ($self->is_nothing) {
-    return $self->builder->nothing;
-  };
+  return $self if $self->is_any || $self->is_nothing;
 
   my $ops = $self->operands;
 
@@ -628,7 +629,7 @@ sub _replace_negative {
       return $self->build_and_not(
         $self->build_any,
         $self
-      );
+      )->normalize;
     };
 
     # Only operand does not need a group
@@ -662,13 +663,13 @@ sub _replace_negative {
 
     # There is exactly one positive operand
     if (@$ops == 1) {
-      return $self->build_and_not($ops->[0], $neg);
+      return $self->build_and_not($ops->[0], $neg)->normalize;
     };
 
     print_log('kq_bool', 'Operation on multiple operands') if DEBUG;
 
     # There are multiple positive operands - create a new group
-    return $self->build_and_not($self, $neg);
+    return $self->build_and_not($self, $neg)->normalize;
   }
 
   elsif ($self->operation eq 'or') {
@@ -678,7 +679,7 @@ sub _replace_negative {
     push @$ops, $self->build_and_not(
       $self->build_any,
       $neg
-    );
+    )->normalize;
     return $self;
   };
 

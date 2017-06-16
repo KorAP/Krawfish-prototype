@@ -171,5 +171,11 @@ sub from_koral;
 
 sub to_koral_fragment;
 
+sub to_string;
+
+sub to_neutral {
+  $_[0]->to_string;
+};
+
 
 1;

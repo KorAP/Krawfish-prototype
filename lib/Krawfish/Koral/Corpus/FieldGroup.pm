@@ -74,6 +74,11 @@ sub build_and_not {
 sub build_any {
   shift;
   Krawfish::Koral::Corpus::Any->new;
+
+  # TODO: May as well be
+  # my $any = Krawfish::Koral::Corpus::FieldGroup->new;
+  # $any->is_any(1);
+  # return $any;
 };
 
 

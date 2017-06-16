@@ -77,6 +77,11 @@ sub normalize {
   $self->{first} = $first_norm;
   $self->{second} = $second_norm;
 
+  # Normalize!
+  if ($self->{first}->to_string eq $self->{second}->to_string) {
+    return $self->builder->nothing->normalize;
+  };
+
   return $self;
 };
 
