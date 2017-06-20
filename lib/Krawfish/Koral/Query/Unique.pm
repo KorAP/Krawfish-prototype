@@ -17,8 +17,39 @@ sub to_koral_fragment {
 
 sub type { 'unique' };
 
+
+sub normalize {
+  my $self = shift;
+
+  my $span;
+  unless ($span = $self->span->normalize) {
+    $self->copy_info_from($self->span);
+    return;
+  };
+
+  $self->{span} = $span;
+
+  return $self;
+};
+
+
+sub optimize {
+  my ($self, $index) = @_;
+
+  my $span = $self->span->optimize($index) or return;
+
+  if ($span->freq == 0) {
+    return $self->builder->nothing;
+  };
+
+  return Krawfish::Query::Unique->new($span);
+};
+
+
 sub plan_for {
   my ($self, $index) = @_;
+
+  warn 'DEPRECATED';
 
   my $span;
   unless ($span = $self->span->plan_for($index)) {
