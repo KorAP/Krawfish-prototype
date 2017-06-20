@@ -236,4 +236,10 @@ sub to_term {
   return $term;
 };
 
+
+sub to_neutral {
+  $_[0]->to_term;
+};
+
+
 1;
