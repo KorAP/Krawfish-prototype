@@ -81,9 +81,59 @@ sub to_koral_fragment {
 };
 
 
+# TODO: Normalize chained length queries
+sub normalize {
+  my $self = shift;
+
+  # Length is null
+  if ($self->{max} == 0) {
+    return $self->builder->null->normalize;
+  };
+
+  my $span;
+  unless ($span = $self->{span}->normalize) {
+    $self->copy_info_from($self->{span});
+    return;
+  };
+
+  # Span is null or nothing
+  if ($span->is_null || $span->is_nothing) {
+    return $self->builder->nothing->normalize;
+  };
+
+  # No boundaries given
+  if (!defined $self->{min} && !defined $self->{max}) {
+    return $span;
+  };
+
+  return $self;
+};
+
+sub optimize {
+  my ($self, $index) = @_;
+
+  # TODO: Add constraint instead of query, if implemented
+
+  my $span = $self->{span}->optimize($index);
+
+  # Nothing set
+  if ($span->freq == 0) {
+    return Krawfish::Query::Nothing->new;
+  };
+
+  return Krawfish::Query::Length->new(
+    $span,
+    $self->{min},
+    $self->{max},
+    $self->{token}
+  );
+};
+
 sub plan_for {
   my $self = shift;
   my $index = shift;
+
+  warn 'DEPRECATED';
 
   # Nothing set
   if ($self->freq == 0) {
@@ -138,7 +188,10 @@ sub to_string {
 
 sub is_any { $_[0]->{span}->is_any };
 sub is_optional { $_[0]->{span}->is_optional };
-sub is_null { $_[0]->{span}->is_null };
+sub is_null {
+  return 1 if $_[0]->{max} == 0;
+  return $_[0]->{span}->is_null
+};
 sub is_negative { $_[0]->{span}->is_negative };
 sub is_extended_right { $_[0]->{span}->is_extended_right };
 sub is_extended_left { $_[0]->{span}->is_extended_left };
