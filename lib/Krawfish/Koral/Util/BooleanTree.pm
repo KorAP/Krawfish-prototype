@@ -128,13 +128,16 @@ sub normalize {
   $self = $self->_clean_and_flatten;
 
   # Recursive normalize
+  my @ops = ();
   foreach my $op (@{$self->operands}) {
 
     # Operand is group!
     if ($op) { #  && $op->type eq $self->type) {
-      $op->normalize
+      push @ops, $op->normalize
     }
   };
+
+  $self->operands(\@ops);
 
   # Apply normalization
   # The return value may not be a group,
@@ -153,6 +156,9 @@ sub normalize {
 # Resolve idempotence
 # a & a = a
 # a | a = a
+# TODO:
+#   (a & b) | (a & b) = a & b
+#   (a | b) & (a | b) = a & b
 sub _resolve_idempotence {
   my $self = shift;
 
@@ -371,7 +377,7 @@ sub _clean_and_flatten {
   # Get operands
   my $ops = $self->operands;
 
-  print_log('kq_bool', 'Flatten groups') if DEBUG;
+  print_log('kq_bool', 'Flatten groups of ' . $self->to_string) if DEBUG;
 
   # Flatten groups in reverse order
   for (my $i = scalar(@$ops) - 1; $i >= 0;) {
@@ -663,7 +669,12 @@ sub _replace_negative {
 
     # There is exactly one positive operand
     if (@$ops == 1) {
-      return $self->build_and_not($ops->[0], $neg)->normalize;
+
+      print_log('kq_bool', 'Operation on a single operand') if DEBUG;
+      my $and_not = $self->build_and_not($ops->[0], $neg)->normalize;
+
+      print_log('kq_bool', 'Created ' . $and_not->to_string) if DEBUG;
+      return $and_not;
     };
 
     print_log('kq_bool', 'Operation on multiple operands') if DEBUG;
