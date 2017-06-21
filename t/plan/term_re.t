@@ -21,13 +21,14 @@ is($re->match, '~', 'Match operator');
 
 ok_index($index,'[a/b=CDE|a/c=FGH][a/l=PART|a/l=BAU|a/l=PUM][b/c=DAU][e/f=UM]', 'Add doc');
 
-ok(my $plan = $re->plan_for($index), 'Plan Regex');
+
+ok(my $plan = $re->normalize->finalize->inflate($index->dict)->optimize($index), 'Plan Regex');
 is($plan->to_string, "or('a/l=PART','a/l=PUM')", 'Stringification');
 
 
 ok($re = $qb->term('f/l~G.*?'), 'Regex');
 is($re->to_string, 'f/l~G.*?', 'Stringification');
-ok($plan = $re->plan_for($index), 'Plan Regex');
+ok($plan = $re->normalize->finalize->inflate($index->dict)->optimize($index), 'Plan Regex');
 is($plan->to_string, "[0]", 'Stringification');
 
 done_testing;

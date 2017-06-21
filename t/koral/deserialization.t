@@ -2,7 +2,7 @@ use Test::More;
 use strict;
 use warnings;
 use Mojo::JSON qw/encode_json decode_json/;
-use Mojo::Util qw/slurp/;
+use Mojo::File;
 use Data::Dumper;
 
 use_ok('Krawfish::Koral::Query');

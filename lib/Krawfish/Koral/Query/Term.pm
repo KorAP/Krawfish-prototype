@@ -7,6 +7,7 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
+
 # TODO: Support escaping! Especially for regex!
 # TODO: Filter multiple corpora
 
@@ -213,7 +214,7 @@ sub to_koral_fragment {
 sub to_string {
   my ($self, $fragment) = @_;
 
-  return 0 if $self->is_null;
+  return '-' if $self->is_null;
 
   my $str = '';
 
@@ -252,6 +253,8 @@ sub to_string {
 sub to_neutral {
   return $_[0]->to_term;
 };
+
+
 
 sub to_term {
   my $self = shift;
@@ -374,6 +377,8 @@ sub optimize {
 sub plan_for {
   my $self = shift;
   my $index = shift;
+
+  warn 'DEPRECATED';
 
   return if $self->is_negative || $self->is_null;
 

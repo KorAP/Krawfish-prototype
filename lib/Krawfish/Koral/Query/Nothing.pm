@@ -26,4 +26,8 @@ sub normalize {
   $_[0];
 };
 
+sub optimize {
+  $_[0];
+};
+
 1;

@@ -1,6 +1,15 @@
 package Krawfish::Koral::Query::Reference;
 
 # May be renamed to "Pointer"
+# Reference queries consist of two types,
+# the source and the reference.
+# The source ref() will always be around the whole
+# query, so the subquery is lifted at the beginning.
+# The references (#n) will then point to the
+# cached subquery.
+#
+#   ref(1:[a&b],(#1)[]{2,3}(#1))
+
 
 use Krawfish::Log;
 use strict;

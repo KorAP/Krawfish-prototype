@@ -23,20 +23,34 @@ $koral->query(
 
 is($koral->to_string, '[Der]<opennlp/c=NP>');
 
+diag 'Meta normalization not implemented yet';
+
+done_testing;
+__END__
+
+
 
 # Simple meta definition
 $koral->meta(
   $koral->meta_builder->items_per_page(3)->field_sort_asc_by('author')
 );
 
-is($koral->prepare_for($index)->to_string,
+ok($koral = $koral->normalize, 'Normalization');
+
+#is($koral->prepare_for($index)->to_string,
+is($koral->to_string,
    q!resultLimit([0-3]:resultSorted(['author'<,'id'<],0-3:constr(pos=2:'Der','<>opennlp/c=NP')))!,
    'Stringification');
+
+
+
 
 # Meta definition with start index
 $koral->meta(
   $koral->meta_builder->items_per_page(5)->start_index(2)->field_sort_asc_by('author')
 );
+
+
 
 is($koral->prepare_for($index)->to_string,
    q!resultLimit([2-7]:resultSorted(['author'<,'id'<],0-7:constr(pos=2:'Der','<>opennlp/c=NP')))!,

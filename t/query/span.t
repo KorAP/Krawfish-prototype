@@ -19,7 +19,7 @@ ok(defined $index->add(cat_t('data','doc3-segments.jsonld')), 'Add new document'
 ok(my $qb = Krawfish::Koral::Query::Builder->new, 'Create Koral::Builder');
 
 ok(my $wrap = $qb->span('akron/c=NP'), 'Span');
-ok(my $span = $wrap->plan_for($index), 'Span');
+ok(my $span = $wrap->normalize->finalize->optimize($index), 'Span');
 ok(!$span->current, 'Not initialized yet');
 
 is($span->freq, 2, 'Frequency');

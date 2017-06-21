@@ -82,6 +82,7 @@ sub to_koral_fragment {
 
 
 # TODO: Normalize chained length queries
+#  length(0-3,length(1-3,query))
 sub normalize {
   my $self = shift;
 
@@ -99,6 +100,14 @@ sub normalize {
   # Span is null or nothing
   if ($span->is_null || $span->is_nothing) {
     return $self->builder->nothing->normalize;
+  };
+
+  if ($span->is_any) {
+    return $self->builder->repeat(
+      $self->builder->any,
+      $self->min,
+      $self->max
+    )->normalize;
   };
 
   # No boundaries given
@@ -187,7 +196,13 @@ sub to_string {
 };
 
 sub is_any { $_[0]->{span}->is_any };
-sub is_optional { $_[0]->{span}->is_optional };
+sub is_optional {
+  my $self = shift;
+  if ($self->{min} == 0 && $_[0]->{span}->is_optional) {
+    return 1;
+  };
+  return;
+};
 sub is_null {
   return 1 if $_[0]->{max} == 0;
   return $_[0]->{span}->is_null

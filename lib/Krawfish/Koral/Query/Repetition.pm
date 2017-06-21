@@ -77,6 +77,14 @@ sub is_any {
 
 sub is_optional {
   my $self = shift;
+  if (defined $_[0] && $_[0] == 0) {
+
+    # Set to 1, if query is not allowed to be optional,
+    # although query is optional
+    unless ($self->min) {
+      $self->min(1);
+    };
+  };
   return 0 if $self->is_null;
   return 1 unless $self->min;
   0;
@@ -106,12 +114,20 @@ sub type { 'repetition' };
 sub normalize {
   my $self = shift;
 
+
   # Copy messages from span serialization
   my $span;
   unless ($span = $self->{span}->normalize) {
     $self->copy_info_from($self->{span});
     return;
   };
+
+  # If something does not match, but is optional at the same time,
+  # Make it ignorable
+  if ($span->is_nothing && $self->is_optional) {
+    return $self->builder->null->normalize;
+  };
+
 
   $self->{span} = $span;
 
@@ -151,7 +167,7 @@ sub finalize {
   # Some errors
 
   if ($min == 0) {
-    $self->warning(000, 'Optionality is ignored');
+    $self->warning(781, 'Optionality of query is ignored');
     $self->min(1);
   };
 

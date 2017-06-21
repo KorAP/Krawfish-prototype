@@ -33,20 +33,18 @@ ok(!$query->is_extended, 'Isn\'t extended');
 is($query->to_string, '[first&second]', 'Stringification');
 
 ok($query = $query->normalize, 'Normalization');
-is($query->to_string, '[first&second]', 'Stringification');
+is($query->to_string, 'first&second', 'Stringification');
 ok($query = $query->finalize, 'Finalization');
-is($query->to_string, '[first&second]', 'Stringification');
-
+is($query->to_string, 'first&second', 'Stringification');
 
 $query = $qb->token(
   $qb->term_and('first', 'second','first', 'third')
 );
-is($query->to_string, '[first&second&first&third]', 'Stringification');
+is($query->to_string, '[first&first&second&third]', 'Stringification');
 ok($query = $query->normalize, 'Normalization');
-is($query->to_string, '[first&second&third]', 'Stringification');
+is($query->to_string, 'first&second&third', 'Stringification');
 ok($query = $query->finalize, 'Finalization');
-is($query->to_string, '[first&second&third]', 'Stringification');
-
+is($query->to_string, 'first&second&third', 'Stringification');
 
 $query = $qb->token(
   $qb->term_and('first', 'second')
@@ -67,11 +65,10 @@ ok(!$query->is_extended, 'Isn\'t extended');
 is($query->to_string, '[opennlp/c=NP|tt/p=NN]', 'Stringification');
 ok($query = $query->normalize->finalize, 'finalize');
 is($query->to_string,
-   '[opennlp/c=NP|tt/p=NN]', 'Stringification');
+   'opennlp/c=NP|tt/p=NN', 'Stringification');
 ok($query = $query->optimize($index), 'finalize');
 is($query->to_string,
    '[0]', 'Stringification');
-
 
 $query = $qb->token(
   $qb->term_or(
@@ -85,9 +82,9 @@ ok(!$query->is_optional, 'Isn\'t optional');
 ok(!$query->is_null, 'Isn\'t null');
 ok(!$query->is_negative, 'Isn\'t negative');
 ok(!$query->is_extended, 'Isn\'t extended');
-is($query->to_string, '[(first&second)|(third&fourth)]', 'Stringification');
-ok($query = $query->normalize, 'Normalize');
 is($query->to_string, '[(first&second)|(fourth&third)]', 'Stringification');
+ok($query = $query->normalize, 'Normalize');
+is($query->to_string, '(first&second)|(fourth&third)', 'Stringification');
 ok($query = $query->finalize->optimize($index), 'Normalize');
 is($query->to_string,
    "or(constr(pos=32:'first','second'),constr(pos=32:'fourth','third'))",
@@ -104,14 +101,16 @@ $query = $qb->token(
   )
 );
 
+
 ok(!$query->is_any, 'Isn\'t any');
 ok(!$query->is_optional, 'Isn\'t optional');
 ok(!$query->is_null, 'Isn\'t null');
 ok(!$query->is_negative, 'Isn\'t negative');
 ok(!$query->is_extended, 'Isn\'t extended');
-is($query->to_string, '[(first&second)|(third&(fourth|fifth))|sixth]', 'Stringification');
-ok($query = $query->normalize, 'Normalize');
 is($query->to_string, '[((fifth|fourth)&third)|(first&second)|sixth]', 'Stringification');
+
+ok($query = $query->normalize, 'Normalize');
+is($query->to_string, '((fifth|fourth)&third)|(first&second)|sixth', 'Stringification');
 ok($query = $query->optimize($index), 'Optimize');
 is($query->to_string,
    "or(or(constr(pos=32:or('fifth','fourth'),'third'),constr(pos=32:'first','second')),'sixth')",
@@ -122,22 +121,24 @@ is($query->to_string,
 $query = $qb->token(
   $qb->term_and('first', $qb->null)
 );
-is($query->to_string, '[first&0]', 'Stringifications');
+is($query->to_string, '[-&first]', 'Stringifications');
 ok($query = $query->normalize, 'Normalize');
-is($query->to_string, '[first]', 'Stringifications');
+is($query->to_string, 'first', 'Stringifications');
 ok($query = $query->optimize($index), 'Optimize');
 is($query->to_string, "'first'", 'Stringifications');
+
 
 # Group with negation
 # [first&!second]
 $query = $qb->token(
   $qb->term_and('first', $qb->term_neg('second'))
 );
-is($query->to_string, '[first&!second]', 'Stringifications');
+is($query->to_string, '[!second&first]', 'Stringifications');
 ok($query = $query->normalize, 'Normalize');
-is($query->to_string, '[excl(32:first,second)]', 'Stringifications');
+is($query->to_string, 'excl(32:first,second)', 'Stringifications');
 ok($query = $query->optimize($index), 'Optimize');
 is($query->to_string, "excl(32:'first','second')", 'Stringifications');
+
 
 # Group with negation and zero freq
 # [first&opennlp/c!=NN]
@@ -146,7 +147,7 @@ $query = $qb->token(
 );
 is($query->to_string, '[first&opennlp/c!=NN]', 'Stringifications');
 ok($query = $query->normalize, 'Normalize');
-is($query->to_string, '[excl(32:first,opennlp/c=NN)]', 'Stringifications');
+is($query->to_string, 'excl(32:first,opennlp/c=NN)', 'Stringifications');
 ok($query = $query->optimize($index), 'Optimize');
 is($query->to_string, "'first'", 'Stringifications');
 
@@ -159,12 +160,11 @@ $query = $qb->token(
     $qb->term_and('second', $qb->term_neg('fourth'))
   )
 );
-is($query->to_string, '[(first&!third)&(second&!fourth)]', 'Stringifications');
+is($query->to_string, '[(!fourth&second)&(!third&first)]', 'Stringifications');
 ok($query = $query->normalize, 'Normalize');
-is($query->to_string, '[excl(32:first&second,third|fourth)]', 'Stringifications');
+is($query->to_string, 'excl(32:first&second,fourth|third)', 'Stringifications');
 ok($query = $query->optimize($index), 'Optimize');
 is($query->to_string, "excl(32:constr(pos=32:'first','second'),or('fourth','third'))", 'Stringifications');
-
 
 
 # And group with not-founds
@@ -176,9 +176,10 @@ $query = $qb->token(
   )
 );
 is($query->to_string, '[(first&opennlp/c!=NN)&(second&tt/p!=ADJA)]', 'Stringifications');
-is($query->plan_for($index)->to_string,
-   "constr(pos=32:'first','second')",
-   'Planned Stringification');
+ok($query = $query->normalize->finalize, 'Normalize');
+is($query->to_string, 'excl(32:first&second,opennlp/c=NN|tt/p=ADJA)', 'Stringifications');
+ok($query = $query->optimize($index), 'Optimize');
+is($query->to_string, "constr(pos=32:'first','second')", 'Stringifications');
 
 done_testing;
 __END__

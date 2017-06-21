@@ -22,12 +22,19 @@ ok(!$query->is_null, 'Isn\'t null');
 ok(!$query->is_negative, 'Isn\'t negative');
 ok(!$query->is_extended, 'Isn\'t extended');
 is($query->to_string, '<akron/c=NP>', 'Stringification');
-is($query->plan_for($index)->to_string, "'<>akron/c=NP'", 'Planned Stringification');
+
+ok($query = $query->normalize, 'Normalization');
+is($query->to_string, "<akron/c=NP>", 'Stringification');
+ok($query = $query->optimize($index), 'Normalization');
+is($query->to_string, "'<>akron/c=NP'", 'Stringification');
 
 
 # Span planning with zero freq
 $query = $builder->span('xxxx');
 is($query->to_string, '<xxxx>', 'Stringification');
-is($query->plan_for($index)->to_string, "[0]", 'Planned Stringification');
+ok($query = $query->normalize, 'Normalization');
+is($query->to_string, "<xxxx>", 'Stringification');
+ok($query = $query->optimize($index), 'Normalization');
+is($query->to_string, "[0]", 'Stringification');
 
 done_testing;

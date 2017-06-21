@@ -173,6 +173,80 @@ sub prepare_for_segment {
 };
 
 
+sub normalize {
+  my $self = shift;
+
+  my $query;
+
+  # Corpus and query are given - filter!
+  if ($self->query && $self->corpus) {
+
+    my $corpus = $self->corpus;
+
+    # Meta is defined
+    if ($self->meta) {
+
+      # Wrap in sort filter if available
+      $corpus = $self->meta->sort_filter($corpus);
+    };
+
+    # Add corpus filter
+    $query = $self->query->filter_by($self->corpus);
+  }
+
+  # Only corpus is given
+  elsif ($self->corpus) {
+    $query = $self->corpus;
+
+    # Wrap in sort filter if available
+
+    # TODO:
+    # $query = $self->meta->sort_filter($query, $index) if $self->meta;
+  }
+
+  # Only query is given
+  elsif ($self->query) {
+    $query = $self->query;
+
+    # TODO:
+    #   Somehow do sort_filtering here with a corpus based
+    #   on non-deleted documents or so.
+  };
+
+  # If meta is defined, prepare results
+  $query = $self->meta->search_for($query) if $self->meta;
+
+  # TODO:
+  # The following operations will invalidate sort filtering:
+  # - grouping
+  # - aggregate (except result is already cached)
+
+  # TODO:
+  # if ($self->sorting && $self->sorting->filter) {
+  #   # Filter matches using a sort filter
+  #   $query = $self->query->filter_by($self->sorting->filter);
+  # };
+
+  # TODO:
+  #  - Find identical subqueries
+  #  - This is especially useful for VC filtering,
+  #  - Terms (PostingsList) will automatically avoid
+  #    lifting posting lists multiple times.
+  #
+  # That means: create a buffered version of $self->corpus
+  #
+  # TODO: Make this part of ->plan_for($index, $refs)
+  #
+  # $query->replace_references;
+
+
+  # Prepare query
+  $query = $query->normalize;
+
+  return $query;
+};
+
+
 # Prepare the query for index
 sub prepare_for {
   my ($self, $index) = @_;

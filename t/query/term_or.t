@@ -18,12 +18,19 @@ ok(defined $index->add(cat_t('data','doc1.jsonld')), 'Add new document');
 ok(defined $index->add(cat_t('data','doc2.jsonld')), 'Add new document');
 ok(defined $index->add(cat_t('data','doc3-segments.jsonld')), 'Add new document');
 
+
+# (a | b)
 my $query = $qb->token(
   $qb->term_or('opennlp/p=V', 'akron=lustigen')
 );
-is($query->to_string, '[opennlp/p=V|akron=lustigen]', 'termGroup');
-ok(my $plan = $query->plan_for($index), 'TermGroup');
-is($plan->to_string, "or('opennlp/p=V','akron=lustigen')", 'termGroup');
+is($query->to_string, '[akron=lustigen|opennlp/p=V]', 'termGroup');
+ok($query = $query->normalize, 'Normalization');
+is($query->to_string, 'akron=lustigen|opennlp/p=V', 'termGroup');
+ok($query = $query->finalize, 'Normalization');
+is($query->to_string, 'akron=lustigen|opennlp/p=V', 'termGroup');
+ok(my $plan = $query->optimize($index), 'Optimization');
+is($plan->to_string, "or('akron=lustigen','opennlp/p=V')", 'termGroup');
+
 
 ok(!$plan->current, 'Not initialized yet');
 ok($plan->next, 'Init search');
@@ -33,13 +40,16 @@ is($plan->current->to_string, '[2:5-6]', 'Found string');
 ok(!$plan->next, 'No more tokens');
 
 
-
+# (a | b | c)
 $query = $qb->token(
   $qb->term_or('opennlp/p=V', 'akron=lustigen', 'Der')
 );
-is($query->to_string, '[opennlp/p=V|akron=lustigen|Der]', 'termGroup');
-ok($plan = $query->plan_for($index), 'TermGroup');
-is($plan->to_string, "or(or('opennlp/p=V','akron=lustigen'),'Der')", 'termGroup');
+is($query->to_string, '[Der|akron=lustigen|opennlp/p=V]', 'termGroup');
+ok($query = $query->normalize, 'Normalization');
+is($query->to_string, 'Der|akron=lustigen|opennlp/p=V', 'termGroup');
+ok($plan = $query->optimize($index), 'Optimization');
+is($plan->to_string, "or(or('Der','akron=lustigen'),'opennlp/p=V')", 'termGroup');
+
 
 ok(!$plan->current, 'Not initialized yet');
 ok($plan->next, 'Init search');
@@ -53,14 +63,16 @@ is($plan->current->to_string, '[2:5-6]', 'Found string');
 ok(!$plan->next, 'No more tokens');
 
 
-# One element does not exist
+# (a | b | 0)
 $query = $qb->token(
   $qb->term_or('opennlp/p=V', 'traurig', 'Der')
 );
-is($query->to_string, '[opennlp/p=V|traurig|Der]', 'termGroup');
-ok($plan = $query->plan_for($index), 'TermGroup');
-is($plan->to_string, "or('opennlp/p=V','Der')", 'termGroup');
+is($query->to_string, '[Der|opennlp/p=V|traurig]', 'termGroup');
 
+ok($query = $query->normalize, 'Normalization');
+is($query->to_string, 'Der|opennlp/p=V|traurig', 'termGroup');
+ok($plan = $query->optimize($index), 'Optimization');
+is($plan->to_string, "or('Der','opennlp/p=V')", 'termGroup');
 
 
 done_testing;

@@ -109,6 +109,25 @@ ok($query = $query->normalize, 'Normalization');
 is($query->to_string, 'a&c', 'Stringification');
 
 
+# (a|b) & (b|a) -> (a|b)
+$query = $builder->token(
+  $builder->term_and(
+    $builder->term_or(
+      $builder->term('a'),
+      $builder->term('b')
+    ),
+    $builder->term_or(
+      $builder->term('b'),
+      $builder->term('a')
+    )
+  )
+);
+
+is($query->to_string, '[(a|b)&(a|b)]', 'Stringification');
+ok($query = $query->normalize, 'Normalization');
+is($query->to_string, 'a|b', 'Stringification');
+
+
 # a | a -> a
 $query = $builder->token(
   $builder->term_or(
@@ -137,6 +156,27 @@ $query = $builder->token(
 is($query->to_string, '[a&(a|b)]', 'Stringification');
 ok($query = $query->normalize, 'Normalization');
 is($query->to_string, 'a', 'Stringification');
+
+
+
+# (a&b) | (b&a) -> (a&b)
+$query = $builder->token(
+  $builder->term_or(
+    $builder->term_and(
+      $builder->term('a'),
+      $builder->term('b')
+    ),
+    $builder->term_and(
+      $builder->term('b'),
+      $builder->term('a')
+    )
+  )
+);
+
+is($query->to_string, '[(a&b)|(a&b)]', 'Stringification');
+ok($query = $query->normalize, 'Normalization');
+is($query->to_string, 'a&b', 'Stringification');
+
 
 
 # a | (a & b) -> a
@@ -193,6 +233,19 @@ $query = $builder->token(
 is($query->to_string, '[(!(a&b))|(a&b)]', 'Stringification');
 ok($query = $query->normalize, 'Normalization');
 is($query->to_string, '[]', 'Stringification');
+
+
+# (a&!b)|(b&c)
+$query = $builder->token(
+  $builder->term_or(
+    $builder->term_and('aa', $builder->term_neg('bb')),
+    $builder->term_and('bb', 'cc')
+  )
+);
+is($query->to_string, '[(!bb&aa)|(bb&cc)]', 'Stringification');
+ok($query = $query->normalize, 'Normalization');
+is($query->to_string, '(bb&cc)|excl(32:aa,bb)', 'Stringification');
+
 
 
 

@@ -16,14 +16,14 @@ my $qb = $koral->query_builder;
 my $query = $qb->class($qb->token('Der'), 3);
 is($query->to_string, '{3:[Der]}', 'Stringification');
 ok($query = $query->normalize, 'Normalize');
-is($query->to_string, "{3:[Der]}", 'Planned Stringification');
+is($query->to_string, "{3:Der}", 'Planned Stringification');
 ok($query = $query->optimize($index), 'Optimize');
 is($query->to_string, "class(3:'Der')", 'Planned Stringification');
 
 $query = $qb->class($qb->token('der'), 3);
 is($query->to_string, '{3:[der]}', 'Stringification');
 ok($query = $query->normalize, 'Normalize');
-is($query->to_string, '{3:[der]}', 'Stringification');
+is($query->to_string, '{3:der}', 'Stringification');
 ok($query = $query->optimize($index), 'Optimize');
 is($query->to_string, "[0]", 'Planned Stringification');
 

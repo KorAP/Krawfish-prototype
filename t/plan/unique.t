@@ -22,11 +22,11 @@ ok(!$query->is_null, 'Isn\'t null');
 ok(!$query->is_negative, 'Isn\'t negative');
 ok(!$query->is_extended, 'Isn\'t extended');
 is($query->to_string, 'unique(Der)', 'Stringification');
-is($query->plan_for($index)->to_string, "unique('Der')", 'Planned Stringification');
+is($query->normalize->finalize->optimize($index)->to_string, "unique('Der')", 'Planned Stringification');
 
 # Span planning with freq == 0
 $query = $builder->unique($builder->term('xxx'));
 is($query->to_string, 'unique(xxx)', 'Stringification');
-is($query->plan_for($index)->to_string, "[0]", 'Planned Stringification');
+is($query->normalize->finalize->optimize($index)->to_string, "[0]", 'Planned Stringification');
 
 done_testing;

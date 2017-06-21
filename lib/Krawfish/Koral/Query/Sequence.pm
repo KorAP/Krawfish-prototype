@@ -1,5 +1,5 @@
 package Krawfish::Koral::Query::Sequence;
-use parent 'Krawfish::Koral::Query';
+use parent ('Krawfish::Koral::Util::Sequential','Krawfish::Koral::Query');
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -21,6 +21,9 @@ use warnings;
 #   Negative extensions are succeedsDirectly-exclusions wrapped in
 #   an extension.
 
+# TODO:
+#   Rename array to operands!
+
 use constant DEBUG => 0;
 
 
@@ -36,7 +39,12 @@ sub new {
 
 # Get number of operands
 sub size {
-  scalar @{$_[0]->{array}};
+  scalar @{$_[0]->operands};
+};
+
+
+sub operands {
+  $_[0]->{array};
 };
 
 
@@ -47,6 +55,8 @@ sub type { 'sequence' };
 sub plan_for {
   my $self = shift;
   my $index = shift;
+
+  warn 'DEPRECATED';
 
   # Only one element available
   if ($self->size == 1) {
@@ -64,6 +74,7 @@ sub plan_for {
 
   return $tree->plan_for($index);
 };
+
 
 
 # Left extensions are always prefered!

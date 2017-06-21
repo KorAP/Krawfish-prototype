@@ -56,6 +56,9 @@ sub normalize {
     return;
   };
 
+  $self->{first} = $first;
+  $self->{second} = $second;
+
   # TODO merge position constraints!
   my @constraints = ();
   my $last = '';

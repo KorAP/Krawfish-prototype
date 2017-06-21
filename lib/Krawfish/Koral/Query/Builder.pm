@@ -161,6 +161,12 @@ sub ext_right {
 };
 
 
+# Matches anywhere
+sub any {
+  Krawfish::Koral::Query::Token->new;
+};
+
+
 # Null element - only for plan testing purposes
 sub null {
   Krawfish::Koral::Query::Term->new;

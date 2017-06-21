@@ -16,8 +16,10 @@ my $tree = $cb->field_and(
 );
 
 # Remove empty elements
-$tree->normalize;
+ok($tree = $tree->normalize, 'Query normalization');
 is($tree->to_string, 'age=4&author=Peter', 'Resolve idempotence');
+
+
 
 # Solve grouping
 $tree = $cb->field_and(
@@ -106,9 +108,11 @@ $tree = $cb->field_and(
 
 is($tree->to_string, 'a!=1&a=1', 'Plain groups');
 $tree->normalize;
+is($tree->to_string, '', 'Remove empty');
+
 ok($tree->is_nothing, 'Matches nowhere');
 ok(!$tree->is_any, 'Matches everywhere');
-is($tree->to_string, '', 'Remove empty');
+
 
 $tree = $cb->field_or(
   $cb->string('x')->eq('1'),
@@ -159,6 +163,7 @@ $tree = $cb->field_or(
   $cb->nothing,
   $cb->string('z')->eq('1'),
 );
+
 
 is($tree->to_string, '[0]|x=1|z=1', 'Plain groups');
 $tree->normalize;

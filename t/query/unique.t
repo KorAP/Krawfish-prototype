@@ -13,8 +13,9 @@ ok_index($index, '[aa|bb][aa|bb][aa|bb]', 'Add new document');
 my $query = $qb->token(
   $qb->term_or('aa', 'bb')
 );
+
 is($query->to_string, '[aa|bb]', 'termGroup');
-ok(my $non_unique = $query->plan_for($index), 'TermGroup');
+ok(my $non_unique = $query->normalize->finalize->optimize($index), 'TermGroup');
 is($non_unique->to_string, "or('aa','bb')", 'termGroup');
 
 matches($non_unique, [qw/[0:0-1]
@@ -25,13 +26,14 @@ matches($non_unique, [qw/[0:0-1]
                          [0:2-3]/]);
 
 
+
 $query = $qb->unique(
   $qb->token(
     $qb->term_or('aa', 'bb')
   )
 );
 is($query->to_string, 'unique([aa|bb])', 'termGroup');
-ok(my $unique = $query->plan_for($index), 'TermGroup');
+ok(my $unique = $query->normalize->finalize->optimize($index), 'TermGroup');
 is($unique->to_string, "unique(or('aa','bb'))", 'termGroup');
 
 matches($unique, [qw/[0:0-1]

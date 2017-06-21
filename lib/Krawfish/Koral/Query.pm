@@ -71,10 +71,37 @@ sub cache {
 sub optimize;
 
 
+# This is the class to be overwritten
+# by subclasses
+sub _finalize {
+  $_[0];
+};
+
 sub finalize {
   my $self = shift;
 
   my $query = $self;
+
+  if ($query->is_any || $query->is_null) {
+    $self->error(780, "This query matches everywhere");
+    return;
+  };
+
+  if ($query->is_nothing) {
+    return $query->builder->nothing;
+  };
+
+  if ($query->is_negative) {
+    $query->warn(782, 'Exclusivity of query is ignored');
+    $query->is_negative(0);
+  };
+
+  if ($query->is_optional) {
+    $query->warn(781, "Optionality of query is ignored");
+    $query->is_optional(0);
+  };
+
+  $query = $query->_finalize;
 
   # There is a possible 'any' extension,
   # that may exceed the text
@@ -153,7 +180,13 @@ sub is_any {
   return $self->{any} // 0;
 };
 
-sub is_optional       { $_[0]->{optional}       // 0 };
+sub is_optional       {
+  my $self = shift;
+  if (defined $_[0]) {
+    $self->{optional} = shift;
+  };
+  return $self->{optional} // 0;
+};
 
 # Null is empty - e.g. in
 # Der >alte{0}< Mann

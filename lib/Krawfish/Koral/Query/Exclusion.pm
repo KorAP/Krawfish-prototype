@@ -57,6 +57,10 @@ sub normalize {
   # There is nothing to exclude
   if ($second->is_nothing) {
 
+    if (DEBUG) {
+      print_log('kq_excl', 'Second operand matches nowhere: ' . $second->to_string);
+    };
+
     # Match complete $first
     return $first;
   };
@@ -79,11 +83,17 @@ sub normalize {
 
   # Normalize!
   if ($self->{first}->to_string eq $self->{second}->to_string) {
+
+    if (DEBUG) {
+      print_log('kq_excl', 'First and second operand are equal');
+    };
+
     return $self->builder->nothing->normalize;
   };
 
   return $self;
 };
+
 
 sub inflate {
   my ($self, $dict) = @_;

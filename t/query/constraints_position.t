@@ -18,10 +18,12 @@ my $wrap = $qb->constraints(
 );
 
 is($wrap->to_string, "constr(pos=precedesDirectly:[aa],[bb])", 'Query is valid');
-ok(my $query = $wrap->plan_for($index), 'Planning');
-is($query->to_string, "constr(pos=2:'aa','bb')", 'Query is valid');
+ok($wrap = $wrap->normalize->finalize, 'Normalization');
+is($wrap->to_string, "constr(pos=precedesDirectly:aa,bb)", 'Query is valid');
+ok($wrap = $wrap->optimize($index), 'Optimization');
+is($wrap->to_string, "constr(pos=2:'aa','bb')", 'Query is valid');
+matches($wrap, [qw/[0:0-2] [0:0-2] [0:0-2] [0:0-2]/]);
 
-matches($query, [qw/[0:0-2] [0:0-2] [0:0-2] [0:0-2]/]);
 
 # From t/query/positions.t
 
@@ -32,7 +34,10 @@ ok($wrap = $qb->constraints(
   $qb->token('aa'),
   $qb->token('bb')
 ), 'Sequence');
-ok(my $seq = $wrap->plan_for($index), 'Rewrite');
+
+ok(my $seq = $wrap->normalize->finalize->optimize($index), 'Optimization');
+
+# ok(my $seq = $wrap->plan_for($index), 'Rewrite');
 matches($seq, [qw/[0:0-2] [0:2-4]/]);
 
 
@@ -45,7 +50,7 @@ ok($wrap = $qb->constraints(
   $qb->token('aa'),
   $qb->token('bb')
 ), 'Sequence');
-ok($seq = $wrap->plan_for($index), 'Rewrite');
+ok($seq = $wrap->normalize->finalize->optimize($index), 'Rewrite');
 matches($seq, [qw/[0:2-4]/]);
 
 
@@ -58,7 +63,7 @@ ok($wrap = $qb->constraints(
   $qb->token('aa'),
   $qb->token('bb')
 ), 'Sequence');
-ok($seq = $wrap->plan_for($index), 'Rewrite');
+ok($seq = $wrap->normalize->finalize->optimize($index), 'Rewrite');
 matches($seq, [qw/[0:1-3]/]);
 
 
@@ -67,8 +72,10 @@ $index = Krawfish::Index->new;
 ok_index($index,'[aa][cc][aa][bb]', 'Add complex document');
 ok($qb = Krawfish::Koral::Query::Builder->new, 'Create Koral::Builder');
 ok($wrap = $qb->position(['precedesDirectly'],$qb->token('aa'), $qb->token('bb')), 'Sequence');
-ok($seq = $wrap->plan_for($index), 'Rewrite');
+ok($seq = $wrap->normalize->finalize->optimize($index), 'Rewrite');
 matches($seq, [qw/[0:2-4]/]);
+
+
 
 
 # Reset index - situation [bb]..[aa] -> [aa][bb]
@@ -80,8 +87,9 @@ ok($wrap = $qb->constraints(
   $qb->token('aa'),
   $qb->token('bb')
 ), 'Sequence');
-ok($seq = $wrap->plan_for($index), 'Rewrite');
+ok($seq = $wrap->normalize->finalize->optimize($index), 'Rewrite');
 matches($seq, [qw/[0:2-4]/]);
+
 
 
 
@@ -95,8 +103,10 @@ ok($wrap = $qb->constraints(
   $qb->token('aa'),
   $qb->token('bb')
 ), 'Sequence');
-ok($seq = $wrap->plan_for($index), 'Rewrite');
+ok($seq = $wrap->normalize->finalize->optimize($index), 'Rewrite');
 matches($seq, [qw/[0:0-2] [0:0-2] [0:0-2] [0:0-2]/]);
+
+
 
 
 # Reset index
@@ -108,7 +118,7 @@ ok($wrap = $qb->constraints(
   $qb->token('aa'),
   $qb->token('bb')
 ), 'Sequence');
-ok($seq = $wrap->plan_for($index), 'Rewrite');
+ok($seq = $wrap->normalize->finalize->optimize($index), 'Rewrite');
 # query language: [aa][bb]
 matches($seq, [qw/[0:0-2] [0:0-2]/]);
 
@@ -122,8 +132,9 @@ ok($wrap = $qb->constraints(
   $qb->token('aa'),
   $qb->token('bb')
 ), 'Sequence');
-ok($seq = $wrap->plan_for($index), 'Rewrite');
+ok($seq = $wrap->normalize->finalize->optimize($index), 'Rewrite');
 matches($seq, [qw/[0:0-2] [0:0-2]/]);
+
 
 
 # Reset index
@@ -135,8 +146,9 @@ ok($wrap = $qb->constraints(
   $qb->token('aa'),
   $qb->token('bb')
 ), 'Sequence');
-ok($seq = $wrap->plan_for($index), 'Rewrite');
+ok($seq = $wrap->normalize->finalize->optimize($index), 'Rewrite');
 matches($seq, [qw/[0:0-2] [0:0-2] [0:0-2] [0:0-2] [0:2-4] [0:2-4] [0:2-4] [0:2-4]/]);
+
 
 
 
@@ -152,11 +164,12 @@ ok($wrap = $qb->constraints(
   $qb->token('aa'),
   $qb->token('bb')
 ), 'Sequence');
-ok($seq = $wrap->plan_for($index), 'Rewrite');
+ok($seq = $wrap->normalize->finalize->optimize($index), 'Rewrite');
 matches($seq, [
   qw/[0:0-2] [0:0-2] [0:0-2] [0:0-2] [0:2-4] [0:2-4] [0:2-4] [0:2-4]/,
   qw/[3:0-2] [3:0-2] [3:0-2] [3:0-2] [3:2-4] [3:2-4] [3:2-4] [3:2-4]/
 ]);
+
 
 
 ## Overlap
@@ -168,9 +181,14 @@ ok($wrap = $qb->position(
   $qb->class($qb->repeat($qb->token('bb'), 1, undef),2)
 ), 'Sequence');
 
-is($wrap->to_string, 'pos(4:{1:[aa]+},{2:[bb]+})', 'Stringification');
-ok(my $ov = $wrap->plan_for($index), 'Rewrite');
-is($ov->to_string, "constr(pos=4:class(1:rep(1-100:'aa')),class(2:rep(1-100:'bb')))", 'Stringification');
+is($wrap->to_string, 'constr(pos=overlapsLeft:{1:[aa]+},{2:[bb]+})', 'Stringification');
+ok($wrap = $wrap->normalize->finalize, 'Rewrite');
+is($wrap->to_string, 'constr(pos=overlapsLeft:{1:aa{1,100}},{2:bb{1,100}})',
+   'Stringification');
+ok(my $ov = $wrap->optimize($index), 'Optimization');
+is($ov->to_string, "constr(pos=4:class(1:rep(1-100:'aa')),class(2:rep(1-100:'bb')))",
+   'Stringification');
+
 
 # [<0  {1> 2}] 3
 # [<0  {1> 2   3}]

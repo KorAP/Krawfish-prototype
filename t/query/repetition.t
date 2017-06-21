@@ -15,7 +15,7 @@ my $qb = Krawfish::Koral::Query::Builder->new;
 
 ok(my $wrap = $qb->repeat( $qb->token('bb'), 2, 3), 'Repeat');
 is($wrap->to_string, '[bb]{2,3}', 'Stringification');
-ok(my $rep = $wrap->plan_for($index), 'Rewrite');
+ok(my $rep = $wrap->normalize->finalize->optimize($index), 'Rewrite');
 is($rep->to_string, "rep(2-3:'bb')", 'Stringification');
 
 # Expect:
@@ -38,7 +38,7 @@ ok_index($index, [qw/bb bb bb bb cc/], 'Add new document');
 
 ok($wrap = $qb->repeat( $qb->token('bb'), 1, 3), 'Repeat');
 is($wrap->to_string, '[bb]{1,3}', 'Stringification');
-ok($rep = $wrap->plan_for($index), 'Rewrite');
+ok($rep = $wrap->normalize->finalize->optimize($index), 'Rewrite');
 is($rep->to_string, "rep(1-3:'bb')", 'Stringification');
 
 matches($rep, [qw/[0:1-2]
@@ -63,7 +63,7 @@ ok_index($index, [qw/bb bb bb cc bb bb bb bb dd bb/], 'Add new document');
 
 ok($wrap = $qb->repeat( $qb->token('bb'), 1, 3), 'Repeat');
 is($wrap->to_string, '[bb]{1,3}', 'Stringification');
-ok($rep = $wrap->plan_for($index), 'Rewrite');
+ok($rep = $wrap->normalize->finalize->optimize($index), 'Rewrite');
 is($rep->to_string, "rep(1-3:'bb')", 'Stringification');
 
 matches($rep, [qw/[0:0-1]

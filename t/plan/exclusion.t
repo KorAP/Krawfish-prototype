@@ -27,7 +27,7 @@ ok(!$query->is_negative, 'Isn\'t negative');
 ok(!$query->is_extended, 'Isn\'t extended');
 is($query->to_string, 'excl(128:<aa>,[bb])', 'Stringification');
 ok($query = $query->normalize, 'Normalization');
-is($query->to_string, 'excl(128:<aa>,[bb])', 'Stringification');
+is($query->to_string, 'excl(128:<aa>,bb)', 'Stringification');
 ok(!$query->has_error, 'Builder has no error');
 ok($query = $query->optimize($index), 'Optimization');
 is($query->to_string, "excl(128:'<>aa','bb')", 'Stringification');

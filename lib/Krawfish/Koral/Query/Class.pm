@@ -61,6 +61,20 @@ sub normalize {
 };
 
 
+sub finalize {
+  my $self = shift;
+
+  my $span;
+  unless ($span = $self->span->finalize) {
+    $self->copy_info_from($self->span);
+    return;
+  };
+
+  $self->span($span);
+  return $self;
+};
+
+
 sub optimize {
   my ($self, $index) = @_;
 

@@ -22,7 +22,7 @@ is($query->to_string, 'excl(432:<aa>,[bb])', 'Stringification');
 
 # Exclusion planning
 ok_index($index, '<1:aa>[bb][bb]</1><2:aa>[cc]</2>', 'Add complex document');
-ok($wrap = $query->plan_for($index), 'Planning');
+ok($wrap = $query->normalize->finalize->optimize($index), 'Planning');
 is($wrap->to_string, "excl(432:'<>aa','bb')",
    'Planned Stringification');
 matches($wrap, [qw/[0:2-3]/], 'Matches');
@@ -33,7 +33,7 @@ matches($wrap, [qw/[0:2-3]/], 'Matches');
 $index = Krawfish::Index->new;
 ok_index($index, '<1:aa>[bb][bb]</1><2:aa><3:aa>[cc]</3>[bb]</2>', 'Add complex document');
 ok_index($index, '<1:aa>[dd]</1><2:aa>[dd][bb]</2><3:aa>[dd]</3>', 'Add complex document');
-ok($wrap = $query->plan_for($index), 'Planning');
+ok($wrap = $query->normalize->finalize->optimize($index), 'Planning');
 is($wrap->to_string, "excl(432:'<>aa','bb')",
    'Planned Stringification');
 matches($wrap, [qw/[0:2-3] [1:0-1] [1:3-4]/], 'Matches');
@@ -44,7 +44,7 @@ matches($wrap, [qw/[0:2-3] [1:0-1] [1:3-4]/], 'Matches');
 $index = Krawfish::Index->new;
 ok_index($index, '<1:aa>[bb][bb]</1><2:aa><3:aa>[cc]</3>[bb]</2>', 'Add complex document');
 ok_index($index, '<1:aa>[dd]</1><2:aa>[dd][bb]</2><3:aa>[dd]</3>', 'Add complex document');
-ok($wrap = $query->plan_for($index), 'Planning');
+ok($wrap = $query->normalize->finalize->optimize($index), 'Planning');
 is($wrap->to_string, "excl(432:'<>aa','bb')",
    'Planned Stringification');
 matches($wrap, [qw/[0:2-3] [1:0-1] [1:3-4]/], 'Matches');
@@ -63,7 +63,7 @@ $query = $qb->exclusion(
 );
 is($query->to_string, 'excl(16:<aa>,[bb])', 'Stringification');
 
-ok($wrap = $query->plan_for($index), 'Planning');
+ok($wrap = $query->normalize->finalize->optimize($index), 'Planning');
 is($wrap->to_string, "excl(16:'<>aa','bb')",
    'Planned Stringification');
 matches($wrap, [qw/[0:2-3] [0:2-4] [1:0-1] [1:1-3] [1:3-4]/]);
@@ -78,7 +78,7 @@ $query = $qb->exclusion(
   $qb->token('bb')
 );
 is($query->to_string, 'excl(256:<aa>,[bb])', 'Stringification');
-ok($wrap = $query->plan_for($index), 'Planning');
+ok($wrap = $query->normalize->finalize->optimize($index), 'Planning');
 is($wrap->to_string, "excl(256:'<>aa','bb')",
    'Planned Stringification');
 matches($wrap, [qw/[0:2-3] [1:0-1] [1:3-4]/]);
@@ -93,7 +93,7 @@ $query = $qb->exclusion(
   $qb->token('bb')
 );
 is($query->to_string, 'excl(2:[bb],[bb])', 'Stringification');
-ok($wrap = $query->plan_for($index), 'Planning');
+ok($wrap = $query->normalize->finalize->optimize($index), 'Planning');
 is($wrap->to_string, "excl(2:'bb','bb')",
    'Planned Stringification');
 matches($wrap, [qw/[0:1-2] [0:3-4] [1:2-3]/]);
@@ -108,7 +108,7 @@ $query = $qb->exclusion(
   $qb->token('bb')
 );
 is($query->to_string, 'excl(2048:[bb],[bb])', 'Stringification');
-ok($wrap = $query->plan_for($index), 'Planning');
+ok($wrap = $query->normalize->finalize->optimize, 'Planning');
 is($wrap->to_string, "excl(2048:'bb','bb')",
    'Planned Stringification');
 matches($wrap, [qw/[0:0-1] [0:3-4] [1:2-3]/]);
@@ -122,7 +122,7 @@ $query = $qb->exclusion(
   $qb->token('bb')
 );
 is($query->to_string, 'excl(2050:[bb],[bb])', 'Stringification');
-ok($wrap = $query->plan_for($index), 'Planning');
+ok($wrap = $query->normalize->finalize->optimize($index), 'Planning');
 is($wrap->to_string, "excl(2050:'bb','bb')",
    'Planned Stringification');
 matches($wrap, [qw/[0:3-4] [1:2-3]/]);
@@ -143,18 +143,18 @@ ok_index($index, '[aa]', 'Add complex document');
 ok_index($index, '[aa]', 'Add complex document');
 is($query->to_string, 'excl(2:[aa],[bb])', 'Stringification');
 
-ok($wrap = $query->plan_for($index), 'Planning');
+ok($wrap = $query->normalize->finalize->optimize($index), 'Planning');
 is($wrap->to_string, "excl(2:'aa','bb')",
    'Planned Stringification');
 matches($wrap, [qw/[1:0-1] [2:0-1]/]);
 
 
 ok_index($index, '[bb]', 'Add complex document');
-ok($wrap = $query->plan_for($index), 'Planning');
+ok($wrap = $query->normalize->finalize->optimize($index), 'Planning');
 matches($wrap, [qw/[1:0-1] [2:0-1]/]);
 
 ok_index($index, '[aa][bb]', 'Add complex document');
-ok($wrap = $query->plan_for($index), 'Planning');
+ok($wrap = $query->normalize->finalize->optimize($index), 'Planning');
 matches($wrap, [qw/[1:0-1] [2:0-1]/]);
 
 

@@ -107,7 +107,7 @@ sub operands {
 sub operands_in_order {
   my $self = shift;
   my $ops = $self->{operands};
-  return [ sort { $a->to_string cmp $b->to_string } @$ops ];
+  return [ sort { ($a && $b) ? ($a->to_string cmp $b->to_string) : 1 } @$ops ];
 };
 
 
@@ -232,14 +232,16 @@ sub to_string {
   my $str = $self->is_negative ? '!(' : '';
 
   $str .= join($op, map {
-    $_->type eq 'fieldGroup' ?
-      (
-        $_->is_any ?
-          '[1]' :
-          '(' . $_->to_string . ')'
-        )
-      :
-      $_->to_string
+    $_ ? (
+      $_->type eq 'fieldGroup' ?
+       (
+         $_->is_any ?
+           '[1]' :
+           '(' . $_->to_string . ')'
+         )
+       :
+       $_->to_string
+     ) : '()'
     } @{$self->operands_in_order});
 
   $str .= $self->is_negative ? ')' : '';
