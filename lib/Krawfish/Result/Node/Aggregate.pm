@@ -12,4 +12,10 @@ use warnings;
 # match from that segment.
 # Do this, until k is fine.
 
+# Distributet results are returned from each index
+# in an aggregate data section followed by result lines.
+# The result lines can be returned using next_current() etc.
+# while the data aggregation section is returned by the first
+# call.
+
 1;

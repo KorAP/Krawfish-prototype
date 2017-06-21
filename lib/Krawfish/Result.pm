@@ -19,6 +19,10 @@ sub current_match {
 };
 
 
+# TODO:
+#   gibt nur den current des queries zurück.
+#   bei sort() wird zusätzlich das criterion
+#   hinzugefügt.
 sub current {
   shift->{query}->current;
 };

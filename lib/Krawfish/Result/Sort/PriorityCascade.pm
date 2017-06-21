@@ -8,7 +8,7 @@ use Data::Dumper;
 use strict;
 use warnings;
 
-warn 'DEPRECATED';
+# warn 'DEPRECATED';
 
 # This is deprecated in favor of K::R::S::Sort::Ranks
 
