@@ -14,7 +14,6 @@ use warnings;
 # TODO: Term building should be part of
 #   a utility class Krawfish::Util::Koral::Term or so
 
-
 # TODO:
 #   Rename to_term to to_neutral!
 
@@ -24,7 +23,7 @@ sub new {
   my $class = shift;
   my $term = shift;
 
-  my @self;
+  my %self;
 
   if ($term) {
     if ($term =~ m!^(?:([^:\/]+?):)?   # 1 Field
@@ -40,19 +39,31 @@ sub new {
 
       # Key is defined
       if ($6) {
-        @self = ($1, $2, $3, $4, $5, $6, $7);
+        %self = (
+          field => $1,
+          prefix => $2,
+          foundry => $3,
+          layer => $4,
+          operator => $5,
+          key => $6,
+          value => $7
+        );
       }
 
       # The foundry is the key
       else {
-        @self = ($1, $2, undef, undef, undef, $3);
+        %self = (
+          field => $1,
+          prefix => $2,
+          key => $3
+        );
       };
     };
 
     # Term is null
   };
 
-  bless \@self, $class;
+  bless \%self, $class;
 };
 
 sub type { 'term' };
@@ -61,19 +72,24 @@ sub is_leaf { 1 };
 
 sub is_nothing { 0 };
 
+
 sub field {
   if ($_[1]) {
-    $_[0]->[0] = $_[1];
+    $_[0]->{field} = $_[1];
+    return $_[0];
   };
-  $_[0]->[0];
+  $_[0]->{field};
 };
+
 
 sub prefix {
   if ($_[1]) {
-    $_[0]->[1] = $_[1];
+    $_[0]->{prefix} = $_[1];
+    return $_[0];
   };
-  $_[0]->[1];
+  $_[0]->{prefix};
 };
+
 
 sub term_type {
   my $self = shift;
@@ -104,21 +120,22 @@ sub term_type {
 # Foundry of the term
 sub foundry {
   if ($_[1]) {
-    $_[0]->[2] = $_[1];
+    $_[0]->{foundry} = $_[1];
     return $_[0];
   };
-  $_[0]->[2];
+  $_[0]->{foundry};
 };
 
 
 # Layer of the term
 sub layer {
   if ($_[1]) {
-    $_[0]->[3] = $_[1];
+    $_[0]->{layer} = $_[1];
     return $_[0];
   };
-  $_[0]->[3];
+  $_[0]->{layer};
 };
+
 
 # Operation
 sub match {
@@ -139,44 +156,55 @@ sub match {
       }
     };
 
-    $self->[4] = $match;
+    $self->operator($match);
     return $self;
   };
-  $self->[4] // '=';
+  $self->operator;
+};
+
+
+# Operator of the term
+sub operator {
+  if ($_[1]) {
+    $_[0]->{operator} = $_[1];
+    return $_[0];
+  };
+  $_[0]->{operator} // '=';
 };
 
 
 # Key of the term
 sub key {
   if ($_[1]) {
-    $_[0]->[5] = $_[1];
+    $_[0]->{key} = $_[1];
     return $_[0];
   };
-  $_[0]->[5];
+  $_[0]->{key};
 };
 
 
 # Value of the term
 sub value {
   if ($_[1]) {
-    $_[0]->[6] = $_[1];
+    $_[0]->{value} = $_[1];
     return $_[0];
   };
-  $_[0]->[6];
+  $_[0]->{value};
 };
 
 
+# Store filter value
 sub filter_by {
   if ($_[1]) {
-    $_[0]->[7] = $_[1];
+    $_[0]->{filter} = $_[1];
     return $_[0];
   };
-  $_[0]->[7];
+  $_[0]->{filter};
 };
 
 
 sub is_regex {
-  return index($_[0]->match, '~') == -1 ? 0 : 1;
+  return index($_[0]->operator, '~') == -1 ? 0 : 1;
 };
 
 
@@ -194,7 +222,7 @@ sub to_koral_fragment {
   $hash->{layer} = $self->layer if $self->layer;
   $hash->{value} = $self->value if $self->value;
 
-  if ($self->match eq '!=') {
+  if ($self->operator eq '!=') {
     $hash->{match} = 'match:ne';
   };
 
@@ -224,7 +252,7 @@ sub to_string {
       $str .= '/' . $self->layer;
     };
     if ($self->key) {
-      $str .= $self->match ? $self->match : '=';
+      $str .= $self->operator;
     };
   }
   else {
@@ -266,7 +294,7 @@ sub to_term {
   };
   $str .= $self->prefix if $self->prefix;
   my $term = $self->to_string;
-  if ($self->match ne '=') {
+  if ($self->operator ne '=') {
     $term =~ s/!?[=~]/=/;
     $term =~ s/^!//;
   };
@@ -373,6 +401,59 @@ sub optimize {
 };
 
 
+sub is_any {
+  return 1 unless $_[0]->key;
+  return;
+};
+
+sub is_optional {
+  0
+};
+
+sub is_null {
+  return 1 unless $_[0]->key;
+  return;
+};
+
+
+sub is_negative {
+  my $self = shift;
+  if (scalar @_ == 1) {
+    my $neg = shift;
+
+    if ($neg && $self->match eq '=') {
+      $self->match('!=');
+    }
+    elsif (!$neg && $self->match eq '!=') {
+      $self->match('=');
+    };
+  };
+  $self->match eq '!=' ? 1 : 0;
+};
+
+
+
+sub is_extended { 0 };
+sub is_extended_right { 0 };
+sub is_extended_left { 0 };
+sub maybe_unsorted { 0 };
+
+
+sub from_koral {
+  my $class = shift;
+  my $kq = shift;
+  my $term = $class->new;
+  $term->foundry('' . $kq->{foundry}) if $kq->{foundry};
+  $term->layer('' . $kq->{layer}) if $kq->{layer};
+  $term->key('' . $kq->{key}) if $kq->{key};
+  $term->value('' . $kq->{value}) if $kq->{value};
+  $term->match('' . $kq->{match}) if $kq->{match};
+
+  # TODO: Support deserialization of regex!
+  return $term;
+};
+
+
 
 sub plan_for {
   my $self = shift;
@@ -432,49 +513,5 @@ sub plan_for {
 };
 
 
-sub is_any {
-  return 1 unless $_[0]->key;
-  return;
-};
-sub is_optional { 0 };
-sub is_null {
-  return 1 unless $_[0]->key;
-  return;
-};
-
-sub is_negative {
-  my $self = shift;
-  if (scalar @_ == 1) {
-    my $neg = shift;
-
-    if ($neg && $self->match eq '=') {
-      $self->match('!=');
-    }
-    elsif (!$neg && $self->match eq '!=') {
-      $self->match('=');
-    };
-  };
-  $self->match eq '!=' ? 1 : 0;
-};
-
-
-
-sub is_extended { 0 };
-sub is_extended_right { 0 };
-sub is_extended_left { 0 };
-sub maybe_unsorted { 0 };
-
-sub from_koral {
-  my $class = shift;
-  my $kq = shift;
-  my $term = $class->new;
-  $term->foundry('' . $kq->{foundry}) if $kq->{foundry};
-  $term->layer('' . $kq->{layer}) if $kq->{layer};
-  $term->key('' . $kq->{key}) if $kq->{key};
-  $term->match('' . $kq->{match}) if $kq->{match};
-
-  # TODO: Support deserialization of regex!
-  return $term;
-};
 
 1;
