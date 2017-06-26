@@ -27,6 +27,11 @@ is($query->to_string, '{3:der}', 'Stringification');
 ok($query = $query->optimize($index), 'Optimize');
 is($query->to_string, "[0]", 'Planned Stringification');
 
+$query = $qb->class($qb->token('der')->is_negative(1), 3);
+is($query->to_string, '{3:[!der]}', 'Stringification');
+ok($query = $query->normalize, 'Normalize');
+is($query->to_string, '[!der]', 'Stringification');
+
 done_testing;
 __END__
 

@@ -56,6 +56,9 @@ sub normalize {
     return;
   };
 
+  # Ignore class if span is negative
+  return $span if $span->is_negative;
+
   $self->span($span);
   return $self;
 };
