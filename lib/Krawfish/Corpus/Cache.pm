@@ -28,6 +28,15 @@ use warnings;
 #    be indexed next time
 #  - the signature of the koralquery can be used for caching
 
+# A cache may not necessarily be invalidated.
+# It may be filtered using the live document vector (so it is
+# not necessary to invalidate all caches on an updated)
+# and it may be used for the length of the old vector
+# (using and caching the query for all documents beyond).
+# For that, caches may need to be extensible (new entries
+# need to be appended).
+
+
 # Return either a dynamic caching query or a cached stream
 sub new {
   my $class = shift;
