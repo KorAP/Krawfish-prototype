@@ -7,18 +7,23 @@ use warnings;
 
 use constant DEBUG => 0;
 
+# TODO:
+#   Currently this would not work for fields with multiple values!
+#   There may be a need for K::R::S::A::MultiFacets!
+
 # TODO: It may be beneficial to store example documents in the
 #   field ranks, too - so they don't need to be collected on the way ...
 #   See Group::Fields as well.
 #   For this, add a "witness" field
-#
+
 # TODO:
 #   Field aggregates should be sortable either <asc> or <desc>,
 #   and should have a count limitation, may be even a start_index and an items_per_page
 
+
 sub new {
   my $class = shift;
-  my $self = bless {
+  bless {
     index   => shift,
     field   => shift,
 
@@ -37,6 +42,10 @@ sub _init {
 
   # Load the ranked list - may be too large for memory!
   $self->{rank} = $self->{index}->fields->ranked_by($self->{field});
+
+  # TODO:
+  #   In case the field has no rank, because it is a multivalued field,
+  #   a different mechanism has to be used!
 };
 
 

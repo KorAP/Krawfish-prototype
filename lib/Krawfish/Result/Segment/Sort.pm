@@ -43,6 +43,9 @@ use constant {
 #   sort, see
 #   http://lemire.me/blog/2017/06/14/quickselect-versus-binary-heap-for-top-k-queries/
 #   https://plus.google.com/+googleguava/posts/QMD74vZ5dxc
+#   although
+#   http://lemire.me/blog/2017/06/21/top-speed-for-top-k-queries/
+#   says its irrelevant
 
 # TODO:
 #   It should be possible to add the sorting criteria.
@@ -66,7 +69,7 @@ sub new {
   my $ranks = $param{ranks};
 
   # For final field distinction, use unique field
-  push @$ranks, Krawfish::Result::Segment::Sort::Ranks::Field->new(
+  push @$ranks, Krawfish::Result::Segment::Sort::Field->new(
     $param{unique}
   );
 
@@ -149,6 +152,9 @@ sub _init {
     $rank = $ranking->get($match->doc_id);
 
     # Revert if maximum rank is set
+    # TODO:
+    #   That should be done in the
+    #   Krawfish::Result::Segment::Sort::*-Object!
     $rank = $max - $rank if $max;
 
     if (DEBUG) {
