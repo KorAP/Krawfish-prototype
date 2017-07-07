@@ -1,6 +1,7 @@
 package Krawfish::Query::Constraints;
 use parent 'Krawfish::Query::Base::Dual';
 use Krawfish::Util::Buffer;
+use List::Util qw/min/;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -9,6 +10,7 @@ use constant {
   NEXTA => 1,
   NEXTB => 2,
   MATCH => 4,
+  DONE  => 8, # Short circuit match
   DEBUG => 0
 };
 
@@ -55,6 +57,9 @@ sub check {
       # No match - send NEXTA and NEXTB rules
       return $ret_val;
     };
+
+    # If done flag is set, do short circuit
+    last if $check & DONE;
   };
 
   # Match!
@@ -66,6 +71,14 @@ sub check {
   print_log('constr', 'Constraint matches: ' . $self->current->to_string) if DEBUG;
 
   return $ret_val | MATCH;
+};
+
+
+# The frequency is the minimum of both query frequencies
+# Maybe 'cost' is the better term
+sub freq {
+  my $self = shift;
+  min($self->{first}->freq, $self->{second}->freq);
 };
 
 

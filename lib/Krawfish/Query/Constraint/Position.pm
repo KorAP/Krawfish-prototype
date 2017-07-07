@@ -37,6 +37,7 @@ use constant {
   NEXTA => 1,
   NEXTB => 2,
   MATCH => 4,
+  DONE  => 8,
   DEBUG => 0
 };
 

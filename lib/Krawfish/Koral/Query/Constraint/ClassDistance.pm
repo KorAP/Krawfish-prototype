@@ -3,6 +3,8 @@ use Krawfish::Query::Constraint::ClassDistance;
 use strict;
 use warnings;
 
+# This will add a class to the distance between both queries
+
 sub new {
   my $class = shift;
   my $nr = shift;

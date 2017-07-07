@@ -16,7 +16,6 @@ ok_index($index, '[b][b|c][a]', 'Add complex document');
 
 my $qb = Krawfish::Koral::Query::Builder->new;
 
-
 # [a]
 my $seq = $qb->seq(
   $qb->token('a')
@@ -222,10 +221,67 @@ ok($seq = $seq->optimize($index), 'Normalization');
 # Do not check for stringifications
 is($seq->to_string, "constr(pos=2048:'b',constr(pos=2:'a','c'))", 'Stringification');
 
+# Matches nowhere
+matches($seq, [], 'Matches nowhere');
 
 
 
+# Group anchors
+# [a][b][c]
+$seq = $qb->seq(
+  $qb->token('a'),
+  $qb->token('b'),
+  $qb->token('c')
+);
+is($seq->to_string, '[a][b][c]', 'Stringification');
+ok($seq = $seq->normalize->finalize, 'Normalization');
+is($seq->to_string, 'abc', 'Stringification');
+ok($seq = $seq->optimize($index), 'Normalization');
 
+# Do not check for stringifications
+is($seq->to_string, "constr(pos=2:'a',constr(pos=2:'b','c'))", 'Stringification');
+
+# Matches nowhere
+matches($seq, [], 'Matches nowhere');
+
+
+# Group anchors
+# [b][b][c]
+$seq = $qb->seq(
+  $qb->token('b'),
+  $qb->token('b'),
+  $qb->token('a')
+);
+is($seq->to_string, '[b][b][a]', 'Stringification');
+ok($seq = $seq->normalize->finalize, 'Normalization');
+is($seq->to_string, 'bba', 'Stringification');
+ok($seq = $seq->optimize($index), 'Normalization');
+
+# Do not check for stringifications
+is($seq->to_string, "constr(pos=2:'b',constr(pos=2:'b','a'))", 'Stringification');
+
+# Matches twice
+matches($seq, [qw/[0:0-3] [1:0-3]/], 'Matches twice');
+
+
+# Create distance
+# [b][][c]
+$seq = $qb->seq(
+  $qb->token('a'),
+  $qb->token,
+  $qb->token('b')
+);
+is($seq->to_string, '[a][][b]', 'Stringification');
+ok($seq = $seq->normalize->finalize, 'Normalization');
+is($seq->to_string, 'a[]b', 'Stringification');
+ok($seq = $seq->optimize($index), 'Optimization');
+
+# Do not check for stringifications
+is($seq->to_string, "constr(pos=2048:'b',constr(pos=4096,dist=1-1:'b','a'))",
+   'Stringification');
+
+# Matches twice
+#matches($seq, [qw/[0:1-4]/], 'Matches twice');
 
 
 

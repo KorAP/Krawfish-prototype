@@ -2,6 +2,7 @@ package Krawfish::Koral::Util::Sequential;
 use Krawfish::Log;
 use Krawfish::Query::Nothing;
 use Krawfish::Query::Constraint::Position;
+use Krawfish::Query::Constraint::InBetween;
 use Krawfish::Query::Constraints;
 use List::MoreUtils qw!uniq!;
 use strict;
@@ -269,6 +270,30 @@ sub optimize {
   # Secure operations to break
   my $break = $self->size;
 
+  if (DEBUG) {
+    my @list;
+    foreach (@queries) {
+      if ($_->[TYPE] == POS) {
+        push @list, '+';
+      }
+      elsif ($_->[TYPE] == OPT) {
+        push @list, '+?';
+      }
+      elsif ($_->[TYPE] == NEG) {
+        push @list, '-';
+      }
+      elsif ($_->[TYPE] == NOP) {
+        push @list, '-?';
+      }
+      elsif ($_->[TYPE] == ANY) {
+        push @list, '*';
+      };
+    };
+
+    print_log('kq_sequtil', 'Combine ' . join('', map { "[$_]" } @list));
+  };
+
+
   # Join operands, as long as there are more than one
   while (scalar(@queries) > 1) {
 
@@ -289,46 +314,191 @@ sub optimize {
 
 
     # Check the distance between the operands
-    my $dist = abs($index_a - $index_b);
+    my $dist = defined $index_b ? abs($index_a - $index_b) : 0;
+
     print_log('kq_sequtil', 'Distance is ' . $dist) if DEBUG;
 
-    if ($dist <= 2) {
-
-      # Best operands are consecutive
-      if ($dist == 1) {
+    # Best operands are consecutive
+    if ($dist == 1) {
 
       # Join both operands
+      my $query_a = $queries->[$index_a];
+      my $query_b = $queries->[$index_b];
+      my $new_query;
 
-        my $query_a = $queries->[$index_a];
-        my $query_b = $queries->[$index_b];
-        my $new_query;
+      # Create a follows directly,
+      # because the second operand is buffered and should occur less often
+      if ($index_a < $index_b) {
+        $new_query = _succeeds_directly($query_b->[QUERY], $query_a->[QUERY]);
+      }
 
-        # Create a follows directly,
-        # because the second operand is buffered and should occur less often
-        if ($index_a < $index_b) {
-          $new_query = $self->_succeeds_directly($query_b->[QUERY], $query_a->[QUERY]);
+      # Create a precedes directly
+      else {
+        $new_query = _precedes_directly($query_b->[QUERY], $query_a->[QUERY]);
+      }
+
+      # Set new query
+      $queries->[$index_a] = [POS, $new_query->freq, $new_query];
+
+      # Remove old query
+      splice(@$queries, $index_b, 1);
+
+      if (DEBUG) {
+        print_log(
+          'kq_sequtil',
+          'Queries are consecutive, build query ' . $new_query->to_string
+        );
+      };
+
+      # Go to next combination
+      next;
+    }
+
+    # Check distance between two operands
+    #
+    elsif ($dist == 2) {
+
+      # Check order
+      my $new_query;
+      my $index_between = $index_a < $index_b ? $index_a + 1 : $index_a - 1;
+
+      # a) If there is an optional, variable, classed ANY operand
+      #    in between, make a distance query
+
+      # The inbetween is ANY
+      if ($queries->[$index_between]->[TYPE] == ANY) {
+
+        my $any = $queries->[$index_between]->[QUERY];
+        my $constraint = {};
+
+        if ($any->is_optional) {
+          $constraint->{optional} = 1;
+        };
+
+        # Type is classed
+        if ($any->type eq 'class') {
+          $constraint->{class} = $any->number;
+
+          # Return inner-query
+          $any = $any->span;
+        };
+
+        # Type is repetition
+        if ($any->type eq 'repetition') {
+          $constraint->{min} = $any->min;
+          $constraint->{max} = $any->max;
         }
 
-        # Create a precedes directly
         else {
-          $new_query = $self->_precedes_directly($query_b->[QUERY], $query_a->[QUERY]);
+          $constraint->{min} = 1;
+          $constraint->{max} = 1;
+        };
+
+        # Any now should be a simple term
+        if ($any->type ne 'token') {
+          die 'Any token is not term!';
+        };
+
+        # Respect sorting order
+        if ($index_a < $index_b) {
+          $constraint->{direction} = 'succeeds';
         }
+        else {
+          $constraint->{direction} = 'precedes';
+        };
+
+        # Return constraint with query a being rare
+        $new_query = _constraint(
+          $queries->[$index_b]->[QUERY],
+          $queries->[$index_a]->[QUERY],
+          $constraint
+        );
 
         # Set new query
         $queries->[$index_a] = [POS, $new_query->freq, $new_query];
 
         # Remove old query
+        splice(@$queries, $index_between, 1);
         splice(@$queries, $index_b, 1);
 
-        print_log(
-          'kq_sequtil',
-          'Queries are consecutive, build query ' . $new_query->to_string
-        ) if DEBUG;
+        if (DEBUG) {
+          print_log(
+            'kq_sequtil',
+            'Queries are in a distance, build query ' . $new_query->to_string
+          );
+        };
+
+        next;
+      };
+    };
+
+    # Matches are too far away or there is no index_b
+    # Combine with surrounding operands
+
+    # Get surrounding queries
+    my $surr_l = $index_a - 1;
+    my $surr_r = $index_a + 1;
+    my $surr_i;
+    my $surr_l_query = $surr_l > 0 ? $queries->[$surr_l] : undef;
+    my $surr_r_query = $surr_r < $#queries ? $queries->[$surr_r] : undef;
+    my $new_query;
+
+    # d) If there is a varying non-optional size POS element surrounding,
+    #    create a sequence.
+    #    if there are two, with the rarest,
+    #    and closer to the index_b, or closer to the middle
+    if (($surr_l_query && $surr_l_query->[TYPE] == POS) ||
+          ($surr_r_query && $surr_r_query->[TYPE] == POS)) {
+
+      # Both surrounding types are POS
+      if ($surr_l_query && $surr_r_query &&
+            ($surr_l_query->[TYPE] == $surr_r_query->[TYPE])) {
+
+        # Left index is best
+        if ($surr_l_query->[FREQ] < $surr_r_query->[FREQ]) {
+          $surr_i = $surr_l;
+        }
+
+        # Right index is best
+        elsif ($surr_l_query->[FREQ] > $surr_r_query->[FREQ]) {
+          $surr_i = $surr_r;
+        }
+
+        # Take the one closer to index_b
+        elsif (abs($surr_l - $index_b) > abs($surr_r - $index_b)) {
+          $surr_i = $surr_r;
+        }
+        else {
+          $surr_i = $surr_l;
+        };
       }
 
-      # Check distance between two operands
-      elsif ($dist == 2) {
-        ...
+      # Only left surrounding is POS
+      elsif ($surr_l && $surr_l_query->[TYPE]) {
+        $surr_i = $surr_l;
+      }
+
+      # Only right surrounding is POS
+      else {
+        $surr_i = $surr_r;
+      };
+
+      # Join with surrounding operand
+      if ($surr_i < $index_a) {
+
+        # Precede the queries directly
+        $new_query = _precedes_directly(
+          $queries->[$surr_i]->[QUERY],
+          $queries->[$index_a]->[QUERY]
+        );
+
+        # Set new query
+        $queries->[$index_a] = [POS, $new_query->freq, $new_query];
+
+        # Remove old query
+        splice(@$queries, $surr_i, 1);
+
+        next;
       };
     };
 
@@ -374,9 +544,6 @@ sub optimize {
   #         [a]{[]{1,3}} -> rightExt(class=1: a, 1, 3)
   #         GOTO 2.
   # ...
-  #      If there is a varying non-optional size POS element surrounding,
-  #       if there are two, with the rarest,
-  #       and closer to the middle of the sequence (absolute)
 
   return $queries[0]->[QUERY];
 };
@@ -480,25 +647,12 @@ sub _compare {
 };
 
 
-sub _get_middle {
-  my ($query_types, $left_index, $right_index) = @_;
-  ...
-};
 
-
-sub _compact {
-  my ($query_types, $queries) = @_;
-  for (my $i = (scalar @$query_types - 1); $i >= 0; $i--) {
-    if ($query_types->[$i] == NULL) {
-      splice(@$query_types, $i, 1);
-      splice(@$queries, $i, 1);
-    };
-  };
-};
-
+# Build methods
 # Create raw queries
+
 sub _precedes_directly {
-  my ($self, $query_a, $query_b) = @_;
+  my ($query_a, $query_b) = @_;
 
   return Krawfish::Query::Constraints->new(
     [Krawfish::Query::Constraint::Position->new(PRECEDES_DIRECTLY)],
@@ -508,9 +662,8 @@ sub _precedes_directly {
 };
 
 
-# Create raw queries
 sub _succeeds_directly {
-  my ($self, $query_a, $query_b) = @_;
+  my ($query_a, $query_b) = @_;
 
   return Krawfish::Query::Constraints->new(
     [Krawfish::Query::Constraint::Position->new(SUCCEEDS_DIRECTLY)],
@@ -518,6 +671,53 @@ sub _succeeds_directly {
     $query_b
   );
 };
+
+
+# TODO:
+#   Does not support tokens and gaps yet
+sub _constraint {
+  my ($query_a, $query_b, $constraint) = @_;
+
+  # Distance is optional
+  my $pos_frame;
+
+  if ($constraint->{direction} eq 'precedes') {
+    $pos_frame = PRECEDES;
+    $pos_frame |= PRECEDES_DIRECTLY if $constraint->{optional};
+  }
+  elsif ($constraint->{direction} eq 'succeeds') {
+    $pos_frame = SUCCEEDS;
+    $pos_frame |= SUCCEEDS_DIRECTLY if $constraint->{optional};
+  }
+  else {
+    warn 'Unknown direction '. $constraint->{direction};
+    return;
+  };
+
+  my @constraints = ();
+
+  push @constraints,
+    Krawfish::Query::Constraint::Position->new($pos_frame);
+
+  # Add distance constraint
+  if ($constraint->{min} && $constraint->{max}) {
+    push @constraints,
+      Krawfish::Query::Constraint::InBetween->new($constraint->{min}, $constraint->{max});
+  };
+
+  # Add class constraint
+  if ($constraint->{class}) {
+    push @constraints,
+      Krawfish::Query::Constraint::ClassDistance->new($constraint->{class});
+  };
+
+  return Krawfish::Query::Constraints->new(
+    \@constraints,
+    $query_a,
+    $query_b
+  );
+};
+
 
 1;
 
@@ -570,12 +770,12 @@ __END__
               'Freq is '. $query->to_string . ' <= ' .$queries[$next_i]->to_string
             ) if DEBUG;
 
-            $query = $self->_precedes_directly($query, $queries[$next_i]);
+            $query = _precedes_directly($query, $queries[$next_i]);
           }
 
           # Reverse the order due to frequency optimization
           else {
-            $query = $self->_succeeds_directly($queries[$next_i], $query);
+            $query = _succeeds_directly($queries[$next_i], $query);
           };
 
           $queries[$next_i] = undef;

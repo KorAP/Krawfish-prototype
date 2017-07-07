@@ -5,14 +5,18 @@ use warnings;
 
 # Check, if a negative token is in between.
 # Like [orth=Der][orth!=alte][orth=Mann].
+#
+# TODO: Support optional flag
 
 use constant {
   NEXTA => 1,
   NEXTB => 2,
   MATCH => 4,
+  DONE  => 8,
   ALL_MATCH => (1 | 2 | 4),
   DEBUG => 1
 };
+
 
 sub new {
   my $class = shift;

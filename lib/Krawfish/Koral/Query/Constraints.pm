@@ -12,8 +12,8 @@ use constant DEBUG => 1;
 
 # TODO:
 #   In the logical planning phase
-#   - ensure no constraints are doubled
-#   - position constraints are merged
+#   - ensure no constraints are doubled if consecutive
+#   - position constraints are merged if consecutive
 #   - not_between has a c_position('precedes','follows') constraint
 #     in front.
 
@@ -175,6 +175,7 @@ sub optimize {
 
 sub constraints_in_order {
   my $self = shift;
+  warn 'Constraints should not be sorted alphabetically';
   my $constr = $self->{constraints};
   return [ sort { $a->to_string cmp $b->to_string } @$constr ];
 };
