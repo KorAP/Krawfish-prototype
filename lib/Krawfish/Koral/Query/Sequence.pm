@@ -5,10 +5,6 @@ use strict;
 use warnings;
 
 # TODO:
-#   Optimize if there is an identical subquery
-#   in a direct sequence - make this a repetition!!!
-
-# TODO:
 #   Check for queries like "Der {[pos!=ADJ]*} Mann"
 
 # TODO:
@@ -218,7 +214,8 @@ sub to_koral_fragment {
 };
 
 sub to_string {
-  return join '', map { $_->to_string } @{$_[0]->{array}};
+  my $self = shift;
+  return join '', map { $_->to_string } @{$self->operands};
 };
 
 sub from_koral {
