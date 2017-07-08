@@ -321,34 +321,8 @@ sub optimize {
     # Best operands are consecutive
     if ($dist == 1) {
 
-      # Join both operands
-      my $query_a = $queries->[$index_a];
-      my $query_b = $queries->[$index_b];
-      my $new_query;
-
-      # Create a follows directly,
-      # because the second operand is buffered and should occur less often
-      if ($index_a < $index_b) {
-        $new_query = _succeeds_directly($query_b->[QUERY], $query_a->[QUERY]);
-      }
-
-      # Create a precedes directly
-      else {
-        $new_query = _precedes_directly($query_b->[QUERY], $query_a->[QUERY]);
-      }
-
-      # Set new query
-      $queries->[$index_a] = [POS, $new_query->freq, $new_query];
-
-      # Remove old query
-      splice(@$queries, $index_b, 1);
-
-      if (DEBUG) {
-        print_log(
-          'kq_sequtil',
-          'Queries are consecutive, build query ' . $new_query->to_string
-        );
-      };
+      # Combinde positives
+      _combine_pos($queries, $index_a, $index_b);
 
       # Go to next combination
       next;
@@ -359,7 +333,6 @@ sub optimize {
     elsif ($dist == 2) {
 
       # Check order
-      my $new_query;
       my $index_between = $index_a < $index_b ? $index_a + 1 : $index_a - 1;
 
       # a) If there is an optional, variable, classed ANY operand
@@ -367,67 +340,7 @@ sub optimize {
 
       # The inbetween is ANY
       if ($queries->[$index_between]->[TYPE] == ANY) {
-
-        my $any = $queries->[$index_between]->[QUERY];
-        my $constraint = {};
-
-        if ($any->is_optional) {
-          $constraint->{optional} = 1;
-        };
-
-        # Type is classed
-        if ($any->type eq 'class') {
-          $constraint->{class} = $any->number;
-
-          # Return inner-query
-          $any = $any->span;
-        };
-
-        # Type is repetition
-        if ($any->type eq 'repetition') {
-          $constraint->{min} = $any->min;
-          $constraint->{max} = $any->max;
-        }
-
-        else {
-          $constraint->{min} = 1;
-          $constraint->{max} = 1;
-        };
-
-        # Any now should be a simple term
-        if ($any->type ne 'token') {
-          die 'Any token is not term!';
-        };
-
-        # Respect sorting order
-        if ($index_a < $index_b) {
-          $constraint->{direction} = 'succeeds';
-        }
-        else {
-          $constraint->{direction} = 'precedes';
-        };
-
-        # Return constraint with query a being rare
-        $new_query = _constraint(
-          $queries->[$index_b]->[QUERY],
-          $queries->[$index_a]->[QUERY],
-          $constraint
-        );
-
-        # Set new query
-        $queries->[$index_a] = [POS, $new_query->freq, $new_query];
-
-        # Remove old query
-        splice(@$queries, $index_between, 1);
-        splice(@$queries, $index_b, 1);
-
-        if (DEBUG) {
-          print_log(
-            'kq_sequtil',
-            'Queries are in a distance, build query ' . $new_query->to_string
-          );
-        };
-
+        _combine_any($queries, $index_a, $index_b, $index_between);
         next;
       };
     };
@@ -546,6 +459,105 @@ sub optimize {
   # ...
 
   return $queries[0]->[QUERY];
+};
+
+
+sub _combine_pos {
+  my ($queries, $index_a, $index_b) = @_;
+
+  # Join both operands
+  my $query_a = $queries->[$index_a];
+  my $query_b = $queries->[$index_b];
+  my $new_query;
+
+  # Create a follows directly,
+  # because the second operand is buffered and should occur less often
+  if ($index_a < $index_b) {
+    $new_query = _succeeds_directly($query_b->[QUERY], $query_a->[QUERY]);
+  }
+
+  # Create a precedes directly
+  else {
+    $new_query = _precedes_directly($query_b->[QUERY], $query_a->[QUERY]);
+  }
+
+  # Set new query
+  $queries->[$index_a] = [POS, $new_query->freq, $new_query];
+
+  # Remove old query
+  splice(@$queries, $index_b, 1);
+
+  if (DEBUG) {
+    print_log(
+      'kq_sequtil',
+      'Queries are consecutive, build query ' . $new_query->to_string
+    );
+  };
+};
+
+sub _combine_any {
+  my ($queries, $index_a, $index_b, $index_between) = @_;
+
+  my $new_query;
+  my $any = $queries->[$index_between]->[QUERY];
+  my $constraint = {};
+
+  if ($any->is_optional) {
+    $constraint->{optional} = 1;
+  };
+
+  # Type is classed
+  if ($any->type eq 'class') {
+    $constraint->{class} = $any->number;
+
+    # Return inner-query
+    $any = $any->span;
+  };
+
+  # Type is repetition
+  if ($any->type eq 'repetition') {
+    $constraint->{min} = $any->min;
+    $constraint->{max} = $any->max;
+  }
+
+  else {
+    $constraint->{min} = 1;
+    $constraint->{max} = 1;
+  };
+
+  # Any now should be a simple term
+  if ($any->type ne 'token') {
+    die 'Any token is not term!';
+  };
+
+  # Respect sorting order
+  if ($index_a < $index_b) {
+    $constraint->{direction} = 'succeeds';
+  }
+  else {
+    $constraint->{direction} = 'precedes';
+  };
+
+  # Return constraint with query a being rare
+  $new_query = _constraint(
+    $queries->[$index_b]->[QUERY],
+    $queries->[$index_a]->[QUERY],
+    $constraint
+  );
+
+  # Set new query
+  $queries->[$index_a] = [POS, $new_query->freq, $new_query];
+
+  # Remove old query
+  splice(@$queries, $index_between, 1);
+  splice(@$queries, $index_b, 1);
+
+  if (DEBUG) {
+    print_log(
+      'kq_sequtil',
+      'Queries are in a distance, build query ' . $new_query->to_string
+    );
+  };
 };
 
 
