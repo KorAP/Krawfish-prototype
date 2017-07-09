@@ -28,6 +28,7 @@ use constant {
   NEXTB => 2,
   MATCH => 4,
   DONE  => 8, # Short circuit match
+  ALL_MATCH => (1 | 2 | 4),
   DEBUG => 0
 };
 
@@ -44,11 +45,11 @@ sub new {
 
 sub to_string {
   my $self = shift;
-  return 'dist=' . $self->{min} . '-' . $self->{max};
+  return 'between=' . $self->{min} . '-' . $self->{max};
 };
 
 # Initialize foundry
-sub _init {
+sub init {
   # If foundry is set, load token class and receive
   # max_subtokens
   ...
@@ -56,28 +57,42 @@ sub _init {
 
 sub check {
   my $self = shift;
-  my ($payload, $first, $second) = @_;
+  my ($first, $second, $payload) = @_;
 
   # TODO:
   #   First check against max_tokens, so the real tokens
   #   are not consultated necessarily all the time
 
-  # There are not enough segments to be valid
-  return if $first->end - $second->start < $self->{min};
-
-  if ($first->end == $second->start && $self->{min} == 0) {
-    return NEXTA | NEXTB | MATCH | DONE;
-  };
-
   # Check segments
-  if (!$self->{foundry}) {
-    ...
-  }
+  # if (!$self->{foundry}) {
+  #   ...
+  # }
 
   # Check tokens
-  else {
-    ...
-  }
+  # else {
+  #   ...
+  # }
+
+  if (!$first || !$second) {
+    return NEXTA | NEXTB;
+  };
+
+  # Fine and disable following constraints
+  if ($self->{min} == 0 && $first->end == $second->start) {
+    return ALL_MATCH | DONE;
+  };
+
+  # There are not enough segments to be valid
+  if (($second->start - $first->end) < $self->{min} or
+        ($second->start - $first->end) > $self->{max}) {
+    return NEXTA | NEXTB;
+  };
+
+  return ALL_MATCH;
 };
 
+
 1;
+
+
+__END__
