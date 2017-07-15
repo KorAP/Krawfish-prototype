@@ -288,6 +288,46 @@ ok(!$rep->is_extended_right, 'Is not extended to the right');
 ok(!$rep->is_extended_left, 'Is not extended to the left');
 
 
+# [hey]{1,1}
+$rep = $builder->repeat($builder->token('hey'), 1, 1);
+is($rep->to_string, '[hey]{1}', 'Stringification');
+ok(!$rep->is_any, 'Is not any');
+ok(!$rep->is_optional, 'Is not optional');
+ok(!$rep->is_null, 'Is not null');
+ok(!$rep->is_negative, 'Is not negative');
+ok(!$rep->is_extended, 'Is not extended');
+ok(!$rep->is_extended_right, 'Is not extended to the right');
+ok(!$rep->is_extended_left, 'Is not extended to the left');
+ok($rep = $rep->normalize, 'Normalization');
+ok(!$rep->has_error, 'Error not set');
+is($rep->to_string, 'hey', 'Stringification');
+ok($rep = $rep->finalize, 'Normalization');
+ok(!$rep->has_error, 'Error not set');
+is($rep->to_string, 'hey', 'Stringification');
+ok($rep = $rep->optimize($index), 'Normalization');
+is($rep->to_string, "'hey'", 'Normalization');
+
+# [hey]{0,1}
+$rep = $builder->repeat($builder->token('hey'), 0, 1);
+is($rep->to_string, '[hey]?', 'Stringification');
+ok(!$rep->is_any, 'Is not any');
+ok($rep->is_optional, 'Is optional');
+ok(!$rep->is_null, 'Is not null');
+ok(!$rep->is_negative, 'Is not negative');
+ok(!$rep->is_extended, 'Is not extended');
+ok(!$rep->is_extended_right, 'Is not extended to the right');
+ok(!$rep->is_extended_left, 'Is not extended to the left');
+is($rep->to_string, '[hey]?', 'Normalization');
+ok($rep = $rep->normalize, 'Normalization');
+is($rep->to_string, 'hey?', 'Normalization');
+ok(!$rep->has_error, 'Error set');
+ok($rep = $rep->finalize, 'Normalization');
+ok($rep->has_warning, 'Error set');
+is($rep->warning->[0]->[1], 'Optionality of query is ignored', 'Error');
+is($rep->to_string, 'hey', 'Normalization');
+ok($rep = $rep->optimize($index), 'Normalization');
+is($rep->to_string, "'hey'", 'Normalization');
+
 
 done_testing;
 

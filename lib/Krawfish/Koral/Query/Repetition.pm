@@ -79,6 +79,7 @@ sub is_any {
   $_[0]->{span}->is_any;
 };
 
+
 sub is_optional {
   my $self = shift;
   if (defined $_[0] && $_[0] == 0) {
@@ -165,6 +166,12 @@ sub normalize {
 
   $self->min($min);
   $self->max($max);
+
+  # [a]{1,1} -> [a]
+  if ($min == 1 && $max == 1) {
+    return $self->{span};
+  };
+
   return $self;
 };
 
@@ -186,9 +193,17 @@ sub finalize {
   # Copy messages from span serialization
   my $span;
   unless ($span = $self->{span}->finalize) {
+
     $self->copy_info_from($self->{span});
     return;
   };
+
+  # [a]{1,1} -> [a]
+  if ($self->{min} == 1 && $self->{max} == 1) {
+    $span->copy_info_from($self);
+    return $span;
+  };
+
 
   if ($min == 1 && $max == 1) {
     return $span;
