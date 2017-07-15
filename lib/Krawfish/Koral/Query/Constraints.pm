@@ -11,12 +11,9 @@ use warnings;
 use constant DEBUG => 1;
 
 # TODO:
-#   In the logical planning phase
-#   - ensure no constraints are doubled if consecutive
-#   - position constraints are merged if consecutive
-#   - not_between has a c_position('precedes','follows') constraint
-#     in front.
+#   Normalization phase can be optimized.
 
+# Constructor
 sub new {
   my $class = shift;
   bless {
@@ -27,12 +24,10 @@ sub new {
 };
 
 
-sub to_koral_fragment {
-  ...
- };
-
 sub type { 'constraints' };
 
+
+# List of ordered constraints
 sub constraints {
   my $self = shift;
   if (@_) {
@@ -42,9 +37,11 @@ sub constraints {
 };
 
 
+# Normalize constraints
 sub normalize {
   my $self = shift;
 
+  # Normalize both operands
   my ($first, $second);
   unless ($first = $self->{first}->normalize) {
     $self->copy_info_from($self->{first});
@@ -59,10 +56,23 @@ sub normalize {
   $self->{first} = $first;
   $self->{second} = $second;
 
-  # TODO merge position constraints!
+  # TODO:
+  #   Merge position constraints!
+  # TODO:
+  #   When an inbetween constraint and a position constraint exists,
+  #   make sure they don't contradict, like
+  #   position=precedesDirectly and inBetween=3-6
+  # TODO:
+  #   Reorder subs!
+  # TODO:
+  #   Ensure no constraints are doubled if consecutive
+  # TODO:
+  #   not_between and in_between has a c_position('precedes','succeeds')
+  #   constraint in front.
+
   my @constraints = ();
   my $last = '';
-  foreach (@{$self->constraints_in_order}) {
+  foreach (@{$self->constraints}) {
 
     # Ignore idempotence
     my $c = $_->to_string;
@@ -70,8 +80,9 @@ sub normalize {
     $last = $c;
 
     # Plan may result in a null-query
-    # TODO: Copy warnings etc.
-    # Return undef, if the query is 
+    # TODO:
+    #   Copy warnings etc.
+    #   Return undef, if the query is null
     my $norm = $_->normalize or next;
 
     push @constraints, $norm;
@@ -79,12 +90,6 @@ sub normalize {
 
   # Set constraints
   $self->constraints(\@constraints);
-
-
-  # TODO: Reorder subs!
-
-  # TODO: Merge subs
-
 
   # There is only a single constraint
   if (@constraints == 1) {
@@ -147,9 +152,11 @@ sub _normalize_single_position {
 };
 
 
+# Optimize the query for an index
 sub optimize {
   my ($self, $index) = @_;
 
+  # Optimize operands
   my $first = $self->{first}->optimize($index);
   if ($first->freq == 0) {
     return Krawfish::Query::Nothing->new;
@@ -160,12 +167,14 @@ sub optimize {
     return Krawfish::Query::Nothing->new;
   };
 
+  # Optimize constraints
   my @constraints = ();
-  foreach (@{$self->constraints_in_order}) {
+  foreach (@{$self->constraints}) {
     my $opt = $_->optimize($index) or next;
     push @constraints, $opt;
   };
 
+  # Create constraint
   return Krawfish::Query::Constraints->new(
     \@constraints,
     $first,
@@ -173,12 +182,42 @@ sub optimize {
   );
 };
 
-sub constraints_in_order {
+sub filter_by {
   my $self = shift;
-  warn 'Constraints should not be sorted alphabetically';
-  my $constr = $self->{constraints};
-  return [ sort { $a->to_string cmp $b->to_string } @$constr ];
+  my $corpus_query = shift;
+  $self->{first}->filter_by($corpus_query);
+  $self->{second}->filter_by($corpus_query);
+
+  # TODO:
+  #   filter constraints
+
+  return $self;
 };
+
+
+# Return true if the query can be unsorted
+sub maybe_unsorded {
+  ...
+};
+
+
+# Serialize to KoralQuery
+sub to_koral_fragment {
+  ...
+};
+
+
+# Stringification
+sub to_string {
+  my $self = shift;
+  my $str = 'constr(';
+  $str .= join(',', map { $_->to_string } @{$self->{constraints}});
+  $str .= ':';
+  $str .= $self->{first}->to_string . ',' . $self->{second}->to_string;
+  return $str . ')';
+};
+
+
 
 
 
@@ -212,36 +251,6 @@ sub plan_for {
     $first,
     $second
   );
-};
-
-
-sub filter_by {
-  my $self = shift;
-  my $corpus_query = shift;
-  $self->{first}->filter_by($corpus_query);
-  $self->{second}->filter_by($corpus_query);
-
-  # TODO:
-  #   filter constraints
-
-  return $self;
-};
-
-
-# TODO: Made helpers constrained knowing
-
-sub maybe_unsorded {
-  ...
-};
-
-
-sub to_string {
-  my $self = shift;
-  my $str = 'constr(';
-  $str .= join(',', map { $_->to_string } @{$self->{constraints}});
-  $str .= ':';
-  $str .= $self->{first}->to_string . ',' . $self->{second}->to_string;
-  return $str . ')';
 };
 
 

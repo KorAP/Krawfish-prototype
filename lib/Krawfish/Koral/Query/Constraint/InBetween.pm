@@ -16,6 +16,8 @@ sub new {
   }, $class;
 };
 
+
+# Stringify
 sub to_string {
   my $self = shift;
   return 'between=' . $self->{min} . '-' . $self->{max};
@@ -27,9 +29,10 @@ sub normalize {
   $_[0];
 };
 
+
+# Optimize constraint
 sub optimize {
   my ($self, $index) = @_;
-
   return Krawfish::Query::Constraint::InBetween->new($self->{min}, $self->{max});
 };
 

@@ -9,16 +9,17 @@ use strict;
 use warnings;
 
 use constant {
-  DEBUG => 1,
-    NULL => 0,
-    POS => 1,
-    OPT => 2,
-    NEG => 3,
-    NOP => 4,
-    ANY => 5,
-    TYPE  => 0,
-    FREQ  => 1,
-    QUERY => 2
+  DEBUG  => 1,
+  NULL   => 0,
+  POS    => 1,
+  OPT    => 2,
+  NEG    => 3,
+  NOP    => 4,
+  ANY    => 5,
+  TYPE   => 0,
+  FREQ   => 1,
+  QUERY  => 2,
+  KQUERY => 3
 };
 
 # TODO:
@@ -99,7 +100,7 @@ sub normalize {
 
   # TODO:
   # Simplify repetitions
-  # $self = $self->_reslove_consecutive_repetitions;
+  # $self = $self->_resolve_consecutive_repetitions;
 
   # There are no problems
   return $self unless @problems;
@@ -150,7 +151,7 @@ sub _resolve_consecutive_repetitions {
 
 # TODO:
 # In finalize check, if there is at least one non-optional anchor
-# sub finalize
+# sub finalize;
 
 sub has_problems {
   return $_[0]->{_problems};
@@ -164,13 +165,14 @@ sub has_problems {
 #   regarding payloads, so an additional feature for costs may be useful!
 # TODO:
 #   remember filter flag!!!
+#
 sub optimize {
   my ($self, $index) = @_;
 
   print_log('kq_sequtil', 'Optimize sequence') if DEBUG;
 
   # Length of operand size with different types
-  # Stores values as [TYPE, FREQ, QUERY]
+  # Stores values as [TYPE, FREQ, QUERY, KQUERY]
   my @queries;
 
   # Remember the least common non-optional positive query
@@ -189,34 +191,18 @@ sub optimize {
 
     # Query matches anywhere
     if ($op->is_any) {
-      $queries[$i] = [ANY, -1, $op];
+      $queries[$i] = [ANY, -1, undef, $op];
     }
 
     # Is negative operand
     elsif ($op->is_negative) {
 
-      # Directly collect negative queries
-      my $query = $ops->[$i]->optimize($index);
-      my $freq = $query->freq;
-
-      # Negative operand can't occur - rewrite to any query, but
-      # keep quantities intact (i.e. <!s> can have different length than [!a])
-      if ($query->freq != 0) {
-
-        if ($op->is_optional) {
-          $queries[$i] = [NOP, $freq, $query];
-        }
-        else {
-          $queries[$i] = [NEG, $freq, $query];
-        }
+      # Operand is optional
+      if ($op->is_optional) {
+        $queries[$i] = [NOP, -1, undef, $op];
       }
       else {
-        if (DEBUG) {
-          print_log('kq_sequtil', 'Negative query ' . $query->to_string . ' never occurs');
-        };
-
-        # Treat non-existing negative operand as an ANY query
-        $queries[$i] = [ANY, -1, $query];
+        $queries[$i] = [NEG, -1, undef, $op];
       };
     }
 
@@ -243,13 +229,13 @@ sub optimize {
         if (!defined $filterable_query || $freq < $queries[$filterable_query]->freq) {
           $filterable_query = $_;
         };
-        $queries[$i] = [POS, $freq, $query];
+        $queries[$i] = [POS, $freq, $query, undef];
       }
 
       # The operand is optional
       else {
         print_log('kq_sequtil', $query->to_string . ' is optional') if DEBUG;
-        $queries[$i] = [OPT, $freq, $query];
+        $queries[$i] = [OPT, $freq, $query, undef];
       };
     };
   };
@@ -341,6 +327,15 @@ sub optimize {
       # The inbetween is ANY
       if ($queries->[$index_between]->[TYPE] == ANY) {
         _combine_any($queries, $index_a, $index_b, $index_between);
+        next;
+      }
+
+      # b) If there is a non-optional, variable, classed NEG operand
+      #    in between, make a not_between query
+
+      # The inbetween is NEGATIVE
+      elsif ($queries->[$index_between]->[TYPE] == NEG) {
+        _combine_neg($queries, $index_a, $index_b, $index_between, $index);
         next;
       };
     };
@@ -462,6 +457,7 @@ sub optimize {
 };
 
 
+# Combine anchors that are directly next to each other
 sub _combine_pos {
   my ($queries, $index_a, $index_b) = @_;
 
@@ -495,11 +491,13 @@ sub _combine_pos {
   };
 };
 
+
+# Combine operands with any inbetween
 sub _combine_any {
   my ($queries, $index_a, $index_b, $index_between) = @_;
 
   my $new_query;
-  my $any = $queries->[$index_between]->[QUERY];
+  my $any = $queries->[$index_between]->[KQUERY];
   my $constraint = {};
 
   if ($any->is_optional) {
@@ -546,11 +544,11 @@ sub _combine_any {
   );
 
   # Set new query
-  $queries->[$index_a] = [POS, $new_query->freq, $new_query];
+  $queries->[$index_a < $index_b ? $index_a : $index_b] =
+    [POS, $new_query->freq, $new_query];
 
   # Remove old query
-  splice(@$queries, $index_between, 1);
-  splice(@$queries, $index_b, 1);
+  splice(@$queries, $index_between, 2);
 
   if (DEBUG) {
     print_log(
@@ -558,6 +556,83 @@ sub _combine_any {
       'Queries are in a distance, build query ' . $new_query->to_string
     );
   };
+};
+
+
+# Combine operands with not between
+sub _combine_neg {
+  my ($queries, $index_a, $index_b, $index_between, $index) = @_;
+
+  my $new_query;
+  my $constraint = {};
+
+  my $query = $queries->[$index_between]->[KQUERY];
+
+  # Type is classed
+  if ($query->type eq 'class') {
+    $constraint->{class} = $query->number;
+
+    # Return inner-query
+    $query = $query->span;
+  };
+
+  my $neg = $query->optimize($index);
+
+  # Negative operand can't occur - rewrite to any query, but
+  # keep quantities intact (i.e. <!s> can have different length than [!a])
+  if ($neg->freq == 0) {
+    if (DEBUG) {
+      print_log('kq_sequtil', 'Negative query ' . $query->to_string . ' never occurs');
+    };
+
+    # Treat non-existing negative operand as an ANY query
+    # TODO:
+    #   This doesn't work now properly
+    _combine_any($queries, $index_a, $index_b, $index_between);
+    return;
+  };
+
+  # Respect sorting order
+  if ($index_a < $index_b) {
+    $constraint->{direction} = 'succeeds';
+  }
+  else {
+    $constraint->{direction} = 'precedes';
+  };
+
+  # Set negative query
+  $constraint->{neg} = $neg;
+
+  # Return constraint with query a being rare
+  $new_query = _constraint(
+    $queries->[$index_b]->[QUERY],
+    $queries->[$index_a]->[QUERY],
+    $constraint
+  );
+
+  # Set new query
+  $queries->[$index_a < $index_b ? $index_a : $index_b] =
+    [POS, $new_query->freq, $new_query];
+
+  # Remove old query
+  splice(@$queries, $index_between, 2);
+
+  if (DEBUG) {
+    print_log(
+      'kq_sequtil',
+      'Queries are in a negative distance, build query ' . $new_query->to_string
+    );
+  };
+};
+
+
+sub _combine_neg_opt {
+  # if ($neg->is_optional) {
+  #   $constraint->{optional} = 1;
+  #   $constraint->{min} = 0;
+  #   # TODO:
+  #   #   $constraint->{max} = $neg->max_length
+  # };
 };
 
 
@@ -712,9 +787,15 @@ sub _constraint {
     Krawfish::Query::Constraint::Position->new($pos_frame);
 
   # Add distance constraint
-  if ($constraint->{min} && $constraint->{max}) {
+  if (defined $constraint->{min} && defined $constraint->{max}) {
     push @constraints,
       Krawfish::Query::Constraint::InBetween->new($constraint->{min}, $constraint->{max});
+  };
+
+  # There is a negative constraint
+  if ($constraint->{neg}) {
+    push @constraints,
+      Krawfish::Query::Constraint::NotBetween->new($constraint->{neg});
   };
 
   # Add class constraint
@@ -723,6 +804,7 @@ sub _constraint {
       Krawfish::Query::Constraint::ClassDistance->new($constraint->{class});
   };
 
+  # Return constraint query
   return Krawfish::Query::Constraints->new(
     \@constraints,
     $query_a,

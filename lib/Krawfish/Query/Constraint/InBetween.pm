@@ -33,6 +33,7 @@ use constant {
 };
 
 
+# Constructor
 sub new {
   my $class = shift;
   bless {
@@ -43,10 +44,6 @@ sub new {
   }, $class;
 };
 
-sub to_string {
-  my $self = shift;
-  return 'between=' . $self->{min} . '-' . $self->{max};
-};
 
 # Initialize foundry
 sub init {
@@ -55,9 +52,18 @@ sub init {
   ...
 };
 
+
+# Check the distance
 sub check {
   my $self = shift;
   my ($first, $second, $payload) = @_;
+
+  # Order operands
+  if ($first->end > $second->start) {
+    my $temp = $second;
+    $second = $first;
+    $first = $temp;
+  };
 
   # TODO:
   #   First check against max_tokens, so the real tokens
@@ -89,6 +95,13 @@ sub check {
   };
 
   return ALL_MATCH;
+};
+
+
+# Stringification
+sub to_string {
+  my $self = shift;
+  return 'between=' . $self->{min} . '-' . $self->{max};
 };
 
 

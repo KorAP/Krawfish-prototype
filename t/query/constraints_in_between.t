@@ -36,36 +36,34 @@ is($query->to_string, "constr(pos=3,between=1-3:'aa','bb')", 'Query is valid');
 matches($query, ['[0:0-4]','[0:2-6]']);
 
 
-
-done_testing;
-__END__
-
-ok(my $query = $wrap->plan_for($index), 'Planning');
-is($query->to_string, "constr(pos=1,class=5:'aa','bb')", 'Query is valid');
-
-matches($query, ['[0:0-4$0,5,1,2]','[0:0-6$0,5,1,4]','[0:2-6$0,5,3,4]']);
-
-# This equals to [aa]{5:[]*}[bb]
+# This equals to [aa][]{1,3}[bb] - optimized
 $wrap = $qb->constraints(
-  [$qb->c_position('precedes', 'precedesDirectly'), $qb->c_class_distance(5)],
+  [$qb->c_position('precedes'), $qb->c_in_between(1,3)],
   $qb->token('aa'),
   $qb->token('bb')
 );
 
-is($wrap->to_string, "constr(pos=precedes;precedesDirectly,class=5:[aa],[bb])", 'Query is valid');
-ok($query = $wrap->plan_for($index), 'Planning');
-is($query->to_string, "constr(pos=3,class=5:'aa','bb')", 'Query is valid');
+is($wrap->to_string, "constr(pos=precedes,between=1-3:[aa],[bb])", 'Query is valid');
+ok($query = $wrap->normalize->optimize($index), 'Optimize');
+is($query->to_string, "constr(pos=1,between=1-3:'aa','bb')", 'Query is valid');
+matches($query, ['[0:0-4]','[0:2-6]']);
 
-matches(
-  $query, [
-    '[0:0-2]',
-    '[0:0-4$0,5,1,2]',
-    '[0:0-6$0,5,1,4]',
-    '[0:2-4]',
-    '[0:2-6$0,5,3,4]',
-    '[0:4-6]'
-  ]
+
+
+# This equals to [aa][]{1,3}[bb] - but is contradicted due to precedesDirectly!
+$wrap = $qb->constraints(
+  [$qb->c_position('precedesDirectly'), $qb->c_in_between(1,3)],
+  $qb->token('aa'),
+  $qb->token('bb')
 );
+
+is($wrap->to_string, "constr(pos=precedesDirectly,between=1-3:[aa],[bb])", 'Query is valid');
+ok($query = $wrap->normalize->optimize($index), 'Optimize');
+
+# TODO: This may be optimized away
+is($query->to_string, "constr(pos=2,between=1-3:'aa','bb')", 'Query is valid');
+matches($query, []);
+
 
 done_testing;
 __END__

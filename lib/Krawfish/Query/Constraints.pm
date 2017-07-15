@@ -11,10 +11,13 @@ use constant {
   NEXTB => 2,
   MATCH => 4,
   DONE  => 8, # Short circuit match
-  DEBUG => 0
+  DEBUG => 1
 };
 
 # TODO: Improve by skipping to the same document
+# TODO:
+#   The check probably needs more than just the span information,
+#   e.g. to get the max_length() of a span for skip_pos() stuff.
 
 sub new {
   my $class = shift;
@@ -43,7 +46,7 @@ sub check {
 
     # TODO:
     #   Under certain circumstances it may be
-    #   faster to 
+    #   faster to
 
     # Check constrained
     my $check = $_->check($first, $second);
@@ -54,8 +57,17 @@ sub check {
     # Check matches
     unless ($check & MATCH) {
 
+      if (DEBUG) {
+        print_log('constr', 'Constraint ' . $_->to_string . ' does not match');
+      };
+
       # No match - send NEXTA and NEXTB rules
       return $ret_val;
+    };
+
+    if (DEBUG) {
+      print_log('constr', 'Constraint ' . $_->to_string . ' matches for ' .
+                  $first->to_string . ' and ' . $second->to_string);
     };
 
     # If done flag is set, do short circuit

@@ -41,7 +41,7 @@ sub check {
   my ($first, $second, $payload) = @_;
 
   # If ordering is reversed, swap
-  if ($first->start > $second->start) {
+  if ($first->end > $second->start) {
     my $temp = $first;
     $first = $second;
     $second = $temp;
@@ -55,22 +55,25 @@ sub check {
   my $query = $self->{query};
 
   if (DEBUG) {
-    print_log('notC',
-              'Configuration is '
-                . $first->to_string . ',' . $second->to_string
-                . ' with negative at ' . $query->current->to_string
-              )
+    print_log(
+      'notC',
+      'Configuration is '
+        . $first->to_string . ',' . $second->to_string
+        . ' with negative at ' . $query->current->to_string
+      );
   };
 
   # No negative between query match exists
   return ALL_MATCH unless $query->current;
 
+  # The negative operand is not in the document
   if ($query->current->doc_id < $first->doc_id) {
+
     if (DEBUG) {
       print_log('notC', 'Current negative doc id is less than first doc id');
     };
 
-    # There is no match anymore
+    # There is no match in anymore
     $query->skip_doc($first->doc_id) or return ALL_MATCH;
   };
 
@@ -81,7 +84,7 @@ sub check {
   my $negative;
   while ($negative = $query->current) {
 
-    print_log('notC', 'Check position of current negative') if DEBUG;
+    print_log('notC', 'Check position of current negative: ' . $negative->to_string) if DEBUG;
 
     # The negative is in a different document
     if ($negative->doc_id != $first->doc_id) {

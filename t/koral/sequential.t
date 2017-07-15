@@ -207,7 +207,7 @@ is($y, 1, 'Pair');
 
 
 # Group anchors
-# [a][b][c]
+# [a][c][b]
 $seq = $qb->seq(
   $qb->token('a'),
   $qb->token('c'),
@@ -264,7 +264,8 @@ is($seq->to_string, "constr(pos=2:'b',constr(pos=2:'b','a'))", 'Stringification'
 matches($seq, [qw/[0:0-3] [1:0-3]/], 'Matches twice');
 
 
-# Create distance
+
+# Create with ANY distance
 # [b][][c]
 $seq = $qb->seq(
   $qb->token('a'),
@@ -274,15 +275,52 @@ $seq = $qb->seq(
 is($seq->to_string, '[a][][b]', 'Stringification');
 ok($seq = $seq->normalize->finalize, 'Normalization');
 is($seq->to_string, 'a[]b', 'Stringification');
+
 ok($seq = $seq->optimize($index), 'Optimization');
 
 # Do not check for stringifications
-is($seq->to_string, "constr(pos=2048:'b',constr(pos=4096,dist=1-1:'b','a'))",
+is($seq->to_string, "constr(pos=4096,between=1-1:'b','a')",
    'Stringification');
 
-# Matches twice
-#matches($seq, [qw/[0:1-4]/], 'Matches twice');
+# Matches once
+matches($seq, [qw/[0:1-4]/], 'Matches Once');
 
+TODO: {
+  local $TODO = 'Support different ANY variants';
+  #   [b][]?[c]
+  #   [b][]{1,3}[c]
+  #   [b][]*[c]
+  #   [b]{[]*}[c]
+};
+
+
+
+# Create with NEGATIVE distance
+# [b][!b][a]
+$seq = $qb->seq(
+  $qb->token('b'),
+  $qb->token('a')->is_negative(1),
+  $qb->token('a')
+);
+is($seq->to_string, '[b][!a][a]', 'Stringification');
+ok($seq = $seq->normalize->finalize, 'Normalization');
+is($seq->to_string, 'b[!a]a', 'Stringification');
+
+ok($seq = $seq->optimize($index), 'Optimization');
+
+# Do not check for stringifications
+is($seq->to_string, "constr(pos=1,notBetween='a':'b','a')", 'Stringification');
+
+# Matches once
+matches($seq, [qw/[1:0-3]/], 'Matches Once');
+
+TODO: {
+  local $TODO = 'Support different NEG variants';
+  #   [b][!b]?[c]
+  #   [b][!b]{1,3}[c]
+  #   [b][!b]*[c]
+  #   [b]{[!b]*}[c]
+};
 
 
 

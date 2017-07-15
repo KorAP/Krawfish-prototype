@@ -6,6 +6,9 @@ use Test::More;
 use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Query::Builder');
 
+# TODO:
+#   Test with buffer!
+
 my $index = Krawfish::Index->new;
 ok_index($index, '[aa|xx][cc][bb|xx]', 'Add complex document');
 ok_index($index, '[aa|xx][dd][bb|xx]', 'Add complex document');
@@ -24,12 +27,14 @@ my $query = $qb->constraints(
 
 is($query->to_string, 'constr(pos=precedes,notBetween=[cc]:[aa],[bb])', 'Stringification');
 
-ok(my $plan = $query->plan_for($index), 'Planning');
+ok(my $plan = $query->normalize->finalize->optimize($index), 'Planning');
 
-is($plan->to_string, "constr(pos=1,notBetween='cc':'aa','bb')", 'Query is valid');
+is($plan->to_string, "constr(notBetween='cc',pos=1:'aa','bb')", 'Query is valid');
 
 matches($plan, [qw/[1:0-3]/]);
 
+done_testing;
+__END__
 
 # New query
 $query = $qb->constraints(
