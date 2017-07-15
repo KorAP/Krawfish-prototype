@@ -38,7 +38,7 @@ use constant {
   NEXTB => 2,
   MATCH => 4,
   DONE  => 8,
-  DEBUG => 1
+  DEBUG => 0
 };
 
 our (@EXPORT, @next_a, @next_b);

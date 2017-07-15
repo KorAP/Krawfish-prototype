@@ -11,7 +11,7 @@ use warnings;
 sub new {
   my $class = shift;
   bless {
-    min => shift,
+    min => shift // 0,
     max => shift
   }, $class;
 };
@@ -20,7 +20,7 @@ sub new {
 # Stringify
 sub to_string {
   my $self = shift;
-  return 'between=' . $self->{min} . '-' . $self->{max};
+  return 'between=' . (defined $self->{min} ? $self->{min} : 0) . '-' . (defined $self->{max} ? $self->{max} : 'INF');
 };
 
 

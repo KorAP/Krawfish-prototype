@@ -296,7 +296,7 @@ TODO: {
 
 
 # Create with NEGATIVE distance
-# [b][!b][a]
+# [b][!a][a]
 $seq = $qb->seq(
   $qb->token('b'),
   $qb->token('a')->is_negative(1),
@@ -313,6 +313,28 @@ is($seq->to_string, "constr(pos=1,notBetween='a':'b','a')", 'Stringification');
 
 # Matches once
 matches($seq, [qw/[1:0-3]/], 'Matches Once');
+
+
+
+# Create with NEGATIVE optional distance
+# [b][!a]?[a]
+$seq = $qb->seq(
+  $qb->token('b'),
+  $qb->repeat($qb->token('a')->is_negative(1), 0, 1),
+  $qb->token('a')
+);
+is($seq->to_string, '[b][!a]?[a]', 'Stringification');
+ok($seq = $seq->normalize->finalize, 'Normalization');
+is($seq->to_string, 'b[!a]?a', 'Stringification');
+ok($seq = $seq->optimize($index), 'Optimization');
+
+# Do not check for stringifications
+is($seq->to_string, "constr(pos=3,between=0-INF,notBetween='a':'b','a')", 'Stringification');
+
+# Matches
+matches($seq, [qw/[0:0-2] [0:1-3] [1:0-3] [1:1-3]/], 'Matches');
+
+
 
 TODO: {
   local $TODO = 'Support different NEG variants';

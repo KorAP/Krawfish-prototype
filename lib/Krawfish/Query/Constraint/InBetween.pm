@@ -90,7 +90,7 @@ sub check {
 
   # There are not enough segments to be valid
   if (($second->start - $first->end) < $self->{min} or
-        ($second->start - $first->end) > $self->{max}) {
+        (defined $self->{max} && ($second->start - $first->end) > $self->{max})) {
     return NEXTA | NEXTB;
   };
 
@@ -101,7 +101,7 @@ sub check {
 # Stringification
 sub to_string {
   my $self = shift;
-  return 'between=' . $self->{min} . '-' . $self->{max};
+  return 'between=' . $self->{min} . '-' . (defined $self->{max} ? $self->{max} : 'INF');
 };
 
 

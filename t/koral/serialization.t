@@ -32,6 +32,10 @@ ok($op->[0], 'Operand exists');
 ok($op->[1], 'Operand exists');
 ok($op->[2], 'Operand exists');
 is($op->[0]->{'@type'}, 'koral:token', 'Operand exists');
+my $term = $op->[0]->{wrap};
+is($term->{'@type'}, 'koral:term', 'Term');
+is($term->{'key'}, 'Der', 'Term');
+
 is($op->[1]->{'@type'}, 'koral:token', 'Operand exists');
 is($op->[2]->{'@type'}, 'koral:span', 'Operand exists');
 

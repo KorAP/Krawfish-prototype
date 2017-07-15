@@ -11,7 +11,7 @@ use constant {
   NEXTB => 2,
   MATCH => 4,
   DONE  => 8, # Short circuit match
-  DEBUG => 1
+  DEBUG => 0
 };
 
 # TODO: Improve by skipping to the same document

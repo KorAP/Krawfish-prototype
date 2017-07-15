@@ -14,7 +14,6 @@ use constant {
   POS    => 1,
   OPT    => 2,
   NEG    => 3,
-  NOP    => 4,
   ANY    => 5,
   TYPE   => 0,
   FREQ   => 1,
@@ -182,7 +181,6 @@ sub optimize {
   #   POS: positive operand (directly queriable)
   #   OPT: optional operand
   #   NEG: negative operand
-  #   NOP: negative optional operand
   #   ANY: any query
   my $ops = $self->operands;
   for (my $i = 0; $i < $self->size; $i++) {
@@ -197,13 +195,7 @@ sub optimize {
     # Is negative operand
     elsif ($op->is_negative) {
 
-      # Operand is optional
-      if ($op->is_optional) {
-        $queries[$i] = [NOP, -1, undef, $op];
-      }
-      else {
-        $queries[$i] = [NEG, -1, undef, $op];
-      };
+      $queries[$i] = [NEG, -1, undef, $op];
     }
 
     # Is positive operand
@@ -267,9 +259,6 @@ sub optimize {
       }
       elsif ($_->[TYPE] == NEG) {
         push @list, '-';
-      }
-      elsif ($_->[TYPE] == NOP) {
-        push @list, '-?';
       }
       elsif ($_->[TYPE] == ANY) {
         push @list, '*';
@@ -568,6 +557,21 @@ sub _combine_neg {
 
   my $query = $queries->[$index_between]->[KQUERY];
 
+  # Negative element is optional
+  if ($query->is_optional) {
+    $constraint->{optional} = 1;
+    $constraint->{min} = 0;
+
+    # Resolve optionality
+    if ($query->type eq 'repetition') {
+      # if ($query->min == 0)
+      $query = $query->finalize;
+    };
+
+    # TODO:
+    #   $constraint->{max} = $neg->max_length
+  };
+
   # Type is classed
   if ($query->type eq 'class') {
     $constraint->{class} = $query->number;
@@ -623,16 +627,6 @@ sub _combine_neg {
       'Queries are in a negative distance, build query ' . $new_query->to_string
     );
   };
-};
-
-
-sub _combine_neg_opt {
-  # if ($neg->is_optional) {
-  #   $constraint->{optional} = 1;
-  #   $constraint->{min} = 0;
-  #   # TODO:
-  #   #   $constraint->{max} = $neg->max_length
-  # };
 };
 
 
@@ -787,7 +781,7 @@ sub _constraint {
     Krawfish::Query::Constraint::Position->new($pos_frame);
 
   # Add distance constraint
-  if (defined $constraint->{min} && defined $constraint->{max}) {
+  if (defined $constraint->{min} || defined $constraint->{max}) {
     push @constraints,
       Krawfish::Query::Constraint::InBetween->new($constraint->{min}, $constraint->{max});
   };
