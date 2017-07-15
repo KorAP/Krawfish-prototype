@@ -276,6 +276,18 @@ ok(!$rep->is_extended_right, 'Is not extended to the right');
 ok(!$rep->is_extended_left, 'Is not extended to the left');
 
 
+# [!hey]{0,3}
+$rep = $builder->repeat($builder->token('hey')->is_negative(1), 0, 3);
+is($rep->to_string, '[!hey]{0,3}', 'Stringification');
+ok(!$rep->is_any, 'Is not any');
+ok($rep->is_optional, 'Is optional');
+ok(!$rep->is_null, 'Is not null');
+ok($rep->is_negative, 'Is negative');
+ok(!$rep->is_extended, 'Is not extended');
+ok(!$rep->is_extended_right, 'Is not extended to the right');
+ok(!$rep->is_extended_left, 'Is not extended to the left');
+
+
 
 done_testing;
 

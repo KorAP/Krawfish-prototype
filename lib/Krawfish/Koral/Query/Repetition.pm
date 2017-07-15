@@ -53,6 +53,10 @@ sub max {
 };
 
 
+sub span {
+  $_[0]->{span};
+};
+
 # Return KoralQuery fragment
 sub to_koral_fragment {
   my $self = shift;
@@ -95,6 +99,12 @@ sub is_null {
   0;
 };
 
+
+sub is_negative {
+  $_[0]->{span}->is_negative;
+};
+
+
 sub is_extended {
   return 0 if $_[0]->is_null;
 
@@ -110,6 +120,8 @@ sub type { 'repetition' };
 
 
 
+# TODO:
+#   If the query is a class query, reverse the hierarchical ordering!
 # Normalize the query
 sub normalize {
   my $self = shift;
@@ -262,7 +274,9 @@ sub filter_by {
 
 sub maybe_unsorted {
   $_[0]->{span}->maybe_unsorded;
-}
+};
+
+
 
 sub to_string {
   my $self = shift;
