@@ -201,21 +201,21 @@ sub optimize {
     # Is positive operand
     else {
 
-      # Directly collect positive queries
-      my $query = $ops->[$i]->optimize($index);
-
-      # Get frequency of operand
-      my $freq = $query->freq;
-
-      # One element matches nowhere - the whole sequence matches nowhere
-      return Krawfish::Query::Nothing->new if $freq == 0;
-
-      if (DEBUG) {
-        print_log('kq_sequtil', 'Get frequencies for possible anchor ' . $query->to_string);
-      };
-
       # The operand is not optional, so the filter may be applied
       unless ($ops->[$i]->is_optional) {
+
+        # Directly collect positive queries
+        my $query = $ops->[$i]->optimize($index);
+
+        # Get frequency of operand
+        my $freq = $query->freq;
+
+        if (DEBUG) {
+          print_log('kq_sequtil', 'Get frequencies for possible anchor ' . $query->to_string);
+        };
+
+        # One element matches nowhere - the whole sequence matches nowhere
+        return Krawfish::Query::Nothing->new if $freq == 0;
 
         # Current query is less common
         if (!defined $filterable_query || $freq < $queries[$filterable_query]->freq) {
@@ -226,8 +226,8 @@ sub optimize {
 
       # The operand is optional
       else {
-        print_log('kq_sequtil', $query->to_string . ' is optional') if DEBUG;
-        $queries[$i] = [OPT, $freq, $query, undef];
+        print_log('kq_sequtil', $ops->[$i]->to_string . ' is optional') if DEBUG;
+        $queries[$i] = [OPT, -1, undef, $ops->[$i]];
       };
     };
   };
@@ -255,7 +255,7 @@ sub optimize {
         push @list, '+';
       }
       elsif ($_->[TYPE] == OPT) {
-        push @list, '+?';
+        push @list, '?';
       }
       elsif ($_->[TYPE] == NEG) {
         push @list, '-';
@@ -319,7 +319,7 @@ sub optimize {
         next;
       }
 
-      # b) If there is a non-optional, variable, classed NEG operand
+      # b) If there is an optional, variable, classed NEG operand
       #    in between, make a not_between query
 
       # The inbetween is NEGATIVE
@@ -327,24 +327,35 @@ sub optimize {
         _combine_neg($queries, $index_a, $index_b, $index_between, $index);
         next;
       };
+
+      print_log('kq_sequtil', 'Can\'t combine ANY or NEG operands') if DEBUG;
     };
 
     # Matches are too far away or there is no index_b
-    # Combine with surrounding operands
+    # Extend with surrounding operands
+    print_log('kq_sequtil', 'Extend operand with surrounding') if DEBUG;
 
     # Get surrounding queries
     my $surr_l = $index_a - 1;
     my $surr_r = $index_a + 1;
     my $surr_i;
     my $surr_l_query = $surr_l > 0 ? $queries->[$surr_l] : undef;
-    my $surr_r_query = $surr_r < $#queries ? $queries->[$surr_r] : undef;
+    my $surr_r_query = $surr_r < scalar(@$queries) ? $queries->[$surr_r] : undef;
     my $new_query;
+
+    # c) If there is an optional, variable, classed OPT operand
+    #    make an extension
+    if (($surr_l_query && $surr_l_query->[TYPE] == OPT) ||
+          ($surr_r_query && $surr_r_query->[TYPE] == OPT)) {
+      _extend_opt($queries, $index_a, $index_b, $index);
+      next;
+    }
 
     # d) If there is a varying non-optional size POS element surrounding,
     #    create a sequence.
     #    if there are two, with the rarest,
     #    and closer to the index_b, or closer to the middle
-    if (($surr_l_query && $surr_l_query->[TYPE] == POS) ||
+    elsif (($surr_l_query && $surr_l_query->[TYPE] == POS) ||
           ($surr_r_query && $surr_r_query->[TYPE] == POS)) {
 
       # Both surrounding types are POS
@@ -564,7 +575,8 @@ sub _combine_neg {
 
     # Resolve optionality
     if ($query->type eq 'repetition') {
-      # if ($query->min == 0)
+
+      # Finalize query, so optionality may be removed
       $query = $query->finalize;
     };
 
@@ -628,6 +640,264 @@ sub _combine_neg {
     );
   };
 };
+
+
+# Combine to optional sequence
+sub _combine_opt {
+  my ($queries, $index_a, $index_b, $index_between, $index) = @_;
+
+  warn 'This is deprecated';
+
+  my $new_query;
+  my $opt = $queries->[$index_between]->[KQUERY];
+
+  # Optimize
+  $opt = $opt->finalize->optimize($index);
+  $queries->[$index_between]->[QUERY] = $opt;
+  $queries->[$index_between]->[FREQ] = $opt->freq;
+
+  my $constraint = {};
+
+  my $query_a = $queries->[$index_a];
+  my $query_between = $queries->[$index_between];
+  my $query_b = $queries->[$index_b];
+
+  # One element matches nowhere - the whole sequence matches nowhere
+  if ($opt->freq == 0) {
+
+    if (DEBUG) {
+      print_log(
+        'kq_sequtil',
+        'Optional operand does not occur - ignore ' . $opt->to_string
+      );
+    };
+
+    # Create a follows directly,
+    # because the second operand is buffered and should occur less often
+    if ($index_a < $index_b) {
+      $new_query = _succeeds_directly($query_b->[QUERY], $query_a->[QUERY]);
+    }
+
+    # Create a precedes directly
+    else {
+      $new_query = _precedes_directly($query_b->[QUERY], $query_a->[QUERY]);
+    }
+
+    # Set new query
+    $queries->[$index_a] = [POS, $new_query->freq, $new_query];
+
+    # Remove old query
+    splice(@$queries, $index_between, 2);
+  }
+
+  # The optional operand exists
+  else {
+
+    my $alt_query;
+
+    # a precedes b, so between precedes b
+    if ($index_a < $index_between) {
+
+      # Query b is less frequent - order
+      if ($query_b->[FREQ] < $query_between->[FREQ]) {
+        $alt_query = _precedes_directly($query_between->[QUERY], $query_b->[QUERY]);
+      }
+      else {
+        $alt_query = _succeeds_directly($query_b->[QUERY], $query_between->[QUERY]);
+      };
+    }
+
+    else {
+
+      # Query b is less frequent - order
+      if ($query_b->[FREQ] < $query_between->[FREQ]) {
+        $alt_query = _succeeds_directly($query_between->[QUERY], $query_b->[QUERY]);
+      }
+      else {
+        $alt_query = _precedes_directly($query_b->[QUERY], $query_between->[QUERY]);
+      };
+    };
+
+    # Make query optional
+    $alt_query = _or($query_b->[QUERY], $alt_query);
+
+    if (DEBUG) {
+      print_log(
+        'kq_sequtil',
+        'Create optional query element ' . $alt_query->to_string
+      );
+    };
+
+
+    # Make [a][b]?[c] -> [a]([c]|[b][c])
+    if ($index_a < $index_b) {
+      $new_query = _succeeds_directly($alt_query, $query_a->[QUERY]);
+    }
+
+    # Create a precedes directly
+    else {
+      $new_query = _precedes_directly($alt_query, $query_a->[QUERY]);
+    }
+
+    # Set new query
+    $queries->[$index_a < $index_b ? $index_a : $index_b] =
+      [POS, $new_query->freq, $new_query];
+
+    # Remove old query
+    splice(@$queries, $index_between, 2);
+  };
+
+  if (DEBUG) {
+    print_log(
+      'kq_sequtil',
+      'Queries are in an optional distance, build query ' . $new_query->to_string
+    );
+  };
+};
+
+
+# Extend to optional sequence
+sub _extend_opt {
+  my ($queries, $index_a, $index_b, $index) = @_;
+
+  print_log('kq_sequtil', 'Extend operand with optional operand') if DEBUG;
+
+  my $surr_l = $index_a - 1;
+  my $surr_r = $index_a + 1;
+  my $surr_l_query = $surr_l > 0 ? $queries->[$surr_l] : undef;
+  my $surr_r_query = $surr_r < scalar(@$queries) ? $queries->[$surr_r] : undef;
+  my $index_ext;
+
+  # The left surrounding index is optional
+  if ($surr_l_query && $surr_l_query->[TYPE] == OPT) {
+
+    print_log('kq_sequtil', 'Left optional operand exists') if DEBUG;
+
+    # Choose the left surrounding
+    $index_ext = $surr_l;
+
+    # Choose the one with the least frequency
+    # Optimize both surroundings
+    unless ($surr_l_query->[QUERY]) {
+      $surr_l_query->[QUERY] = $surr_l_query->[KQUERY]->finalize->optimize($index);
+      $surr_l_query->[FREQ] = $surr_l_query->[QUERY]->freq;
+      if (DEBUG) {
+        print_log('kq_sequtil', 'Optimize query ' . $surr_l_query->[KQUERY]->to_string);
+      };
+    };
+
+    # Both surroundings are optional
+    if ($surr_r_query && $surr_r_query->[TYPE] == OPT) {
+
+      unless ($surr_r_query->[QUERY]) {
+        $surr_r_query->[QUERY] = $surr_r_query->[KQUERY]->finalize->optimize($index);
+        $surr_r_query->[FREQ] = $surr_r_query->[QUERY]->freq;
+        if (DEBUG) {
+          print_log('kq_sequtil', 'Optimize query ' . $surr_r_query->[KQUERY]->to_string);
+        };
+      };
+
+      # Left surrounding has the lower frequency
+      if ($surr_l_query->[FREQ] < $surr_r_query->[FREQ]) {
+        $index_ext = $surr_l;
+      }
+
+      # Right surrounding has the lower frequency
+      elsif ($surr_l_query->[FREQ] > $surr_r_query->[FREQ]) {
+        $index_ext = $surr_r;
+      }
+
+      # Both have the same frequency
+      # Choose the surrounding nearer to index_b
+      # Or choose the option left
+      elsif (abs($surr_l - $index_b) > abs($surr_r - $index_b)) {
+        $index_ext = $surr_r;
+      };
+    }
+  }
+
+  # Only right surrounding is optional
+  else {
+    $index_ext = $surr_r;
+
+    # Optimize right surrounding
+    unless ($surr_r_query->[QUERY]) {
+      $surr_r_query->[QUERY] = $surr_r_query->[KQUERY]->finalize->optimize($index);
+      $surr_r_query->[FREQ] = $surr_r_query->[QUERY]->freq;
+      if (DEBUG) {
+        print_log('kq_sequtil', 'Optimize query ' . $surr_r_query->[KQUERY]->to_string);
+      };
+    };
+  };
+
+  my $query_a = $queries->[$index_a];
+  my $query_ext = $queries->[$index_ext];
+
+  if (DEBUG) {
+    print_log(
+      'kq_sequtil',
+      'Extend ' . $query_a->[QUERY]->to_string . ' with ' . $query_ext->[QUERY]->to_string);
+  };
+
+  # Optional element does not exist
+  if ($query_ext->[FREQ] == 0) {
+
+    if (DEBUG) {
+      print_log(
+        'kq_sequtil',
+        'Optional operand does not occur - ignore ' . $query_ext->[QUERY]->to_string
+      );
+    };
+
+    # Remove old query
+    splice(@$queries, $index_ext, 1);
+    return 1;
+  };
+
+  # The optional operand exists - create new operand
+  my $new_query;
+
+  # Extension is to the right
+  if ($index_a < $index_ext) {
+
+    # Make the low frequency operand occur second
+    if ($query_a->[FREQ] > $query_ext->[FREQ]) {
+      $new_query = _precedes_directly($query_a->[QUERY], $query_ext->[QUERY]);
+    }
+    else {
+      $new_query = _succeeds_directly($query_ext->[QUERY], $query_a->[QUERY]);
+    };
+  }
+
+  # Extension is to the left
+  else {
+
+    # Make the low frequency operand occur second
+    if ($query_a->[FREQ] > $query_ext->[FREQ]) {
+      $new_query = _succeeds_directly($query_a->[QUERY], $query_ext->[QUERY]);
+    }
+    else {
+      $new_query = _precedes_directly($query_ext->[QUERY], $query_a->[QUERY]);
+    };
+  };
+
+  # Make query optional
+  $new_query = _or($query_a->[QUERY], $new_query);
+
+  # Add new query
+  $queries->[$index_a] = [POS, $new_query->freq, $new_query];
+
+  # Remove old query
+  splice(@$queries, $index_ext, 1);
+
+  if (DEBUG) {
+    print_log(
+      'kq_sequtil',
+      'Query has an optional extension, build query ' . $new_query->to_string
+    );
+  };
+};
+
 
 
 # Get the query segments based on frequency,
@@ -748,6 +1018,16 @@ sub _succeeds_directly {
 
   return Krawfish::Query::Constraints->new(
     [Krawfish::Query::Constraint::Position->new(SUCCEEDS_DIRECTLY)],
+    $query_a,
+    $query_b
+  );
+};
+
+
+sub _or {
+  my ($query_a, $query_b) = @_;
+
+  return Krawfish::Query::Or->new(
     $query_a,
     $query_b
   );

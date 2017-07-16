@@ -264,6 +264,25 @@ is($seq->to_string, "constr(pos=2:'b',constr(pos=2:'b','a'))", 'Stringification'
 matches($seq, [qw/[0:0-3] [1:0-3]/], 'Matches twice');
 
 
+# Create with optional distance
+# [b][b]?[a]
+print "---------------\n";
+$seq = $qb->seq(
+  $qb->token('b'),
+  $qb->repeat($qb->token('b'), 0, 1),
+  $qb->token('a')
+);
+is($seq->to_string, '[b][b]?[a]', 'Stringification');
+ok($seq = $seq->normalize->finalize, 'Normalization');
+is($seq->to_string, 'bb?a', 'Stringification');
+ok($seq = $seq->optimize($index), 'Normalization');
+
+# Do not check for stringifications
+is($seq->to_string, "constr(pos=2:'b',or('a',constr(pos=2:'b','a')))", 'Stringification');
+
+# Matches
+matches($seq, [qw/[0:0-2] [0:0-3] [0:1-3] [1:1-3] [1:0-3]/], 'Matches twice');
+
 
 # Create with ANY distance
 # [b][][c]
@@ -338,10 +357,10 @@ matches($seq, [qw/[0:0-2] [0:1-3] [1:0-3] [1:1-3]/], 'Matches');
 
 TODO: {
   local $TODO = 'Support different NEG variants';
-  #   [b][!b]?[c]
   #   [b][!b]{1,3}[c]
   #   [b][!b]*[c]
   #   [b]{[!b]*}[c]
+  #   [b][!z]{0,3}[c] -> [b][c]
 };
 
 
