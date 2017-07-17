@@ -12,12 +12,12 @@ use warnings;
 # TODO:
 #   Preparation should be:
 #   -> normalize()
+#   -> inflate()
 #   -> finalize()
 #   -> memoize(cache)
 #   -> optimize(index)
 
-use constant DEBUG => 1;
-
+use constant DEBUG => 0;
 
 sub new {
   my $class = shift;
@@ -126,6 +126,27 @@ sub toggle_operation {
 #           1
 #         )
 #       )
+
+
+# TODO:
+#   IMPORTANT:
+#     for example in an annotation like
+#   Mittwoch
+#   -------------
+#   case:dat
+#   gender:masc
+#   number:sg
+#
+#   a query like
+#   [case:dat | gender:masc | number:sg]
+#   Returns three results.
+#   It would be better to wrap or-groups after normalization
+#   in unique queries, as long as they don't have classes.
+#   so - maybe it would be best to NOT support classes in tokens
+#   so - if classes in tokens are needed, they need to be reformulated
+#   as token-groups, e.g.
+#   {1:[marmot/m=case:dat]}|{2:[marmot/m=gender:masc]}|{3:[marmot/m=number:sg]}
+#
 
 # This is rather identical to FieldGroup
 sub optimize {

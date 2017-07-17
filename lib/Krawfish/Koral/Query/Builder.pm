@@ -13,11 +13,13 @@ use Krawfish::Koral::Query::Class;
 use Krawfish::Koral::Query::Constraints;
 use Krawfish::Koral::Query::Length;
 use Krawfish::Koral::Query::Nothing;
+use Krawfish::Koral::Query::Or;
 
 # TODO: Not all constraints need to be wrapped
 use Krawfish::Koral::Query::Constraint::Position;
 use Krawfish::Koral::Query::Constraint::ClassDistance;
 use Krawfish::Koral::Query::Constraint::NotBetween;
+use Krawfish::Koral::Query::Constraint::InBetween;
 
 sub new {
   my $class = shift;
@@ -76,11 +78,17 @@ sub term_neg {
   Krawfish::Koral::Query::Term->new(@_)->match('!=');
 };
 
-
 # Span construct
 sub span {
   shift;
   Krawfish::Koral::Query::Span->new(@_);
+};
+
+
+# Or on spans
+sub span_or {
+  shift;
+  Krawfish::Koral::Query::Or->new(@_);
 };
 
 
@@ -137,6 +145,11 @@ sub c_class_distance {
 sub c_not_between {
   shift;
   Krawfish::Koral::Query::Constraint::NotBetween->new(@_);
+};
+
+sub c_in_between {
+  shift;
+  Krawfish::Koral::Query::Constraint::InBetween->new(@_);
 };
 
 sub length {

@@ -1,4 +1,5 @@
 use Test::More;
+use Test::Krawfish;
 use strict;
 use warnings;
 use Data::Dumper;
@@ -73,7 +74,6 @@ ok($query = $query->normalize, 'Normalization');
 is($query->to_string, 'Der|opennlp/p=V|traurig', 'termGroup');
 ok($plan = $query->optimize($index), 'Optimization');
 is($plan->to_string, "or('Der','opennlp/p=V')", 'termGroup');
-
 
 done_testing;
 
