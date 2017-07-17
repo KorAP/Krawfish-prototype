@@ -31,7 +31,7 @@ sub type { 'reference' };
 
 sub plan_for;
 
-
+sub remove_classes;
 
 # Not necessary here
 sub filter_by;

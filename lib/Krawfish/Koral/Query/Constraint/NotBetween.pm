@@ -25,7 +25,8 @@ sub normalize {
     return;
   };
 
-  # $query = $query->remove_classes;
+  # Remove all classes here, because they can't occur
+  $query = $query->remove_classes;
 
   $self->{query} = $query;
   $self;

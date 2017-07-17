@@ -30,4 +30,8 @@ sub optimize {
   $_[0];
 };
 
+sub remove_classes {
+  $_[0];
+};
+
 1;

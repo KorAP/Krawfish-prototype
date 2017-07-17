@@ -22,6 +22,18 @@ sub new {
 };
 
 
+# Remove classes passed as an array references
+sub remove_classes {
+  my ($self, $keep) = @_;
+  unless ($keep) {
+    $keep = [];
+  };
+  $self->{first} = $self->{first}->remove_classes($keep);
+  $self->{second} = $self->{second}->remove_classes($keep);
+  return $self;
+};
+
+
 # Return KoralQuery fragment
 sub to_koral_fragment {
   my $self = shift;
@@ -79,7 +91,9 @@ sub normalize {
   };
 
   $self->{first} = $first_norm;
-  $self->{second} = $second_norm;
+
+  # Remove all classes, as they can't match
+  $self->{second} = $second_norm->remove_classes;
 
   # Normalize!
   if ($self->{first}->to_string eq $self->{second}->to_string) {

@@ -7,7 +7,7 @@ use Scalar::Util qw/blessed/;
 use strict;
 use warnings;
 
-# Todo: Support frequency here!
+# TODO: Rename 'wrap' to 'operand'
 
 use constant DEBUG => 1;
 
@@ -33,6 +33,10 @@ sub wrap {
   shift->{wrap};
 };
 
+# Remove classes passed as an array references
+sub remove_classes {
+  $_[0];
+};
 
 sub to_koral_fragment {
   my $self = shift;

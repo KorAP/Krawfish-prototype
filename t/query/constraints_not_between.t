@@ -51,10 +51,6 @@ is($plan->to_string, "constr(pos=1,notBetween='dd':'xx','xx')", 'Query is valid'
 
 matches($plan, [qw/[0:0-3] [2:0-3]/]);
 
-done_testing;
-__END__
-
-
 # Ignore classes in negation
 $query = $qb->constraints(
   [
@@ -66,12 +62,24 @@ $query = $qb->constraints(
 );
 
 is($query->to_string, 'constr(pos=precedes,notBetween={[dd]}:[xx],[xx])', 'Stringification');
-
 ok($plan = $query->normalize->finalize->optimize($index), 'Planning');
-
 is($plan->to_string, "constr(pos=1,notBetween='dd':'xx','xx')", 'Query is valid');
 
 
+# Introduce classes inbetween
+$query = $qb->constraints(
+  [
+    $qb->c_position('precedes'),
+    $qb->c_not_between($qb->token('dd')),
+    $qb->c_class_distance
+  ],
+  $qb->token('xx'),
+  $qb->token('xx')
+);
+
+is($query->to_string, 'constr(pos=precedes,notBetween=[dd],class=1:[xx],[xx])', 'Stringification');
+ok($plan = $query->normalize->finalize->optimize($index), 'Planning');
+is($plan->to_string, "constr(pos=1,notBetween='dd',class=1:'xx','xx')", 'Query is valid');
 
 
 
@@ -86,9 +94,7 @@ $query = $qb->constraints(
 );
 
 is($query->to_string, 'constr(pos=precedes,notBetween={[ff]}:[xx],[xx])', 'Stringification');
-
-ok($plan = $query->plan_for($index), 'Planning');
-
+ok($plan = $query->normalize->finalize->optimize($index), 'Planning');
 is($plan->to_string, "constr(pos=1:'xx','xx')", 'Query is valid');
 
 

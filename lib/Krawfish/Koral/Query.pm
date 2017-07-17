@@ -93,6 +93,10 @@ sub finalize {
 
   if ($query->is_negative) {
     $query->warn(782, 'Exclusivity of query is ignored');
+    # TODO:
+    #   Better not search at all, because in case the query was classed,
+    #   this class information would be lost in the normalization process, so
+    #   {1:[!der]} would become [der], which is somehow weird.
     $query->is_negative(0);
   };
 
@@ -102,6 +106,11 @@ sub finalize {
   };
 
   $query = $query->_finalize;
+
+
+  # TODO:
+  #   This needs to be in the finalize stage
+  #   on the segment level!
 
   # There is a possible 'any' extension,
   # that may exceed the text
@@ -124,6 +133,16 @@ sub remove_unused_classes {
   # gather all classes and then can remove them.
 };
 
+
+# Remove classes passed as an array references
+sub remove_classes {
+  my ($self, $keep) = @_;
+  unless ($keep) {
+    $keep = [];
+  };
+  $self->{span} = $self->{span}->remove_classes($keep);
+  return $self;
+};
 
 
 # Prepare a query for an index
@@ -207,7 +226,10 @@ sub is_leaf           { 0 };
 sub is_extended_right { $_[0]->{extended_right} // 0 };
 sub is_extended_left  { $_[0]->{extended_left}  // 0 };
 sub is_extended       { $_[0]->is_extended_right || $_[0]->is_extended_left // 0 };
-sub freq              { -1 };
+sub freq              {
+  warn 'DEPRECATED - only available in queries';
+  -1;
+};
 sub type              { '' };
 
 # Returns a list of classes used by the query,
@@ -218,6 +240,7 @@ sub is_negative {
   my $self = shift;
   if (scalar @_ == 1) {
     $self->{negative} = shift;
+    return $self;
   };
   return $self->{negative} // 0;
 };

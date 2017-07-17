@@ -38,6 +38,9 @@ sub wrap {
   $_[0]->{wrap};
 };
 
+sub remove_classes {
+  $_[0];
+};
 
 # Return Koral fragment
 sub to_koral_fragment {
@@ -109,10 +112,16 @@ sub finalize {
   return $self;
 };
 
+
 sub optimize {
   my ($self, $index) = @_;
 
   # Create token query
+  unless ($self->wrap) {
+    warn "It's not possible to optimize an any query";
+    return;
+  };
+
   if ($self->wrap->type eq 'term') {
     return Krawfish::Query::Term->new(
       $index,
@@ -167,6 +176,7 @@ sub to_string {
   my $self = shift;
 
   my $string = '[';
+
   if ($self->is_nothing) {
     $string .= '0';
   }
@@ -174,6 +184,10 @@ sub to_string {
     $string .= '';
   }
   elsif ($self->wrap) {
+    if ($self->is_negative) {
+      $string .= '!';
+    };
+
     $string .= $self->wrap->to_string;
   }
 

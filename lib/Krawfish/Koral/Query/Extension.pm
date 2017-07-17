@@ -23,6 +23,16 @@ sub new {
   return $self;
 };
 
+# Remove classes passed as an array references
+sub remove_classes {
+  my ($self, $keep) = @_;
+  unless ($keep) {
+    $keep = [];
+  };
+  $self->{anchor} = $self->{anchor}->remove_classes($keep);
+  return $self;
+};
+
 
 sub plan_for {
   my $self = shift;

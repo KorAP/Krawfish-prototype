@@ -106,6 +106,18 @@ sub normalize {
 };
 
 
+# Remove classes passed as an array references
+sub remove_classes {
+  my ($self, $keep) = @_;
+  unless ($keep) {
+    $keep = [];
+  };
+  $self->{first} = $self->{first}->remove_classes($keep);
+  $self->{second} = $self->{second}->remove_classes($keep);
+  return $self;
+};
+
+
 # Normalize position, if it's only a single constraint
 sub _normalize_single_position {
   my $self = shift;

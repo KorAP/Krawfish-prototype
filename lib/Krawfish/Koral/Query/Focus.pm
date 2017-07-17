@@ -54,4 +54,7 @@ sub filter_by {
   $self->{span}->filter_by($corpus_query);
 }
 
+
+sub remove_classes;
+
 1;

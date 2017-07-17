@@ -72,6 +72,9 @@ sub is_leaf { 1 };
 
 sub is_nothing { 0 };
 
+sub remove_classes {
+  $_[0];
+};
 
 sub field {
   if ($_[1]) {
@@ -217,7 +220,7 @@ sub to_koral_fragment {
   };
 
   return $hash if $self->is_null;
-  $hash->{key} = $self->key,
+  $hash->{key} = $self->key;
   $hash->{foundry} = $self->foundry if $self->foundry;
   $hash->{layer} = $self->layer if $self->layer;
   $hash->{value} = $self->value if $self->value;

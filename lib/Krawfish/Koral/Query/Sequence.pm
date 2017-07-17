@@ -47,6 +47,20 @@ sub operands {
 sub type { 'sequence' };
 
 
+# Remove classes passed as an array references
+sub remove_classes {
+  my ($self, $keep) = @_;
+  unless ($keep) {
+    $keep = [];
+  };
+  my $ops = $self->operands;
+  for (my $i = 0; $i < @$ops; $i++) {
+    $ops->[$i] = $ops->[$i]->remove_classes($keep);
+  };
+  $self->operands($ops);
+  return $self;
+};
+
 # TODO: Order by frequency, so the most common occurrence is at the outside
 sub plan_for {
   my $self = shift;

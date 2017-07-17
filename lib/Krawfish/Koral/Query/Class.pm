@@ -46,10 +46,31 @@ sub plan_without_classes_for {
 };
 
 
+# Remove classes passed as an array references
+sub remove_classes {
+  my ($self, $keep) = @_;
+  unless ($keep) {
+    $keep = [];
+  };
 
+  $self->{span} = $self->{span}->remove_classes($keep);
+
+  foreach (@$keep) {
+    if ($_ eq $self->{number}) {
+      return $self;
+    };
+  };
+
+  # Return the span only
+  return $self->{span};
+};
+
+
+# Normalize the class query
 sub normalize {
   my $self = shift;
 
+  # Normalize the span
   my $span;
   unless ($span = $self->span->normalize) {
     $self->copy_info_from($self->span);
@@ -59,11 +80,13 @@ sub normalize {
   # Ignore class if span is negative
   return $span if $span->is_negative;
 
+  # Readd the span
   $self->span($span);
   return $self;
 };
 
 
+# Treat the query as if it is root
 sub finalize {
   my $self = shift;
 
@@ -78,6 +101,7 @@ sub finalize {
 };
 
 
+# Optimize on index
 sub optimize {
   my ($self, $index) = @_;
 
@@ -175,7 +199,13 @@ sub is_null {
 
 
 sub is_negative {
-  $_[0]->span->is_negative;
+  my $self = shift;
+  my $span = $self->span;
+  if (@_) {
+    $span->is_negative(@_);
+    return $self;
+  };
+  return $span->is_negative;
 };
 
 

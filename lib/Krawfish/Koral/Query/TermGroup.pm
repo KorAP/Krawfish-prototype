@@ -39,6 +39,9 @@ sub type {
   'termGroup'
 };
 
+sub remove_classes {
+  $_[0];
+};
 
 sub build_or {
   shift;
