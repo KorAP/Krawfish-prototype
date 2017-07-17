@@ -281,8 +281,7 @@ ok($seq = $seq->optimize($index), 'Normalization');
 is($seq->to_string, "constr(pos=2:'b',or('a',constr(pos=2:'b','a')))", 'Stringification');
 
 # Matches
-matches($seq, [qw/[0:0-2] [0:0-3] [0:1-3] [1:1-3] [1:0-3]/], 'Matches twice');
-
+matches($seq, [qw/[0:0-2] [0:0-3] [0:1-3] [1:0-3] [1:1-3]/], 'Matches twice');
 
 # Create with ANY distance
 # [b][][c]

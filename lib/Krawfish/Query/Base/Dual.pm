@@ -27,7 +27,7 @@ use constant {
   NEXTA  => 1,
   NEXTB  => 2,
   MATCH  => 4,
-  DEBUG  => 0
+  DEBUG  => 1
 };
 
 @EXPORT = qw/NEXTA NEXTB MATCH/;
@@ -45,7 +45,10 @@ sub new {
 # Initialize both spans
 sub init {
   return if $_[0]->{init}++;
-  print_log('dual', 'Init dual spans') if DEBUG;
+  if (DEBUG) {
+    print_log('dual', 'Init dual spans: ' . $_[0]->{first}->to_string . ' and ' .
+                $_[0]->{second}->to_string);
+  };
   $_[0]->{first}->next;
   $_[0]->{second}->next;
   $_[0]->{buffer}->remember($_[0]->{second}->current);

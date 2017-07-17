@@ -221,7 +221,7 @@ sub optimize {
         if (!defined $filterable_query || $freq < $queries[$filterable_query]->freq) {
           $filterable_query = $_;
         };
-        $queries[$i] = [POS, $freq, $query, undef];
+        $queries[$i] = [POS, $freq, $query, $ops->[$i]];
       }
 
       # The operand is optional
@@ -882,7 +882,9 @@ sub _extend_opt {
   };
 
   # Make query optional
-  $new_query = _or($query_a->[QUERY], $new_query);
+  # TODO:
+  #   Introduce a ->clone() method!
+  $new_query = _or($query_a->[KQUERY]->optimize($index), $new_query);
 
   # Add new query
   $queries->[$index_a] = [POS, $new_query->freq, $new_query];

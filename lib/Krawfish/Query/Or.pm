@@ -4,7 +4,7 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 sub new {
   my $class = shift;
@@ -16,9 +16,13 @@ sub new {
 
 sub init  {
   return if $_[0]->{init}++;
-  print_log('or', 'Init ' . $_[0]->{first}->to_string) if DEBUG;
+  if (DEBUG) {
+    print_log(
+      'or',
+      'Init ' . $_[0]->{first}->to_string . ' and ' . $_[0]->{second}->to_string
+    );
+  };
   $_[0]->{first}->next;
-  print_log('or', 'Init ' . $_[0]->{second}->to_string) if DEBUG;
   $_[0]->{second}->next;
 };
 
@@ -31,6 +35,15 @@ sub next {
   my $second = $self->{second}->current;
 
   my $curr = 'first';
+
+  if (DEBUG) {
+    print_log(
+      'or',
+      'Which alternative is first in order: ' .
+      ($first ? $first->to_string : '0') . ' or ' .
+        ($second ? $second->to_string : '0')
+    );
+  };
 
   # First span is no longer available
   if (!$first) {
@@ -85,7 +98,7 @@ sub next {
   $self->{payload} = $curr_post->payload->clone;
 
   if (DEBUG) {
-    print_log('or', 'Current ' . $self->current->to_string);
+    print_log('or', 'So current is ' . $self->current->to_string);
     print_log('or', "Next on $curr");
   };
   $self->{$curr}->next;
