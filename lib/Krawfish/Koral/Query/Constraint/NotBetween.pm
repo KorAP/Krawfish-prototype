@@ -20,11 +20,12 @@ sub normalize {
   my $self = shift;
 
   my $query;
-  # ->remove_classes
   unless ($query = $self->{query}->normalize) {
     # TODO something like this: $self->copy_info_from($self->span);
     return;
   };
+
+  # $query = $query->remove_classes;
 
   $self->{query} = $query;
   $self;
