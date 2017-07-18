@@ -30,7 +30,7 @@ my $query = $kq->token('aa');
 # Get fields object
 ok(my $fields = Krawfish::Result::Segment::Fields->new(
   $index,
-  $query->prepare_for($index),
+  $query->normalize->finalize->optimize($index),
   [qw/license corpus/]
 ), 'Create count object');
 
@@ -51,7 +51,7 @@ $query = $kq->term_or('aa', 'bb');
 # Get fields object
 ok($fields = Krawfish::Result::Segment::Fields->new(
   $index,
-  $query->prepare_for($index),
+  $query->normalize->finalize->optimize($index),
   [qw/license corpus/]
 ), 'Create count object');
 

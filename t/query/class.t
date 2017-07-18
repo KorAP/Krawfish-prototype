@@ -28,11 +28,11 @@ $wrap = $qb->seq(
 );
 
 is($wrap->to_string, '{1:[aa]}{2:[bb]}', 'Stringification');
-ok($class = $wrap->normalize->finalize->optimize($index), 'Rewrite');
-is($class->to_string, "constr(pos=2:class(1:'aa'),class(2:'bb'))", 'stringification');
+ok($class = $wrap->normalize->finalize, 'Normalize');
+is($class->to_string, '{1:aa}{2:bb}', 'Stringification');
 
-done_testing;
-__END__
+ok($class = $wrap->optimize($index), 'Rewrite');
+is($class->to_string, "constr(pos=2:class(1:'aa'),class(2:'bb'))", 'stringification');
 
 ok($class->next, 'More');
 is($class->current->to_string, '[0:0-2$0,1,0,1|0,2,1,2]', 'Match');

@@ -32,7 +32,7 @@ my $max_rank = $index->max_rank;
 
 # Get sort object
 ok(my $sort = Krawfish::Result::Sort::PriorityCascade->new(
-  query => $query->prepare_for($index),
+  query => $query->normalize->finalize->optimize($index),
   index => $index,
   fields => [
     ['author'],  # Order by author with highest priority

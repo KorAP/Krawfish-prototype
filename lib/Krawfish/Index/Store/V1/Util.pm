@@ -22,6 +22,8 @@ our @EXPORT_OK = qw/enc_varint
 #
 # See https://en.wikipedia.org/wiki/Universal_code_(data_compression)
 # for other encodings.
+#
+# A simple nice compact integer packaging is LSIC: http://ticki.github.io/blog/how-lz4-works/
 
 sub enc_string ($$) {
   warn 'Short string encoding not implemented yet';
@@ -33,6 +35,7 @@ sub dec_string ($$) {
   return $_[0];
 };
 
+# See e.g. https://github.com/pascaldekloe/flit
 sub enc_varint ($) {
   warn 'varint encoding not implemented yet';
   return $_[0];

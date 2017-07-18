@@ -19,7 +19,7 @@ my $query = $kq->term_or('aa', 'bb');
 
 is($query->to_string, 'aa|bb', 'Stringification');
 
-my $prepare = $query->prepare_for($index);
+my $prepare = $query->normalize->finalize->optimize($index);
 
 is($prepare->to_string, "or('aa','bb')", 'Stringification');
 

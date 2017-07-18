@@ -112,7 +112,8 @@ sub list {
 };
 
 
-# Skip to a certain document
+# Skip to a certain document, return the current
+# doc_id
 sub skip_doc {
   my ($self, $doc_id) = @_;
 
@@ -121,7 +122,7 @@ sub skip_doc {
   while (!$self->current || $self->current->doc_id < $doc_id) {
     $self->next or return;
   };
-  return 1;
+  return $self->current->doc_id;
 };
 
 1;

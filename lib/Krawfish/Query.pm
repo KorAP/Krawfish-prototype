@@ -44,6 +44,7 @@ sub next_doc {
   return 1;
 };
 
+
 sub freq_in_doc {
   warn 'freq_in_doc only supported for term queries (see PostingPointer)';
 };
@@ -128,6 +129,17 @@ sub freq {
   -1;
 };
 
+
+# This will set a filter flag,
+# so with filter_by() all flagged queries
+# can be filtered
+sub filter {
+  0; # TODO: Make this an attribute
+};
+
+
+sub filter_by;
+
 # Overwrite
 sub to_string {
   ...
@@ -138,5 +150,7 @@ sub to_string {
 sub current_match {
   return undef;
 };
+
+
 
 1;

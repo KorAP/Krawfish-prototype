@@ -33,17 +33,18 @@ $koral->corpus($kcb->string('author')->eq('Peter'));
 
 is($koral->to_string, 'filterBy(bb,author=Peter)', 'Stringification');
 
-my $query = $koral->prepare_for($index);
+my $query = $koral->normalize->finalize->optimize($index);
 
 # Can't match anywhere:
 is($query->to_string, "[0]", 'Planned stringification');
 
 $koral->corpus($kcb->string('author')->eq('Arthur'));
 is($koral->to_string, 'filterBy(bb,author=Arthur)', 'Stringification');
-$query = $koral->prepare_for($index);
+$query = $koral->normalize->finalize->optimize($index);
 
 # Can't match anywhere:
-is($query->to_string, "filter('bb',and([1],'author:Arthur'))", 'Planned stringification');
+#is($query->to_string, "filter('bb',and([1],'author:Arthur'))", 'Planned stringification');
+is($query->to_string, "filter('bb','author:Arthur')", 'Planned stringification');
 
 ok($query->next, 'Get next filtered match');
 is($query->current->to_string, '[1:1-2]', 'Stringification');

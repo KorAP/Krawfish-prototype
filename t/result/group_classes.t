@@ -29,7 +29,7 @@ is($criterion->to_string, 'classes', 'Stringification');
 
 # Create group
 my $group = Krawfish::Result::Group->new(
-  $query->prepare_for($index),
+  $query->normalize->finalize->optimize($index),
   $criterion
 );
 
@@ -55,7 +55,6 @@ is($query->to_string,
    '{1:[akron=Bau-Leiter]}{3:[opennlp/p=V]}',
    'Stringification');
 
-
 # Create class criterion
 $criterion = Krawfish::Result::Group::Classes->new(
   $index,
@@ -66,7 +65,7 @@ is($criterion->to_string, 'classes[1,3]', 'Stringification');
 
 # Create group
 $group = Krawfish::Result::Group->new(
-  $query->prepare_for($index),
+  $query->normalize->finalize->optimize($index),
   $criterion
 );
 

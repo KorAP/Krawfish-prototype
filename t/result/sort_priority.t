@@ -31,7 +31,7 @@ my $max_rank = $index->max_rank;
 
 # Get sort object
 ok(my $sort = Krawfish::Result::Sort::Priority->new(
-  query => $query->prepare_for($index),
+  query => $query->normalize->finalize->optimize($index),
   field => 'docID',
   fields => $index->fields,
   top_k => 2,
@@ -50,7 +50,7 @@ ok(!$sort->next, 'No more next');
 # Next try
 $max_rank = $index->max_rank;
 ok($sort = Krawfish::Result::Sort::Priority->new(
-  query => $query->prepare_for($index),
+  query => $query->normalize->finalize->optimize($index),
   fields => $index->fields,
   field => 'docID',
   desc => 1,

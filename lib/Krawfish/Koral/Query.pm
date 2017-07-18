@@ -92,7 +92,7 @@ sub finalize {
   };
 
   if ($query->is_negative) {
-    $query->warn(782, 'Exclusivity of query is ignored');
+    $query->warning(782, 'Exclusivity of query is ignored');
     # TODO:
     #   Better not search at all, because in case the query was classed,
     #   this class information would be lost in the normalization process, so
@@ -101,7 +101,7 @@ sub finalize {
   };
 
   if ($query->is_optional) {
-    $query->warn(781, "Optionality of query is ignored");
+    $query->warning(781, "Optionality of query is ignored");
     $query->is_optional(0);
   };
 

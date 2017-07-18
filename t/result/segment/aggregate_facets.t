@@ -29,7 +29,7 @@ my $facet_corpus = Krawfish::Result::Segment::Aggregate::Facets->new(
 
 # Get facets object
 ok(my $aggr = Krawfish::Result::Segment::Aggregate->new(
-  $query->prepare_for($index),
+  $query->normalize->finalize->optimize($index),
   [$facet_license, $facet_corpus]
 ), 'Create facet object');
 

@@ -175,6 +175,7 @@ sub field_values {
 # TODO: Expect a KoralQuery document
 # TODO: This should be specific to Krawfish::Index::Dynamic;
 # TODO: Support update as a insert_after_delete
+# TODO: Updated caches!
 sub add {
   my $self = shift;
   my $doc = shift;

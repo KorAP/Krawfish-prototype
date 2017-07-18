@@ -29,7 +29,7 @@ my $count = Krawfish::Result::Segment::Aggregate::Count->new;
 
 # Get count object
 ok(my $aggr = Krawfish::Result::Segment::Aggregate->new(
-  $query->prepare_for($index),
+  $query->normalize->finalize->optimize($index),
   [$count]
 ), 'Create count object');
 
@@ -48,7 +48,7 @@ $count = Krawfish::Result::Segment::Aggregate::Count->new;
 
 # Get count object
 ok($aggr = Krawfish::Result::Segment::Aggregate->new(
-  $query->prepare_for($index),
+  $query->normalize->finalize->optimize($index),
   [$count]
 ), 'Create count object');
 

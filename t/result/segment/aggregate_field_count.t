@@ -28,11 +28,13 @@ my $kq = Krawfish::Koral::Query::Builder->new;
 
 my $query = $kq->token('bb');
 
-my $field_count = Krawfish::Result::Segment::Aggregate::Values->new($index, ['size', 'docID']);
+my $field_count = Krawfish::Result::Segment::Aggregate::Values->new(
+  $index, ['size', 'docID']
+);
 
 # Get count object
 ok(my $aggr = Krawfish::Result::Segment::Aggregate->new(
-  $query->prepare_for($index),
+  $query->normalize->finalize->optimize($index),
   [$field_count]
 ), 'Create field count object');
 

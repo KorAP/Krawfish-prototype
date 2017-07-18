@@ -92,4 +92,21 @@ sub text {
 };
 
 
+# Get a virtual corpus and a list of terms -
+# returns the frequency per term in the virtual corpus
+# (potentially per corpus class)
+sub frequencies {
+  my $c = shift;
+
+  # This is a very important endpoint as it is used for
+  # statistics on a virtual corpus (number of sentences in a corpus)
+  # as well as for co-occurrence search.
+  #
+  # Beside terms, this also support the frequency count of tokens
+  # for certain foundries.
+  #
+  # This uses Result::Aggregate::TermFreq and
+  # Result::Aggregate::TokenFreq
+};
+
 1;

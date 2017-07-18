@@ -5,12 +5,15 @@ use warnings;
 
 use constant DEBUG => 0;
 
+# TODO:
+#   It may be better to have one aggregator per match
+#   and one aggregator per doc.
+
 # Aggregate values of matches per document and
 # per match.
 
 # TODO:
 #   See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html
-
 
 # TODO: Sort all ops for each_match and each_doc support
 sub new {
@@ -39,6 +42,8 @@ sub next {
   my $result = $self->result;
 
   # There is a next match
+  # TODO:
+  #   If there is no operand per match, only use next_doc
   if ($self->{query}->next) {
 
     # Get the current posting

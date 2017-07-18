@@ -113,7 +113,8 @@ sub can_toggle_negativity;
 
 sub inflate {
   # Inflate for RegEx and existence!
-  ...
+  warn 'Inflation on fields not yet implemented';
+  return $_[0];
 };
 
 sub optimize {

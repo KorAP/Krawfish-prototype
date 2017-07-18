@@ -29,7 +29,7 @@ my $length = Krawfish::Result::Segment::Aggregate::Length->new;
 
 # Get length object
 ok(my $aggr = Krawfish::Result::Segment::Aggregate->new(
-  $query->prepare_for($index),
+  $query->normalize->finalize->optimize($index),
   [$length]
 ), 'Create length object');
 

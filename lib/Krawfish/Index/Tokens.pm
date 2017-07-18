@@ -21,8 +21,12 @@ use warnings;
 #
 # * Get the number of tokens per doc_id
 #   API: ->count($doc_id)
-#        or ->freq($doc_id)
-
+#        or ->freq_doc($doc_id)
+#   (Necessary for Result::Aggregate::TokenFreq)
+#
+# * Get the maximum number of subtokens a token
+#   of this foundry can have (necessary for Constraint::InBetween)
+#   ->max_subtokens;
 
 # Get an array of start positions that are in the range of min/max
 # Start with the lowest
@@ -51,5 +55,11 @@ sub count {
   # First check if this is even possible based on segments
   # then check on tokens
   ...
-}
+};
+
+sub freq_doc;
+
+sub max_subtokens;
+
+1;
 

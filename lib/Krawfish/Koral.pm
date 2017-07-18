@@ -315,6 +315,7 @@ sub prepare_for {
 
   # Prepare query
   $query = $query->prepare_for($index);
+  # $query = $query->normalize->finalize->inflate($index->dict)->optimize($index);
 
   return $query;
 };

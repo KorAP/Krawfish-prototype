@@ -6,3 +6,6 @@
 # TODO:
 #   This should also take into account multi-ranges like described in
 #   https://github.com/KorAP/Krill/issues/17
+#
+# http://search.cpan.org/~davidiam/Set-SegmentTree-0.01/lib/Set/SegmentTree.pm
+# https://en.wikipedia.org/wiki/Segment_tree

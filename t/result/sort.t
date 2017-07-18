@@ -28,7 +28,7 @@ my $query = $kq->term_or('aa', 'bb');
 
 # Get sort object
 ok(my $sort = Krawfish::Result::Sort->new(
-  $query->prepare_for($index),
+  $query->normalize->finalize->optimize($index),
   $index,
   ['docID']
 ), 'Create sort object');
@@ -55,7 +55,7 @@ $query = $kq->term('cc');
 
 # Get sort object
 ok($sort = Krawfish::Result::Sort->new(
-  $query->prepare_for($index),
+  $query->normalize->finalize->optimize($index),
   $index,
   ['author']
 ), 'Create sort object');

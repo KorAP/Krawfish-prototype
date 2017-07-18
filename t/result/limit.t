@@ -18,7 +18,7 @@ my $query = $kq->term_or('Der', 'akron=Der');
 
 # Get sort object
 ok(my $sort = Krawfish::Result::Limit->new(
-  $query->prepare_for($index),
+  $query->normalize->finalize->optimize($index),
   1,
   3
 ), 'Create sort object');

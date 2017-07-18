@@ -25,11 +25,11 @@ ok_index($index, {
 ok(my $cb = Krawfish::Koral::Corpus::Builder->new, 'Create CorpusBuilder');
 
 ok(my $corpus = $cb->string('genre')->eq('novel'), 'Create corpus query');
-ok(my $corpus_plan = $corpus->plan_for($index), 'Plan');
+ok(my $corpus_plan = $corpus->normalize->finalize->optimize($index), 'Plan');
 
 ok(my $qb = Krawfish::Koral::Query::Builder->new, 'Create CorpusBuilder');
 ok(my $term = $qb->term('aa'), 'Create term query');
-ok(my $term_plan = $term->plan_for($index), 'Create query plan');
+ok(my $term_plan = $term->normalize->finalize->optimize($index), 'Create query plan');
 
 ok(my $filter = Krawfish::Query::Filter->new(
   $term_plan,

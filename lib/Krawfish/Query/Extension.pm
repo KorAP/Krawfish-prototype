@@ -6,7 +6,8 @@ use warnings;
 
 # This query adds subtokens to the left or the right
 # of a matching span
-
+#
+# Support gaps like with Constraint::InBetween
 
 sub new {
   my $class = shift;
