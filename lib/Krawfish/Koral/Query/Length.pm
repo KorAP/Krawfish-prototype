@@ -186,6 +186,5 @@ sub is_null {
 sub is_negative { $_[0]->{span}->is_negative };
 sub is_extended_right { $_[0]->{span}->is_extended_right };
 sub is_extended_left { $_[0]->{span}->is_extended_left };
-sub freq { $_[0]->{span}->freq; };
 
 1;

@@ -195,10 +195,7 @@ sub is_leaf           { 0 };
 sub is_extended_right { $_[0]->{extended_right} // 0 };
 sub is_extended_left  { $_[0]->{extended_left}  // 0 };
 sub is_extended       { $_[0]->is_extended_right || $_[0]->is_extended_left // 0 };
-sub freq              {
-  warn 'DEPRECATED - only available in queries';
-  -1;
-};
+
 sub type              { '' };
 
 sub is_negative {
