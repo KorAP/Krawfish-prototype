@@ -61,8 +61,9 @@ is($plan->to_string, "and(or(andNot([1],'id:2'),'id:5'),[1])", 'Stringification'
 
 # matches($plan, [qw/[0] [1] [2] [3] [4]/], 'Matches');
 
-
-diag 'Test further';
+TODO: {
+  local $TODO = 'Test further'
+};
 
 # Especially:
 # - First operand is negative, second is positive

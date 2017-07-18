@@ -89,8 +89,11 @@ ok($query = $query->optimize($index), 'Normalize');
 is($query->to_string, '[0]', 'Stringification');
 
 
-diag 'Test further';
-# extendedLeft, extendedRight, negative, any, optional ...
+TODO: {
+  local $TODO = "Test further";
+  # extendedLeft, extendedRight, negative, any, optional ...
+};
+
 
 done_testing;
 __END__

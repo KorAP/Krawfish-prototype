@@ -24,7 +24,9 @@ is($seq->to_string, '[Der][]<opennlp/c=NP>', 'Stringification');
 ok(!$seq->is_null, 'Query is not null');
 is($seq->to_string, '[Der][]<opennlp/c=NP>', 'Stringification');
 
-diag "Test further";
+TODO: {
+  local $TODO = "Test further";
+};
 
 # aa []* bb
 # aa []+ bb

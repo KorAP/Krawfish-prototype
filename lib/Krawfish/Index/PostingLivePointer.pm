@@ -9,7 +9,7 @@ use warnings;
 #   so a new delete during searching doesn't interfere with the list!
 
 use constant {
-  DEBUG => 1
+  DEBUG => 0
 };
 
 # Points to a position in a live list

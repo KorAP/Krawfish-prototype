@@ -60,7 +60,9 @@ ok($field = $cb->string('license'), 'String field');
 is($field->to_string, "license", 'Stringification');
 
 
-diag 'Test further';
+TODO: {
+  local $TODO = 'Test further'
+};
 
 done_testing;
 __END__

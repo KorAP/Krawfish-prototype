@@ -10,7 +10,7 @@ use warnings;
 # TODO: Support filters and skip
 # return Nothing if get returns undef
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 sub new {
   my ($class, $index, $term) = @_;

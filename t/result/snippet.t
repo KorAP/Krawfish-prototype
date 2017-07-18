@@ -39,7 +39,10 @@ ok($snippet->next, 'Next match');
 is($snippet->current_match->to_string, "[0:3-4|snippet='aa bb aa bb']", 'Current match');
 ok(!$snippet->next, 'No more match');
 
-diag 'Test further - with matches';
+TODO: {
+  local $TODO = 'Test further - with matches'
+};
+
 
 done_testing;
 

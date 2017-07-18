@@ -73,7 +73,9 @@ is($sort_fields->current->doc_id, 0, 'DocID');
 
 ok(!$sort_fields->next, 'Next');
 
-diag 'Test with unique field ';
+TODO: {
+  local $TODO = 'Test with unique field';
+};
 
 done_testing;
 __END__

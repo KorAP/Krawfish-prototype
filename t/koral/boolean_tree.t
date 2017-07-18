@@ -321,7 +321,9 @@ is($tree->to_string, '!(([1]&!b=1)|c=1|d=1)', 'simple string');
 $tree = $tree->finalize;
 is($tree->to_string, '([1]&!(([1]&!b=1)|c=1|d=1))', 'simple string');
 
-diag 'Check with negativity for >=, <=, exists etc.';
+TODO: {
+  local $TODO = 'Check with negativity for >=, <=, exists etc.'
+};
 
 
 done_testing;

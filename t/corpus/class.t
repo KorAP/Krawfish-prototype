@@ -74,6 +74,8 @@ is($plan->to_string,
    "or(class(2:'author:David'),class(3:'age:24'))",
    'Stringification');
 
-diag 'Test corpus class behaviour';
+TODO: {
+  local $TODO = 'Test corpus class behaviour'
+};
 
 done_testing;

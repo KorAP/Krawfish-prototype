@@ -54,7 +54,9 @@ is($query->to_string, "<aa>", 'Stringification');
 ok($query = $query->optimize($index), 'Optimization');
 is($query->to_string, "'<>aa'", 'Stringification');
 
-diag 'Test further';
+TODO: {
+  local $TODO = 'Test further'
+};
 
 # Think about optional, any, negative etc.
 

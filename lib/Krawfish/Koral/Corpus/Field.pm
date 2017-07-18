@@ -5,7 +5,7 @@ use Krawfish::Corpus::Negation;
 use strict;
 use warnings;
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # TODO:
 #   - Check for valid parameters
@@ -111,11 +111,13 @@ sub excludes {
 
 sub can_toggle_negativity;
 
+
 sub inflate {
   # Inflate for RegEx and existence!
   warn 'Inflation on fields not yet implemented';
   return $_[0];
 };
+
 
 sub optimize {
   my ($self, $index) = @_;

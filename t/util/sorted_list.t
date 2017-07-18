@@ -6,7 +6,9 @@ use Test::More;
 use_ok('Krawfish::Util::SortedList');
 use_ok('Krawfish::Posting::Bundle');
 
-diag 'Test Sorted list';
+TODO: {
+  local $TODO = 'Test Sorted list';
+};
 
 done_testing;
 

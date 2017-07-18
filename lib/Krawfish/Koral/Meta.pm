@@ -13,7 +13,7 @@ use strict;
 use warnings;
 
 use constant {
-  DEBUG => 1,
+  DEBUG => 0,
   UNIQUE_FIELD => 'id'
 };
 

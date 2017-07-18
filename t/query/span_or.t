@@ -55,6 +55,8 @@ is($query->to_string, "or('a',constr(pos=2:'b','a'))", 'or');
 
 matches($query, [qw/[0:0-1] [0:0-2] [0:1-2] [0:1-3] [0:2-3] [1:1-3] [1:2-3]/]);
 
-diag 'Test with negative operands';
+TODO: {
+  local $TODO = 'Test with negative operands';
+};
 
 done_testing;

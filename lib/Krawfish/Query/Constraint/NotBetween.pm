@@ -14,7 +14,7 @@ use constant {
   MATCH => 4,
   DONE  => 8,
   ALL_MATCH => (1 | 2 | 4),
-  DEBUG => 1
+  DEBUG => 0
 };
 
 

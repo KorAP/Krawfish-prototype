@@ -6,7 +6,7 @@ use warnings;
 
 # This can be used by Koral::FieldGroup and Koral::TermGroup
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # TODO:
 #   Change andNot([1],X) to not(x),

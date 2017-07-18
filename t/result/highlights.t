@@ -19,7 +19,10 @@ my $posting = Krawfish::Posting->new(
   end => 2
 );
 
-diag 'Test further';
+TODO: {
+  local $TODO = 'Test further';
+};
+
 
 done_testing;
 __END__

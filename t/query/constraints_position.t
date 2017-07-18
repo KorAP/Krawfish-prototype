@@ -209,7 +209,9 @@ is($ov->current->to_string, '[0:1-4$0,1,1,3|0,2,2,4]', 'Match');
 ok(!$ov->next, 'No More');
 
 
-diag 'Test further';
+TODO: {
+  local $TODO = 'Test further';
+};
 
 
 done_testing;

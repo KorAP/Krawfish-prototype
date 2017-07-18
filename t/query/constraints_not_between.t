@@ -98,9 +98,9 @@ ok($plan = $query->normalize->finalize->optimize($index), 'Planning');
 is($plan->to_string, "constr(pos=1:'xx','xx')", 'Query is valid');
 
 
-
-diag 'Further testing with repetitions at the beginning and inbetween';
-
+TODO: {
+  local $TODO = 'Further testing with repetitions at the beginning and inbetween';
+};
 
 
 done_testing;
