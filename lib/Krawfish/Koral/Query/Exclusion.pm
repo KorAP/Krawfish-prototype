@@ -57,6 +57,7 @@ sub to_koral_fragment {
 
 sub type { 'exclusion' };
 
+
 sub normalize {
   my $self = shift;
 
@@ -119,6 +120,7 @@ sub inflate {
   return $self;
 };
 
+
 sub optimize {
   my ($self, $index) = @_;
 
@@ -140,37 +142,6 @@ sub optimize {
   );
 };
 
-sub plan_for {
-  my ($self, $index) = @_;
-
-  warn 'DEPRECATED';
-
-  my $frames = $self->{frames};
-  my $first = $self->{first};
-  my $second = $self->{second};
-
-  my ($first_plan, $second_plan);
-  unless ($first_plan = $self->{first}->plan_for($index)) {
-    $self->copy_info_from($self->{first});
-    return;
-  };
-
-  unless ($second_plan = $self->{second}->plan_for($index)) {
-    $self->copy_info_from($self->{second});
-    return;
-  };
-
-  # Second object does not occur
-  if ($second_plan->freq == 0) {
-    return $first_plan;
-  };
-
-  return Krawfish::Query::Exclusion->new(
-    $self->{frames},
-    $first_plan,
-    $second_plan
-  );
-};
 
 sub filter_by {
   my $self = shift;

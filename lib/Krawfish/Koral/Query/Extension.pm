@@ -34,16 +34,15 @@ sub remove_classes {
 };
 
 
-sub plan_for {
+sub normalize {
   my $self = shift;
-  my $index = shift;
 
   my $anchor = $self->{anchor};
   my $ext = $self->{extension};
 
   # Extension is not important
   if ($ext->is_null) {
-    return $anchor->plan_for($index);
+    return $anchor->normalize;
   };
 
   if ($ext->is_optional) {

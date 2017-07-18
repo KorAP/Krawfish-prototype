@@ -43,6 +43,7 @@ sub new {
   }, $class;
 };
 
+
 sub min {
   if (defined $_[1]) {
     $_[0]->{min} = $_[1];
@@ -60,6 +61,7 @@ sub max {
   $_[0]->{max};
 };
 
+
 sub token_base {
   if (defined $_[1]) {
     $_[0]->{token} = $_[1];
@@ -70,6 +72,7 @@ sub token_base {
 
 
 sub type { 'length' };
+
 
 sub span {
   shift->{span};
@@ -118,6 +121,7 @@ sub normalize {
   return $self;
 };
 
+
 sub optimize {
   my ($self, $index) = @_;
 
@@ -129,34 +133,6 @@ sub optimize {
   if ($span->freq == 0) {
     return Krawfish::Query::Nothing->new;
   };
-
-  return Krawfish::Query::Length->new(
-    $span,
-    $self->{min},
-    $self->{max},
-    $self->{token}
-  );
-};
-
-sub plan_for {
-  my $self = shift;
-  my $index = shift;
-
-  warn 'DEPRECATED';
-
-  # Nothing set
-  if ($self->freq == 0) {
-    return $self->builder->nothing;
-  };
-
-  my $span = $self->{span}->plan_for($index);
-
-  # No boundaries given
-  if (!$self->{min} && !$self->{max}) {
-    return $span;
-  };
-
-  # TODO: Add constraint instead of query, if implemented
 
   return Krawfish::Query::Length->new(
     $span,

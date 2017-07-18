@@ -99,10 +99,4 @@ sub optimize {
 };
 
 
-sub plan_for {
-  my $self = shift;
-  warn 'DEPRECATED';
-  Krawfish::Query::Constraint::Position->new($$self);
-};
-
 1;

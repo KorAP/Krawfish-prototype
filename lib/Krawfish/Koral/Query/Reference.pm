@@ -29,8 +29,6 @@ sub to_koral_fragment;
 
 sub type { 'reference' };
 
-sub plan_for;
-
 sub remove_classes;
 
 # Not necessary here

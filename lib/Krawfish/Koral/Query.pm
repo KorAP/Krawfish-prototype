@@ -12,6 +12,8 @@ use strict;
 #   - rename 'any' to 'anywhere'
 #   - extended_* may be queried
 #     automatically without parameter
+#   - rename all sorts of single ops to operand
+#   - rename all sorts of multiple ops to operands
 
 sub new {
   my $class = shift;
@@ -32,6 +34,7 @@ sub new {
   $self;
 };
 
+
 #########################################
 # Query Planning methods and attributes #
 #########################################
@@ -46,6 +49,7 @@ sub plan_for_new {
     ->cache
     ->optimize($index);
 };
+
 
 # Normalize the query
 sub normalize;
@@ -77,6 +81,7 @@ sub _finalize {
   $_[0];
 };
 
+
 sub finalize {
   my $self = shift;
 
@@ -107,7 +112,6 @@ sub finalize {
 
   $query = $query->_finalize;
 
-
   # TODO:
   #   This needs to be in the finalize stage
   #   on the segment level!
@@ -122,6 +126,10 @@ sub finalize {
   # TODO: Check for serialization errors
   return $query;
 };
+
+# Returns a list of classes used by the query,
+# e.g. in a focus() context.
+sub uses_classes;
 
 
 sub remove_unused_classes {
@@ -145,51 +153,12 @@ sub remove_classes {
 };
 
 
-# Prepare a query for an index
-# TODO: Rename to compile()
-sub prepare_for {
-  my ($self, $index) = @_;
-
-  warn 'DEPRECATED';
-  
-  my $query = $self;
-
-  # There is a possible 'any' extension,
-  # that may exceed the text
-  if ($self->is_extended_right) {
-    my $builder = $self->builder;
-
-    # Wrap query in a text element
-    $query = $builder->position(
-      ['endsWith', 'isAround', 'startsWith', 'matches'],
-      $builder->span('base/s=t'),
-      $self
-    );
-  };
-
-  # Return the planned query
-  # TODO: Check for serialization errors
-  $query->plan_for($index);
-};
-
-# Plan a query for an index (to be overwritten)
-# TODO: Rename to_primitive(index)
-sub plan_for;
-
-
-# This will remove classes
-# in subqueries
-sub plan_without_classes_for {
-  shift->plan_for(@_);
-};
-
-
 # Filter a query based on a document query
 sub filter_by {
   ...
 };
 
-# sub is_any            { $_[0]->{any}            // 0 };
+
 # Matches everything
 sub is_any {
   my $self = shift;
@@ -231,10 +200,6 @@ sub freq              {
   -1;
 };
 sub type              { '' };
-
-# Returns a list of classes used by the query,
-# e.g. in a focus() context.
-sub uses_classes;
 
 sub is_negative {
   my $self = shift;

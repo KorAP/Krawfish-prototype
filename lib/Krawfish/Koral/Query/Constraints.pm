@@ -194,6 +194,7 @@ sub optimize {
   );
 };
 
+
 sub filter_by {
   my $self = shift;
   my $corpus_query = shift;
@@ -227,42 +228,6 @@ sub to_string {
   $str .= ':';
   $str .= $self->{first}->to_string . ',' . $self->{second}->to_string;
   return $str . ')';
-};
-
-
-
-
-
-# Plan for index
-sub plan_for {
-  my ($self, $index) = @_;
-
-  warn 'DEPRECATED';
-
-  my ($first, $second);
-  unless ($first = $self->{first}->plan_for($index)) {
-    $self->copy_info_from($self->{first});
-    return;
-  };
-
-  unless ($second = $self->{second}->plan_for($index)) {
-    $self->copy_info_from($self->{second});
-    return;
-  };
-
-  my @constraints = ();
-  foreach (@{$self->{constraints}}) {
-
-    # Plan may result in a null-query
-    my $plan = $_->plan_for($index) or next;
-    push @constraints, $plan;
-  };
-
-  return Krawfish::Query::Constraints->new(
-    \@constraints,
-    $first,
-    $second
-  );
 };
 
 

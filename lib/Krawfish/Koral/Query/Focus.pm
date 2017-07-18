@@ -22,13 +22,13 @@ sub nrs {
 
 # If span is maybe_unsorted, use a sorted focus, otherwise an unsorted focus.
 
-sub plan_for {
+sub optimize {
   my ($self, $index) = @_;
 
   my $span;
 
   # Not plannable
-  unless ($span = $self->span->plan_for($index)) {
+  unless ($span = $self->span->optimize($index)) {
     $self->copy_info_from($self->span);
     return;
   };

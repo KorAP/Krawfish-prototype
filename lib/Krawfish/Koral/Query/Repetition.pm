@@ -235,51 +235,6 @@ sub optimize {
 };
 
 
-sub plan_for {
-  my $self = shift;
-  my $index = shift;
-
-  warn 'DEPRECATED';
-
-  # Copy messages from span serialization
-  my $span;
-  unless ($span = $self->{span}->plan_for($index)) {
-    $self->copy_info_from($self->{span});
-    return;
-  };
-
-  my $min = $self->{min};
-  my $max = $self->{max};
-
-  $min //= 0;
-
-  if (!$max || $max > $MAX) {
-    $self->warning(000, 'Maximum value is limited', $MAX);
-    $max = $MAX;
-  };
-
-  # Some errors
-  if ($min > $max) {
-    $self->error(000, 'Minimum has to be greater than maximum in repetition');
-    return;
-  }
-  elsif ($min == 0) {
-    $self->error(000, 'Optionality is ignored');
-    return;
-  }
-  elsif ($min < 0) {
-    $self->error(000, 'Minimum has to be greater than 0');
-    return;
-  };
-
-  if ($min == 1 && $max == 1) {
-    return $span;
-  };
-
-  return Krawfish::Query::Repetition->new($span, $min, $max);
-};
-
-
 # Filter by corpus
 sub filter_by {
   my $self = shift;
@@ -288,7 +243,7 @@ sub filter_by {
 
 
 sub maybe_unsorted {
-  $_[0]->{span}->maybe_unsorded;
+  $_[0]->{span}->maybe_unsorted;
 };
 
 

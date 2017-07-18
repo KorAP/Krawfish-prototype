@@ -40,11 +40,6 @@ sub type { 'class' };
 #  };
 #};
 
-sub plan_without_classes_for {
-  my ($self, $index) = @_;
-  return $self->span->plan_for($index);
-};
-
 
 # Remove classes passed as an array references
 sub remove_classes {
@@ -106,29 +101,6 @@ sub optimize {
   my ($self, $index) = @_;
 
   my $span = $self->span->optimize($index);
-
-  # Span has no match
-  if ($span->freq == 0) {
-    return $self->builder->nothing;
-  };
-
-  return Krawfish::Query::Class->new(
-    $span,
-    $self->number
-  );
-};
-
-
-sub plan_for {
-  my ($self, $index) = @_;
-
-  warn 'DEPRECATED';
-
-  my $span;
-  unless ($span = $self->span->plan_for($index)) {
-    $self->copy_info_from($self->span);
-    return;
-  };
 
   # Span has no match
   if ($span->freq == 0) {

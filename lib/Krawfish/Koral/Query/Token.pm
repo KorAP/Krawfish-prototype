@@ -134,36 +134,6 @@ sub optimize {
 };
 
 
-# Query planning
-sub plan_for {
-  my ($self, $index) = @_;
-
-  warn 'DEPRECATED';
-
-  # Token is null
-  if ($self->is_null) {
-    $self->error(000, 'Unable to search for null tokens');
-    return;
-  };
-
-  # No term defined
-  unless ($self->wrap) {
-    $self->error(000, 'Unable to search for any tokens');
-    return;
-  };
-
-  # Create token query
-  if ($self->wrap->type eq 'term') {
-    return Krawfish::Query::Term->new(
-      $index,
-      $self->wrap->to_string
-    );
-  };
-
-  return $self->wrap->plan_for($index);
-};
-
-
 
 # Filter by corpus
 sub filter_by {

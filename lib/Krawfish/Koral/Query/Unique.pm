@@ -46,25 +46,6 @@ sub optimize {
 };
 
 
-sub plan_for {
-  my ($self, $index) = @_;
-
-  warn 'DEPRECATED';
-
-  my $span;
-  unless ($span = $self->span->plan_for($index)) {
-    $self->copy_info_from($self->span);
-    return;
-  };
-
-  if ($span->freq == 0) {
-    return $self->builder->nothing;
-  };
-
-  return Krawfish::Query::Unique->new($span);
-};
-
-
 # Filter by corpus
 sub filter_by {
   my $self = shift;

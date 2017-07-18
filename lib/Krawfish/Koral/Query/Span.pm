@@ -65,6 +65,7 @@ sub inflate {
   return $self;
 };
 
+
 # Todo: May be more complicated
 sub optimize {
   my ($self, $index) = @_;
@@ -75,17 +76,6 @@ sub optimize {
 };
 
 
-sub plan_for {
-
-  warn 'DEPRECATED';
-  my $self = shift;
-  my $index = shift;
-  # Todo: May be more complicated
-  return Krawfish::Query::Span->new(
-    $index,
-    $self->wrap->to_term
-  );
-};
 
 # Filter by corpus
 sub filter_by {

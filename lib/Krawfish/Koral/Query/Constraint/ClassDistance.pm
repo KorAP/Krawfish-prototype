@@ -29,11 +29,4 @@ sub optimize {
 };
 
 
-sub plan_for {
-  warn 'DEPRECATED';
-  my $self = shift;
-  Krawfish::Query::Constraint::ClassDistance->new($$self);
-};
-
-
 1;
