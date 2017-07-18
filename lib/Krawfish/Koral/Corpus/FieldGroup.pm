@@ -45,7 +45,12 @@ sub type {
 
 
 sub operation {
-  $_[0]->{operation};
+  my $self = shift;
+  if (@_) {
+    $self->{operation} = shift;
+    return $self;
+  };
+  $self->{operation};
 };
 
 
@@ -79,17 +84,6 @@ sub build_any {
   # my $any = Krawfish::Koral::Corpus::FieldGroup->new;
   # $any->is_any(1);
   # return $any;
-};
-
-
-sub toggle_operation {
-  my $self = shift;
-  if ($self->{operation} eq 'or') {
-    $self->{operation} = 'and';
-  }
-  elsif ($self->{operation} eq 'and') {
-    $self->{operation} = 'or';
-  };
 };
 
 

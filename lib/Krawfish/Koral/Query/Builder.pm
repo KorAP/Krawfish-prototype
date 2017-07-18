@@ -5,7 +5,7 @@ use Krawfish::Koral::Query::Span;
 use Krawfish::Koral::Query::Sequence;
 use Krawfish::Koral::Query::Repetition;
 use Krawfish::Koral::Query::TermGroup;
-use Krawfish::Koral::Query::Position;
+# use Krawfish::Koral::Query::Position;
 use Krawfish::Koral::Query::Extension;
 use Krawfish::Koral::Query::Exclusion;
 use Krawfish::Koral::Query::Unique;

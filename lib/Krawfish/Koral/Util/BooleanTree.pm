@@ -694,45 +694,23 @@ sub _replace_negative {
     return $self;
   };
 
-  warn 'Unknown field operation';
+  warn 'Unknown operation';
 };
 
+
+# Toggle the operation
+sub toggle_operation {
+  my $self = shift;
+  if ($self->operation eq 'or') {
+    $self->operation('and');
+  }
+  elsif ($self->operation eq 'and') {
+    $self->operation('or');
+  };
+};
+
+
 1;
+
 
 __END__
-
-  # First pass - flatten and cleanup
-  for (my $i = @$ops - 1; $i >= 0;) {
-
-    # Clean null
-    if ($ops->[$i]->is_null) {
-      splice @$ops, $i, 1;
-    }
-
-    # Flatten groups
-    elsif ($ops->[$i]->type eq 'termGroup' &&
-             $ops->[$i]->operation eq $self->operation) {
-      my $operands = $ops->[$i]->operands;
-      my $nr = @$operands;
-      splice @$ops, $i, 1, @$operands;
-      $i+= $nr;
-    }
-
-    # Element is negative - remember
-    elsif ($ops->[$i]->is_negative) {
-      push @negatives, splice @$ops, $i, 1
-    };
-
-    $i--
-  };
-
-
-  # No positive operator valid
-  if (@$ops == 0) {
-    $self->error(000, 'Negative queries are not supported');
-    return;
-  }
-
-
-
-1;

@@ -4,10 +4,14 @@ use Krawfish::Query::Class;
 use strict;
 use warnings;
 
+use constant {
+  DEBUG => 1
+};
+
 sub new {
   my $class = shift;
   bless {
-    span => shift,
+    operands => [shift],
     number => shift
   }
 };
@@ -19,26 +23,12 @@ sub to_koral_fragment {
     'operation' => 'operation:class',
     'classOut' => $self->number,
     'operands' => [
-      $self->span->to_koral_fragment
+      $self->operand->to_koral_fragment
     ]
   };
 };
 
 sub type { 'class' };
-
-# TODO: Make this part of plan_for
-#sub replace_references {
-#  my ($self, $refs) = @_;
-#  my $sig = $self->signature;
-#
-#  # Subquery is identical to given query
-#  if ($refs->{$sig}) {
-#    ...
-#  }
-#  else {
-#    $refs->{$sig} = $self->span;
-#  };
-#};
 
 
 # Remove classes passed as an array references
@@ -48,7 +38,7 @@ sub remove_classes {
     $keep = [];
   };
 
-  $self->{span} = $self->{span}->remove_classes($keep);
+  $self->{operand}->[0] = $self->{operands}->[0]->remove_classes($keep);
 
   foreach (@$keep) {
     if ($_ eq $self->{number}) {
@@ -57,7 +47,7 @@ sub remove_classes {
   };
 
   # Return the span only
-  return $self->{span};
+  return $self->{operands}->[0];
 };
 
 
@@ -67,8 +57,8 @@ sub normalize {
 
   # Normalize the span
   my $span;
-  unless ($span = $self->span->normalize) {
-    $self->copy_info_from($self->span);
+  unless ($span = $self->operand->normalize) {
+    $self->copy_info_from($self->operand);
     return;
   };
 
@@ -76,7 +66,7 @@ sub normalize {
   return $span if $span->is_negative;
 
   # Readd the span
-  $self->span($span);
+  $self->operand($span);
   return $self;
 };
 
@@ -86,12 +76,12 @@ sub finalize {
   my $self = shift;
 
   my $span;
-  unless ($span = $self->span->finalize) {
-    $self->copy_info_from($self->span);
+  unless ($span = $self->operand->finalize) {
+    $self->copy_info_from($self->operand);
     return;
   };
 
-  $self->span($span);
+  $self->operand($span);
   return $self;
 };
 
@@ -100,7 +90,7 @@ sub finalize {
 sub optimize {
   my ($self, $index) = @_;
 
-  my $span = $self->span->optimize($index);
+  my $span = $self->operand->optimize($index);
 
   # Span has no match
   if ($span->freq == 0) {
@@ -120,7 +110,7 @@ sub optimize {
 #  my ($self, $cb) = @_;
 #
 #  # Check if the subspan should be replaced
-#  if (my $replace = $cb->($self->span)) {
+#  if (my $replace = $cb->($self->operand)) {
 #
 #    # Replace
 #    $self->{span} = $replace;
@@ -130,7 +120,7 @@ sub optimize {
 
 sub filter_by {
   my $self = shift;
-  $self->span->filter_by(shift);
+  $self->operand->filter_by(shift);
 };
 
 
@@ -138,15 +128,7 @@ sub to_string {
   my $self = shift;
   my $str = '{';
   $str .= $self->number . ':' if $self->number;
-  return $str . $self->span->to_string . '}';
-};
-
-
-sub span {
-  if (@_ == 2) {
-    $_[0]->{span} = $_[1];
-  };
-  $_[0]->{span};
+  return $str . $self->operand->to_string . '}';
 };
 
 
@@ -156,23 +138,23 @@ sub number {
 
 
 sub is_any {
-  $_[0]->span->is_any;
+  $_[0]->operand->is_any;
 };
 
 
 sub is_optional {
-  $_[0]->span->is_optional;
+  $_[0]->operand->is_optional;
 };
 
 
 sub is_null {
-  $_[0]->span->is_null;
+  $_[0]->operand->is_null;
 };
 
 
 sub is_negative {
   my $self = shift;
-  my $span = $self->span;
+  my $span = $self->operand;
   if (@_) {
     $span->is_negative(@_);
     return $self;
@@ -182,22 +164,22 @@ sub is_negative {
 
 
 sub is_extended {
-  $_[0]->span->is_extended;
+  $_[0]->operand->is_extended;
 };
 
 
 sub is_extended_right {
-  $_[0]->span->is_extended_right;
+  $_[0]->operand->is_extended_right;
 };
 
 
 sub is_extended_left {
-  $_[0]->span->is_extended_left;
+  $_[0]->operand->is_extended_left;
 };
 
 
 sub maybe_unsorded {
-  $_[0]->span->maybe_unsorted;
+  $_[0]->operand->maybe_unsorted;
 };
 
 

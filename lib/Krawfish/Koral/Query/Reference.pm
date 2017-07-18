@@ -21,15 +21,13 @@ sub new {
 
     # The signature of the reference query
     signature => shift,
-    query => shift
+    operands => [shift]
   }, $class;
 };
 
 sub to_koral_fragment;
 
 sub type { 'reference' };
-
-sub remove_classes;
 
 # Not necessary here
 sub filter_by;

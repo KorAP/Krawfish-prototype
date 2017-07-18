@@ -7,13 +7,9 @@ use warnings;
 sub new {
   my $class = shift;
   bless {
-    span => shift,
+    operands => [shift],
     nrs => shift
   }, $class;
-};
-
-sub span {
-  $_[0]->{span};
 };
 
 sub nrs {
@@ -28,7 +24,7 @@ sub optimize {
   my $span;
 
   # Not plannable
-  unless ($span = $self->span->optimize($index)) {
+  unless ($span = $self->operand->optimize($index)) {
     $self->copy_info_from($self->span);
     return;
   };
@@ -41,7 +37,7 @@ sub optimize {
   $span = Krawfish::Query::Focus->new($span, $self->nrs);
 
   # Does not require sorted buffering
-  return $span unless $self->span->maybe_unsorted;
+  return $span unless $self->operand->maybe_unsorted;
 
   # Requires sorted buffering
   return Krawfish::Query::Base::Sorted->new($span, 1000);
@@ -51,10 +47,8 @@ sub optimize {
 # Filter by corpus
 sub filter_by {
   my ($self, $corpus_query) = @_;
-  $self->{span}->filter_by($corpus_query);
-}
+  $self->operand->filter_by($corpus_query);
+};
 
-
-sub remove_classes;
 
 1;

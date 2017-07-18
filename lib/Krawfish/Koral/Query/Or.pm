@@ -24,15 +24,6 @@ sub operation {
   'or'
 };
 
-sub operands {
-  my $self = shift;
-  if (@_) {
-    print_log('kq_or', 'Set operands') if DEBUG;
-    $self->{operands} = shift;
-  };
-  $self->{operands};
-};
-
 
 # Optimize Or-operand sequence
 sub optimize {
@@ -91,18 +82,5 @@ sub to_string {
   return join '|', map { '(' . $_->to_string . ')'} @{$self->operands_in_order};
 };
 
-# Remove classes passed as an array references
-sub remove_classes {
-  my ($self, $keep) = @_;
-  unless ($keep) {
-    $keep = [];
-  };
-  my $ops = $self->operands;
-  for (my $i = 0; $i < @$ops; $i++) {
-    $ops->[$i] = $ops->[$i]->remove_classes($keep);
-  };
-  $self->operands($ops);
-  return $self;
-};
 
 1;

@@ -1,5 +1,7 @@
 package Krawfish::Koral::Query::Exclusion;
-use parent 'Krawfish::Koral::Query::Position';
+use parent 'Krawfish::Koral::Query';
+# Exports to_frame:
+use Krawfish::Koral::Query::Constraint::Position;
 use Krawfish::Query::Exclusion;
 use Krawfish::Log;
 use Mojo::JSON;
@@ -13,23 +15,10 @@ sub new {
   my ($frame_array, $first, $second) = @_;
 
   my $self = bless {
-    first   => $first,
-    second  => $second
+    operands => [$first, $second]
   }, $class;
 
-  $self->{frames}  = $self->_to_frame($frame_array);
-  return $self;
-};
-
-
-# Remove classes passed as an array references
-sub remove_classes {
-  my ($self, $keep) = @_;
-  unless ($keep) {
-    $keep = [];
-  };
-  $self->{first} = $self->{first}->remove_classes($keep);
-  $self->{second} = $self->{second}->remove_classes($keep);
+  $self->{frames}  = to_frame(@$frame_array);
   return $self;
 };
 
@@ -43,8 +32,8 @@ sub to_koral_fragment {
     'exclude' => Mojo::JSON->true,
     'frames' => [map { 'frames:' . $_ } $self->_to_list($self->{frames})],
     'operands' => [
-      $self->{first}->to_koral_query_fragment,
-      $self->{second}->to_koral_query_fragment
+      $self->operands->[0]->to_koral_query_fragment,
+      $self->operands->[1]->to_koral_query_fragment
     ]
   };
   return $koral;
@@ -64,8 +53,8 @@ sub normalize {
   print_log('kq_excl', 'Normalize exclusion') if DEBUG;
 
   my $frames = $self->{frames};
-  my $first = $self->{first};
-  my $second = $self->{second};
+  my $first = $self->operands->[0];
+  my $second = $self->operands->[1];
 
   # There is nothing to exclude
   if ($second->is_nothing) {
@@ -91,13 +80,8 @@ sub normalize {
     return;
   };
 
-  $self->{first} = $first_norm;
-
-  # Remove all classes, as they can't match
-  $self->{second} = $second_norm->remove_classes;
-
   # Normalize!
-  if ($self->{first}->to_string eq $self->{second}->to_string) {
+  if ($first_norm->to_string eq $second_norm->to_string) {
 
     if (DEBUG) {
       print_log('kq_excl', 'First and second operand are equal');
@@ -105,6 +89,13 @@ sub normalize {
 
     return $self->builder->nothing->normalize;
   };
+
+  $self->operands([
+    $first_norm,
+
+    # Remove all classes, as they can't match
+    $second_norm->remove_classes
+  ]);
 
   return $self;
 };
@@ -115,8 +106,11 @@ sub inflate {
 
   print_log('kq_excl', 'Inflate exclusion') if DEBUG;
 
-  $self->{first} = $self->{first}->inflate($dict);
-  $self->{second} = $self->{second}->inflate($dict);
+  my $ops = $self->operands;
+  for (my $i = 0; $i < @$ops; $i++) {
+    $ops->[$i] = $ops->[$i]->inflate($dict);
+  };
+
   return $self;
 };
 
@@ -127,8 +121,8 @@ sub optimize {
   print_log('kq_excl', 'Optimize exclusion') if DEBUG;
 
   my $frames = $self->{frames};
-  my $first = $self->{first}->optimize($index);
-  my $second = $self->{second}->optimize($index);
+  my $first = $self->operands->[0]->optimize($index);
+  my $second = $self->operands->[1]->optimize($index);
 
   # Second object does not occur
   if ($second->freq == 0) {
@@ -145,7 +139,7 @@ sub optimize {
 
 sub filter_by {
   my $self = shift;
-  $self->{first}->filter_by(shift);
+  $self->operands->[0]->filter_by(shift);
 };
 
 
@@ -153,43 +147,43 @@ sub to_string {
   my $self = shift;
   my $string = 'excl(';
   $string .= (0 + $self->{frames}) . ':';
-  $string .= $self->{first}->to_string . ',';
-  $string .= $self->{second}->to_string;
+  $string .= $self->operands->[0]->to_string . ',';
+  $string .= $self->operands->[1]->to_string;
   return $string . ')';
 };
 
 
 sub is_any {
-  $_[0]->{first}->is_any;
+  $_[0]->operands->[0]->is_any;
 };
 
 
 sub is_optional {
-  $_[0]->{first}->is_optional;
+  $_[0]->operands->[0]->is_optional;
 };
 
 sub is_null {
-  $_[0]->{first}->is_null;
+  $_[0]->operands->[0]->is_null;
 };
 
 sub is_negative {
-  $_[0]->{first}->is_null;
+  $_[0]->operands->[0]->is_negative;
 };
 
-sub maybe_unsorded {
-  $_[0]->{first}->maybe_unsorted;
+sub maybe_unsorted {
+  $_[0]->operands->[0]->maybe_unsorted;
 };
 
 
 # Return if the query may result in an 'any' left extension
 sub is_extended_left {
-  return $_[0]->{first}->is_extended_left;
+  return $_[0]->operands->[0]->is_extended_left;
 };
 
 
 # Return if the query may result in an 'any' right extension
 sub is_extended_right {
-  return $_[0]->{first}->is_extended_right;
+  return $_[0]->operands->[0]->is_extended_right;
 };
 
 

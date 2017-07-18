@@ -18,9 +18,8 @@ sub new {
   my $class = shift;
   bless {
     constraints => shift,
-    first => shift,
-    second => shift
-  }
+    operands => [@_]
+  }, $class;
 };
 
 
@@ -43,18 +42,17 @@ sub normalize {
 
   # Normalize both operands
   my ($first, $second);
-  unless ($first = $self->{first}->normalize) {
-    $self->copy_info_from($self->{first});
+  unless ($first = $self->{operands}->[0]->normalize) {
+    $self->copy_info_from($self->{operands}->[0]);
     return;
   };
 
-  unless ($second = $self->{second}->normalize) {
-    $self->copy_info_from($self->{second});
+  unless ($second = $self->{operands}->[1]->normalize) {
+    $self->copy_info_from($self->{operands}->[1]);
     return;
   };
 
-  $self->{first} = $first;
-  $self->{second} = $second;
+  $self->operands([$first, $second]);
 
   # TODO:
   #   Merge position constraints!
@@ -106,17 +104,6 @@ sub normalize {
 };
 
 
-# Remove classes passed as an array references
-sub remove_classes {
-  my ($self, $keep) = @_;
-  unless ($keep) {
-    $keep = [];
-  };
-  $self->{first} = $self->{first}->remove_classes($keep);
-  $self->{second} = $self->{second}->remove_classes($keep);
-  return $self;
-};
-
 
 # Normalize position, if it's only a single constraint
 sub _normalize_single_position {
@@ -129,7 +116,7 @@ sub _normalize_single_position {
     PRECEDES | PRECEDES_DIRECTLY | STARTS_WITH | IS_AROUND | ENDS_WITH |
     SUCCEEDS_DIRECTLY | SUCCEEDS;
 
-  my ($first, $second) = ($self->{first}, $self->{second});
+  my ($first, $second) = @{$self->operands};
 
   if ($second->is_null) {
     print_log('kq_constr', 'Try to eliminate null query') if DEBUG;
@@ -169,12 +156,12 @@ sub optimize {
   my ($self, $index) = @_;
 
   # Optimize operands
-  my $first = $self->{first}->optimize($index);
+  my $first = $self->{operands}->[0]->optimize($index);
   if ($first->freq == 0) {
     return Krawfish::Query::Nothing->new;
   };
 
-  my $second = $self->{second}->optimize($index);
+  my $second = $self->{operands}->[1]->optimize($index);
   if ($second->freq == 0) {
     return Krawfish::Query::Nothing->new;
   };
@@ -198,8 +185,8 @@ sub optimize {
 sub filter_by {
   my $self = shift;
   my $corpus_query = shift;
-  $self->{first}->filter_by($corpus_query);
-  $self->{second}->filter_by($corpus_query);
+  $self->{operands}->[0]->filter_by($corpus_query);
+  $self->{operands}->[1]->filter_by($corpus_query);
 
   # TODO:
   #   filter constraints
@@ -226,7 +213,7 @@ sub to_string {
   my $str = 'constr(';
   $str .= join(',', map { $_->to_string } @{$self->{constraints}});
   $str .= ':';
-  $str .= $self->{first}->to_string . ',' . $self->{second}->to_string;
+  $str .= join ',', map { $_->to_string } @{$self->{operands}};
   return $str . ')';
 };
 

@@ -30,6 +30,14 @@ sub optimize {
   $_[0];
 };
 
+sub operand {
+  undef;
+};
+
+sub operands {
+  [];
+};
+
 sub remove_classes {
   $_[0];
 };

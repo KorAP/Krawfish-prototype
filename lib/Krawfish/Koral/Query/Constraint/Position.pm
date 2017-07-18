@@ -1,7 +1,10 @@
 package Krawfish::Koral::Query::Constraint::Position;
+use parent 'Exporter';
 use Krawfish::Query::Constraint::Position;
 use strict;
 use warnings;
+
+our @EXPORT = qw/to_frame/;
 
 # TODO:
 #   Add error etc. and base this on Krawfish::Query::Constraint::Base.
@@ -31,7 +34,7 @@ our %FRAME = (
 
 sub new {
   my $class = shift;
-  my $frames = _to_frame(@_);
+  my $frames = to_frame(@_);
   bless \$frames, $class;
 };
 
@@ -60,7 +63,7 @@ sub _to_list {
 
 
 # Get the frame of a position list
-sub _to_frame {
+sub to_frame {
 
   my $frame = NULL_4;
 

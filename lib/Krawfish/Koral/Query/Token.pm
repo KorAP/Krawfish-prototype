@@ -16,28 +16,25 @@ sub new {
 
   # Any token
   unless ($token) {
-    return bless { wrap => undef }, $class;
+    return bless { operands => [] }, $class;
   };
 
   # Token is a string
   unless (blessed $token) {
     return bless {
-      wrap => Krawfish::Koral::Query::Term->new($token)
+      operands => [Krawfish::Koral::Query::Term->new($token)]
     }, $class;
   };
 
   # Token is already a group or a term
   bless {
-    wrap => $token
+    operands => [$token]
   };
 };
 
 sub type { 'token' };
 
-sub wrap {
-  $_[0]->{wrap};
-};
-
+# There are no classes allowed in tokens
 sub remove_classes {
   $_[0];
 };
@@ -50,8 +47,8 @@ sub to_koral_fragment {
     '@type' => 'koral:token'
   };
 
-  if ($self->wrap) {
-    $token->{wrap} = $self->wrap->to_koral_fragment;
+  if ($self->operand) {
+    $token->{wrap} = $self->operand->to_koral_fragment;
   };
 
   $token;
@@ -61,26 +58,32 @@ sub to_koral_fragment {
 # Overwrite is any
 sub is_any {
   return if $_[0]->is_nothing;
-  return 1 unless $_[0]->wrap;
+  return 1 unless $_[0]->operand;
   return;
 };
 
 
 sub normalize {
   my $self = shift;
+  my $op;
+
   print_log('kq_token', 'Normalize wrapper') if DEBUG;
-  if ($self->wrap) {
-    $self->{wrap} = $self->wrap->normalize;
-    if ($self->{wrap}->is_nothing) {
-      $self->{wrap} = undef;
+
+  if ($self->operand) {
+    my $op = $self->operand->normalize;
+    if ($op->is_nothing) {
+      $self->operands([]);
       $self->is_nothing(1);
     }
-    elsif ($self->{wrap}->is_any) {
-      $self->{wrap} = undef;
+    elsif ($op->is_any) {
+      $self->operands([]);
       $self->is_any(1);
     }
     elsif (!$self->is_optional && !$self->is_negative) {
-      return $self->{wrap};
+      return $op;
+    }
+    else {
+      $self->operands([$op]);
     };
   };
   return $self;
@@ -90,7 +93,7 @@ sub normalize {
 sub inflate {
   my ($self, $dict) = @_;
   print_log('kq_token', 'Inflate wrapper') if DEBUG;
-  $self->{wrap} = $self->wrap->inflate($dict);
+  $self->operands([$self->operand->inflate($dict)]);
   return $self;
 };
 
@@ -104,7 +107,7 @@ sub finalize {
   };
 
   # No term defined
-  unless ($self->wrap) {
+  unless ($self->operand) {
     $self->error(000, 'Unable to search for any tokens');
     return;
   };
@@ -117,20 +120,20 @@ sub optimize {
   my ($self, $index) = @_;
 
   # Create token query
-  unless ($self->wrap) {
+  unless ($self->operand) {
     warn "It's not possible to optimize an any query";
     return;
   };
 
-  if ($self->wrap->type eq 'term') {
+  if ($self->operand->type eq 'term') {
     return Krawfish::Query::Term->new(
       $index,
-      $self->wrap->to_string
+      $self->operand->to_string
     );
   };
 
   print_log('kq_token', 'Optimize and return wrap token') if DEBUG;
-  return $self->wrap->optimize($index);
+  return $self->operand->optimize($index);
 };
 
 
@@ -153,12 +156,12 @@ sub to_string {
   elsif ($self->is_any) {
     $string .= '';
   }
-  elsif ($self->wrap) {
+  elsif ($self->operand) {
     if ($self->is_negative) {
       $string .= '!';
     };
 
-    $string .= $self->wrap->to_string;
+    $string .= $self->operand->to_string;
   }
 
   $string .= ']';

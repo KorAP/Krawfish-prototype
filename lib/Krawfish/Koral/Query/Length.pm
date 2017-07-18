@@ -36,7 +36,7 @@ sub new {
   };
 
   bless {
-    span => $span,
+    operands => [$span],
     min => $min,
     max => $max,
     token => $token
@@ -74,11 +74,6 @@ sub token_base {
 sub type { 'length' };
 
 
-sub span {
-  shift->{span};
-};
-
-
 sub to_koral_fragment {
   ...
 };
@@ -95,8 +90,8 @@ sub normalize {
   };
 
   my $span;
-  unless ($span = $self->{span}->normalize) {
-    $self->copy_info_from($self->{span});
+  unless ($span = $self->operand->normalize) {
+    $self->copy_info_from($self->operand);
     return;
   };
 
@@ -118,6 +113,8 @@ sub normalize {
     return $span;
   };
 
+  $self->operands([$span]);
+
   return $self;
 };
 
@@ -127,7 +124,7 @@ sub optimize {
 
   # TODO: Add constraint instead of query, if implemented
 
-  my $span = $self->{span}->optimize($index);
+  my $span = $self->operand->optimize($index);
 
   # Nothing set
   if ($span->freq == 0) {
@@ -147,13 +144,13 @@ sub optimize {
 sub filter_by {
   my $self = shift;
   my $corpus_query = shift;
-  $self->{span}->filter_by($corpus_query);
+  $self->operand->filter_by($corpus_query);
   return $self;
 };
 
 
 sub maybe_unsorted {
-  $_[0]->{span}->maybe_unsorted;
+  $_[0]->operand->maybe_unsorted;
 };
 
 sub from_koral;
@@ -167,24 +164,29 @@ sub to_string {
   $str .= $self->{max} // 'inf';
   $str .= ';' . $self->{token} if $self->{token};
   $str .= ':';
-  $str .= $self->{span}->to_string;
+  $str .= $self->operand->to_string;
   return $str . ')';
 };
 
-sub is_any { $_[0]->{span}->is_any };
+sub is_any { $_[0]->operand->is_any };
+
 sub is_optional {
   my $self = shift;
-  if ($self->{min} == 0 && $_[0]->{span}->is_optional) {
+  if ($self->{min} == 0 && $_[0]->operand->is_optional) {
     return 1;
   };
   return;
 };
+
 sub is_null {
   return 1 if $_[0]->{max} == 0;
-  return $_[0]->{span}->is_null
+  return $_[0]->operand->is_null
 };
-sub is_negative { $_[0]->{span}->is_negative };
-sub is_extended_right { $_[0]->{span}->is_extended_right };
-sub is_extended_left { $_[0]->{span}->is_extended_left };
+
+sub is_negative { $_[0]->operand->is_negative };
+
+sub is_extended_right { $_[0]->operand->is_extended_right };
+
+sub is_extended_left { $_[0]->operand->is_extended_left };
 
 1;

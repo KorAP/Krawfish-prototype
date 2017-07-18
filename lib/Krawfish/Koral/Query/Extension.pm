@@ -18,18 +18,8 @@ sub new {
   my $class = shift;
   my $self = $class->SUPER::new;
   $self->{direction} = shift;
-  $self->{anchor} = shift;
+  $self->{operands} = [shift];
   $self->{extension} = shift;
-  return $self;
-};
-
-# Remove classes passed as an array references
-sub remove_classes {
-  my ($self, $keep) = @_;
-  unless ($keep) {
-    $keep = [];
-  };
-  $self->{anchor} = $self->{anchor}->remove_classes($keep);
   return $self;
 };
 
@@ -37,7 +27,7 @@ sub remove_classes {
 sub normalize {
   my $self = shift;
 
-  my $anchor = $self->{anchor};
+  my $anchor = $self->operands->[0];
   my $ext = $self->{extension};
 
   # Extension is not important
@@ -78,7 +68,7 @@ sub to_string {
   my $string = 'ext(';
   $string .= 0 + $self->{direction};
   $string .= ':';
-  $string .= $self->{anchor}->to_string;
+  $string .= $self->operands->[0]->to_string;
   $string .= ',' . $self->{extension}->to_string;
   $string .= ')';
 };

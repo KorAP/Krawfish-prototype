@@ -39,9 +39,6 @@ sub type {
   'termGroup'
 };
 
-sub remove_classes {
-  $_[0];
-};
 
 sub build_or {
   shift;
@@ -73,18 +70,19 @@ sub build_any {
 
 
 sub operation {
-  $_[0]->{operation};
-};
-
-sub operands {
   my $self = shift;
   if (@_) {
-    print_log('kq_tgroup', 'Set operands') if DEBUG;
-    $self->{operands} = shift;
+    $self->{operation} = shift;
+    return $self;
   };
-  $self->{operands};
+  $self->{operation};
 };
 
+
+# There are no classes allowed in term groups
+sub remove_classes {
+  $_[0];
+};
 
 # Create operands in order
 sub operands_in_order {
@@ -94,15 +92,6 @@ sub operands_in_order {
 };
 
 
-sub toggle_operation {
-  my $self = shift;
-  if ($self->{operation} eq 'or') {
-    $self->{operation} = 'and';
-  }
-  elsif ($self->{operation} eq 'and') {
-    $self->{operation} = 'or';
-  };
-};
 
 
 # TODO: Flatten or groups in a first pass!

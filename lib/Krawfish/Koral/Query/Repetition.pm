@@ -28,7 +28,7 @@ sub new {
   };
 
   bless {
-    span => $span,
+    operands => [$span],
     min => $min,
     max => $max
   }, $class;
@@ -53,10 +53,6 @@ sub max {
 };
 
 
-sub span {
-  $_[0]->{span};
-};
-
 # Return KoralQuery fragment
 sub to_koral_fragment {
   my $self = shift;
@@ -65,7 +61,7 @@ sub to_koral_fragment {
     'operation' => 'operation:repetition',
     'boundary' => $self->boundary,
     'operands' => [
-      $self->{span}->to_koral_fragment
+      $self->operand->to_koral_fragment
     ]
   };
 };
@@ -76,7 +72,7 @@ sub to_koral_fragment {
 #########################################
 
 sub is_any {
-  $_[0]->{span}->is_any;
+  $_[0]->operand->is_any;
 };
 
 
@@ -102,7 +98,7 @@ sub is_null {
 
 
 sub is_negative {
-  $_[0]->{span}->is_negative;
+  $_[0]->operand->is_negative;
 };
 
 
@@ -130,8 +126,8 @@ sub normalize {
 
   # Copy messages from span serialization
   my $span;
-  unless ($span = $self->{span}->normalize) {
-    $self->copy_info_from($self->{span});
+  unless ($span = $self->operand->normalize) {
+    $self->copy_info_from($self->operand);
     return;
   };
 
@@ -142,7 +138,7 @@ sub normalize {
   };
 
 
-  $self->{span} = $span;
+  $self->operands([$span]);
 
   my $min = $self->{min};
   my $max = $self->{max};
@@ -169,7 +165,7 @@ sub normalize {
 
   # [a]{1,1} -> [a]
   if ($min == 1 && $max == 1) {
-    return $self->{span};
+    return $self->operand;
   };
 
   return $self;
@@ -192,9 +188,9 @@ sub finalize {
 
   # Copy messages from span serialization
   my $span;
-  unless ($span = $self->{span}->finalize) {
+  unless ($span = $self->operand->finalize) {
 
-    $self->copy_info_from($self->{span});
+    $self->copy_info_from($self->operand);
     return;
   };
 
@@ -210,7 +206,7 @@ sub finalize {
   };
 
   # Finalize the span
-  $self->{span} = $span;
+  $self->operands([$span]);
 
   return $self;
 };
@@ -221,7 +217,7 @@ sub optimize {
   my ($self, $index) = @_;
 
   # optimize span query
-  my $span = $self->{span}->optimize($index);
+  my $span = $self->operand->optimize($index);
 
   # Span matches nowhere
   return $span if $span->freq == 0;
@@ -238,19 +234,19 @@ sub optimize {
 # Filter by corpus
 sub filter_by {
   my $self = shift;
-  $self->{plan}->filter_by(shift);
+  $self->operand->filter_by(shift);
 };
 
 
 sub maybe_unsorted {
-  $_[0]->{span}->maybe_unsorted;
+  $_[0]->operand->maybe_unsorted;
 };
 
 
 
 sub to_string {
   my $self = shift;
-  my $str = $self->{span}->to_string;
+  my $str = $self->operand->to_string;
 
   if (defined $self->{min} && defined $self->{max}) {
     if (!$self->{min} && $self->{max} == 1) {

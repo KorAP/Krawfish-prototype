@@ -72,6 +72,10 @@ sub is_leaf { 1 };
 
 sub is_nothing { 0 };
 
+sub operands {
+  [];
+};
+
 sub remove_classes {
   $_[0];
 };

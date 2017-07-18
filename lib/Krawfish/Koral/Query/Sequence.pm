@@ -26,7 +26,7 @@ use constant DEBUG => 0;
 sub new {
   my $class = shift;
   my $self = $class->SUPER::new;
-  $self->{array} = [@_];
+  $self->{operands} = [@_];
   $self->{info} = undef;
   $self->{_checked} = 0;
   $self->{any} = 1;
@@ -42,27 +42,7 @@ sub size {
 };
 
 
-sub operands {
-  $_[0]->{array};
-};
-
-
 sub type { 'sequence' };
-
-
-# Remove classes passed as an array references
-sub remove_classes {
-  my ($self, $keep) = @_;
-  unless ($keep) {
-    $keep = [];
-  };
-  my $ops = $self->operands;
-  for (my $i = 0; $i < @$ops; $i++) {
-    $ops->[$i] = $ops->[$i]->remove_classes($keep);
-  };
-  $self->operands($ops);
-  return $self;
-};
 
 
 # Check for properties
@@ -119,7 +99,7 @@ sub to_koral_fragment {
     '@type' => 'koral:group',
     'operation' => 'operation:sequence',
     'operands' => [
-      map { $_->to_koral_fragment } @{$self->{array}}
+      map { $_->to_koral_fragment } @{$self->{operands}}
     ]
   };
 };

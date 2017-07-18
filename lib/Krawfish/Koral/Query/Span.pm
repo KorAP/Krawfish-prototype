@@ -18,22 +18,18 @@ sub new {
   # Span is a string
   unless (blessed $span) {
     return bless {
-      wrap => Krawfish::Koral::Query::Term->new('<>' . $span),
+      operands => [Krawfish::Koral::Query::Term->new('<>' . $span)]
     }, $class;
   };
 
   bless {
-    wrap => $span
+    operands => [$span]
   }, $class;
 };
 
 sub type { 'span' };
 
-sub wrap {
-  shift->{wrap};
-};
-
-# Remove classes passed as an array references
+# There are no classes allowed in spans
 sub remove_classes {
   $_[0];
 };
@@ -43,8 +39,8 @@ sub to_koral_fragment {
   my $span = {
     '@type' => 'koral:span'
   };
-  if ($self->wrap) {
-    $span->{wrap} = $self->wrap->to_koral_fragment
+  if ($self->operand) {
+    $span->{wrap} = $self->operand->to_koral_fragment
   };
 
   return $span;
@@ -61,7 +57,7 @@ sub inflate {
 
   print_log('kq_span', 'Inflate span') if DEBUG;
 
-  $self->{wrap} = $self->wrap->inflate($dict);
+  $self->{operands}->[0] = $self->operand->inflate($dict);
   return $self;
 };
 
@@ -71,7 +67,7 @@ sub optimize {
   my ($self, $index) = @_;
   return Krawfish::Query::Span->new(
     $index,
-    $self->wrap->to_term
+    $self->operand->to_term
   );
 };
 
@@ -89,7 +85,7 @@ sub from_koral;
 # Todo: Change the term_type!
 
 sub to_string {
-  return '<' . $_[0]->wrap->to_string . '>';
+  return '<' . $_[0]->operand->to_string . '>';
 };
 
 1;
