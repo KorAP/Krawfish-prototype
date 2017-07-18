@@ -22,7 +22,7 @@ sub optimize {
   my ($self, $index) = @_;
 
   my $query;
-  unless ($query = $self->{corpus}->plan_for($index)) {
+  unless ($query = $self->{corpus}->optimize($index)) {
     $self->copy_info_from($self->{corpus});
     return;
   };

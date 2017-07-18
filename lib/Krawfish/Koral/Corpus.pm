@@ -25,7 +25,7 @@ sub new {
 # Query Planning methods and attributes #
 #########################################
 
-sub plan_for {
+sub plan_for_new {
   my ($self, $index) = @_;
   $self
     ->normalize
@@ -34,14 +34,6 @@ sub plan_for {
     ->inflate($index)
     ->cache
     ->optimize($index);
-};
-
-
-# This will remove classes
-# in subcorpora
-sub plan_without_classes_for {
-  warn 'Not yet implemented';
-  shift->plan_for(@_);
 };
 
 
@@ -86,7 +78,8 @@ sub finalize {
     # Toggle negativity
     $self->is_negative(0);
 
-  print_log('kq_corpus', 'Do an "andNot" on any') if DEBUG;
+    print_log('kq_corpus', 'Do an "andNot" on any') if DEBUG;
+
     return $self->builder->field_and_not(
       $self->builder->any,
       $self

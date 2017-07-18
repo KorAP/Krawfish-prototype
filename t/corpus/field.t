@@ -16,7 +16,13 @@ ok(my $cb = Krawfish::Koral::Corpus::Builder->new, 'Create CorpusBuilder');
 
 ok(my $field = $cb->string('license')->eq('free'), 'String field');
 is($field->to_string, "license=free", 'Stringification');
-ok(my $plan = $field->plan_for($index), 'Plan');
+
+
+ok(my $plan = $field->normalize, 'Normalize');
+is($plan->to_string, "license=free", 'Stringification');
+ok($plan = $plan->finalize, 'Finalize');
+is($plan->to_string, "[1]&license=free", 'Stringification');
+ok($plan = $plan->optimize($index), 'Optimize');
 is($plan->to_string, "and([1],'license:free')", 'Stringification');
 ok(!$plan->current, 'No current');
 ok($plan->next, 'Next posting');
@@ -24,10 +30,11 @@ is($plan->current->to_string, '[1]', 'Current doc id');
 ok(!$plan->next, 'No next posting');
 ok(!$plan->current, 'No Current doc id');
 
+
 ok($field = $cb->string('license')->eq('closed'), 'String field');
 is($field->to_string, "license=closed", 'Stringification');
 ok(!$field->is_negative, 'Negative');
-ok($plan = $field->plan_for($index), 'Plan');
+ok($plan = $field->normalize->finalize->optimize($index), 'Plan');
 is($plan->to_string, "and([1],'license:closed')", 'Stringification');
 ok(!$plan->current, 'No current');
 ok($plan->next, 'Next posting');
@@ -37,10 +44,11 @@ is($plan->current->to_string, '[2]', 'Current doc id');
 ok(!$plan->next, 'No next posting');
 ok(!$plan->current, 'No Current doc id');
 
+
 ok($field = $cb->string('license')->ne('closed'), 'String field');
 is($field->to_string, "license!=closed", 'Stringification');
 ok($field->is_negative, 'Negative');
-ok($plan = $field->plan_for($index), 'Plan');
+ok($plan = $field->normalize->finalize->optimize($index), 'Plan');
 is($plan->to_string, "andNot([1],'license:closed')", 'Stringification');
 ok(!$plan->current, 'No current');
 ok($plan->next, 'Next posting');

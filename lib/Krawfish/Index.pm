@@ -467,7 +467,7 @@ sub search {
   my $result = $koral->result;
 
   # Get filtered search object
-  my $search = $query->filter_by($corpus)->plan_for($self);
+  my $search = $query->filter_by($corpus)->normalize->optimize($self);
 
   # Augment with facets
   # Will add to result info

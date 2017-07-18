@@ -29,6 +29,12 @@ sub _resolve_negative {
 
 sub toggle_negativity;
 
+sub normalize {
+  my $self = shift;
+  return $self;
+  # TODO:
+  #   $self->{neg}->remove_classes;
+};
 
 sub optimize {
   my ($self, $index) = @_;
