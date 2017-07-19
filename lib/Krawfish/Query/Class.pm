@@ -20,7 +20,6 @@ sub next {
 
   my $span = $self->{span};
   if ($span->next) {
-
     my $current = $span->current;
 
     $self->{doc_id} = $current->doc_id;
@@ -43,6 +42,12 @@ sub next {
   return;
 };
 
+
+sub freq {
+  $_[0]->{span}->freq;
+};
+
+
 sub to_string {
   my $self = shift;
   my $str = 'class(';
@@ -50,5 +55,6 @@ sub to_string {
   $str .= $self->{span}->to_string . ')';
   return $str;
 };
+
 
 1;

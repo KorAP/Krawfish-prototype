@@ -49,4 +49,9 @@ sub to_string {
   return 'unique(' . $_[0]->{span}->to_string . ')';
 };
 
+
+sub freq {
+  $_[0]->{span}->freq;
+};
+
 1;

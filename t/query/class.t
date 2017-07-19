@@ -14,12 +14,12 @@ ok(my $wrap = $qb->class($qb->token('bb'), 2), 'Class');
 is($wrap->to_string, '{2:[bb]}', 'Stringification');
 ok(my $class = $wrap->normalize->finalize->optimize($index), 'Rewrite');
 is($class->to_string, "class(2:'bb')", 'stringification');
-
 ok($class->next, 'More');
 is($class->current->to_string, '[0:1-2$0,2,1,2]', 'Match');
 ok($class->next, 'More');
 is($class->current->to_string, '[0:3-4$0,2,3,4]', 'Match');
 ok(!$class->next, 'No More');
+
 
 # Nest classes
 $wrap = $qb->seq(
@@ -30,14 +30,13 @@ $wrap = $qb->seq(
 is($wrap->to_string, '{1:[aa]}{2:[bb]}', 'Stringification');
 ok($class = $wrap->normalize->finalize, 'Normalize');
 is($class->to_string, '{1:aa}{2:bb}', 'Stringification');
-
 ok($class = $wrap->optimize($index), 'Rewrite');
 is($class->to_string, "constr(pos=2:class(1:'aa'),class(2:'bb'))", 'stringification');
-
 ok($class->next, 'More');
 is($class->current->to_string, '[0:0-2$0,1,0,1|0,2,1,2]', 'Match');
 ok($class->next, 'More');
 is($class->current->to_string, '[0:2-4$0,1,2,3|0,2,3,4]', 'Match');
+
 
 ok(my $current = $class->current, 'Get current');
 
@@ -47,6 +46,7 @@ is_deeply($classes[0], [0,2,4], 'Class 0');
 is_deeply($classes[1], [1,2,3], 'Class 1');
 is_deeply($classes[2], [2,3,4], 'Class 2');
 ok(!$classes[3], 'No more classes');
+
 
 # Check classes
 @classes = $current->get_classes([1,2]);

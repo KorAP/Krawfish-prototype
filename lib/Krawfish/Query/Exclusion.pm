@@ -136,4 +136,9 @@ sub to_string {
 };
 
 
+sub freq {
+  my $self = shift;
+  $self->{first}->freq;
+};
+
 1;

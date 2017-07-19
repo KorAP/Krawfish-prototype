@@ -83,6 +83,10 @@ sub current {
 };
 
 
+sub freq {
+  $_[0]->{span}->freq;
+};
+
 # Stringification
 sub to_string {
   my $self = shift;

@@ -19,6 +19,7 @@ sub current {
   # TODO: May have an offset value as well
 };
 
+
 # Overwrite
 # TODO: Accepts a target doc
 # TODO: Returns the doc_id of the current posting
@@ -31,6 +32,7 @@ sub next;
 # sequences of spans
 sub max_length;
 
+
 # This is only relevant for term posting lists
 sub next_doc {
   my $self = shift;
@@ -41,6 +43,7 @@ sub next_doc {
   do {
     $self->next or return;
   } until ($self->current->doc_id > $current_doc_id);
+
   return 1;
 };
 

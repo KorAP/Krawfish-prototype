@@ -36,4 +36,10 @@ sub to_string {
 
 
 
+sub freq {
+  # TODO:
+  ...
+};
+
+
 1;

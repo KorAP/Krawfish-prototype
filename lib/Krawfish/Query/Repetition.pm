@@ -38,6 +38,7 @@ sub init {
   1;
 };
 
+
 sub next {
   my $self = shift;
   $self->init;
@@ -171,6 +172,11 @@ sub to_string {
   $str .= $self->{min} . '-' . $self->{max} . ':';
   $str .= $self->{span}->to_string;
   return $str . ')';
+};
+
+
+sub freq {
+  ...
 };
 
 1;
