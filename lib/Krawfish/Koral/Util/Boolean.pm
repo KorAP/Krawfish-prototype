@@ -1,4 +1,4 @@
-package Krawfish::Koral::Util::BooleanTree;
+package Krawfish::Koral::Util::Boolean;
 use Krawfish::Log;
 use List::MoreUtils qw!uniq!;
 use strict;

@@ -1,5 +1,5 @@
 package Krawfish::Koral::Query::TermGroup;
-use parent ('Krawfish::Koral::Util::BooleanTree','Krawfish::Koral::Query');
+use parent ('Krawfish::Koral::Util::Boolean','Krawfish::Koral::Query');
 use Krawfish::Koral::Query::Term;
 use Krawfish::Query::Or;
 use Krawfish::Query::Constraints;

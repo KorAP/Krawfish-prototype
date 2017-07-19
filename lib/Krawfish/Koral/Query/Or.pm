@@ -1,5 +1,5 @@
 package Krawfish::Koral::Query::Or;
-use parent ('Krawfish::Koral::Util::BooleanTree','Krawfish::Koral::Query');
+use parent ('Krawfish::Koral::Util::Boolean','Krawfish::Koral::Query');
 use Krawfish::Log;
 use Krawfish::Query::Or;
 use strict;

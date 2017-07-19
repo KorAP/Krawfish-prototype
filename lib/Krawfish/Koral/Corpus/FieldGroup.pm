@@ -1,5 +1,5 @@
 package Krawfish::Koral::Corpus::FieldGroup;
-use parent ('Krawfish::Koral::Util::BooleanTree', 'Krawfish::Koral::Corpus');
+use parent ('Krawfish::Koral::Util::Boolean', 'Krawfish::Koral::Corpus');
 use Krawfish::Log;
 use Krawfish::Koral::Corpus::AndNot;
 use Krawfish::Koral::Corpus::Any;
