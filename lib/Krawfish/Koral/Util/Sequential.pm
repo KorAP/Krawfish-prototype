@@ -208,7 +208,7 @@ sub optimize {
         my $query = $ops->[$i]->optimize($index);
 
         # Get frequency of operand
-        my $freq = $query->freq;
+        my $freq = $query->max_freq;
 
         if (DEBUG) {
           print_log('kq_sequtil', 'Get frequencies for possible anchor ' . $query->to_string);
@@ -218,7 +218,7 @@ sub optimize {
         return Krawfish::Query::Nothing->new if $freq == 0;
 
         # Current query is less common
-        if (!defined $filterable_query || $freq < $queries[$filterable_query]->freq) {
+        if (!defined $filterable_query || $freq < $queries[$filterable_query]->max_freq) {
           $filterable_query = $_;
         };
         $queries[$i] = [POS, $freq, $query, $ops->[$i]];
@@ -401,7 +401,7 @@ sub optimize {
         );
 
         # Set new query
-        $queries->[$index_a] = [POS, $new_query->freq, $new_query];
+        $queries->[$index_a] = [POS, $new_query->max_freq, $new_query];
 
         # Remove old query
         splice(@$queries, $surr_i, 1);
@@ -478,7 +478,7 @@ sub _combine_pos {
   }
 
   # Set new query
-  $queries->[$index_a] = [POS, $new_query->freq, $new_query];
+  $queries->[$index_a] = [POS, $new_query->max_freq, $new_query];
 
   # Remove old query
   splice(@$queries, $index_b, 1);
@@ -545,7 +545,7 @@ sub _combine_any {
 
   # Set new query
   $queries->[$index_a < $index_b ? $index_a : $index_b] =
-    [POS, $new_query->freq, $new_query];
+    [POS, $new_query->max_freq, $new_query];
 
   # Remove old query
   splice(@$queries, $index_between, 2);
@@ -596,7 +596,7 @@ sub _combine_neg {
 
   # Negative operand can't occur - rewrite to any query, but
   # keep quantities intact (i.e. <!s> can have different length than [!a])
-  if ($neg->freq == 0) {
+  if ($neg->max_freq == 0) {
     if (DEBUG) {
       print_log('kq_sequtil', 'Negative query ' . $query->to_string . ' never occurs');
     };
@@ -628,7 +628,7 @@ sub _combine_neg {
 
   # Set new query
   $queries->[$index_a < $index_b ? $index_a : $index_b] =
-    [POS, $new_query->freq, $new_query];
+    [POS, $new_query->max_freq, $new_query];
 
   # Remove old query
   splice(@$queries, $index_between, 2);
@@ -654,7 +654,7 @@ sub _combine_opt {
   # Optimize
   $opt = $opt->finalize->optimize($index);
   $queries->[$index_between]->[QUERY] = $opt;
-  $queries->[$index_between]->[FREQ] = $opt->freq;
+  $queries->[$index_between]->[FREQ] = $opt->max_freq;
 
   my $constraint = {};
 
@@ -663,7 +663,7 @@ sub _combine_opt {
   my $query_b = $queries->[$index_b];
 
   # One element matches nowhere - the whole sequence matches nowhere
-  if ($opt->freq == 0) {
+  if ($opt->max_freq == 0) {
 
     if (DEBUG) {
       print_log(
@@ -684,7 +684,7 @@ sub _combine_opt {
     }
 
     # Set new query
-    $queries->[$index_a] = [POS, $new_query->freq, $new_query];
+    $queries->[$index_a] = [POS, $new_query->max_freq, $new_query];
 
     # Remove old query
     splice(@$queries, $index_between, 2);
@@ -741,7 +741,7 @@ sub _combine_opt {
 
     # Set new query
     $queries->[$index_a < $index_b ? $index_a : $index_b] =
-      [POS, $new_query->freq, $new_query];
+      [POS, $new_query->max_freq, $new_query];
 
     # Remove old query
     splice(@$queries, $index_between, 2);
@@ -780,7 +780,7 @@ sub _extend_opt {
     # Optimize both surroundings
     unless ($surr_l_query->[QUERY]) {
       $surr_l_query->[QUERY] = $surr_l_query->[KQUERY]->finalize->optimize($index);
-      $surr_l_query->[FREQ] = $surr_l_query->[QUERY]->freq;
+      $surr_l_query->[FREQ] = $surr_l_query->[QUERY]->max_freq;
       if (DEBUG) {
         print_log('kq_sequtil', 'Optimize query ' . $surr_l_query->[KQUERY]->to_string);
       };
@@ -791,7 +791,7 @@ sub _extend_opt {
 
       unless ($surr_r_query->[QUERY]) {
         $surr_r_query->[QUERY] = $surr_r_query->[KQUERY]->finalize->optimize($index);
-        $surr_r_query->[FREQ] = $surr_r_query->[QUERY]->freq;
+        $surr_r_query->[FREQ] = $surr_r_query->[QUERY]->max_freq;
         if (DEBUG) {
           print_log('kq_sequtil', 'Optimize query ' . $surr_r_query->[KQUERY]->to_string);
         };
@@ -823,7 +823,7 @@ sub _extend_opt {
     # Optimize right surrounding
     unless ($surr_r_query->[QUERY]) {
       $surr_r_query->[QUERY] = $surr_r_query->[KQUERY]->finalize->optimize($index);
-      $surr_r_query->[FREQ] = $surr_r_query->[QUERY]->freq;
+      $surr_r_query->[FREQ] = $surr_r_query->[QUERY]->max_freq;
       if (DEBUG) {
         print_log('kq_sequtil', 'Optimize query ' . $surr_r_query->[KQUERY]->to_string);
       };
@@ -887,7 +887,7 @@ sub _extend_opt {
   $new_query = _or($query_a->[KQUERY]->optimize($index), $new_query);
 
   # Add new query
-  $queries->[$index_a] = [POS, $new_query->freq, $new_query];
+  $queries->[$index_a] = [POS, $new_query->max_freq, $new_query];
 
   # Remove old query
   splice(@$queries, $index_ext, 1);
@@ -1133,7 +1133,7 @@ __END__
           my $next_i = shift @consecutives;
 
           # Create a precedes directly
-          if ($query->freq <= $queries[$next_i]->freq) {
+          if ($query->max_freq <= $queries[$next_i]->max_freq) {
 
             print_log(
               'kq_sequtil',

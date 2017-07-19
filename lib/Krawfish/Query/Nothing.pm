@@ -22,7 +22,7 @@ sub skip_doc {
   return;
 };
 
-sub freq {
+sub max_freq {
   0
 };
 

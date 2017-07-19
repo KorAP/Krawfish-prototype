@@ -396,7 +396,7 @@ sub optimize {
     print_log('kq_term', 'Filter serialization is ' . $filter->to_string) if DEBUG;
 
     # Filter is empty
-    return $self->builder->nothing if $filter->freq == 0;
+    return $self->builder->nothing if $filter->max_freq == 0;
 
     return Krawfish::Query::Filter->new(
       Krawfish::Query::Term->new($index, $self->to_term),

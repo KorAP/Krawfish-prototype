@@ -1,5 +1,6 @@
 package Krawfish::Corpus::And;
 use parent 'Krawfish::Corpus';
+use List::Util qw/min/;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -81,5 +82,13 @@ sub to_string {
   my $self = shift;
   return 'and(' . $self->{first}->to_string . ',' . $self->{second}->to_string . ')';
 };
+
+
+# The maximum frequency is the minimum of both query frequencies
+sub max_freq {
+  my $self = shift;
+  min($self->{first}->max_freq, $self->{second}->max_freq);
+};
+
 
 1;

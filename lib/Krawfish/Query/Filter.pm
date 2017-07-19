@@ -77,8 +77,8 @@ sub to_string {
 };
 
 
-# Get the frequency of the term in a corpus
-sub freq {
+# Get the maximim frequency of the term in a corpus
+sub max_freq {
   my $self = shift;
   my $freq = 0;
 

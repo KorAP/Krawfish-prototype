@@ -98,4 +98,11 @@ sub to_string {
   return 'or(' . $self->{first}->to_string . ',' . $self->{second}->to_string . ')';
 };
 
+
+sub max_freq {
+  my $self = shift;
+  $self->{first}->max_freq + $self->{second}->max_freq;
+};
+
+
 1;

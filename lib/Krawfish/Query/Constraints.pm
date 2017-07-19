@@ -86,11 +86,10 @@ sub check {
 };
 
 
-# The frequency is the minimum of both query frequencies
-# Maybe 'cost' is the better term
-sub freq {
+# The maximum frequency is the minimum of both query frequencies
+sub max_freq {
   my $self = shift;
-  min($self->{first}->freq, $self->{second}->freq);
+  min($self->{first}->max_freq, $self->{second}->max_freq);
 };
 
 

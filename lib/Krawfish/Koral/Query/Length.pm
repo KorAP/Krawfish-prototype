@@ -127,7 +127,7 @@ sub optimize {
   my $span = $self->operand->optimize($index);
 
   # Nothing set
-  if ($span->freq == 0) {
+  if ($span->max_freq == 0) {
     return Krawfish::Query::Nothing->new;
   };
 

@@ -18,6 +18,9 @@ is($wrap->to_string, '[bb]{2,3}', 'Stringification');
 ok(my $rep = $wrap->normalize->finalize->optimize($index), 'Rewrite');
 is($rep->to_string, "rep(2-3:'bb')", 'Stringification');
 
+# This is 4 * 2
+is($rep->max_freq, 8, 'Frequency');
+
 # Expect:
 # aa [bb bb] bb bb cc
 # aa [bb bb bb] bb cc

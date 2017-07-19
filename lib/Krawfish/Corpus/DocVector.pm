@@ -29,7 +29,7 @@ sub next;
 
 sub current;
 
-sub freq;
+sub max_freq;
 
 sub to_string;
 

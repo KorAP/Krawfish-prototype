@@ -19,4 +19,6 @@ sub new {
 # so sorting with offstes is supported
 sub next;
 
+sub max_freq;
+
 1;

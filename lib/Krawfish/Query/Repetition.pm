@@ -175,8 +175,13 @@ sub to_string {
 };
 
 
-sub freq {
-  ...
+# The maximum frequency is based on the occurrence of the span,
+# multiplied by the difference of min and max values, so
+#   freq([a]{3}) == freq([a])
+#   freq([a]{1,2}) == freq([a])*2
+sub max_freq {
+  my $self = shift;
+  $self->{span}->max_freq * ($self->{max} - $self->{min} + 1)
 };
 
 1;

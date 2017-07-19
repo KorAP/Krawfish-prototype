@@ -104,4 +104,8 @@ sub to_string {
   return 'cache(' . $self->{span}->to_string . ')';
 };
 
+sub max_freq {
+  $_[0]->{span}->max_freq;
+};
+
 1;

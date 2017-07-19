@@ -125,7 +125,7 @@ sub optimize {
   my $second = $self->operands->[1]->optimize($index);
 
   # Second object does not occur
-  if ($second->freq == 0) {
+  if ($second->max_freq == 0) {
     return $first;
   };
 

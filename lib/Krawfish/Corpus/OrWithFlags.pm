@@ -35,6 +35,8 @@ sub next {
   ...;
 };
 
+sub max_freq;
+
 1;
 
 __END__

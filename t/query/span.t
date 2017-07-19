@@ -22,7 +22,7 @@ ok(my $wrap = $qb->span('akron/c=NP'), 'Span');
 ok(my $span = $wrap->normalize->finalize->optimize($index), 'Span');
 ok(!$span->current, 'Not initialized yet');
 
-is($span->freq, 2, 'Frequency');
+is($span->max_freq, 2, 'Frequency');
 
 ok($span->next, 'Init search');
 is($span->current->to_string, '[0:0-3]', 'Found string');

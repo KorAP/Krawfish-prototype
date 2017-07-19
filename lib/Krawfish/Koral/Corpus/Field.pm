@@ -134,7 +134,7 @@ sub optimize {
     $self->to_term
   );
 
-  if ($query->freq == 0) {
+  if ($query->max_freq == 0) {
     return Krawfish::Query::Nothing->new;
   };
 

@@ -50,8 +50,8 @@ sub to_string {
 };
 
 
-sub freq {
-  $_[0]->{span}->freq;
+sub max_freq {
+  $_[0]->{span}->max_freq;
 };
 
 1;

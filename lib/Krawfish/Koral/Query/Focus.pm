@@ -4,6 +4,11 @@ use Krawfish::Query::Base::Sorted;
 use strict;
 use warnings;
 
+# TODO:
+#   If span is maybe_unsorted, use a sorted focus,
+#   otherwise an unsorted focus.
+
+
 sub new {
   my $class = shift;
   bless {
@@ -16,8 +21,8 @@ sub nrs {
   $_[0]->{nrs};
 };
 
-# If span is maybe_unsorted, use a sorted focus, otherwise an unsorted focus.
 
+# Optimize query to potentially need sorting
 sub optimize {
   my ($self, $index) = @_;
 
@@ -30,7 +35,7 @@ sub optimize {
   };
 
   # Span has no match
-  if ($span->freq == 0) {
+  if ($span->max_freq == 0) {
     return $self->builder->nothing;
   };
 

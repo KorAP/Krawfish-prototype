@@ -266,7 +266,6 @@ matches($seq, [qw/[0:0-3] [1:0-3]/], 'Matches twice');
 
 # Create with optional distance
 # [b][b]?[a]
-print "---------------\n";
 $seq = $qb->seq(
   $qb->token('b'),
   $qb->repeat($qb->token('b'), 0, 1),
@@ -278,7 +277,7 @@ is($seq->to_string, 'bb?a', 'Stringification');
 ok($seq = $seq->optimize($index), 'Normalization');
 
 # Do not check for stringifications
-is($seq->to_string, "constr(pos=2:'b',or('a',constr(pos=2:'b','a')))", 'Stringification');
+is($seq->to_string, "constr(pos=2048:or('a',constr(pos=2:'b','a')),'b')", 'Stringification');
 
 # Matches
 matches($seq, [qw/[0:0-2] [0:0-3] [0:1-3] [1:0-3] [1:1-3]/], 'Matches twice');

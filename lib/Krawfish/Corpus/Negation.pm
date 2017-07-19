@@ -10,7 +10,6 @@ use warnings;
 # TODO: Remove in favor of WithOut!
 
 
-
 use constant DEBUG => 0;
 
 # TODO: Support deleted docs
@@ -96,9 +95,9 @@ sub current {
   );
 }
 
-sub freq {
+sub max_freq {
   my $self = shift;
-  $self->{last_doc_id} - $self->{query}->freq;
+  $self->{last_doc_id} - $self->{query}->max_freq;
 };
 
 sub to_string {

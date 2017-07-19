@@ -112,14 +112,14 @@ sub to_string {
 };
 
 
-sub freq {
+sub max_freq {
   my $self = shift;
 
-  if ($self->{first}->freq == -1 || $self->{second}->freq == -1) {
+  if ($self->{first}->max_freq == -1 || $self->{second}->max_freq == -1) {
     return -1;
   }
   else {
-    return $self->{first}->freq + $self->{second}->freq;
+    return $self->{first}->max_freq + $self->{second}->max_freq;
   };
 };
 

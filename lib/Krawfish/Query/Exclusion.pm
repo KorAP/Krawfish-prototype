@@ -45,7 +45,7 @@ sub new {
     buffer  => Krawfish::Util::Buffer->new,
   }, $class;
 
-  # TODO: Return 'first', if second->freq == 0
+  # TODO: Return 'first', if second->max_freq == 0
 };
 
 
@@ -136,9 +136,8 @@ sub to_string {
 };
 
 
-sub freq {
-  my $self = shift;
-  $self->{first}->freq;
+sub max_freq {
+  $_[0]->{first}->max_freq;
 };
 
 1;

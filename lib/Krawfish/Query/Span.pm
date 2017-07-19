@@ -21,5 +21,4 @@ sub current {
   );
 };
 
-
 1;

@@ -21,7 +21,7 @@ ok(my $qb = Krawfish::Koral::Query::Builder->new, 'Create Koral::Builder');
 
 ok(my $term = $qb->term('Hut')->normalize->finalize->optimize($index), 'Term');
 ok(!$term->current, 'Not initialized yet');
-is($term->freq, 2, 'Frequency');
+is($term->max_freq, 2, 'Frequency');
 
 ok($term->next, 'Init search');
 is($term->current->to_string, '[0:11-12]', 'Found string');

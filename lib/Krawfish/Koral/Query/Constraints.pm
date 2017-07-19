@@ -157,12 +157,12 @@ sub optimize {
 
   # Optimize operands
   my $first = $self->{operands}->[0]->optimize($index);
-  if ($first->freq == 0) {
+  if ($first->max_freq == 0) {
     return Krawfish::Query::Nothing->new;
   };
 
   my $second = $self->{operands}->[1]->optimize($index);
-  if ($second->freq == 0) {
+  if ($second->max_freq == 0) {
     return Krawfish::Query::Nothing->new;
   };
 

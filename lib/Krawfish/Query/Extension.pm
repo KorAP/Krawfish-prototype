@@ -36,7 +36,7 @@ sub to_string {
 
 
 
-sub freq {
+sub max_freq {
   # TODO:
   ...
 };

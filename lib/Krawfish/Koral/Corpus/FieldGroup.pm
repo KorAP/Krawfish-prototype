@@ -125,7 +125,7 @@ sub optimize {
   $i++;
 
   # Check unless
-  while ($query->freq == 0 && $i < @$ops) {
+  while ($query->max_freq == 0 && $i < @$ops) {
     $first = $ops->[$i++];
     $query = $first->optimize($index);
     $i++;
@@ -141,7 +141,7 @@ sub optimize {
       # TODO: Check for negation!
       my $next = $ops->[$i]->optimize($index);
 
-      if ($next->freq != 0) {
+      if ($next->max_freq != 0) {
 
         # TODO: Distinguish here between classes and non-classes!
         $query = Krawfish::Corpus::Or->new(
@@ -160,7 +160,7 @@ sub optimize {
       # Get query operation for next operand
       my $next = $ops->[$i]->optimize($index);
 
-      if ($next->freq != 0) {
+      if ($next->max_freq != 0) {
 
         # TODO: Distinguish here between classes and non-classes!
         $query = Krawfish::Corpus::And->new(
@@ -179,7 +179,7 @@ sub optimize {
     warn 'Should never happen!';
   };
 
-  if ($query->freq == 0) {
+  if ($query->max_freq == 0) {
     return Krawfish::Query::Nothing->new;
   };
 

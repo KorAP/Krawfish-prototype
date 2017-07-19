@@ -49,9 +49,11 @@ is($query->to_string, "filter('bb','author:Arthur')", 'Planned stringification')
 ok($query->next, 'Get next filtered match');
 is($query->current->to_string, '[1:1-2]', 'Stringification');
 
-diag 'Test further with AND-groups';
+TODO: {
+  local $TODO = 'Test further with AND-groups';
+};
 
 done_testing;
-1;
+
 
 __END__

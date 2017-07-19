@@ -84,4 +84,8 @@ sub to_string {
   return $str;
 };
 
+sub max_freq {
+  $_[0]->{corpus}->max_freq;
+};
+
 1;

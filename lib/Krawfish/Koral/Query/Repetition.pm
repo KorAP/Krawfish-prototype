@@ -220,7 +220,7 @@ sub optimize {
   my $span = $self->operand->optimize($index);
 
   # Span matches nowhere
-  return $span if $span->freq == 0;
+  return $span if $span->max_freq == 0;
 
   # Create repetition span
   return Krawfish::Query::Repetition->new(

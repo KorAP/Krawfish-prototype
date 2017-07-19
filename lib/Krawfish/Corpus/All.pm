@@ -34,7 +34,7 @@ sub next {
   return $self->{live}->next;
 };
 
-sub freq {
+sub max_freq {
   $_[0]->{live}->freq;
 };
 

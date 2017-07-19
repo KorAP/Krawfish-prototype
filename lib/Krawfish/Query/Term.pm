@@ -54,7 +54,7 @@ sub current {
   );
 };
 
-sub freq {
+sub max_freq {
   $_[0]->{postings}->freq;
 };
 

@@ -90,8 +90,8 @@ sub next {
   return 0;
 };
 
-sub freq {
-  $_[0]->{first}->freq;
+sub max_freq {
+  $_[0]->{first}->max_freq;
 };
 
 
@@ -99,5 +99,6 @@ sub to_string {
   my $self = shift;
   return 'andNot(' . $self->{first}->to_string . ',' . $self->{second}->to_string . ')';
 };
+
 
 1;

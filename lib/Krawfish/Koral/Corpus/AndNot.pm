@@ -48,14 +48,14 @@ sub optimize {
   # Get the positive query
   my $pos_query = $pos->optimize($index);
 
-  if ($pos_query->freq == 0) {
+  if ($pos_query->max_freq == 0) {
     return Krawfish::Query::Nothing->new;
   };
 
   # Get the negative query
   my $neg_query = $neg->optimize($index);
 
-  if ($neg_query->freq == 0) {
+  if ($neg_query->max_freq == 0) {
     return $pos_query;
   };
 

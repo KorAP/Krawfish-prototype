@@ -39,7 +39,7 @@ sub optimize {
   my $query = $self->{query}->optimize($index);
 
   # Span has no match
-  return if $query->freq == 0;
+  return if $query->max_freq == 0;
 
   return Krawfish::Query::Constraint::NotBetween->new($query);
 };

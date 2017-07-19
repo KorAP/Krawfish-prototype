@@ -36,6 +36,6 @@ ok(my $filter = Krawfish::Query::Filter->new(
   $corpus_plan
 ), 'Build filter');
 
-is($filter->freq, 6, 'Get frequency');
+is($filter->max_freq, 6, 'Get frequency');
 
 done_testing;

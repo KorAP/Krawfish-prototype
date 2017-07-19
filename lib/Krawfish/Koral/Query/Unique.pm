@@ -38,7 +38,7 @@ sub optimize {
 
   my $span = $self->operand->optimize($index) or return;
 
-  if ($span->freq == 0) {
+  if ($span->max_freq == 0) {
     return $self->builder->nothing;
   };
 

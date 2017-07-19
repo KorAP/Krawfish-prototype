@@ -1,5 +1,6 @@
 package Krawfish::Query;
 use Krawfish::Log;
+use Scalar::Util qw/blessed/;
 use strict;
 use warnings;
 
@@ -128,8 +129,10 @@ sub same_doc {
 #   return doc;
 # }
 
-sub freq {
-  -1;
+
+# The maximum possible frequency of the query
+sub max_freq {
+  warn 'Not implemented for this query: ' . blessed $_[0];
 };
 
 

@@ -44,4 +44,6 @@ sub to_string {
   my $self = shift;
 };
 
+sub max_freq;
+
 1;
