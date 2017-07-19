@@ -81,6 +81,7 @@ ok($query = $cb->field_and(
 ),
 , 'Create corpus query');
 
+
 is($query->to_string, 'age!=4&author=Peter', 'Stringification');
 ok(!$query->is_negative, 'Check negativity');
 
@@ -89,7 +90,6 @@ is($norm->to_string, "(author=Peter&!age=4)", 'Stringification');
 
 ok(my $opt = $norm->optimize($index), 'Planning');
 is($opt->to_string, "andNot('author:Peter','age:4')", 'Stringification');
-
 
 
 ok($opt->next, 'Init vc');

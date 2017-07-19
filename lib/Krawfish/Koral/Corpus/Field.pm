@@ -1,7 +1,6 @@
 package Krawfish::Koral::Corpus::Field;
 use parent 'Krawfish::Koral::Corpus';
 use Krawfish::Corpus::Field;
-use Krawfish::Corpus::Negation;
 use strict;
 use warnings;
 

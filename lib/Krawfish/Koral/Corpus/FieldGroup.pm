@@ -11,7 +11,6 @@ use Krawfish::Corpus::AndWithFlags;
 
 # TODO: Rename to AndNot()
 use Krawfish::Corpus::Without;
-use Krawfish::Corpus::Negation;
 use Krawfish::Corpus::All;
 use strict;
 use warnings;
