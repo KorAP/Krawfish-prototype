@@ -73,12 +73,6 @@ sub optimize {
 
 
 
-# Filter by corpus
-sub filter_by {
-  ...
-};
-
-
 sub maybe_unsorted { 0 };
 
 sub from_koral;

@@ -54,7 +54,7 @@ is($corpus_query->to_string, 'author=Peter&pubDate>=2014-04-03',
 $koral->corpus($corpus_query);
 
 is($koral->to_string,
-   'filterBy([Der][]<opennlp/c=NP>,author=Peter&pubDate>=2014-04-03)', 'Stringification');
+   'filter([Der][]<opennlp/c=NP>,author=Peter&pubDate>=2014-04-03)', 'Stringification');
 
 $serial = $koral->to_koral_query;
 

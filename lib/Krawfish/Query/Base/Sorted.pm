@@ -7,6 +7,9 @@ use warnings;
 use constant DEBUG => 0;
 
 # TODO:
+#   Implement using Krawfish::Util::Heap
+
+# TODO:
 #   Implement as an overwriting ring buffer (FIFO) with
 #   byte precision.
 #

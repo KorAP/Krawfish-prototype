@@ -54,4 +54,11 @@ sub max_freq {
   $_[0]->{span}->max_freq;
 };
 
+
+sub filter_by {
+  my ($self, $corpus) = @_;
+  $self->{span} = $self->{span}->filter_by($corpus);
+  return $self;
+};
+
 1;

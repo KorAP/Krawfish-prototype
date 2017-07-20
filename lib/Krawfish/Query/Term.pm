@@ -1,6 +1,7 @@
 package Krawfish::Query::Term;
 use parent 'Krawfish::Query';
 use Krawfish::Posting::Token;
+use Krawfish::Query::Filter;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -22,6 +23,7 @@ sub new {
   }, $class;
 };
 
+
 # Skip to next position
 # This will initialize the posting list
 sub next {
@@ -38,9 +40,11 @@ sub next {
   return $return;
 };
 
+
 sub term {
   $_[0]->{term};
 };
+
 
 # TODO: Probably rename to posting - and return a posting
 # that augments the given payload
@@ -70,6 +74,16 @@ sub to_string {
 sub skip_doc {
   $_[0]->{postings}->skip_doc($_[1]);
 };
+
+
+# Filter this query by a corpus
+sub filter_by {
+  my ($self, $corpus) = @_;
+  return Krawfish::Query::Filter->new(
+    $self, $corpus
+  );
+};
+
 
 1;
 

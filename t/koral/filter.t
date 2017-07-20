@@ -31,15 +31,17 @@ my $kcb = $koral->corpus_builder;
 $koral->query($kqb->term('bb'));
 $koral->corpus($kcb->string('author')->eq('Peter'));
 
-is($koral->to_string, 'filterBy(bb,author=Peter)', 'Stringification');
+is($koral->to_string, 'filter(bb,author=Peter)', 'Stringification');
 
 my $query = $koral->normalize->finalize->optimize($index);
+
 
 # Can't match anywhere:
 is($query->to_string, "[0]", 'Planned stringification');
 
+
 $koral->corpus($kcb->string('author')->eq('Arthur'));
-is($koral->to_string, 'filterBy(bb,author=Arthur)', 'Stringification');
+is($koral->to_string, 'filter(bb,author=Arthur)', 'Stringification');
 $query = $koral->normalize->finalize->optimize($index);
 
 # Can't match anywhere:

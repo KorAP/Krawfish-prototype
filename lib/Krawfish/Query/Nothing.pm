@@ -30,4 +30,8 @@ sub to_string {
   '[0]';
 };
 
+sub filter_by {
+  return;
+};
+
 1;

@@ -138,12 +138,6 @@ sub optimize {
 
 
 
-# Filter by corpus
-sub filter_by {
-  ...
-};
-
-
 # Stringify
 sub to_string {
   my $self = shift;

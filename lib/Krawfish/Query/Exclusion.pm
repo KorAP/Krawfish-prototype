@@ -140,4 +140,16 @@ sub max_freq {
   $_[0]->{first}->max_freq;
 };
 
+
+# Filter exclusion by a corpus
+sub filter_by {
+  my ($self, $corpus) = @_;
+
+  # Only the first operand is relevant
+  $self->{first} = $self->{first}->filter_by($corpus);
+  return $self;
+};
+
+
+
 1;

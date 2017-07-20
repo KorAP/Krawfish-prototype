@@ -9,7 +9,7 @@ use strict;
 use warnings;
 
 use constant {
-  DEBUG  => 1,
+  DEBUG  => 0,
   NULL   => 0,
   POS    => 1,
   OPT    => 2,

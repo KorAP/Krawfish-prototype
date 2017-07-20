@@ -77,22 +77,31 @@ sub to_string {
 };
 
 
-# Get the maximim frequency of the term in a corpus
+# Get the maximum frequency of the term
 sub max_freq {
   my $self = shift;
-  my $freq = 0;
+  # my $freq = 0;
 
-  $self->init;
+  # $self->init;
 
-  print_log('filter', 'Count valid spans') if DEBUG;
+  # print_log('filter', 'Count valid spans') if DEBUG;
 
   # Iterate over all docs and collect frequencies
-  while ($self->{span}->same_doc($self->{docs})) {
-    $freq += $self->{span}->freq_in_doc;
-    $self->{span}->next_doc or last;
-  };
+  #while ($self->{span}->same_doc($self->{docs})) {
+  #  $freq += $self->{span}->freq_in_doc;
+  #  $self->{span}->next_doc or last;
+  #};
 
-  return $freq;
+  return $self->{span}->max_freq;
+};
+
+
+sub filter_by {
+  my ($self, $corpus) = @_;
+
+  # TODO: Check always that the query isn't moved forward yet!
+  $self->{docs} = Krawfish::Corpus::And->new($self->{docs}, $corpus);
+  $self;
 };
 
 

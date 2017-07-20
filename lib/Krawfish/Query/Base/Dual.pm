@@ -27,7 +27,7 @@ use constant {
   NEXTA  => 1,
   NEXTB  => 2,
   MATCH  => 4,
-  DEBUG  => 1
+  DEBUG  => 0
 };
 
 @EXPORT = qw/NEXTA NEXTB MATCH/;

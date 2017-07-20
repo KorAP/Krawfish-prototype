@@ -57,4 +57,10 @@ sub to_string {
 };
 
 
+sub filter_by {
+  my ($self, $corpus) = @_;
+  $self->{span} = $self->{span}->filter_by($corpus);
+  return $self;
+};
+
 1;

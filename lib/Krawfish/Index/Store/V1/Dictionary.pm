@@ -13,7 +13,7 @@ use constant {
   HI_KID     => 3,
   TERM_ID    => 4,
   TERM_CHAR  => '00',
-  DEBUG      => 1
+  DEBUG      => 0
 };
 
 # TODO:

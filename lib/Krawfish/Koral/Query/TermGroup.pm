@@ -30,8 +30,7 @@ sub new {
 
   bless {
     operation => $operation,
-    operands => [@operands],
-    filter => undef
+    operands => [@operands]
   }
 };
 
@@ -219,13 +218,6 @@ sub optimize {
   };
 
   return $query;
-};
-
-
-# Filter by corpus
-sub filter_by {
-  my $self = shift;
-  $self->{filter} = shift;
 };
 
 

@@ -123,4 +123,13 @@ sub max_freq {
   };
 };
 
+
+sub filter_by {
+  my ($self, $corpus) = @_;
+  $self->{first} = $self->{first}->filter_by($corpus);
+  $self->{second} = $self->{second}->filter_by($corpus);
+  $self;
+};
+
+
 1;

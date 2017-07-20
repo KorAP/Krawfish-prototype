@@ -9,7 +9,6 @@ use warnings;
 
 
 # TODO: Support escaping! Especially for regex!
-# TODO: Filter multiple corpora
 
 # TODO: Term building should be part of
 #   a utility class Krawfish::Util::Koral::Term or so
@@ -200,16 +199,6 @@ sub value {
 };
 
 
-# Store filter value
-sub filter_by {
-  if ($_[1]) {
-    $_[0]->{filter} = $_[1];
-    return $_[0];
-  };
-  $_[0]->{filter};
-};
-
-
 sub is_regex {
   return index($_[0]->operator, '~') == -1 ? 0 : 1;
 };
@@ -327,16 +316,6 @@ sub to_term_escaped {
 sub normalize {
   my $self = shift;
 
-  # There is a filter - normalize
-  if ($self->filter_by) {
-
-    # Normalize filter
-    my $filter = $self->filter_by($self->filter_by->normalize);
-
-    # Filter is nothing
-    return $self->builder->nothing if $filter->is_nothing;
-  };
-
   # return $self->is_negative || $self->is_null;
   return $self;
 };
@@ -345,23 +324,13 @@ sub normalize {
 sub inflate {
   my ($self, $dict) = @_;
 
-  # There is a filter - normalize
-  if ($self->filter_by) {
-
-    # Normalize filter
-    my $filter = $self->filter_by($self->filter_by->inflate($dict));
-
-    # Filter is nothing
-    return $self->builder->nothing if $filter->is_nothing;
-  };
-
   # Do not inflate
   return $self unless $self->is_regex;
 
   # Get terms
   my $term = $self->to_term_escaped;
 
-  print_log('kq_term', 'Inflate /^' . $term . '$/');
+  print_log('kq_term', 'Inflate /^' . $term . '$/') if DEBUG;
 
   # Get terms from dictionary
   my @terms = $dict->terms(qr/^$term$/);
@@ -382,28 +351,6 @@ sub inflate {
 
 sub optimize {
   my ($self, $index) = @_;
-
-  # TODO:
-  #   I don't know if this is fine here
-
-  # Term is filtered
-  if ($self->filter_by) {
-
-    print_log('kq_term', 'Apply the term filter on ' . $self->filter_by->to_string) if DEBUG;
-
-    my $filter = $self->filter_by->optimize($index);
-
-    print_log('kq_term', 'Filter serialization is ' . $filter->to_string) if DEBUG;
-
-    # Filter is empty
-    return $self->builder->nothing if $filter->max_freq == 0;
-
-    return Krawfish::Query::Filter->new(
-      Krawfish::Query::Term->new($index, $self->to_term),
-      $filter
-    );
-  };
-
   return Krawfish::Query::Term->new($index, $self->to_term);
 };
 

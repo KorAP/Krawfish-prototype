@@ -14,6 +14,7 @@ use Krawfish::Koral::Query::Constraints;
 use Krawfish::Koral::Query::Length;
 use Krawfish::Koral::Query::Nothing;
 use Krawfish::Koral::Query::Or;
+use Krawfish::Koral::Query::Filter;
 
 # TODO: Not all constraints need to be wrapped
 use Krawfish::Koral::Query::Constraint::Position;
@@ -195,6 +196,13 @@ sub nothing {
 sub unique {
   shift;
   Krawfish::Koral::Query::Unique->new(@_);
+};
+
+
+# Filter a query with a corpus
+sub filter_by {
+  shift;
+  Krawfish::Koral::Query::Filter->new(@_);
 };
 
 1;

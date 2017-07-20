@@ -202,6 +202,7 @@ sub operand {
 
 # Filter a query based on a document query
 sub filter_by {
+  warn 'DEPRECATED';
   ...
 };
 

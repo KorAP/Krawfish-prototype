@@ -49,11 +49,4 @@ sub optimize {
 };
 
 
-# Filter by corpus
-sub filter_by {
-  my ($self, $corpus_query) = @_;
-  $self->operand->filter_by($corpus_query);
-};
-
-
 1;

@@ -182,19 +182,6 @@ sub optimize {
 };
 
 
-sub filter_by {
-  my $self = shift;
-  my $corpus_query = shift;
-  $self->{operands}->[0]->filter_by($corpus_query);
-  $self->{operands}->[1]->filter_by($corpus_query);
-
-  # TODO:
-  #   filter constraints
-
-  return $self;
-};
-
-
 # Return true if the query can be unsorted
 sub maybe_unsorded {
   ...

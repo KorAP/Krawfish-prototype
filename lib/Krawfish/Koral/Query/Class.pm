@@ -13,7 +13,7 @@ sub new {
   bless {
     operands => [shift],
     number => shift
-  }
+  }, $class;
 };
 
 sub to_koral_fragment {
@@ -117,11 +117,6 @@ sub optimize {
 #  };
 #};
 
-
-sub filter_by {
-  my $self = shift;
-  $self->operand->filter_by(shift);
-};
 
 
 sub to_string {

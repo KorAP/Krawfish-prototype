@@ -87,6 +87,14 @@ sub max_freq {
   $_[0]->{span}->max_freq;
 };
 
+
+sub filter_by {
+  my ($self, $corpus) = @_;
+  $self->{span} = $self->{span}->filter_by($corpus);
+  $self;
+};
+
+
 # Stringification
 sub to_string {
   my $self = shift;

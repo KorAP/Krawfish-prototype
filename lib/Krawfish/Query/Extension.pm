@@ -42,4 +42,10 @@ sub max_freq {
 };
 
 
+# Filter extension by a corpus
+sub filter_by {
+  ...
+};
+
+
 1;

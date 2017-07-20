@@ -136,15 +136,10 @@ sub max_freq {
 };
 
 
-# This will set a filter flag,
-# so with filter_by() all flagged queries
-# can be filtered
-sub filter {
-  0; # TODO: Make this an attribute
+# Filter nothing
+sub filter_by {
+  warn 'Not implemented by default';
 };
-
-
-sub filter_by;
 
 # Overwrite
 sub to_string {

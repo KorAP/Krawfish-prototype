@@ -140,15 +140,6 @@ sub optimize {
 };
 
 
-# Filter by corpus
-sub filter_by {
-  my $self = shift;
-  my $corpus_query = shift;
-  $self->operand->filter_by($corpus_query);
-  return $self;
-};
-
-
 sub maybe_unsorted {
   $_[0]->operand->maybe_unsorted;
 };

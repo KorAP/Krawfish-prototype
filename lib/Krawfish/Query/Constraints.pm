@@ -93,6 +93,24 @@ sub max_freq {
 };
 
 
+# Filter constraint by a corpus by only applying to
+# the least frequent operand
+sub filter_by {
+  my ($self, $corpus) = @_;
+
+  # The first operand is least frequent
+  if ($self->{first}->max_freq < $self->{second}->max_freq) {
+    $self->{first} = $self->{first}->filter_by($corpus);
+  }
+
+  # The second operand is least frequent (default)
+  else {
+    $self->{second} = $self->{second}->filter_by($corpus);
+  };
+  return $self;
+};
+
+
 sub to_string {
   my $self = shift;
   my $str = 'constr(';

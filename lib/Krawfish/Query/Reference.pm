@@ -46,4 +46,6 @@ sub to_string {
 
 sub max_freq;
 
+
+sub filter_by;
 1;

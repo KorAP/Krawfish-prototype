@@ -29,9 +29,6 @@ sub to_koral_fragment;
 
 sub type { 'reference' };
 
-# Not necessary here
-sub filter_by;
-
 sub to_string {
   'ref(#' . $_[0]->{signature} . ')';
 };

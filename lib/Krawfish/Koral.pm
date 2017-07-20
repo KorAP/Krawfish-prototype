@@ -104,6 +104,7 @@ sub from_koral_query {
   ...
 };
 
+
 # Serialization of KoralQuery
 sub to_koral_query {
   my $self = shift;
@@ -191,7 +192,7 @@ sub normalize {
     };
 
     # Add corpus filter
-    $query = $self->query->filter_by($self->corpus);
+    $query = $self->query_builder->filter_by($self->query, $self->corpus);
   }
 
   # Only corpus is given
@@ -266,7 +267,7 @@ sub prepare_for {
     };
 
     # Add corpus filter
-    $query = $self->query->filter_by($self->corpus);
+    $query = $self->query_builder->filter_by($self->query, $self->corpus);
   }
 
   # Only corpus is given
@@ -345,7 +346,7 @@ sub to_string {
   my $str = '';
 
   if ($self->corpus && $self->query) {
-    $str .= 'filterBy(';
+    $str .= 'filter(';
     $str .= $self->query->to_string;
     $str .= ',';
     $str .= $self->corpus->to_string;
@@ -359,6 +360,8 @@ sub to_string {
   };
 
   warn 'Stringification is not well defined';
+  # TODO:
+  #   introduce ->normalize etc.
 
   return $str;
 };

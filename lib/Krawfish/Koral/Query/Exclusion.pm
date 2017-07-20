@@ -137,11 +137,6 @@ sub optimize {
 };
 
 
-sub filter_by {
-  my $self = shift;
-  $self->operands->[0]->filter_by(shift);
-};
-
 
 sub to_string {
   my $self = shift;
