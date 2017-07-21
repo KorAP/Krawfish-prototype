@@ -14,16 +14,14 @@ use Krawfish::Koral::Document;
 # index query.
 #
 # Procession order:
-#   a) parsing/building                       (cluster)
-#   b) normalization                          (cluster)
-#   c) referencing (no multiple leaf lifting) (cluster)
-#   d) expansion (some normalization)         (node)
-#   e) caching                                (segment)
-#   f) reordering based on frequencies        (segment)
+#   a) parse                            (cluster)
+#   b) normalize and finalize           (cluster)
+#   c) refer (no multiple leaf lifting) (cluster) (or not)
+#   d) inflate (some normalization)     (node)
+#   e) memoize                          (segment)
+#   f) optimize                         (segment)
 
 # TODO:
-# Krawfish::Koral::Query
-# Krawfish::Koral::Corpus
 # Krawfish::Koral::Meta
 
 # TODO:
@@ -62,35 +60,57 @@ sub new {
   return $self;
 };
 
+
+# Query part of the Koral object
 sub query {
   my $self = shift;
-  $self->{query} = shift if $_[0];
+  if ($_[0]) {
+    $self->{query} = shift;
+    return $self;
+  };
   return $self->{query};
 };
 
+
+# Get the builder
 sub query_builder {
   Krawfish::Koral::Query::Builder->new;
 };
 
+
+# Corpus part of the Koral object
 sub corpus {
   my $self = shift;
-  $self->{corpus} = shift if $_[0];
+  if ($_[0]) {
+    $self->{corpus} = shift;
+    return $self;
+  };
   return $self->{corpus};
 };
 
+
+# Get the builder
 sub corpus_builder {
   Krawfish::Koral::Corpus::Builder->new;
 };
 
+
+# Meta part of the Koral object
 sub meta {
   my $self = shift;
-  $self->{meta} = shift if $_[0];
+  if ($_[0]) {
+    $self->{meta} = shift;
+    return $self;
+  };
   return $self->{meta};
 };
 
+
+# Get the builder
 sub meta_builder {
   Krawfish::Koral::Meta::Builder->new;
 };
+
 
 
 sub sorting {
@@ -113,10 +133,12 @@ sub to_koral_query {
     '@context' => CONTEXT
   };
 
+  # Set query object
   if ($self->query) {
     $koral->{query} = $self->query->to_koral_fragment
   };
 
+  # Set corpus object
   if ($self->corpus) {
     $koral->{corpus} = $self->corpus->to_koral_fragment
   };
@@ -127,53 +149,7 @@ sub to_koral_query {
 };
 
 
-# Get KoralQuery with results
-sub to_result {
-  my ($self, $index) = @_;
-
-  # Get KoralQuery object
-  my $koral = $self->to_koral_query;
-
-  # Prepare query
-  my $query = $self->prepare_for($index);
-
-  # TODO:
-  #   This is only for matches - not for groups
-  while ($query->next) {
-
-    # Add matches to koral
-    $koral->add_match(
-
-      # Get current match
-      $query->current_match
-    )
-  };
-
-  # Get result hash (e.g. totalResults)
-  $koral->{result} = $query->result;
-};
-
-
-# TODO:
-#   This is the new entry point!
-sub prepare_for_cluster {
-  # ->normalize->finalize->refer
-  ...
-};
-
-sub prepare_for_node {
-  # ->inflate($dict)
-  # WARN! This may require a new normalization, but it should be kept in mind that this
-  # also may require double added warnings!
-  ...
-};
-
-sub prepare_for_segment {
-  # ->cache->optimize($index)
-  ...
-};
-
-
+# Normalize object
 sub normalize {
   my $self = shift;
 
@@ -184,15 +160,17 @@ sub normalize {
 
     my $corpus = $self->corpus;
 
+    # Add corpus filter
+    $query = $self->query_builder->filter_by($self->query, $self->corpus);
+
     # Meta is defined
     if ($self->meta) {
+
+      # TODO: Make this a filter query!
 
       # Wrap in sort filter if available
       $corpus = $self->meta->sort_filter($corpus);
     };
-
-    # Add corpus filter
-    $query = $self->query_builder->filter_by($self->query, $self->corpus);
   }
 
   # Only corpus is given
@@ -207,15 +185,19 @@ sub normalize {
 
   # Only query is given
   elsif ($self->query) {
-    $query = $self->query;
 
-    # TODO:
-    #   Somehow do sort_filtering here with a corpus based
-    #   on non-deleted documents or so.
+    # Add corpus filter for live documents
+    $query = $self->query_builder->filter_by(
+      $self->query,
+      $self->corpus_builder->any
+    );
   };
 
+
   # If meta is defined, prepare results
-  $query = $self->meta->search_for($query) if $self->meta;
+  if ($self->meta) {
+    $query = $self->meta->search_for($query);
+  };
 
   # TODO:
   # The following operations will invalidate sort filtering:
@@ -242,9 +224,57 @@ sub normalize {
 
 
   # Prepare query
-  $query = $query->normalize;
+  return $query->normalize;
+};
 
-  return $query;
+
+# Get KoralQuery with results
+sub to_result {
+  my ($self, $index) = @_;
+
+  warn 'THIS HAS TO BE DONE DIFFERENTLY';
+
+  # Get KoralQuery object
+  my $koral = $self->to_koral_query;
+
+  # Prepare query
+  my $query = $self->prepare_for($index);
+
+  # TODO:
+  #   This is only for matches - not for groups
+  while ($query->next) {
+
+    # Add matches to koral
+    $koral->add_match(
+
+      # Get current match
+      $query->current_match
+    )
+  };
+
+  # Get result hash (e.g. totalResults)
+  $koral->{result} = $query->result;
+};
+
+
+
+# TODO:
+#   This is the new entry point!
+sub prepare_for_cluster {
+  # ->normalize->finalize->refer
+  ...
+};
+
+sub prepare_for_node {
+  # ->inflate($dict)
+  # WARN! This may require a new normalization, but it should be kept in mind that this
+  # also may require double added warnings!
+  ...
+};
+
+sub prepare_for_segment {
+  # ->cache->optimize($index)
+  ...
 };
 
 
@@ -321,6 +351,7 @@ sub prepare_for {
   return $query;
 };
 
+
 # Find identical subqueries and replace outer queries with
 # - references or
 # - cached queries
@@ -345,6 +376,11 @@ sub to_string {
   my $self = shift;
   my $str = '';
 
+  # TODO:
+  #   Post normalization, this will only have
+  #   a query part, otherwise it will have
+  #   a corpus and a meta part
+
   if ($self->corpus && $self->query) {
     $str .= 'filter(';
     $str .= $self->query->to_string;
@@ -359,7 +395,7 @@ sub to_string {
     $str .= $self->query->to_string;
   };
 
-  warn 'Stringification is not well defined';
+  # warn 'Stringification is not well defined';
   # TODO:
   #   introduce ->normalize etc.
 

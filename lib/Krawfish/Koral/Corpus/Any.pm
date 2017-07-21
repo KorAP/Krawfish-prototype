@@ -4,6 +4,8 @@ use Krawfish::Corpus::All;
 use strict;
 use warnings;
 
+# This matches all live documents!
+
 sub new {
   my $class = shift;
   bless {
