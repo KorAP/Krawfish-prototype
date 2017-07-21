@@ -1,4 +1,4 @@
-package Krawfish::Corpus::All;
+package Krawfish::Corpus::Any;
 use Krawfish::Index::PostingsLive;
 use Krawfish::Posting::Doc;
 use Krawfish::Query::Nothing;
@@ -8,9 +8,8 @@ use warnings;
 
 use constant DEBUG => 0;
 
-# TODO:
-#   Rename to "Any"
 
+# Construct query on live documents
 sub new {
   my ($class,$index) = @_;
 

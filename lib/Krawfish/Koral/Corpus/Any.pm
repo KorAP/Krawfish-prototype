@@ -1,6 +1,6 @@
 package Krawfish::Koral::Corpus::Any;
 use parent 'Krawfish::Koral::Corpus';
-use Krawfish::Corpus::All;
+use Krawfish::Corpus::Any;
 use strict;
 use warnings;
 
@@ -35,7 +35,7 @@ sub to_string {
 
 sub optimize {
   shift;
-  return Krawfish::Corpus::All->new(shift());
+  return Krawfish::Corpus::Any->new(shift());
 };
 
 
