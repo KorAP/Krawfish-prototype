@@ -1,4 +1,4 @@
-package Krawfish::Corpus::Without;
+package Krawfish::Corpus::AndNot;
 use parent 'Krawfish::Corpus';
 use Krawfish::Log;
 use strict;

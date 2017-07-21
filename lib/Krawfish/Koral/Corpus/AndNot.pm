@@ -1,6 +1,6 @@
 package Krawfish::Koral::Corpus::AndNot;
 use parent 'Krawfish::Koral::Corpus';
-use Krawfish::Corpus::Without;
+use Krawfish::Corpus::AndNot;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -59,8 +59,8 @@ sub optimize {
     return $pos_query;
   };
 
-  # Build Without query
-  return Krawfish::Corpus::Without->new($pos_query, $neg_query);
+  # Build andNot query
+  return Krawfish::Corpus::AndNot->new($pos_query, $neg_query);
 };
 
 

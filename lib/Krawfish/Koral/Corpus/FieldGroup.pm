@@ -5,12 +5,9 @@ use Krawfish::Koral::Corpus::AndNot;
 use Krawfish::Koral::Corpus::Any;
 
 use Krawfish::Corpus::Or;
-use Krawfish::Corpus::OrWithFlags;
+# use Krawfish::Corpus::OrWithFlags;
 use Krawfish::Corpus::And;
-use Krawfish::Corpus::AndWithFlags;
-
-# TODO: Rename to AndNot()
-use Krawfish::Corpus::Without;
+# use Krawfish::Corpus::AndWithFlags;
 use strict;
 use warnings;
 
