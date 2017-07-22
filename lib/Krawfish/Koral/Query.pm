@@ -15,6 +15,12 @@ use strict;
 #   - rename all sorts of single ops to operand
 #   - rename all sorts of multiple ops to operands
 
+# TODO:
+#   This is now double with Krawfish::Koral!
+use constant {
+  CONTEXT => 'http://korap.ids-mannheim.de/ns/koral/0.6/context.jsonld'
+};
+
 sub new {
   my $class = shift;
   my $self = bless {
@@ -352,6 +358,12 @@ sub from_koral {
 # Overwritten
 sub to_koral_fragment;
 
+sub to_koral_query {
+  my $self = shift;
+  my $koral = $self->to_koral_fragment;
+  $koral->{'@context'} = CONTEXT;
+  $koral;
+};
 
 # Overwritten
 sub to_string;

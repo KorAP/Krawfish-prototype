@@ -111,6 +111,16 @@ sub to_string {
 };
 
 
+sub to_koral_fragment {
+  my $self = shift;
+  return {
+    '@type' => 'koral:filter',
+    'span' => $self->operand->to_koral_fragment,
+    'corpus' => $self->corpus->to_koral_fragment
+  };
+};
+
+
 1;
 
 

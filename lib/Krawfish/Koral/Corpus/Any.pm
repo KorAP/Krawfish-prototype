@@ -39,4 +39,10 @@ sub optimize {
 };
 
 
+sub to_koral_fragment {
+  return {
+    '@type' => 'koral:field'
+  };
+};
+
 1;

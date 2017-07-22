@@ -39,21 +39,6 @@ sub remove_classes {
   $_[0];
 };
 
-# Return Koral fragment
-sub to_koral_fragment {
-  my $self = shift;
-
-  my $token = {
-    '@type' => 'koral:token'
-  };
-
-  if ($self->operand) {
-    $token->{wrap} = $self->operand->to_koral_fragment;
-  };
-
-  $token;
-};
-
 
 # Overwrite is any
 sub is_any {
@@ -198,5 +183,22 @@ sub from_koral {
     };
   }
 };
+
+# Return Koral fragment
+sub to_koral_fragment {
+  my $self = shift;
+
+  my $token = {
+    '@type' => 'koral:token'
+  };
+
+  if ($self->operand) {
+    $token->{wrap} = $self->operand->to_koral_fragment;
+  };
+
+  $token;
+};
+
+
 
 1;

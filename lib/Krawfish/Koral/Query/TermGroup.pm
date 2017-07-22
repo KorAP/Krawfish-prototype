@@ -279,4 +279,26 @@ sub to_neutral {
   $string;
 };
 
+
+# Return Koral fragment
+sub to_koral_fragment {
+  my $self = shift;
+
+  my $group = {
+    '@type' => 'koral:group',
+    'operation' => 'operation:termGroup',
+    'relation' => 'relation:' . $self->operation
+  };
+
+  my $ops = ($group->{operands} = []);
+
+  foreach my $op (@{$self->operands}) {
+    push @$ops, $op->to_koral_fragment;
+  };
+
+  $group;
+};
+
+
+
 1;

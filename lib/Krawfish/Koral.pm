@@ -34,6 +34,8 @@ use Krawfish::Koral::Document;
 #   this should issue an update in the autosuggestion
 #   dictionary.
 
+# TODO:
+#   This is now double with Krawfish::Koral::Query!
 use constant {
   CONTEXT => 'http://korap.ids-mannheim.de/ns/koral/0.6/context.jsonld'
 };
@@ -221,7 +223,6 @@ sub normalize {
   # TODO: Make this part of ->plan_for($index, $refs)
   #
   # $query->replace_references;
-
 
   # Prepare query
   return $query->normalize;
