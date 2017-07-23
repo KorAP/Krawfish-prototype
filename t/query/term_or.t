@@ -49,7 +49,7 @@ is($query->to_string, '[Der|akron=lustigen|opennlp/p=V]', 'termGroup');
 ok($query = $query->normalize, 'Normalization');
 is($query->to_string, 'Der|akron=lustigen|opennlp/p=V', 'termGroup');
 ok($plan = $query->optimize($index), 'Optimization');
-is($plan->to_string, "or(or('Der','akron=lustigen'),'opennlp/p=V')", 'termGroup');
+is($plan->to_string, "or(or('akron=lustigen','opennlp/p=V'),'Der')", 'termGroup');
 
 
 ok(!$plan->current, 'Not initialized yet');
@@ -73,7 +73,7 @@ is($query->to_string, '[Der|opennlp/p=V|traurig]', 'termGroup');
 ok($query = $query->normalize, 'Normalization');
 is($query->to_string, 'Der|opennlp/p=V|traurig', 'termGroup');
 ok($plan = $query->optimize($index), 'Optimization');
-is($plan->to_string, "or('Der','opennlp/p=V')", 'termGroup');
+is($plan->to_string, "or('opennlp/p=V','Der')", 'termGroup');
 
 done_testing;
 

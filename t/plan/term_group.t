@@ -50,8 +50,11 @@ $query = $qb->token(
   $qb->term_and('first', 'second')
 );
 
+# The ordering is alphabetically, with the first in order being treated
+# like the least common operand, which in a constraint query means,
+# it's the second one
 is($query->normalize->finalize->optimize($index)->to_string,
-   "constr(pos=32:'first','second')", 'Planned Stringification');
+   "constr(pos=32:'second','first')", 'Planned Stringification');
 
 $query = $qb->token(
   $qb->term_or('opennlp/c=NP', 'tt/p=NN')
@@ -87,7 +90,7 @@ ok($query = $query->normalize, 'Normalize');
 is($query->to_string, '(first&second)|(fourth&third)', 'Stringification');
 ok($query = $query->finalize->optimize($index), 'Normalize');
 is($query->to_string,
-   "or(constr(pos=32:'first','second'),constr(pos=32:'fourth','third'))",
+   "or(constr(pos=32:'second','first'),constr(pos=32:'third','fourth'))",
  'Stringification');
 
 $query = $qb->token(
@@ -113,9 +116,8 @@ ok($query = $query->normalize, 'Normalize');
 is($query->to_string, '((fifth|fourth)&third)|(first&second)|sixth', 'Stringification');
 ok($query = $query->optimize($index), 'Optimize');
 is($query->to_string,
-   "or(or(constr(pos=32:or('fifth','fourth'),'third'),constr(pos=32:'first','second')),'sixth')",
+   "or(or('sixth',constr(pos=32:'second','first')),constr(pos=32:or('fifth','fourth'),'third'))",
    'Stringification');
-
 
 # Group with null
 $query = $qb->token(
@@ -164,8 +166,7 @@ is($query->to_string, '[(!fourth&second)&(!third&first)]', 'Stringifications');
 ok($query = $query->normalize, 'Normalize');
 is($query->to_string, 'excl(32:first&second,fourth|third)', 'Stringifications');
 ok($query = $query->optimize($index), 'Optimize');
-is($query->to_string, "excl(32:constr(pos=32:'first','second'),or('fourth','third'))", 'Stringifications');
-
+is($query->to_string, "excl(32:constr(pos=32:'second','first'),or('fourth','third'))", 'Stringifications');
 
 # And group with not-founds
 # [first&opennlp/c!=NN&second&third&tt/p!=ADJA]
@@ -179,7 +180,7 @@ is($query->to_string, '[(first&opennlp/c!=NN)&(second&tt/p!=ADJA)]', 'Stringific
 ok($query = $query->normalize->finalize, 'Normalize');
 is($query->to_string, 'excl(32:first&second,opennlp/c=NN|tt/p=ADJA)', 'Stringifications');
 ok($query = $query->optimize($index), 'Optimize');
-is($query->to_string, "constr(pos=32:'first','second')", 'Stringifications');
+is($query->to_string, "constr(pos=32:'second','first')", 'Stringifications');
 
 done_testing;
 __END__

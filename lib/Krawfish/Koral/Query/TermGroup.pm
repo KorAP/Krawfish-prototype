@@ -17,7 +17,7 @@ use warnings;
 #   -> memoize(cache)
 #   -> optimize(index)
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 sub new {
   my $class = shift;
@@ -34,24 +34,28 @@ sub new {
   }
 };
 
+
+# Query type
 sub type {
   'termGroup'
 };
 
 
+# Build helper for or-relations
 sub build_or {
   shift;
   __PACKAGE__->new('or',@_);
 };
 
 
+# Build helper for and-relations
 sub build_and {
   shift;
   __PACKAGE__->new('and', @_);
 };
 
 
-# Build AndNot group
+# Build helper for andNot-relations
 sub build_and_not {
   my ($self, $pos, $neg) = @_;
   my $query = $self->builder->exclusion(['matches'], $pos, $neg);
@@ -60,6 +64,7 @@ sub build_and_not {
 };
 
 
+# Build helper for any match
 sub build_any {
   shift;
   my $any = Krawfish::Koral::Query::TermGroup->new;
@@ -68,6 +73,7 @@ sub build_any {
 };
 
 
+# Get or set the group operation
 sub operation {
   my $self = shift;
   if (@_) {
@@ -82,6 +88,7 @@ sub operation {
 sub remove_classes {
   $_[0];
 };
+
 
 # Create operands in order
 sub operands_in_order {
@@ -143,72 +150,87 @@ sub operands_in_order {
 sub optimize {
   my ($self, $index) = @_;
 
-    # Get operands in alphabetical order
-  my $ops = $self->operands_in_order;
+  # Get operands
+  my $ops = $self->operands;
 
   # Check the frequency of all operands
-  # Start with a query != null
-  my $i = 0;
-  my $first = $ops->[$i];
 
-  print_log('kq_tgroup', 'Initial query is ' . $self->to_string) if DEBUG;
+  my @freq;
+  my $query;
 
-  my $query = $first->optimize($index);
-  $i++;
+  # Filter out all terms that do not occur
+  for (my $i = 0; $i < @$ops; $i++) {
 
-  # Check unless
-  while ($query->max_freq == 0 && $i < @$ops) {
-    $first = $ops->[$i++];
-    $query = $first->optimize($index);
-    $i++;
+    # Get query operation for next operand
+    my $next = $ops->[$i]->optimize($index);
+
+    # Get maximum frequency
+    my $freq = $next->max_freq;
+
+    # Push to frequency list
+    push @freq, [$next, $freq];
   };
+
+  # Sort operands based on ascending frequency
+  @freq = sort {
+    ($a->[1] < $b->[1]) ? -1 : (($a->[1] > $b->[1]) ? 1 : ($a->[0]->to_string cmp $b->[0]->to_string))
+  } @freq;
 
   if ($self->operation eq 'or') {
     print_log('kq_tgroup', 'Prepare or-group') if DEBUG;
 
-    # Filter out all terms that do not occur
-    for (; $i < @$ops; $i++) {
+    # Ignore non-existing terms
+    while (@freq && $freq[0]->[1] == 0) {
+      shift @freq;
+    };
 
-      # Get query operation for next operand
-      # TODO: Check for negation!
-      my $next = $ops->[$i]->optimize($index);
+    # No valid operands exist
+    if (@freq == 0) {
+      return Krawfish::Query::Nothing->new;
+    };
 
-      if ($next->max_freq != 0) {
+    # Get the first operand
+    $query = shift(@freq)->[0];
 
-        # TODO: Distinguish here between classes and non-classes!
-        $query = Krawfish::Query::Or->new(
-          $query,
-          $next
-        );
-      };
+    # For all further queries, create a query tree
+    while (@freq) {
+      my $next = shift(@freq)->[0];
+
+      # TODO: Distinguish here between classes and non-classes!
+      $query = Krawfish::Query::Or->new(
+        $query,
+        $next
+      );
     };
   }
 
   elsif ($self->operation eq 'and') {
     print_log('kq_tgroup', 'Prepare and-group') if DEBUG;
 
-    # Filter out all terms that do not occur
-    for (; $i < @$ops; $i++) {
-
-      # Get query operation for next operand
-      my $next = $ops->[$i]->optimize($index);
-
-      if ($next->max_freq != 0) {
-
-        # TODO: Distinguish here between classes and non-classes!
-        $query = Krawfish::Query::Constraints->new(
-          [Krawfish::Query::Constraint::Position->new(MATCHES)],
-          $query,
-          $next
-        );
-      }
+    # If the least frequent operand does not exist,
+    # the whole group can't exist
+    if ($freq[0]->[1] == 0) {
 
       # One operand is not existing
-      else {
-        return Krawfish::Query::Nothing->new;
-      };
+      return Krawfish::Query::Nothing->new;
+    };
+
+    # Get the first operand
+    $query = shift(@freq)->[0];
+
+    # Make the least frequent terms come first in constraint
+    while (@freq) {
+      my $next = shift(@freq)->[0];
+
+      # Create constraint with the least frequent as second (buffered) operand
+      $query = Krawfish::Query::Constraints->new(
+        [Krawfish::Query::Constraint::Position->new(MATCHES)],
+        $next,
+        $query
+      );
     };
   }
+
   else {
     warn 'Should never happen!';
   };

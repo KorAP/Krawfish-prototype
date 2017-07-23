@@ -161,7 +161,6 @@ sub builder {
 
 sub from_koral;
 
-
 sub to_koral_fragment;
 
 sub to_string;
