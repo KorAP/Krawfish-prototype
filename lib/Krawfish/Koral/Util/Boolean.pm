@@ -9,6 +9,9 @@ use warnings;
 use constant DEBUG => 0;
 
 # TODO:
+#   Probably use builder->any etc. to trim codebase.
+
+# TODO:
 #   Change andNot([1],X) to not(x),
 #   so this can be used for tokenGroups without a change
 
@@ -569,13 +572,13 @@ sub _resolve_demorgan {
     # Get reverted DeMorgan group
     if ($self->operation eq 'and') {
 
-      $new_group = $self->build_or(@new_group);
+      $new_group = $self->new_or(@new_group);
       # Create an andNot group in the next step
     }
 
     # For 'or' operation
     else {
-      $new_group = $self->build_and(@new_group);
+      $new_group = $self->new_and(@new_group);
     };
 
     # Set group to negative
@@ -632,8 +635,8 @@ sub _replace_negative {
     # return !a -> andNot(any,a)
     if ($self->is_negative) {
       $self->is_negative(0);
-      return $self->build_and_not(
-        $self->build_any,
+      return $self->new_and_not(
+        $self->new_any,
         $self
       )->normalize;
     };
@@ -671,7 +674,7 @@ sub _replace_negative {
     if (@$ops == 1) {
 
       print_log('kq_bool', 'Operation on a single operand') if DEBUG;
-      my $and_not = $self->build_and_not($ops->[0], $neg)->normalize;
+      my $and_not = $self->new_and_not($ops->[0], $neg)->normalize;
 
       print_log('kq_bool', 'Created ' . $and_not->to_string) if DEBUG;
       return $and_not;
@@ -680,15 +683,15 @@ sub _replace_negative {
     print_log('kq_bool', 'Operation on multiple operands') if DEBUG;
 
     # There are multiple positive operands - create a new group
-    return $self->build_and_not($self, $neg)->normalize;
+    return $self->new_and_not($self, $neg)->normalize;
   }
 
   elsif ($self->operation eq 'or') {
 
     print_log('kq_bool', 'Operation is "or"') if DEBUG;
 
-    push @$ops, $self->build_and_not(
-      $self->build_any,
+    push @$ops, $self->new_and_not(
+      $self->new_any,
       $neg
     )->normalize;
     return $self;

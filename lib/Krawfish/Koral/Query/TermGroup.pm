@@ -42,21 +42,21 @@ sub type {
 
 
 # Build helper for or-relations
-sub build_or {
+sub new_or {
   shift;
   __PACKAGE__->new('or',@_);
 };
 
 
 # Build helper for and-relations
-sub build_and {
+sub new_and {
   shift;
   __PACKAGE__->new('and', @_);
 };
 
 
 # Build helper for andNot-relations
-sub build_and_not {
+sub new_and_not {
   my ($self, $pos, $neg) = @_;
   my $query = $self->builder->exclusion(['matches'], $pos, $neg);
   print_log('kq_tgroup', 'Create andNot: ' . $query->to_string) if DEBUG;
@@ -65,7 +65,7 @@ sub build_and_not {
 
 
 # Build helper for any match
-sub build_any {
+sub new_any {
   shift;
   my $any = Krawfish::Koral::Query::TermGroup->new;
   $any->is_any(1);

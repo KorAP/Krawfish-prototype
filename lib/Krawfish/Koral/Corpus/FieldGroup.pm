@@ -49,29 +49,26 @@ sub operation {
 };
 
 
-sub build_or {
+sub new_or {
   shift;
   __PACKAGE__->new('or',@_);
 };
 
 
-sub build_and {
+sub new_and {
   shift;
   __PACKAGE__->new('and', @_);
 };
 
 
 # Build AndNot group
-sub build_and_not {
+sub new_and_not {
   shift;
-
-  # This can't be replaced with FieldGroup and an andNot operation
-  # because operand order is important with AndNot
   Krawfish::Koral::Corpus::AndNot->new(@_);
 };
 
 
-sub build_any {
+sub new_any {
   shift;
   Krawfish::Koral::Corpus::Any->new;
 
