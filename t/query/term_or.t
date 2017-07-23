@@ -22,7 +22,7 @@ ok(defined $index->add(cat_t('data','doc3-segments.jsonld')), 'Add new document'
 
 # (a | b)
 my $query = $qb->token(
-  $qb->term_or('opennlp/p=V', 'akron=lustigen')
+  $qb->bool_or('opennlp/p=V', 'akron=lustigen')
 );
 is($query->to_string, '[akron=lustigen|opennlp/p=V]', 'termGroup');
 ok($query = $query->normalize, 'Normalization');
@@ -43,7 +43,7 @@ ok(!$plan->next, 'No more tokens');
 
 # (a | b | c)
 $query = $qb->token(
-  $qb->term_or('opennlp/p=V', 'akron=lustigen', 'Der')
+  $qb->bool_or('opennlp/p=V', 'akron=lustigen', 'Der')
 );
 is($query->to_string, '[Der|akron=lustigen|opennlp/p=V]', 'termGroup');
 ok($query = $query->normalize, 'Normalization');
@@ -66,7 +66,7 @@ ok(!$plan->next, 'No more tokens');
 
 # (a | b | 0)
 $query = $qb->token(
-  $qb->term_or('opennlp/p=V', 'traurig', 'Der')
+  $qb->bool_or('opennlp/p=V', 'traurig', 'Der')
 );
 is($query->to_string, '[Der|opennlp/p=V|traurig]', 'termGroup');
 

@@ -14,9 +14,9 @@ $koral->query(
     $qb->term('x'),
     $qb->repeat($qb->any, 2,3),
     $qb->token(
-      $qb->term_and(
+      $qb->bool_and(
         'a',
-        $qb->term_or('b','c','d'),
+        $qb->bool_or('b','c','d'),
         'e'
       )
     )

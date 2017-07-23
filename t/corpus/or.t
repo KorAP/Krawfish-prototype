@@ -13,7 +13,7 @@ ok_index($index, {id => 5} => [qw/aa bb/], 'Add complex document');
 
 ok(my $cb = Krawfish::Koral::Corpus::Builder->new, 'Create CorpusBuilder');
 
-ok(my $query = $cb->field_or(
+ok(my $query = $cb->bool_or(
   $cb->string('id')->eq('3'),
   $cb->string('id')->eq('2')
 ), 'Create corpus query');
@@ -35,7 +35,7 @@ ok(!$plan->next, 'No more next doc');
 ok_index($index, {id => 7} => [qw/aa bb/], 'Add complex document');
 ok_index($index, {id => 9} => [qw/aa bb/], 'Add complex document');
 
-ok($query = $cb->field_or(
+ok($query = $cb->bool_or(
   $cb->string('id')->eq('3'),
   $cb->string('id')->eq('2'),
   $cb->string('id')->eq('9')
@@ -50,14 +50,14 @@ is($plan->to_string, "or(or('id:2','id:3'),'id:9')", 'Stringification');
 matches($plan, [qw/[0] [1] [4]/], 'Matches');
 
 # Indexed 2,3,5,7,9
-ok($query = $cb->field_or(
+ok($query = $cb->bool_or(
   $cb->string('id')->ne('2'),
   $cb->string('id')->eq('5')
 ), 'Create corpus query');
 
 is($query->to_string, 'id!=2|id=5', 'Stringification');
 ok($plan = $query->normalize->finalize->optimize($index), 'Planning');
-is($plan->to_string, "and(or(andNot([1],'id:2'),'id:5'),[1])", 'Stringification');
+is($plan->to_string, "and(or('id:5',andNot([1],'id:2')),[1])", 'Stringification');
 
 # matches($plan, [qw/[0] [1] [2] [3] [4]/], 'Matches');
 

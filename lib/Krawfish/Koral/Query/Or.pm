@@ -24,57 +24,19 @@ sub operation {
   'or'
 };
 
-
-# Optimize Or-operand sequence
-sub optimize {
-  my ($self, $index) = @_;
-
-  # Get operands in alphabetical order
-  my $ops = $self->operands_in_order;
-
-  my $i = 0;
-  my $first = $ops->[$i];
-
-  print_log('kq_or', 'Initial query is ' . $self->to_string) if DEBUG;
-
-  my $query = $first->optimize($index);
-  $i++;
-
-  # Check to get a valid first query
-  while ($query->max_freq == 0 && $i < @$ops) {
-    $first = $ops->[$i++];
-    $query = $first->optimize($index);
-    $i++;
-  };
-
-  for (; $i < @$ops; $i++) {
-    # Get query operation for next operand
-    # TODO: Check for negation!
-    my $next = $ops->[$i]->optimize($index);
-
-    if ($next->max_freq != 0) {
-      $query = Krawfish::Query::Or->new(
-        $query,
-        $next
-      );
-    };
-  };
-
-  if ($query->max_freq == 0) {
-    return Krawfish::Query::Nothing->new;
-  };
-
-  return $query;
-};
-
-
-# Create operands in order
-sub operands_in_order {
+sub bool_or_query {
   my $self = shift;
-  my $ops = $self->{operands};
-  return [ sort { $a->to_string cmp $b->to_string } @$ops ];
+  Krawfish::Query::Or->new(
+    $_[0],
+    $_[1]
+  );
 };
 
+
+# Can't occur per definition
+sub bool_and_query {
+  return;
+};
 
 # Stringification
 sub to_string {

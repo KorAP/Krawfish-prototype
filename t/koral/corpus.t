@@ -10,9 +10,9 @@ my $koral = Krawfish::Koral->new;
 my $cb = $koral->corpus_builder;
 
 $koral->corpus(
-  $cb->field_or(
+  $cb->bool_or(
     $cb->date('pub_date')->geq('2015-03'),
-    $cb->field_and(
+    $cb->bool_and(
       $cb->string('author')->eq('Nils'),
       $cb->regex('doc_id')->eq('WPD.*')
     )

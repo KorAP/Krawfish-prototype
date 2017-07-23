@@ -344,7 +344,7 @@ sub inflate {
 
   # TODO:
   #   Use refer?
-  return $self->builder->term_or(@terms)->normalize;
+  return $self->builder->bool_or(@terms)->normalize;
 };
 
 

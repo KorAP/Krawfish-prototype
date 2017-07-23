@@ -41,7 +41,7 @@ is($query->to_string, '[]', 'Stringification');
 
 # a|!a -> 1
 $query = $builder->token(
-  $builder->term_or(
+  $builder->bool_or(
     $builder->term('a'),
     $builder->term_neg('a')
   )
@@ -53,7 +53,7 @@ is($query->to_string, '[]', 'Stringification');
 
 # a&!a -> 0
 $query = $builder->token(
-  $builder->term_and(
+  $builder->bool_and(
     $builder->term('a'),
     $builder->term_neg('a')
   )
@@ -65,8 +65,8 @@ is($query->to_string, '[0]', 'Stringification');
 
 # a|!a -> 1
 $query = $builder->token(
-  $builder->term_and(
-    $builder->term_or(
+  $builder->bool_and(
+    $builder->bool_or(
       $builder->term('a'),
       $builder->term_neg('a')
     ),
@@ -81,8 +81,8 @@ is($query->to_string, 'c', 'Stringification');
 
 # a&!a -> 0
 $query = $builder->token(
-  $builder->term_or(
-    $builder->term_and(
+  $builder->bool_or(
+    $builder->bool_and(
       $builder->term('a'),
       $builder->term_neg('a')
     ),
@@ -97,7 +97,7 @@ is($query->to_string, 'c', 'Stringification');
 
 # a & a -> a
 $query = $builder->token(
-  $builder->term_and(
+  $builder->bool_and(
     $builder->term('c'),
     $builder->term('a'),
     $builder->term('c')
@@ -111,12 +111,12 @@ is($query->to_string, 'a&c', 'Stringification');
 
 # (a|b) & (b|a) -> (a|b)
 $query = $builder->token(
-  $builder->term_and(
-    $builder->term_or(
+  $builder->bool_and(
+    $builder->bool_or(
       $builder->term('a'),
       $builder->term('b')
     ),
-    $builder->term_or(
+    $builder->bool_or(
       $builder->term('b'),
       $builder->term('a')
     )
@@ -130,7 +130,7 @@ is($query->to_string, 'a|b', 'Stringification');
 
 # a | a -> a
 $query = $builder->token(
-  $builder->term_or(
+  $builder->bool_or(
     $builder->term('c'),
     $builder->term('a'),
     $builder->term('c')
@@ -144,9 +144,9 @@ is($query->to_string, 'a|c', 'Stringification');
 
 # a & (a | b) -> a
 $query = $builder->token(
-  $builder->term_and(
+  $builder->bool_and(
     $builder->term('a'),
-    $builder->term_or(
+    $builder->bool_or(
       $builder->term('a'),
       $builder->term('b')
     )
@@ -161,12 +161,12 @@ is($query->to_string, 'a', 'Stringification');
 
 # (a&b) | (b&a) -> (a&b)
 $query = $builder->token(
-  $builder->term_or(
-    $builder->term_and(
+  $builder->bool_or(
+    $builder->bool_and(
       $builder->term('a'),
       $builder->term('b')
     ),
-    $builder->term_and(
+    $builder->bool_and(
       $builder->term('b'),
       $builder->term('a')
     )
@@ -181,9 +181,9 @@ is($query->to_string, 'a&b', 'Stringification');
 
 # a | (a & b) -> a
 $query = $builder->token(
-  $builder->term_or(
+  $builder->bool_or(
     $builder->term('a'),
-    $builder->term_and(
+    $builder->bool_and(
       $builder->term('a'),
       $builder->term('b')
     )
@@ -198,12 +198,12 @@ is($query->to_string, 'a', 'Stringification');
 # complex
 # a & !a -> 0
 $query = $builder->token(
-  $builder->term_and(
-    $builder->term_or(
+  $builder->bool_and(
+    $builder->bool_or(
       $builder->term('a'),
       $builder->term('b')
     ),
-    $builder->term_or(
+    $builder->bool_or(
       $builder->term('b'),
       $builder->term('a')
     )->toggle_negative
@@ -218,12 +218,12 @@ is($query->to_string, '[0]', 'Stringification');
 # complex
 # a | !a -> 1
 $query = $builder->token(
-  $builder->term_or(
-    $builder->term_and(
+  $builder->bool_or(
+    $builder->bool_and(
       $builder->term('a'),
       $builder->term('b')
     ),
-    $builder->term_and(
+    $builder->bool_and(
       $builder->term('b'),
       $builder->term('a')
     )->toggle_negative
@@ -237,9 +237,9 @@ is($query->to_string, '[]', 'Stringification');
 
 # (a&!b)|(b&c)
 $query = $builder->token(
-  $builder->term_or(
-    $builder->term_and('aa', $builder->term_neg('bb')),
-    $builder->term_and('bb', 'cc')
+  $builder->bool_or(
+    $builder->bool_and('aa', $builder->term_neg('bb')),
+    $builder->bool_and('bb', 'cc')
   )
 );
 is($query->to_string, '[(!bb&aa)|(bb&cc)]', 'Stringification');

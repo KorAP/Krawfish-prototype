@@ -49,36 +49,6 @@ sub operation {
 };
 
 
-sub new_or {
-  shift;
-  __PACKAGE__->new('or',@_);
-};
-
-
-sub new_and {
-  shift;
-  __PACKAGE__->new('and', @_);
-};
-
-
-# Build AndNot group
-sub new_and_not {
-  shift;
-  Krawfish::Koral::Corpus::AndNot->new(@_);
-};
-
-
-sub new_any {
-  shift;
-  Krawfish::Koral::Corpus::Any->new;
-
-  # TODO: May as well be
-  # my $any = Krawfish::Koral::Corpus::FieldGroup->new;
-  # $any->is_any(1);
-  # return $any;
-};
-
-
 sub operands {
   my $self = shift;
   if (@_) {
@@ -89,95 +59,25 @@ sub operands {
 };
 
 
-# Create operands in order
-sub operands_in_order {
+# normalize() is provided by Boolean
+
+# optimize() is provided by Boolean
+
+sub bool_and_query {
   my $self = shift;
-  my $ops = $self->{operands};
-  return [ sort { ($a && $b) ? ($a->to_string cmp $b->to_string) : 1 } @$ops ];
+  Krawfish::Corpus::And->new(
+    $_[0],
+    $_[1]
+  );
 };
 
-
-# normalize() is provided by BooleanTree
-
-# Optimize for an index
-sub optimize {
-  my ($self, $index) = @_;
-
-  # Get operands in alphabetical order
-  my $ops = $self->operands_in_order;
-
-  # Check the frequency of all operands
-  # Start with a query != null
-  my $i = 0;
-  my $first = $ops->[$i];
-
-  print_log('kq_fgroup', 'Initial query is ' . $self->to_string) if DEBUG;
-
-  my $query = $first->optimize($index);
-  $i++;
-
-  # Check unless
-  while ($query->max_freq == 0 && $i < @$ops) {
-    $first = $ops->[$i++];
-    $query = $first->optimize($index);
-    $i++;
-  };
-
-  if ($self->operation eq 'or') {
-    print_log('kq_fgroup', 'Prepare or-group') if DEBUG;
-
-    # Filter out all terms that do not occur
-    for (; $i < @$ops; $i++) {
-
-      # Get query operation for next operand
-      # TODO: Check for negation!
-      my $next = $ops->[$i]->optimize($index);
-
-      if ($next->max_freq != 0) {
-
-        # TODO: Distinguish here between classes and non-classes!
-        $query = Krawfish::Corpus::Or->new(
-          $query,
-          $next
-        );
-      };
-    };
-  }
-  elsif ($self->operation eq 'and') {
-    print_log('kq_fgroup', 'Prepare and-group') if DEBUG;
-
-    # Filter out all terms that do not occur
-    for (; $i < @$ops; $i++) {
-
-      # Get query operation for next operand
-      my $next = $ops->[$i]->optimize($index);
-
-      if ($next->max_freq != 0) {
-
-        # TODO: Distinguish here between classes and non-classes!
-        $query = Krawfish::Corpus::And->new(
-          $query,
-          $next
-        );
-      }
-
-      # One operand is not existing
-      else {
-        return Krawfish::Query::Nothing->new;
-      };
-    };
-  }
-  else {
-    warn 'Should never happen!';
-  };
-
-  if ($query->max_freq == 0) {
-    return Krawfish::Query::Nothing->new;
-  };
-
-  return $query;
+sub bool_or_query {
+  my $self = shift;
+  Krawfish::Corpus::Or->new(
+    $_[0],
+    $_[1]
+  );
 };
-
 
 #sub is_any {
 #  my $self = shift;

@@ -80,7 +80,7 @@ sub finalize {
 
     print_log('kq_corpus', 'Do an "andNot" on any') if DEBUG;
 
-    return $self->builder->field_and_not(
+    return $self->builder->bool_and_not(
       $self->builder->any,
       $self
     );
@@ -88,7 +88,7 @@ sub finalize {
 
   print_log('kq_corpus', 'Do an "and" on any') if DEBUG;
 
-  return $self->builder->field_and(
+  return $self->builder->bool_and(
     $self->builder->any,
     $self
   );

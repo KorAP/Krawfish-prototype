@@ -24,7 +24,7 @@ ok_index($index, {
 
 my $kq = Krawfish::Koral::Query::Builder->new;
 
-my $query = $kq->term_or('aa', 'bb');
+my $query = $kq->bool_or('aa', 'bb');
 
 # Set maximum rank reference to the last doc id of the index
 my $max_rank = $index->max_rank;

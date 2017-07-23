@@ -14,7 +14,7 @@ ok(defined $index->add('t/data/doc2.jsonld'), 'Add new document');
 ok(defined $index->add('t/data/doc3-segments.jsonld'), 'Add new document');
 
 my $kq = Krawfish::Koral::Query::Builder->new;
-my $query = $kq->term_or('Der', 'akron=Der');
+my $query = $kq->bool_or('Der', 'akron=Der');
 
 # Get sort object
 ok(my $sort = Krawfish::Result::Limit->new(

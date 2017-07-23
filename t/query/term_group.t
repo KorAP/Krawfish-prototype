@@ -12,7 +12,7 @@ my $qb = Krawfish::Koral::Query::Builder->new;
 my $index = Krawfish::Index->new;
 ok_index($index, '[aa|bb][aa|bb|cc][aa][bb|cc]', 'Add complex document');
 my $token = $qb->token(
-  $qb->term_and('aa', $qb->term_neg('bb'))
+  $qb->bool_and('aa', $qb->term_neg('bb'))
 );
 is($token->to_string, '[!bb&aa]', 'Stringification');
 ok($token = $token->normalize, 'Normalization');
@@ -26,9 +26,9 @@ matches($plan, ['[0:2-3]']);
 $index = Krawfish::Index->new;
 ok_index($index, '[aa|bb][aa|bb|cc][aa][bb|cc]', 'Add complex document');
 $token = $qb->token(
-  $qb->term_or(
-    $qb->term_and('aa', $qb->term_neg('bb')),
-    $qb->term_and('bb', 'cc')
+  $qb->bool_or(
+    $qb->bool_and('aa', $qb->term_neg('bb')),
+    $qb->bool_and('bb', 'cc')
   )
 );
 is($token->to_string, '[(!bb&aa)|(bb&cc)]', 'Stringification');

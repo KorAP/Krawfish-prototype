@@ -14,20 +14,20 @@ sub new {
 };
 
 # Create 'and' group
-sub field_and {
+sub bool_and {
   shift;
   return Krawfish::Koral::Corpus::FieldGroup->new('and', @_);
 };
 
 
 # Create 'or' group
-sub field_or {
+sub bool_or {
   shift;
   return Krawfish::Koral::Corpus::FieldGroup->new('or', @_);
 };
 
 # Create 'and' group
-sub field_and_not {
+sub bool_and_not {
   shift;
   return Krawfish::Koral::Corpus::AndNot->new(@_);
 };
@@ -57,18 +57,21 @@ sub class {
 };
 
 # Create 'string' field
+# May be renamed to 'field'
 sub string {
   shift;
   return Krawfish::Koral::Corpus::Field->new('string', @_);
 };
 
 # Create 'date' field
+# May be renamed to 'field_date'
 sub date {
   shift;
   return Krawfish::Koral::Corpus::Field->new('date', @_);
 };
 
-# Create 'integer' field
+# Create 'regex' field
+# May be renamed to 'field_re'
 sub regex {
   shift;
   return Krawfish::Koral::Corpus::Field->new('regex', @_);

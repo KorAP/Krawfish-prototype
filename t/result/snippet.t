@@ -15,7 +15,7 @@ ok_index($index, {
 } => [qw/aa bb aa bb/], 'Add new document');
 
 my $kq = Krawfish::Koral::Query::Builder->new;
-my $query = $kq->term_or('aa', 'bb');
+my $query = $kq->bool_or('aa', 'bb');
 
 is($query->to_string, 'aa|bb', 'Stringification');
 

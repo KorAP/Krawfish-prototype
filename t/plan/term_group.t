@@ -22,7 +22,7 @@ my $koral = Krawfish::Koral->new;
 my $qb = $koral->query_builder;
 
 my $query = $qb->token(
-  $qb->term_and('first', 'second')
+  $qb->bool_and('first', 'second')
 );
 
 ok(!$query->is_any, 'Isn\'t any');
@@ -38,7 +38,7 @@ ok($query = $query->finalize, 'Finalization');
 is($query->to_string, 'first&second', 'Stringification');
 
 $query = $qb->token(
-  $qb->term_and('first', 'second','first', 'third')
+  $qb->bool_and('first', 'second','first', 'third')
 );
 is($query->to_string, '[first&first&second&third]', 'Stringification');
 ok($query = $query->normalize, 'Normalization');
@@ -47,7 +47,7 @@ ok($query = $query->finalize, 'Finalization');
 is($query->to_string, 'first&second&third', 'Stringification');
 
 $query = $qb->token(
-  $qb->term_and('first', 'second')
+  $qb->bool_and('first', 'second')
 );
 
 # The ordering is alphabetically, with the first in order being treated
@@ -57,7 +57,7 @@ is($query->normalize->finalize->optimize($index)->to_string,
    "constr(pos=32:'second','first')", 'Planned Stringification');
 
 $query = $qb->token(
-  $qb->term_or('opennlp/c=NP', 'tt/p=NN')
+  $qb->bool_or('opennlp/c=NP', 'tt/p=NN')
 );
 
 ok(!$query->is_any, 'Isn\'t any');
@@ -74,9 +74,9 @@ is($query->to_string,
    '[0]', 'Stringification');
 
 $query = $qb->token(
-  $qb->term_or(
-    $qb->term_and('first', 'second'),
-    $qb->term_and('third', 'fourth'),
+  $qb->bool_or(
+    $qb->bool_and('first', 'second'),
+    $qb->bool_and('third', 'fourth'),
   )
 );
 
@@ -94,11 +94,11 @@ is($query->to_string,
  'Stringification');
 
 $query = $qb->token(
-  $qb->term_or(
-    $qb->term_and('first', 'second'),
-    $qb->term_and(
+  $qb->bool_or(
+    $qb->bool_and('first', 'second'),
+    $qb->bool_and(
       'third',
-      $qb->term_or('fourth', 'fifth')
+      $qb->bool_or('fourth', 'fifth')
     ),
     'sixth'
   )
@@ -121,7 +121,7 @@ is($query->to_string,
 
 # Group with null
 $query = $qb->token(
-  $qb->term_and('first', $qb->null)
+  $qb->bool_and('first', $qb->null)
 );
 is($query->to_string, '[-&first]', 'Stringifications');
 ok($query = $query->normalize, 'Normalize');
@@ -133,7 +133,7 @@ is($query->to_string, "'first'", 'Stringifications');
 # Group with negation
 # [first&!second]
 $query = $qb->token(
-  $qb->term_and('first', $qb->term_neg('second'))
+  $qb->bool_and('first', $qb->term_neg('second'))
 );
 is($query->to_string, '[!second&first]', 'Stringifications');
 ok($query = $query->normalize, 'Normalize');
@@ -145,7 +145,7 @@ is($query->to_string, "excl(32:'first','second')", 'Stringifications');
 # Group with negation and zero freq
 # [first&opennlp/c!=NN]
 $query = $qb->token(
-  $qb->term_and('first', 'opennlp/c!=NN')
+  $qb->bool_and('first', 'opennlp/c!=NN')
 );
 is($query->to_string, '[first&opennlp/c!=NN]', 'Stringifications');
 ok($query = $query->normalize, 'Normalize');
@@ -157,9 +157,9 @@ is($query->to_string, "'first'", 'Stringifications');
 
 # [first&!third&second&!fourth]
 $query = $qb->token(
-  $qb->term_and(
-    $qb->term_and('first', $qb->term_neg('third')),
-    $qb->term_and('second', $qb->term_neg('fourth'))
+  $qb->bool_and(
+    $qb->bool_and('first', $qb->term_neg('third')),
+    $qb->bool_and('second', $qb->term_neg('fourth'))
   )
 );
 is($query->to_string, '[(!fourth&second)&(!third&first)]', 'Stringifications');
@@ -171,9 +171,9 @@ is($query->to_string, "excl(32:constr(pos=32:'second','first'),or('fourth','thir
 # And group with not-founds
 # [first&opennlp/c!=NN&second&third&tt/p!=ADJA]
 $query = $qb->token(
-  $qb->term_and(
-    $qb->term_and('first', 'opennlp/c!=NN'),
-    $qb->term_and('second', 'tt/p!=ADJA')
+  $qb->bool_and(
+    $qb->bool_and('first', 'opennlp/c!=NN'),
+    $qb->bool_and('second', 'tt/p!=ADJA')
   )
 );
 is($query->to_string, '[(first&opennlp/c!=NN)&(second&tt/p!=ADJA)]', 'Stringifications');

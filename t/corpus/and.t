@@ -34,7 +34,7 @@ ok_index($index, {
 
 ok(my $cb = Krawfish::Koral::Corpus::Builder->new, 'Create CorpusBuilder');
 
-ok(my $query = $cb->field_and(
+ok(my $query = $cb->bool_and(
   $cb->string('author')->eq('Peter'),
   $cb->string('age')->eq('4')
 ), 'Create corpus query');
@@ -44,7 +44,7 @@ ok(!$query->is_negative, 'Check negativity');
 
 ok(my $plan = $query->normalize->optimize($index), 'Planning');
 
-is($plan->to_string, "and('age:4','author:Peter')", 'Stringification');
+is($plan->to_string, "and('author:Peter','age:4')", 'Stringification');
 
 ok($plan->next, 'Init vc');
 is($plan->current->to_string, '[0]', 'First doc');
@@ -53,8 +53,8 @@ is($plan->current->to_string, '[2]', 'First doc');
 ok(!$plan->next, 'No more next');
 
 # Complex virtual corpus
-ok($query = $cb->field_or(
-  $cb->field_and(
+ok($query = $cb->bool_or(
+  $cb->bool_and(
     $cb->string('author')->eq('Peter'),
     $cb->string('age')->eq(3)
   ),
@@ -66,7 +66,7 @@ ok(!$query->is_negative, 'Check negativity');
 
 ok($plan = $query->normalize->optimize($index), 'Planning');
 
-is($plan->to_string, "or(and('age:3','author:Peter'),'id:2')", 'Stringification');
+is($plan->to_string, "or('id:2',and('author:Peter','age:3'))", 'Stringification');
 
 ok($plan->next, 'Init vc');
 is($plan->current->to_string, '[0]', 'First doc');
@@ -75,7 +75,7 @@ is($plan->current->to_string, '[1]', 'First doc');
 ok(!$plan->next, 'No more next');
 
 # Complex virtual corpus with negation
-ok($query = $cb->field_and(
+ok($query = $cb->bool_and(
   $cb->string('author')->eq('Peter'),
   $cb->string('age')->ne(4)
 ),
@@ -98,7 +98,7 @@ ok(!$opt->next, 'No more next');
 
 
 # Complex virtual corpus with negation
-ok($query = $cb->field_and(
+ok($query = $cb->bool_and(
   $cb->string('author')->ne('Peter'),
   $cb->string('age')->ne(4)
 ),
@@ -130,7 +130,7 @@ __END__
 
 
 # Complex virtual corpus with negation
-ok($query = $cb->field_and(
+ok($query = $cb->bool_and(
   $cb->string('genre')->eq('novel'),
   $cb->string('author')->ne('Peter'),
   $cb->string('age')->ne(4)

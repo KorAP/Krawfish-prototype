@@ -45,7 +45,7 @@ ok(!$fields->next, 'No more next');
 
 
 # Fields for multiple spans
-$query = $kq->term_or('aa', 'bb');
+$query = $kq->bool_or('aa', 'bb');
 
 
 # Get fields object

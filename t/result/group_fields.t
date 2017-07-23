@@ -37,7 +37,7 @@ ok_index($index, {
 } => [qw/aa bb/], 'Add complex document');
 
 ok(my $cb = Krawfish::Koral::Corpus::Builder->new, 'Create CorpusBuilder');
-ok(my $query = $cb->field_or(
+ok(my $query = $cb->bool_or(
   $cb->string('author')->eq('Peter'),
   $cb->string('age')->eq('7')
 ), 'Create corpus query');

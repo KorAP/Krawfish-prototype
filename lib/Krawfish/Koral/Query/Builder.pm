@@ -22,6 +22,8 @@ use Krawfish::Koral::Query::Constraint::ClassDistance;
 use Krawfish::Koral::Query::Constraint::NotBetween;
 use Krawfish::Koral::Query::Constraint::InBetween;
 
+use Scalar::Util qw/blessed/;
+
 sub new {
   my $class = shift;
   my $text_span = shift // 'base/s=t';
@@ -54,24 +56,9 @@ sub token {
   Krawfish::Koral::Query::Token->new(@_);
 };
 
-sub term_re {
-  shift;
-  Krawfish::Koral::Query::Term->new(@_)->match('~');
-}
-
 sub term {
   shift;
   Krawfish::Koral::Query::Term->new(@_);
-};
-
-sub term_and {
-  shift;
-  Krawfish::Koral::Query::TermGroup->new('and' => @_);
-};
-
-sub term_or {
-  shift;
-  Krawfish::Koral::Query::TermGroup->new('or' => @_);
 };
 
 sub term_neg {
@@ -79,17 +66,43 @@ sub term_neg {
   Krawfish::Koral::Query::Term->new(@_)->match('!=');
 };
 
+sub term_re {
+  shift;
+  Krawfish::Koral::Query::Term->new(@_)->match('~');
+};
+
+
+sub bool_and {
+  shift;
+  Krawfish::Koral::Query::TermGroup->new('and' => @_);
+};
+
+sub bool_and_not {
+  shift;
+  my ($pos, $neg) = @_;
+  Krawfish::Koral::Query::Exclusion->new(['matches'], $pos, $neg);
+};
+
+
+sub bool_or {
+  my $self = shift;
+  my $first_type = blessed $_[0] ? $_[0]->type : 'term';
+  my $second_type = blessed $_[1] ? $_[1]->type : 'term';
+  if (
+    ($first_type eq 'term' || $first_type eq 'termGroup') &&
+      ($second_type eq 'term' || $second_type eq 'termGroup')
+    ) {
+    return Krawfish::Koral::Query::TermGroup->new('or' => @_);
+  };
+
+  return Krawfish::Koral::Query::Or->new(@_);
+};
+
+
 # Span construct
 sub span {
   shift;
   Krawfish::Koral::Query::Span->new(@_);
-};
-
-
-# Or on spans
-sub span_or {
-  shift;
-  Krawfish::Koral::Query::Or->new(@_);
 };
 
 

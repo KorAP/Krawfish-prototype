@@ -43,7 +43,7 @@ is($op->[2]->{'@type'}, 'koral:span', 'Operand exists');
 # Create corpus
 $builder = $koral->corpus_builder;
 
-my $corpus_query = $builder->field_and(
+my $corpus_query = $builder->bool_and(
   $builder->string('author')->eq('Peter'),
   $builder->date('pubDate')->geq('2014-04-03')
 );

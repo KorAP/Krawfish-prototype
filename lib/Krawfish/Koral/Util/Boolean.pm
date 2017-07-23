@@ -4,16 +4,10 @@ use List::MoreUtils qw!uniq!;
 use strict;
 use warnings;
 
-# This can be used by Koral::FieldGroup and Koral::TermGroup
+# Base class for boolean group queries.
+# Used by Koral::Corpus::FieldGroup, Koral::Query::TermGroup, and Koral::Query::Or
 
 use constant DEBUG => 0;
-
-# TODO:
-#   Probably use builder->any etc. to trim codebase.
-
-# TODO:
-#   Change andNot([1],X) to not(x),
-#   so this can be used for tokenGroups without a change
 
 # TODO:
 #   To simplify this, it may be useful to use Negation instead of is_negative().
@@ -21,13 +15,16 @@ use constant DEBUG => 0;
 #   It's also easier to detect double negation.
 
 # TODO:
+#   Let normalize return a cloned query instead of in-place creation
+
+# TODO:
 #  - Deal with classes:
 #    (A | !A) -> 1, aber ({1:A} | {2:!A}) -> ({1:A} | {2:!A})
 #    (A & !A) -> 0, und ({1:A} & {2:!A}) -> 0
 
-# Check https://de.wikipedia.org/wiki/Boolesche_Algebra
-# for optimizations
 # TODO:
+#   Check https://de.wikipedia.org/wiki/Boolesche_Algebra
+#   for optimizations
 #    or(and(a,b),and(a,c)) -> and(a,or(b,c))
 #    and(or(a,b),or(a,c)) -> or(a,and(b,c))
 #    not(not(a)) -> a
@@ -42,7 +39,7 @@ use constant DEBUG => 0;
 #   from managing gigabytes bool_optimiser.c
 #/* =========================================================================
 # * Function: OptimiseBoolTree
-# * Description: 
+# * Description:
 # *      For case 2:
 # *        Do three major steps:
 # *        (i) put into standard form
@@ -54,73 +51,70 @@ use constant DEBUG => 0;
 # *              convert &! to diff nodes, order terms by frequency,...
 # *     Could also do the matching idempotency laws i.e. ...
 # *     (A | A), (A | !A), (A & !A), (A & A), (A & (A | B)), (A | (A & B)) 
-# *     Job for future.... ;-) 
-# * Input: 
-# * Output: 
+# *     Job for future.... ;-)
 # * ========================================================================= */
 #/* =========================================================================
 # * Function: DoubleNeg
-# * Description: 
+# * Description:
 # *      !(!(a) = a
 # *      Assumes binary tree.
-# * Input: 
-# * Output: 
+# * Input:
+# * Output:
 # * ========================================================================= */
 #/* =========================================================================
 # * Function: AndDeMorgan
-# * Description: 
+# * Description:
 # *      DeMorgan's rule for 'not' of an 'and'  i.e. !(a & b) <=> (!a) | (!b)
 # *      Assumes Binary Tree
-# * Input: 
+# * Input:
 # *      not of and tree
-# * Output: 
+# * Output:
 # *      or of not trees
 # * ========================================================================= */
 #/* =========================================================================
 # * Function: OrDeMorgan
-# * Description: 
+# * Description:
 # *      DeMorgan's rule for 'not' of an 'or' i.e. !(a | b) <=> (!a) & (!b)
 # *      Assumes Binary Tree
-# * Input: 
+# * Input:
 # *      not of and tree
-# * Output: 
+# * Output:
 # *      or of not trees
 # * ========================================================================= */
 #/* =========================================================================
 # * Function: PermeateNots
-# * Description: 
+# * Description:
 # *      Use DeMorgan's and Double-negative
 # *      Assumes tree in binary form (i.e. No ands/ors collapsed)
-# * Input: 
-# * Output: 
+# * Input:
+# * Output:
 # * ========================================================================= */
 #/* =========================================================================
 # * Function: AndDistribute
-# * Description: 
+# * Description:
 # *      (a | b) & A <=> (a & A) | (b & A)
-# * Input: 
+# * Input:
 # *      binary tree of "AND" , "OR"s.
-# * Output: 
+# * Output:
 # *      return 1 if changed the tree
 # *      return 0 if there was NO change (no distributive rule to apply)
 # * ========================================================================= */
 #/* =========================================================================
 #/* =========================================================================
 # * Function: AndSort
-# * Description: 
+# * Description:
 # *      Sort the list of nodes by increasing doc_count 
 # *      Using some Neil Sharman code - pretty straight forward.
 # *      Note: not-terms are sent to the end of the list
-# * Input: 
-# * Output: 
+# * Input:
+# * Output:
 # * ========================================================================= */
 
 # From managing gigabytes bool_optimiser.c
 # - function: TF_Idempotent -> DONE
 
 
-# TODO:
-#   This should return a cloned query instead of in-place creation
+# Normalize boolean query
 sub normalize {
   my $self = shift;
 
@@ -572,13 +566,13 @@ sub _resolve_demorgan {
     # Get reverted DeMorgan group
     if ($self->operation eq 'and') {
 
-      $new_group = $self->new_or(@new_group);
+      $new_group = $self->builder->bool_or(@new_group);
       # Create an andNot group in the next step
     }
 
     # For 'or' operation
     else {
-      $new_group = $self->new_and(@new_group);
+      $new_group = $self->builder->bool_and(@new_group);
     };
 
     # Set group to negative
@@ -635,8 +629,8 @@ sub _replace_negative {
     # return !a -> andNot(any,a)
     if ($self->is_negative) {
       $self->is_negative(0);
-      return $self->new_and_not(
-        $self->new_any,
+      return $self->builder->bool_and_not(
+        $self->builder->any,
         $self
       )->normalize;
     };
@@ -663,7 +657,9 @@ sub _replace_negative {
   # Switch negativity
   $neg->is_negative(0);
 
-  print_log('kq_bool', 'Negative operand is removed and reversed: ' . $neg->to_string) if DEBUG;
+  if (DEBUG) {
+    print_log('kq_bool', 'Negative operand is removed and reversed: ' . $neg->to_string);
+  };
 
   # Deal with operations differently
   if ($self->operation eq 'and') {
@@ -674,7 +670,7 @@ sub _replace_negative {
     if (@$ops == 1) {
 
       print_log('kq_bool', 'Operation on a single operand') if DEBUG;
-      my $and_not = $self->new_and_not($ops->[0], $neg)->normalize;
+      my $and_not = $self->builder->bool_and_not($ops->[0], $neg)->normalize;
 
       print_log('kq_bool', 'Created ' . $and_not->to_string) if DEBUG;
       return $and_not;
@@ -683,21 +679,119 @@ sub _replace_negative {
     print_log('kq_bool', 'Operation on multiple operands') if DEBUG;
 
     # There are multiple positive operands - create a new group
-    return $self->new_and_not($self, $neg)->normalize;
+    return $self->builder->bool_and_not($self, $neg)->normalize;
   }
 
   elsif ($self->operation eq 'or') {
 
     print_log('kq_bool', 'Operation is "or"') if DEBUG;
 
-    push @$ops, $self->new_and_not(
-      $self->new_any,
+    push @$ops, $self->builder->bool_and_not(
+      $self->builder->any,
       $neg
     )->normalize;
     return $self;
   };
 
   warn 'Unknown operation';
+};
+
+
+# Optimize boolean queries based on their frequencies
+sub optimize {
+  my ($self, $index) = @_;
+
+  # Get operands
+  my $ops = $self->operands;
+
+  # Check the frequency of all operands
+  my (@freq, $query);
+
+  # Filter out all terms that do not occur
+  for (my $i = 0; $i < @$ops; $i++) {
+
+    # Get query operation for next operand
+    my $next = $ops->[$i]->optimize($index);
+
+    # Get maximum frequency
+    my $freq = $next->max_freq;
+
+    # Push to frequency list
+    push @freq, [$next, $freq];
+  };
+
+  # Sort operands based on ascending frequency
+  @freq = sort {
+    ($a->[1] < $b->[1]) ? -1 :
+      (($a->[1] > $b->[1]) ? 1 :
+       ($a->[0]->to_string cmp $b->[0]->to_string))
+  } @freq;
+
+
+  # Operation is 'or'
+  if ($self->operation eq 'or') {
+    print_log('kq_bool', 'Prepare or-group') if DEBUG;
+
+    # Ignore non-existing terms
+    while (@freq && $freq[0]->[1] == 0) {
+      shift @freq;
+    };
+
+    # No valid operands exist
+    if (@freq == 0) {
+      return Krawfish::Query::Nothing->new;
+    };
+
+    # Get the first operand
+    $query = shift(@freq)->[0];
+
+    # For all further queries, create a query tree
+    while (@freq) {
+      my $next = shift(@freq)->[0];
+
+      # TODO: Distinguish here between classes and non-classes!
+      $query = $self->bool_or_query(
+        $query,
+        $next
+      );
+    };
+  }
+
+  # Operation is 'and'
+  elsif ($self->operation eq 'and') {
+    print_log('kq_bool', 'Prepare and-group') if DEBUG;
+
+    # If the least frequent operand does not exist,
+    # the whole group can't exist
+    if ($freq[0]->[1] == 0) {
+
+      # One operand is not existing
+      return Krawfish::Query::Nothing->new;
+    };
+
+    # Get the first operand
+    $query = shift(@freq)->[0];
+
+    # Make the least frequent terms come first in constraint
+    while (@freq) {
+      my $next = shift(@freq)->[0];
+
+      # Create constraint with the least frequent as second (buffered) operand
+      $query = $self->bool_and_query($next, $query);
+    };
+  }
+
+  # Operation is unknown!
+  else {
+    warn 'Should never happen!';
+  };
+
+  # Return nothing if nothing matches!
+  if ($query->max_freq == 0) {
+    return Krawfish::Query::Nothing->new;
+  };
+
+  return $query;
 };
 
 
@@ -710,6 +804,14 @@ sub toggle_operation {
   elsif ($self->operation eq 'and') {
     $self->operation('or');
   };
+};
+
+
+# Create operands in order
+sub operands_in_order {
+  my $self = shift;
+  my $ops = $self->{operands};
+  return [ sort { ($a && $b) ? ($a->to_string cmp $b->to_string) : 1 } @$ops ];
 };
 
 

@@ -11,7 +11,7 @@ my $index = Krawfish::Index->new;
 ok_index($index, '[aa|bb][aa|bb][aa|bb]', 'Add new document');
 
 my $query = $qb->token(
-  $qb->term_or('aa', 'bb')
+  $qb->bool_or('aa', 'bb')
 );
 
 is($query->to_string, '[aa|bb]', 'termGroup');
@@ -29,7 +29,7 @@ matches($non_unique, [qw/[0:0-1]
 
 $query = $qb->unique(
   $qb->token(
-    $qb->term_or('aa', 'bb')
+    $qb->bool_or('aa', 'bb')
   )
 );
 is($query->to_string, 'unique([aa|bb])', 'termGroup');

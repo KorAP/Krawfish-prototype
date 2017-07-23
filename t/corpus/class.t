@@ -24,7 +24,7 @@ ok_index($index, {id => 5, author => 'David', age => 24} => [qw/aa bb/], 'Add co
 
 ok(my $cb = Krawfish::Koral::Corpus::Builder->new, 'Create CorpusBuilder');
 
-ok(my $query = $cb->field_or(
+ok(my $query = $cb->bool_or(
   $cb->class(2, $cb->string('author')->eq('David')),
   $cb->class(3, $cb->string('age')->eq('24'))
 ), 'Create corpus query');
@@ -71,7 +71,7 @@ is_deeply($query->to_koral_fragment, {
 ok(my $plan = $query->normalize->optimize($index), 'Planning');
 
 is($plan->to_string,
-   "or(class(2:'author:David'),class(3:'age:24'))",
+   "or(class(3:'age:24'),class(2:'author:David'))",
    'Stringification');
 
 TODO: {
