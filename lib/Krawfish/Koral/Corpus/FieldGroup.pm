@@ -18,9 +18,10 @@ use warnings;
 #   -> memoize(cache)
 #   -> optimize(index)
 
-# TODO: Sort operands by frequency -
-#   but for signaturing, sort them
-#   alphabetically (probably)
+
+# TODO:
+#   In normalization phase make
+#   X geq Y & X leq Y -> X eq Y
 
 use constant DEBUG => 0;
 
@@ -46,16 +47,6 @@ sub operation {
     return $self;
   };
   $self->{operation};
-};
-
-
-sub operands {
-  my $self = shift;
-  if (@_) {
-    print_log('kq_fgroup', 'Set operands') if DEBUG;
-    $self->{operands} = shift;
-  };
-  return $self->{operands};
 };
 
 

@@ -17,6 +17,11 @@ sub new {
 };
 
 
+sub type {
+  'constr_class_distance';
+};
+
+
 # Stringify
 sub to_string {
   my $self = shift;
@@ -29,6 +34,9 @@ sub normalize {
   $_[0];
 };
 
+sub inflate {
+  $_[0];
+};
 
 # Optimize constraint
 sub optimize {

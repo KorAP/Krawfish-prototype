@@ -117,6 +117,9 @@ sub inflate {
   return $_[0];
 };
 
+sub operands {
+  return;
+};
 
 sub optimize {
   my ($self, $index) = @_;

@@ -9,7 +9,7 @@ use constant DEBUG => 0;
 sub new {
   my $class = shift;
   bless {
-    corpus => shift
+    operands => [shift]
   }, $class;
 };
 
@@ -22,8 +22,8 @@ sub optimize {
   my ($self, $index) = @_;
 
   my $query;
-  unless ($query = $self->{corpus}->optimize($index)) {
-    $self->copy_info_from($self->{corpus});
+  unless ($query = $self->operand->optimize($index)) {
+    $self->copy_info_from($self->operand);
     return;
   };
 
@@ -36,12 +36,12 @@ sub optimize {
 
 
 sub to_koral_fragment {
-  return $_[0]->{corpus}->to_koral_fragment;
+  return $_[0]->operand->to_koral_fragment;
 };
 
 
 sub to_string {
-  return $_[0]->{corpus}->to_string;
+  return $_[0]->operand->to_string;
 };
 
 

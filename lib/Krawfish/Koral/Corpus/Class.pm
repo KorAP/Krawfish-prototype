@@ -10,7 +10,7 @@ sub new {
   my $class = shift;
   bless {
     number => shift,
-    operand => shift
+    operands => [shift]
   }, $class;
 };
 
@@ -25,13 +25,8 @@ sub number {
 };
 
 
-sub operand {
-  $_[0]->{operand};
-};
-
-
 sub is_negative {
-  $_[0]->{operand}->is_negative;
+  $_[0]->operand->is_negative;
 };
 
 
@@ -41,7 +36,7 @@ sub has_classes {
 
 sub normalize {
   my $self = shift;
-  $self->{operand} = $self->operand->normalize;
+  $self->operand($self->operand->normalize);
   $self;
 };
 

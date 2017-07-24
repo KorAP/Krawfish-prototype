@@ -332,7 +332,6 @@ is($seq->to_string, "constr(pos=1,notBetween='a':'b','a')", 'Stringification');
 matches($seq, [qw/[1:0-3]/], 'Matches Once');
 
 
-
 # Create with NEGATIVE optional distance
 # [b][!a]?[a]
 $seq = $qb->seq(

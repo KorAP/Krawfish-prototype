@@ -8,7 +8,7 @@ use v5.10;
 use strict;
 use warnings;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # TODO:
 #   Normalization phase can be optimized.
@@ -40,6 +40,8 @@ sub constraints {
 sub normalize {
   my $self = shift;
 
+  print_log('kq_constr', 'Normalize operands') if DEBUG;
+
   # Normalize both operands
   my ($first, $second);
   unless ($first = $self->{operands}->[0]->normalize) {
@@ -47,9 +49,20 @@ sub normalize {
     return;
   };
 
+  print_log('kq_constr', 'First operand is ' . $first->to_string) if DEBUG;
+
   unless ($second = $self->{operands}->[1]->normalize) {
     $self->copy_info_from($self->{operands}->[1]);
     return;
+  };
+
+  print_log('kq_constr', 'Second operand is ' . $second->to_string) if DEBUG;
+
+  # One operand is not existing
+  if ($first->is_nothing || $second->is_nothing) {
+
+    # Return new nothing operand
+    return Krawfish::Koral::Query::Nothing->new;
   };
 
   $self->operands([$first, $second]);
@@ -181,6 +194,33 @@ sub optimize {
   );
 };
 
+
+# Inflate operands and constraints
+sub inflate {
+  my ($self, $dict) = @_;
+
+  my $ops = $self->operands;
+
+  # Inflate on all operands
+  my $i = 0;
+  for (; $i < @$ops; $i++) {
+    $ops->[$i] = $ops->[$i]->inflate($dict);
+
+    if ($ops->[$i]->is_nothing) {
+      # Return new nothing operand
+      return Krawfish::Koral::Query::Nothing->new;
+    };
+  };
+
+  my $cs = $self->constraints;
+
+  # Inflate all constraints
+  for ($i = 0; $i < @$cs; $i++) {
+    $cs->[$i] = $cs->[$i]->inflate($dict);
+  };
+
+  return $self;
+};
 
 # Return true if the query can be unsorted
 sub maybe_unsorded {

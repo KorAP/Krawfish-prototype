@@ -95,6 +95,9 @@ sub normalize {
   return $self;
 };
 
+sub inflate {
+  $_[0];
+};
 
 sub optimize {
   my $self = shift;

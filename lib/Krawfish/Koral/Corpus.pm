@@ -49,9 +49,21 @@ sub refer {
 };
 
 
-# Expand regular expressions ...
-sub inflate {
-  $_[0];
+sub operands {
+  my $self = shift;
+  if (@_) {
+    $self->{operands} = shift;
+  };
+  $self->{operands};
+};
+
+
+# Get and set first and only operand
+sub operand {
+  if (@_ == 2) {
+    $_[0]->{operands} = [$_[1]];
+  };
+  $_[0]->{operands}->[0];
 };
 
 
@@ -99,9 +111,31 @@ sub finalize {
 # having classes. Subcorpora with classes
 # can't be cached.
 sub has_classes {
-  0;
+  # TODO:
+  #   Memoize!
+
+  my $self = shift;
+  my $ops = $self->operands;
+
+  return 0 unless $ops;
+
+  for (my $i = 0; $i < @$ops; $i++) {
+    return 1 if $ops->[$i]->has_classes;
+  };
+  return 0;
 };
 
+
+# Expand regular expressions
+sub inflate {
+  my ($self, $dict) = @_;
+  my $ops = $self->operands;
+  return $self unless $ops;
+  for (my $i = 0; $i < @$ops; $i++) {
+    $ops->[$i] = $ops->[$i]->inflate($dict);
+  };
+  return $self;
+};
 
 
 sub is_negative {

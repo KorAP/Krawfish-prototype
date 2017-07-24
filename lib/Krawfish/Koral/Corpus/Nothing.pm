@@ -22,4 +22,8 @@ sub to_string {
   '[0]';
 };
 
+sub operands {
+  return;
+};
+
 1;

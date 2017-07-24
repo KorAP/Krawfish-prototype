@@ -3,12 +3,21 @@ use Krawfish::Query::Constraint::NotBetween;
 use strict;
 use warnings;
 
+# Check that a query between two operands is does nmot occur.
+# In case this operand never occurs, it will at least set a relevant length.
+
 sub new {
   my $class = shift;
   bless {
     query => shift
   }, $class;
 };
+
+
+sub type {
+  'constr_not_beteween';
+};
+
 
 sub to_string {
   my $self = shift;
@@ -33,16 +42,25 @@ sub normalize {
 };
 
 
+# Optimize constraint
 sub optimize {
   my ($self, $index) = @_;
 
+  # Optimize query
   my $query = $self->{query}->optimize($index);
 
   # Span has no match
   return if $query->max_freq == 0;
 
+  # Return valid constraint
   return Krawfish::Query::Constraint::NotBetween->new($query);
 };
 
+
+sub inflate {
+  my ($self, $dict) = @_;
+  $self->{query} = $self->{query}->inflate($dict);
+  $self;
+};
 
 1;

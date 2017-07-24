@@ -1,5 +1,6 @@
 package Krawfish::Koral::Query::Nothing;
 use parent 'Krawfish::Koral::Query';
+use Krawfish::Query::Nothing;
 use strict;
 use warnings;
 
@@ -27,7 +28,7 @@ sub normalize {
 };
 
 sub optimize {
-  $_[0];
+  Krawfish::Query::Nothing->new;
 };
 
 sub operand {

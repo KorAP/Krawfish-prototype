@@ -5,10 +5,16 @@ use warnings;
 
 # This will add a class to the distance between both queries
 
+# TODO: Rename to ClassBetween
+
 sub new {
   my $class = shift;
   my $nr = shift // 1;
   bless \$nr, $class;
+};
+
+sub type {
+  'constr_class_distance';
 };
 
 
@@ -22,6 +28,9 @@ sub normalize {
   $_[0];
 };
 
+sub inflate {
+  $_[0];
+};
 
 sub optimize {
   my $self = shift;

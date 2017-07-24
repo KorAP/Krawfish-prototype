@@ -10,6 +10,12 @@ use Scalar::Util qw/blessed/;
 
 use constant DEBUG => 0;
 
+# Token based query containing boolean definition of terms.
+
+# TODO:
+#   Token should probably introduce a unique-query to filter out multiple matches.
+#   It should also remove classes, that are not allowed.
+
 sub new {
   my $class = shift;
   my $token = shift;
@@ -27,12 +33,18 @@ sub new {
   };
 
   # Token is already a group or a term
+
+  # TODO:
+  #   Check that everything else is invalid!
   bless {
     operands => [$token]
   };
 };
 
+
+# Query type
 sub type { 'token' };
+
 
 # There are no classes allowed in tokens
 sub remove_classes {
@@ -48,12 +60,14 @@ sub is_any {
 };
 
 
+# Normalize the token
 sub normalize {
   my $self = shift;
   my $op;
 
   print_log('kq_token', 'Normalize wrapper') if DEBUG;
 
+  # There is an operand defined
   if ($self->operand) {
     my $op = $self->operand->normalize;
     if ($op->is_nothing) {
@@ -71,6 +85,8 @@ sub normalize {
       $self->operands([$op]);
     };
   };
+
+  # No operand defined - ANY query
   return $self;
 };
 
@@ -110,6 +126,9 @@ sub optimize {
     return;
   };
 
+  # The operand is a single term - ignore the wrapping token
+  # However - this would ignore the unique constraint for cases,
+  # where terms are identical, but have different payload information
   if ($self->operand->type eq 'term') {
     return Krawfish::Query::Term->new(
       $index,

@@ -30,4 +30,6 @@ sub memoize;
 sub optimize;
 
 
+sub operands;
+
 1;

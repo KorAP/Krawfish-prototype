@@ -71,7 +71,15 @@ sub refer {
 
 
 # Expand regular expressions
-sub inflate;
+sub inflate {
+  my ($self, $dict) = @_;
+  my $ops = $self->operands;
+  return $self unless $ops;
+  for (my $i = 0; $i < @$ops; $i++) {
+    $ops->[$i] = $ops->[$i]->inflate($dict);
+  };
+  return $self;
+};
 
 
 # Check for cached subqueries
@@ -165,6 +173,9 @@ sub remove_classes {
     $keep = [];
   };
   my $ops = $self->operands;
+
+  return $self unless $ops;
+
   for (my $i = 0; $i < @$ops; $i++) {
     $ops->[$i] = $ops->[$i]->remove_classes($keep);
   };
@@ -203,14 +214,6 @@ sub operand {
 #    $refs->{$sig} = $self->operand;
 #  };
 #};
-
-
-
-# Filter a query based on a document query
-sub filter_by {
-  warn 'DEPRECATED';
-  ...
-};
 
 
 # Matches everything

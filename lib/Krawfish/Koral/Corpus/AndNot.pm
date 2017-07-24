@@ -7,15 +7,16 @@ use warnings;
 
 use constant DEBUG => 0;
 
+# Construct AndNot query based on a positive and a negative operand
 sub new {
   my $class = shift;
   bless {
-    pos => shift,
-    neg => shift
+    operands => [@_]
   }, $class;
 };
 
 
+# Query type
 sub type {
   'AndNot';
 };
@@ -29,6 +30,8 @@ sub _resolve_negative {
 
 sub toggle_negativity;
 
+
+# Normalize queries
 sub normalize {
   my $self = shift;
   return $self;
@@ -36,10 +39,11 @@ sub normalize {
   #   $self->{neg}->remove_classes;
 };
 
+
+# Optimize query
 sub optimize {
   my ($self, $index) = @_;
-  my $pos = $self->{pos};
-  my $neg = $self->{neg};
+  my ($pos, $neg) = @{$self->operands};
 
   if (DEBUG) {
     print_log('kq_andnot', 'Plan andnot') if DEBUG;
@@ -69,8 +73,8 @@ sub optimize {
 sub has_classes {
   my $self = shift;
 
-  return ($self->{pos}->has_classes ||
-            $self->{neg}->has_classes) // 0;
+  # Classes in neg are irrelevant
+  return $self->{operands}->[0]->has_classes // 0;
 };
 
 
@@ -99,7 +103,7 @@ sub to_string {
         )
       :
       $_->to_string
-    } ($self->{pos}, $self->{neg})) . ')';
+    } @{$self->operands}) . ')';
 };
 
 
