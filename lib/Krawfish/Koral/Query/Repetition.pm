@@ -133,6 +133,17 @@ sub normalize {
   my $self = shift;
 
 
+  # Normalize so classes always wrap repetitions and not the other way around
+  while ($self->operand->type eq 'class') {
+    my $nr = $self->operand->number;
+    my $ops = $self->operand->operands;
+
+    # Make the class operands the current ops of the repetition
+    $self->operands($ops);
+
+    return $self->builder->class($self, $nr)->normalize;
+  };
+
   # Copy messages from span serialization
   my $span;
   unless ($span = $self->operand->normalize) {
@@ -143,9 +154,8 @@ sub normalize {
   # If something does not match, but is optional at the same time,
   # Make it ignorable
   if ($span->is_nothing && $self->is_optional) {
-    return $self->builder->null->normalize;
+    return $self->builder->null;
   };
-
 
   $self->operands([$span]);
 

@@ -330,10 +330,17 @@ is($rep->to_string, "'hey'", 'Normalization');
 
 
 # Flip classes
-# [hey]{0,1}
+# {4:[hey]}{0,1}
 $rep = $qb->repeat($qb->class($qb->token('hey'), 4), 0, 1);
 is($rep->to_string, '{4:[hey]}?', 'Stringification');
+ok($rep = $rep->normalize, 'Normalization');
+is($rep->to_string, '{4:hey?}', 'Stringification');
 
+# {4:{5:[hey]}}{4,5}
+$rep = $qb->repeat($qb->class($qb->class($qb->token('hey'), 5), 4), 4, 5);
+is($rep->to_string, '{4:{5:[hey]}}{4,5}', 'Stringification');
+ok($rep = $rep->normalize, 'Normalization');
+is($rep->to_string, '{4:{5:hey{4,5}}}', 'Stringification');
 
 done_testing;
 
