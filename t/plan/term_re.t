@@ -11,13 +11,16 @@ ok(my $qb = Krawfish::Koral::Query::Builder->new, 'Add new_document');
 
 ok(my $re = $qb->term_re('Der.*'), 'Regex');
 is($re->to_string, '/Der.*/', 'Stringification');
-
+is($re->min_span, 1, 'Span length');
+is($re->max_span, 1, 'Span length');
 
 
 ok($re = $qb->term('a/l~P.*?'), 'Regex');
 is($re->to_string, 'a/l~P.*?', 'Stringification');
 ok($re->is_regex, 'Term is regex');
 is($re->match, '~', 'Match operator');
+is($re->min_span, 1, 'Span length');
+is($re->max_span, 1, 'Span length');
 
 ok_index($index,'[a/b=CDE|a/c=FGH][a/l=PART|a/l=BAU|a/l=PUM][b/c=DAU][e/f=UM]', 'Add doc');
 

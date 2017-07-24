@@ -24,42 +24,51 @@ my $qb = $koral->query_builder;
 my $query = $qb->token(
   $qb->bool_and('first', 'second')
 );
-
+is($query->min_span, 1, 'Span length');
+is($query->max_span, 1, 'Span length');
 ok(!$query->is_any, 'Isn\'t any');
 ok(!$query->is_optional, 'Isn\'t optional');
 ok(!$query->is_null, 'Isn\'t null');
 ok(!$query->is_negative, 'Isn\'t negative');
 ok(!$query->is_extended, 'Isn\'t extended');
 is($query->to_string, '[first&second]', 'Stringification');
-
+is($query->min_span, 1, 'Span length');
+is($query->max_span, 1, 'Span length');
 ok($query = $query->normalize, 'Normalization');
 is($query->to_string, 'first&second', 'Stringification');
 ok($query = $query->finalize, 'Finalization');
 is($query->to_string, 'first&second', 'Stringification');
 
+
+
 $query = $qb->token(
   $qb->bool_and('first', 'second','first', 'third')
 );
+is($query->min_span, 1, 'Span length');
+is($query->max_span, 1, 'Span length');
 is($query->to_string, '[first&first&second&third]', 'Stringification');
 ok($query = $query->normalize, 'Normalization');
 is($query->to_string, 'first&second&third', 'Stringification');
 ok($query = $query->finalize, 'Finalization');
 is($query->to_string, 'first&second&third', 'Stringification');
+is($query->min_span, 1, 'Span length');
+is($query->max_span, 1, 'Span length');
 
 $query = $qb->token(
   $qb->bool_and('first', 'second')
 );
-
 # The ordering is alphabetically, with the first in order being treated
 # like the least common operand, which in a constraint query means,
 # it's the second one
 is($query->normalize->finalize->optimize($index)->to_string,
    "constr(pos=32:'second','first')", 'Planned Stringification');
 
+
 $query = $qb->token(
   $qb->bool_or('opennlp/c=NP', 'tt/p=NN')
 );
-
+is($query->min_span, 1, 'Span length');
+is($query->max_span, 1, 'Span length');
 ok(!$query->is_any, 'Isn\'t any');
 ok(!$query->is_optional, 'Isn\'t optional');
 ok(!$query->is_null, 'Isn\'t null');
@@ -72,6 +81,7 @@ is($query->to_string,
 ok($query = $query->optimize($index), 'finalize');
 is($query->to_string,
    '[0]', 'Stringification');
+
 
 $query = $qb->token(
   $qb->bool_or(

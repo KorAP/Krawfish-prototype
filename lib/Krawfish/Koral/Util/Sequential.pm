@@ -505,6 +505,9 @@ sub _combine_any {
   };
 
   # Type is classed
+  # This requires, that the operand is normalized so classes always nest
+  # repetitions and not the other way around
+  # TODO: Check for multiple classes nesting!
   if ($any->type eq 'class') {
     $constraint->{class} = $any->number;
 

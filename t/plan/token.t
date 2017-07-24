@@ -17,6 +17,8 @@ my $builder = $koral->query_builder;
 
 # [Der]
 my $query = $builder->token('Der');
+is($query->min_span, 1, 'Span length');
+is($query->max_span, 1, 'Span length');
 ok(!$query->is_any, 'Isn\'t any');
 ok(!$query->is_optional, 'Isn\'t optional');
 ok(!$query->is_null, 'Isn\'t null');
@@ -29,6 +31,8 @@ is($query->to_string, 'Der', 'Stringification');
 
 # []
 $query = $builder->token;
+is($query->min_span, 1, 'Span length');
+is($query->max_span, 1, 'Span length');
 ok($query->is_any, 'Is any');
 ok(!$query->is_optional, 'Isn\'t optional');
 ok(!$query->is_null, 'Isn\'t null');
@@ -46,6 +50,8 @@ $query = $builder->token(
     $builder->term_neg('a')
   )
 );
+is($query->min_span, 1, 'Span length');
+is($query->max_span, 1, 'Span length');
 is($query->to_string, '[!a|a]', 'Stringification');
 ok($query = $query->normalize, 'Normalization');
 is($query->to_string, '[]', 'Stringification');
@@ -58,6 +64,8 @@ $query = $builder->token(
     $builder->term_neg('a')
   )
 );
+is($query->min_span, 1, 'Span length');
+is($query->max_span, 1, 'Span length');
 is($query->to_string, '[!a&a]', 'Stringification');
 ok($query = $query->normalize, 'Normalization');
 is($query->to_string, '[0]', 'Stringification');
@@ -73,13 +81,16 @@ $query = $builder->token(
     $builder->term('c')
   )
 );
-
+is($query->min_span, 1, 'Span length');
+is($query->max_span, 1, 'Span length');
 is($query->to_string, '[(!a|a)&c]', 'Stringification');
 ok($query = $query->normalize, 'Normalization');
 is($query->to_string, 'c', 'Stringification');
 
 
 # a&!a -> 0
+is($query->min_span, 1, 'Span length');
+is($query->max_span, 1, 'Span length');
 $query = $builder->token(
   $builder->bool_or(
     $builder->bool_and(
@@ -103,7 +114,8 @@ $query = $builder->token(
     $builder->term('c')
   )
 );
-
+is($query->min_span, 1, 'Span length');
+is($query->max_span, 1, 'Span length');
 is($query->to_string, '[a&c&c]', 'Stringification');
 ok($query = $query->normalize, 'Normalization');
 is($query->to_string, 'a&c', 'Stringification');
@@ -122,7 +134,8 @@ $query = $builder->token(
     )
   )
 );
-
+is($query->min_span, 1, 'Span length');
+is($query->max_span, 1, 'Span length');
 is($query->to_string, '[(a|b)&(a|b)]', 'Stringification');
 ok($query = $query->normalize, 'Normalization');
 is($query->to_string, 'a|b', 'Stringification');

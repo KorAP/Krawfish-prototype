@@ -12,7 +12,10 @@ ok_index($index, [qw/aa bb aa bb/], 'Add new document');
 ok(my $qb = Krawfish::Koral::Query::Builder->new, 'Create QueryBuilder');
 ok(my $wrap = $qb->class($qb->token('bb'), 2), 'Class');
 is($wrap->to_string, '{2:[bb]}', 'Stringification');
+
 ok(my $class = $wrap->normalize->finalize->optimize($index), 'Rewrite');
+
+
 is($class->to_string, "class(2:'bb')", 'stringification');
 ok($class->next, 'More');
 is($class->current->to_string, '[0:1-2$0,2,1,2]', 'Match');

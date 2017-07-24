@@ -130,6 +130,21 @@ sub maybe_unsorted { 0 };
 #  return $self->{any};
 #};
 
+
+# A termGroup always spans exactly one token
+sub min_span {
+  return 0 if $_[0]->is_null;
+  1;
+};
+
+
+# A termGroup always spans exactly one token
+sub max_span {
+  return 0 if $_[0]->is_null;
+  1;
+};
+
+
 sub to_string {
   my $self = shift;
 

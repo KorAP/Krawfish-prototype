@@ -16,6 +16,8 @@ ok(!$query->is_null, 'Isn\'t null');
 ok(!$query->is_negative, 'Isn\'t negative');
 ok(!$query->is_extended, 'Isn\'t extended');
 is($query->to_string, 'Der', 'Stringification');
+is($query->min_span, 1, 'Span length');
+is($query->max_span, 1, 'Span length');
 
 $query = $builder->term('opennlp/c!=NN');
 ok(!$query->is_any, 'Isn\'t any');
@@ -24,16 +26,20 @@ ok(!$query->is_null, 'Isn\'t null');
 ok($query->is_negative, 'Isn\'t negative');
 ok(!$query->is_extended, 'Isn\'t extended');
 is($query->to_string, 'opennlp/c!=NN', 'Stringification');
+is($query->min_span, 1, 'Span length');
+is($query->max_span, 1, 'Span length');
 
 
 $query = $builder->null;
-ok($query->is_any, 'Is any');
+ok(!$query->is_any, 'Is not any');
 ok(!$query->is_optional, 'Isn\'t optional');
 ok($query->is_null, 'Isn\'t null');
 ok(!$query->is_negative, 'Isn\'t negative');
 ok(!$query->is_extended, 'Isn\'t extended');
 is($query->to_string, '-', 'Stringification');
 ok(!$query->normalize->finalize, 'Planned Stringification');
+is($query->min_span, 0, 'Span length');
+is($query->max_span, 0, 'Span length');
 
 done_testing;
 

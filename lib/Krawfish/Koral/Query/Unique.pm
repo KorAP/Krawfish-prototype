@@ -18,6 +18,7 @@ sub to_koral_fragment {
 sub type { 'unique' };
 
 
+# Normalize unique query
 sub normalize {
   my $self = shift;
 
@@ -33,6 +34,7 @@ sub normalize {
 };
 
 
+# Optimize unique query
 sub optimize {
   my ($self, $index) = @_;
 
@@ -88,5 +90,17 @@ sub is_classed {
 sub maybe_unsorted {
   $_[0]->operand->maybe_unsorted;
 };
+
+# A unique query always spans its operand span
+sub min_span {
+  $_[0]->operand->min_span;
+};
+
+
+# A unique query always spans its operand span
+sub max_span {
+  $_[0]->operand->max_span;
+};
+
 
 1;

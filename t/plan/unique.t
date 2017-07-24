@@ -16,6 +16,8 @@ my $builder = $koral->query_builder;
 
 # Span planning
 my $query = $builder->unique($builder->term('Der'));
+is($query->min_span, 1, 'span length');
+is($query->max_span, 1, 'span length');
 ok(!$query->is_any, 'Is any');
 ok(!$query->is_optional, 'Isn\'t optional');
 ok(!$query->is_null, 'Isn\'t null');
@@ -26,6 +28,8 @@ is($query->normalize->finalize->optimize($index)->to_string, "unique('Der')", 'P
 
 # Span planning with freq == 0
 $query = $builder->unique($builder->term('xxx'));
+is($query->min_span, 1, 'span length');
+is($query->max_span, 1, 'span length');
 is($query->to_string, 'unique(xxx)', 'Stringification');
 is($query->normalize->finalize->optimize($index)->to_string, "[0]", 'Planned Stringification');
 

@@ -53,6 +53,15 @@ sub max {
 };
 
 
+sub min_span {
+  return 0;
+};
+
+
+sub max_span {
+  return 0;
+};
+
 # Return KoralQuery fragment
 sub to_koral_fragment {
   my $self = shift;

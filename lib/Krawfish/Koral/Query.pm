@@ -321,6 +321,18 @@ sub maybe_unsorted {
 };
 
 
+# Get the minimum tokens the query spans
+sub min_span {
+  ...
+};
+
+
+# Get the maximum tokens the query spans
+# -1 means arbitrary
+sub max_span {
+  ...
+};
+
 
 #############################
 # Query Application methods #

@@ -50,6 +50,17 @@ sub remove_classes {
   return $self->{operands}->[0];
 };
 
+# A class always spans its operand span
+sub min_span {
+  $_[0]->operand->min_span;
+};
+
+
+# A class always spans its operand span
+sub max_span {
+  $_[0]->operand->max_span;
+};
+
 
 # Normalize the class query
 sub normalize {

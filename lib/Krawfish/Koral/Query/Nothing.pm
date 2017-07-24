@@ -27,6 +27,10 @@ sub normalize {
   $_[0];
 };
 
+sub finalize {
+  $_[0];
+};
+
 sub optimize {
   Krawfish::Query::Nothing->new;
 };
@@ -41,6 +45,14 @@ sub operands {
 
 sub remove_classes {
   $_[0];
+};
+
+sub min_span {
+  -1;
+};
+
+sub max_span {
+  -1;
 };
 
 1;

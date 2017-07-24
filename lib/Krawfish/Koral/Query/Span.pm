@@ -71,6 +71,18 @@ sub optimize {
   );
 };
 
+# A span may have length 0 in case it is an empty annotation
+# like a page break
+sub min_span {
+  0;
+};
+
+
+# A termGroup always spans exactly one token
+sub max_span {
+  return 0 if $_[0]->is_null;
+  -1;
+};
 
 
 sub maybe_unsorted { 0 };

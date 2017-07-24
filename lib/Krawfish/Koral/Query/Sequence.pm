@@ -93,6 +93,37 @@ sub maybe_unsorted {
 };
 
 
+# A sequence is the sum of all operands' lengths
+# TODO: memoize
+sub min_span {
+  my $self = shift;
+  $self->_check;
+  my $min = 0;
+  foreach my $op (@{$self->operands}) {
+    $min += $op->min_span;
+  };
+  return $min;
+};
+
+
+# A sequence is the sum of all operands' lengths
+# TODO: memoize
+sub max_span {
+  my $self = shift;
+  $self->_check;
+  my $max = 0;
+  foreach my $op (@{$self->operands}) {
+
+    # In case one operand has an arbitrary length,
+    # return the arbitrary length
+    return -1 if $op->max_span == -1;
+    $max += $op->max_span;
+  };
+  return $max;
+};
+
+
+
 sub to_koral_fragment {
   my $self = shift;
   return {

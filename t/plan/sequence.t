@@ -19,7 +19,8 @@ my $seq = $builder->seq(
   $builder->token,
   $builder->span('opennlp/c=NP')
 );
-
+is($seq->min_span, 2, 'Span length');
+is($seq->max_span, -1, 'Span length');
 is($seq->to_string, '[Der][]<opennlp/c=NP>', 'Stringification');
 ok(!$seq->is_null, 'Query is not null');
 is($seq->to_string, '[Der][]<opennlp/c=NP>', 'Stringification');

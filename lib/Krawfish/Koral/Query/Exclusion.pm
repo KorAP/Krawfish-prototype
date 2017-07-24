@@ -101,6 +101,19 @@ sub normalize {
 };
 
 
+# An exclusion always spans its first operand span
+sub min_span {
+  $_[0]->operands->[0]->min_span;
+};
+
+
+# An exclusion always spans its first operand span
+sub max_span {
+  $_[0]->operands->[0]->max_span;
+};
+
+
+
 sub inflate {
   my ($self, $dict) = @_;
 

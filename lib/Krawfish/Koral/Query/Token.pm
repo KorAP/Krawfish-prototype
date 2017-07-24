@@ -60,6 +60,20 @@ sub is_any {
 };
 
 
+# A token always spans exactly one token
+sub min_span {
+  return 0 if $_[0]->is_null;
+  1;
+};
+
+
+# A token always spans exactly one token
+sub max_span {
+  return 0 if $_[0]->is_null;
+  1;
+};
+
+
 # Normalize the token
 sub normalize {
   my $self = shift;

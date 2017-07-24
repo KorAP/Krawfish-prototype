@@ -12,10 +12,10 @@ ok_index($index, '<1:aaa>[hey][hey]</1>', 'Add new document');
 
 my $koral = Krawfish::Koral->new;
 
-my $builder = $koral->query_builder;
+my $qb = $koral->query_builder;
 
 # [hey]{0,3}
-my $rep = $builder->repeat($builder->token('hey'), 0, 3);
+my $rep = $qb->repeat($qb->token('hey'), 0, 3);
 is($rep->to_string, '[hey]{0,3}', 'Stringification');
 ok(!$rep->is_any, 'Is not any');
 ok($rep->is_optional, 'Is optional');
@@ -38,7 +38,7 @@ is($rep->to_string, "rep(1-3:'hey')", 'Normalization');
 
 
 # [hey]{1,3}
-$rep = $builder->repeat($builder->token('hey'), 1, 3);
+$rep = $qb->repeat($qb->token('hey'), 1, 3);
 is($rep->to_string, '[hey]{1,3}', 'Stringification');
 ok(!$rep->is_any, 'Is not any');
 ok(!$rep->is_optional, 'Is not optional');
@@ -58,7 +58,7 @@ is($rep->to_string, "rep(1-3:'hey')", 'Normalization');
 
 
 # [hey]{2,}
-$rep = $builder->repeat($builder->token('hey'), 2, undef);
+$rep = $qb->repeat($qb->token('hey'), 2, undef);
 is($rep->to_string, '[hey]{2,}', 'Stringification');
 ok(!$rep->is_any, 'Is not any');
 ok(!$rep->is_optional, 'Is not optional');
@@ -79,7 +79,7 @@ is($rep->to_string, "rep(2-100:'hey')", 'Normalization');
 
 
 # [hey]*
-$rep = $builder->repeat($builder->token('hey'), undef, undef);
+$rep = $qb->repeat($qb->token('hey'), undef, undef);
 is($rep->to_string, '[hey]*', 'Stringification');
 ok(!$rep->is_any, 'Is not any');
 ok($rep->is_optional, 'Is not optional');
@@ -103,7 +103,7 @@ is($rep->to_string, "rep(1-100:'hey')", 'Normalization');
 
 
 # [hey]{0,2}
-$rep = $builder->repeat($builder->token('hey'), undef, 2);
+$rep = $qb->repeat($qb->token('hey'), undef, 2);
 is($rep->to_string, '[hey]{,2}', 'Stringification');
 ok(!$rep->is_any, 'Is not any');
 ok($rep->is_optional, 'Is optional');
@@ -126,7 +126,7 @@ is($rep->to_string, "rep(1-2:'hey')", 'Normalization');
 
 
 # [hey]{3}
-$rep = $builder->repeat($builder->token('hey'), 3, 3);
+$rep = $qb->repeat($qb->token('hey'), 3, 3);
 is($rep->to_string, '[hey]{3}', 'Stringification');
 ok(!$rep->is_any, 'Is not any');
 ok(!$rep->is_optional, 'Is not optional');
@@ -149,7 +149,7 @@ is($rep->to_string, "rep(3-3:'hey')", 'Normalization');
 
 
 # []{2,4}
-$rep = $builder->repeat($builder->token, 2, 4);
+$rep = $qb->repeat($qb->token, 2, 4);
 is($rep->to_string, '[]{2,4}', 'Stringification');
 ok($rep->is_any, 'Is any');
 ok(!$rep->is_optional, 'Is not optional');
@@ -170,7 +170,7 @@ is($rep->error->[0]->[1], 'Unable to search for any tokens', 'Error');
 
 
 # []{,4}
-$rep = $builder->repeat($builder->token, 0, 4);
+$rep = $qb->repeat($qb->token, 0, 4);
 is($rep->to_string, '[]{0,4}', 'Stringification');
 ok($rep->is_any, 'Is any');
 ok($rep->is_optional, 'Is optional');
@@ -191,7 +191,7 @@ is($rep->error->[0]->[1], 'Unable to search for any tokens', 'Error');
 
 
 # []{4,}
-$rep = $builder->repeat($builder->token, 4, undef);
+$rep = $qb->repeat($qb->token, 4, undef);
 is($rep->to_string, '[]{4,}', 'Stringification');
 ok($rep->is_any, 'Is any');
 ok(!$rep->is_optional, 'Is not optional');
@@ -213,7 +213,7 @@ is($rep->error->[0]->[1], 'Unable to search for any tokens', 'Error');
 
 
 # []{8}
-$rep = $builder->repeat($builder->token, 8);
+$rep = $qb->repeat($qb->token, 8);
 is($rep->to_string, '[]{8}', 'Stringification');
 ok($rep->is_any, 'Is any');
 ok(!$rep->is_optional, 'Is not optional');
@@ -233,7 +233,7 @@ ok($rep->has_error, 'Error not set');
 is($rep->error->[0]->[1], 'Unable to search for any tokens', 'Error');
 
 # <x>{2,3}
-$rep = $builder->repeat($builder->span('aaa'), 2,3);
+$rep = $qb->repeat($qb->span('aaa'), 2,3);
 is($rep->to_string, '<aaa>{2,3}', 'Stringification');
 ok(!$rep->is_any, 'Is not any');
 ok(!$rep->is_optional, 'Is not optional');
@@ -253,7 +253,7 @@ ok($rep = $rep->optimize($index), 'Normalization');
 is($rep->to_string, "rep(2-3:'<>aaa')", 'Stringification');
 
 # [0]{,3} -> null
-$rep = $builder->repeat($builder->nothing, 0, 3);
+$rep = $qb->repeat($qb->nothing, 0, 3);
 is($rep->to_string, '[0]{0,3}', 'Stringification');
 ok(!$rep->is_any, 'Is not any');
 ok($rep->is_optional, 'Is not optional');
@@ -277,7 +277,7 @@ ok(!$rep->is_extended_left, 'Is not extended to the left');
 
 
 # [!hey]{0,3}
-$rep = $builder->repeat($builder->token('hey')->is_negative(1), 0, 3);
+$rep = $qb->repeat($qb->token('hey')->is_negative(1), 0, 3);
 is($rep->to_string, '[!hey]{0,3}', 'Stringification');
 ok(!$rep->is_any, 'Is not any');
 ok($rep->is_optional, 'Is optional');
@@ -289,7 +289,7 @@ ok(!$rep->is_extended_left, 'Is not extended to the left');
 
 
 # [hey]{1,1}
-$rep = $builder->repeat($builder->token('hey'), 1, 1);
+$rep = $qb->repeat($qb->token('hey'), 1, 1);
 is($rep->to_string, '[hey]{1}', 'Stringification');
 ok(!$rep->is_any, 'Is not any');
 ok(!$rep->is_optional, 'Is not optional');
@@ -308,7 +308,7 @@ ok($rep = $rep->optimize($index), 'Normalization');
 is($rep->to_string, "'hey'", 'Normalization');
 
 # [hey]{0,1}
-$rep = $builder->repeat($builder->token('hey'), 0, 1);
+$rep = $qb->repeat($qb->token('hey'), 0, 1);
 is($rep->to_string, '[hey]?', 'Stringification');
 ok(!$rep->is_any, 'Is not any');
 ok($rep->is_optional, 'Is optional');
@@ -327,6 +327,12 @@ is($rep->warning->[0]->[1], 'Optionality of query is ignored', 'Error');
 is($rep->to_string, 'hey', 'Normalization');
 ok($rep = $rep->optimize($index), 'Normalization');
 is($rep->to_string, "'hey'", 'Normalization');
+
+
+# Flip classes
+# [hey]{0,1}
+$rep = $qb->repeat($qb->class($qb->token('hey'), 4), 0, 1);
+is($rep->to_string, '{4:[hey]}?', 'Stringification');
 
 
 done_testing;

@@ -79,6 +79,20 @@ sub remove_classes {
   $_[0];
 };
 
+# A term always spans exactly one token
+sub min_span {
+  return 0 if $_[0]->is_null;
+  1;
+};
+
+
+# A term always spans exactly one token
+sub max_span {
+  return 0 if $_[0]->is_null;
+  1;
+};
+
+
 sub field {
   if ($_[1]) {
     $_[0]->{field} = $_[1];
@@ -340,6 +354,7 @@ sub inflate {
     print_log('kq_term', 'to ' . (@terms > 0 ? substr(join(',', @terms), 0, 50) : '[0]'));
   };
 
+  # Build empty term instead of nothing
   return $self->builder->nothing unless @terms;
 
   # TODO:
@@ -356,8 +371,7 @@ sub optimize {
 
 
 sub is_any {
-  return 1 unless $_[0]->key;
-  return;
+  return 0;
 };
 
 sub is_optional {
