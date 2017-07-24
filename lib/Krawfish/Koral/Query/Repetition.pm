@@ -53,14 +53,27 @@ sub max {
 };
 
 
+# Get the minimum span
+# TODO:
+#   memoize
 sub min_span {
-  return 0;
+  my $self = shift;
+  return $self->operand->min_span * $self->min;
 };
 
 
+# Get the maximum span
 sub max_span {
-  return 0;
+  my $self = shift;
+
+  # Either repetition is unbound or the operand is unbound,
+  # Return unbound
+  if (!defined $self->max || $self->operand->max_span == -1) {
+    return -1;
+  };
+  return $self->operand->max_span * $self->max;
 };
+
 
 # Return KoralQuery fragment
 sub to_koral_fragment {
@@ -258,7 +271,15 @@ sub maybe_unsorted {
 
 sub to_string {
   my $self = shift;
+
   my $str = $self->operand->to_string;
+
+  my $type = $self->operand->type;
+
+  # Wrap complex queries in parentheses
+  if ($type !~ /class|token|term|span|nothing/) {
+    $str = '(' . $str . ')';
+  };
 
   if (defined $self->{min} && defined $self->{max}) {
     if (!$self->{min} && $self->{max} == 1) {
