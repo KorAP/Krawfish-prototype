@@ -95,6 +95,7 @@ is($query->to_string, 'constr(pos=overlapsLeft;overlapsRight:{3:a{1,100}},{4:b{1
 is($query->min_span, 2, 'Span length');
 is($query->max_span, -1, 'Span length');
 
+
 # Overlaps with classes (2)
 ok($query = $qb->constraints(
   [$qb->c_position('overlapsLeft', 'overlapsRight')],
@@ -121,7 +122,7 @@ ok($query = $query->normalize, 'Normalize');
 is($query->to_string, 'constr(pos=precedes;succeeds,between=1-1,notBetween=b:a,c)',
    'Constraint');
 
-
+# Respect given constraints as well
 ok($query = $qb->constraints(
   [
     $qb->c_not_between($qb->term('b')),
@@ -135,6 +136,39 @@ ok($query = $query->normalize, 'Normalize');
 is($query->to_string, 'constr(pos=precedes,between=1-1,notBetween=b:a,c)',
    'Constraint');
 
+
+# Add position constraints to in_between constraint automatically
+ok($query = $qb->constraints(
+  [$qb->c_in_between(0,4)],
+  $qb->term('a'),
+  $qb->term('c')
+), 'Query with distance and introductions');
+is($query->to_string, 'constr(between=0-4:a,c)', 'Constraint');
+is($query->min_span, 2, 'Span length');
+is($query->max_span, 6, 'Span length');
+ok($query = $query->normalize, 'Normalize');
+is($query->to_string, 'constr(pos=precedes;precedesDirectly;succeeds;succeedsDirectly,between=0-4:a,c)',
+   'Constraint');
+is($query->min_span, 2, 'Span length');
+is($query->max_span, 6, 'Span length');
+
+
+# In between in order
+ok($query = $qb->constraints(
+  [$qb->c_in_order, $qb->c_in_between(0,4)],
+  $qb->term('a'),
+  $qb->term('c')
+), 'Query with distance in order');
+is($query->to_string, 'constr(pos=alignsLeft;endsWith;isAround;matches;overlapsLeft;precedes;precedesDirectly,between=0-4:a,c)', 'Constraint');
+is($query->min_span, 2, 'Span length');
+is($query->max_span, 6, 'Span length');
+ok($query = $query->normalize, 'Normalize');
+
+# This will simplify the position constraint!
+is($query->to_string, 'constr(pos=precedes;precedesDirectly,between=0-4:a,c)',
+   'Constraint');
+is($query->min_span, 2, 'Span length');
+is($query->max_span, 6, 'Span length');
 
 
 

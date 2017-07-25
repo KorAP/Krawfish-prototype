@@ -165,6 +165,16 @@ sub c_in_between {
   Krawfish::Koral::Query::Constraint::InBetween->new(@_);
 };
 
+
+# Make all positions be in order
+sub c_in_order {
+  shift;
+  Krawfish::Koral::Query::Constraint::Position->new(
+    qw/precedesDirectly precedes endsWith isAround overlapsLeft alignsLeft matches/
+  );
+};
+
+
 sub length {
   shift;
   Krawfish::Koral::Query::Length->new(@_);

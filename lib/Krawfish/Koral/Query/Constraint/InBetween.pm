@@ -29,20 +29,35 @@ sub to_string {
 };
 
 
-# Probably introduce opt for min==0 constraint
+# Normalize constraint
 sub normalize {
-  $_[0];
+  my $self = shift;
+
+  my @constraints = ($self);
+
+  # Introduce position constraint
+  my @frames = qw/precedes succeeds/;
+  if (!$self->{min} || $self->{min} == 0) {
+    push @frames, qw/precedesDirectly succeedsDirectly/;
+  };
+
+  push @constraints, Krawfish::Koral::Query::Constraint::Position->new(@frames);
+
+  return @constraints;
 };
+
 
 sub inflate {
   $_[0];
 };
+
 
 # Optimize constraint
 sub optimize {
   my ($self, $index) = @_;
   return Krawfish::Query::Constraint::InBetween->new($self->{min}, $self->{max});
 };
+
 
 # The minimum number of tokens for the constraint
 # Is actual at least one token - but could be optional

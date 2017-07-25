@@ -60,14 +60,6 @@ sub frames {
   $$self;
 };
 
-sub type {
-  'constr_pos';
-};
-
-sub to_string {
-  my $self = shift;
-  return 'pos=' . join(';', _to_list($$self));
-};
 
 # List all positions of a frame
 sub _to_list {
@@ -99,6 +91,17 @@ sub to_frame {
 
   return $frame;
 };
+
+
+sub type {
+  'constr_pos';
+};
+
+sub to_string {
+  my $self = shift;
+  return 'pos=' . join(';', _to_list($$self));
+};
+
 
 # Normalize options of the constraint
 sub normalize {
