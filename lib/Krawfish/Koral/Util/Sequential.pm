@@ -23,9 +23,6 @@ use constant {
 
 # TODO:
 #   Resolve optionality!
-#   And keep in mind that the optional anchor may in fact be
-#   the filterable query!
-#
 # The filter is only necessary at the top element of one anchor
 
 
@@ -36,7 +33,7 @@ sub normalize {
   my $ops = $self->operands;
 
   # First pass - mark anchors
-  my @problems = ();
+  my $problems = 0;
   for (my $i = 0; $i < @$ops; $i++) {
 
     # Operand in question
@@ -69,7 +66,7 @@ sub normalize {
 
     # Push to problem array
     unless ($op->maybe_anchor) {
-      push @problems, $i;
+      $problems++;
     };
   };
 
@@ -89,7 +86,10 @@ sub normalize {
   }
 
   # Query is not answerable
-  elsif (scalar @$ops == scalar @problems) {
+  elsif (scalar @$ops == $problems) {
+
+    # TODO:
+    #   Query may have very well multiple optional query operands
     $self->error(613, 'Sequence has no anchor operand');
     return;
   };
@@ -98,11 +98,11 @@ sub normalize {
   $self->operands($ops);
 
   # TODO:
-  # Simplify repetitions
-  # $self = $self->_resolve_consecutive_repetitions;
+  #   Simplify repetitions
+  #   $self = $self->_resolve_consecutive_repetitions;
 
   # There are no problems
-  return $self unless @problems;
+  return $self unless $problems;
 
   # Remember problems
   $self->{_problems} = 1;
@@ -152,21 +152,19 @@ sub _resolve_consecutive_repetitions {
 # In finalize check, if there is at least one non-optional anchor
 # sub finalize;
 
+
 sub has_problems {
   return $_[0]->{_problems};
 };
 
 
-# Optimize
-# TODO:
-#   The second operand in constraint queries should probably be less frequent,
-#   because it needs to be buffered! Another thing to keep in mind is the complexity
-#   regarding payloads, so an additional feature for costs may be useful!
-# TODO:
-#   remember filter flag!!!
-#
+# Optimize the query
 sub optimize {
   my ($self, $index) = @_;
+
+  # The second operand in constraint queries should probably be less frequent,
+  # because it needs to be buffered! Another thing to keep in mind is the complexity
+  # regarding payloads, so an additional feature for costs may be useful!
 
   print_log('kq_sequtil', 'Optimize sequence') if DEBUG;
 
@@ -175,7 +173,7 @@ sub optimize {
   my @queries;
 
   # Remember the least common non-optional positive query
-  my $filterable_query;
+  # my $filterable_query;
 
   # Classify all operands into the following groups:
   #   POS: positive operand (directly queriable)
@@ -218,9 +216,9 @@ sub optimize {
         return Krawfish::Query::Nothing->new if $freq == 0;
 
         # Current query is less common
-        if (!defined $filterable_query || $freq < $queries[$filterable_query]->max_freq) {
-          $filterable_query = $_;
-        };
+        # if (!defined $filterable_query || $freq < $queries[$filterable_query]->max_freq) {
+        #  $filterable_query = $_;
+        #};
         $queries[$i] = [POS, $freq, $query, $ops->[$i]];
       }
 
@@ -234,12 +232,12 @@ sub optimize {
 
 
   # Set filter flag to less common anchor
-  unless (defined $filterable_query) {
+  # unless (defined $filterable_query) {
     # TODO:
     # If the sequence has no filterable operand, it means,
     # the only anchors are optional, which needs to be taken into account
     # warn 'no filterable query';
-  };
+  # };
 
 
   # Group operands
@@ -507,18 +505,19 @@ sub _combine_any {
   # Type is classed
   # This requires, that the operand is normalized so classes always nest
   # repetitions and not the other way around
-  # TODO: Check for multiple classes nesting!
-  if ($any->type eq 'class') {
-    $constraint->{class} = $any->number;
+  while ($any->type eq 'class') {
+    $constraint->{classes} //= [];
+    push @{$constraint->{classes}}, $any->number;
 
     # Return inner-query
-    $any = $any->span;
+    $any = $any->operand;
   };
 
   # Type is repetition
   if ($any->type eq 'repetition') {
     $constraint->{min} = $any->min;
     $constraint->{max} = $any->max;
+    $any = $any->operand;
   }
 
   else {
@@ -528,7 +527,7 @@ sub _combine_any {
 
   # Any now should be a simple term
   if ($any->type ne 'token') {
-    die 'Any token is not term!';
+    die 'Any token is not term but ' . $any->type;
   };
 
   # Respect sorting order
@@ -588,11 +587,12 @@ sub _combine_neg {
   };
 
   # Type is classed
-  if ($query->type eq 'class') {
-    $constraint->{class} = $query->number;
+  while ($query->type eq 'class') {
+    $constraint->{classes} //= [];
+    push @{$constraint->{classes}}, $query->number;
 
     # Return inner-query
-    $query = $query->span;
+    $query = $query->operand;
   };
 
   my $neg = $query->optimize($index);
@@ -1078,9 +1078,11 @@ sub _constraint {
   };
 
   # Add class constraint
-  if ($constraint->{class}) {
-    push @constraints,
-      Krawfish::Query::Constraint::ClassDistance->new($constraint->{class});
+  if ($constraint->{classes}) {
+    foreach (@{$constraint->{classes}}) {
+      push @constraints,
+        Krawfish::Query::Constraint::ClassDistance->new($_);
+    };
   };
 
   # Return constraint query

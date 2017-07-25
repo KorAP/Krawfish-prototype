@@ -351,6 +351,39 @@ is($seq->to_string, "constr(pos=3,between=0-INF,notBetween='a':'b','a')", 'Strin
 matches($seq, [qw/[0:0-2] [0:1-3] [1:0-3] [1:1-3]/], 'Matches');
 
 
+# Create with multiple classes optional distance
+# [a]{3:{4:[]*}}[b]
+$seq = $qb->seq(
+  $qb->token('a'),
+  $qb->class($qb->class($qb->repeat($qb->any,0,undef),3),4),
+  $qb->token('b')
+);
+is($seq->to_string, '[a]{4:{3:[]*}}[b]', 'Stringification');
+ok($seq = $seq->normalize->finalize, 'Normalization');
+is($seq->to_string, 'a{4:{3:[]{0,100}}}b', 'Stringification');
+ok($seq = $seq->optimize($index), 'Optimization');
+
+# Do not check for stringifications
+is($seq->to_string, "constr(pos=6144,between=0-100,class=4,class=3:'b','a')",
+   'Stringification');
+
+
+# Create with multiple classes optional distance in reverse ordering
+# [a]{3:{4:[]*}}[b]
+$seq = $qb->seq(
+  $qb->token('a'),
+  $qb->repeat($qb->class($qb->class($qb->any,3),4),0,undef),
+  $qb->token('b')
+);
+is($seq->to_string, '[a]{4:{3:[]}}*[b]', 'Stringification');
+ok($seq = $seq->normalize->finalize, 'Normalization');
+is($seq->to_string, 'a{4:{3:[]{0,100}}}b', 'Stringification');
+ok($seq = $seq->optimize($index), 'Optimization');
+
+# Do not check for stringifications
+is($seq->to_string, "constr(pos=6144,between=0-100,class=4,class=3:'b','a')",
+   'Stringification');
+
 
 TODO: {
   local $TODO = 'Support different NEG variants';

@@ -137,6 +137,7 @@ sub to_koral_fragment {
 };
 
 
+# Stringification
 sub to_string {
   my $self = shift;
   return join '', map { $_->to_string } @{$self->operands};
