@@ -171,6 +171,36 @@ is($query->min_span, 2, 'Span length');
 is($query->max_span, 6, 'Span length');
 
 
+# Simplify multiple in_betweens
+ok($query = $qb->constraints(
+  [$qb->c_in_between(2,8), $qb->c_in_between(0,4)],
+  $qb->term('a'),
+  $qb->term('c')
+), 'Query with distance in order');
+is($query->to_string, 'constr(between=2-8,between=0-4:a,c)', 'Constraint');
+is($query->min_span, 4, 'Span length');
+is($query->max_span, 6, 'Span length');
+ok($query = $query->normalize, 'Normalize');
+is($query->to_string, 'constr(pos=precedes;succeeds,between=2-4:a,c)', 'Constraint');
+is($query->min_span, 4, 'Span length');
+is($query->max_span, 6, 'Span length');
+
+
+# Multiple in_betweens contradict theirselves
+ok($query = $qb->constraints(
+  [$qb->c_in_between(2,8), $qb->c_in_between(10,12)],
+  $qb->term('a'),
+  $qb->term('c')
+), 'Query with distance in order');
+is($query->to_string, 'constr(between=2-8,between=10-12:a,c)', 'Constraint');
+is($query->min_span, 12, 'Span length');
+is($query->max_span, 10, 'Span length');
+ok($query = $query->normalize, 'Normalize');
+is($query->to_string, '[0]', 'Constraint');
+is($query->min_span, -1, 'Span length');
+is($query->max_span, -1, 'Span length');
+
+
 
 TODO: {
   local $TODO = 'Check all constraints';

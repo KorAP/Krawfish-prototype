@@ -29,6 +29,26 @@ sub to_string {
 };
 
 
+sub min {
+  my $self = shift;
+  if ($_[0]) {
+    $self->{min} = shift;
+    return $self;
+  };
+  $self->{min};
+};
+
+
+sub max {
+  my $self = shift;
+  if ($_[0]) {
+    $self->{max} = shift;
+    return $self;
+  };
+  $self->{max};
+};
+
+
 # Normalize constraint
 sub normalize {
   my $self = shift;

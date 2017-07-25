@@ -20,8 +20,10 @@ my $wrap = $qb->constraints(
 is($wrap->min_span, 3, 'Span length');
 is($wrap->max_span, 6, 'Span length');
 is($wrap->to_string, "constr(pos=precedes;precedesDirectly,between=1-4:[aa],[bb])", 'Query is valid');
-ok(my $query = $wrap->normalize->optimize($index), 'Optimize');
-is($query->to_string, "constr(pos=3,between=1-4:'aa','bb')", 'Query is valid');
+ok(my $query = $wrap->normalize, 'Normalize');
+is($query->to_string, "constr(pos=precedes,between=1-4:aa,bb)", 'Query is valid');
+ok($query = $query->optimize($index), 'Optimize');
+is($query->to_string, "constr(pos=1,between=1-4:'aa','bb')", 'Query is valid');
 matches($query, ['[0:0-4]','[0:0-6]','[0:2-6]']);
 
 
@@ -34,8 +36,10 @@ $wrap = $qb->constraints(
 is($wrap->min_span, 3, 'Span length');
 is($wrap->max_span, 5, 'Span length');
 is($wrap->to_string, "constr(pos=precedes;precedesDirectly,between=1-3:[aa],[bb])", 'Query is valid');
-ok($query = $wrap->normalize->optimize($index), 'Optimize');
-is($query->to_string, "constr(pos=3,between=1-3:'aa','bb')", 'Query is valid');
+ok($query = $wrap->normalize, 'Normalization');
+is($query->to_string, "constr(pos=precedes,between=1-3:aa,bb)", 'Query is valid');
+ok($query = $query->optimize($index), 'Optimize');
+is($query->to_string, "constr(pos=1,between=1-3:'aa','bb')", 'Query is valid');
 matches($query, ['[0:0-4]','[0:2-6]']);
 
 

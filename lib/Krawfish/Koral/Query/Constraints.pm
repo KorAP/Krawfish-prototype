@@ -149,11 +149,38 @@ sub normalize {
         # Remove not used positional constraint
         splice(@constraints, $i+1, 1);
         next;
+      }
+
+      # Join distances
+      elsif ($first->type eq 'constr_dist') {
+
+        # WARNING:
+        #   This only works as long as token bases are not supported!
+
+        # Set new minimum value
+        if (!defined $first->min || (defined $second->min && ($first->min < $second->min))) {
+          $first->min($second->min);
+        };
+
+        # set new maxium value
+        if (!defined $first->max || (defined $second->max && ($first->max > $second->max))) {
+          $first->max($second->max);
+        };
+
+        # New distance contradicts itself
+        if (defined $first->min && defined $first->max && $first->min > $first->max) {
+          return $self->builder->nothing;
+        };
+
+        # Remove not used distance constraint
+        splice(@constraints, $i+1, 1);
+        next;
       };
     };
 
     $i++;
   };
+
 
   # Set constraints
   $self->constraints(\@constraints);
@@ -298,6 +325,7 @@ sub inflate {
 
   return $self;
 };
+
 
 # Return true if the query can be unsorted
 sub maybe_unsorded {
