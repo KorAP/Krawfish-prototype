@@ -61,9 +61,10 @@ $query = $qb->constraints(
   $qb->token('xx')
 );
 
-is($query->to_string, 'constr(pos=precedes,notBetween={[dd]}:[xx],[xx])', 'Stringification');
+is($query->to_string, 'constr(pos=precedes,notBetween={1:[dd]}:[xx],[xx])', 'Stringification');
 ok($plan = $query->normalize->finalize->optimize($index), 'Planning');
-is($plan->to_string, "constr(pos=1,between=1-1,notBetween='dd':'xx','xx')", 'Query is valid');
+
+is($plan->to_string, "constr(pos=1,between=1-1,notBetween='dd',class=1:'xx','xx')", 'Query is valid');
 
 
 # Introduce classes inbetween
@@ -93,9 +94,9 @@ $query = $qb->constraints(
   $qb->token('xx')
 );
 
-is($query->to_string, 'constr(pos=precedes,notBetween={[ff]}:[xx],[xx])', 'Stringification');
+is($query->to_string, 'constr(pos=precedes,notBetween={1:[ff]}:[xx],[xx])', 'Stringification');
 ok($plan = $query->normalize->finalize->optimize($index), 'Planning');
-is($plan->to_string, "constr(pos=1,between=1-1:'xx','xx')", 'Query is valid');
+is($plan->to_string, "constr(pos=1,between=1-1,class=1:'xx','xx')", 'Query is valid');
 
 
 TODO: {

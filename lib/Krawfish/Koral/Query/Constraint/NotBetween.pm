@@ -1,6 +1,8 @@
 package Krawfish::Koral::Query::Constraint::NotBetween;
 use Krawfish::Query::Constraint::NotBetween;
 use Krawfish::Koral::Query::Constraint::InBetween;
+use Krawfish::Koral::Query::Constraint::ClassDistance;
+use Krawfish::Koral::Query::Constraint::Position;
 use strict;
 use warnings;
 
@@ -40,15 +42,22 @@ sub normalize {
     return;
   };
 
-  # Remove all classes here, because they can't occur
+  my @constraints = ($self);
+
+  # Wrap out the classes
+  while ($query->type eq 'class') {
+    push @constraints, Krawfish::Koral::Query::Constraint::ClassDistance->new($query->number);
+    $query = $query->operand;
+  };
+
+  # Remove all inner classes here, because they can't occur
   $query = $query->remove_classes;
 
+  # Store new query
   $self->{query} = $query;
 
   my $min_span = $query->min_span;
   my $max_span = $query->max_span;
-
-  my @constraints = ($self);
 
   # Introduce in_between constraint
   if ($max_span != -1) {

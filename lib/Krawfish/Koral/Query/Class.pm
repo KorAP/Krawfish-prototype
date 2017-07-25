@@ -9,14 +9,14 @@ memoize('max_span');
 
 
 use constant {
-  DEBUG => 1
+  DEBUG => 0
 };
 
 sub new {
   my $class = shift;
   bless {
     operands => [shift],
-    number => shift
+    number => shift // 1
   }, $class;
 };
 

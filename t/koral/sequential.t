@@ -264,6 +264,8 @@ is($seq->to_string, "constr(pos=2:'b',constr(pos=2:'b','a'))", 'Stringification'
 matches($seq, [qw/[0:0-3] [1:0-3]/], 'Matches twice');
 
 
+
+
 # Create with optional distance
 # [b][b]?[a]
 $seq = $qb->seq(
@@ -282,8 +284,10 @@ is($seq->to_string, "constr(pos=2048:or('a',constr(pos=2:'b','a')),'b')", 'Strin
 # Matches
 matches($seq, [qw/[0:0-2] [0:0-3] [0:1-3] [1:0-3] [1:1-3]/], 'Matches twice');
 
+
+
 # Create with ANY distance
-# [b][][c]
+# [a][][b]
 $seq = $qb->seq(
   $qb->token('a'),
   $qb->token,
@@ -302,13 +306,123 @@ is($seq->to_string, "constr(pos=4096,between=1-1:'b','a')",
 # Matches once
 matches($seq, [qw/[0:1-4]/], 'Matches Once');
 
+
+# Create with optional ANY distance
+# [b][]?[c]
+$seq = $qb->seq(
+  $qb->token('a'),
+  $qb->repeat($qb->token, 0, 1),
+  $qb->token('b')
+);
+is($seq->to_string, '[a][]?[b]', 'Stringification');
+ok($seq = $seq->normalize->finalize, 'Normalization');
+is($seq->to_string, 'a[]?b', 'Stringification');
+ok($seq = $seq->optimize($index), 'Optimization');
+
+# Do not check for stringifications
+is($seq->to_string, "constr(pos=6144,between=0-1:'b','a')",
+   'Stringification');
+
+# Matches once
+matches($seq, [qw/[0:0-2] [0:1-4] [0:2-4]/], 'Matches Once');
+
+
+
+# Create with ranged ANY distance
+# [b][]{1,3}[c]
+$seq = $qb->seq(
+  $qb->token('a'),
+  $qb->repeat($qb->token, 1, 3),
+  $qb->token('b')
+);
+is($seq->to_string, '[a][]{1,3}[b]', 'Stringification');
+ok($seq = $seq->normalize->finalize, 'Normalization');
+is($seq->to_string, 'a[]{1,3}b', 'Stringification');
+ok($seq = $seq->optimize($index), 'Optimization');
+
+# Do not check for stringifications
+is($seq->to_string, "constr(pos=4096,between=1-3:'b','a')",
+   'Stringification');
+
+# Matches once
+matches($seq, [qw/[0:0-4] [0:1-4]/], 'Matches Once');
+
+# [a][]*[b]
+$seq = $qb->seq(
+  $qb->token('a'),
+  $qb->repeat($qb->token, 0, undef),
+  $qb->token('b')
+);
+is($seq->to_string, '[a][]*[b]', 'Stringification');
+ok($seq = $seq->normalize->finalize, 'Normalization');
+is($seq->to_string, 'a[]{0,100}b', 'Stringification');
+ok($seq = $seq->optimize($index), 'Optimization');
+
+# Do not check for stringifications
+is($seq->to_string, "constr(pos=6144,between=0-100:'b','a')",
+   'Stringification');
+
+# Matches once
+matches($seq, [qw/[0:0-2] [0:0-4] [0:1-4] [0:2-4]/], 'Matches Once');
+
+
+# [a]{[]*}[b]
+$seq = $qb->seq(
+  $qb->token('a'),
+  $qb->class($qb->repeat($qb->token, 0, undef)),
+  $qb->token('b')
+);
+is($seq->to_string, '[a]{1:[]*}[b]', 'Stringification');
+ok($seq = $seq->normalize->finalize, 'Normalization');
+is($seq->to_string, 'a{1:[]{0,100}}b', 'Stringification');
+ok($seq = $seq->optimize($index), 'Optimization');
+
+# Do not check for stringifications
+is($seq->to_string, "constr(pos=6144,between=0-100,class=1:'b','a')",
+   'Stringification');
+
+# Matches once
+matches($seq, ['[0:0-2]','[0:0-4$0,1,1,2]','[0:1-4$0,1,2,2]','[0:2-4]'], 'Matches Once');
+
+
+# Create with multiple classes optional distance
+# [a]{3:{4:[]*}}[b]
+$seq = $qb->seq(
+  $qb->token('a'),
+  $qb->class($qb->class($qb->repeat($qb->any,0,undef),3),4),
+  $qb->token('b')
+);
+is($seq->to_string, '[a]{4:{3:[]*}}[b]', 'Stringification');
+ok($seq = $seq->normalize->finalize, 'Normalization');
+is($seq->to_string, 'a{4:{3:[]{0,100}}}b', 'Stringification');
+ok($seq = $seq->optimize($index), 'Optimization');
+
+# Do not check for stringifications
+is($seq->to_string, "constr(pos=6144,between=0-100,class=4,class=3:'b','a')",
+   'Stringification');
+
+
 TODO: {
-  local $TODO = 'Support different ANY variants';
-  #   [b][]?[c]
-  #   [b][]{1,3}[c]
-  #   [b][]*[c]
-  #   [b]{[]*}[c]
+  local $TODO = 'Support ANY groups variants';
+
+  # [a]{1:[]{2:[]*}}[b]
+  $seq = $qb->seq(
+    $qb->token('a'),
+    $qb->class(
+      $qb->seq(
+        $qb->any,
+        $qb->class(
+          $qb->repeat($qb->any,0,undef),
+          2
+        ),
+      ),
+      1
+    ),
+    $qb->token('b')
+  );
+  is($seq->to_string, '', 'Stringification');
 };
+
 
 
 
@@ -351,21 +465,6 @@ is($seq->to_string, "constr(pos=3,between=0-INF,notBetween='a':'b','a')", 'Strin
 matches($seq, [qw/[0:0-2] [0:1-3] [1:0-3] [1:1-3]/], 'Matches');
 
 
-# Create with multiple classes optional distance
-# [a]{3:{4:[]*}}[b]
-$seq = $qb->seq(
-  $qb->token('a'),
-  $qb->class($qb->class($qb->repeat($qb->any,0,undef),3),4),
-  $qb->token('b')
-);
-is($seq->to_string, '[a]{4:{3:[]*}}[b]', 'Stringification');
-ok($seq = $seq->normalize->finalize, 'Normalization');
-is($seq->to_string, 'a{4:{3:[]{0,100}}}b', 'Stringification');
-ok($seq = $seq->optimize($index), 'Optimization');
-
-# Do not check for stringifications
-is($seq->to_string, "constr(pos=6144,between=0-100,class=4,class=3:'b','a')",
-   'Stringification');
 
 
 # Create with multiple classes optional distance in reverse ordering
