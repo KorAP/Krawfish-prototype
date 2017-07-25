@@ -84,9 +84,6 @@ is($q->to_string, "constr(notBetween=[0]:aa|ac|ca|cc,bb|bc)", 'Stringification')
 ok($q = $q->optimize($index), 'Prepare query');
 is($q->to_string, "constr(?:or(or(or('ac','ca'),'cc'),'aa'),or('bc','bb'))", 'Stringification');
 
-# TODO:
-#   fix inbetween
-
 
 # Sequence
 ok($q = $qb->seq(

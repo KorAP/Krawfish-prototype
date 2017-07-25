@@ -5,6 +5,9 @@ use List::Util;
 use Krawfish::Query::Length;
 use strict;
 use warnings;
+use Memoize;
+memoize('min_span');
+memoize('max_span');
 
 # TODO:
 #   Normalize chained length queries

@@ -1,5 +1,6 @@
 package Krawfish::Koral::Query::Constraints;
 use parent 'Krawfish::Koral::Query';
+use List::Util qw/min max/;
 use Krawfish::Query::Constraints;
 use Krawfish::Query::Constraint::Position;
 use Krawfish::Util::Bits;
@@ -7,11 +8,18 @@ use Krawfish::Log;
 use v5.10;
 use strict;
 use warnings;
+use Memoize;
+memoize('min_span');
+memoize('max_span');
 
 use constant DEBUG => 1;
 
 # TODO:
 #   Normalization phase can be optimized.
+#
+#     pos=precedesDirectly,precedes;between=1-4 -> pos=precedes;between=1-4
+#     pos=precedesDirectly,precedes;between=0 -> pos=precedesDirectly
+#     ...
 
 # Constructor
 sub new {
@@ -94,13 +102,21 @@ sub normalize {
     # TODO:
     #   Copy warnings etc.
     #   Return undef, if the query is null
-    my $norm = $_->normalize or next;
+    # TODO:
+    #   Make this normalize_c and return an array!
+    my @norm = $_->normalize or next;
 
-    push @constraints, $norm;
+    push @constraints, @norm;
   };
+
+
+  # TODO:
+  #   Simplify multiple constraints without reordering!
 
   # Set constraints
   $self->constraints(\@constraints);
+
+
 
   # There is only a single constraint
   if (@constraints == 1) {
@@ -111,6 +127,24 @@ sub normalize {
     if ($constr->type eq 'constr_pos') {
       $self = $self->_normalize_single_position;
     };
+  };
+
+  # Normalization may result in no valid query
+  return unless $self;
+
+  #   Using min_span and max_span it can be checked,
+  #   if a position constraint like overlap
+  #   can be valid or not, for example
+  #
+  #   $qb->constraints(
+  #     [$qb->c_position('overlapsLeft', 'overlapsRight')],
+  #     $qb->repeat($qb->term('a'), 2),
+  #     $qb->term('b')
+  #   )
+  #
+  #   can never match!
+  if ($self->max_span != -1 && $self->min_span > $self->max_span) {
+    return $self->builder->nothing;
   };
 
   return $self;
@@ -238,10 +272,69 @@ sub to_koral_fragment {
 sub to_string {
   my $self = shift;
   my $str = 'constr(';
-  $str .= join(',', map { $_->to_string } @{$self->{constraints}});
-  $str .= ':';
+  if (@{$self->{constraints}}) {
+    $str .= join(',', map { $_->to_string } @{$self->{constraints}});
+    $str .= ':';
+  };
   $str .= join ',', map { $_->to_string } @{$self->{operands}};
   return $str . ')';
+};
+
+
+# The minimum number of tokens of this span
+sub min_span {
+  my $self = shift;
+  my $first_span = $self->operands->[0]->min_span;
+  my $second_span = $self->operands->[1]->min_span;
+
+  # The minimum token length is - when no constraint is set -
+  # the overlapping of both operands
+  my $min = max($first_span, $second_span);
+
+  # Iterate over constraints
+  foreach (@{$self->constraints}) {
+    my $c_min = $_->min_span($first_span, $second_span);
+
+    # If the new minimum is greater, adopt the value
+    if ($c_min > $min) {
+      $min = $c_min;
+    };
+  };
+
+  # return minimum value
+  return $min;
+};
+
+
+# The maximum number of tokens of this span
+sub max_span {
+  my $self = shift;
+
+  # The maximum token length is - when no constraint is set -
+  # arbitrary
+  my $max = -1;
+
+  # Refine based on constraints
+  if (@{$self->constraints}) {
+    my $first_span = $self->operands->[0]->max_span;
+    my $second_span = $self->operands->[1]->max_span;
+
+    # Check all constraints
+    foreach (@{$self->constraints}) {
+      my $c_max = $_->max_span($first_span, $second_span);
+
+      # ignore -1
+      next if $c_max == -1;
+
+      # If the new maximum is smaller, adopt the value
+      if ($c_max < $max || $max == -1) {
+        $max = $c_max;
+      };
+    };
+  };
+
+  # Return maximum value
+  $max;
 };
 
 

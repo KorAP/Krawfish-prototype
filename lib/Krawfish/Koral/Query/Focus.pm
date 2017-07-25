@@ -3,6 +3,9 @@ use parent 'Krawfish::Koral::Query';
 use Krawfish::Query::Base::Sorted;
 use strict;
 use warnings;
+use Memoize;
+memoize('min_span');
+memoize('max_span');
 
 # TODO:
 #   If span is maybe_unsorted, use a sorted focus,
@@ -48,5 +51,18 @@ sub optimize {
   return Krawfish::Query::Base::Sorted->new($span, 1000);
 };
 
+sub min_span {
+  # TODO:
+  #   Find the nested operands and calculate the span length,
+  #   though this may not be trivial
+  0
+};
+
+sub max_span {
+  # TODO:
+  #   Find the nested operands and calculate the span length,
+  #   though this may not be trivial
+  -1
+};
 
 1;

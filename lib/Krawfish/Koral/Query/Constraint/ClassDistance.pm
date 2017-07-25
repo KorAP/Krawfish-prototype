@@ -18,23 +18,42 @@ sub type {
 };
 
 
+# stringification
 sub to_string {
   my $self = shift;
   return 'class=' . $$self;
 };
 
 
+# Normalize the constraint (do nothing)
 sub normalize {
   $_[0];
 };
 
+
+# Inflate the constraint (do nothing)
 sub inflate {
   $_[0];
 };
 
+
+# Optimize the constraint
 sub optimize {
   my $self = shift;
   Krawfish::Query::Constraint::ClassDistance->new($$self);
+};
+
+
+# The minimum number of tokens for the constraint
+# Is actual at least one token - but could be optional
+sub min_span {
+  0;
+};
+
+
+# Maximum number of tokens for the constraint
+sub max_span {
+  -1;
 };
 
 

@@ -54,24 +54,33 @@ sub max {
 
 
 # Get the minimum span
-# TODO:
-#   memoize
 sub min_span {
   my $self = shift;
-  return $self->operand->min_span * $self->min;
+
+  # This needs to be stored,
+  # otherwise the value changes after normalization
+  return $self->{min_span} if defined $self->{min_span};
+  $self->{min_span} = $self->operand->min_span * ($self->min // 0);
+  return $self->{min_span};
 };
 
 
 # Get the maximum span
 sub max_span {
   my $self = shift;
+  return $self->{max_span} if defined $self->{max_span};
 
+  # This needs to be stored,
+  # otherwise the value changes after normalization
   # Either repetition is unbound or the operand is unbound,
   # Return unbound
   if (!defined $self->max || $self->operand->max_span == -1) {
-    return -1;
+    $self->{max_span} = -1;
+  }
+  else {
+    $self->{max_span} = $self->operand->max_span * $self->max;
   };
-  return $self->operand->max_span * $self->max;
+  return $self->{max_span};
 };
 
 
@@ -145,6 +154,8 @@ sub type { 'repetition' };
 sub normalize {
   my $self = shift;
 
+  # Call min_span and max_span to precalculate and remember values
+  $self->min_span and $self->max_span;
 
   # Normalize so classes always wrap repetitions and not the other way around
   while ($self->operand->type eq 'class') {

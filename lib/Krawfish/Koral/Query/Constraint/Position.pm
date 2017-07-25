@@ -1,8 +1,12 @@
 package Krawfish::Koral::Query::Constraint::Position;
 use parent 'Exporter';
 use Krawfish::Query::Constraint::Position;
+use feature 'state';
 use strict;
 use warnings;
+use Memoize;
+memoize('min_span');
+memoize('max_span');
 
 our @EXPORT = qw/to_frame/;
 
@@ -15,6 +19,14 @@ our @EXPORT = qw/to_frame/;
 #   like <a><b>, the <b> can be skiped to a position
 #   equal to the end of <a>, while <a> can't be skipped
 #   to end at the beginning of <b>.
+
+use constant {
+  C_NEXT      => PRECEDES_DIRECTLY | SUCCEEDS_DIRECTLY,
+  C_NEXT_PLUS => PRECEDES | SUCCEEDS,
+  C_MAPS      => (MATCHES | IS_AROUND | IS_WITHIN | STARTS_WITH | ENDS_WITH |
+                 ALIGNS_LEFT | ALIGNS_RIGHT),
+  C_MAPS_PLUS => OVERLAPS_LEFT | OVERLAPS_RIGHT
+};
 
 our %FRAME = (
   precedes => PRECEDES,
@@ -31,6 +43,7 @@ our %FRAME = (
   succeedsDirectly => SUCCEEDS_DIRECTLY,
   succeeds => SUCCEEDS
 );
+
 
 sub new {
   my $class = shift;
@@ -94,6 +107,75 @@ sub normalize {
 
   return $self;
 };
+
+
+# The minimum number of tokens for the constraint
+sub min_span {
+  my ($self, $first_len, $second_len) = @_;
+  my $frame = $$self;
+
+  # Check the possible configurations and return the minimum span length possible
+  if ($first_len == -1 || $second_len == -1) {
+    return -1;
+  };
+
+  # Return mapping
+  if ($frame & C_MAPS) {
+    return $first_len > $second_len ? $first_len : $second_len;
+  }
+
+  # Return mapping - at least one token overlap
+  elsif ($frame & C_MAPS_PLUS) {
+    return ($first_len > $second_len ? $first_len : $second_len) + 1;
+  }
+
+  # Return addition of length
+  elsif ($frame & C_NEXT) {
+    return $first_len + $second_len;
+  }
+
+  # Return addition of length + at least one token distance
+  elsif ($frame & C_NEXT_PLUS) {
+    return $first_len + $second_len + 1;
+  };
+
+  return -1;
+};
+
+
+# Maximum number of tokens for the constraint
+sub max_span {
+  my ($self, $first_len, $second_len) = @_;
+  my $frame = $$self;
+
+  # Check the possible configurations and return the maximum span length possible
+  if ($first_len == -1 || $second_len == -1) {
+    return -1;
+  };
+
+  # Operands can be in any distance
+  if ($frame & C_NEXT_PLUS) {
+    return -1;
+  }
+
+  # Operands are next to each other
+  elsif ($frame & C_NEXT) {
+    return $first_len + $second_len;
+  }
+
+  # Return addition of length - at least one token overlap
+  elsif ($frame & C_MAPS_PLUS) {
+    return $first_len + $second_len - 1;
+  }
+
+  # Operands occur on same space
+  elsif ($frame & C_MAPS) {
+    return $first_len > $second_len ? $first_len : $second_len;
+  };
+
+  return -1;
+};
+
 
 sub inflate {
   $_[0];

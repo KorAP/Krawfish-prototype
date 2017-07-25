@@ -14,6 +14,9 @@ package Krawfish::Koral::Query::Reference;
 use Krawfish::Log;
 use strict;
 use warnings;
+use Memoize;
+memoize('min_span');
+memoize('max_span');
 
 sub new {
   my $class = shift;
@@ -37,4 +40,7 @@ sub is_extended_left;
 sub is_extended_right;
 sub is_extended;
 sub maybe_unsorted;
+sub min_span;
+sub max_span;
+
 1;

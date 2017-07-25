@@ -17,11 +17,13 @@ my $wrap = $qb->constraints(
   $qb->token('aa'),
   $qb->token('bb')
 );
-
+is($wrap->min_span, 3, 'Span length');
+is($wrap->max_span, 6, 'Span length');
 is($wrap->to_string, "constr(pos=precedes;precedesDirectly,between=1-4:[aa],[bb])", 'Query is valid');
 ok(my $query = $wrap->normalize->optimize($index), 'Optimize');
 is($query->to_string, "constr(pos=3,between=1-4:'aa','bb')", 'Query is valid');
 matches($query, ['[0:0-4]','[0:0-6]','[0:2-6]']);
+
 
 # This equals to [aa][]{1,3}[bb]
 $wrap = $qb->constraints(
@@ -29,7 +31,8 @@ $wrap = $qb->constraints(
   $qb->token('aa'),
   $qb->token('bb')
 );
-
+is($wrap->min_span, 3, 'Span length');
+is($wrap->max_span, 5, 'Span length');
 is($wrap->to_string, "constr(pos=precedes;precedesDirectly,between=1-3:[aa],[bb])", 'Query is valid');
 ok($query = $wrap->normalize->optimize($index), 'Optimize');
 is($query->to_string, "constr(pos=3,between=1-3:'aa','bb')", 'Query is valid');
@@ -42,7 +45,8 @@ $wrap = $qb->constraints(
   $qb->token('aa'),
   $qb->token('bb')
 );
-
+is($wrap->min_span, 3, 'Span length');
+is($wrap->max_span, 5, 'Span length');
 is($wrap->to_string, "constr(pos=precedes,between=1-3:[aa],[bb])", 'Query is valid');
 ok($query = $wrap->normalize->optimize($index), 'Optimize');
 is($query->to_string, "constr(pos=1,between=1-3:'aa','bb')", 'Query is valid');
@@ -56,12 +60,13 @@ $wrap = $qb->constraints(
   $qb->token('aa'),
   $qb->token('bb')
 );
-
+is($wrap->min_span, 3, 'Span length');
+is($wrap->max_span, 2, 'Span length');
 is($wrap->to_string, "constr(pos=precedesDirectly,between=1-3:[aa],[bb])", 'Query is valid');
 ok($query = $wrap->normalize->optimize($index), 'Optimize');
-
-# TODO: This may be optimized away
-is($query->to_string, "constr(pos=2,between=1-3:'aa','bb')", 'Query is valid');
+is($wrap->min_span, 3, 'Span length');
+is($wrap->max_span, 2, 'Span length');
+is($query->to_string, "[0]", 'Query is valid');
 matches($query, []);
 
 

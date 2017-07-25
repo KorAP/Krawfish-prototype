@@ -3,6 +3,9 @@ use parent 'Krawfish::Koral::Query';
 use Krawfish::Query::Unique;
 use strict;
 use warnings;
+use Memoize;
+memoize('min_span');
+memoize('max_span');
 
 sub new {
   my $class = shift;

@@ -3,6 +3,9 @@ use parent ('Krawfish::Koral::Util::Sequential','Krawfish::Koral::Query');
 use Krawfish::Log;
 use strict;
 use warnings;
+use Memoize;
+memoize('min_span');
+memoize('max_span');
 
 # TODO:
 #   Check for queries like "Der {[pos!=ADJ]*} Mann"
@@ -94,7 +97,6 @@ sub maybe_unsorted {
 
 
 # A sequence is the sum of all operands' lengths
-# TODO: memoize
 sub min_span {
   my $self = shift;
   $self->_check;
@@ -107,7 +109,6 @@ sub min_span {
 
 
 # A sequence is the sum of all operands' lengths
-# TODO: memoize
 sub max_span {
   my $self = shift;
   $self->_check;

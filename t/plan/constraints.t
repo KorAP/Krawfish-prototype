@@ -1,4 +1,119 @@
-use Test::More skip_all => 'No tests defined';
+use Test::More;
+use strict;
+use warnings;
+
+use_ok('Krawfish::Koral::Query::Builder');
+
+my $qb = Krawfish::Koral::Query::Builder->new;
+
+# No constraints
+ok(my $query = $qb->constraints(
+  [],
+  $qb->repeat($qb->term('a'),2),
+  $qb->term('b')
+), 'Query without a constraint');
+is($query->to_string, 'constr(a{2},b)', 'Constraint');
+is($query->min_span, 2, 'Span length');
+is($query->max_span, -1, 'Span length');
+ok($query = $query->normalize, 'Normalize');
+is($query->to_string, 'constr(a{2},b)', 'Constraint');
+is($query->min_span, 2, 'Span length');
+is($query->max_span, -1, 'Span length');
+
+
+# Position constraint: succeeds_directly
+ok($query = $qb->constraints(
+  [$qb->c_position('succeedsDirectly')],
+  $qb->repeat($qb->term('a'), 2),
+  $qb->term('b')
+), 'Query without a constraint');
+is($query->to_string, 'constr(pos=succeedsDirectly:a{2},b)', 'Constraint');
+is($query->min_span, 3, 'Span length');
+is($query->max_span, 3, 'Span length');
+ok($query = $query->normalize, 'Normalize');
+is($query->to_string, 'constr(pos=succeedsDirectly:a{2},b)', 'Constraint');
+is($query->min_span, 3, 'Span length');
+is($query->max_span, 3, 'Span length');
+
+# Position constraint: precedes
+ok($query = $qb->constraints(
+  [$qb->c_position('precedes')],
+  $qb->repeat($qb->term('a'), 2),
+  $qb->term('b')
+), 'Query without a constraint');
+is($query->to_string, 'constr(pos=precedes:a{2},b)', 'Constraint');
+is($query->min_span, 4, 'Span length');
+is($query->max_span, -1, 'Span length');
+ok($query = $query->normalize, 'Normalize');
+is($query->to_string, 'constr(pos=precedes:a{2},b)', 'Constraint');
+is($query->min_span, 4, 'Span length');
+is($query->max_span, -1, 'Span length');
+
+
+# Position constraint: overlaps
+ok($query = $qb->constraints(
+  [$qb->c_position('overlapsLeft', 'overlapsRight')],
+  $qb->repeat($qb->term('a'), 2),
+  $qb->term('b')
+), 'Query without a constraint');
+is($query->to_string, 'constr(pos=overlapsLeft;overlapsRight:a{2},b)', 'Constraint');
+is($query->min_span, 3, 'Span length');
+is($query->max_span, 2, 'Span length');
+ok($query = $query->normalize, 'Normalize');
+is($query->to_string, '[0]', 'Constraint');
+is($query->min_span, -1, 'Span length');
+is($query->max_span, -1, 'Span length');
+
+
+# Position constraint: overlaps
+ok($query = $qb->constraints(
+  [$qb->c_position('overlapsLeft', 'overlapsRight')],
+  $qb->repeat($qb->term('a'), 1, 100),
+  $qb->repeat($qb->term('b'), 1, 100)
+), 'Query without a constraint');
+is($query->to_string, 'constr(pos=overlapsLeft;overlapsRight:a{1,100},b{1,100})', 'Constraint');
+is($query->min_span, 2, 'Span length');
+is($query->max_span, 199, 'Span length');
+ok($query = $query->normalize, 'Normalize');
+is($query->to_string, 'constr(pos=overlapsLeft;overlapsRight:a{1,100},b{1,100})', 'Constraint');
+is($query->min_span, 2, 'Span length');
+is($query->max_span, 199, 'Span length');
+
+# Overlaps with classes
+ok($query = $qb->constraints(
+  [$qb->c_position('overlapsLeft', 'overlapsRight')],
+  $qb->class($qb->repeat($qb->term('a'), 1, undef),3),
+  $qb->class($qb->repeat($qb->term('b'), 1, undef),4)
+), 'Query without a constraint');
+is($query->to_string, 'constr(pos=overlapsLeft;overlapsRight:{3:a+},{4:b+})', 'Constraint');
+is($query->min_span, 2, 'Span length');
+is($query->max_span, -1, 'Span length');
+ok($query = $query->normalize, 'Normalize');
+is($query->to_string, 'constr(pos=overlapsLeft;overlapsRight:{3:a{1,100}},{4:b{1,100}})', 'Constraint');
+is($query->min_span, 2, 'Span length');
+is($query->max_span, -1, 'Span length');
+
+
+ok($query = $qb->constraints(
+  [$qb->c_position('overlapsLeft', 'overlapsRight')],
+  $qb->repeat($qb->class($qb->term('a'),3), 1, 100),
+  $qb->repeat($qb->class($qb->term('b'),4), 1, 100)
+), 'Query without a constraint');
+is($query->to_string, 'constr(pos=overlapsLeft;overlapsRight:{3:a}{1,100},{4:b}{1,100})', 'Constraint');
+is($query->min_span, 2, 'Span length');
+is($query->max_span, 199, 'Span length');
+ok($query = $query->normalize, 'Normalize');
+is($query->to_string, 'constr(pos=overlapsLeft;overlapsRight:{3:a{1,100}},{4:b{1,100}})', 'Constraint');
+is($query->min_span, 2, 'Span length');
+is($query->max_span, 199, 'Span length');
+
+
+TODO: {
+  local $TODO = 'Check all constraints';
+}
+
+
+done_testing;
 
 __END__
 

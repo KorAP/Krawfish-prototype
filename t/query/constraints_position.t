@@ -185,6 +185,10 @@ is($wrap->to_string, 'constr(pos=overlapsLeft:{1:[aa]+},{2:[bb]+})', 'Stringific
 ok($wrap = $wrap->normalize->finalize, 'Rewrite');
 is($wrap->to_string, 'constr(pos=overlapsLeft:{1:aa{1,100}},{2:bb{1,100}})',
    'Stringification');
+
+done_testing;
+__END__
+
 ok(my $ov = $wrap->optimize($index), 'Optimization');
 is($ov->to_string, "constr(pos=4:class(1:rep(1-100:'aa')),class(2:rep(1-100:'bb')))",
    'Stringification');

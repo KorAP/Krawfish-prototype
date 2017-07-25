@@ -3,6 +3,10 @@ use parent 'Krawfish::Koral::Query';
 use Krawfish::Query::Class;
 use strict;
 use warnings;
+use Memoize;
+memoize('min_span');
+memoize('max_span');
+
 
 use constant {
   DEBUG => 1

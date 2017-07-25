@@ -1,5 +1,6 @@
 package Krawfish::Koral::Query::Constraint::NotBetween;
 use Krawfish::Query::Constraint::NotBetween;
+use Krawfish::Koral::Query::Constraint::InBetween;
 use strict;
 use warnings;
 
@@ -22,12 +23,14 @@ sub type {
 };
 
 
+# stringify
 sub to_string {
   my $self = shift;
   return 'notBetween=' . $self->{query}->to_string;
 };
 
 
+# Normalize constraint
 sub normalize {
   my $self = shift;
 
@@ -41,7 +44,20 @@ sub normalize {
   $query = $query->remove_classes;
 
   $self->{query} = $query;
-  $self;
+
+  my $min_span = $query->min_span;
+  my $max_span = $query->max_span;
+
+  my @constraints = ($self);
+
+  # Introduce in_between constraint
+#  if ($max_span != -1) {
+#    $min_span = 0 if $min_span == -1;
+#    my $in_between = Krawfish::Koral::Query::Constraint::InBetween->new($min_span, $max_span);
+#    unshift @constraints, $in_between;
+#  };
+
+  return @constraints;
 };
 
 
@@ -60,10 +76,39 @@ sub optimize {
 };
 
 
+# The minimum number of tokens for the constraint
+sub min_span {
+  my ($self, $first_len, $second_len) = @_;
+  my $neg_len = $self->{query}->min_span;
+
+  # One operand is unbound
+  if ($first_len == -1 || $second_len == -1 || $neg_len == -1) {
+    return -1;
+  };
+
+  return $first_len + $second_len + $neg_len;
+};
+
+
+# Maximum number of tokens for the constraint
+sub max_span {
+  my ($self, $first_len, $second_len) = @_;
+  my $neg_len = $self->{query}->max_span;
+
+  # One operand is unbound
+  if ($first_len == -1 || $second_len == -1 || $neg_len == -1) {
+    return -1;
+  };
+  return $first_len + $second_len + $neg_len;
+};
+
+
+# Inflate negation
 sub inflate {
   my ($self, $dict) = @_;
   $self->{query} = $self->{query}->inflate($dict);
   $self;
 };
+
 
 1;

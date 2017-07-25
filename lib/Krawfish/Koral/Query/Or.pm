@@ -4,6 +4,9 @@ use Krawfish::Log;
 use Krawfish::Query::Or;
 use strict;
 use warnings;
+use Memoize;
+memoize('min_span');
+memoize('max_span');
 
 # Or-Construct on spans
 
@@ -44,5 +47,39 @@ sub to_string {
   return join '|', map { '(' . $_->to_string . ')'} @{$self->operands_in_order};
 };
 
+
+# Get minimum span length in tokens
+sub min_span {
+  my $self = shift;
+  my $ops = $self->operands;
+
+  # Get the smalles min value of all operands
+  my $min = $ops->[0]->min_span;
+  my $i = 1;
+  for (; $i < @$ops; $i++) {
+    if ($ops->[$i]->min_span < $min) {
+      $min = $ops->[$i]->min_span;
+    };
+  };
+  return $min;
+};
+
+
+# Get the maximum length in tokens
+sub max_span {
+  my $self = shift;
+
+  my $ops = $self->operands;
+
+  # Get the smalles min value of all operands
+  my $max = $ops->[0]->max_span;
+  my $i = 1;
+  for (; $i < @$ops; $i++) {
+    if ($ops->[$i]->max_span > $max) {
+      $max = $ops->[$i]->max_span;
+    };
+  };
+  return $max;
+};
 
 1;

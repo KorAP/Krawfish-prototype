@@ -7,6 +7,9 @@ use Krawfish::Log;
 use Mojo::JSON;
 use strict;
 use warnings;
+use Memoize;
+memoize('min_span');
+memoize('max_span');
 
 use constant DEBUG => 0;
 

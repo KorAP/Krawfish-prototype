@@ -3,6 +3,9 @@ use parent 'Krawfish::Koral::Query';
 use Krawfish::Query::Nothing;
 use strict;
 use warnings;
+use Memoize;
+memoize('min_span');
+memoize('max_span');
 
 # The filter will filter a query based on a virtual corpus.
 # First the filter is always on the root of the query.
@@ -118,6 +121,18 @@ sub to_koral_fragment {
     'span' => $self->operand->to_koral_fragment,
     'corpus' => $self->corpus->to_koral_fragment
   };
+};
+
+
+# Return the minimum numbers of tokens of the span
+sub min_span {
+  $_[0]->operand->min_span;
+};
+
+
+# Return the maximum numbers of tokens of the span
+sub max_span {
+  $_[0]->operand->max_span;
 };
 
 

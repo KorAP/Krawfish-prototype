@@ -53,6 +53,7 @@ is($query->to_string, '<opennlp/c=NP>', 'Stringification');
 ok($query = $query->optimize($index), 'Optimize');
 is($query->to_string, "'<>opennlp/c=NP'", 'Planned Stringification');
 
+
 #####################
 # Test 0 as element #
 #####################
@@ -62,6 +63,7 @@ $query = $builder->position(
   $builder->span('opennlp/c=NP'),
   $builder->null
 );
+
 ok(!$query->is_any, 'Is any');
 ok(!$query->is_optional, 'Isn\'t optional');
 ok(!$query->is_null, 'Isn\'t null');
@@ -70,7 +72,6 @@ ok(!$query->is_extended, 'Isn\'t extended');
 is($query->to_string, 'constr(pos=isWithin:<opennlp/c=NP>,-)', 'Stringification');
 ok(!$query->normalize, 'Normalize');
 ok($query->has_error, 'Builder has error');
-
 
 
 ##########################
