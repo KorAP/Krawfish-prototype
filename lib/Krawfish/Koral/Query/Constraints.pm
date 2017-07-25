@@ -21,6 +21,13 @@ use constant DEBUG => 1;
 #     pos=precedesDirectly,precedes;between=0 -> pos=precedesDirectly
 #     ...
 
+our %CONSTR_ORDER = (
+  constr_pos   => 1,
+  constr_dist  => 2,
+  constr_not   => 3,
+  constr_class => 5
+);
+
 # Constructor
 sub new {
   my $class = shift;
@@ -31,6 +38,7 @@ sub new {
 };
 
 
+# Query type
 sub type { 'constraints' };
 
 
@@ -42,6 +50,7 @@ sub constraints {
   };
   return $self->{constraints};
 };
+
 
 
 # Normalize constraints
@@ -109,9 +118,42 @@ sub normalize {
     push @constraints, @norm;
   };
 
+  # No constraints defined
+  if (@constraints == 0) {
+    $self->error(000, 'Constraint query without a valid constraint');
+    return;
+  };
+
+
+  # Order constraints
+  @constraints = sort { $CONSTR_ORDER{$a->type} <=> $CONSTR_ORDER{$b->type} } @constraints;
 
   # TODO:
-  #   Simplify multiple constraints without reordering!
+  #   Simplify multiple constraints!
+
+  # Check consecutive queries
+  for (my $i = 0; $i < @constraints - 1;) {
+
+    my $first = $constraints[$i];
+    my $second = $constraints[$i+1];
+
+    # Both constraints have the same type
+    if ($first->type eq $second->type) {
+
+      # Merge positional constraints
+      if ($first->type eq 'constr_pos') {
+
+        # Join frames
+        $first->frames($first->frames & $second->frames);
+
+        # Remove not used positional constraint
+        splice(@constraints, $i+1, 1);
+        next;
+      };
+    };
+
+    $i++;
+  };
 
   # Set constraints
   $self->constraints(\@constraints);
@@ -131,6 +173,7 @@ sub normalize {
 
   # Normalization may result in no valid query
   return unless $self;
+
 
   #   Using min_span and max_span it can be checked,
   #   if a position constraint like overlap

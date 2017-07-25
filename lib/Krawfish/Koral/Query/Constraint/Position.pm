@@ -51,8 +51,13 @@ sub new {
   bless \$frames, $class;
 };
 
+
 sub frames {
-  ${$_[0]};
+  my $self = shift;
+  if ($_[0]) {
+    $$self = shift;
+  };
+  $$self;
 };
 
 sub type {

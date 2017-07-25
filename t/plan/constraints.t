@@ -15,10 +15,8 @@ ok(my $query = $qb->constraints(
 is($query->to_string, 'constr(a{2},b)', 'Constraint');
 is($query->min_span, 2, 'Span length');
 is($query->max_span, -1, 'Span length');
-ok($query = $query->normalize, 'Normalize');
-is($query->to_string, 'constr(a{2},b)', 'Constraint');
-is($query->min_span, 2, 'Span length');
-is($query->max_span, -1, 'Span length');
+ok(!$query->normalize, 'Normalize');
+ok($query->has_error, 'Has error');
 
 
 # Position constraint: succeeds_directly
@@ -34,6 +32,7 @@ ok($query = $query->normalize, 'Normalize');
 is($query->to_string, 'constr(pos=succeedsDirectly:a{2},b)', 'Constraint');
 is($query->min_span, 3, 'Span length');
 is($query->max_span, 3, 'Span length');
+
 
 # Position constraint: precedes
 ok($query = $qb->constraints(
@@ -59,6 +58,8 @@ ok($query = $qb->constraints(
 is($query->to_string, 'constr(pos=overlapsLeft;overlapsRight:a{2},b)', 'Constraint');
 is($query->min_span, 3, 'Span length');
 is($query->max_span, 2, 'Span length');
+
+# Can't overlap!
 ok($query = $query->normalize, 'Normalize');
 is($query->to_string, '[0]', 'Constraint');
 is($query->min_span, -1, 'Span length');
@@ -79,6 +80,7 @@ is($query->to_string, 'constr(pos=overlapsLeft;overlapsRight:a{1,100},b{1,100})'
 is($query->min_span, 2, 'Span length');
 is($query->max_span, 199, 'Span length');
 
+
 # Overlaps with classes
 ok($query = $qb->constraints(
   [$qb->c_position('overlapsLeft', 'overlapsRight')],
@@ -93,7 +95,7 @@ is($query->to_string, 'constr(pos=overlapsLeft;overlapsRight:{3:a{1,100}},{4:b{1
 is($query->min_span, 2, 'Span length');
 is($query->max_span, -1, 'Span length');
 
-
+# Overlaps with classes (2)
 ok($query = $qb->constraints(
   [$qb->c_position('overlapsLeft', 'overlapsRight')],
   $qb->repeat($qb->class($qb->term('a'),3), 1, 100),
@@ -106,6 +108,34 @@ ok($query = $query->normalize, 'Normalize');
 is($query->to_string, 'constr(pos=overlapsLeft;overlapsRight:{3:a{1,100}},{4:b{1,100}})', 'Constraint');
 is($query->min_span, 2, 'Span length');
 is($query->max_span, 199, 'Span length');
+
+
+# Add some more constraints automatically
+ok($query = $qb->constraints(
+  [$qb->c_not_between($qb->term('b'))],
+  $qb->term('a'),
+  $qb->term('c')
+), 'Query with a notbetween constraint');
+is($query->to_string, 'constr(notBetween=b:a,c)', 'Constraint');
+ok($query = $query->normalize, 'Normalize');
+is($query->to_string, 'constr(pos=precedes;succeeds,between=1-1,notBetween=b:a,c)',
+   'Constraint');
+
+
+ok($query = $qb->constraints(
+  [
+    $qb->c_not_between($qb->term('b')),
+    $qb->c_position('precedes')
+  ],
+  $qb->term('a'),
+  $qb->term('c')
+), 'Query with a notbetween constraint');
+is($query->to_string, 'constr(notBetween=b,pos=precedes:a,c)', 'Constraint');
+ok($query = $query->normalize, 'Normalize');
+is($query->to_string, 'constr(pos=precedes,between=1-1,notBetween=b:a,c)',
+   'Constraint');
+
+
 
 
 TODO: {

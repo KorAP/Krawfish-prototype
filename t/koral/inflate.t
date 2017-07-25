@@ -48,7 +48,7 @@ ok($q = $qb->constraints(
   $qb->term('bb')
 ), 'Regex in constraint');
 ok($q = $q->normalize->finalize->inflate($index->dict)->optimize($index), 'Prepare query');
-is($q->to_string, "constr(pos=1,notBetween=or(or(or('ac','ca'),'cc'),'aa'):'aa','bb')",
+is($q->to_string, "constr(pos=1,between=1-1,notBetween=or(or(or('ac','ca'),'cc'),'aa'):'aa','bb')",
    'Stringification');
 
 
@@ -77,12 +77,13 @@ ok($q = $qb->constraints(
   $qb->term_re('[ac].'),
   $qb->term_re('b.'),
 ), 'Regex in class');
-ok($q = $q->normalize->finalize, 'Prepare query');
 is($q->to_string, "constr(notBetween=/[e]./:/[ac]./,/b./)", 'Stringification');
+ok($q = $q->normalize->finalize, 'Prepare query');
+is($q->to_string, "constr(pos=precedes;succeeds,between=1-1,notBetween=/[e]./:/[ac]./,/b./)", 'Stringification');
 ok($q = $q->inflate($index->dict), 'Prepare query');
-is($q->to_string, "constr(notBetween=[0]:aa|ac|ca|cc,bb|bc)", 'Stringification');
+is($q->to_string, "constr(pos=precedes;succeeds,between=1-1,notBetween=[0]:aa|ac|ca|cc,bb|bc)", 'Stringification');
 ok($q = $q->optimize($index), 'Prepare query');
-is($q->to_string, "constr(?:or(or(or('ac','ca'),'cc'),'aa'),or('bc','bb'))", 'Stringification');
+is($q->to_string, "constr(pos=4097,between=1-1:or(or(or('ac','ca'),'cc'),'aa'),or('bc','bb'))", 'Stringification');
 
 
 # Sequence

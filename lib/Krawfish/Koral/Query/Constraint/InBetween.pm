@@ -18,7 +18,7 @@ sub new {
 
 
 sub type {
-  'constr_class_distance';
+  'constr_dist';
 };
 
 

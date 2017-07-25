@@ -19,7 +19,7 @@ sub new {
 
 
 sub type {
-  'constr_not_beteween';
+  'constr_not';
 };
 
 
@@ -51,11 +51,22 @@ sub normalize {
   my @constraints = ($self);
 
   # Introduce in_between constraint
-#  if ($max_span != -1) {
-#    $min_span = 0 if $min_span == -1;
-#    my $in_between = Krawfish::Koral::Query::Constraint::InBetween->new($min_span, $max_span);
-#    unshift @constraints, $in_between;
-#  };
+  if ($max_span != -1) {
+    $min_span = 0 if $min_span == -1;
+    my $in_between = Krawfish::Koral::Query::Constraint::InBetween->new($min_span, $max_span);
+    unshift @constraints, $in_between;
+  };
+
+  # Introduce positional constraint
+  my @frames;
+  if ($min_span == 0 || $min_span == -1) {
+    push @frames, qw/precedesDirectly succeedsDirectly/;
+  };
+  if ($max_span > 0 || $max_span == -1) {
+    push @frames, qw/precedes succeeds/;
+  };
+
+  push @constraints, Krawfish::Koral::Query::Constraint::Position->new(@frames);
 
   return @constraints;
 };
