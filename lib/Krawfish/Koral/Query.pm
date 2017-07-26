@@ -3,6 +3,7 @@ use parent 'Krawfish::Info';
 # TODO: Use the same parent as Koral::Corpus
 use Krawfish::Koral::Query::Builder;
 use Krawfish::Koral::Query::Importer;
+use Krawfish::Log;
 use Mojo::Util qw/md5_sum/;
 use warnings;
 use strict;
@@ -18,7 +19,8 @@ use strict;
 # TODO:
 #   This is now double with Krawfish::Koral!
 use constant {
-  CONTEXT => 'http://korap.ids-mannheim.de/ns/koral/0.6/context.jsonld'
+  CONTEXT => 'http://korap.ids-mannheim.de/ns/koral/0.6/context.jsonld',
+  DEBUG => 0
 };
 
 sub new {
@@ -103,6 +105,10 @@ sub _finalize {
 sub finalize {
   my $self = shift;
 
+  if (DEBUG) {
+    print_log('kq_query', 'Finalize query ' . $self->to_string);
+  };
+
   my $query = $self;
 
   # The query matches everywhere
@@ -110,6 +116,7 @@ sub finalize {
     $self->error(780, "This query matches everywhere");
     return;
   };
+
 
   # The query matches nowhere
   if ($query->is_nothing) {

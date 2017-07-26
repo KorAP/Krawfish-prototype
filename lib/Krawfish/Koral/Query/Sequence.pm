@@ -54,13 +54,20 @@ sub _check {
 
   return if $self->{_checked};
 
+  if (DEBUG) {
+    print_log('kq_seq', 'Check ' . $self->to_string . ' with ' . (@{$self->operands}) . ' operands');
+  };
+
   # Check all operands
   foreach (@{$self->operands}) {
+
+    if (DEBUG) {
+      print_log('kq_seq', 'Check operand ' . $_->to_string);
+    };
 
     # If one operand is set - return null
     unless ($_->is_null) {
       $self->{null} = 0;
-      $self->{any} = 0;
     };
 
     unless ($_->is_any) {
@@ -70,14 +77,20 @@ sub _check {
     if ($_->maybe_unsorted) {
       $self->{maybe_unsorted} = 1;
     };
+
+    if (DEBUG) {
+      print_log('kq_seq', 'Operand ' . $_->to_string . ' is checked');
+    };
   };
 
   $self->{_checked} = 1;
 };
 
+
 sub is_any {
   my $self = shift;
   $self->_check;
+  print_log('kq_seq', 'Check for any: ' . $self->to_string . ' is ' . $self->{any}) if DEBUG;
   return $self->{any};
 };
 

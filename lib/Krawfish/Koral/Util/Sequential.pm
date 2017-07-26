@@ -30,7 +30,11 @@ use constant {
 sub normalize {
   my $self = shift;
 
+  print_log('kq_sequtil', 'Normalize query ' . $self->to_string) if DEBUG;
+
   my $ops = $self->operands;
+
+  print_log('kq_sequtil', '1st pass - flatten and mark anchors') if DEBUG;
 
   # First pass - mark anchors
   my $problems = 0;
@@ -39,14 +43,19 @@ sub normalize {
     # Operand in question
     my $op = $ops->[$i];
 
+    print_log('kq_sequtil', 'Check operand in sequence ' . $op->to_string) if DEBUG;
+
     # Sequences are no constraints!
     if ($op->type eq 'sequence') {
+
+      print_log('kq_sequtil', 'Flatten embedded sequence ' . $op->to_string) if DEBUG;
 
       # TODO:
       #   This currently ignores negative sequences
 
       # Replace operand with operand list
       splice @$ops, $i, 1, @{$op->operands};
+      redo;
     };
 
     # Operand can be ignored
@@ -62,14 +71,72 @@ sub normalize {
     };
 
     # Normalize operands
-    $ops->[$i] = $ops->[$i]->normalize;
+    my $new_op = $op->normalize;
+
+    # New op can't be normalized, for example it is a
+    # classed sequence of any-operators
+    if (!$new_op) {
+
+      if (DEBUG) {
+        print_log('kq_sequtil', 'Operand ' . $op->to_string . ' is not normalizable');
+        print_log('kq_sequtil', 'Strip potential classes');
+      };
+
+      # First unpack classes
+      my @classes = ();
+      while ($op->type eq 'class') {
+        push @classes, $op->number;
+        $op = $op->operand;
+      };
+
+      # Operand matches somehow anywhere
+      # This can be the case with something like {1:[]{2:[]}}
+      if ($op->is_any) {
+
+        if (DEBUG) {
+          print_log('kq_sequtil', 'Query matches anywhere ' . $op->to_string);
+        };
+
+        my $qb = $self->builder;
+
+        # Create any span
+        $new_op = $qb->repeat(
+          $qb->any,
+          $op->min_span,
+          $op->max_span
+        );
+
+        # Readd classes
+        foreach (@classes) {
+          $new_op = $qb->class($new_op, $_);
+        };
+
+        # A minor warning that we cheated
+        $self->warning(
+          000,
+          'Nested classes in empty token sequences are not yet supported',
+          $op->to_string
+        );
+      }
+
+      # I don't know when this could happen ...
+      else {
+        $self->error(000, 'Subsequence is not normalizable', $op->to_string);
+        return;
+      };
+
+      # Normalize newly build query
+      $new_op = $new_op->normalize;
+    };
+
+    $ops->[$i] = $new_op;
 
     # Push to problem array
     unless ($op->maybe_anchor) {
+      print_log('kq_sequtil', 'Operand is no anchor: ' . $op->to_string) if DEBUG;
       $problems++;
     };
   };
-
 
   # No operands left
   unless (scalar @$ops) {
@@ -101,11 +168,10 @@ sub normalize {
   #   Simplify repetitions
   #   $self = $self->_resolve_consecutive_repetitions;
 
-  # There are no problems
-  return $self unless $problems;
+  print_log('kq_sequtil', 'Sequence has ' . ($problems+0) . ' problems') if DEBUG;
 
   # Remember problems
-  $self->{_problems} = 1;
+  $self->{_problems} = 1 if $problems;
   return $self;
 };
 
@@ -494,6 +560,11 @@ sub _combine_pos {
 sub _combine_any {
   my ($queries, $index_a, $index_b, $index_between) = @_;
 
+  if (DEBUG) {
+    print_log('kq_sequtil', "Combine to ANY distance with positions " .
+                "$index_a:$index_between:$index_b");
+  };
+
   my $new_query;
   my $any = $queries->[$index_between]->[KQUERY];
   my $constraint = {};
@@ -508,6 +579,8 @@ sub _combine_any {
   while ($any->type eq 'class') {
     $constraint->{classes} //= [];
     push @{$constraint->{classes}}, $any->number;
+
+    print_log('kq_sequtil', "Unpack classed query " . $any->to_string) if DEBUG;
 
     # Return inner-query
     $any = $any->operand;
@@ -569,6 +642,10 @@ sub _combine_neg {
   my $constraint = {};
 
   my $query = $queries->[$index_between]->[KQUERY];
+
+  # TODO:
+  #   Better use the builder and normalize - this will do all
+  #   the optimizations on the fly (including min_span/max_span optimization)
 
   # Negative element is optional
   if ($query->is_optional) {

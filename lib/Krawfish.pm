@@ -2,7 +2,7 @@ package Krawfish;
 use Krawfish::Koral;
 use Mojo::Base 'Mojolicious';
 
-our $VERSION = '0.0.2';
+our $VERSION = '0.0.3';
 
 # This method will run once at server start
 sub startup {

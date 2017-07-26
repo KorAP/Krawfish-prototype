@@ -9,9 +9,7 @@ use warnings;
 # Check that a query between two operands is does nmot occur.
 # In case this operand never occurs, it will at least set a relevant length.
 
-# TODO:
-#   Check min_tokens and max_tokens
-
+# Constructor
 sub new {
   my $class = shift;
   bless {

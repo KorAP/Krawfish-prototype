@@ -1,18 +1,27 @@
 package Krawfish::Info;
+use Krawfish::Log;
 use strict;
 use warnings;
 
+use constant DEBUG => 1;
+
 # Add error
 sub error {
-  return shift->_info('error', @_);
+  my $self = shift;
+  print_log('info', 'Error: ' . join(' ', @_)) if DEBUG;
+  return $self->_info('error', @_);
 };
 
 sub warning {
-  return shift->_info('warning', @_);
+  my $self = shift;
+  print_log('info', 'Warning: ' . join(' ', @_)) if DEBUG;
+  return $self->_info('warning', @_);
 };
 
 sub message {
-  return shift->_info('message', @_);
+  my $self = shift;
+  print_log('info', 'Message: ' . join(' ', @_)) if DEBUG;
+  return $self->_info('message', @_);
 };
 
 # Is there an error?
