@@ -6,7 +6,7 @@ use warnings;
 use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Query::Builder');
 use_ok('Krawfish::Result::Segment::Aggregate');
-use_ok('Krawfish::Result::Segment::Aggregate::Count');
+use_ok('Krawfish::Result::Segment::Aggregate::Frequencies');
 
 my $index = Krawfish::Index->new;
 
@@ -25,13 +25,14 @@ my $kq = Krawfish::Koral::Query::Builder->new;
 
 my $query = $kq->token('bb');
 
-my $count = Krawfish::Result::Segment::Aggregate::Count->new;
+my $freq = Krawfish::Result::Segment::Aggregate::Frequencies->new;
+is($freq->to_string, 'freq');
 
-# Get count object
+# Get freq object
 ok(my $aggr = Krawfish::Result::Segment::Aggregate->new(
   $query->normalize->finalize->optimize($index),
-  [$count]
-), 'Create count object');
+  [$freq]
+), 'Create freq object');
 
 ok($aggr->next, 'Next');
 ok($aggr->next, 'Next');
@@ -41,22 +42,22 @@ ok(!$aggr->next, 'No more nexts');
 is($aggr->result->{totalResources}, 2, 'Document frequency');
 is($aggr->result->{totalResults}, 2, 'Occurrence frequency');
 
-is($aggr->to_string, "aggregate([count]:'bb')", 'Get counts');
+is($aggr->to_string, "aggregate([freq]:'bb')", 'Get freqs');
 $query = $kq->token('cc');
 
-$count = Krawfish::Result::Segment::Aggregate::Count->new;
+$freq = Krawfish::Result::Segment::Aggregate::Frequencies->new;
 
-# Get count object
+# Get freq object
 ok($aggr = Krawfish::Result::Segment::Aggregate->new(
   $query->normalize->finalize->optimize($index),
-  [$count]
-), 'Create count object');
+  [$freq]
+), 'Create freq object');
 
 # Search till the end
 ok($aggr->finalize, 'Finish');
 
 # Stringify
-is($aggr->to_string, "aggregate([count]:'cc')", 'Get counts');
+is($aggr->to_string, "aggregate([freq]:'cc')", 'Get freqs');
 
 is($aggr->result->{totalResources}, 1, 'Document frequency');
 is($aggr->result->{totalResults}, 2, 'Occurrence frequency');

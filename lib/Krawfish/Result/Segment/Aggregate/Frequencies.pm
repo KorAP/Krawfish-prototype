@@ -1,13 +1,14 @@
-package Krawfish::Result::Segment::Aggregate::Count;
+package Krawfish::Result::Segment::Aggregate::Frequencies;
 use parent 'Krawfish::Result::Segment::Aggregate::Base';
 use Krawfish::Log;
 use strict;
 use warnings;
 
-# TODO: Rename to frequencies
-# TODO: Support virtual corpus classes
+# Count the frequencies of all matches of the query
+# per doc and per match
 
-use constant DEBUG => 0;
+# TODO:
+#   Support virtual corpus classes
 
 # Add to totalResources immediately
 sub each_doc {
@@ -23,7 +24,8 @@ sub each_match {
 
 # Stringification
 sub to_string {
-  'count'
+  'freq'
 };
 
 1;
+

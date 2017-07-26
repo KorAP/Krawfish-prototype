@@ -6,7 +6,7 @@ use Krawfish::Result::Sort::PriorityCascade;
 use Krawfish::Result::Limit;
 use Krawfish::Result::Segment::Aggregate;
 use Krawfish::Result::Segment::Aggregate::Facets;
-use Krawfish::Result::Segment::Aggregate::Count;
+use Krawfish::Result::Segment::Aggregate::Frequencies;
 use Krawfish::Result::Segment::Aggregate::Length;
 use Krawfish::Result::Segment::Aggregate::Values;
 use strict;
@@ -177,7 +177,7 @@ sub plan_for {
   #   This may be obsolete in some cases, because other aggregations already
   #   count frequencies.
   if ($self->{count}) {
-    push @aggr, Krawfish::Result::Segment::Aggregate::Count->new;
+    push @aggr, Krawfish::Result::Segment::Aggregate::Frequencies->new;
   };
 
   if ($self->{length}) {
