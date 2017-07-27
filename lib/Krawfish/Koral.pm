@@ -2,27 +2,46 @@ package Krawfish::Koral;
 use parent 'Krawfish::Info';
 use strict;
 use warnings;
-use Krawfish::Koral::Query;
 use Krawfish::Koral::Query::Builder;
-use Krawfish::Koral::Corpus;
 use Krawfish::Koral::Corpus::Builder;
-use Krawfish::Koral::Meta;
 use Krawfish::Koral::Meta::Builder;
 use Krawfish::Koral::Document;
 
 # Parse a koral query and transform to an actual
 # index query.
 #
-# Procession order:
+# Procession order for query and corpus:
 #   a) parse                            (cluster)
 #   b) normalize and finalize           (cluster)
 #   c) refer (no multiple leaf lifting) (cluster) (or not)
 #   d) inflate (some normalization)     (node)
 #   e) memoize                          (segment)
 #   f) optimize                         (segment)
-
-# TODO:
-# Krawfish::Koral::Meta
+#
+# Usage:
+#   $koral = Koral->new;
+#   my $qb = $koral->query_builder;
+#   my $cb = $koral->corpus_builder;
+#   my $mb = $koral->meta_builder;
+#   $koral->meta(
+#     $mb->aggregate(
+#       $mb->aggr_frequencies,
+#       $mb->aggr_facets('license'),
+#       $mb->aggr_facets('corpus'),
+#       $mb->aggr_length
+#     )->start_index(0)
+#     ->items_per_page(20)
+#     ->sort_by(
+#       $mb->sort_field('author', 1)
+#     )->fields('author')
+#     ->snippet('')
+#   )->query(
+#     $qb->token('aa')
+#   )->corpus(
+#     $cb->string('xx')
+#   );
+#
+#   $koral->to_cluster ... ->to_node($dict) ... ->to_segment($index)
 
 # TODO:
 #   Filtering needs to be supported multiple times,
@@ -114,7 +133,6 @@ sub meta_builder {
 };
 
 
-
 sub sorting {
   ...
 };
@@ -149,6 +167,63 @@ sub to_koral_query {
 
   return $koral;
 };
+
+
+
+# This introduces the normalization phase
+sub to_nodes {
+  my $self = shift;
+
+  my $query;
+
+  # A virtual corpus and a query is given
+  if ($self->corpus && $self->query) {
+
+    # Filter query by corpus
+    $query = $self->query_builder->filter_by($self->query, $self->corpus);
+  }
+
+  # Only a query is given
+  elsif ($self->query) {
+
+    # Add corpus filter for live documents
+    $query = $self->query_builder->filter_by(
+      $self->query,
+      $self->corpus_builder->any
+    );
+  }
+
+  # Only corpus query is given
+  else {
+    $query = $self->corpus;
+  };
+
+  # Normalize the query
+  my $query_norm;
+  unless ($query_norm = $query->normalize) {
+    $self->copy_info_from($query);
+    return;
+  };
+
+  # Finalize the query
+  my $query_final;
+  unless ($query_final = $query_norm->normalize) {
+    $self->copy_info_from($query);
+    return;
+  };
+
+  # Normalize the meta
+  my $meta;
+  unless ($meta = $self->meta->normalize) {
+    $self->copy_info_from($self->meta);
+    return;
+  };
+
+  # Get serialization for nodes
+  return $self->meta->to_nodes($query_final);
+};
+
+
 
 
 # Normalize object

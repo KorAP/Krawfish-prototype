@@ -24,8 +24,8 @@ ok_index($index, {
 } => [qw/aa bb/], 'Add complex document');
 
 
+# Only search for documents containing 'bb'
 my $kq = Krawfish::Koral::Query::Builder->new;
-
 my $query = $kq->token('bb');
 
 my $field_count = Krawfish::Result::Segment::Aggregate::Values->new(
@@ -55,6 +55,32 @@ is_deeply($aggr->result, {
       sum => 8,
       avg => 4,
       freq => 2
+    }
+  }
+}, 'Field values');
+
+
+# Search in all documents
+$query = $kq->token($kq->bool_or('bb','cc'));
+$field_count = Krawfish::Result::Segment::Aggregate::Values->new(
+  $index, ['size']
+);
+# Get count object
+ok($aggr = Krawfish::Result::Segment::Aggregate->new(
+  $query->normalize->finalize->optimize($index),
+  [$field_count]
+), 'Create field count object');
+
+ok($aggr->finalize, 'Final');
+
+is_deeply($aggr->result, {
+  aggregate => {
+    size => {
+      min => 2,
+      max => 3,
+      sum => 7,
+      avg => '2.33333333333333',
+      freq => 3
     }
   }
 }, 'Field values');

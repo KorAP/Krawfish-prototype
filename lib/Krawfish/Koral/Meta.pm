@@ -1,16 +1,17 @@
 package Krawfish::Koral::Meta;
-use parent 'Krawfish::Info';
+use Krawfish::Koral::Meta::SortFilter;
+use Krawfish::Koral::Meta::Builder;
 use Krawfish::Log;
-use Krawfish::Result::Sort::Filter;
-use Krawfish::Result::Sort::PriorityCascade;
-use Krawfish::Result::Limit;
-use Krawfish::Result::Segment::Aggregate;
-use Krawfish::Result::Segment::Aggregate::Facets;
-use Krawfish::Result::Segment::Aggregate::Frequencies;
-use Krawfish::Result::Segment::Aggregate::Length;
-use Krawfish::Result::Segment::Aggregate::Values;
 use strict;
 use warnings;
+
+our %META_ORDER = (
+  snippet   => 1,
+  fields    => 2,
+  sort      => 3,
+  aggregate => 4,
+  filter    => 5
+);
 
 use constant {
   DEBUG => 0,
@@ -19,26 +20,160 @@ use constant {
 
 sub new {
   my $class = shift;
-  bless {
-    query => undef,
-    items_per_page => undef,
-    field_sort => [],
-    field_count => undef,
-    facets => undef,
-    count => undef,
-    start_index => 0,
-    max_doc_rank_ref => \(my $init = 0)
-  }, $class;
+  bless [@_], $class;
 };
 
-# Nest the query
-sub search_for {
-  my ($self, $query) = @_;
-  $self->{query} = $query;
+sub to_string {
+  my $self = shift;
+  return join(',', map { $_->to_string } $self->operations);
+};
+
+
+sub builder {
+  return Krawfish::Koral::Meta::Builder->new;
+};
+
+
+# Get or set operations
+sub operations {
+  my $self = shift;
+  if (@_) {
+    @$self = @_;
+    return $self;
+  };
+  return @$self;
+};
+
+
+# Normalize meta object
+sub normalize {
+  my $self = shift;
+
+  my @meta = $self->operations;
+
+  my $mb = $self->builder;
+
+  # Add unique sorting per default
+  push @meta,
+    $mb->sort_by($mb->s_field(UNIQUE_FIELD));
+
+  # 1. Introduce required information
+  #    e.g. sort(field) => fields(field)
+  my $aggregation = 0;
+  for (my $i = 0; $i < @meta; $i++) {
+
+    # For all sort fields, it may be beneficial to
+    # retrieve the fields as well - as they need
+    # to be retrieved nonetheless for search criteria
+    if ($meta[$i]->type eq 'sort') {
+      push @meta,
+        $self->builder->fields($meta[$i]->fields);
+    }
+
+    # There is at least one aggregation field
+    elsif ($meta[$i]->type eq 'aggregate') {
+      $aggregation = 1;
+    }
+
+    # Remove any given sortfilter
+    elsif ($meta[$i]->type eq 'sortFilter') {
+      splice @meta, $i, 1;
+      $i--;
+    };
+  };
+
+  # Sort objects based on a defined order
+  @meta = sort {
+    $META_ORDER{$a->type} <=> $META_ORDER{$b->type}
+  } @meta;
+
+
+  # 2. Find identical types and merge
+  #    fields+fields => fields
+  #    sort+sort => sort ...
+  #    and take the first value for single values
+  #    start_index=0 + start_index=2 => start_index=0
+  #
+  # 3. Remove duplicates
+  #    aggr_freq + aggr_freq => - aggr_freq
+  for (my $i = 1; $i < @meta; $i++) {
+
+    # Consecutive types are identical, join
+    if ($meta[$i]->type eq $meta[$i-1]->type) {
+
+      # Join fields or aggregations
+      if ($meta[$i]->type eq 'fields' ||
+            $meta[$i]->type eq 'aggregate' ||
+            $meta[$i]->type eq 'sort'
+          ) {
+
+        # The first operations have higher precedence
+        $meta[$i-1]->operations(
+          $meta[$i-1]->operations,
+          $meta[$i]->operations
+        );
+
+        # Remove merged object
+        splice(@meta, $i, 1);
+        $i--;
+      }
+
+      # TODO:
+      #   Make single field values work
+      #   - start_index
+      #   - count
+
+      # Unknown operation
+      else {
+        warn 'Unable to deal with unknown meta operation' . $meta[$i]->type;
+      };
+
+      # Don't normalize nonmerged data
+      next;
+    };
+
+    # Normalize when no longer consecutive operations
+    # can be expected
+    $meta[$i-1] = $meta[$i-1]->normalize;
+  };
+
+  # Normalize last operation
+  $meta[-1] = $meta[-1]->normalize;
+
+  # 4. Optimize
+  #    No aggregation queries =>
+  #      add a sort filter at the end
+  unless ($aggregation) {
+    push @meta, Krawfish::Koral::Meta::SortFilter->new;
+  };
+
+  # Set operations
+  $self->operations(@meta);
+
   return $self;
 };
 
-#sub fields;
+# Create a Krawfish::Result::Meta::Node::* query
+sub to_nodes {
+  my ($self, $query) = @_;
+
+  # TODO:
+  #   Don't forget the warnings etc.
+
+  # The meta query is expected to be normalized
+  foreach (reverse $self->operands) {
+    $query = $_->to_nodes($query);
+  };
+};
+
+
+sub optimize;
+
+1;
+
+
+__END__
+
 
 sub items_per_page {
   my $self = shift;

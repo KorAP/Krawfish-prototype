@@ -1,13 +1,68 @@
 package Krawfish::Koral::Meta::Sort;
+use List::MoreUtils qw/uniq/;
 use strict;
 use warnings;
-use Krawfish::Log;
-use Krawfish::Result::Sort;
 
-# All meta-queries need the nesting query for
-# plan_for
+sub new {
+  my $class = shift;
+  # Check that all passed values are sorting criteria
+  bless [@_], $class;
+};
 
-use constant DEBUG => 0;
+# Get all fields to sort by
+sub fields {
+  my $self = shift;
+  my @fields = ();
+
+  foreach (@$self) {
+    if ($_->can('field')) {
+      push @fields, $_->field;
+    };
+  };
+
+  return @fields;
+};
+
+
+# Get or set operations
+sub operations {
+  my $self = shift;
+  if (@_) {
+    @$self = @_;
+    return $self;
+  };
+  return @$self;
+};
+
+
+sub type {
+  'sort';
+};
+
+
+# Remove duplicates
+sub normalize {
+  my $self = shift;
+  @$self = uniq(@$self);
+  return $self;
+};
+
+sub to_nodes {
+  my ($self, $query) = @_;
+  warn 'TODO';
+  return $query;
+};
+
+
+sub to_string {
+  my $self = shift;
+  return 'sort=[' . join(',', map { $_->to_string } @$self) . ']';
+};
+
+1;
+
+
+__END__
 
 # TODO: Should differ between
 # - sort_by_fields()

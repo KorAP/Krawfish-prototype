@@ -1,4 +1,5 @@
 package Krawfish::Koral::Meta::Sort::Field;
+use Krawfish::Util::String qw/squote/;
 use strict;
 use warnings;
 
@@ -10,8 +11,12 @@ sub new {
   }, $class;
 };
 
+sub field {
+  return $_[0]->{field};
+};
+
 sub to_string {
-  my $str = 'field=' . $_[0]->{field};
+  my $str = 'field=' . squote($_[0]->{field});
   $str .= ($_[0]->{desc} ? '>' : '<');
   $str;
 };

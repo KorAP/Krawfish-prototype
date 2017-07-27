@@ -1,9 +1,81 @@
 package Krawfish::Koral::Meta::Builder;
-use parent 'Krawfish::Koral::Meta';
-use Krawfish::Koral::Meta::Sort::Field;
+use Krawfish::Koral::Meta::Fields;
+use Krawfish::Koral::Meta::Aggregate;
 use Krawfish::Koral::Meta::Sort;
+use Krawfish::Koral::Meta::Sort::Field;
+use Krawfish::Koral::Meta::Aggregate::Frequencies;
+use Krawfish::Koral::Meta::Aggregate::Facets;
+use Krawfish::Koral::Meta::Aggregate::Length;
 use strict;
 use warnings;
+
+sub new {
+  my $class = shift;
+  bless [], $class;
+};
+
+#   $koral->meta(
+#     $mb->aggregate(
+#       $mb->aggr_frequencies,
+#       $mb->aggr_facets('license'),
+#       $mb->aggr_facets('corpus'),
+#       $mb->aggr_length
+#     ),
+#     $mb->start_index(0),
+#     $mn->items_per_page(20)
+#     $mb->sort_by(
+#       $mb->sort_field('author', 1)
+#     ),
+#     $mb->fields('author')
+#     $mb->snippet('')
+
+sub aggregate {
+  my $self = shift;
+  return Krawfish::Koral::Meta::Aggregate->new(@_);
+};
+
+# Some aggregation types
+sub a_frequencies {
+  return Krawfish::Koral::Meta::Aggregate::Frequencies->new;
+};
+
+sub a_facets {
+  shift;
+  return Krawfish::Koral::Meta::Aggregate::Facets->new(@_);
+};
+
+sub a_length {
+  return Krawfish::Koral::Meta::Aggregate::Length->new;
+};
+
+sub fields {
+  shift;
+  return Krawfish::Koral::Meta::Fields->new(@_);
+};
+
+
+# Sort results by different criteria
+sub sort_by {
+  shift;
+  return Krawfish::Koral::Meta::Sort->new(@_);
+};
+
+
+
+# Some sorting criteria
+sub s_field {
+  shift;
+  return Krawfish::Koral::Meta::Sort::Field->new(@_);
+};
+
+
+sub limit;
+
+
+1;
+
+__END__
+
 
 # Sort methods:
 sub field_sort_by {
@@ -34,6 +106,7 @@ sub field_count {
   $self;
 };
 
+
 sub limit {
   my $self = shift;
   if (@_ == 2) {
@@ -47,4 +120,3 @@ sub limit {
   $self;
 };
 
-1;
