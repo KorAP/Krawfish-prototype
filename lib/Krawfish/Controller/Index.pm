@@ -11,6 +11,9 @@ sub add {
   $c->render(json => $kq);
 };
 
+
+# The search API first searches for matches, then retrieves information
+# per match identical to the match API
 sub search {
   my $c = shift;
   my $json = $c->req->body->json;
@@ -76,5 +79,6 @@ sub search {
     )
   );
 };
+
 
 1;

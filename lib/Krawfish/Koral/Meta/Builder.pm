@@ -1,11 +1,11 @@
 package Krawfish::Koral::Meta::Builder;
-use Krawfish::Koral::Meta::Fields;
 use Krawfish::Koral::Meta::Aggregate;
 use Krawfish::Koral::Meta::Sort;
 use Krawfish::Koral::Meta::Sort::Field;
 use Krawfish::Koral::Meta::Aggregate::Frequencies;
 use Krawfish::Koral::Meta::Aggregate::Facets;
 use Krawfish::Koral::Meta::Aggregate::Length;
+use Krawfish::Koral::Meta::Enrich::Fields;
 use strict;
 use warnings;
 
@@ -50,7 +50,7 @@ sub a_length {
 
 sub fields {
   shift;
-  return Krawfish::Koral::Meta::Fields->new(@_);
+  return Krawfish::Koral::Meta::Enrich::Fields->new(@_);
 };
 
 

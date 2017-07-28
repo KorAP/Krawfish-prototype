@@ -1,4 +1,4 @@
-package Krawfish::Result::Node::Fields;
+package Krawfish::Result::Node::Enrich::Fields;
 use parent 'Krawfish::Query';
 use Krawfish::Util::String qw/squote/;
 use strict;
@@ -12,6 +12,9 @@ use warnings;
 # TODO:
 #   Fields should be part of the snippet generation mechanism!
 
+# TODO:
+#   Inflate on the enrichments!
+
 sub new {
   my $class = shift;
   bless {
@@ -24,6 +27,7 @@ sub to_string {
   my $self = shift;
   return 'fields(' . join(',', map { squote($_) } @{$self->{fields}}) . ':' . $self->{query}->to_string . ')';
 };
+
 
 sub next {
   $_[0]->{query}->next;
