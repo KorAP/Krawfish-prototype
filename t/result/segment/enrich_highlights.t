@@ -4,12 +4,12 @@ use strict;
 use warnings;
 
 use_ok('Krawfish::Index');
-use_ok('Krawfish::Result::Snippet::Highlights');
+use_ok('Krawfish::Result::Segment::Enrich::Snippet::Highlights');
 
 my $index = Krawfish::Index->new;
 ok_index($index, [qw/aa bb aa bb/], 'Add new document');
 
-my $highlights = Krawfish::Result::Snippet::Highlights->new(
+my $highlights = Krawfish::Result::Segment::Enrich::Snippet::Highlights->new(
   [2,3] => $index->subtokens
 );
 

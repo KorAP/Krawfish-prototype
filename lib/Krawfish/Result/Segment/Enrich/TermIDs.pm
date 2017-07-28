@@ -1,8 +1,11 @@
-package Krawfish::Result::Segment::TermIDs;
+package Krawfish::Result::Segment::Enrich::TermIDs;
 use parent 'Krawfish::Result';
 use Krawfish::Log;
 use strict;
 use warnings;
+
+# Enrich each match with all term ids for a specific region and
+# for a specific class
 
 
 # TODO:
@@ -33,9 +36,6 @@ use constant {
     END_POS => 2,
 };
 
-
-# Enrich each match with all term ids for a specific region and
-# for a specific class
 
 sub new {
   my $class = shift;

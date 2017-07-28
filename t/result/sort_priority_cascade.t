@@ -6,7 +6,7 @@ use warnings;
 use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Query::Builder');
 use_ok('Krawfish::Result::Sort::PriorityCascade');
-use_ok('Krawfish::Result::Segment::Fields');
+use_ok('Krawfish::Result::Segment::Enrich::Fields');
 
 my $index = Krawfish::Index->new;
 
@@ -44,7 +44,7 @@ ok(my $sort = Krawfish::Result::Sort::PriorityCascade->new(
 ), 'Create sort object');
 
 
-ok(my $sort_fields = Krawfish::Result::Segment::Fields->new(
+ok(my $sort_fields = Krawfish::Result::Segment::Enrich::Fields->new(
   $index,
   $sort,
   ['author', 'docID']

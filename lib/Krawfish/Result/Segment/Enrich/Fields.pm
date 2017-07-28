@@ -1,4 +1,4 @@
-package Krawfish::Result::Segment::Fields;
+package Krawfish::Result::Segment::Enrich::Fields;
 use parent 'Krawfish::Result';
 use Krawfish::Log;
 use strict;

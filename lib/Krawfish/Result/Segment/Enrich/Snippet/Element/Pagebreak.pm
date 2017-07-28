@@ -1,5 +1,5 @@
-package Krawfish::Result::Snippet::Element::Pagebreak;
-use parent 'Krawfish::Result::Snippet::Element';
+package Krawfish::Result::Segment::Enrich::Snippet::Element::Pagebreak;
+use parent 'Krawfish::Result::Segment::Enrich::Snippet::Element';
 use strict;
 use warnings;
 

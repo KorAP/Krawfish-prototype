@@ -3,9 +3,9 @@ use Test::Krawfish;
 use strict;
 use warnings;
 
-use_ok('Krawfish::Result::Snippet::Spans');
+use_ok('Krawfish::Result::Segment::Enrich::Snippet::Spans');
 
-my $spans = Krawfish::Result::Snippet::Spans->new;
+my $spans = Krawfish::Result::Segment::Enrich::Snippet::Spans->new;
 
 $spans->add_text('Der')->add_text(' ')->add_text('alte');
 

@@ -1,4 +1,4 @@
-package Krawfish::Result::Snippet::Highlights;
+package Krawfish::Result::Segment::Enrich::Snippet::Highlights;
 use Krawfish::Log;
 use strict;
 use warnings;

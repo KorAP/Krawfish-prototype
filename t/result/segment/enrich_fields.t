@@ -5,7 +5,7 @@ use warnings;
 
 use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Query::Builder');
-use_ok('Krawfish::Result::Segment::Fields');
+use_ok('Krawfish::Result::Segment::Enrich::Fields');
 
 my $index = Krawfish::Index->new;
 ok_index($index, {
@@ -28,7 +28,7 @@ my $kq = Krawfish::Koral::Query::Builder->new;
 my $query = $kq->token('aa');
 
 # Get fields object
-ok(my $fields = Krawfish::Result::Segment::Fields->new(
+ok(my $fields = Krawfish::Result::Segment::Enrich::Fields->new(
   $index,
   $query->normalize->finalize->optimize($index),
   [qw/license corpus/]
@@ -49,7 +49,7 @@ $query = $kq->bool_or('aa', 'bb');
 
 
 # Get fields object
-ok($fields = Krawfish::Result::Segment::Fields->new(
+ok($fields = Krawfish::Result::Segment::Enrich::Fields->new(
   $index,
   $query->normalize->finalize->optimize($index),
   [qw/license corpus/]

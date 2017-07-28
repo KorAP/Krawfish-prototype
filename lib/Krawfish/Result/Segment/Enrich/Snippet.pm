@@ -1,6 +1,6 @@
-package Krawfish::Result::Snippet;
+package Krawfish::Result::Segment::Enrich::Snippet;
 use parent 'Krawfish::Result';
-use Krawfish::Result::Snippet::Highlights;
+use Krawfish::Result::Segment::Enrich::Snippet::Highlights;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -23,7 +23,7 @@ sub new {
   $self->{subtokens} = $self->{index}->subtokens;
 
   # Create highlight object
-  $self->{highlights} = Krawfish::Result::Snippet::Highlights->new(
+  $self->{highlights} = Krawfish::Result::Segment::Enrich::Snippet::Highlights->new(
     $param{highlights},
     $self->{subtokens}
   );

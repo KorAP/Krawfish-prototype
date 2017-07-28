@@ -1,4 +1,4 @@
-package Krawfish::Result::Snippet::Spans;
+package Krawfish::Result::Segment::Enrich::Snippet::Spans;
 use Krawfish::Log;
 use strict;
 use warnings;
