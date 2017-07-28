@@ -59,7 +59,7 @@ sub normalize {
 
   # 1. Introduce required information
   #    e.g. sort(field) => fields(field)
-  my $aggregation = 0;
+  my $sort_filtering = 1;
   for (my $i = 0; $i < @meta; $i++) {
 
     # For all sort fields, it may be beneficial to
@@ -72,7 +72,12 @@ sub normalize {
 
     # There is at least one aggregation field
     elsif ($meta[$i]->type eq 'aggregate') {
-      $aggregation = 1;
+      $sort_filtering = 0;
+    }
+
+    # There is at least one group option
+    elsif ($meta[$i]->type eq 'group') {
+      $sort_filtering = 0;
     }
 
     # Remove any given sortfilter
@@ -141,9 +146,9 @@ sub normalize {
   $meta[-1] = $meta[-1]->normalize;
 
   # 4. Optimize
-  #    No aggregation queries =>
+  #    No aggregation or group queries =>
   #      add a sort filter at the end
-  unless ($aggregation) {
+  if ($sort_filtering) {
     push @meta, Krawfish::Koral::Meta::SortFilter->new;
   };
 
@@ -153,17 +158,29 @@ sub normalize {
   return $self;
 };
 
-# Create a Krawfish::Result::Meta::Node::* query
+
+# This will create a Krawfish::Result::Node::* query
 sub to_nodes {
   my ($self, $query) = @_;
 
   # TODO:
   #   Don't forget the warnings etc.
 
+  # The order is probably:
+  #   snippets(fields(aggregate(limit(sort()))))
+
   # The meta query is expected to be normalized
-  foreach (reverse $self->operands) {
+  foreach (reverse $self->operations) {
     $query = $_->to_nodes($query);
   };
+
+  return $query;
+};
+
+
+sub to_segment {
+  my ($self, $index) = @_;
+  ...
 };
 
 

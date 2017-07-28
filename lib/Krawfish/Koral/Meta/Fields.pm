@@ -1,4 +1,5 @@
 package Krawfish::Koral::Meta::Fields;
+use Krawfish::Result::Node::Fields;
 use Krawfish::Util::String qw/squote/;
 use List::MoreUtils qw/uniq/;
 use strict;
@@ -38,10 +39,11 @@ sub normalize {
 };
 
 
+# TODO:
+#   For the moment, I am not sure where "fields" act
 sub to_nodes {
   my ($self, $query) = @_;
-  warn 'TODO';
-  return $query;
+  return Krawfish::Result::Node::Fields->new($query, [$self->operations]);
 };
 
 

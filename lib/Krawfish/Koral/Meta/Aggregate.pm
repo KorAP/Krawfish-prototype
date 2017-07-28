@@ -1,4 +1,5 @@
 package Krawfish::Koral::Meta::Aggregate;
+use Krawfish::Result::Node::Aggregate;
 use List::MoreUtils qw/uniq/;
 use strict;
 use warnings;
@@ -34,8 +35,7 @@ sub operations {
 
 sub to_nodes {
   my ($self, $query) = @_;
-  warn 'TODO';
-  return $query;
+  return Krawfish::Result::Node::Aggregate->new($query, [$self->operations]);
 };
 
 

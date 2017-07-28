@@ -21,9 +21,8 @@ $koral->query(
   )
 );
 
-is($koral->to_string, '[Der]<opennlp/c=NP>');
+is($koral->to_string, 'query=[[Der]<opennlp/c=NP>]');
 
-diag 'Meta normalization not implemented yet';
 
 done_testing;
 __END__

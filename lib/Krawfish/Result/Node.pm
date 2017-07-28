@@ -31,6 +31,14 @@ sub new {
 };
 
 
+# Overwrite process_head and pass to deeper query
+sub process_head {
+  my ($self, $head) = @_;
+  $_[0]->{query}->process_head($head);
+  return;
+};
+
+
 sub buffer {
   return $_[0]->{buffer};
 };
@@ -167,7 +175,7 @@ sub aggregate {
   my ($self, $data) = @_;
 
   foreach my $aggr (@{$self->{aggregation}}) {
-    $aggr->aggregate($date);
+    $aggr->aggregate($data);
   };
 
   return 1;

@@ -5,6 +5,7 @@ use warnings;
 use Krawfish::Koral::Query::Builder;
 use Krawfish::Koral::Corpus::Builder;
 use Krawfish::Koral::Meta::Builder;
+use Krawfish::Koral::Meta;
 use Krawfish::Koral::Document;
 
 # Parse a koral query and transform to an actual
@@ -62,10 +63,12 @@ use constant {
 sub new {
   my $class = shift;
   my $self = bless {
-    query  => undef,
-    corpus => undef,
-    meta   => undef,
-    document => undef
+    query    => undef,  # The query definition
+    corpus   => undef,  # The vc definition
+    matches  => undef,  # List of match IDs
+    meta     => undef,  # The meta definitions
+    document => undef,  # Document data to import
+    response => undef   # Response object
   }, $class;
 
   return $self unless @_;
@@ -93,7 +96,7 @@ sub query {
 };
 
 
-# Get the builder
+# Get the query builder
 sub query_builder {
   Krawfish::Koral::Query::Builder->new;
 };
@@ -110,7 +113,7 @@ sub corpus {
 };
 
 
-# Get the builder
+# Get the corpus builder
 sub corpus_builder {
   Krawfish::Koral::Corpus::Builder->new;
 };
@@ -120,21 +123,16 @@ sub corpus_builder {
 sub meta {
   my $self = shift;
   if ($_[0]) {
-    $self->{meta} = shift;
+    $self->{meta} = Krawfish::Koral::Meta->new(@_);
     return $self;
   };
   return $self->{meta};
 };
 
 
-# Get the builder
+# Get the meta builder
 sub meta_builder {
   Krawfish::Koral::Meta::Builder->new;
-};
-
-
-sub sorting {
-  ...
 };
 
 
@@ -143,6 +141,75 @@ sub sorting {
 sub from_koral_query {
   ...
 };
+
+
+# Clone the query object
+sub clone {
+  ...
+};
+
+# This introduces the normalization phase
+sub to_nodes {
+  my $self = shift;
+
+  # Build a complete query object
+  my $query;
+
+  # A virtual corpus and a query is given
+  if ($self->corpus && $self->query) {
+
+    # Filter query by corpus
+    $query = $self->query_builder->filter_by($self->query, $self->corpus);
+  }
+
+  # Only a query is given
+  elsif ($self->query) {
+
+    # Add corpus filter for live documents
+    $query = $self->query_builder->filter_by(
+      $self->query,
+      $self->corpus_builder->any
+    );
+  }
+
+  # Only a corpus query is given
+  else {
+
+    # TODO:
+    #   This may have influence on the possible meta object!
+    $query = $self->corpus;
+  };
+
+  # Normalize the query
+  my $query_norm;
+  unless ($query_norm = $query->normalize) {
+    $self->copy_info_from($query);
+    return;
+  };
+
+  # Finalize the query
+  my $query_final;
+  unless ($query_final = $query_norm->normalize) {
+    $self->copy_info_from($query);
+    return;
+  };
+
+  # This is just for testing
+  return $query_final unless $self->meta;
+
+  # Normalize the meta
+  my $meta;
+  unless ($meta = $self->meta->normalize) {
+    $self->copy_info_from($self->meta);
+    return;
+  };
+
+  # Serialize from meta
+  return $self->meta->to_nodes($query_final);
+};
+
+
+
 
 
 # Serialization of KoralQuery
@@ -170,138 +237,8 @@ sub to_koral_query {
 
 
 
-# This introduces the normalization phase
-sub to_nodes {
-  my $self = shift;
-
-  my $query;
-
-  # A virtual corpus and a query is given
-  if ($self->corpus && $self->query) {
-
-    # Filter query by corpus
-    $query = $self->query_builder->filter_by($self->query, $self->corpus);
-  }
-
-  # Only a query is given
-  elsif ($self->query) {
-
-    # Add corpus filter for live documents
-    $query = $self->query_builder->filter_by(
-      $self->query,
-      $self->corpus_builder->any
-    );
-  }
-
-  # Only corpus query is given
-  else {
-    $query = $self->corpus;
-  };
-
-  # Normalize the query
-  my $query_norm;
-  unless ($query_norm = $query->normalize) {
-    $self->copy_info_from($query);
-    return;
-  };
-
-  # Finalize the query
-  my $query_final;
-  unless ($query_final = $query_norm->normalize) {
-    $self->copy_info_from($query);
-    return;
-  };
-
-  # Normalize the meta
-  my $meta;
-  unless ($meta = $self->meta->normalize) {
-    $self->copy_info_from($self->meta);
-    return;
-  };
-
-  # Get serialization for nodes
-  return $self->meta->to_nodes($query_final);
-};
 
 
-
-
-# Normalize object
-sub normalize {
-  my $self = shift;
-
-  my $query;
-
-  # Corpus and query are given - filter!
-  if ($self->query && $self->corpus) {
-
-    my $corpus = $self->corpus;
-
-    # Add corpus filter
-    $query = $self->query_builder->filter_by($self->query, $self->corpus);
-
-    # Meta is defined
-    if ($self->meta) {
-
-      # TODO: Make this a filter query!
-
-      # Wrap in sort filter if available
-      $corpus = $self->meta->sort_filter($corpus);
-    };
-  }
-
-  # Only corpus is given
-  elsif ($self->corpus) {
-    $query = $self->corpus;
-
-    # Wrap in sort filter if available
-
-    # TODO:
-    # $query = $self->meta->sort_filter($query, $index) if $self->meta;
-  }
-
-  # Only query is given
-  elsif ($self->query) {
-
-    # Add corpus filter for live documents
-    $query = $self->query_builder->filter_by(
-      $self->query,
-      $self->corpus_builder->any
-    );
-  };
-
-
-  # If meta is defined, prepare results
-  if ($self->meta) {
-    $query = $self->meta->search_for($query);
-  };
-
-  # TODO:
-  # The following operations will invalidate sort filtering:
-  # - grouping
-  # - aggregate (except result is already cached)
-
-  # TODO:
-  # if ($self->sorting && $self->sorting->filter) {
-  #   # Filter matches using a sort filter
-  #   $query = $self->query->filter_by($self->sorting->filter);
-  # };
-
-  # TODO:
-  #  - Find identical subqueries
-  #  - This is especially useful for VC filtering,
-  #  - Terms (PostingsList) will automatically avoid
-  #    lifting posting lists multiple times.
-  #
-  # That means: create a buffered version of $self->corpus
-  #
-  # TODO: Make this part of ->plan_for($index, $refs)
-  #
-  # $query->replace_references;
-
-  # Prepare query
-  return $query->normalize;
-};
 
 
 # Get KoralQuery with results
@@ -452,33 +389,83 @@ sub to_string {
   my $self = shift;
   my $str = '';
 
-  # TODO:
-  #   Post normalization, this will only have
-  #   a query part, otherwise it will have
-  #   a corpus and a meta part
+  my @list = ();
 
-  if ($self->corpus && $self->query) {
-    $str .= 'filter(';
-    $str .= $self->query->to_string;
-    $str .= ',';
-    $str .= $self->corpus->to_string;
-    $str .= ')';
-  }
-  elsif ($self->corpus) {
-    $str .= $self->corpus->to_string;
-  }
-  elsif ($self->query) {
-    $str .= $self->query->to_string;
+  if ($self->meta) {
+    push @list, 'meta=[' . $self->meta->to_string . ']';
+  };
+  if ($self->corpus) {
+    push @list, 'corpus=[' . $self->corpus->to_string . ']';
+  };
+  if ($self->query) {
+    push @list, 'query=[' . $self->query->to_string . ']';
   };
 
-  # warn 'Stringification is not well defined';
-  # TODO:
-  #   introduce ->normalize etc.
-
-  return $str;
+  return join(',', @list);
 };
 
 1;
 
 __END__
 
+
+
+sub sorting {
+  ...
+};
+
+
+# Normalize object
+sub normalize {
+  my $self = shift;
+
+  my $query;
+
+  # Corpus and query are given - filter!
+  if ($self->query && $self->corpus) {
+
+    my $corpus = $self->corpus;
+
+    # Add corpus filter
+    $query = $self->query_builder->filter_by($self->query, $self->corpus);
+
+    # Meta is defined
+    if ($self->meta) {
+
+      # TODO: Make this a filter query!
+
+      # Wrap in sort filter if available
+      $corpus = $self->meta->sort_filter($corpus);
+    };
+  }
+
+  # Only corpus is given
+  elsif ($self->corpus) {
+    $query = $self->corpus;
+
+    # Wrap in sort filter if available
+
+    # TODO:
+    # $query = $self->meta->sort_filter($query, $index) if $self->meta;
+  }
+
+  # Only query is given
+  elsif ($self->query) {
+
+    # Add corpus filter for live documents
+    $query = $self->query_builder->filter_by(
+      $self->query,
+      $self->corpus_builder->any
+    );
+  };
+
+
+  # If meta is defined, prepare results
+  if ($self->meta) {
+    $query = $self->meta->search_for($query);
+  };
+
+
+  # Prepare query
+  return $query->normalize;
+};

@@ -93,7 +93,7 @@ is($op->{key}, 'd', 'Operand is a term');
 
 TODO: {
   local $TODO = 'Test Serialization output';
-  ok($koral = $koral->normalize->finalize, 'Finalize query');
+  ok($koral = $koral->to_nodes, 'Finalize query');
 };
 
 

@@ -31,18 +31,19 @@ my $kcb = $koral->corpus_builder;
 $koral->query($kqb->term('bb'));
 $koral->corpus($kcb->string('author')->eq('Peter'));
 
-is($koral->to_string, 'filter(bb,author=Peter)', 'Stringification');
+is($koral->to_string, 'corpus=[author=Peter],query=[bb]', 'Stringification');
 
-my $query = $koral->normalize->finalize->optimize($index);
-
+my $query = $koral->to_nodes->optimize($index);
 
 # Can't match anywhere:
 is($query->to_string, "[0]", 'Planned stringification');
 
 
 $koral->corpus($kcb->string('author')->eq('Arthur'));
-is($koral->to_string, 'filter(bb,author=Arthur)', 'Stringification');
-$query = $koral->normalize->finalize->optimize($index);
+
+is($koral->to_string, 'corpus=[author=Arthur],query=[bb]', 'Stringification');
+
+$query = $koral->to_nodes->optimize($index);
 
 # Can't match anywhere:
 is($query->to_string, "filter('bb','author:Arthur')", 'Planned stringification');

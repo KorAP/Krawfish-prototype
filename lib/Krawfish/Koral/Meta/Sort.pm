@@ -1,4 +1,5 @@
 package Krawfish::Koral::Meta::Sort;
+use Krawfish::Result::Node::Sort;
 use List::MoreUtils qw/uniq/;
 use strict;
 use warnings;
@@ -49,8 +50,7 @@ sub normalize {
 
 sub to_nodes {
   my ($self, $query) = @_;
-  warn 'TODO';
-  return $query;
+  return Krawfish::Result::Node::Sort->new($query, [$self->operations]);
 };
 
 

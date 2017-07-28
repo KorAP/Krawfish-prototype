@@ -1,7 +1,6 @@
-package Krawfish::Node::Sort;
+package Krawfish::Result::Node::Sort;
 use strict;
 use warnings;
-
 
 # This will simply mergesort the inmcoming
 # streams using next and prepare 'criterion'
@@ -15,11 +14,20 @@ use warnings;
 sub new {
   my $class = shift;
   return bless {
+    query => shift,
+    sort => shift
   }, $class;
 };
 
+
 sub to_string {
-  ...
+  my $self = shift;
+  return 'sort(' . join(',', map { $_->to_string } @{$self->{sort}}) . ':' . $self->{query}->to_string . ')';
 };
+
+sub next {
+  $_[0]->{query}->next;
+};
+
 
 1;
