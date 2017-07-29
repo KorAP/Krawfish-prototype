@@ -111,13 +111,15 @@ sub get_classes {
   return @classes;
 };
 
+
 # Return classes sorted by start position
 sub get_classes_sorted {
   my ($self, $nrs) = @_;
   # The same as get_classes, but ordered by start position
 
   return sort { $a->[1] <=> $b->[1] } $self->get_classes($nrs);
-}
+};
+
 
 # This will be overwritten for at least cached buffers
 # necessary for sorting
@@ -126,6 +128,7 @@ sub offset {
 };
 
 
+# Clone the posting with all information
 sub clone {
   my $self = shift;
   return __PACKAGE__->new(
@@ -136,7 +139,8 @@ sub clone {
   );
 }
 
-# Stringify
+
+# Stringification
 sub to_string {
   my $self = shift;
   my $str = '[' .
@@ -152,6 +156,7 @@ sub to_string {
 };
 
 
+# Check if two postings are identical
 sub is_identical {
   my ($self, $comp) = @_;
   return unless $comp;

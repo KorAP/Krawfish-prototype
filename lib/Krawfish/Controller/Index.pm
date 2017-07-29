@@ -54,29 +54,17 @@ sub search {
   # Get nodes object
   my $cluster = Krawfish::Cluster->new;
 
-  # Send to all nodes
-  $node_koral->send(
-    $cluster => (
+  # Send query to all nodes
+  $cluster->search_for(
+    $node_koral => sub {
+      my $response = shift;
 
-      # This sub will be triggered for each node
-      sub {
-        my ($query, $node) = @_;
+      # Add result to response
+      $response->{response} = $query->to_response;
 
-        # Process the head data
-        $query->process_head($node->response->head);
-      },
-
-      # This sub will triggered after all nodes were passed
-      sub {
-        my $query = shift;
-
-        # Add result to response
-        $response->{response} = $query->to_response;
-
-        # Return koral query response
-        return $c->render(json => $response->to_koral_query);
-      }
-    )
+      # Return koral query response
+      return $c->render(json => $response->to_koral_query);
+    }
   );
 };
 

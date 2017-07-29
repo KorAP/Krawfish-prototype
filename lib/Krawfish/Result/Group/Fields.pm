@@ -6,9 +6,9 @@ use warnings;
 use constant DEBUG => 0;
 
 # This will group matches (especially document matches) by field
-# This is useful for document browsing.
+# This is useful e.g. for document browsing per corpus.
 #
-# Because the groupiung is based on ranking, the sorting will be trivial.
+# Because the grouping is based on ranking, the sorting will be trivial.
 
 sub new {
   my $class = shift;

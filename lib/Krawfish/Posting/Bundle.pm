@@ -7,8 +7,8 @@ use strict;
 # TODO:
 #   This is quite similar to K::P::Group
 
-# This is a container class for multiple
-# Krawfish::Posting objects
+# This is a container class for multiple Krawfish::Posting objects,
+# used for (among others) sorting.
 
 # Constructor
 sub new {

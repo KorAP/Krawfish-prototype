@@ -1,9 +1,12 @@
 package Krawfish::Posting::Match;
 use parent 'Krawfish::Posting';
 use Krawfish::Util::String qw/squote/;
-use JSON::XS;
 use warnings;
 use strict;
+
+
+# Matches are returned from searches and can be enriched
+# with various information
 
 # Get or set field to match
 sub fields {
@@ -36,7 +39,22 @@ sub term_ids {
   };
 };
 
+sub sorting_criteria;
 
+sub snippet;
+
+sub segment_id;
+
+sub match_id;
+
+
+# serialize to koralquery
+sub to_koral_query {
+  ...
+};
+
+
+# Stringification
 sub to_string {
   my $self = shift;
   my $str = '[';
