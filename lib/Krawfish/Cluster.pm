@@ -42,6 +42,12 @@ sub search_for {
         # tail.
         my $response = $_->res->json;
 
+        # TODO:
+        #   If a node has no positive status,
+        #   reformulate the query for the redundant value of the node
+        #   and resend to all other nodes.
+
+
         # Aggregate data, e.g. for grouping
         $query->process_head($response->{head});
 

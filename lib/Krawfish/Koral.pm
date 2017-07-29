@@ -152,6 +152,9 @@ sub clone {
 sub to_nodes {
   my $self = shift;
 
+  # Optionally pass a node id for replication retrieval
+  my $replicant_node_id = shift;
+
   # Build a complete query object
   my $query;
 
@@ -180,6 +183,22 @@ sub to_nodes {
     $query = $self->corpus;
   };
 
+  # If request is focused on replication, filter to replicates
+  if ($replicant_node_id) {
+    $query = $self->query_builder->filter_by(
+      $query,
+      $self->corpus_builder->string('-secondary')->eq($replicant_node_id)
+    );
+  }
+
+  # Focus on primary data
+  else {
+    # $query = $self->query_builder->filter_by(
+    #   $query,
+    #   $self->corpus_builder->string('-primary')->eq('1')
+    # );
+  }
+
   # Normalize the query
   my $query_norm;
   unless ($query_norm = $query->normalize) {
@@ -207,8 +226,6 @@ sub to_nodes {
   # Serialize from meta
   return $self->meta->to_nodes($query_final);
 };
-
-
 
 
 
