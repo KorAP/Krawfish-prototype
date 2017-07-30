@@ -35,6 +35,11 @@ sub search_for {
       # Iterate over all results
       foreach (@_) {
 
+        if ($_->error) {
+          next;
+          # retry! to_nodes($_->node_id);
+        };
+
         # Responses have a head and a tail section
         # In case, no aggregation or grouping is done,
         # there is no head section.

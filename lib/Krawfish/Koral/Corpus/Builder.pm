@@ -32,7 +32,6 @@ sub bool_and_not {
   return Krawfish::Koral::Corpus::AndNot->new(@_);
 };
 
-
 sub any {
   shift;
   Krawfish::Koral::Corpus::Any->new;
@@ -49,7 +48,6 @@ sub null {
 sub nothing {
   Krawfish::Koral::Corpus::Nothing->new;
 };
-
 
 sub class {
   shift;
@@ -75,6 +73,15 @@ sub date {
 sub regex {
   shift;
   return Krawfish::Koral::Corpus::Field->new('regex', @_);
+};
+
+sub primary_node {
+  Krawfish::Koral::Corpus::Field->new('string', '__1');
+};
+
+sub replicant_node {
+  shift;
+  Krawfish::Koral::Corpus::Field->new('string', '__2:' shift);
 };
 
 # Cache the result

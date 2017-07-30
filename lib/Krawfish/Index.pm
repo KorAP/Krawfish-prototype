@@ -12,6 +12,10 @@ use Scalar::Util qw!blessed!;
 use Mojo::JSON qw/encode_json decode_json/;
 use Mojo::File;
 
+
+# The document can be add as a primary document or as a replicated
+# document with a certain node_id.
+
 # TODO: This should be a base class for K::I::Static and K::I::Dynamic
 
 # TODO: Add LiveDocs-PostingsList, that supports deletion
@@ -177,8 +181,8 @@ sub field_values {
 # TODO: Support update as a insert_after_delete
 # TODO: Updated caches!
 sub add {
-  my $self = shift;
-  my $doc = shift;
+  my ($self, $doc, $replicant_id) = @_;
+
   unless (ref $doc) {
     $doc = decode_json(Mojo::File->new($doc)->slurp);
   };
@@ -242,6 +246,21 @@ sub add {
     my $post_list = $dict->add_term('+' . $term);
     $post_list->append($doc_id);
   };
+
+
+  # Set replication fields
+  if (0) {
+    my $term;
+    if ($replicant_id) {
+      $term = '2:' . $replicant_id;
+    }
+    else {
+      $term = '1:1';
+    };
+    my $post_list = $dict->add_term('__' . $term);
+    $post_list->append($doc_id);
+  };
+
 
   my $subtokens = $self->subtokens;
 

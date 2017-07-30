@@ -153,7 +153,7 @@ sub to_nodes {
   my $self = shift;
 
   # Optionally pass a node id for replication retrieval
-  my $replicant_node_id = shift;
+  my $replicant_id = shift;
 
   # Build a complete query object
   my $query;
@@ -184,10 +184,10 @@ sub to_nodes {
   };
 
   # If request is focused on replication, filter to replicates
-  if ($replicant_node_id) {
+  if ($replicant_id) {
     $query = $self->query_builder->filter_by(
       $query,
-      $self->corpus_builder->string('-secondary')->eq($replicant_node_id)
+      $self->corpus_builder->replicant_node($replicant_id)
     );
   }
 
@@ -195,7 +195,7 @@ sub to_nodes {
   else {
     # $query = $self->query_builder->filter_by(
     #   $query,
-    #   $self->corpus_builder->string('-primary')->eq('1')
+    #   $self->corpus_builder->primary_node
     # );
   }
 

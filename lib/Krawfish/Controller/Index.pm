@@ -9,6 +9,12 @@ sub add {
   my $c = shift;
   my $kq = $c->koral->error(000, 'Index creation not yet implemented');
   $c->render(json => $kq);
+
+  # TODO:
+  #   1. Choose the two best nodes, make one primary and the second
+  #      replicant.
+  #   2. $cluster->import($primary, $secondary);
+  #      if one of them fails, choose another one.
 };
 
 
