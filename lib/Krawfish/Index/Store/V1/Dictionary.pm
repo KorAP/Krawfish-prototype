@@ -2,8 +2,15 @@ package Krawfish::Index::Store::V1::Dictionary;
 use Krawfish::Log;
 use strict;
 use warnings;
-use Memoize;
-use POSIX qw/floor/;
+
+# This is a compact array based trie representation.
+# On each letter node, binary search and linear search can be done over
+# an aplphabetically sorted list.
+# The pointers are doubled to make reverse retrieval
+# on term_ids simple.
+# The dictionary can be loaded with minimal footprint on memory.
+
+# The term_id array points to the '00' terminal nodes of the tree structure.
 
 # This is necessary to deal with the dynamic structure
 use constant {
@@ -13,52 +20,19 @@ use constant {
   HI_KID     => 3,
   TERM_ID    => 4,
   TERM_CHAR  => '00',
+  TREE       => 0,
+  TERM_IDS   => 1,
   DEBUG      => 0
 };
 
 # TODO:
-#   It's probably WAY simpler to just store the values in alphabetic
-#   order and use a binary search on it instead of doing binary tree search.
-#   This will also simplify merge().
-#   AND
 #   Use linear search for small arrays, see
 #   https://schani.wordpress.com/2010/04/30/linear-vs-binary-search/
-
-# TODO:
-#   - The datastructure should be rather like:
-#     (([LENGTH-first-bit-not-set][xor][char])|([xor-first-bit-set][char]))*
-#     Because then there is no need for length-1 information.
-#     It may also be beneficial to have the information of a leaf node
-#     directly encoded in the xor, though this may be complicated,
-#     leaving only 30bit for xor
-#   - Characters are stored as UTF-32
-
-# TODO:
-#   - Benchmark deep first organization in favor of breadth-first!
-#     It may be beneficial to go deep-first on retrieval because of cache-
-#     prefetching (so a string with a linked list at the end is probably
-#     in the same page completely!)
-
-# This is a very compact representation of a Ternary Search Tree.
-# On each letter node, the binary search tree is complete and stored
-# in an array. The parental relation is implemented using a
-# xor-double-link on the character equality pointer to make reverse retrieval
-# on term_ids simple.
-# By storing the tree in a byte array with the structure
-# ([long:length][long:char][long:xor/term_id])*
-# the dictionary can be loaded fast with minimal footprint on memory.
-
-# In a complete BST, the children are
-# identifiably by
-# - 2 * node_i + 1 and
-# - 2 * node_i + 2
-# The parent is identifiable by
-# - floor($node_i - 1) / 2
+#   Because most arrays are small, prefer linear search over binary search
 
 # TODO: Support collations
-# - https://msdn.microsoft.com/en-us/library/ms143726.aspx
-# - http://userguide.icu-project.org/collation
-
+#   - https://msdn.microsoft.com/en-us/library/ms143726.aspx
+#   - http://userguide.icu-project.org/collation
 
 # from_array
 sub new {
@@ -72,110 +46,91 @@ sub new {
 
 # Pass a dynamic TST
 sub from_dynamic {
-  my $class = shift;
-  my $dynamic = shift;
-  bless [convert_to_array($dynamic)], $class;
+  my ($class, $tst) = @_;
+  bless [convert_to_array($tst)], $class;
 };
 
 
-# read with header
-# This may first be done in the parent dictionary module
-# and then be delegated to the right version
-sub from_file;
+# Get tree object
+sub tree {
+  $_[0]->[TREE];
+};
 
 
-# write a header
-sub to_file;
+# Get term id list
+sub term_ids {
+  $_[0]->[TERM_IDS];
+};
 
 
-# Search for string
-# TODO:
-#   Support collation my $diff = collation_cmp($char, $node_char);
+# Search for a term and return a term id
 sub search {
-  my ($self, $str) = @_;
-  my @char = (split(//, $str), TERM_CHAR);
+  my $self = shift;
+  my $term = shift;
+  my @term = (split('', $term), TERM_CHAR);
+  my $consumed = 0;
 
-  # Root node
-  my $pos = 0;
+  if (DEBUG) {
+    print_log('dict_v1', 'Search for term ' . $term);
+  };
 
-  my $array = $self->[0];
+  my $tree = $self->tree;
 
-  # Length of the root bst
-  # Length (e.g. 4 bytes char + 4 bytes xor)
-  my $length = $array->[$pos] * 2;
-  my $node_i = 1;
-  my $node_char;
-  my $i = 0;
+  my $term_id = 0;
+  my $offset = 0;
 
-  # Character at node position
-  while ($node_char = $array->[$pos + $node_i]) {
+  # Get node length
+  my $length = $tree->[$offset];
 
-    # Check for right child
-    my $char = $char[$i] or return;
+  # Start at first character (after up-field)
+  $offset += 2;
+  my $start = $offset;
+  while (1) {
 
-    print_log('v1_dict', "$char vs $node_char") if DEBUG;
-
-    # Check for right child
-    if ($char lt $node_char) {
-      print_log('v1_dict', "$char < $node_char") if DEBUG;
-
-      # Move to left child
-      # pos is the ternary node offset, 1 is the length
-      $node_i = lo_kid($node_i);
-    }
-
-    # Check for left child
-    elsif ($char gt $node_char) {
-      print_log('v1_dict', "$char > $node_char") if DEBUG;
-
-      # Move to right child
-      # pos is the ternary node offset, 1 is the intermediate xor
-      $node_i = hi_kid($node_i);
-    }
-
-    # Follow the transition
-    else {
-
-      # Get eq node and xor the result
-      $pos = $array->[$pos + $node_i + 1] ^ $pos;
-
-      if (DEBUG) {
-        print_log('v1_dict', "$char == $node_char");
-        print_log('v1_dict', "xor-node is $pos");
-      };
-
-      if ($char eq TERM_CHAR) {
-        print_log('v1_dict', "Found term_id $pos for $str") if DEBUG;
-        return $pos;
-      };
-
-      # Move eq-node
-      print_log('v1_dict', "Next node is at offset $pos") if DEBUG;
-
-      # Get the length of the BST
-      $length = $array->[$pos] * 2;
-
-      # Get the root node offset
-      $node_i = 1;
-      $i++;
-      next;
+    if (DEBUG) {
+      print_log('dict_v1', 'Compare ' . $tree->[$offset] . ' and ' . $term[$consumed]);
     };
 
-    # No right child available
-    return if $node_i > ($length + $pos);
+    # No valid node in existence
+    if ($tree->[$offset] gt $term[$consumed]) {
+      return;
+    }
+
+    # Node array exceeded
+    elsif ($offset >= $start + ($length * 2)) {
+      return;
+    }
+
+    # Characters match - consume!
+    elsif ($tree->[$offset] eq $term[$consumed]) {
+
+      if (DEBUG) {
+        print_log('dict_v1', 'Character ' . $tree->[$offset] . ' is fine - go on');
+      };
+
+      if ($term[$consumed] eq TERM_CHAR) {
+        if (DEBUG) {
+          print_log('dict_v1', 'Character is final - stop');
+        };
+        return $tree->[$offset+1];
+      };
+
+      $consumed++;
+
+      # Point to the down field
+      $offset = $tree->[$offset + 1];
+      $length = $tree->[$offset];
+      $start = $offset + 2;
+
+      if (DEBUG) {
+        print_log('dict_v1', "Move to next node at $offset with length $length");
+      };
+    };
+
+    $offset +=2;
   };
-  undef;
+  return;
 };
-
-
-sub lo_kid ($) {
-  2 * $_[0] + 1
-};
-
-sub hi_kid ($) {
-  2 * $_[0] + 3
-};
-
 
 sub search_case_insensitive;
 
@@ -197,180 +152,187 @@ sub in_prefix_order;
 sub in_suffix_order;
 
 
-# Store the TST with complete binary search trees at each
-# character level and XOR chains from eq to root node and next node
-# to make bidirectional vertical traversal simple
+
+
+# Read with header
+# This may first be done in the parent dictionary module
+# and then be delegated to the right version
+sub from_file;
+
+
+# write a header
+sub to_file;
+
+
+# Stringification
+sub to_string {
+  my ($self, $marker) = @_;
+  my $marked_tree = '';
+  my $tree = $self->tree;
+  foreach (my $i = 0; $i < @$tree; $i++) {
+    $marked_tree .= ' <' if $marker && $i == $marker;
+    $marked_tree .= $tree->[$i] ? '[' . $tree->[$i] . ']' : '[]';
+    $marked_tree .= '> ' if $marker && $i == $marker;
+  };
+  my $ids  = join '', map { $_ ? "[$_]" : '[]' } @{$self->term_ids};
+  return "tree=$marked_tree;ids=$ids";
+};
+
+
+# P.S. I tried to use only one field for double linking,
+#      but this didn't work so well
 sub convert_to_array {
-  # TODO:
-  #   - Sort all nodes in complete level sort order
-  #   - Use a stack or something similar to store the info and
-  #     keep next/previous-diff-xor for the eq nodes.
-  #   - All characters need to be treated as UCS2 (2-byte encoding)
-  #     or utf-32 (4-byte encoding)
-  my $dynamic_node = shift;
+  my $node = shift;
 
-  # Init with the first offset
-  my $parent_offset  = 0;
-  my $node_offset    = 0;
-  my $curr_offset    = 0;
-  my $gparent_offset = 0;
+  # Absolute offset of tree (identical to scalar(@tree))
+  my $offset = -1;
+  my $parent_offset;
+  my $top;
 
-  # Iterate over the tree breadth-first
-  # TODO:
-  #   It may be better to store depth-first,
-  #   so vertical nodes may be closer to each other,
-  #   meaning the deltas to xor are smaller.
-  #   In that case unique suffixes are stored in one page,
-  #   which may be faster.
-  #
-  my @queue = ([$node_offset, $parent_offset, $dynamic_node, $gparent_offset]);
-  my @array = ();
-  my @term_ids = ();
+  my (@tree, @term_ids) = ();
 
-  my $parent_of_bst = 0;
+  my ($length, $list);
 
-  # Iterate in a breadth-first manner
-  while (scalar(@queue) > 0) {
+  # Initialize stack
+  my @stack = [$node, 0, 0];
 
-    # Get offset information
-    # - The node offset is the position of the parent pointer
-    # - The offset is the position of the parent root
-    ($node_offset, $parent_offset, $dynamic_node, $gparent_offset) = @{shift @queue};
+  # As long as there are elements on the stack, go on.
+  while (@stack) {
 
-    # Get the current letter node as an array
-    my ($length, $chars) = _complete_level_sort($dynamic_node);
+    # Get the leftest child
+    ($node, $parent_offset) = @{shift @stack};
 
-    # The next node array starts with a length indicator
-    push @array, $length;
+    # Get the leftest children
+    ($length, $list) = _in_order($node);
 
-    # The current root position
-    $curr_offset = $#array;
+    # There are no more childs
+    next if $length == 0;
 
-    # Fix the parent nodes xor-eq-value
-    if ($parent_offset > 0) {
+    # Add one node level to tree
+    push @tree, $length;
+    $offset++;
+    $top = $offset;
+
+    # Add the reference to the top node (only once)
+    push @tree, '^' . $parent_offset;
+    $offset++;
+
+    my @node = ();
+    foreach (@$list) {
+
+      # Add character to tree
+      push @tree, $_->[SPLIT_CHAR];
+      $offset++;
 
       if (DEBUG) {
-        # print_log('v1_dict', "The current bst parent is $parent_of_bst") if DEBUG;
-
-        print_log('v1_dict', "Fix the current parent eq node");
-        print_log('v1_dict',
-                  '  ' . $array[$parent_offset - 1] .
-                    " at $node_offset/$curr_offset with $gparent_offset:     " .
-                    $gparent_offset .
-                    " xor $parent_offset = " .
-                    ($gparent_offset ^ $parent_offset),
-          );
+        print_log('dict_v1', 'Set ' . $_->[SPLIT_CHAR] . ' at offset ' . ($offset + 1));
       };
 
-      # TODO:
-      $array[$parent_offset] ^= $curr_offset; # = $curr_offset
-    }
+      # Add empty child link
+      push @tree, '?';
+      $offset++;
 
-    elsif (DEBUG) {
-      print_log(
-        'v1_dict',
-        "curr_offset is $curr_offset with parent_offset = $parent_offset"
-      );
-    };
+      # For lower nodes, add information to parent nodes
+      if ($parent_offset > 0) {
+        if (DEBUG) {
+          print_log('dict_v1', "Set parent offset $parent_offset to = $offset");
+        };
 
-    foreach (@$chars) {
+        # Set the parent offset to the top
+        $tree[$parent_offset] = $top;
+      };
 
-      # Push node values and eq-xor-pointers to array.
-      # The eq-xor-pointer is initially treated as a mirror,
-      # as if the node is a leaf node
-      push @array, (
-        # encode("UCS-2LE", $_->[SPLIT_CHAR]),
-        $_->[SPLIT_CHAR]
-      );
-
-      # TODO:
-      #   Final transitions store a link to the term_id/pos in their eq
-      #   This is a final stream (may be separate from @array), that supports
-      #   O(1) for term id request and O(n) for term retrieval
+      # Node is terminal
       if ($_->[SPLIT_CHAR] eq TERM_CHAR) {
-        # push @array, $parent_offset ^ $_->[TERM_ID]; #
 
-        push @array, $curr_offset ^ $_->[TERM_ID];
+        # Point term id to the "up" field
+        $term_ids[$_->[TERM_ID]] = $top + 1;
 
-        # store leaf node in term_id array
-        $term_ids[$_->[TERM_ID]] = $#array;
-      }
-      # Push temporary eq
-      else {
-        #        push @array, $parent_offset; # $curr_offset;
-        # It's rather initialized 0 ^ $curr_offset
-        push @array, $curr_offset; # It's rather initialized 0 ^ $curr_offset
+        if (DEBUG) {
+          print_log(
+            'dict_v1',
+            "Set final offset $offset to term ID " . $_->[TERM_ID]
+          );
+        };
 
-        # Push the current EQ node on the queue
-        push @queue, [$curr_offset, $#array, $_->[EQ_KID], $parent_offset];
+        # Set terminal id to node
+        $tree[$offset] = $_->[TERM_ID];
       };
+
+      # Add in alphabetical order
+      # Currently offset contains the ?-Position of $_
+      push @node, [$_->[EQ_KID], $offset, $parent_offset, $top];
     };
 
-    $parent_of_bst = $curr_offset;
+    # add to left
+    unshift @stack, @node;
   };
 
-  return \@array, \@term_ids;
+  return (\@tree, \@term_ids);
 };
 
 
-sub to_string {
-  my $self = shift;
-  my $marker = shift // 101;
-  my @array = @{$self->[0]}[0..100];
-  @array = grep { $_ } @array;
-
-  my $i = 0;
-  @array = map { $i++ == $marker ? "[$marker:$_]" : $_ } @array;
-  '<' . join(',', @array) . '>';
-};
-
-
+# Move to top, character by character
 sub term_by_term_id {
   my ($self, $term_id) = @_;
 
-  # TODO:
-  #   Check that term_id is < max_term_id
+  my $tree = $self->tree;
 
-  my ($array, $term_ids) = ($self->[0], $self->[1]);
-
-  # Get the leaf node
-  my $pos = $term_ids->[$term_id];
-  my $curr_offset = $array->[$pos];
-
-  my $parent_i = $curr_offset ^ $term_id;
+  my @term = ();
 
   if (DEBUG) {
-    print_log(
-      'v1_dict',
-      "Leave node position of $term_id is $pos with first eq $curr_offset",
-      "Parent node is at offset $parent_i"
-    );
+    print_log('dict_v1', 'Get term by term id ' . $term_id);
   };
 
-  return;
+  # Get offset from term ids
+  my $offset = $self->term_ids->[$term_id];
 
-  my $parent_char = $array->[$parent_i + 1];
+  return unless $offset;
 
-  print_log('v1_dict', "First parent is $parent_char") if DEBUG;
+  if (DEBUG) {
+    print_log('dict_v1', 'Tree has start at ' . $offset . ': ' . $self->to_string($offset));
+  };
 
-
-  my @chars;
-
-  my ($eq);
+  # Get offset from tree
+  $offset = substr($tree->[$offset], 1);
 
 
   my $i = 0;
-  while ($eq) {
-    warn $array->[$eq];
+  my $debug = '';
 
-    # Add char at the end of the string
-    unshift @chars, $array->[$eq-1];
-    $eq = $array->[$eq] ^ $eq;
-    last if $i++ > 10;
+  # Move to root
+  while ($offset != 0) {
+    my $char = $tree->[--$offset];
+    unshift @term, $char;
+
+    if (DEBUG) {
+      print_log('dict_v1', "Found $char at $offset in " . $self->to_string($offset));
+    };
+
+    # Just for security
+    last if $i++ > 20;
+
+    # Iterate to the beginning of the node to get the top offset
+    # TODO:
+    #   Alternatively the local offset could be stored in the first byte
+    #   as long as only 256 characters are in the node
+    #   if there are more, mark the node 0 and iterate
+    $offset--;
+    while (index($tree->[$offset], '^') != 0) {
+
+      $offset -=2;
+    };
+
+    print_log('dict_v1', "Found ^up at $offset") if DEBUG;
+
+    # Get up-direction and move
+    $offset = $self->tree->[$offset];
+    $offset = substr($offset, 1);
   };
 
-  return join '', @chars;
+  join '', @term;
 };
+
 
 
 # Traverse the current level tree in-order to
@@ -401,143 +363,7 @@ sub _in_order {
 };
 
 
-# THE REST IS NOT NECESSARY WHEN STORING IN ALPHABETIC ORDER
-# FOR BINARY SEARCH OR SEQUENTIAL SEARCH
-
-
-# Sort the nodes to create
-# a complete binary search tree
-# see http://stackoverflow.com/questions/19301938/create-a-complete-binary-search-tree-from-list#26896494
-sub _complete_level_sort {
-  my $dynamic_node = shift;
-
-  # TODO: get nodes in alphabetic order
-  my ($length, $array) = _in_order($dynamic_node);
-  my $index_order = _complete_order($length);
-
-  my @nodes_in_order = ();
-  for (my $i = 0; $i < $length; $i++) {
-    $nodes_in_order[$i] = $array->[$index_order->[$i] -1];
-  };
-
-  return ($length, \@nodes_in_order);
-};
-
-
-# TODO:
-#   This should be memoizable, as the
-#   array is identical for a lot
-#   of initial lengths, that may use a
-#   lookup table!
-# It may be a simple array:
-# 256 => ...
-# 255 => ...
-# 128 => ...
-
-memoize('_complete_order');
-
-sub _complete_order {
-  my $length = shift;
-  my $offset = 0;
-
-  my @results;
-  my @queue = [$length, $offset];
-
-  while (scalar(@queue) != 0) {
-    ($length, $offset) = @{shift @queue};
-
-    if ($length > 0) {
-      # Get the middle of the first queued length
-      my $middle = _complete_middle($length);
-      #print "Found middle $middle for length $length at offset $offset";
-
-      push @results, $offset + $middle;
-      #print " => " . ($offset + $middle) , "\n";
-
-      #print "-> Check for length " . ($middle - 1) . " at offset $offset\n";
-      push @queue, [$middle - 1, $offset];
-
-      #print "-> Check for length " . ($length - $middle) . " at offset " .
-      #  ($offset + $middle) . "\n";
-      push @queue, [$length - $middle, $offset + $middle];
-    };
-  }
-  return \@results;
-};
-
-sub _complete_middle {
-  my $n = shift;
-
-  # TODO: Use a lookup table for common values
-
-  # find a power of 2 <= n//2
-  my $x = 1;
-  while ($x <= floor($n/2)) {
-    $x *= 2;
-  };
-  # Alternatively in Python:
-  # x = 1 << (n.bit_length() - 1)
-
-  # Case 1:
-  if (floor($x/2) - 1 <= ($n - $x)) {
-    return $x;
-  }
-
-  # Case 2
-  return $n - floor($x/2) + 1;
-};
-
-
 1;
 
 
 __END__
-
-
-
-
-
-
-
-
-# Nils Diewald:
-#   That's my trial to create a maximum compact dictionary
-sub XXX_breadth_first {
-  my $dynamic_node = shift;
-
-  # Do a breadth-first search per node
-  my @queue = ($dynamic_node);
-  my @results = ();
-
-  while (scalar(@queue) != 0) {
-
-    # Get the first item
-    $dynamic_node = shift @queue;
-
-    push @queue, $dynamic_node->[LO_KID] if $dynamic_node->[LO_KID]->[0];
-    push @queue, $dynamic_node->[HI_KID] if $dynamic_node->[HI_KID]->[0];
-    push @results, $dynamic_node->[SPLIT_CHAR];
-  };
-
-  return \@results;
-};
-
-
-sub XXX_depth_first {
-  my $dynamic_node = shift;
-
-  my @stack = ($dynamic_node);
-  my @results = ();
-
-  while (scalar(@stack) != 0) {
-    $dynamic_node = pop @stack;
-
-    push @stack, $dynamic_node->[LO_KID] if $dynamic_node->[LO_KID]->[0];
-    push @stack, $dynamic_node->[HI_KID] if $dynamic_node->[HI_KID]->[0];
-
-    push @results, $dynamic_node->[SPLIT_CHAR];
-  };
-
-  return \@results;
-};
-

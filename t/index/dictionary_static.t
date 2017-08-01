@@ -5,8 +5,16 @@ use warnings;
 use_ok('Krawfish::Index::Store::Dynamic::Dictionary');
 use_ok('Krawfish::Index::Store::V1::Dictionary');
 
-ok(my $tst = Krawfish::Index::Store::Dynamic::Dictionary->new, 'Construct new tst');
+my $tst2 = Krawfish::Index::Store::Dynamic::Dictionary->new;
 
+$tst2->insert('abc');
+$tst2->insert('zab');
+$tst2->insert('dij');
+$tst2->insert('ytz');
+$tst2->insert('mkl');
+
+# Create new dynamic dictionary object
+ok(my $tst = Krawfish::Index::Store::Dynamic::Dictionary->new, 'Construct new tst');
 ok($tst->insert('abc', 1), 'Insertion');
 ok($tst->insert('abb', 2), 'Insertion');
 ok($tst->insert('ab', 3), 'Insertion');
@@ -17,25 +25,30 @@ is($tst->search('abb'), 2, 'abb is part of the TST');
 is($tst->search('abc'), 1, 'abc is part of the TST');
 is($tst->search('bc'), 4, 'ab is part of the TST');
 
-is(Krawfish::Index::Store::V1::Dictionary::_complete_middle(10), 7, 'Find the complete middle of a length');
-is_deeply(Krawfish::Index::Store::V1::Dictionary::_complete_order(10), [7,4,9,2,6,8,10,1,3,5], 'Find a length order');
+ok(!$tst->search('aba'), 'Not part of the TST');
+ok(!$tst->search('a'), 'Not part of the TST');
+ok(!$tst->search('bb'), 'Not part of the TST');
+ok(!$tst->search('bca'), 'Not part of the TST');
 
-
-ok(my $complete = Krawfish::Index::Store::V1::Dictionary->from_dynamic($tst),
+ok(my $static = Krawfish::Index::Store::V1::Dictionary->from_dynamic($tst),
    'Construct new complete tst');
 
-diag $complete->to_string(5);
+is($static->term_by_term_id(1), 'abc', 'Get term by term id');
+is($static->term_by_term_id(2), 'abb', 'Get term by term id');
+is($static->term_by_term_id(3), 'ab', 'Get term by term id');
+is($static->term_by_term_id(4), 'bc', 'Get term by term id');
+
+ok(!$static->term_by_term_id(6), 'No term available');
+
+is($static->search('ab'), 3, 'ab is part of the TST');
+is($static->search('abb'), 2, 'abb is part of the TST');
+is($static->search('abc'), 1, 'abc is part of the TST');
+is($static->search('bc'), 4, 'ab is part of the TST');
+
+ok(!$tst->search('aba'), 'Not part of the TST');
+ok(!$tst->search('a'), 'Not part of the TST');
+ok(!$tst->search('bb'), 'Not part of the TST');
+ok(!$tst->search('bca'), 'Not part of the TST');
 
 done_testing;
 __END__
-
-ok(!$complete->search('a'), 'a is not part of the TST');
-ok(!$complete->search('ba'), 'a is not part of the TST');
-is($complete->search('ab'), 3, 'ab is part of the TST');
-is($complete->search('abb'), 2, 'abb is part of the TST');
-is($complete->search('abc'), 1, 'abc is part of the TST');
-is($complete->search('bc'), 4, 'ab is part of the TST');
-
-#is($complete->term_by_term_id(4), '', 'Term by term id');
-
-done_testing;

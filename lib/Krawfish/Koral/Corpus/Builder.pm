@@ -81,7 +81,7 @@ sub primary_node {
 
 sub replicant_node {
   shift;
-  Krawfish::Koral::Corpus::Field->new('string', '__2:' shift);
+  Krawfish::Koral::Corpus::Field->new('string', '__2:' . shift);
 };
 
 # Cache the result
