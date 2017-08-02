@@ -111,17 +111,17 @@ is($query->to_string, 'author=Peter', 'Stringification');
 ok(my $plan = $query->normalize->finalize, 'Planning');
 is($plan->to_string, '[1]&author=Peter', 'Stringification');
 
-ok(my $fin = $plan->optimize($index), 'Optimizing');
-is($fin->to_string, "and([1],'author:Peter')", 'Stringification');
+ok($plan = $plan->identify($index->dict), 'Add identification');
+
+ok(my $fin = $plan->optimize($index->segment), 'Optimizing');
+is($fin->to_string, "and([1],2)", 'Stringification');
 
 matches($fin, [qw/[0] [1] [2]/]);
 
-ok($index->live->delete(1), 'Document deleted directly');
+ok($index->segment->live->delete(1), 'Document deleted directly');
 
-ok($fin = $plan->optimize($index), 'Optimizing');
+ok($fin = $plan->optimize($index->segment), 'Optimizing');
 matches($fin, [qw/[0] [2]/]);
-
-
 
 done_testing;
 __END__

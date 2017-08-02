@@ -1,16 +1,13 @@
 package Krawfish::Index;
-use Krawfish::Index::Dictionary;
-use Krawfish::Index::Subtokens;
-use Krawfish::Index::PrimaryData;
-use Krawfish::Index::Fields;
-use Krawfish::Index::PostingsLive;
-use Krawfish::Cache;
 use Krawfish::Log;
-use strict;
-use warnings;
-use Scalar::Util qw!blessed!;
+use Krawfish::Index::Dictionary;
+use Krawfish::Index::Segment;
 use Mojo::JSON qw/encode_json decode_json/;
 use Mojo::File;
+use strict;
+use warnings;
+
+use constant DEBUG => 1;
 
 
 # The document can be add as a primary document or as a replicated
@@ -63,9 +60,7 @@ use Mojo::File;
 #   terms may have term_ids and subterms should have subterm_ids
 
 
-use constant DEBUG => 0;
-
-
+# Construct a new index object
 sub new {
   my $class = shift;
   my $file = shift;
@@ -73,105 +68,42 @@ sub new {
     file => $file
   }, $class;
 
-  print_log('index', 'Instantiate new index') if DEBUG;
-
-  # Load dictionary
   $self->{dict} = Krawfish::Index::Dictionary->new(
     $self->{file}
   );
 
-  # Load offsets
-  $self->{subtokens} = Krawfish::Index::Subtokens->new(
+  $self->{segments} = [];
+
+  $self->{dyn_segment} = Krawfish::Index::Segment->new(
     $self->{file}
   );
-
-  # Load primary
-  $self->{primary} = Krawfish::Index::PrimaryData->new(
-    $self->{file}
-  );
-
-  # Load fields
-  $self->{fields} = Krawfish::Index::Fields->new(
-    $self->{file}
-  );
-
-  # Load live document pointer
-  $self->{live} = Krawfish::Index::PostingsLive->new(
-    $self->{file}
-  );
-
-  # Create a list of docid -> uuid mappers
-  # This may be problematic as uuids may need to be uint64,
-  # this can grow for a segment with 65.000 docs up to ~ 500kb
-  # Or ~ 7MB for 1,000,000 documents
-  # But this means it's possible to store
-  # 18.446.744.073.709.551.615 documents in the index
-  $self->{identifier} = [];
-
-  # Collect fields to sort
-  $self->{sortable} = {};
-
-  # Collect values to sum
-  $self->{summable} = {};
-
-  # Add cache
-  $self->{cache} = Krawfish::Cache->new;
 
   return $self;
 };
 
 
-# Get the last document index
-sub last_doc {
-  $_[0]->{live}->next_doc_id - 1;
+# Get the segments array
+sub segments {
+  $_[0]->{segments}
 };
 
 
-# Alias for last doc
-sub max_rank {
-  $_[0]->{live}->next_doc_id - 1;
+# Get the dynamic segment
+sub dyn_segment {
+  # DEPRECATE!
+  $_[0]->{dyn_segment};
 };
 
 
-# Get term dictionary
+# Get the dynamic segment
+sub segment {
+  $_[0]->{dyn_segment};
+};
+
+
+# Get the dictionary
 sub dict {
   $_[0]->{dict};
-};
-
-
-# Get info
-sub info {
-  $_[0]->{info};
-};
-
-
-# Get subtokens
-sub subtokens {
-  $_[0]->{subtokens};
-};
-
-
-# Get live documents
-sub live {
-  $_[0]->{live};
-};
-
-
-# Get primary
-sub primary {
-  $_[0]->{primary};
-};
-
-
-# Get fields
-sub fields {
-  $_[0]->{fields};
-};
-
-
-# Get field values for addition
-sub field_values {
-  $_[0]->{field_values};
 };
 
 
@@ -187,8 +119,11 @@ sub add {
     $doc = decode_json(Mojo::File->new($doc)->slurp);
   };
 
-  # Get new doc_id
-  my $doc_id = $self->live->incr;
+  # Get the dynamic segment to add the document
+  my $seg = $self->dyn_segment;
+
+  # Get new doc_id for the segment
+  my $doc_id = $seg->live->incr;
 
   # Get document
   $doc = $doc->{document};
@@ -197,7 +132,7 @@ sub add {
   if ($doc->{primaryData}) {
 
     # TODO: This may, in the future, contain the forward index instead
-    $self->primary->store($doc_id, $doc->{primaryData});
+    $seg->primary->store($doc_id, $doc->{primaryData});
 
     print_log('index', 'Store primary data "' . $doc->{primaryData} . '"') if DEBUG;
   };
@@ -207,14 +142,14 @@ sub add {
   # Store identifier for mappings
   # But what is the purpose of the identifier?
   # Isn't it okay to be slow here ... ?
-  if ($doc->{id}) {
-    $self->{identifier}->[$doc_id] = $doc->{id};
-  };
+  # if ($doc->{id}) {
+  #   $seg->{identifier}->[$doc_id] = $doc->{id};
+  # };
 
   my $dict = $self->{dict};
 
   # Add metadata fields
-  my $fields = $self->fields;
+  my $fields = $seg->fields;
   foreach my $field (@{$doc->{fields}}) {
 
     # TODO:
@@ -231,7 +166,7 @@ sub add {
     if ($field->{sortable}) {
 
       # Which entries need to be sorted?
-      $self->{sortable}->{$field->{key}}++;
+      $seg->add_sortable($field->{key});
     };
 
     # Prepare field for summing
@@ -243,7 +178,14 @@ sub add {
 
     # Add to postings lists (search)
     my $term = $field->{key} . ':' . $field->{value};
-    my $post_list = $dict->add_term('+' . $term);
+
+    # Add the term to the dictionary
+    my $term_id = $dict->add_term2('+' . $term);
+
+    # Get the posting list for the term
+    my $post_list = $seg->postings($term_id);
+
+    # Append the document to the posting list
     $post_list->append($doc_id);
   };
 
@@ -257,12 +199,17 @@ sub add {
     else {
       $term = '1:1';
     };
-    my $post_list = $dict->add_term('__' . $term);
+
+    # Add term to dictionary
+    my $term_id = $dict->add_term2('__' . $term);
+
+    # Add posting to list
+    my $post_list = $seg->postings($term_id);
     $post_list->append($doc_id);
   };
 
-
-  my $subtokens = $self->subtokens;
+  # Get subtoken list
+  my $subtokens = $seg->subtokens;
 
   # The primary text is necessary for the subtoken index as well as
   # for the forward index
@@ -274,10 +221,10 @@ sub add {
     print_log('index', 'Store subtokens') if DEBUG;
 
     # Store all subtoken offsets
-    foreach my $seg (@{$doc->{subtokens}}) {
+    foreach my $subtoken (@{$doc->{subtokens}}) {
 
       # Get start and end of the subtoken
-      my ($start, $end) = @{$seg->{offsets}};
+      my ($start, $end) = @{$subtoken->{offsets}};
 
       if (DEBUG) {
         print_log(
@@ -364,7 +311,8 @@ sub add {
 
       # Add token terms
       foreach (@keys) {
-        my $post_list = $dict->add_term($_);
+        my $term_id = $dict->add_term2($_);
+        my $post_list = $seg->postings($term_id);
         $post_list->append($doc_id, @subtokens);
       };
     }
@@ -375,7 +323,8 @@ sub add {
       # Create key string
       my $key = '<>' . _term($item->{wrap});
 
-      my $post_list = $dict->add_term($key);
+      my $term_id = $dict->add_term2($key);
+      my $post_list = $seg->postings($term_id);
 
       # Append posting to posting list
       $post_list->append(
@@ -430,174 +379,5 @@ sub _subtokens {
   return;
 };
 
-
-# Apply (aka search) the index
-sub apply {
-  my $self = shift;
-  my $koral = shift;
-
-  # Necessary for filtering
-  my $corpus = $koral->corpus->prepare_for($self) or return;
-
-  # Add VC to query as a constraint
-  my $query = $koral->query->prepare_for($self, $corpus) or return;
-
-  # Get meta information
-  my $meta = $koral->meta->prepare_for($self) or return;
-
-  my $cb = shift;
-  my @result = ();
-
-  # No callback - push to array
-  unless ($cb) {
-    while ($query->next) {
-      push @result, $query->current;
-    };
-    return @result;
-  };
-
-  # Push callback
-  while ($query->next) {
-    $cb->($query->current);
-  };
-
-};
-
-
-
 1;
 
-
-__END__
-
-
-
-# Search using meta data
-# Can also be used to collect with a callback
-#
-sub search {
-  my ($self, $koral, $cb) = @_;
-
-  my $query  = $koral->query;
-  my $corpus = $koral->corpus;
-  my $meta   = $koral->meta;
-
-  # Initiate result object
-  my $result = $koral->result;
-
-  # Get filtered search object
-  my $search = $query->filter_by($corpus)->normalize->optimize($self);
-
-  # Augment with facets
-  # Will add to result info
-  if ($meta->facets) {
-    $search = $meta->facets($search);
-  };
-
-  # Augment with counting
-  # Will add to result info
-  if ($meta->count) {
-    $search = $meta->count($search);
-  };
-
-  # Augment with sorting
-  if ($meta->sorted_by) {
-    $search = $meta->sorted_by($search);
-  };
-
-  # Augment with limitations
-  if ($meta->limit) {
-    $search = $meta->limit($search);
-  };
-
-  # Augment with field collector
-  # Will modify current match
-  $search = $meta->fields($search);
-
-  # Augment with id creator
-  # Will modify current match
-  $search = $meta->id_create($search);
-
-  # Augment with snmippet creator
-  # Will modify current match
-  $search = $meta->snippets($search);
-
-  # Iterate over all matches
-  while ($search->next) {
-
-    # Based on the information, this will populate the match
-    $result->add_match($search->current_match);
-  };
-
-  return $koral;
-};
-
-sub get_fields {
-  my ($self, $doc_id, $fields) = @_;
-  ...
-};
-
-# This returns the posting's start and end position
-# when embedded in a span, e.g. <base/s=s>
-sub get_context_by_query {
-  my ($self, $posting, $query) = @_
-};
-
-sub get_annotations {
-  my ($self, $posting, $terms) = @_;
-
-  my %anno = ();
-
-  my $dict = $self->dict;
-  foreach my $term ($dict->terms($terms)) {
-    my $term_list = $dict->get($term);
-
-    # Skip to the correct document and the first position
-    next unless $term_list->next($posting->doc_id, $posting->start);
-
-    # Init annotation
-    my $anno = ($anno{$term} //= []);
-
-    # Iterate over all annotations
-    while ($term_list->current->end <= $posting->end) {
-
-      # Remember the annotations
-      push @$anno, $term_list->current->clone;
-
-      $term_list->next or next;
-    }
-
-    # Close (and forget) termlist
-    $term_list->close;
-  };
-
-  return \%anno;
-};
-
-
-
-
-
-sub items_per_page;
-
-sub start_page;
-
-sub apply {
-  my $self = shift;
-  my $query = $self->plan;
-  my $cb = shift;
-  my @result = ();
-
-  # No callback - push to array
-  unless ($cb) {
-    while ($query->next) {
-      push @result, $query->current;
-    };
-    return @result;
-  };
-
-  # Push callback
-  while ($query->next) {
-    $cb->($query->current);
-  };
-};

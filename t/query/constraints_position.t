@@ -20,10 +20,9 @@ my $wrap = $qb->constraints(
 is($wrap->to_string, "constr(pos=precedesDirectly:[aa],[bb])", 'Query is valid');
 ok($wrap = $wrap->normalize->finalize, 'Normalization');
 is($wrap->to_string, "constr(pos=precedesDirectly:aa,bb)", 'Query is valid');
-ok($wrap = $wrap->optimize($index), 'Optimization');
-is($wrap->to_string, "constr(pos=2:'aa','bb')", 'Query is valid');
+ok($wrap = $wrap->identify($index->dict)->optimize($index->segment), 'Optimization');
+is($wrap->to_string, "constr(pos=2:1,2)", 'Query is valid');
 matches($wrap, [qw/[0:0-2] [0:0-2] [0:0-2] [0:0-2]/]);
-
 
 # From t/query/positions.t
 
@@ -35,11 +34,10 @@ ok($wrap = $qb->constraints(
   $qb->token('bb')
 ), 'Sequence');
 
-ok(my $seq = $wrap->normalize->finalize->optimize($index), 'Optimization');
+ok(my $seq = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Optimization');
 
 # ok(my $seq = $wrap->plan_for($index), 'Rewrite');
 matches($seq, [qw/[0:0-2] [0:2-4]/]);
-
 
 # Reset index - situation [aa]..[bb] -> [aa][bb]
 $index = Krawfish::Index->new;
@@ -50,9 +48,8 @@ ok($wrap = $qb->constraints(
   $qb->token('aa'),
   $qb->token('bb')
 ), 'Sequence');
-ok($seq = $wrap->normalize->finalize->optimize($index), 'Rewrite');
+ok($seq = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
 matches($seq, [qw/[0:2-4]/]);
-
 
 # Reset index - situation [bb][aa] -> [aa][bb]
 $index = Krawfish::Index->new;
@@ -63,7 +60,7 @@ ok($wrap = $qb->constraints(
   $qb->token('aa'),
   $qb->token('bb')
 ), 'Sequence');
-ok($seq = $wrap->normalize->finalize->optimize($index), 'Rewrite');
+ok($seq = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
 matches($seq, [qw/[0:1-3]/]);
 
 
@@ -72,7 +69,7 @@ $index = Krawfish::Index->new;
 ok_index($index,'[aa][cc][aa][bb]', 'Add complex document');
 ok($qb = Krawfish::Koral::Query::Builder->new, 'Create Koral::Builder');
 ok($wrap = $qb->position(['precedesDirectly'],$qb->token('aa'), $qb->token('bb')), 'Sequence');
-ok($seq = $wrap->normalize->finalize->optimize($index), 'Rewrite');
+ok($seq = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
 matches($seq, [qw/[0:2-4]/]);
 
 
@@ -87,7 +84,7 @@ ok($wrap = $qb->constraints(
   $qb->token('aa'),
   $qb->token('bb')
 ), 'Sequence');
-ok($seq = $wrap->normalize->finalize->optimize($index), 'Rewrite');
+ok($seq = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
 matches($seq, [qw/[0:2-4]/]);
 
 
@@ -103,7 +100,7 @@ ok($wrap = $qb->constraints(
   $qb->token('aa'),
   $qb->token('bb')
 ), 'Sequence');
-ok($seq = $wrap->normalize->finalize->optimize($index), 'Rewrite');
+ok($seq = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
 matches($seq, [qw/[0:0-2] [0:0-2] [0:0-2] [0:0-2]/]);
 
 
@@ -118,7 +115,7 @@ ok($wrap = $qb->constraints(
   $qb->token('aa'),
   $qb->token('bb')
 ), 'Sequence');
-ok($seq = $wrap->normalize->finalize->optimize($index), 'Rewrite');
+ok($seq = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
 # query language: [aa][bb]
 matches($seq, [qw/[0:0-2] [0:0-2]/]);
 
@@ -132,7 +129,7 @@ ok($wrap = $qb->constraints(
   $qb->token('aa'),
   $qb->token('bb')
 ), 'Sequence');
-ok($seq = $wrap->normalize->finalize->optimize($index), 'Rewrite');
+ok($seq = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
 matches($seq, [qw/[0:0-2] [0:0-2]/]);
 
 
@@ -146,7 +143,7 @@ ok($wrap = $qb->constraints(
   $qb->token('aa'),
   $qb->token('bb')
 ), 'Sequence');
-ok($seq = $wrap->normalize->finalize->optimize($index), 'Rewrite');
+ok($seq = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
 matches($seq, [qw/[0:0-2] [0:0-2] [0:0-2] [0:0-2] [0:2-4] [0:2-4] [0:2-4] [0:2-4]/]);
 
 
@@ -164,7 +161,7 @@ ok($wrap = $qb->constraints(
   $qb->token('aa'),
   $qb->token('bb')
 ), 'Sequence');
-ok($seq = $wrap->normalize->finalize->optimize($index), 'Rewrite');
+ok($seq = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
 matches($seq, [
   qw/[0:0-2] [0:0-2] [0:0-2] [0:0-2] [0:2-4] [0:2-4] [0:2-4] [0:2-4]/,
   qw/[3:0-2] [3:0-2] [3:0-2] [3:0-2] [3:2-4] [3:2-4] [3:2-4] [3:2-4]/
@@ -189,7 +186,7 @@ is($wrap->to_string, 'constr(pos=overlapsLeft:{1:aa{1,100}},{2:bb{1,100}})',
 done_testing;
 __END__
 
-ok(my $ov = $wrap->optimize($index), 'Optimization');
+ok(my $ov = $wrap->identify($index->dict)->optimize($index->segment), 'Optimization');
 is($ov->to_string, "constr(pos=4:class(1:rep(1-100:'aa')),class(2:rep(1-100:'bb')))",
    'Stringification');
 

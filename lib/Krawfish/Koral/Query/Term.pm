@@ -1,11 +1,16 @@
 package Krawfish::Koral::Query::Term;
 use parent 'Krawfish::Koral::Query';
-use Krawfish::Query::Term;
-use Krawfish::Query::Filter;
+use Krawfish::Query::Term; # DEPRECATED
+use Krawfish::Koral::Query::TermID;
 use Krawfish::Query::Nothing;
 use Krawfish::Log;
 use strict;
 use warnings;
+
+# TODO:
+#   Inflate may be renamed to ->identify(),
+#   Because while regexes are inflated, terms
+#   should probably already be rewritten to term_ids
 
 
 # TODO: Support escaping! Especially for regex!
@@ -16,7 +21,7 @@ use warnings;
 # TODO:
 #   Rename to_term to to_neutral!
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 sub new {
   my $class = shift;
@@ -88,6 +93,8 @@ sub min_span {
 
 # A term always spans exactly one token
 sub max_span {
+  # TODO:
+  #   Probably deal with span/relation types specially
   return 0 if $_[0]->is_null;
   1;
 };
@@ -364,6 +371,46 @@ sub inflate {
 
 
 
+# This is alternative to inflate
+sub identify {
+  my ($self, $dict) = @_;
+
+  # Do not inflate
+  # TODO:
+  #   But identify!!!
+  unless ($self->is_regex) {
+
+    my $term = $self->to_term;
+
+    print_log('kq_term', "Translate term $term to term_id") if DEBUG;
+
+    my $term_id = $dict->term_id_by_term2($term);
+    return Krawfish::Koral::Query::TermID->new($term_id);
+  };
+
+  # Get terms
+  my $term = $self->to_term_escaped;
+
+  print_log('kq_term', 'Inflate /^' . $term . '$/') if DEBUG;
+
+  # Get term_ids from dictionary
+  my @term_ids = $dict->term_ids(qr/^$term$/);
+
+  if (DEBUG) {
+    print_log('kq_term', 'Expand /^' . $term . '$/');
+    print_log('kq_term', 'to ' . (@term_ids > 0 ? substr(join(',', @term_ids), 0, 50) : '[0]'));
+  };
+
+  # Build empty term instead of nothing
+  return $self->builder->nothing unless @term_ids;
+
+  # TODO:
+  #   Use refer?
+  return $self->builder->bool_or(@term_ids)->normalize;
+};
+
+
+
 sub optimize {
   my ($self, $index) = @_;
   return Krawfish::Query::Term->new($index, $self->to_term);
@@ -371,7 +418,7 @@ sub optimize {
 
 
 sub is_any {
-  return 0;
+  0;
 };
 
 sub is_optional {

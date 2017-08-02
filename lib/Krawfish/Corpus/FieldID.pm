@@ -1,6 +1,5 @@
-package Krawfish::Corpus::Field;
+package Krawfish::Corpus::FieldID;
 use parent 'Krawfish::Corpus';
-use Krawfish::Index::PostingsList;
 use Krawfish::Posting::Doc;
 use Krawfish::Query::Nothing;
 use Krawfish::Log;
@@ -10,35 +9,32 @@ use warnings;
 use constant DEBUG => 0;
 
 sub new {
-  my ($class, $index, $term) = @_;
-
-  warn 'This is deprecated!';
-
-  my $postings = $index->dict->pointer('+' . $term)
+  my ($class, $segment, $term_id) = @_;
+  my $postings = $segment->postings($term_id)
     or return Krawfish::Query::Nothing->new;
 
   bless {
-    postings => $postings,
-    term => $term
+    postings => $postings->pointer,
+    term_id => $term_id
   }, $class;
 };
 
 sub next {
   my $self = shift;
 
-  print_log('field', 'Next "'.$self->term.'"') if DEBUG;
+  print_log('field_id', 'Next "'.$self->term.'"') if DEBUG;
 
   my $return = $self->{postings}->next;
   if (DEBUG) {
-    print_log('field', ' - current is ' . $self->current->to_string) if $return;
-    print_log('field', ' - no current');
+    print_log('field_id', ' - current is ' . $self->current->to_string) if $return;
+    print_log('field_id', ' - no current');
   };
   return $return;
 };
 
 
-sub term {
-  $_[0]->{term};
+sub term_id {
+  $_[0]->{term_id};
 };
 
 
@@ -56,7 +52,7 @@ sub max_freq {
 };
 
 sub to_string {
-  return "'" . $_[0]->term . "'";
+  return $_[0]->term_id;
 };
 
 1;

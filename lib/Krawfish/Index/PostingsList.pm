@@ -4,7 +4,7 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # TODO:
 #   Use different PostingsList (or rather different PostingPointer)
@@ -18,7 +18,7 @@ use constant DEBUG => 0;
 sub new {
   my ($class, $index_file, $term, $term_id) = @_;
   bless {
-    term => $term,
+    term => $term, ### Term is irrelevant now!
     term_id => $term_id,
     index_file => $index_file,
     array => [],
@@ -36,7 +36,7 @@ sub append {
   if (DEBUG) {
     print_log(
       'post',
-      "Appended " . $self->term . " with " . join(',', @data)
+      "Appended term_id " . $self->term_id . " with " . join(',', @data)
     );
   };
   push (@{$self->{array}}, [@data]);
@@ -49,7 +49,7 @@ sub freq {
 };
 
 sub term {
-  return $_[0]->{term};
+  return $_[0]->{term} // 'unknown';
 };
 
 sub term_id {
@@ -62,9 +62,10 @@ sub at {
 
 sub pointer {
   my $self = shift;
-  # TODO: Add pointer to pointer list
-  # so the PostingsList knows, which fragments to lift
-  # Be aware, this may result in circular structures
+  # TODO:
+  #   Add pointer to pointer list
+  #   so the PostingsList knows, which fragments to lift
+  #   Be aware, this may result in circular structures
   Krawfish::Index::PostingPointer->new($self);
 };
 

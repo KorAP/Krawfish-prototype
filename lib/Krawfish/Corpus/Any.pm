@@ -11,10 +11,10 @@ use constant DEBUG => 0;
 
 # Construct query on live documents
 sub new {
-  my ($class,$index) = @_;
+  my ($class,$segment) = @_;
 
   # Get live pointer
-  my $live = $index->live->pointer;
+  my $live = $segment->live->pointer;
 
   # Index is empty
   return Krawfish::Query::Nothing->new

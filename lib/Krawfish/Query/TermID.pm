@@ -1,4 +1,4 @@
-package Krawfish::Query::Term;
+package Krawfish::Query::TermID;
 use parent 'Krawfish::Query';
 use Krawfish::Posting::Token;
 use Krawfish::Query::Filter;
@@ -6,24 +6,20 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-# TODO: Probably inherit from PostingPointer
 
-# TODO: Support filters and skip
-# return Nothing if get returns undef
+use constant DEBUG => 1;
 
-use constant DEBUG => 0;
-
+# Constructor
 sub new {
-  my ($class, $index, $term) = @_;
+  my ($class, $segment, $term_id) = @_;
 
-  warn 'Deprecated!';
-
-
-  my $postings = $index->dict->pointer($term)
+  # Get postings pointer
+  my $postings = $segment->postings($term_id)
     or return Krawfish::Query::Nothing->new;
+
   bless {
-    postings => $postings,
-    term => $term
+    postings => $postings->pointer,
+    term_id => $term_id
   }, $class;
 };
 
@@ -33,25 +29,19 @@ sub new {
 sub next {
   my $self = shift;
 
-  print_log('term', 'Next "' . $self->term . "\"") if DEBUG;
+  print_log('term_id', 'Next "' . $self->term_id . "\"") if DEBUG;
 
   # TODO: This should respect filters
   my $return = $self->{postings}->next;
   if (DEBUG) {
-    print_log('term', ' - current is ' . $self->current) if $return;
-    print_log('term', ' - no current');
+    print_log('term_id', ' - current is ' . $self->current) if $return;
+    print_log('term_id', ' - no current');
   };
   return $return;
 };
 
 
-sub term {
-  $_[0]->{term};
-};
-
-
-# TODO: Probably rename to posting - and return a posting
-# that augments the given payload
+# Return current object
 sub current {
   my $postings = $_[0]->{postings};
   return if $postings->pos == -1;
@@ -62,6 +52,12 @@ sub current {
   );
 };
 
+
+sub term_id {
+  $_[0]->{term_id};
+};
+
+
 sub max_freq {
   $_[0]->{postings}->freq;
 };
@@ -71,9 +67,8 @@ sub freq_in_doc {
 };
 
 sub to_string {
-  return "'" . $_[0]->term . "'";
+  $_[0]->term_id;
 };
-
 
 sub skip_doc {
   $_[0]->{postings}->skip_doc($_[1]);
@@ -88,8 +83,4 @@ sub filter_by {
   );
 };
 
-
 1;
-
-
-__END__

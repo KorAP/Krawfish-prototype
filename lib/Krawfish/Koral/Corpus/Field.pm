@@ -1,6 +1,6 @@
 package Krawfish::Koral::Corpus::Field;
 use parent 'Krawfish::Koral::Corpus';
-use Krawfish::Corpus::Field;
+use Krawfish::Koral::Corpus::FieldID;
 use strict;
 use warnings;
 
@@ -117,12 +117,46 @@ sub inflate {
   return $_[0];
 };
 
-sub operands {
+
+# This is alternative to inflate
+sub identify {
+  my ($self, $dict) = @_;
+
+  # Do not inflate
+  # TODO:
+  #   But identify!!!
+  unless ($self->is_regex) {
+
+    my $term = $self->to_term;
+
+    print_log('kq_term', "Translate term $term to term_id") if DEBUG;
+
+    my $term_id = $dict->term_id_by_term2('+' . $term);
+    return Krawfish::Koral::Corpus::FieldID->new($term_id);
+  };
+
+  warn 'Inflation on regex not yet supported!';
   return;
 };
 
+
+
+sub operands {
+  return [];
+};
+
+
+# TODO:
+#   Support regular expressions!
+sub is_regex {
+  0;
+};
+
+
 sub optimize {
   my ($self, $index) = @_;
+
+  warn 'Optimization not supported!';
 
   # Negative field
   if ($self->is_negative) {

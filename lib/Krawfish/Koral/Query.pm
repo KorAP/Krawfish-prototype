@@ -75,10 +75,43 @@ sub refer {
 # Expand regular expressions
 sub inflate {
   my ($self, $dict) = @_;
+
+  warn 'Inflate is deprecated - use ->identify()';
+
   my $ops = $self->operands;
   return $self unless $ops;
   for (my $i = 0; $i < @$ops; $i++) {
     $ops->[$i] = $ops->[$i]->inflate($dict);
+  };
+  return $self;
+};
+
+
+# TODO:
+#   If "nothing" returns, optimize away
+#   before ->optimize().
+sub identify {
+  my ($self, $dict) = @_;
+
+  my $ops = $self->operands;
+  return $self unless $ops;
+  for (my $i = 0; $i < @$ops; $i++) {
+    $ops->[$i] = $ops->[$i]->identify($dict);
+  };
+  return $self;
+};
+
+
+# TODO:
+#   If "nothing" returns, optimize away
+#   before ->optimize().
+sub identify {
+  my ($self, $dict) = @_;
+
+  my $ops = $self->operands;
+  return $self unless $ops;
+  for (my $i = 0; $i < @$ops; $i++) {
+    $ops->[$i] = $ops->[$i]->identify($dict);
   };
   return $self;
 };

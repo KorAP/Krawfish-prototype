@@ -6,7 +6,8 @@ use Krawfish::Index::PostingsList;
 
 # TODO:
 #   This should be the base class for K::I::Dictionary::Dynamic
-#   and K::II::Dictionary::Static
+#   and K::II::Dictionary::Static, or it may homogenize both
+#   instantiations!
 
 # TODO:
 #   In production the dictionary will be implemented using
@@ -108,7 +109,7 @@ use Krawfish::Index::PostingsList;
 #           accessible by their sub_term_id position in the list:
 #  ([leaf-backref][prefix-rank][suffix-rank])*
 #
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 sub new {
   my $class = shift;
@@ -116,6 +117,8 @@ sub new {
   bless {
     file => $file,
     hash => {},   # Contain the dictionary
+
+    hash2 => {},  # Temporary
 
     # This will probably be one array in the future
     prefix_rank => [],
@@ -133,6 +136,31 @@ sub new {
     # TODO: Collation needs to be defined!
     collation => undef
   }, $class;
+};
+
+
+sub add_term2 {
+  my ($self, $term) = @_;
+
+  print_log('dict', "Added term $term") if DEBUG;
+
+  my $hash = $self->{hash2};
+
+  # Term not in dictionary yet
+  unless (exists $hash->{$term}) {
+
+    # Increment term_id
+    # TODO: This may infact fail, as term_ids are limited in size.
+    #   For hapax legomena, a special null marker will be returned
+    my $term_id = $self->{last_term_id}++;
+
+    # Set term to term_id
+    $hash->{$term} = $term_id;
+
+    # Store term for term_id mapping
+    $self->{term_array}->[$term_id] = $term;
+  };
+  return $hash->{$term};
 };
 
 
@@ -154,6 +182,10 @@ sub add_term {
     my $term_id = $self->{last_term_id}++;
 
     # Create new listobject
+    # TODO:
+    #   Do not directly associate a list object with the term!
+    #   There needs to be an intermediate list
+    #   with [term_id] => $term
     $hash->{$term} = Krawfish::Index::PostingsList->new(
       $self->{file}, $term, $term_id
     );
@@ -203,6 +235,10 @@ sub add_subterm {
 # Return pointer in list
 sub pointer {
   my ($self, $term) = @_;
+
+  # TODO:
+  #   This is probably not necessary
+
   print_log('dict', 'Try to retrieve pointer ' . $term) if DEBUG;
   my $list = $self->{hash}->{$term} or return;
   return $list->pointer;
@@ -244,10 +280,23 @@ sub suffix_rank_by_subterm_id {
 # sub rank_by_subterm;
 # sub rev_rank_by_subterm;
 
+
+# Returns the term id by a term
+sub term_id_by_term2 {
+  my ($self, $term) = @_;
+  print_log('dict', 'Try to retrieve term ' . $term) if DEBUG;
+  return $self->{hash2}->{$term};
+};
+
+
+
 # Returns the term id by a term
 # Currently this is a bit complicated to the round trip
 # Using the postings list - should be stored directly in the dictionary!
 sub term_id_by_term {
+
+  warn 'DEPRECATED';
+
   my ($self, $term) = @_;
   print_log('dict', 'Try to retrieve term ' . $term) if DEBUG;
   my $list = $self->{hash}->{$term};
@@ -266,6 +315,19 @@ sub terms {
   };
 
   return keys %{$self->{hash}};
+};
+
+
+# Return a list of identifier
+sub term_ids {
+  my ($self, $re) = @_;
+
+  if ($re) {
+    my $hash = $self->{hash};
+    return sort map { $hash->{$_} } grep { $_ =~ $re } keys %$hash;
+  };
+
+  return values %{$self->{hash}};
 };
 
 
