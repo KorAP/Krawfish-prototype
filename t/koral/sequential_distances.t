@@ -28,10 +28,10 @@ is($seq->to_string, '[a][][b]', 'Stringification');
 ok($seq = $seq->normalize->finalize, 'Normalization');
 is($seq->to_string, 'a[]b', 'Stringification');
 
-ok($seq = $seq->optimize($index), 'Optimization');
+ok($seq = $seq->identify($index->dict)->optimize($index->segment), 'Optimization');
 
 # Do not check for stringifications
-is($seq->to_string, "constr(pos=4096,between=1-1:'b','a')",
+is($seq->to_string, "constr(pos=4096,between=1-1:#2,#1)",
    'Stringification');
 
 # Matches once
@@ -48,10 +48,10 @@ $seq = $qb->seq(
 is($seq->to_string, '[a][]?[b]', 'Stringification');
 ok($seq = $seq->normalize->finalize, 'Normalization');
 is($seq->to_string, 'a[]?b', 'Stringification');
-ok($seq = $seq->optimize($index), 'Optimization');
+ok($seq = $seq->identify($index->dict)->optimize($index->segment), 'Optimization');
 
 # Do not check for stringifications
-is($seq->to_string, "constr(pos=6144,between=0-1:'b','a')",
+is($seq->to_string, "constr(pos=6144,between=0-1:#2,#1)",
    'Stringification');
 
 # Matches once
@@ -69,10 +69,10 @@ $seq = $qb->seq(
 is($seq->to_string, '[a][]{1,3}[b]', 'Stringification');
 ok($seq = $seq->normalize->finalize, 'Normalization');
 is($seq->to_string, 'a[]{1,3}b', 'Stringification');
-ok($seq = $seq->optimize($index), 'Optimization');
+ok($seq = $seq->identify($index->dict)->optimize($index->segment), 'Optimization');
 
 # Do not check for stringifications
-is($seq->to_string, "constr(pos=4096,between=1-3:'b','a')",
+is($seq->to_string, "constr(pos=4096,between=1-3:#2,#1)",
    'Stringification');
 
 # Matches once
@@ -87,10 +87,10 @@ $seq = $qb->seq(
 is($seq->to_string, '[a][]*[b]', 'Stringification');
 ok($seq = $seq->normalize->finalize, 'Normalization');
 is($seq->to_string, 'a[]{0,100}b', 'Stringification');
-ok($seq = $seq->optimize($index), 'Optimization');
+ok($seq = $seq->identify($index->dict)->optimize($index->segment), 'Optimization');
 
 # Do not check for stringifications
-is($seq->to_string, "constr(pos=6144,between=0-100:'b','a')",
+is($seq->to_string, "constr(pos=6144,between=0-100:#2,#1)",
    'Stringification');
 
 # Matches once
@@ -106,10 +106,10 @@ $seq = $qb->seq(
 is($seq->to_string, '[a]{1:[]*}[b]', 'Stringification');
 ok($seq = $seq->normalize->finalize, 'Normalization');
 is($seq->to_string, 'a{1:[]{0,100}}b', 'Stringification');
-ok($seq = $seq->optimize($index), 'Optimization');
+ok($seq = $seq->identify($index->dict)->optimize($index->segment), 'Optimization');
 
 # Do not check for stringifications
-is($seq->to_string, "constr(pos=6144,between=0-100,class=1:'b','a')",
+is($seq->to_string, "constr(pos=6144,between=0-100,class=1:#2,#1)",
    'Stringification');
 
 # Matches once
@@ -126,10 +126,10 @@ $seq = $qb->seq(
 is($seq->to_string, '[a]{4:{3:[]*}}[b]', 'Stringification');
 ok($seq = $seq->normalize->finalize, 'Normalization');
 is($seq->to_string, 'a{4:{3:[]{0,100}}}b', 'Stringification');
-ok($seq = $seq->optimize($index), 'Optimization');
+ok($seq = $seq->identify($index->dict)->optimize($index->segment), 'Optimization');
 
 # Do not check for stringifications
-is($seq->to_string, "constr(pos=6144,between=0-100,class=4,class=3:'b','a')",
+is($seq->to_string, "constr(pos=6144,between=0-100,class=4,class=3:#2,#1)",
    'Stringification');
 
 
@@ -143,10 +143,10 @@ $seq = $qb->seq(
 is($seq->to_string, '[a]{4:{3:[]}}*[b]', 'Stringification');
 ok($seq = $seq->normalize->finalize, 'Normalization');
 is($seq->to_string, 'a{4:{3:[]{0,100}}}b', 'Stringification');
-ok($seq = $seq->optimize($index), 'Optimization');
+ok($seq = $seq->identify($index->dict)->optimize($index->segment), 'Optimization');
 
 # Do not check for stringifications
-is($seq->to_string, "constr(pos=6144,between=0-100,class=4,class=3:'b','a')",
+is($seq->to_string, "constr(pos=6144,between=0-100,class=4,class=3:#2,#1)",
    'Stringification');
 
 

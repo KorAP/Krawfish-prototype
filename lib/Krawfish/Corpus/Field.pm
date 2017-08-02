@@ -9,10 +9,11 @@ use warnings;
 
 use constant DEBUG => 0;
 
+warn 'This is deprecated!';
+
+
 sub new {
   my ($class, $index, $term) = @_;
-
-  warn 'This is deprecated!';
 
   my $postings = $index->dict->pointer('+' . $term)
     or return Krawfish::Query::Nothing->new;

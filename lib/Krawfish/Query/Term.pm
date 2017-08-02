@@ -1,3 +1,7 @@
+warn 'Deprecated!';
+0
+__END__
+
 package Krawfish::Query::Term;
 use parent 'Krawfish::Query';
 use Krawfish::Posting::Token;
@@ -5,6 +9,8 @@ use Krawfish::Query::Filter;
 use Krawfish::Log;
 use strict;
 use warnings;
+
+
 
 # TODO: Probably inherit from PostingPointer
 
@@ -15,9 +21,6 @@ use constant DEBUG => 0;
 
 sub new {
   my ($class, $index, $term) = @_;
-
-  warn 'Deprecated!';
-
 
   my $postings = $index->dict->pointer($term)
     or return Krawfish::Query::Nothing->new;

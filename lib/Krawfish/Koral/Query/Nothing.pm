@@ -31,6 +31,10 @@ sub finalize {
   $_[0];
 };
 
+sub identify {
+  $_[0];
+};
+
 sub optimize {
   Krawfish::Query::Nothing->new;
 };

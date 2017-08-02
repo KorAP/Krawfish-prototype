@@ -1,8 +1,8 @@
 package Krawfish::Koral::Query::Token;
 use parent 'Krawfish::Koral::Query';
-use Krawfish::Koral::Query::Token;
+# use Krawfish::Koral::Query::Token;
 use Krawfish::Koral::Query::Term;
-use Krawfish::Query::Term;
+# use Krawfish::Query::Term;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -143,12 +143,12 @@ sub optimize {
   # The operand is a single term - ignore the wrapping token
   # However - this would ignore the unique constraint for cases,
   # where terms are identical, but have different payload information
-  if ($self->operand->type eq 'term') {
-    return Krawfish::Query::Term->new(
-      $index,
-      $self->operand->to_string
-    );
-  };
+  #if ($self->operand->type eq 'term') {
+  #  return Krawfish::Query::Term->new(
+  #    $index,
+  #    $self->operand->to_string
+  #  );
+  #};
 
   print_log('kq_token', 'Optimize and return wrap token') if DEBUG;
   return $self->operand->optimize($index);

@@ -1,5 +1,6 @@
 package Krawfish::Koral::Corpus::Nothing;
 use parent 'Krawfish::Koral::Corpus';
+use Krawfish::Query::Nothing;
 use strict;
 use warnings;
 
@@ -24,6 +25,20 @@ sub to_string {
 
 sub operands {
   return;
+};
+
+
+sub is_nothing {
+  1;
+};
+
+
+sub identify {
+  $_[0];
+};
+
+sub optimize {
+  Krawfish::Query::Nothing->new;
 };
 
 1;

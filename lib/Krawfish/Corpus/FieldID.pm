@@ -52,7 +52,7 @@ sub max_freq {
 };
 
 sub to_string {
-  return $_[0]->term_id;
+  return '#' . $_[0]->term_id;
 };
 
 1;

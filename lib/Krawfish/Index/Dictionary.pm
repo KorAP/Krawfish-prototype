@@ -118,8 +118,6 @@ sub new {
     file => $file,
     hash => {},   # Contain the dictionary
 
-    hash2 => {},  # Temporary
-
     # This will probably be one array in the future
     prefix_rank => [],
     suffix_rank => [],
@@ -139,12 +137,12 @@ sub new {
 };
 
 
-sub add_term2 {
+sub add_term {
   my ($self, $term) = @_;
 
   print_log('dict', "Added term $term") if DEBUG;
 
-  my $hash = $self->{hash2};
+  my $hash = $self->{hash};
 
   # Term not in dictionary yet
   unless (exists $hash->{$term}) {
@@ -163,38 +161,6 @@ sub add_term2 {
   return $hash->{$term};
 };
 
-
-# Add should return term-id (or term-string)
-sub add_term {
-  my $self = shift;
-  my $term = shift;
-
-  print_log('dict', "Added term $term") if DEBUG;
-
-  my $hash = $self->{hash};
-
-  # Term not in dictionary yet
-  unless (exists $hash->{$term}) {
-
-    # Increment term_id
-    # TODO: This may infact fail, as term_ids are limited in size.
-    #   For hapax legomena, a special null marker will be returned
-    my $term_id = $self->{last_term_id}++;
-
-    # Create new listobject
-    # TODO:
-    #   Do not directly associate a list object with the term!
-    #   There needs to be an intermediate list
-    #   with [term_id] => $term
-    $hash->{$term} = Krawfish::Index::PostingsList->new(
-      $self->{file}, $term, $term_id
-    );
-
-    # Store term for term_id mapping
-    $self->{term_array}->[$term_id] = $term;
-  };
-  return $hash->{$term};
-};
 
 
 # Add subterm to dictionary
@@ -282,26 +248,10 @@ sub suffix_rank_by_subterm_id {
 
 
 # Returns the term id by a term
-sub term_id_by_term2 {
-  my ($self, $term) = @_;
-  print_log('dict', 'Try to retrieve term ' . $term) if DEBUG;
-  return $self->{hash2}->{$term};
-};
-
-
-
-# Returns the term id by a term
-# Currently this is a bit complicated to the round trip
-# Using the postings list - should be stored directly in the dictionary!
 sub term_id_by_term {
-
-  warn 'DEPRECATED';
-
   my ($self, $term) = @_;
   print_log('dict', 'Try to retrieve term ' . $term) if DEBUG;
-  my $list = $self->{hash}->{$term};
-  return $list->term_id if $list;
-  return;
+  return $self->{hash}->{$term};
 };
 
 
@@ -324,6 +274,7 @@ sub term_ids {
 
   if ($re) {
     my $hash = $self->{hash};
+
     return sort map { $hash->{$_} } grep { $_ =~ $re } keys %$hash;
   };
 

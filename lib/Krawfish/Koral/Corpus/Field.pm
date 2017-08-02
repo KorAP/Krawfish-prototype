@@ -131,7 +131,10 @@ sub identify {
 
     print_log('kq_term', "Translate term $term to term_id") if DEBUG;
 
-    my $term_id = $dict->term_id_by_term2('+' . $term);
+    my $term_id = $dict->term_id_by_term('+' . $term);
+
+    return $self->builder->nothing unless defined $term_id;
+
     return Krawfish::Koral::Corpus::FieldID->new($term_id);
   };
 

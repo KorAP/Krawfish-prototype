@@ -80,13 +80,13 @@ $seq = $qb->seq(
 is($seq->to_string, '[a][b][c]', 'Stringification');
 is($seq->size, 2, 'Number of operands');
 
+
 # Flatten
 ok($seq = $seq->normalize, 'Normalization');
 is($seq->to_string, 'abc', 'Stringification');
 is($seq->size, 3, 'Number of operands');
 ok($seq = $seq->finalize, 'Finalization');
 is($seq->to_string, 'abc', 'Stringification');
-
 
 # Flatten subsequences (2)
 $seq = $qb->seq(
@@ -105,6 +105,7 @@ $seq = $qb->seq(
 is($seq->to_string, '[a][b][c][d][e][f]', 'Stringification');
 is($seq->size, 3, 'Number of operands');
 
+
 # Flatten
 ok($seq = $seq->normalize, 'Normalization');
 is($seq->to_string, 'abcdef', 'Stringification');
@@ -112,8 +113,13 @@ is($seq->size, 6, 'Number of operands');
 ok($seq = $seq->finalize, 'Finalization');
 is($seq->to_string, 'abcdef', 'Stringification');
 
+
 # Not found
-ok($seq = $seq->optimize($index), 'Optimization');
+ok($seq = $seq->identify($index->dict), 'Optimization');
+
+# May already be [0]!
+is($seq->to_string, '#1#2#3[0][0][0]', 'Stringification');
+ok($seq = $seq->optimize($index->segment), 'Optimization');
 is($seq->to_string, '[0]', 'Stringification');
 
 
@@ -161,6 +167,7 @@ TODO: {
   # ([a][b]){1,3}[a][b] -> ([a][b]){2,4}
   # [a]{0,100}[a] -> [a]{1,100}
 };
+
 
 
 # Check optimize:
@@ -216,14 +223,14 @@ $seq = $qb->seq(
 is($seq->to_string, '[a][c][b]', 'Stringification');
 ok($seq = $seq->normalize->finalize, 'Normalization');
 is($seq->to_string, 'acb', 'Stringification');
-ok($seq = $seq->optimize($index), 'Normalization');
+ok($seq = $seq->identify($index->dict)->optimize($index->segment), 'Normalization');
+
 
 # Do not check for stringifications
-is($seq->to_string, "constr(pos=2048:'b',constr(pos=2:'a','c'))", 'Stringification');
+is($seq->to_string, "constr(pos=2048:#2,constr(pos=2:#1,#3))", 'Stringification');
 
 # Matches nowhere
 matches($seq, [], 'Matches nowhere');
-
 
 
 # Group anchors
@@ -236,10 +243,10 @@ $seq = $qb->seq(
 is($seq->to_string, '[a][b][c]', 'Stringification');
 ok($seq = $seq->normalize->finalize, 'Normalization');
 is($seq->to_string, 'abc', 'Stringification');
-ok($seq = $seq->optimize($index), 'Normalization');
+ok($seq = $seq->identify($index->dict)->optimize($index->segment), 'Normalization');
 
 # Do not check for stringifications
-is($seq->to_string, "constr(pos=2:'a',constr(pos=2:'b','c'))", 'Stringification');
+is($seq->to_string, "constr(pos=2:#1,constr(pos=2:#2,#3))", 'Stringification');
 
 # Matches nowhere
 matches($seq, [], 'Matches nowhere');
@@ -255,10 +262,10 @@ $seq = $qb->seq(
 is($seq->to_string, '[b][b][a]', 'Stringification');
 ok($seq = $seq->normalize->finalize, 'Normalization');
 is($seq->to_string, 'bba', 'Stringification');
-ok($seq = $seq->optimize($index), 'Normalization');
+ok($seq = $seq->identify($index->dict)->optimize($index->segment), 'Normalization');
 
 # Do not check for stringifications
-is($seq->to_string, "constr(pos=2:'b',constr(pos=2:'b','a'))", 'Stringification');
+is($seq->to_string, "constr(pos=2:#2,constr(pos=2:#2,#1))", 'Stringification');
 
 # Matches twice
 matches($seq, [qw/[0:0-3] [1:0-3]/], 'Matches twice');
@@ -274,18 +281,20 @@ $seq = $qb->seq(
 is($seq->to_string, '[b][b]?[a]', 'Stringification');
 ok($seq = $seq->normalize->finalize, 'Normalization');
 is($seq->to_string, 'bb?a', 'Stringification');
-ok($seq = $seq->optimize($index), 'Normalization');
+
+ok($seq = $seq->identify($index->dict)->optimize($index->segment), 'Normalization');
+
 
 # Do not check for stringifications
-is($seq->to_string, "constr(pos=2048:or('a',constr(pos=2:'b','a')),'b')", 'Stringification');
+is($seq->to_string, "constr(pos=2048:or(#1,constr(pos=2:#2,#1)),#2)", 'Stringification');
 
 # Matches
 matches($seq, [qw/[0:0-2] [0:0-3] [0:1-3] [1:0-3] [1:1-3]/], 'Matches twice');
 
 
+
 done_testing;
 __END__
-
 
 
 # Solve left extension

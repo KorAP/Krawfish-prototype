@@ -6,17 +6,17 @@ use Data::Dumper;
 
 my $dict = Krawfish::Index::Dictionary->new;
 
-ok($dict->add_term2('baum'), 'Add term');
-ok($dict->add_term2('balsam'), 'Add term');
-ok($dict->add_term2('abenteuer'), 'Add term');
+ok($dict->add_term('baum'), 'Add term');
+ok($dict->add_term('balsam'), 'Add term');
+ok($dict->add_term('abenteuer'), 'Add term');
 
 # TODO:
 #   This shouldn't be the way! Dict should return
 #   a term_id, that will later be used for
 #   the postings lists!
 
-is($dict->term_id_by_term2('balsam'), 2, 'Get term id');
-is($dict->term_id_by_term2('baum'), 1, 'Get term id');
+is($dict->term_id_by_term('balsam'), 2, 'Get term id');
+is($dict->term_id_by_term('baum'), 1, 'Get term id');
 
 done_testing;
 __END__

@@ -121,10 +121,10 @@ sub max_span {
 };
 
 
-# Inflate negation
-sub inflate {
+# Identify negation
+sub identify {
   my ($self, $dict) = @_;
-  $self->{query} = $self->{query}->inflate($dict);
+  $self->{query} = $self->{query}->identify($dict);
   $self;
 };
 

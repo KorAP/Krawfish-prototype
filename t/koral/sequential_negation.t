@@ -27,10 +27,10 @@ is($seq->to_string, '[b][!a][a]', 'Stringification');
 ok($seq = $seq->normalize->finalize, 'Normalization');
 is($seq->to_string, 'b[!a]a', 'Stringification');
 
-ok($seq = $seq->optimize($index), 'Optimization');
+ok($seq = $seq->identify($index->dict)->optimize($index->segment), 'Optimization');
 
 # Do not check for stringifications
-is($seq->to_string, "constr(pos=1,notBetween='a':'b','a')", 'Stringification');
+is($seq->to_string, "constr(pos=1,notBetween=#1:#2,#1)", 'Stringification');
 
 # Matches once
 matches($seq, [qw/[1:0-3]/], 'Matches Once');
@@ -46,10 +46,10 @@ $seq = $qb->seq(
 is($seq->to_string, '[b][!a]?[a]', 'Stringification');
 ok($seq = $seq->normalize->finalize, 'Normalization');
 is($seq->to_string, 'b[!a]?a', 'Stringification');
-ok($seq = $seq->optimize($index), 'Optimization');
+ok($seq = $seq->identify($index->dict)->optimize($index->segment), 'Optimization');
 
 # Do not check for stringifications
-is($seq->to_string, "constr(pos=3,between=0-INF,notBetween='a':'b','a')", 'Stringification');
+is($seq->to_string, "constr(pos=3,between=0-INF,notBetween=#1:#2,#1)", 'Stringification');
 
 # Matches
 matches($seq, [qw/[0:0-2] [0:1-3] [1:0-3] [1:1-3]/], 'Matches');
@@ -76,5 +76,5 @@ $seq = $qb->seq(
 is($seq->to_string, '[a][!e][c]', 'Stringification');
 ok($seq = $seq->normalize->finalize, 'Normalization');
 is($seq->to_string, '[a][!e][c]', 'Stringification');
-ok($seq = $seq->optimize($index), 'Normalization');
+ok($seq = $seq->identify($index->dict)->optimize($index->segment), 'Normalization');
 is($seq->to_string, '', 'Stringification');

@@ -102,19 +102,6 @@ sub identify {
 };
 
 
-# TODO:
-#   If "nothing" returns, optimize away
-#   before ->optimize().
-sub identify {
-  my ($self, $dict) = @_;
-
-  my $ops = $self->operands;
-  return $self unless $ops;
-  for (my $i = 0; $i < @$ops; $i++) {
-    $ops->[$i] = $ops->[$i]->identify($dict);
-  };
-  return $self;
-};
 
 
 # Check for cached subqueries

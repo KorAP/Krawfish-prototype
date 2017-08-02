@@ -13,7 +13,9 @@ use constant DEBUG => 0;
 
 sub new {
   my ($class, $term_id) = @_;
-  bless \$term_id, $class;
+  bless {
+    term_id => $term_id
+  }, $class;
 };
 
 sub type {
@@ -35,7 +37,7 @@ sub operands {
 
 
 sub term_id {
-  ${$_[0]};
+  $_[0]->{term_id};
 };
 
 sub optimize {
@@ -65,8 +67,12 @@ sub to_koral_fragment {
   ...
 };
 
+sub is_nothing {
+  0;
+};
+
 sub to_string {
-  return ${$_[0]};
+  return '#' . $_[0]->{term_id};
 };
 
 1;

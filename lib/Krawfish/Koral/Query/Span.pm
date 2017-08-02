@@ -1,8 +1,9 @@
 package Krawfish::Koral::Query::Span;
 use parent 'Krawfish::Koral::Query';
+use Krawfish::Koral::Query::SpanID;
 use Krawfish::Koral::Query::Term;
 use Krawfish::Log;
-use Krawfish::Query::Span;
+# use Krawfish::Query::Span;
 use Scalar::Util qw/blessed/;
 use strict;
 use warnings;
@@ -52,19 +53,40 @@ sub normalize {
   return $_[0];
 };
 
-sub inflate {
+#sub inflate {
+#  my ($self, $dict) = @_;
+
+#  print_log('kq_span', 'Inflate span') if DEBUG;
+
+#  $self->{operands}->[0] = $self->operand->inflate($dict);
+#  return $self;
+#};
+
+
+sub identify {
   my ($self, $dict) = @_;
 
-  print_log('kq_span', 'Inflate span') if DEBUG;
+  # This is currently not supported
+  unless ($self->is_regex) {
 
-  $self->{operands}->[0] = $self->operand->inflate($dict);
-  return $self;
+    my $term = $self->to_term;
+
+    print_log('kq_span', "Translate span $term to term_id") if DEBUG;
+
+    my $term_id = $dict->term_id_by_term($term);
+    return Krawfish::Koral::Query::SpanID->new($term_id);
+  };
+
+  warn 'Regexes are currently not supported';
 };
 
 
 # Todo: May be more complicated
 sub optimize {
   my ($self, $index) = @_;
+
+  warn 'DEPRECATED';
+  
   return Krawfish::Query::Span->new(
     $index,
     $self->operand->to_term

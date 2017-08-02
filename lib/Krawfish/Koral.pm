@@ -1,12 +1,12 @@
 package Krawfish::Koral;
 use parent 'Krawfish::Info';
-use strict;
-use warnings;
 use Krawfish::Koral::Query::Builder;
 use Krawfish::Koral::Corpus::Builder;
 use Krawfish::Koral::Meta::Builder;
 use Krawfish::Koral::Meta;
 use Krawfish::Koral::Document;
+use strict;
+use warnings;
 
 # Parse a koral query and transform to an actual
 # index query.
@@ -208,7 +208,7 @@ sub to_nodes {
 
   # Finalize the query
   my $query_final;
-  unless ($query_final = $query_norm->normalize) {
+  unless ($query_final = $query_norm->finalize) {
     $self->copy_info_from($query);
     return;
   };
@@ -296,14 +296,14 @@ sub prepare_for_cluster {
 };
 
 sub prepare_for_node {
-  # ->inflate($dict)
+  # ->identify($dict)
   # WARN! This may require a new normalization, but it should be kept in mind that this
   # also may require double added warnings!
   ...
 };
 
 sub prepare_for_segment {
-  # ->cache->optimize($index)
+  # ->cache->optimize($segment)
   ...
 };
 

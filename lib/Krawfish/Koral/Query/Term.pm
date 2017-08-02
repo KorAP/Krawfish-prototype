@@ -1,6 +1,5 @@
 package Krawfish::Koral::Query::Term;
 use parent 'Krawfish::Koral::Query';
-use Krawfish::Query::Term; # DEPRECATED
 use Krawfish::Koral::Query::TermID;
 use Krawfish::Query::Nothing;
 use Krawfish::Log;
@@ -384,7 +383,10 @@ sub identify {
 
     print_log('kq_term', "Translate term $term to term_id") if DEBUG;
 
-    my $term_id = $dict->term_id_by_term2($term);
+    my $term_id = $dict->term_id_by_term($term);
+
+    return $self->builder->nothing unless defined $term_id;
+
     return Krawfish::Koral::Query::TermID->new($term_id);
   };
 
@@ -406,14 +408,20 @@ sub identify {
 
   # TODO:
   #   Use refer?
-  return $self->builder->bool_or(@term_ids)->normalize;
+  return $self->builder->bool_or(
+    map {
+      Krawfish::Koral::Query::TermID->new($_)
+      } @term_ids
+    )->normalize;
 };
 
 
 
 sub optimize {
-  my ($self, $index) = @_;
-  return Krawfish::Query::Term->new($index, $self->to_term);
+
+  warn 'Not supported!';
+#  my ($self, $index) = @_;
+#  return Krawfish::Query::Term->new($index, $self->to_term);
 };
 
 

@@ -180,7 +180,7 @@ sub add {
     my $term = $field->{key} . ':' . $field->{value};
 
     # Add the term to the dictionary
-    my $term_id = $dict->add_term2('+' . $term);
+    my $term_id = $dict->add_term('+' . $term);
 
     # Get the posting list for the term
     my $post_list = $seg->postings($term_id);
@@ -201,7 +201,7 @@ sub add {
     };
 
     # Add term to dictionary
-    my $term_id = $dict->add_term2('__' . $term);
+    my $term_id = $dict->add_term('__' . $term);
 
     # Add posting to list
     my $post_list = $seg->postings($term_id);
@@ -311,7 +311,7 @@ sub add {
 
       # Add token terms
       foreach (@keys) {
-        my $term_id = $dict->add_term2($_);
+        my $term_id = $dict->add_term($_);
         my $post_list = $seg->postings($term_id);
         $post_list->append($doc_id, @subtokens);
       };
@@ -323,7 +323,7 @@ sub add {
       # Create key string
       my $key = '<>' . _term($item->{wrap});
 
-      my $term_id = $dict->add_term2($key);
+      my $term_id = $dict->add_term($key);
       my $post_list = $seg->postings($term_id);
 
       # Append posting to posting list

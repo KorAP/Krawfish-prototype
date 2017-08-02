@@ -59,6 +59,29 @@ sub normalize {
 };
 
 
+# Todo: Handle zero results!
+sub identify {
+  my ($self, $dict) = @_;
+
+  my $ops = $self->operands;
+
+  $ops->[0] = $ops->[0]->identify($dict);
+
+  if ($ops->[0]->is_nothing) {
+    return $ops->[0];
+  };
+
+  $self->{corpus} = $self->{corpus}->identify($dict);
+
+  # Matches nowhere
+  if ($self->{corpus}->is_nothing) {
+    return $self->{corpus};
+  };
+
+  return $self;
+};
+
+
 # Finalize the wrapped span
 sub finalize {
   my $self = shift;
@@ -76,10 +99,10 @@ sub finalize {
 
 
 sub optimize {
-  my ($self, $index) = @_;
+  my ($self, $segment) = @_;
 
   # Optimize corpus
-  my $corpus = $self->corpus->optimize($index);
+  my $corpus = $self->corpus->optimize($segment);
 
   # Filter would rule out everything
   if ($corpus->max_freq == 0) {
@@ -87,7 +110,7 @@ sub optimize {
   };
 
   # Optimize span
-  my $span = $self->operand->optimize($index);
+  my $span = $self->operand->optimize($segment);
 
   # Filter would rule out everything
   if ($span->max_freq == 0) {

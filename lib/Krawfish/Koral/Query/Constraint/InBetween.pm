@@ -67,7 +67,7 @@ sub normalize {
 };
 
 
-sub inflate {
+sub identify {
   $_[0];
 };
 

@@ -3,6 +3,10 @@ use parent 'Krawfish::Posting';
 use strict;
 use warnings;
 
+# TODO:
+#   Join with Krawfish::Posting::Span and make
+#   Krawfish::Query::SpanID useless.
+
 sub new {
   my $class = shift;
   bless [@_], $class;

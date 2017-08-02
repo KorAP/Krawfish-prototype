@@ -6,7 +6,9 @@ use warnings;
 
 sub new {
   my ($class, $term_id) = @_;
-  bless \$term_id, $class;
+  bless {
+    term_id => $term_id
+  }, $class;
 };
 
 sub type {
@@ -42,12 +44,20 @@ sub to_koral_fragment {
 };
 
 sub to_string {
-  return ${$_[0]};
+  return '#' . $_[0]->{term_id};
+};
+
+sub term_id {
+  $_[0]->{term_id};
+};
+
+sub normalize {
+  $_[0];
 };
 
 sub optimize {
   my ($self, $index) = @_;
-  return Krawfish::Query::TermID->new($index, $$self);
+  return Krawfish::Query::TermID->new($index, $self->term_id);
 };
 
 sub is_any {

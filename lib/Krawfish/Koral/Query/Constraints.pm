@@ -303,6 +303,8 @@ sub optimize {
 sub inflate {
   my ($self, $dict) = @_;
 
+  warn 'DEPRECATED in favor of identify!';
+
   my $ops = $self->operands;
 
   # Inflate on all operands
@@ -325,6 +327,35 @@ sub inflate {
 
   return $self;
 };
+
+
+# Inflate operands and constraints
+sub identify {
+  my ($self, $dict) = @_;
+
+  my $ops = $self->operands;
+
+  # Inflate on all operands
+  my $i = 0;
+  for (; $i < @$ops; $i++) {
+    $ops->[$i] = $ops->[$i]->identify($dict);
+
+    if ($ops->[$i]->is_nothing) {
+      # Return new nothing operand
+      return Krawfish::Koral::Query::Nothing->new;
+    };
+  };
+
+  my $cs = $self->constraints;
+
+  # Inflate all constraints
+  for ($i = 0; $i < @$cs; $i++) {
+    $cs->[$i] = $cs->[$i]->identify($dict);
+  };
+
+  return $self;
+};
+
 
 
 # Return true if the query can be unsorted

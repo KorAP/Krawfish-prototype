@@ -67,7 +67,7 @@ sub freq_in_doc {
 };
 
 sub to_string {
-  $_[0]->term_id;
+  '#' . $_[0]->term_id;
 };
 
 sub skip_doc {

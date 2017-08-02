@@ -1,17 +1,13 @@
-warn 'DEPRECATED';
-0;
-__END__
-package Krawfish::Query::Span;
-use parent 'Krawfish::Query::Term';
+package Krawfish::Query::SpanID;
+use parent 'Krawfish::Query::TermID';
 use Krawfish::Index::PostingsList;
 use Krawfish::Posting::Span;
 use strict;
 use warnings;
 
-# TODO: Store elements with the length of the elements
-# in segments instead of the end position!
 
-
+# TODO:
+#   May be useless, if Postings can be adjusted.
 
 # TODO: Probably rename to posting - and return a posting
 # that augments the given payload

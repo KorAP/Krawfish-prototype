@@ -17,11 +17,14 @@ $koral->query(
   )
 );
 
+
 is($koral->to_string,
    'query=[[Der][]<opennlp/c=NP>]',
    'Stringification');
 
 my $serial = $koral->to_koral_query;
+
+
 
 like($serial->{'@context'}, qr!korap\.ids-mannheim\.de!, 'Context is valid');
 ok(my $q = $serial->{'query'}, 'Query is given');
@@ -38,6 +41,7 @@ is($term->{'key'}, 'Der', 'Term');
 
 is($op->[1]->{'@type'}, 'koral:token', 'Operand exists');
 is($op->[2]->{'@type'}, 'koral:span', 'Operand exists');
+
 
 
 # Create corpus

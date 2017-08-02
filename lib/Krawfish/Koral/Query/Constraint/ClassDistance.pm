@@ -31,8 +31,8 @@ sub normalize {
 };
 
 
-# Inflate the constraint (do nothing)
-sub inflate {
+# Identify the constraint (do nothing)
+sub identify {
   $_[0];
 };
 

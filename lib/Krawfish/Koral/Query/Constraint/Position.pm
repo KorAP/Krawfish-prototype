@@ -185,7 +185,7 @@ sub max_span {
 };
 
 
-sub inflate {
+sub identify {
   $_[0];
 };
 
