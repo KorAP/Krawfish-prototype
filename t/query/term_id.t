@@ -5,10 +5,10 @@ use Data::Dumper;
 use File::Basename 'dirname';
 use File::Spec::Functions 'catfile';
 
-use_ok('Krawfish::Index2');
+use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Query::Builder');
 
-my $index = Krawfish::Index2->new;
+my $index = Krawfish::Index->new;
 
 sub cat_t {
   return catfile(dirname(__FILE__), '..', @_);
@@ -27,12 +27,12 @@ is($term->to_string, 'Hut');
 ok($term = $term->identify($index->dict), 'To term ids');
 
 # Probably don't check that!
-is($term->to_string, 16, 'Hut-term_id');
+is($term->to_string, '#16', 'Hut-term_id');
 
-ok($term = $term->optimize($index->dyn_segment), 'Optimize');
+ok($term = $term->optimize($index->segment), 'Optimize');
 
 # Probably don't check that!
-is($term->to_string, 16, 'Hut-term_id');
+is($term->to_string, '#16', 'Hut-term_id');
 
 
 ok(!$term->current, 'Not initialized yet');

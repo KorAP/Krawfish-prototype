@@ -27,9 +27,9 @@ my $query = $qb->constraints(
 
 is($query->to_string, 'constr(pos=precedes,notBetween=[cc]:[aa],[bb])', 'Stringification');
 
-ok(my $plan = $query->normalize->finalize->optimize($index), 'Planning');
+ok(my $plan = $query->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Planning');
 
-is($plan->to_string, "constr(pos=1,between=1-1,notBetween='cc':'aa','bb')", 'Query is valid');
+is($plan->to_string, "constr(pos=1,between=1-1,notBetween=#3:#1,#4)", 'Query is valid');
 
 matches($plan, [qw/[1:0-3]/]);
 
@@ -45,9 +45,9 @@ $query = $qb->constraints(
 
 is($query->to_string, 'constr(pos=precedes,notBetween=[dd]:[xx],[xx])', 'Stringification');
 
-ok($plan = $query->normalize->finalize->optimize($index), 'Planning');
+ok($plan = $query->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Planning');
 
-is($plan->to_string, "constr(pos=1,between=1-1,notBetween='dd':'xx','xx')", 'Query is valid');
+is($plan->to_string, "constr(pos=1,between=1-1,notBetween=#5:#2,#2)", 'Query is valid');
 
 matches($plan, [qw/[0:0-3] [2:0-3]/]);
 
@@ -62,9 +62,9 @@ $query = $qb->constraints(
 );
 
 is($query->to_string, 'constr(pos=precedes,notBetween={1:[dd]}:[xx],[xx])', 'Stringification');
-ok($plan = $query->normalize->finalize->optimize($index), 'Planning');
+ok($plan = $query->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Planning');
 
-is($plan->to_string, "constr(pos=1,between=1-1,notBetween='dd',class=1:'xx','xx')", 'Query is valid');
+is($plan->to_string, "constr(pos=1,between=1-1,notBetween=#5,class=1:#2,#2)", 'Query is valid');
 
 
 # Introduce classes inbetween
@@ -79,8 +79,8 @@ $query = $qb->constraints(
 );
 
 is($query->to_string, 'constr(pos=precedes,notBetween=[dd],class=1:[xx],[xx])', 'Stringification');
-ok($plan = $query->normalize->finalize->optimize($index), 'Planning');
-is($plan->to_string, "constr(pos=1,between=1-1,notBetween='dd',class=1:'xx','xx')", 'Query is valid');
+ok($plan = $query->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Planning');
+is($plan->to_string, "constr(pos=1,between=1-1,notBetween=#5,class=1:#2,#2)", 'Query is valid');
 
 
 
@@ -95,8 +95,8 @@ $query = $qb->constraints(
 );
 
 is($query->to_string, 'constr(pos=precedes,notBetween={1:[ff]}:[xx],[xx])', 'Stringification');
-ok($plan = $query->normalize->finalize->optimize($index), 'Planning');
-is($plan->to_string, "constr(pos=1,between=1-1,class=1:'xx','xx')", 'Query is valid');
+ok($plan = $query->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Planning');
+is($plan->to_string, "constr(pos=1,between=1-1,class=1:#2,#2)", 'Query is valid');
 
 
 TODO: {

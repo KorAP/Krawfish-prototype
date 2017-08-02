@@ -52,7 +52,7 @@ ok(!$query->has_error, 'Builder has no error');
 ok($query = $query->normalize, 'Normalization');
 is($query->to_string, 'excl(128:<aa>,/h.*/)', 'Stringification');
 ok($query = $query->identify($index->dict), 'Optimization');
-is($query->to_string, "excl(128:#1,[0])", 'Stringification');
+is($query->to_string, "#1", 'Stringification');
 ok($query = $query->normalize, 'Normalization');
 is($query->to_string, "#1", 'Stringification');
 ok($query = $query->optimize($index->segment), 'Optimization');

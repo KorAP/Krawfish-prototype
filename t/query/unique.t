@@ -15,8 +15,8 @@ my $query = $qb->token(
 );
 
 is($query->to_string, '[aa|bb]', 'termGroup');
-ok(my $non_unique = $query->normalize->finalize->optimize($index), 'TermGroup');
-is($non_unique->to_string, "or('aa','bb')", 'termGroup');
+ok(my $non_unique = $query->normalize->finalize->identify($index->dict)->optimize($index->segment), 'TermGroup');
+is($non_unique->to_string, "or(#1,#2)", 'termGroup');
 
 matches($non_unique, [qw/[0:0-1]
                          [0:0-1]
@@ -33,14 +33,12 @@ $query = $qb->unique(
   )
 );
 is($query->to_string, 'unique([aa|bb])', 'termGroup');
-ok(my $unique = $query->normalize->finalize->optimize($index), 'TermGroup');
-is($unique->to_string, "unique(or('aa','bb'))", 'termGroup');
+ok(my $unique = $query->normalize->finalize->identify($index->dict)->optimize($index->segment), 'TermGroup');
+is($unique->to_string, "unique(or(#1,#2))", 'termGroup');
 
 matches($unique, [qw/[0:0-1]
                      [0:1-2]
                      [0:2-3]/]);
-
-
 
 done_testing;
 __END__

@@ -21,7 +21,7 @@ is($wrap->to_string, "constr(pos=precedesDirectly:[aa],[bb])", 'Query is valid')
 ok($wrap = $wrap->normalize->finalize, 'Normalization');
 is($wrap->to_string, "constr(pos=precedesDirectly:aa,bb)", 'Query is valid');
 ok($wrap = $wrap->identify($index->dict)->optimize($index->segment), 'Optimization');
-is($wrap->to_string, "constr(pos=2:1,2)", 'Query is valid');
+is($wrap->to_string, "constr(pos=2:#1,#2)", 'Query is valid');
 matches($wrap, [qw/[0:0-2] [0:0-2] [0:0-2] [0:0-2]/]);
 
 # From t/query/positions.t

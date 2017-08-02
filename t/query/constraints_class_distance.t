@@ -19,8 +19,8 @@ my $wrap = $qb->constraints(
 );
 
 is($wrap->to_string, "constr(pos=precedes,class=5:[aa],[bb])", 'Query is valid');
-ok(my $query = $wrap->normalize->finalize->optimize($index), 'Planning');
-is($query->to_string, "constr(pos=1,class=5:'aa','bb')", 'Query is valid');
+ok(my $query = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Planning');
+is($query->to_string, "constr(pos=1,class=5:#1,#2)", 'Query is valid');
 
 matches($query, ['[0:0-4$0,5,1,2]','[0:0-6$0,5,1,4]','[0:2-6$0,5,3,4]']);
 
@@ -32,8 +32,8 @@ $wrap = $qb->constraints(
 );
 
 is($wrap->to_string, "constr(pos=precedes;precedesDirectly,class=5:[aa],[bb])", 'Query is valid');
-ok($query = $wrap->normalize->finalize->optimize($index), 'Planning');
-is($query->to_string, "constr(pos=3,class=5:'aa','bb')", 'Query is valid');
+ok($query = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Planning');
+is($query->to_string, "constr(pos=3,class=5:#1,#2)", 'Query is valid');
 
 matches(
   $query, [

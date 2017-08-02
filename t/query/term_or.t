@@ -29,8 +29,8 @@ ok($query = $query->normalize, 'Normalization');
 is($query->to_string, 'akron=lustigen|opennlp/p=V', 'termGroup');
 ok($query = $query->finalize, 'Normalization');
 is($query->to_string, 'akron=lustigen|opennlp/p=V', 'termGroup');
-ok(my $plan = $query->optimize($index), 'Optimization');
-is($plan->to_string, "or('akron=lustigen','opennlp/p=V')", 'termGroup');
+ok(my $plan = $query->identify($index->dict)->optimize($index->segment), 'Optimization');
+is($plan->to_string, "or(#36,#38)", 'termGroup');
 
 
 ok(!$plan->current, 'Not initialized yet');
@@ -48,8 +48,8 @@ $query = $qb->token(
 is($query->to_string, '[Der|akron=lustigen|opennlp/p=V]', 'termGroup');
 ok($query = $query->normalize, 'Normalization');
 is($query->to_string, 'Der|akron=lustigen|opennlp/p=V', 'termGroup');
-ok($plan = $query->optimize($index), 'Optimization');
-is($plan->to_string, "or(or('akron=lustigen','opennlp/p=V'),'Der')", 'termGroup');
+ok($plan = $query->identify($index->dict)->optimize($index->segment), 'Optimization');
+is($plan->to_string, "or(or(#36,#38),#5)", 'termGroup');
 
 
 ok(!$plan->current, 'Not initialized yet');
@@ -72,8 +72,8 @@ is($query->to_string, '[Der|opennlp/p=V|traurig]', 'termGroup');
 
 ok($query = $query->normalize, 'Normalization');
 is($query->to_string, 'Der|opennlp/p=V|traurig', 'termGroup');
-ok($plan = $query->optimize($index), 'Optimization');
-is($plan->to_string, "or('opennlp/p=V','Der')", 'termGroup');
+ok($plan = $query->identify($index->dict)->optimize($index->segment), 'Optimization');
+is($plan->to_string, "or(#36,#5)", 'termGroup');
 
 done_testing;
 

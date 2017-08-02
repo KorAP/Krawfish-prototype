@@ -16,7 +16,7 @@ ok(defined $index->add(test_file('doc2.jsonld')), 'Add new document');
 ok(my $qb = Krawfish::Koral::Query::Builder->new, 'Create QueryBuilder');
 
 ok(my $wrap = $qb->seq($qb->token('sehr'), $qb->token('gut')), 'Seq');
-ok(my $seq = $wrap->normalize->finalize->optimize($index), 'Rewrite');
+ok(my $seq = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
 
 ok($seq->next, 'More');
 is($seq->current->to_string, '[1:6-8]', 'Match');
@@ -25,7 +25,7 @@ ok(!$seq->next, 'No more');
 ok_index($index, [qw/aa bb aa bb/], 'Add new document');
 
 ok($wrap = $qb->seq($qb->token('aa'), $qb->token('bb')), 'Seq');
-ok($seq = $wrap->normalize->finalize->optimize($index), 'Rewrite');
+ok($seq = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
 
 ok($seq->next, 'Init');
 is($seq->current->to_string, '[2:0-2]', 'Match');
@@ -38,7 +38,7 @@ $index = Krawfish::Index->new;
 ok_index($index, '[aa][cc][aa][bb]', 'Add complex document');
 ok($qb = Krawfish::Koral::Query::Builder->new, 'Create QueryBuilder');
 ok($wrap = $qb->seq($qb->token('aa'), $qb->token('bb')), 'Seq');
-ok($seq = $wrap->normalize->finalize->optimize($index), 'Rewrite');
+ok($seq = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
 matches($seq, [qw/[0:2-4]/]);
 
 # Reset index - situation [bb][aa] -> [aa][bb]
@@ -46,7 +46,7 @@ $index = Krawfish::Index->new;
 ok_index($index, '[bb][aa][bb][aa]', 'Add complex document');
 ok($qb = Krawfish::Koral::Query::Builder->new, 'Create QueryBuilder');
 ok($wrap = $qb->seq($qb->token('aa'), $qb->token('bb')), 'Seq');
-ok($seq = $wrap->normalize->finalize->optimize($index), 'Rewrite');
+ok($seq = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
 matches($seq, [qw/[0:1-3]/]);
 
 
@@ -55,7 +55,7 @@ $index = Krawfish::Index->new;
 ok_index($index, '[aa][cc][aa][bb]', 'Add complex document');
 ok($qb = Krawfish::Koral::Query::Builder->new, 'Create QueryBuilder');
 ok($wrap = $qb->seq($qb->token('aa'), $qb->token('bb')), 'Seq');
-ok($seq = $wrap->normalize->finalize->optimize($index), 'Rewrite');
+ok($seq = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
 matches($seq, [qw/[0:2-4]/]);
 
 
@@ -64,7 +64,7 @@ $index = Krawfish::Index->new;
 ok_index($index, '[bb][cc][aa][bb]', 'Add complex document');
 ok($qb = Krawfish::Koral::Query::Builder->new, 'Create QueryBuilder');
 ok($wrap = $qb->seq($qb->token('aa'), $qb->token('bb')), 'Seq');
-ok($seq = $wrap->normalize->finalize->optimize($index), 'Rewrite');
+ok($seq = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
 matches($seq, [qw/[0:2-4]/]);
 
 
@@ -74,7 +74,7 @@ $index = Krawfish::Index->new;
 ok_index($index, '[aa|aa][bb|bb]', 'Add complex document');
 ok($qb = Krawfish::Koral::Query::Builder->new, 'Create QueryBuilder');
 ok($wrap = $qb->seq($qb->token('aa'), $qb->token('bb')), 'Seq');
-ok($seq = $wrap->normalize->finalize->optimize($index), 'Rewrite');
+ok($seq = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
 matches($seq, [qw/[0:0-2] [0:0-2] [0:0-2] [0:0-2]/]);
 
 
@@ -83,7 +83,7 @@ $index = Krawfish::Index->new;
 ok_index($index, '[aa][bb|bb]', 'Add complex document');
 ok($qb = Krawfish::Koral::Query::Builder->new, 'Create QueryBuilder');
 ok($wrap = $qb->seq($qb->token('aa'), $qb->token('bb')), 'Seq');
-ok($seq = $wrap->normalize->finalize->optimize($index), 'Rewrite');
+ok($seq = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
 # query language: [aa][bb]
 matches($seq, [qw/[0:0-2] [0:0-2]/]);
 
@@ -93,7 +93,7 @@ $index = Krawfish::Index->new;
 ok_index($index, '[aa|aa][bb]', 'Add complex document');
 ok($qb = Krawfish::Koral::Query::Builder->new, 'Create QueryBuilder');
 ok($wrap = $qb->seq($qb->token('aa'), $qb->token('bb')), 'Seq');
-ok($seq = $wrap->normalize->finalize->optimize($index), 'Rewrite');
+ok($seq = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
 matches($seq, [qw/[0:0-2] [0:0-2]/]);
 
 
@@ -102,7 +102,7 @@ $index = Krawfish::Index->new;
 ok_index($index, '[aa|aa][bb|bb][aa|aa][bb|bb]', 'Add complex document');
 ok($qb = Krawfish::Koral::Query::Builder->new, 'Create QueryBuilder');
 ok($wrap = $qb->seq($qb->token('aa'), $qb->token('bb')), 'Seq');
-ok($seq = $wrap->normalize->finalize->optimize($index), 'Rewrite');
+ok($seq = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
 matches($seq, [qw/[0:0-2] [0:0-2] [0:0-2] [0:0-2] [0:2-4] [0:2-4] [0:2-4] [0:2-4]/]);
 
 
@@ -112,7 +112,7 @@ ok_index($index, '<1:aa><2:aa>[bb]</2>[bb]</1>', 'Add complex document');
 ok($qb = Krawfish::Koral::Query::Builder->new, 'Create QueryBuilder');
 ok($wrap = $qb->seq($qb->span('aa'), $qb->token('bb')), 'Seq');
 is($wrap->to_string, '<aa>[bb]', 'Stringification');
-ok($seq = $wrap->normalize->finalize->optimize($index), 'Rewrite');
+ok($seq = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
 matches($seq, [qw/[0:0-2]/]);
 
 

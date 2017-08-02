@@ -22,8 +22,8 @@ my $wrap = $qb->length(
 );
 
 is($wrap->to_string, "length(3-5:constr(pos=precedes:[aa],[bb]))", 'Query is valid');
-ok(my $query = $wrap->normalize->finalize->optimize($index), 'Planning');
-is($query->to_string, "length(3-5:constr(pos=1:'aa','bb'))", 'Query is valid');
+ok(my $query = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Planning');
+is($query->to_string, "length(3-5:constr(pos=1:#1,#2))", 'Query is valid');
 
 matches($query, [qw/[0:0-4] [0:2-6] [0:4-8] [0:6-10]/]);
 

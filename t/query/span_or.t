@@ -28,7 +28,7 @@ $query = $qb->bool_or(
 is($query->to_string, '(([b])|([c]))|([a])', 'termGroup');
 ok($query = $query->normalize->finalize, 'Normalize');
 is($query->to_string, '(a)|(b)|(c)', 'or');
-ok($query = $query->optimize($index), 'Optimize');
+ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimize');
 
 matches($query, [qw/[0:0-1] [0:0-1] [0:1-2] [0:1-2] [0:1-2] [0:2-3] [0:3-4] [0:3-4] [1:0-1] [1:1-2] [1:1-2] [1:2-3]/]);
 
@@ -40,7 +40,7 @@ $query = $qb->bool_or(
 is($query->to_string, '(([b])|([c]))|(-)|([0])', 'span or');
 ok($query = $query->normalize->finalize, 'Normalize');
 is($query->to_string, '(b)|(c)', 'or');
-ok($query = $query->optimize($index), 'Optimize');
+ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimize');
 matches($query, [qw/[0:0-1] [0:1-2] [0:1-2] [0:3-4] [0:3-4] [1:0-1] [1:1-2] [1:1-2]/]);
 
 # Add different length sequences
@@ -50,8 +50,8 @@ $query = $qb->bool_or(
 is($query->to_string, '(([a])|([b][a]))', 'termGroup');
 ok($query = $query->normalize->finalize, 'Normalize');
 is($query->to_string, '(a)|(ba)', 'or');
-ok($query = $query->optimize($index), 'Optimize');
-is($query->to_string, "or('a',constr(pos=2:'b','a'))", 'or');
+ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimize');
+is($query->to_string, "or(#1,constr(pos=2:#2,#1))", 'or');
 
 matches($query, [qw/[0:0-1] [0:0-2] [0:1-2] [0:1-3] [0:2-3] [1:1-3] [1:2-3]/]);
 
