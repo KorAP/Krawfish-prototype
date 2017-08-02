@@ -25,13 +25,13 @@ is($re->max_span, 1, 'Span length');
 ok_index($index,'[a/b=CDE|a/c=FGH][a/l=PART|a/l=BAU|a/l=PUM][b/c=DAU][e/f=UM]', 'Add doc');
 
 
-ok(my $plan = $re->normalize->finalize->inflate($index->dict)->optimize($index), 'Plan Regex');
-is($plan->to_string, "or('a/l=PART','a/l=PUM')", 'Stringification');
+ok(my $plan = $re->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Plan Regex');
+is($plan->to_string, "or(#3,#5)", 'Stringification');
 
 
 ok($re = $qb->term('f/l~G.*?'), 'Regex');
 is($re->to_string, 'f/l~G.*?', 'Stringification');
-ok($plan = $re->normalize->finalize->inflate($index->dict)->optimize($index), 'Plan Regex');
+ok($plan = $re->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Plan Regex');
 is($plan->to_string, "[0]", 'Stringification');
 
 done_testing;

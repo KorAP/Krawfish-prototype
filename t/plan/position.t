@@ -29,8 +29,12 @@ is($query->to_string, 'constr(pos=isAround:<opennlp/c=NP>,[Der])', 'Stringificat
 ok($query = $query->normalize, 'Normalize');
 is($query->to_string, 'constr(pos=isAround:<opennlp/c=NP>,Der)', 'Stringification');
 ok(!$query->has_error, 'Builder has no error');
-ok($query = $query->optimize($index), 'Optimize');
-is($query->to_string, "constr(pos=128:'<>opennlp/c=NP','Der')", 'Stringification');
+ok($query = $query->identify($index->dict), 'Optimize');
+is($query->to_string, "constr(pos=isAround:#2,#1)", 'Stringification');
+ok($query = $query->optimize($index->segment), 'Optimize');
+is($query->to_string, "constr(pos=128:#2,#1)", 'Stringification');
+
+
 
 #####################
 # Test 0 as element #
@@ -50,8 +54,8 @@ is($query->to_string, 'constr(pos=isAround:<opennlp/c=NP>,-)', 'Stringification'
 ok($query = $query->normalize, 'Normalize');
 ok(!$query->has_error, 'Builder has no error');
 is($query->to_string, '<opennlp/c=NP>', 'Stringification');
-ok($query = $query->optimize($index), 'Optimize');
-is($query->to_string, "'<>opennlp/c=NP'", 'Planned Stringification');
+ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimize');
+is($query->to_string, "#2", 'Planned Stringification');
 
 
 #####################
@@ -86,7 +90,7 @@ $query = $builder->position(
 is($query->to_string, 'constr(pos=isWithin:<opennlp/c=NP>,[Bus])', 'Stringification');
 ok($query = $query->normalize, 'Normalize');
 is($query->to_string, 'constr(pos=isWithin:<opennlp/c=NP>,Bus)', 'Stringification');
-ok($query = $query->optimize($index), 'Normalize');
+ok($query = $query->identify($index->dict)->optimize($index->segment), 'Normalize');
 is($query->to_string, '[0]', 'Stringification');
 
 

@@ -73,13 +73,27 @@ sub identify {
 
     print_log('kq_span', "Translate span $term to term_id") if DEBUG;
 
-    my $term_id = $dict->term_id_by_term($term);
+    my $term_id = $dict->term_id_by_term('<>' . $term);
+
+    return $self->builder->nothing unless defined $term_id;
+
     return Krawfish::Koral::Query::SpanID->new($term_id);
   };
 
   warn 'Regexes are currently not supported';
 };
 
+
+# TODO:
+#   Currently not supported
+sub is_regex {
+  0;
+};
+
+
+sub to_term {
+  $_[0]->operand->to_string;
+};
 
 # Todo: May be more complicated
 sub optimize {
@@ -109,8 +123,10 @@ sub max_span {
 
 sub maybe_unsorted { 0 };
 
+
 sub from_koral;
 # Todo: Change the term_type!
+
 
 sub to_string {
   return '<' . $_[0]->operand->to_string . '>';

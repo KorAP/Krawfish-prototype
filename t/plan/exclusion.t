@@ -31,8 +31,8 @@ is($query->to_string, 'excl(128:<aa>,[bb])', 'Stringification');
 ok($query = $query->normalize, 'Normalization');
 is($query->to_string, 'excl(128:<aa>,bb)', 'Stringification');
 ok(!$query->has_error, 'Builder has no error');
-ok($query = $query->optimize($index), 'Optimization');
-is($query->to_string, "excl(128:'<>aa','bb')", 'Stringification');
+ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimization');
+is($query->to_string, "excl(128:#1,#3)", 'Stringification');
 
 # Exclusion that translates to nothing
 $query = $qb->exclusion(
@@ -51,12 +51,12 @@ is($query->to_string, 'excl(128:<aa>,/h.*/)', 'Stringification');
 ok(!$query->has_error, 'Builder has no error');
 ok($query = $query->normalize, 'Normalization');
 is($query->to_string, 'excl(128:<aa>,/h.*/)', 'Stringification');
-ok($query = $query->inflate($index->dict), 'Optimization');
-is($query->to_string, "excl(128:<aa>,[0])", 'Stringification');
+ok($query = $query->identify($index->dict), 'Optimization');
+is($query->to_string, "excl(128:#1,[0])", 'Stringification');
 ok($query = $query->normalize, 'Normalization');
-is($query->to_string, "<aa>", 'Stringification');
-ok($query = $query->optimize($index), 'Optimization');
-is($query->to_string, "'<>aa'", 'Stringification');
+is($query->to_string, "#1", 'Stringification');
+ok($query = $query->optimize($index->segment), 'Optimization');
+is($query->to_string, "#1", 'Stringification');
 
 # Exclusion that translates to nothing
 $query = $qb->exclusion(

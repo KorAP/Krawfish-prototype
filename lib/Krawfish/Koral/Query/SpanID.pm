@@ -11,7 +11,9 @@ use strict;
 
 sub new {
   my ($class, $term_id) = @_;
-  bless \$term_id, $class;
+  bless {
+    term_id => $term_id
+  }, $class;
 };
 
 sub type {
@@ -21,11 +23,11 @@ sub type {
 
 sub optimize {
   my ($self, $segment) = @_;
-  return Krawfish::Query::SpanID->new($segment, $$self);
+  return Krawfish::Query::SpanID->new($segment, $self->{term_id});
 };
 
 sub to_string {
-  '#' . ${$_[0]};
+  '#' . $_[0]->{term_id};
 };
 
 1;
