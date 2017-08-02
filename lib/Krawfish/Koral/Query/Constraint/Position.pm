@@ -8,7 +8,8 @@ use Memoize;
 memoize('min_span');
 memoize('max_span');
 
-our @EXPORT = qw/to_frame/;
+our @EXPORT = qw/to_frame
+                 MATCHES/;
 
 # TODO:
 #   Add error etc. and base this on Krawfish::Query::Constraint::Base.

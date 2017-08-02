@@ -11,7 +11,7 @@ use Memoize;
 memoize('min_span');
 memoize('max_span');
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 sub new {
   my $class = shift;
@@ -83,8 +83,9 @@ sub normalize {
     return;
   };
 
-  # Normalize!
-  if ($first_norm->to_string eq $second_norm->to_string) {
+  # Normalize contradiction
+  if ($self->{frames} == MATCHES &&
+        $first_norm->to_string eq $second_norm->to_string) {
 
     if (DEBUG) {
       print_log('kq_excl', 'First and second operand are equal');
@@ -117,14 +118,22 @@ sub max_span {
 
 
 
-sub inflate {
+sub identify {
   my ($self, $dict) = @_;
 
-  print_log('kq_excl', 'Inflate exclusion') if DEBUG;
+  print_log('kq_excl', 'Identify exclusion') if DEBUG;
 
   my $ops = $self->operands;
-  for (my $i = 0; $i < @$ops; $i++) {
-    $ops->[$i] = $ops->[$i]->inflate($dict);
+  $ops->[0] = $ops->[0]->identify($dict);
+
+  if ($ops->[0]->is_nothing) {
+    return $self->builder->nothing;
+  };
+
+  $ops->[1] = $ops->[1]->identify($dict);
+
+  if ($ops->[1]->is_nothing) {
+    return $ops->[0];
   };
 
   return $self;
