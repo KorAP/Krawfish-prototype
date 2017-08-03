@@ -27,12 +27,12 @@ is($term->to_string, 'Hut');
 ok($term = $term->identify($index->dict), 'To term ids');
 
 # Probably don't check that!
-is($term->to_string, '#16', 'Hut-term_id');
+is($term->to_string, '#20', 'Hut-term_id');
 
 ok($term = $term->optimize($index->segment), 'Optimize');
 
 # Probably don't check that!
-is($term->to_string, '#16', 'Hut-term_id');
+is($term->to_string, '#20', 'Hut-term_id');
 
 
 ok(!$term->current, 'Not initialized yet');

@@ -72,7 +72,7 @@ use constant DEBUG => 0;
 # Construct grouping function
 sub new {
   my $class = shift;
-  my ($query, $criterion, $index) = @_;
+  my ($query, $criterion) = @_;
 
   bless {
     query => $query,

@@ -14,7 +14,7 @@ our %META_ORDER = (
 );
 
 use constant {
-  DEBUG => 0,
+  DEBUG => 1,
   UNIQUE_FIELD => 'id'
 };
 
@@ -57,6 +57,8 @@ sub normalize {
   push @meta,
     $mb->sort_by($mb->s_field(UNIQUE_FIELD));
 
+  print_log('kq_meta', 'Added unique field ' . UNIQUE_FIELD . ' to order') if DEBUG;
+
   # 1. Introduce required information
   #    e.g. sort(field) => fields(field)
   my $sort_filtering = 1;
@@ -68,6 +70,12 @@ sub normalize {
     if ($meta[$i]->type eq 'sort') {
       push @meta,
         $self->builder->fields($meta[$i]->fields);
+
+      if (DEBUG) {
+        print_log('kq_meta', 'Added sorting ' .
+                    join(',', map {$_->to_string } $meta[$i]->fields) .
+                    ' to fields');
+      };
     }
 
     # There is at least one aggregation field
@@ -154,6 +162,18 @@ sub normalize {
 
   # Set operations
   $self->operations(@meta);
+
+  return $self;
+};
+
+
+# Translate all fields to term ids
+sub identify {
+  my ($self, $dict) = @_;
+
+  for (my $i = 0; $i < @$self; $i++) {
+    $self->[$i] = $self->[$i]->identify($dict);
+  };
 
   return $self;
 };

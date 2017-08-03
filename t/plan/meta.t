@@ -4,24 +4,103 @@ use strict;
 use warnings;
 
 use_ok('Krawfish::Koral');
+use_ok('Krawfish::Koral::Meta');
 use_ok('Krawfish::Index');
 
+# Create some documents
 my $index = Krawfish::Index->new;
+ok_index($index, {
+  id => 2,
+  author => 'Peter',
+  genre => 'novel',
+  age => 4
+} => [qw/aa bb/], 'Add complex document');
+ok_index($index, {
+  id => 3,
+  author => 'Peter',
+  genre => 'novel',
+  age => 3
+} => [qw/aa bb/], 'Add complex document');
+ok_index($index, {
+  id => 5,
+  author => 'Peter',
+  genre => 'newsletter',
+  title => 'Your way to success!',
+  age => 4
+} => [qw/aa bb/], 'Add complex document');
+ok_index($index, {
+  id => 6,
+  author => 'Michael',
+  genre => 'newsletter',
+  age => 7
+} => [qw/aa bb/], 'Add complex document');
 
-ok_index($index, '<1:opennlp/c=NP>[Der][hey]</1>', 'Add new document');
 
-ok(my $koral = Krawfish::Koral->new, 'New Koral');
+my $koral = Krawfish::Koral->new;
+my $mb = $koral->meta_builder;
 
-# Simple query definition
-my $builder = $koral->query_builder;
-$koral->query(
-  $builder->seq(
-    $builder->token('Der'),
-    $builder->span('opennlp/c=NP')
-  )
+# Introduce redundant operations and new sorts
+$koral->meta(
+  $mb->fields('author', 'title', 'id'),
 );
 
-is($koral->to_string, 'query=[[Der]<opennlp/c=NP>]');
+# Get the meta object
+my $meta = $koral->meta;
+
+is($meta->to_string, "fields=['author','title','id']", 'Stringification');
+
+# This will introduce a sort filter and reorder and simplify the operations
+ok($meta = $meta->normalize, 'Normalize meta object');
+
+is($meta->to_string, "fields=['author','title','id'],sort=[field='id'<],sortFilter",
+   'Stringification');
+
+ok($meta = $meta->identify($index->dict), 'Identification');
+
+is($meta->to_string, "fields=[#4,#16,#8],sort=[field=#8<],sortFilter",
+   'Stringification');
+
+
+# Introduce redundant operations and new sorts
+$koral->meta(
+  $mb->sort_by($mb->s_field('author', 1), $mb->s_field('age')),
+  $mb->fields('author', 'title', 'id'),
+  $mb->sort_by($mb->s_field('length')),
+  $mb->fields('subTitle')
+);
+
+# Get the meta object
+$meta = $koral->meta;
+
+
+# Translate to term_ids
+# subtitle and length are not available for the fields
+is(
+  $meta->to_string,
+  "sort=[field='author'>,field='age'<],fields=['author','title','id'],sort=[field='length'<],fields=['subTitle']",
+  'Stringification'
+);
+
+
+# This will introduce a sort filter and reorder and simplify the operations
+ok($meta = $meta->normalize, 'Normalize meta object');
+
+is(
+  $meta->to_string,
+  "fields=['author','title','id','subTitle','age','length'],sort=[field='author'>,field='age'<,field='length'<,field='id'<],sortFilter",
+  'Stringification'
+);
+
+# This will translate all fields to 
+ok($meta = $meta->identify($index->dict), 'Translate to identifier');
+
+is(
+  $meta->to_string,
+  "fields=[#4,#16,#8,#2],sort=[field=#4>,field=#2<,field=#8<],sortFilter",
+  'Stringification'
+);
+
+
 
 
 done_testing;

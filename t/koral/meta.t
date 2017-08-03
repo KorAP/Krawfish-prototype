@@ -7,6 +7,7 @@ use_ok('Krawfish::Koral::Meta');
 
 my $mb = Krawfish::Koral::Meta::Builder->new;
 
+# Build aggregations
 ok(my $meta = $mb->aggregate( $mb->a_frequencies ), 'Add aggregation');
 is($meta->to_string, 'aggr=[freq]', 'Stringification');
 
@@ -20,6 +21,8 @@ is($meta->to_string, "aggr=[facets:['size','age'],freq,length]", 'Stringificatio
 ok($meta = $mb->fields('author', 'title', 'id'), 'Create fields');
 is($meta->to_string, "fields=['author','title','id']", 'Stringification');
 
+
+# Build sorting
 ok($meta = $mb->sort_by($mb->s_field('author', 1), $mb->s_field('age')), 'Create fields');
 is($meta->to_string, "sort=[field='author'>,field='age'<]", 'Stringification');
 

@@ -21,7 +21,7 @@ use constant {
 sub new {
   my $class = shift;
   bless {
-    index => shift,
+    segment => shift,
     nrs => @_ ? [sort @_] : undef,
     groups => {},
   }, $class;
@@ -38,7 +38,7 @@ sub get_group {
   # is implemented as a postingslist (probably not)
   my @classes = $match->get_classes_sorted($self->{nrs});
 
-  my $subtokens = $self->{index}->subtokens;
+  my $subtokens = $self->{segment}->subtokens;
 
   my %class_group;
 
@@ -92,8 +92,10 @@ sub get_group {
 sub to_hash {
   my ($self, $signature, $doc_freq, $freq) = @_;
 
+  # TODO:
+  #   This can't work!
   # Get dictionary object to convert terms to term id
-  my $dict = $self->{index}->dict;
+  my $dict = $self->{segment}->dict;
 
   my %hash = ();
   while ($signature =~ /\G(\d+):(.+?);/g) {

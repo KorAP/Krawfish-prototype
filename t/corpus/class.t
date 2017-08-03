@@ -71,7 +71,7 @@ is_deeply($query->to_koral_fragment, {
 ok(my $plan = $query->normalize->identify($index->dict)->optimize($index->segment), 'Planning');
 
 is($plan->to_string,
-   "or(class(3:#6),class(2:#2))",
+   "or(class(3:#9),class(2:#3))",
    'Stringification');
 
 TODO: {

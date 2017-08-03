@@ -15,8 +15,20 @@ sub field {
   return $_[0]->{field};
 };
 
+sub identify {
+  my ($self, $dict) = @_;
+  my $field = $self->{field}->identify($dict);
+
+  # Field does not exist in the dictionary
+  return unless $field;
+
+  $self->{field} = $field;
+
+  return $self;
+};
+
 sub to_string {
-  my $str = 'field=' . squote($_[0]->{field});
+  my $str = 'field=' . $_[0]->{field}->to_string;
   $str .= ($_[0]->{desc} ? '>' : '<');
   $str;
 };

@@ -32,9 +32,12 @@ my $field_count = Krawfish::Result::Segment::Aggregate::Values->new(
   $index, ['size', 'docID']
 );
 
+done_testing;
+__END__
+
 # Get count object
 ok(my $aggr = Krawfish::Result::Segment::Aggregate->new(
-  $query->normalize->finalize->optimize($index),
+  $query->normalize->finalize->identify($index->dict)->optimize($index->segment),
   [$field_count]
 ), 'Create field count object');
 

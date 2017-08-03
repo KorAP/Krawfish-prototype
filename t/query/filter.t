@@ -31,7 +31,7 @@ ok(my $term = $qb->term('aa'), 'Create term query');
 ok(my $query = $qb->filter_by($term, $corpus), 'Filter by corpus');
 
 ok(my $query_plan = $query->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Create query plan');
-is($query_plan->to_string, "filter(#3,#1)", 'Stringification');
+is($query_plan->to_string, "filter(#5,#1)", 'Stringification');
 is($query_plan->max_freq, 9, '6 max freq');
 matches($query_plan, [qw/[0:0-1] [0:2-3] [0:6-7] [2:0-1] [2:2-3] [2:6-7]/], '6 matches');
 

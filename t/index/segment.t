@@ -14,20 +14,20 @@ ok(defined ($doc_id = $index->add('t/data/doc1.jsonld')), 'Add new document');
 sub _postings {
   my $term = shift;
   my $term_id = $index->dict->term_id_by_term($term) or return;
-  return $index->dyn_segment->postings($term_id)->pointer;
+  return $index->segment->postings($term_id)->pointer;
 };
 
 # Get terms from the term dictionary
 my $term_id;
 ok($term_id = $index->dict->term_id_by_term('Der'), 'Get term id');
-is($term_id, 5, 'Term id valid');
+is($term_id, 9, 'Term id valid');
 
 ok(!$index->dict->term_id_by_term('Haus'), 'Get term id');
 
 
 is_deeply(_postings('Der')->list->{array}, [[0,0]], 'PostingsList');
 
-my $seg = $index->dyn_segment;
+my $seg = $index->segment;
 
 is($seg->primary->get($doc_id, 0, 3), 'Der', 'Get primary');
 

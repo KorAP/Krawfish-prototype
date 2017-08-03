@@ -6,6 +6,8 @@ use Krawfish::Koral::Meta::Aggregate::Frequencies;
 use Krawfish::Koral::Meta::Aggregate::Facets;
 use Krawfish::Koral::Meta::Aggregate::Length;
 use Krawfish::Koral::Meta::Enrich::Fields;
+use Krawfish::Koral::Meta::Type::Key;
+use Scalar::Util qw/blessed/;
 use strict;
 use warnings;
 
@@ -50,7 +52,11 @@ sub a_length {
 
 sub fields {
   shift;
-  return Krawfish::Koral::Meta::Enrich::Fields->new(@_);
+  return Krawfish::Koral::Meta::Enrich::Fields->new(
+    map {
+      blessed $_ ? $_ : Krawfish::Koral::Meta::Type::Key->new($_)
+    } @_
+  );
 };
 
 
@@ -65,7 +71,10 @@ sub sort_by {
 # Some sorting criteria
 sub s_field {
   shift;
-  return Krawfish::Koral::Meta::Sort::Field->new(@_);
+  return Krawfish::Koral::Meta::Sort::Field->new(
+    blessed $_[0] ? $_[0] : Krawfish::Koral::Meta::Type::Key->new($_[0]),
+    $_[1]
+  );
 };
 
 

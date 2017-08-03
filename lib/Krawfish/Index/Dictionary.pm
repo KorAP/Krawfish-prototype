@@ -92,6 +92,7 @@ use Krawfish::Index::PostingsList;
 #   terms: *
 #   subterms: ~
 #   fields: + (need to be )
+#   fieldkeys: !
 
 #
 # TERMS: The dictionary will have one value lists with data,
@@ -109,7 +110,7 @@ use Krawfish::Index::PostingsList;
 #           accessible by their sub_term_id position in the list:
 #  ([leaf-backref][prefix-rank][suffix-rank])*
 #
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 sub new {
   my $class = shift;
@@ -130,6 +131,9 @@ sub new {
     # Bookkeeping for (sub)term_ids
     last_term_id => 1,
     last_subterm_id => 1,
+
+    # There may be different IDs for
+    # fieldvalues, fieldkeys, terms, subterms ... etc.
 
     # TODO: Collation needs to be defined!
     collation => undef
@@ -259,6 +263,8 @@ sub term_id_by_term {
 # TODO: This should return an iterator
 sub terms {
   my ($self, $re) = @_;
+
+  warn 'DEPRECTATED';
 
   if ($re) {
     return sort grep { $_ =~ $re } keys %{$self->{hash}};

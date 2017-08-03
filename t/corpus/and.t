@@ -44,7 +44,7 @@ ok(!$query->is_negative, 'Check negativity');
 
 ok(my $plan = $query->normalize->identify($index->dict)->optimize($index->segment), 'Planning');
 
-is($plan->to_string, "and(#2,#1)", 'Stringification');
+is($plan->to_string, "and(#3,#1)", 'Stringification');
 
 ok($plan->next, 'Init vc');
 is($plan->current->to_string, '[0]', 'First doc');
@@ -66,7 +66,7 @@ ok(!$query->is_negative, 'Check negativity');
 
 ok($plan = $query->normalize->identify($index->dict)->optimize($index->segment), 'Planning');
 
-is($plan->to_string, "or(#4,and(#2,#7))", 'Stringification');
+is($plan->to_string, "or(#7,and(#3,#11))", 'Stringification');
 
 ok($plan->next, 'Init vc');
 is($plan->current->to_string, '[0]', 'First doc');
@@ -89,7 +89,7 @@ ok(my $norm = $query->normalize, 'Plan logically');
 is($norm->to_string, "(author=Peter&!age=4)", 'Stringification');
 
 ok(my $opt = $norm->identify($index->dict)->optimize($index->segment), 'Planning');
-is($opt->to_string, "andNot(#2,#1)", 'Stringification');
+is($opt->to_string, "andNot(#3,#1)", 'Stringification');
 
 
 ok($opt->next, 'Init vc');
@@ -114,7 +114,7 @@ is($plan->to_string, "!(age=4|author=Peter)", 'Stringification');
 ok($plan = $plan->finalize, 'Planning');
 is($plan->to_string, "([1]&!(age=4|author=Peter))", 'Stringification');
 ok($plan = $plan->identify($index->dict)->optimize($index->segment), 'Optimizing');
-is($plan->to_string, "andNot([1],or(#1,#2))", 'Stringification');
+is($plan->to_string, "andNot([1],or(#1,#3))", 'Stringification');
 
 ok($plan->next, 'More next');
 is($plan->current->to_string, '[3]', 'First doc');

@@ -1,9 +1,9 @@
 package Krawfish::Koral::Meta::Enrich::Fields;
 use Krawfish::Result::Node::Enrich::Fields;
-use Krawfish::Util::String qw/squote/;
-use List::MoreUtils qw/uniq/;
 use strict;
 use warnings;
+
+# Define which fields per match should be aggregated
 
 sub new {
   my $class = shift;
@@ -27,14 +27,44 @@ sub operations {
 
 sub to_string {
   my $self = shift;
-  return 'fields=[' . join(',', map { squote($_) } @$self) . ']';
+  return 'fields=[' . join(',', map { $_->to_string } @$self) . ']';
 };
 
 
 # Remove duplicates
 sub normalize {
   my $self = shift;
-  @$self = uniq(@$self);
+  my @unique;
+  my %unique;
+  foreach (@$self) {
+    unless (exists $unique{$_->to_string}) {
+      push @unique, $_;
+      $unique{$_->to_string} = 1;
+    };
+  };
+  @$self = @unique;
+  return $self;
+};
+
+
+sub identify {
+  my ($self, $dict) = @_;
+
+  my @identifier;
+  foreach (@$self) {
+
+    # Field may not exist in dictionary
+    my $field = $_->identify($dict);
+    if ($field) {
+      push @identifier, $field;
+    };
+  };
+
+  # Do not return any fields
+  return if @identifier == 0;
+
+  @$self = @identifier;
+
   return $self;
 };
 

@@ -1,6 +1,5 @@
 package Krawfish::Koral::Meta::Sort;
 use Krawfish::Result::Node::Sort;
-use List::MoreUtils qw/uniq/;
 use strict;
 use warnings;
 
@@ -10,6 +9,7 @@ sub new {
   bless [@_], $class;
 };
 
+
 # Get all fields to sort by
 sub fields {
   my $self = shift;
@@ -18,6 +18,9 @@ sub fields {
   foreach (@$self) {
     if ($_->can('field')) {
       push @fields, $_->field;
+    }
+    else {
+      warn 'Currently sorting only supports field sorting';
     };
   };
 
@@ -36,6 +39,29 @@ sub operations {
 };
 
 
+# Get identifiers
+sub identify {
+  my ($self, $dict) = @_;
+
+  my @identifier;
+  foreach (@$self) {
+
+    # Field may not exist in dictionary
+    my $field = $_->identify($dict);
+    if ($field) {
+      push @identifier, $field;
+    };
+  };
+
+  # Do not return any fields
+  return if @identifier == 0;
+
+  @$self = @identifier;
+
+  return $self;
+};
+
+
 sub type {
   'sort';
 };
@@ -44,9 +70,19 @@ sub type {
 # Remove duplicates
 sub normalize {
   my $self = shift;
-  @$self = uniq(@$self);
+  my @unique;
+  my %unique;
+  foreach (@$self) {
+    unless (exists $unique{$_->to_string}) {
+      push @unique, $_;
+      $unique{$_->to_string} = 1;
+    };
+  };
+  @$self = @unique;
   return $self;
 };
+
+
 
 sub to_nodes {
   my ($self, $query) = @_;

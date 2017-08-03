@@ -114,7 +114,7 @@ is($plan->to_string, '[1]&author=Peter', 'Stringification');
 ok($plan = $plan->identify($index->dict), 'Add identification');
 
 ok(my $fin = $plan->optimize($index->segment), 'Optimizing');
-is($fin->to_string, "and([1],#2)", 'Stringification');
+is($fin->to_string, "and([1],#3)", 'Stringification');
 
 matches($fin, [qw/[0] [1] [2]/]);
 

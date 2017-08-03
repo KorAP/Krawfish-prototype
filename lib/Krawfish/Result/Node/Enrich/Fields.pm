@@ -25,7 +25,8 @@ sub new {
 
 sub to_string {
   my $self = shift;
-  return 'fields(' . join(',', map { squote($_) } @{$self->{fields}}) . ':' . $self->{query}->to_string . ')';
+  return 'fields(' . join(',', map { $_->to_string } @{$self->{fields}}) .
+    ':' . $self->{query}->to_string . ')';
 };
 
 

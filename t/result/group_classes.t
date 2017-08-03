@@ -22,21 +22,22 @@ is($query->to_string, '[akron=Bau-Leiter]', 'Stringification');
 
 # Create class criterion
 my $criterion = Krawfish::Result::Group::Classes->new(
-  $index
+  $index->segment
 );
 
 is($criterion->to_string, 'classes', 'Stringification');
 
-# Create group
+# Create group query
 my $group = Krawfish::Result::Group->new(
-  $query->normalize->finalize->optimize($index),
+  $query->normalize->finalize->identify($index->dict)->optimize($index->segment),
   $criterion
 );
 
-is($group->to_string, "groupBy(classes:'akron=Bau-Leiter')", 'Stringification');
+is($group->to_string, "groupBy(classes:#6)", 'Stringification');
 
 ok($group->next, 'Go to next');
 
+# TODO: Return term_ids!
 is_deeply($group->current_group, {
   'class_0' => ['Bau','Leiter'],
   freq => 1,
@@ -57,7 +58,7 @@ is($query->to_string,
 
 # Create class criterion
 $criterion = Krawfish::Result::Group::Classes->new(
-  $index,
+  $index->segment,
   1,3
 );
 
@@ -65,7 +66,7 @@ is($criterion->to_string, 'classes[1,3]', 'Stringification');
 
 # Create group
 $group = Krawfish::Result::Group->new(
-  $query->normalize->finalize->optimize($index),
+  $query->normalize->finalize->identify($index->dict)->optimize($index->segment),
   $criterion
 );
 

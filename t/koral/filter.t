@@ -46,7 +46,7 @@ $query = $koral->to_nodes->identify($index->dict)->optimize($index->segment);
 
 
 # Can't match anywhere:
-is($query->to_string, "filter(#4,#5)", 'Planned stringification');
+is($query->to_string, "filter(#6,#7)", 'Planned stringification');
 
 ok($query->next, 'Get next filtered match');
 is($query->current->to_string, '[1:1-2]', 'Stringification');

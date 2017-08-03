@@ -23,7 +23,7 @@ is($query->to_string, 'id=2|id=3', 'Stringification');
 
 ok(my $plan = $query->normalize->identify($index->dict)->optimize($index->segment), 'Planning');
 
-is($plan->to_string, "or(#1,#4)", 'Stringification');
+is($plan->to_string, "or(#1,#5)", 'Stringification');
 
 ok($plan->next, 'Init vc');
 is($plan->current->to_string, '[0]', 'First doc');
@@ -45,7 +45,7 @@ is($query->to_string, 'id=2|id=3|id=9', 'Stringification');
 
 ok($plan = $query->normalize->identify($index->dict)->optimize($index->segment), 'Planning');
 
-is($plan->to_string, "or(or(#1,#4),#7)", 'Stringification');
+is($plan->to_string, "or(or(#1,#5),#8)", 'Stringification');
 
 matches($plan, [qw/[0] [1] [4]/], 'Matches');
 
@@ -57,7 +57,7 @@ ok($query = $cb->bool_or(
 
 is($query->to_string, 'id!=2|id=5', 'Stringification');
 ok($plan = $query->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Planning');
-is($plan->to_string, "and(or(#5,andNot([1],#1)),[1])", 'Stringification');
+is($plan->to_string, "and(or(#6,andNot([1],#1)),[1])", 'Stringification');
 
 # matches($plan, [qw/[0] [1] [2] [3] [4]/], 'Matches');
 

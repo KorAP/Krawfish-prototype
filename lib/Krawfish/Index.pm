@@ -7,7 +7,7 @@ use Mojo::File;
 use strict;
 use warnings;
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 
 # The document can be add as a primary document or as a replicated
@@ -89,13 +89,6 @@ sub segments {
 
 
 # Get the dynamic segment
-sub dyn_segment {
-  # DEPRECATE!
-  $_[0]->{dyn_segment};
-};
-
-
-# Get the dynamic segment
 sub segment {
   $_[0]->{dyn_segment};
 };
@@ -120,7 +113,7 @@ sub add {
   };
 
   # Get the dynamic segment to add the document
-  my $seg = $self->dyn_segment;
+  my $seg = $self->segment;
 
   # Get new doc_id for the segment
   my $doc_id = $seg->live->incr;
@@ -152,12 +145,6 @@ sub add {
   my $fields = $seg->fields;
   foreach my $field (@{$doc->{fields}}) {
 
-    # TODO:
-    #   Also store 'id' as a field value
-
-    # Add to document field (retrieval)
-    $fields->store($doc_id, $field->{key}, $field->{value});
-
     # Prepare for summarization
     # if ($field->{type} eq 'type:integer') {
     # };
@@ -182,11 +169,21 @@ sub add {
     # Add the term to the dictionary
     my $term_id = $dict->add_term('+' . $term);
 
+    # Add the field key to the dictionary
+    my $field_id = $dict->add_term('!' . $field->{key});
+
     # Get the posting list for the term
     my $post_list = $seg->postings($term_id);
 
     # Append the document to the posting list
     $post_list->append($doc_id);
+
+    # TODO:
+    #   Also store 'id' as a field value
+
+    # Add to document field (for retrieval)
+    # This is stored as field_id and term_id
+    $fields->store($doc_id, $field_id, $term_id);
   };
 
 

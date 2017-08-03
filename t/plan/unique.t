@@ -24,7 +24,7 @@ ok(!$query->is_null, 'Isn\'t null');
 ok(!$query->is_negative, 'Isn\'t negative');
 ok(!$query->is_extended, 'Isn\'t extended');
 is($query->to_string, 'unique(Der)', 'Stringification');
-is($query->normalize->finalize->identify($index->dict)->optimize($index->segment)->to_string, "unique(#5)", 'Planned Stringification');
+is($query->normalize->finalize->identify($index->dict)->optimize($index->segment)->to_string, "unique(#9)", 'Planned Stringification');
 
 # Span planning with freq == 0
 $query = $builder->unique($builder->term('xxx'));
