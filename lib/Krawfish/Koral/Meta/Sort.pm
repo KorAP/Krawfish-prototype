@@ -1,12 +1,50 @@
 package Krawfish::Koral::Meta::Sort;
 use Krawfish::Result::Node::Sort;
+use Krawfish::Koral::Meta::Node::Sort;
+use Krawfish::Log;
 use strict;
 use warnings;
 
+use constant DEBUG => 1;
+
+# TODO:
+#   Support top_k setting from limit!
+
 sub new {
   my $class = shift;
+
+  if (DEBUG) {
+    print_log('kq_sort', 'Added sorting criteria: '.
+                join(', ', map { $_->to_string } @_));
+  };
+
   # Check that all passed values are sorting criteria
-  bless [@_], $class;
+  bless {
+    sort => [@_],
+    top_k => undef,
+    filter => undef
+  }, $class;
+};
+
+
+# Set or get the top_k limitation!
+sub top_k {
+  my $self = shift;
+  if (defined $_[0]) {
+    $self->{top_k} = shift;
+    return $self;
+  };
+  return $self->{top_k};
+};
+
+
+sub filter {
+  my $self = shift;
+  if (defined $_[0]) {
+    $self->{filter} = shift;
+    return $self;
+  };
+  return $self->{filter};
 };
 
 
@@ -15,7 +53,7 @@ sub fields {
   my $self = shift;
   my @fields = ();
 
-  foreach (@$self) {
+  foreach (@{$self->{sort}}) {
     if ($_->can('field')) {
       push @fields, $_->field;
     }
@@ -28,37 +66,15 @@ sub fields {
 };
 
 
+
 # Get or set operations
 sub operations {
   my $self = shift;
   if (@_) {
-    @$self = @_;
+    @{$self->{sort}} = @_;
     return $self;
   };
-  return @$self;
-};
-
-
-# Get identifiers
-sub identify {
-  my ($self, $dict) = @_;
-
-  my @identifier;
-  foreach (@$self) {
-
-    # Field may not exist in dictionary
-    my $field = $_->identify($dict);
-    if ($field) {
-      push @identifier, $field;
-    };
-  };
-
-  # Do not return any fields
-  return if @identifier == 0;
-
-  @$self = @identifier;
-
-  return $self;
+  return @{$self->{sort}};
 };
 
 
@@ -72,27 +88,49 @@ sub normalize {
   my $self = shift;
   my @unique;
   my %unique;
-  foreach (@$self) {
+  foreach (@{$self->{sort}}) {
     unless (exists $unique{$_->to_string}) {
       push @unique, $_;
       $unique{$_->to_string} = 1;
     };
   };
-  @$self = @unique;
+  @{$self->{sort}} = @unique;
   return $self;
 };
 
 
-
+# TODO:
+#   REMOVE!
 sub to_nodes {
   my ($self, $query) = @_;
+  warn 'DEPRECATED';
   return Krawfish::Result::Node::Sort->new($query, [$self->operations]);
 };
 
 
+sub wrap {
+  my ($self, $query) = @_;
+  return Krawfish::Koral::Meta::Node::Sort->new(
+    $query,
+    [$self->operations],
+    $self->top_k,
+    $self->filter
+  );
+};
+
 sub to_string {
   my $self = shift;
-  return 'sort=[' . join(',', map { $_->to_string } @$self) . ']';
+  my $str = join(',', map { $_->to_string } @{$self->{sort}});
+
+  if ($self->top_k) {
+    $str .= ';k=' . $self->top_k;
+  };
+
+  if ($self->filter) {
+    $str .= ';sortFilter'
+  };
+
+  return 'sort=[' . $str . ']';
 };
 
 1;

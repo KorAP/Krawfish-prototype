@@ -26,6 +26,7 @@ is($meta->to_string, "fields=['author','title','id']", 'Stringification');
 ok($meta = $mb->sort_by($mb->s_field('author', 1), $mb->s_field('age')), 'Create fields');
 is($meta->to_string, "sort=[field='author'>,field='age'<]", 'Stringification');
 
+
 my $meta_koral = Krawfish::Koral::Meta->new(
   $mb->sort_by($mb->s_field('author', 1), $mb->s_field('age')),
   $mb->fields('author', 'title', 'id')
@@ -59,7 +60,7 @@ ok($meta_koral = $meta_koral->normalize, 'Normalize meta object');
 
 is(
   $meta_koral->to_string,
-  "fields=['author','title','id','subTitle','age','length'],sort=[field='author'>,field='age'<,field='length'<,field='id'<],sortFilter",
+  "fields=['author','title','id','subTitle','age','length'],sort=[field='author'>,field='age'<,field='length'<,field='id'<;sortFilter]",
   'Stringification'
 );
 

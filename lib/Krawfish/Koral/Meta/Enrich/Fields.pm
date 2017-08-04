@@ -1,4 +1,5 @@
 package Krawfish::Koral::Meta::Enrich::Fields;
+use Krawfish::Koral::Meta::Node::Enrich::Fields;
 use Krawfish::Result::Node::Enrich::Fields;
 use strict;
 use warnings;
@@ -50,6 +51,8 @@ sub normalize {
 sub identify {
   my ($self, $dict) = @_;
 
+  warn 'Deprecated!';
+
   my @identifier;
   foreach (@$self) {
 
@@ -76,5 +79,14 @@ sub to_nodes {
   return Krawfish::Result::Node::Enrich::Fields->new($query, [$self->operations]);
 };
 
+
+# Create a single query tree
+sub wrap {
+  my ($self, $query) = @_;
+  return Krawfish::Koral::Meta::Node::Enrich::Fields->new(
+    $query,
+    [$self->operations]
+  );
+};
 
 1;

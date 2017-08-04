@@ -4,6 +4,17 @@ use strict;
 use warnings;
 
 use_ok('Krawfish::Index');
+use_ok('Krawfish::Koral');
+
+TODO: {
+  local $TODO = 'Check this when snippets are ready';
+};
+
+
+done_testing;
+__END__
+
+use_ok('Krawfish::Index');
 use_ok('Krawfish::Result::Segment::Enrich::Snippet::Highlights');
 
 my $index = Krawfish::Index->new;
@@ -19,13 +30,6 @@ my $posting = Krawfish::Posting->new(
   end => 2
 );
 
-TODO: {
-  local $TODO = 'Test further';
-};
-
-
-done_testing;
-__END__
 
 ok(my $stack = $highlights->process($posting), 'Parse');
 

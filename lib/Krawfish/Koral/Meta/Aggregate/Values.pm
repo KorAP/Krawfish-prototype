@@ -1,7 +1,9 @@
-package Krawfish::Koral::Meta::Aggregate::Facets;
+package Krawfish::Koral::Meta::Aggregate::Values;
 use strict;
 use warnings;
 
+# Constructor
+# Accepts a list of numerical key objects
 sub new {
   my $class = shift;
   bless [@_], $class;
@@ -9,9 +11,8 @@ sub new {
 
 
 sub type {
-  'facets'
+  'values'
 };
-
 
 # Get or set operations
 sub operations {
@@ -40,15 +41,6 @@ sub normalize {
 };
 
 
-# TODO:
-#   Create one facet wrapping each other!
-#   OR as fields are sorted in order, fetching multiple
-#   fields for a document at once may be beneficial
-sub wrap {
-  ...
-};
-
-
 sub identify {
   my ($self, $dict) = @_;
 
@@ -72,7 +64,7 @@ sub identify {
 
 sub to_string {
   my $self = shift;
-  return 'facets:[' . join(',', map { $_->to_string } @$self) . ']';
+  return 'values:[' . join(',', map { $_->to_string } @$self) . ']';
 };
 
 1;

@@ -9,55 +9,67 @@ use warnings;
 
 use constant DEBUG => 0;
 
-
-# The document can be add as a primary document or as a replicated
+# This is the central object for index handling on node level.
+# A new document will be added by adding the following information:
+# - To the dynamic DICTIONARY
+#   - subterms
+#   - terms
+#   - fields
+#   - field keys
+#   - foundries                    (TODO)
+#   - foundry/layer                (TODO)
+#   - foundry/layer:annotations
+#   - regarding ranks
+#     - subterms                   (TODO)
+#       (2 ranks for forward and reverse sorting)
+# - To the dynamic RANGE DICTIONARY
+#   - fields (with integer data)
+# - To the dynamic SEGMENT
+#   - regarding postings lists
+#     - terms
+#     - annotations
+#     - fields
+#     - live document
+#   - regarding document lists
+#     - fields
+#     - field keys
+#     - numerical field values     (TODO)
+#   - regarding forward index      (TODO)
+#     - subterms
+#     - annotations
+#     - gap characters
+#   - regarding ranks
+#     - fields
+#       (2 ranks for multivalued fields)
+#   - regarding subtoken lists
+#     - subterms
+#   - regarding token spans        (TODO)
+#     - tokens
+#       (1 per foundry)
+#
+# The document can be added either as a primary document or as a replicated
 # document with a certain node_id.
+# Dynamic Segments can be merged with static indices once in a while.
+# Dynamic dictionaries can be merged with static indices once in a while.
 
-# TODO: This should be a base class for K::I::Static and K::I::Dynamic
-
-# TODO: Add LiveDocs-PostingsList, that supports deletion
-# TODO: Live should store the last_doc value
-
+# TODO:
+#   Create Importer class
 #
-# TODO: Support multiple tokenized texts for parallel corpora
+# TODO:
+#   This should be a base class for K::I::Static and K::I::Dynamic
 #
-# TODO: Create Importer class
+# TODO:
+#   Support multiple tokenized texts for parallel corpora
 #
-# TODO: Support Main Index and Auxiliary Indices with merging
-# https://www.youtube.com/watch?v=98E1h_u4xGk
+# TODO:
+#   Support Main Index and Auxiliary Indices with merging
+#   https://www.youtube.com/watch?v=98E1h_u4xGk
 #
-# TODO: Maybe logarithmic merge
-# https://www.youtube.com/watch?v=VNjf2dxWH2Y&spfreload=5
+# TODO:
+#   Maybe logarithmic merge
+#   https://www.youtube.com/watch?v=VNjf2dxWH2Y&spfreload=5
 
 # TODO: Maybe 65.535 documents are enough per segment ...
-
-# TODO: Build a forward index
-# TODO: With a forward index, the subtokens offsets will no longer
-#   point to character positions in the primary text but to
-#   subtoken positions in the forward index!
-
-# TODO:
-#   Currently ranking is not collation based. It should be possible
-#   to define a collation per field and
-#   use one collation for prefix and suffix sorting.
-#   It may be beneficial to make a different sorting possible (though it's
-#   probably acceptable to make it slow)
-#   Use http://userguide.icu-project.org/collation
-
-# TODO:
-#   Reranking a field is not necessary, if the field value is already given.
-#   In that case, look up the dictionary if the value is already given,
-#   take the example doc of that field value and add the rank of that
-#   doc for the new doc.
-#   If the field is not yet given, take the next or previous value in dictionary
-#   order and use the rank to rerank the field (see K::I::Dictionary).
-#   BUT: This only works if the field has the same collation as the
-#   dictionary!
-
-# TODO:
-#   field names should have term_ids, so should foundries and layers, but
-#   probably not field values and annotation values.
-#   terms may have term_ids and subterms should have subterm_ids
 
 
 # Construct a new index object
@@ -145,6 +157,11 @@ sub add {
   my $fields = $seg->fields;
   foreach my $field (@{$doc->{fields}}) {
 
+    # TODO:
+    #   Presort fields based on their field_key_id!
+    #   In that way it's faster to retrieve presorted fields
+    #   for enrichment!
+
     # Prepare for summarization
     # if ($field->{type} eq 'type:integer') {
     # };
@@ -197,6 +214,10 @@ sub add {
       $term = '1:1';
     };
 
+
+    # TODO:
+    #   The term_id for 1:1 should be known!
+
     # Add term to dictionary
     my $term_id = $dict->add_term('__' . $term);
 
@@ -204,6 +225,7 @@ sub add {
     my $post_list = $seg->postings($term_id);
     $post_list->append($doc_id);
   };
+
 
   # Get subtoken list
   my $subtokens = $seg->subtokens;
@@ -231,11 +253,15 @@ sub add {
       };
 
       # Get the term surface from the primary text
-      # TODO: Ensure that the offsets are valid!
+      # TODO:
+      #   Ensure that the offsets are valid!
       my $term = substr($primary, $start, $end - $start);
 
-      # TODO: There may be a prefix necessary for surface forms
-      # TODO: This may in fact be not necessary at all -
+      # TODO:
+      #   There may be a prefix necessary for surface forms ('*')
+
+      # TODO:
+      #   This may in fact be not necessary at all -
       #   The subtokens may have their own IDs
       #   And the terms do not need to be stored in the dictionary for retrieval ...
 

@@ -4,36 +4,73 @@ use strict;
 use warnings;
 
 use_ok('Krawfish::Index');
-use_ok('Krawfish::Koral::Query::Builder');
-use_ok('Krawfish::Result::Segment::Aggregate');
-use_ok('Krawfish::Result::Segment::Aggregate::Values');
+use_ok('Krawfish::Koral');
 
 my $index = Krawfish::Index->new;
 
 ok_index($index, {
-  docID => 7,
+  id => 7,
   size => 2, # TODO: May need to be marked as numerical
 } => [qw/aa bb/], 'Add complex document');
 ok_index($index, {
-  docID => 3,
+  id => 3,
   size => 3,
 } => [qw/aa cc cc/], 'Add complex document');
 ok_index($index, {
-  docID => 1,
+  id => 1,
   size => 2,
 } => [qw/aa bb/], 'Add complex document');
 
 
 # Only search for documents containing 'bb'
-my $kq = Krawfish::Koral::Query::Builder->new;
-my $query = $kq->token('bb');
+my $koral = Krawfish::Koral->new;
+my $qb = $koral->query_builder;
+my $mb = $koral->meta_builder;
+
+$koral->query($qb->token('bb'));
+
+$koral->meta(
+  $mb->aggregate(
+    $mb->a_values('size'),
+    $mb->a_values('docID')
+  )
+);
+
+is(
+  $koral->to_string,
+  "meta=[aggr=[values:['size'],values:['docID']]],query=[[bb]]",
+  'Stringification'
+);
+
+ok(my $koral_query = $koral->to_query, 'Normalization');
+
+# This is a query that is fine to be send to nodes
+is($koral_query->to_string,
+   "fields('id':sort(field='id'<:aggr(values:['size','docID']:filter(bb,[1]))))",
+   'Stringification');
+
+# This is a query that is fine to be send to segments:
+ok($koral_query = $koral_query->identify($index->dict), 'Identify');
+
+
+# This is a query that is fine to be send to nodes
+is($koral_query->to_string,
+   "fields(#2:sort(field=#2<:aggr(values:[#4]:filter(#6,[1]))))",
+   'Stringification');
+
+
+diag 'check value results!';
+
+
+
+done_testing;
+__END__
 
 my $field_count = Krawfish::Result::Segment::Aggregate::Values->new(
   $index, ['size', 'docID']
 );
 
-done_testing;
-__END__
+
 
 # Get count object
 ok(my $aggr = Krawfish::Result::Segment::Aggregate->new(

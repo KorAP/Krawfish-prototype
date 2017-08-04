@@ -4,28 +4,63 @@ use strict;
 use warnings;
 
 use_ok('Krawfish::Index');
-use_ok('Krawfish::Koral::Query::Builder');
-use_ok('Krawfish::Result::Segment::Enrich::Fields');
+use_ok('Krawfish::Koral');
 
 my $index = Krawfish::Index->new;
 ok_index($index, {
-  docID => 'doc-1',
+  id => 'doc-1',
   license => 'free',
   corpus => 'corpus-2'
 } => [qw/aa bb/], 'Add new document');
 ok_index($index, {
-  docID => 'doc-2',
+  id => 'doc-2',
   license => 'closed',
   corpus => 'corpus-3'
 } => [qw/aa bb/], 'Add new document');
 ok_index($index, {
-  docID => 'doc-3',
+  id => 'doc-3',
   license => 'free',
   corpus => 'corpus-1'
 } => [qw/bb cc/], 'Add new document');
 
-my $kq = Krawfish::Koral::Query::Builder->new;
-my $query = $kq->token('aa');
+
+my $koral = Krawfish::Koral->new;
+my $qb = $koral->query_builder;
+my $mb = $koral->meta_builder;
+
+$koral->query($qb->token('aa'));
+
+$koral->meta(
+  $mb->fields('license, corpus')
+);
+
+is($koral->to_string,
+   "meta=[fields=['license, corpus']],query=[[aa]]",
+   'Stringification');
+
+ok(my $koral_query = $koral->to_query, 'Normalization');
+
+# This is a query that is fine to be send to nodes
+is($koral_query->to_string,
+   "fields('license, corpus','id':sort(field='id'<;sortFilter:filter(aa,[1])))",
+   'Stringification');
+
+# This is a query that is fine to be send to segments:
+ok($koral_query = $koral_query->identify($index->dict), 'Identify');
+
+
+# This is a query that is fine to be send to nodes
+is($koral_query->to_string,
+   "fields(#4:sort(field=#4<;sortFilter:filter(#7,[1])))",
+   'Stringification');
+
+diag 'check field enrichments!';
+
+
+
+done_testing;
+__END__
+
 
 # Get fields object
 ok(my $fields = Krawfish::Result::Segment::Enrich::Fields->new(

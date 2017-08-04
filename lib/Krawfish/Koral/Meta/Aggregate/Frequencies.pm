@@ -12,6 +12,10 @@ sub type {
   'freq'
 };
 
+sub identify {
+  $_[0];
+};
+
 sub normalize {
   $_[0];
 };

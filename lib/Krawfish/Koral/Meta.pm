@@ -1,5 +1,4 @@
 package Krawfish::Koral::Meta;
-use Krawfish::Koral::Meta::SortFilter;
 use Krawfish::Koral::Meta::Builder;
 use Krawfish::Log;
 use strict;
@@ -8,10 +7,17 @@ use warnings;
 our %META_ORDER = (
   snippet   => 1,
   fields    => 2,
-  sort      => 3,
-  aggregate => 4,
-  filter    => 5
+  limit     => 3,
+  sort      => 4,
+  aggregate => 5,
+  group     => 6,
+  filter    => 7
 );
+
+# TODO:
+#   When a group filter is added,
+#   sorting does not work etc.
+#   This has to be thought through
 
 use constant {
   DEBUG => 1,
@@ -53,11 +59,29 @@ sub normalize {
 
   my $mb = $self->builder;
 
-  # Add unique sorting per default
-  push @meta,
-    $mb->sort_by($mb->s_field(UNIQUE_FIELD));
+  # Check, if the query is a group query,
+  # which invalidates some meta operations
+  my $group_query = 0;
+  my $top_k = 0;
+  foreach (@meta) {
+    if ($_->type eq 'group') {
+      $group_query = 1;
+    }
+    elsif ($_->type eq 'limit') {
+      $top_k = $_->start_index + $_->items_per_page;
+    };
+  };
 
-  print_log('kq_meta', 'Added unique field ' . UNIQUE_FIELD . ' to order') if DEBUG;
+  # Add unique sorting per default - unless it's a group query
+  unless ($group_query) {
+    push @meta,
+      $mb->sort_by($mb->s_field(UNIQUE_FIELD));
+
+    if (DEBUG) {
+      print_log('kq_meta', 'Added unique field ' . UNIQUE_FIELD . ' to order');
+    };
+  };
+
 
   # 1. Introduce required information
   #    e.g. sort(field) => fields(field)
@@ -86,12 +110,12 @@ sub normalize {
     # There is at least one group option
     elsif ($meta[$i]->type eq 'group') {
       $sort_filtering = 0;
-    }
+    #}
 
     # Remove any given sortfilter
-    elsif ($meta[$i]->type eq 'sortFilter') {
-      splice @meta, $i, 1;
-      $i--;
+    #elsif ($meta[$i]->type eq 'sortFilter') {
+    #  splice @meta, $i, 1;
+    #  $i--;
     };
   };
 
@@ -155,9 +179,20 @@ sub normalize {
 
   # 4. Optimize
   #    No aggregation or group queries =>
-  #      add a sort filter at the end
-  if ($sort_filtering) {
-    push @meta, Krawfish::Koral::Meta::SortFilter->new;
+  #      add a sort filter to sort
+  #    If a limit is given, add top_k to sort
+  if ($sort_filtering || $top_k) {
+    foreach (@meta) {
+      if ($_->type eq 'sort') {
+
+        # Activate sort_filter option
+        $_->filter(1) if $sort_filtering;
+
+        # Set top_k option!
+        $_->top_k($top_k) if $top_k;
+        last;
+      };
+    };
   };
 
   # Set operations
@@ -194,6 +229,15 @@ sub to_nodes {
     $query = $_->to_nodes($query);
   };
 
+  return $query;
+};
+
+
+sub wrap {
+  my ($self, $query) = @_;
+  foreach (reverse $self->operations) {
+    $query = $_->wrap($query);
+  };
   return $query;
 };
 

@@ -148,7 +148,10 @@ sub clone {
   ...
 };
 
+
 # This introduces the normalization phase
+# TODO:
+#   It should probably return a Koral::* object, that can be send!
 sub to_nodes {
   my $self = shift;
 
@@ -227,6 +230,99 @@ sub to_nodes {
   return $self->meta->to_nodes($query_final);
 };
 
+
+# Create a single query tree
+sub to_query {
+  my $self = shift;
+
+  # Optionally pass a node id for replication retrieval
+  my $replicant_id = shift;
+
+  # Build a complete query object
+  my $query;
+  my $corpus_only = 0;
+
+  # A virtual corpus and a query is given
+  if ($self->corpus && $self->query) {
+
+    # Filter query by corpus
+    $query = $self->query_builder->filter_by($self->query, $self->corpus);
+  }
+
+  # Only a query is given
+  elsif ($self->query) {
+
+    # Add corpus filter for live documents
+    $query = $self->query_builder->filter_by(
+      $self->query,
+      $self->corpus_builder->any
+    );
+  }
+
+  # Only a corpus query is given
+  else {
+
+    # Remember the query is only a corpus query
+    $corpus_only = 1;
+    $query = $self->corpus;
+  };
+
+  # If request is focused on replication, filter to replicates
+  if ($replicant_id) {
+    $query = $self->query_builder->filter_by(
+      $query,
+      $self->corpus_builder->replicant_node($replicant_id)
+    );
+  }
+
+  # Focus on primary data
+  else {
+    # $query = $self->query_builder->filter_by(
+    #   $query,
+    #   $self->corpus_builder->primary_node
+    # );
+  }
+
+  # Normalize the query
+  my $query_norm;
+  unless ($query_norm = $query->normalize) {
+    $self->copy_info_from($query);
+    return;
+  };
+
+  # Finalize the query
+  my $query_final;
+  unless ($query_final = $query_norm->finalize) {
+    $self->copy_info_from($query);
+    return;
+  };
+
+  # This is just for testing
+  return $query_final unless $self->meta;
+
+  if ($corpus_only) {
+    # TODO:
+    #   There is only a corpus query involved,
+    #   this may make some meta queries neglectable!
+  };
+
+  # Normalize the meta
+  my $meta;
+  unless ($meta = $self->meta->normalize) {
+    $self->copy_info_from($self->meta);
+    return;
+  };
+
+  # Serialize from meta
+  return $self->meta->wrap($query_final);
+};
+
+
+# TODO:
+#   This is just temporarily, because results are still a mess!
+sub to_segments {
+  my ($self, $dict) = @_;
+};
 
 
 # Serialization of KoralQuery
@@ -311,6 +407,8 @@ sub prepare_for_segment {
 # Prepare the query for index
 sub prepare_for {
   my ($self, $index) = @_;
+
+  warn 'DEPRECATED';
 
   my $query;
 

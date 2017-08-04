@@ -34,4 +34,5 @@ sub next {
   $_[0]->{query}->next;
 };
 
+
 1;

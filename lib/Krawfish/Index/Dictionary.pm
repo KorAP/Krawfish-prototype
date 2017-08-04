@@ -2,11 +2,19 @@ package Krawfish::Index::Dictionary;
 use strict;
 use warnings;
 use Krawfish::Log;
-use Krawfish::Index::PostingsList;
+
+# TODO:
+#   Currently all terms have a term_id, which may limit the whole dictionary
+#   to a finite number of terms (although this number can be pretty high
+#   and is only limited to a single node).
+
+# TODO:
+#   At the moment, all terms have a same term_id mapping,
+#   though different term types may have different term_id mappings.
 
 # TODO:
 #   This should be the base class for K::I::Dictionary::Dynamic
-#   and K::II::Dictionary::Static, or it may homogenize both
+#   and K::I::Dictionary::Static, or it may homogenize both
 #   instantiations!
 
 # TODO:
@@ -46,7 +54,6 @@ use Krawfish::Index::PostingsList;
 #     surface terms need to be reranked all the time -
 #     Or there are segment-wide ranks as well ...
 
-# TODO: Use Storable
 # TODO: Support case insensitivity
 # TODO: Create forward index with term-ids
 # TODO: Support aliases (e.g. a surface term may have the

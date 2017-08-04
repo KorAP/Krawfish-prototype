@@ -7,6 +7,11 @@ use warnings;
 
 # There is only one subtoken list for the documents
 
+# TODO:
+#   With a forward index, the subtokens offsets will no longer
+#   point to character positions in the primary text but to
+#   subtoken positions in the forward index!
+
 # The Subtokens list (not different for different tokenizations)
 # has the following job:
 #
@@ -102,7 +107,8 @@ sub store {
   # Get data to store per segment
   my ($doc_id, $subtoken, $start_char, $end_char, $subterm_id, $subterm) = @_;
 
-  # TODO: THIS IS PROBABLY NOT NECESSARY!
+  # TODO:
+  #   THIS IS PROBABLY NOT NECESSARY!
   if ($subterm) {
     # Get the first and last characters of the term
     my ($first, $last) = (substr($subterm, 0, 2), scalar reverse substr($subterm, -2));
@@ -118,6 +124,7 @@ sub store {
 
   # Temporary
   else {
+
     # Store all segments
     $self->{$doc_id . '#' . $subtoken} = [$start_char, $end_char];
   }

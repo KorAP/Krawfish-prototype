@@ -5,9 +5,7 @@ use strict;
 use warnings;
 
 use_ok('Krawfish::Index');
-use_ok('Krawfish::Koral::Corpus::Builder');
-use_ok('Krawfish::Result::Group');
-use_ok('Krawfish::Result::Group::Fields');
+use_ok('Krawfish::Koral');
 
 my $index = Krawfish::Index->new;
 
@@ -36,14 +34,59 @@ ok_index($index, {
   age => 7
 } => [qw/aa bb/], 'Add complex document');
 
-ok(my $cb = Krawfish::Koral::Corpus::Builder->new, 'Create CorpusBuilder');
-ok(my $query = $cb->bool_or(
-  $cb->string('author')->eq('Peter'),
-  $cb->string('age')->eq('7')
-), 'Create corpus query');
 
-is($query->to_string, 'age=7|author=Peter', 'Stringification');
-ok(!$query->is_negative, 'Check negativity');
+my $koral = Krawfish::Koral->new;
+my $cb = $koral->corpus_builder;
+my $mb = $koral->meta_builder;
+
+# Corpus object
+$koral->corpus(
+  $cb->bool_or(
+    $cb->string('author')->eq('Peter'),
+    $cb->string('age')->eq('7')
+  )
+);
+
+# Meta object
+$koral->meta(
+  $mb->group_by(
+    $mb->g_fields('author')
+  )
+);
+
+is($koral->corpus->to_string, 'age=7|author=Peter', 'Stringification');
+ok(!$koral->corpus->is_negative, 'Check negativity');
+
+
+is($koral->to_string,
+   "meta=[group=[fields:['author']]],corpus=[age=7|author=Peter]",
+   'Stringification');
+
+
+ok(my $koral_query = $koral->to_query, 'Normalization');
+
+# This is a query that is fine to be send to nodes
+is($koral_query->to_string,
+   "group(fields:['author']:[1]&(age=7|author=Peter))",
+   'Stringification');
+
+
+# This is a query that is fine to be send to segments:
+ok($koral_query = $koral_query->identify($index->dict),
+   'Identify');
+
+# This is a query that is fine to be send to nodes
+is($koral_query->to_string,
+   "group(fields:[#4]:(#15|#3)&[1])",
+   'Stringification');
+
+diag 'check group fields!';
+
+
+done_testing;
+__END__
+
+
 
 # Create class criterion
 my $criterion = Krawfish::Result::Group::Fields->new(
@@ -53,11 +96,16 @@ my $criterion = Krawfish::Result::Group::Fields->new(
 
 is($criterion->to_string, 'fields[author]', 'Stringification');
 
+
+
+
+
 # Create group
 my $group = Krawfish::Result::Group->new(
   $query->normalize->optimize($index),
   $criterion
 );
+
 
 is($group->to_string, "groupBy(fields[author]:or('age:7','author:Peter'))", 'Stringification');
 

@@ -95,16 +95,16 @@ sub to_hash {
   # TODO:
   #   This can't work!
   # Get dictionary object to convert terms to term id
-  my $dict = $self->{segment}->dict;
+  # my $dict = $self->{segment}->dict;
 
   my %hash = ();
   while ($signature =~ /\G(\d+):(.+?);/g) {
 
-    if (DEBUG) {
-      print_log('g_class', "Build class $1 for signature $2");
-    };
+  #  if (DEBUG) {
+  #    print_log('g_class', "Build class $1 for signature $2");
+  #  };
 
-    $hash{"class_$1"} = [ map { $dict->subterm_by_subterm_id($_) } split('___', $2)];
+    $hash{"class_$1"} = [ split('___', $2)];
   };
   $hash{freq} = $freq if defined $freq;
   $hash{doc_freq} = $doc_freq;

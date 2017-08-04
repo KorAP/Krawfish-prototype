@@ -44,6 +44,8 @@ $koral->meta(
   $mb->fields('author', 'title', 'id'),
 );
 
+$koral->query($koral->query_builder->token('a'));
+
 # Get the meta object
 my $meta = $koral->meta;
 
@@ -52,12 +54,12 @@ is($meta->to_string, "fields=['author','title','id']", 'Stringification');
 # This will introduce a sort filter and reorder and simplify the operations
 ok($meta = $meta->normalize, 'Normalize meta object');
 
-is($meta->to_string, "fields=['author','title','id'],sort=[field='id'<],sortFilter",
+is($meta->to_string, "fields=['author','title','id'],sort=[field='id'<;sortFilter]",
    'Stringification');
 
-ok($meta = $meta->identify($index->dict), 'Identification');
+ok($meta = $koral->to_query->identify($index->dict), 'Identification');
 
-is($meta->to_string, "fields=[#4,#16,#8],sort=[field=#8<],sortFilter",
+is($meta->to_string, "fields(#4,#16,#8:sort(field=#8<;sortFilter:[0]))",
    'Stringification');
 
 
@@ -87,16 +89,16 @@ ok($meta = $meta->normalize, 'Normalize meta object');
 
 is(
   $meta->to_string,
-  "fields=['author','title','id','subTitle','age','length'],sort=[field='author'>,field='age'<,field='length'<,field='id'<],sortFilter",
+  "fields=['author','title','id','subTitle','age','length'],sort=[field='author'>,field='age'<,field='length'<,field='id'<;sortFilter]",
   'Stringification'
 );
 
 # This will translate all fields to 
-ok($meta = $meta->identify($index->dict), 'Translate to identifier');
+ok(my $query = $koral->to_query->identify($index->dict), 'Translate to identifier');
 
 is(
-  $meta->to_string,
-  "fields=[#4,#16,#8,#2],sort=[field=#4>,field=#2<,field=#8<],sortFilter",
+  $query->to_string,
+  "fields(#4,#16,#8,#2:sort(field=#4>,field=#2<,field=#8<;sortFilter:[0]))",
   'Stringification'
 );
 

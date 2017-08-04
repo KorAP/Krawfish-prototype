@@ -48,9 +48,16 @@ $koral->corpus(
 is($koral->to_string, "meta=[aggr=[facets:['size','age'],freq,length],fields=['age'],sort=[field='author'<]],corpus=[1880&author=Goethe],query=[[/b./|aa][]cc]", 'Serialization');
 
 # Get the query
-ok(my $query = $koral->to_nodes, 'Create complex query construct');
+ok(my $query = $koral->to_query, 'Create complex query construct');
 
 is($query->to_string, "fields('age','author','id':sort(field='author'<,field='id'<:aggr(length,freq,facets:['size','age']:filter(/b./|aa[]cc,1880&author=Goethe))))", 'Stringification');
+
+# Identify
+#ok($query = $query->identify($index->dict), 'Create complex query construct');
+
+#is($query->to_string, "", 'Stringification');
+
+
 
 done_testing;
 __END__

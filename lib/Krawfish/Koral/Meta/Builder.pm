@@ -1,11 +1,20 @@
 package Krawfish::Koral::Meta::Builder;
 use Krawfish::Koral::Meta::Aggregate;
+
+# TODO:
+#   These should all be moved to ::Meta::Cluster::*
+use Krawfish::Koral::Meta::Limit;
 use Krawfish::Koral::Meta::Sort;
 use Krawfish::Koral::Meta::Sort::Field;
 use Krawfish::Koral::Meta::Aggregate::Frequencies;
 use Krawfish::Koral::Meta::Aggregate::Facets;
 use Krawfish::Koral::Meta::Aggregate::Length;
+use Krawfish::Koral::Meta::Aggregate::Values;
+use Krawfish::Koral::Meta::Group;
+use Krawfish::Koral::Meta::Group::Fields;
 use Krawfish::Koral::Meta::Enrich::Fields;
+use Krawfish::Koral::Meta::Enrich::Snippet;
+
 use Krawfish::Koral::Meta::Type::Key;
 use Scalar::Util qw/blessed/;
 use strict;
@@ -37,19 +46,46 @@ sub aggregate {
 };
 
 # Some aggregation types
+# Aggregate frequencies
 sub a_frequencies {
   return Krawfish::Koral::Meta::Aggregate::Frequencies->new;
 };
 
+
+# Aggregate facets
+# TODO:
+#   Rename to fields, as this is similar to
+#   'group by fields' and 'enrich with fields'
 sub a_facets {
   shift;
-  return Krawfish::Koral::Meta::Aggregate::Facets->new(@_);
+  return Krawfish::Koral::Meta::Aggregate::Facets->new(
+    map {
+      blessed $_ ? $_ : Krawfish::Koral::Meta::Type::Key->new($_)
+    } @_
+  );
 };
 
+
+# Aggregate lengths of matches
 sub a_length {
   return Krawfish::Koral::Meta::Aggregate::Length->new;
 };
 
+
+# Aggregate numerical values
+sub a_values {
+  shift;
+  return Krawfish::Koral::Meta::Aggregate::Values->new(
+    map {
+      blessed $_ ? $_ : Krawfish::Koral::Meta::Type::Key->new($_)
+    } @_
+  );
+};
+
+
+# Enrich with fields
+# TODO:
+#   There may be an enrich type with fields and snippets instead
 sub fields {
   shift;
   return Krawfish::Koral::Meta::Enrich::Fields->new(
@@ -59,6 +95,14 @@ sub fields {
   );
 };
 
+# TODO:
+#   Create enrich group, so this can be stripped from
+#   segment queries
+sub snippet {
+  shift;
+  return Krawfish::Koral::Meta::Enrich::Snippet->new(@_);
+};
+
 
 # Sort results by different criteria
 sub sort_by {
@@ -66,6 +110,20 @@ sub sort_by {
   return Krawfish::Koral::Meta::Sort->new(@_);
 };
 
+
+sub group_by {
+  shift;
+  return Krawfish::Koral::Meta::Group->new(@_);
+};
+
+sub g_fields {
+  shift;
+  return Krawfish::Koral::Meta::Group::Fields->new(
+    map {
+      blessed $_ ? $_ : Krawfish::Koral::Meta::Type::Key->new($_)
+    } @_
+  );
+};
 
 
 # Some sorting criteria
@@ -78,7 +136,11 @@ sub s_field {
 };
 
 
-sub limit;
+sub limit {
+  shift;
+  # start_index, items_per_page
+  return Krawfish::Koral::Meta::Limit->new(@_);
+};
 
 
 1;

@@ -4,26 +4,61 @@ use strict;
 use warnings;
 
 use_ok('Krawfish::Index');
-use_ok('Krawfish::Koral::Query::Builder');
-use_ok('Krawfish::Result::Segment::Aggregate');
-use_ok('Krawfish::Result::Segment::Aggregate::Frequencies');
+use_ok('Krawfish::Koral');
 
 my $index = Krawfish::Index->new;
 
 ok_index($index, {
-  docID => 7
+  id => 7
 } => [qw/aa bb/], 'Add complex document');
 ok_index($index, {
-  docID => 3,
+  id => 3,
 } => [qw/aa cc cc/], 'Add complex document');
 ok_index($index, {
-  docID => 1,
+  id => 1,
 } => [qw/aa bb/], 'Add complex document');
 
 
-my $kq = Krawfish::Koral::Query::Builder->new;
+my $koral = Krawfish::Koral->new;
+my $qb = $koral->query_builder;
+my $mb = $koral->meta_builder;
 
-my $query = $kq->token('bb');
+$koral->query($qb->token('bb'));
+
+$koral->meta(
+  $mb->aggregate(
+    $mb->a_frequencies
+  )
+);
+
+is($koral->to_string,
+   "meta=[aggr=[freq]],query=[[bb]]",
+   'Stringification');
+
+ok(my $koral_query = $koral->to_query, 'Normalization');
+
+# This is a query that is fine to be send to nodes
+is($koral_query->to_string,
+   "fields('id':sort(field='id'<:aggr(freq:filter(bb,[1]))))",
+   'Stringification');
+
+# This is a query that is fine to be send to segments:
+ok($koral_query = $koral_query->identify($index->dict), 'Identify');
+
+
+# This is a query that is fine to be send to nodes
+is($koral_query->to_string,
+   "fields(#2:sort(field=#2<:aggr(freq:filter(#4,[1]))))",
+   'Stringification');
+
+diag 'check frequencies! First priority';
+
+
+
+
+
+done_testing;
+__END__
 
 # Create new frequency criterion
 my $freq = Krawfish::Result::Segment::Aggregate::Frequencies->new;

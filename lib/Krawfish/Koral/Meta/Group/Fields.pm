@@ -1,7 +1,11 @@
-package Krawfish::Koral::Meta::Aggregate::Facets;
+package Krawfish::Koral::Meta::Group::Fields;
 use strict;
 use warnings;
 
+# This is pretty much identical to Aggregate::Facets!
+
+
+# Accepts fields
 sub new {
   my $class = shift;
   bless [@_], $class;
@@ -9,7 +13,7 @@ sub new {
 
 
 sub type {
-  'facets'
+  'fields'
 };
 
 
@@ -72,7 +76,7 @@ sub identify {
 
 sub to_string {
   my $self = shift;
-  return 'facets:[' . join(',', map { $_->to_string } @$self) . ']';
+  return 'fields:[' . join(',', map { $_->to_string } @$self) . ']';
 };
 
 1;

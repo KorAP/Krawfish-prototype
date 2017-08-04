@@ -33,13 +33,13 @@ my $group = Krawfish::Result::Group->new(
   $criterion
 );
 
-is($group->to_string, "groupBy(classes:#6)", 'Stringification');
+is($group->to_string, "groupBy(classes:#9)", 'Stringification');
 
 ok($group->next, 'Go to next');
 
 # TODO: Return term_ids!
 is_deeply($group->current_group, {
-  'class_0' => ['Bau','Leiter'],
+  'class_0' => [2,3],
   freq => 1,
   doc_freq => 1
 }, 'Correct classes');
@@ -71,16 +71,16 @@ $group = Krawfish::Result::Group->new(
 );
 
 is($group->to_string,
-   "groupBy(classes[1,3]:constr(pos=2:class(1:'akron=Bau-Leiter')," .
-     "class(3:'opennlp/p=V')))",
+   # "groupBy(classes[1,3]:constr(pos=2:class(1:'akron=Bau-Leiter'),class(3:'opennlp/p=V')))",
+   "groupBy(classes[1,3]:constr(pos=2:class(1:#9),class(3:#11)))",
    'Stringification'
  );
 
 ok($group->next, 'Go to next');
 
 is_deeply($group->current_group, {
-  'class_1' => ['Bau','Leiter'],
-  'class_3' => ['trug'],
+  'class_1' => [2,3],
+  'class_3' => [4],
   freq => 1,
   doc_freq => 1
 }, 'Correct classes');

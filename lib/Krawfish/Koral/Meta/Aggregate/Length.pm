@@ -17,6 +17,11 @@ sub normalize {
   $_[0];
 };
 
+
+sub identify {
+  $_[0];
+};
+
 sub to_string {
   'length';
 };

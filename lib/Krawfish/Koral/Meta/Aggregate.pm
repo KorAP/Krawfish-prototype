@@ -1,4 +1,5 @@
 package Krawfish::Koral::Meta::Aggregate;
+use Krawfish::Koral::Meta::Node::Aggregate;
 use Krawfish::Result::Node::Aggregate;
 use List::MoreUtils qw/uniq/;
 use strict;
@@ -10,7 +11,8 @@ use warnings;
 our %AGGR_ORDER = (
   'length' => 1,
   'freq'   => 2,
-  'facets' => 3
+  'facets' => 3,
+  'values' => 4
 );
 
 sub new {
@@ -33,9 +35,27 @@ sub operations {
   return @$self;
 };
 
+
 sub to_nodes {
   my ($self, $query) = @_;
+  warn 'DEPRECATED';
   return Krawfish::Result::Node::Aggregate->new($query, [$self->operations]);
+};
+
+
+# TODO:
+#   wrap one aggregation type into another!
+#
+sub wrap {
+  my ($self, $query) = @_;
+
+  # TODO:
+  #   Facets and values should be reordered
+
+  return Krawfish::Koral::Meta::Node::Aggregate->new(
+    $query,
+    [$self->operations]
+  );
 };
 
 
@@ -54,8 +74,8 @@ sub normalize {
     # Two consecutive operations are identical
     if ($ops[$i]->type eq $ops[$i-1]->type) {
 
-      # Merge facets
-      if ($ops[$i]->type eq 'facets') {
+      # Merge facets or values
+      if ($ops[$i]->type eq 'facets' || $ops[$i]->type eq 'values') {
         $ops[$i-1]->operations(
           $ops[$i-1]->operations,
           $ops[$i]->operations
