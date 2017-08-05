@@ -4,7 +4,7 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 sub new {
   my $class = shift;
@@ -40,8 +40,8 @@ sub next {
     print_log(
       'or',
       'Which alternative is first in order: ' .
-      ($first ? $first->to_string : '0') . ' or ' .
-        ($second ? $second->to_string : '0')
+      ($first ? $first->to_string : '?') . ' or ' .
+        ($second ? $second->to_string : '?')
     );
   };
 

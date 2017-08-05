@@ -12,6 +12,10 @@ use Krawfish::Koral::Meta::Aggregate::Length;
 use Krawfish::Koral::Meta::Aggregate::Values;
 use Krawfish::Koral::Meta::Group;
 use Krawfish::Koral::Meta::Group::Fields;
+
+# TODO:
+#   Add an enrich-object to meta!
+
 use Krawfish::Koral::Meta::Enrich::Fields;
 use Krawfish::Koral::Meta::Enrich::Snippet;
 

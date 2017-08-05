@@ -14,6 +14,7 @@ use Krawfish::Koral::Query::Length;
 use Krawfish::Koral::Query::Nothing;
 use Krawfish::Koral::Query::Or;
 use Krawfish::Koral::Query::Filter;
+use Krawfish::Koral::Query::Match;
 
 # TODO: Not all constraints need to be wrapped
 use Krawfish::Koral::Query::Constraint::Position;
@@ -21,7 +22,11 @@ use Krawfish::Koral::Query::Constraint::ClassDistance;
 use Krawfish::Koral::Query::Constraint::NotBetween;
 use Krawfish::Koral::Query::Constraint::InBetween;
 
+use Krawfish::Koral::Corpus::Builder;
+
 use Scalar::Util qw/blessed/;
+
+use constant DOC_IDENTIFIER => 'id';
 
 sub new {
   my $class = shift;
@@ -226,6 +231,20 @@ sub unique {
 sub filter_by {
   shift;
   Krawfish::Koral::Query::Filter->new(@_);
+};
+
+
+# Find exactly one single match
+sub match {
+  my $self = shift;
+  my ($doc_id, $start, $end) = @_;
+
+  my $cb = Krawfish::Koral::Corpus::Builder->new;
+  Krawfish::Koral::Query::Match->new(
+    $cb->string(DOC_IDENTIFIER)->eq($doc_id),
+    $start,
+    $end
+  );
 };
 
 1;
