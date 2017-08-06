@@ -22,6 +22,7 @@ ok_index($index, {
 } => [qw/aa bb/], 'Add complex document');
 
 
+
 # Single match query
 use Krawfish::Koral::Query::Builder;
 my $qb = Krawfish::Koral::Query::Builder->new;
@@ -33,6 +34,44 @@ is($query->to_string, '[[#9:0-2]]', 'Stringification');
 
 ok($query->next, 'First next');
 is($query->current->to_string, '[2:0-2]', 'First match');
+ok(!$query->next, 'First next');
+
+
+
+# Double match query
+$query = $qb->bool_or(
+  $qb->match('doc-3', 0, 1),
+  $qb->match('doc-1', 1, 2)
+);
+
+$query = $query->normalize->finalize->identify($index->dict)->optimize($index->segment);
+
+is($query->to_string, 'or([[#7:1-2]],[[#9:0-1]])', 'Stringification');
+
+ok($query->next, 'First next');
+is($query->current->to_string, '[1:1-2]', 'First match');
+ok($query->next, 'First next');
+is($query->current->to_string, '[2:0-1]', 'First match');
+ok(!$query->next, 'First next');
+
+
+# Triple match query
+$query = $qb->bool_or(
+  $qb->match('doc-1', 1, 2),
+  $qb->match('doc-2', 0, 1),
+  $qb->match('doc-3', 0, 1)
+);
+
+$query = $query->normalize->finalize->identify($index->dict)->optimize($index->segment);
+
+is($query->to_string, 'or(or([[#1:0-1]],[[#7:1-2]]),[[#9:0-1]])', 'Stringification');
+
+ok($query->next, 'First next');
+is($query->current->to_string, '[0:0-1]', 'First match');
+ok($query->next, 'First next');
+is($query->current->to_string, '[1:1-2]', 'First match');
+ok($query->next, 'First next');
+is($query->current->to_string, '[2:0-1]', 'First match');
 ok(!$query->next, 'First next');
 
 
@@ -75,8 +114,7 @@ matches($koral_query, [qw/[1:1-2]/], 'Get match');
 
 
 
-
-# Complex multiple matches
+# Complex triple matches
 $koral = Krawfish::Koral->new;
 $koral->query(
   $qb->bool_or(
@@ -114,10 +152,16 @@ is($koral_query->to_string,
    "or(or([[and(#1,[1]):0-1]],[[and(#7,[1]):1-2]]),[[and(#9,[1]):0-1]])",
    'Stringification');
 
+# That works
+#  'or(or([[#1:0-1]],[[#7:1-2]]),[[#9:0-1]])', 'Stringification');
+
+
 ok($koral_query->next, 'There is a first match');
 is($koral_query->current->to_string, '[0:0-1]', 'First match');
 ok($koral_query->next, 'There is a next match');
 # is($koral_query->current->to_string, '[1:1-2]', 'First match');
+
+
 
 
 done_testing;

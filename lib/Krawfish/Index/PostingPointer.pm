@@ -117,12 +117,32 @@ sub list {
 sub skip_doc {
   my ($self, $doc_id) = @_;
 
-  print_log('ppointer', 'TEMP SLOW Skip to next document') if DEBUG;
+  print_log('ppointer', 'TEMP SLOW Skip to chosen document') if DEBUG;
 
   while (!$self->current || $self->current->doc_id < $doc_id) {
     $self->next or return;
   };
   return $self->current->doc_id;
+};
+
+
+sub skip_pos {
+  my ($self, $pos) = @_;
+  print_log('ppointer', 'TEMP SLOW Skip to chosen position or after') if DEBUG;
+
+  unless ($self->current) {
+    $self->next or return;
+  };
+
+  my $current = $self->current;
+  my $start_doc_id = $current->doc_id;
+
+  while ($start_doc_id == $current->doc_id && $current->start <= $pos) {
+    $self->next or return;
+    $current = $self->current;
+  };
+
+  return $current->start;
 };
 
 1;

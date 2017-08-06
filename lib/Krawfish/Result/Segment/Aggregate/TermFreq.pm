@@ -5,6 +5,9 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
+# TODO:
+#   This is rather a group query than an aggregation query.
+
 use constant DEBUG => 0;
 
 sub new {

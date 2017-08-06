@@ -52,7 +52,8 @@ sub current {
   );
 };
 
-
+# This parameter is relevant, as it is requested e.g. from termFreq
+# to count all frequencies per requested term
 sub term_id {
   $_[0]->{term_id};
 };
