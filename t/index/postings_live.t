@@ -140,13 +140,33 @@ is($query->to_string, '([1]&age=4)|([1]&genre=newsletter)', 'Stringification');
 ok($plan = $query->identify($index->dict)->optimize($index->segment), 'Planning');
 
 is($plan->to_string, 'or(and([1],#1),and([1],#13))', 'Stringification');
-ok($plan->next, 'Get next document');
-is($plan->current->to_string, '[0]', 'Match document');
-ok($plan->next, 'Get next document');
-is($plan->current->to_string, '[2]', 'Match document');
-ok($plan->next, 'Get next document');
-is($plan->current->to_string, '[3]', 'Match document');
-ok(!$plan->next, 'Get next document');
+matches($plan, [qw/[0] [2] [3]/], 'Test matches');
+
+
+
+ok($query = $cb->bool_or(
+  $cb->bool_and(
+    $cb->string('author')->eq('Michael'),
+    $cb->any
+  ),
+  $cb->bool_and(
+    $cb->string('genre')->eq('newsletter'),
+    $cb->any
+  ),
+  $cb->bool_and(
+    $cb->string('age')->eq('4'),
+    $cb->any
+  )
+), 'Create corpus query');
+
+is($query->to_string, '([1]&age=4)|([1]&author=Michael)|([1]&genre=newsletter)',
+   'Stringification');
+
+ok($plan = $query->identify($index->dict)->optimize($index->segment), 'Planning');
+
+is($plan->to_string, 'or(or(and([1],#16),and([1],#1)),and([1],#13))', 'Stringification');
+matches($plan, [qw/[0] [2] [3]/], 'Test matches');
+
 
 
 
