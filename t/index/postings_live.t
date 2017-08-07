@@ -70,7 +70,6 @@ ok(!$p2->skip_doc(12), 'Skipped to 9');
 is($p2->doc_id, 10, 'Get doc_id');
 
 
-
 # Test with real index
 
 use_ok('Krawfish::Index');
@@ -119,9 +118,37 @@ is($fin->to_string, "and([1],#3)", 'Stringification');
 matches($fin, [qw/[0] [1] [2]/]);
 
 ok($index->segment->live->delete(1), 'Document deleted directly');
-
 ok($fin = $plan->optimize($index->segment), 'Optimizing');
 matches($fin, [qw/[0] [2]/]);
+
+
+
+# Test with different order
+ok($query = $cb->bool_or(
+  $cb->bool_and(
+    $cb->string('genre')->eq('newsletter'),
+    $cb->any
+  ),
+  $cb->bool_and(
+    $cb->string('age')->eq('4'),
+    $cb->any
+  )
+), 'Create corpus query');
+
+is($query->to_string, '([1]&age=4)|([1]&genre=newsletter)', 'Stringification');
+
+ok($plan = $query->identify($index->dict)->optimize($index->segment), 'Planning');
+
+is($plan->to_string, 'or(and([1],#1),and([1],#13))', 'Stringification');
+ok($plan->next, 'Get next document');
+is($plan->current->to_string, '[0]', 'Match document');
+ok($plan->next, 'Get next document');
+is($plan->current->to_string, '[2]', 'Match document');
+ok($plan->next, 'Get next document');
+is($plan->current->to_string, '[3]', 'Match document');
+ok(!$plan->next, 'Get next document');
+
+
 
 done_testing;
 __END__
