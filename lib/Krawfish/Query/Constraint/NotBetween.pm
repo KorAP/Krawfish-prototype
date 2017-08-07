@@ -27,6 +27,12 @@ sub new {
 };
 
 
+sub clone {
+  __PACKAGE__->new(
+    $_[0]->{query}->clone
+  );
+};
+
 # Initialize in-between query
 sub init {
   my $self = shift;

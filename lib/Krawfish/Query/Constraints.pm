@@ -33,6 +33,17 @@ sub new {
 };
 
 
+sub clone {
+  my $self = shift;
+  __PACKAGE__->new(
+    [map { $_->clone } @{$self->{constraints}}],
+    $self->{first}->clone,
+    $self->{second}->clone
+  );
+};
+
+
+
 # Check all constraints sequentially
 sub check {
   my $self = shift;

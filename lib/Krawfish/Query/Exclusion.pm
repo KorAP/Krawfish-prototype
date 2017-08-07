@@ -48,6 +48,14 @@ sub new {
   # TODO: Return 'first', if second->max_freq == 0
 };
 
+sub clone {
+  my $self = shift;
+  __PACKAGE__->new(
+    $self->{frames},
+    $self->{first}->clone,
+    $self->{second}->clone
+  );
+};
 
 sub check {
   my $self = shift;

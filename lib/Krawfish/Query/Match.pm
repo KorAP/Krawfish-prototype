@@ -15,6 +15,14 @@ sub new {
   }, $class;
 };
 
+sub clone {
+  my $self = shift;
+  __PACKAGE__->new(
+    $self->{doc}->clone,
+    $self->{start},
+    $self->{end}
+  );
+};
 
 sub init {
   return if $_[0]->{init}++;

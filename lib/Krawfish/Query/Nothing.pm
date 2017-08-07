@@ -14,6 +14,11 @@ sub current {
   return;
 };
 
+sub clone {
+  __PACKAGE__->new;
+};
+
+
 sub next {
   return;
 };

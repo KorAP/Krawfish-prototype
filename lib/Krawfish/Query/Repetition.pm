@@ -26,6 +26,15 @@ sub new {
 };
 
 
+sub clone {
+  my $self = shift;
+  __PACKAGE__->new(
+    $self->{span}->clone,
+    $self->{min},
+    $self->{max}
+  );
+};
+
 # Initialize spans and buffer
 sub init {
   return if $_[0]->{init}++;

@@ -51,6 +51,12 @@ sub new {
   }, $class;
 };
 
+sub clone {
+  __PACKAGE__->new(
+    $_[0]->{frames}
+  );
+};
+
 # In case of a configuration A,
 # next_a may result in configuration B and
 # next_b may result in configuration C

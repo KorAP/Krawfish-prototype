@@ -23,6 +23,13 @@ sub new {
 };
 
 
+sub clone {
+  __PACKAGE__->new(
+    $_[0]->{min},
+    $_[0]->{max}
+  );
+};
+
 # Overwrite
 sub check {
   my $self = shift;

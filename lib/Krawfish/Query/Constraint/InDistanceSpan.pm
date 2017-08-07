@@ -22,6 +22,8 @@ sub new {
   }, $class;
 };
 
+sub clone;
+
 sub _init {
   return if $_[0]->{init}++;
   print_log('c_dist', 'Init distance span') if DEBUG;

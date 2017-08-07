@@ -18,6 +18,14 @@ sub new {
 };
 
 
+sub clone {
+  my $self = shift;
+  __PACKAGE__->new(
+    $self->{span}->clone,
+    $self->{docs}->clone
+  );
+};
+
 # Initialize spans
 sub init {
   return if $_[0]->{init}++;

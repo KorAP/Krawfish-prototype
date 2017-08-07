@@ -19,6 +19,16 @@ sub new {
   }, $class;
 };
 
+sub clone {
+  my $self = shift;
+  __PACKAGE__->new(
+    $self->{span}->clone,
+    $self->{min},
+    $self->{max},
+    $self->{tokens},
+  );
+};
+
 # Overwrite
 sub next {
   my $self = shift;

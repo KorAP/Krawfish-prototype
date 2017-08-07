@@ -21,4 +21,6 @@ sub next;
 
 sub max_freq;
 
+sub clone;
+
 1;

@@ -11,6 +11,12 @@ sub new {
   bless \$nr, $class;
 };
 
+sub clone {
+  __PACKAGE__->new(
+    ${$_[0]}
+  );
+};
+
 sub check {
   my $self = shift;
   my ($first, $second) = @_;

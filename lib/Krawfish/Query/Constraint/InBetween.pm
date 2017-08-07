@@ -44,6 +44,15 @@ sub new {
   }, $class;
 };
 
+sub clone {
+  my $self = shift;
+  __PACKAGE__->new(
+    $self->{min},
+    $self->{max},
+    $self->{foundry},
+    $self->{gaps}
+  );
+};
 
 # Initialize foundry
 sub init {

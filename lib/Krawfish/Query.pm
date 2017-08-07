@@ -27,9 +27,7 @@ sub current {
 sub next;
 
 
-sub clone {
-  ...
-};
+sub clone;
 
 
 # TODO:

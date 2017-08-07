@@ -37,6 +37,8 @@ sub new {
 };
 
 
+sub clone;
+
 sub next;
 
 

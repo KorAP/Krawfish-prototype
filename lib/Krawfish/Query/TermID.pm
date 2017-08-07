@@ -18,11 +18,20 @@ sub new {
     or return Krawfish::Query::Nothing->new;
 
   bless {
+    segment => $segment,
     postings => $postings->pointer,
     term_id => $term_id
   }, $class;
 };
 
+
+sub clone {
+  my $self = shift;
+  __PACKAGE__->new(
+    $self->{segment},
+    $self->{term_id}
+  );
+};
 
 # Skip to next position
 # This will initialize the posting list

@@ -14,6 +14,13 @@ sub new {
   }, $class;
 };
 
+sub clone {
+  my $self = shift;
+  __PACKAGE__->new(
+    $self->{span}->clone,
+    $self->{number}
+  );
+};
 
 sub next {
   my $self = shift;
