@@ -7,7 +7,7 @@ use warnings;
 # Base class for boolean group queries.
 # Used by Koral::Corpus::FieldGroup, Koral::Query::TermGroup, and Koral::Query::Or
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # TODO:
 #   To simplify this, it may be useful to use Negation instead of is_negative().
@@ -161,6 +161,9 @@ sub _resolve_idempotence {
 
   print_log('kq_bool', 'Resolve idempotence for ' . $self->to_string) if DEBUG;
 
+  # TODO:
+  #   copy warning messages everywhere, when operations are changed!
+
   return $self if $self->is_nothing || $self->is_any;
 
   # Get operands in order to identify identical subcorpora
@@ -185,6 +188,7 @@ sub _resolve_idempotence {
 
     elsif (DEBUG) {
       print_log('kq_bool', 'Subcorpora are idempotent');
+      $self->remove_info_from($ops->[$i]);
     };
 
     $i++;
@@ -294,6 +298,7 @@ sub _remove_nested_idempotence {
           # Matches everything
           $self->is_any(1);
         }
+
         elsif ($self->operation eq 'and') {
 
           # Matches nothing
@@ -346,6 +351,7 @@ sub _remove_nested_idempotence {
   # Get a list of all removable items in reverse order
   # To remove irrelevant nested groups
   foreach (uniq reverse sort @remove_groups) {
+    $self->remove_info_from($ops->[$_]);
     splice @$ops, $_, 1;
   };
 
@@ -384,6 +390,8 @@ sub _clean_and_flatten {
 
     # Remove empty elements
     if (!defined($op) || $op->is_null) {
+      $self->remove_info_from($ops->[$i]);
+
       splice @$ops, $i, 1;
     }
 
@@ -403,6 +411,7 @@ sub _clean_and_flatten {
 
       # A | B | [0] -> A | B
       elsif ($self->operation eq 'or') {
+        $self->remove_info_from($ops->[$i]);
         splice @$ops, $i, 1;
       }
     }
@@ -412,6 +421,7 @@ sub _clean_and_flatten {
 
       # A & B & [1] -> A & B
       if ($self->operation eq 'and') {
+        $self->remove_info_from($ops->[$i]);
         splice @$ops, $i, 1;
       }
 
@@ -580,7 +590,10 @@ sub _resolve_demorgan {
 
 
     # Be aware this could lead to heavy and unnecessary recursion
-    push @$ops, $new_group->normalize;
+
+    my $norm = $new_group->normalize;
+    $self->remove_info_from($norm);
+    push @$ops, $norm;
   };
 
   # $self->operands($ops);

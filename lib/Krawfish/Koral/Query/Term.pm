@@ -450,6 +450,7 @@ sub is_negative {
     elsif (!$neg && $self->match eq '!=') {
       $self->match('=');
     };
+    return $self;
   };
   $self->match eq '!=' ? 1 : 0;
 };

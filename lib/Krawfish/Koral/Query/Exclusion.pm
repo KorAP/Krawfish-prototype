@@ -70,9 +70,28 @@ sub normalize {
     return $first;
   };
 
+
+  my ($first_norm, $second_norm);
+  if ($first->is_any) {
+
+    # Negation with [] may occur with boolean operations
+    $second->warning(
+      782,
+      'Exclusivity of query is ignored',
+      $second->to_string
+    );
+
+    # Query normalization
+    unless ($second_norm = $second->normalize) {
+      $self->copy_info_from($second);
+      return;
+    };
+
+    return $second_norm;
+  };
+
   # Todo:
   #   Find a common way to do this
-  my ($first_norm, $second_norm);
   unless ($first_norm = $first->normalize) {
     $self->copy_info_from($first);
     return;
@@ -146,8 +165,11 @@ sub optimize {
   print_log('kq_excl', 'Optimize exclusion') if DEBUG;
 
   my $frames = $self->{frames};
-  my $first = $self->operands->[0]->optimize($index);
-  my $second = $self->operands->[1]->optimize($index);
+
+  my $ops = $self->operands;
+
+  my $first = $ops->[0]->optimize($index);
+  my $second = $ops->[1]->optimize($index);
 
   # Second object does not occur
   if ($second->max_freq == 0) {

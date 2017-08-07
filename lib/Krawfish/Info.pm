@@ -58,6 +58,20 @@ sub copy_info_from {
 };
 
 
+# Copy information from another object
+sub remove_info_from {
+  my ($self, $obj) = @_;
+
+  # Copy from types
+  foreach my $type (qw/error warning message/) {
+    if ($obj->{$type}) {
+      push @{$self->{$type} //= []}, @{$obj->{$type}};
+      delete $obj->{$type};
+    };
+  };
+};
+
+
 sub merge_info {
   my ($self, $target) = @_;
   copy_info_from($target, $self);

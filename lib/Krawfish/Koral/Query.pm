@@ -214,7 +214,13 @@ sub remove_classes {
 sub operands {
   my $self = shift;
   if (@_) {
-    $self->{operands} = shift;
+    my $ops = shift;
+    my @new_ops = ();
+    foreach my $op (@$ops) {
+      $self->remove_info_from($op);
+      push @new_ops, $op;
+    };
+    $self->{operands} = \@new_ops;
   };
   $self->{operands};
 };
