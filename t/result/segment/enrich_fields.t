@@ -31,18 +31,20 @@ my $mb = $koral->meta_builder;
 $koral->query($qb->token('aa'));
 
 $koral->meta(
-  $mb->fields('license, corpus')
+  $mb->enrich(
+    $mb->e_fields('license, corpus')
+  )
 );
 
 is($koral->to_string,
-   "meta=[fields=['license, corpus']],query=[[aa]]",
+   "meta=[enrich=[fields:['license, corpus']]],query=[[aa]]",
    'Stringification');
 
 ok(my $koral_query = $koral->to_query, 'Normalization');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "fields('license, corpus','id':sort(field='id'<;sortFilter:filter(aa,[1])))",
+   "enrich(fields:['license, corpus','id']:sort(field='id'<;sortFilter:filter(aa,[1])))",
    'Stringification');
 
 # This is a query that is fine to be send to segments:
@@ -51,7 +53,7 @@ ok($koral_query = $koral_query->identify($index->dict), 'Identify');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "fields(#4:sort(field=#4<;sortFilter:filter(#7,[1])))",
+   "enrich(fields:[#4]:sort(field=#4<;sortFilter:filter(#7,[1])))",
    'Stringification');
 
 diag 'check field enrichments!';

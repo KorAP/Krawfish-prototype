@@ -42,7 +42,7 @@ ok(my $koral_query = $koral->to_query, 'Normalization');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "fields('id':limit(1-3:sort(field='id'<;k=3;sortFilter:filter(aa|bb,[1]))))",
+   "enrich(fields:['id']:limit(1-3:sort(field='id'<;k=3;sortFilter:filter(aa|bb,[1]))))",
    'Stringification');
 
 # This is a query that is fine to be send to segments:
@@ -51,7 +51,7 @@ ok($koral_query = $koral_query->identify($index->dict), 'Identify');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "fields(#4:limit(1-3:sort(field=#4<;k=3;sortFilter:filter(#5|#6,[1]))))",
+   "enrich(fields:[#4]:limit(1-3:sort(field=#4<;k=3;sortFilter:filter(#5|#6,[1]))))",
    'Stringification');
 
 

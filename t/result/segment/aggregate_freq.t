@@ -39,7 +39,7 @@ ok(my $koral_query = $koral->to_query, 'Normalization');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "fields('id':sort(field='id'<:aggr(freq:filter(bb,[1]))))",
+   "enrich(fields:['id']:sort(field='id'<:aggr(freq:filter(bb,[1]))))",
    'Stringification');
 
 # This is a query that is fine to be send to segments:
@@ -48,7 +48,7 @@ ok($koral_query = $koral_query->identify($index->dict), 'Identify');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "fields(#2:sort(field=#2<:aggr(freq:filter(#4,[1]))))",
+   "enrich(fields:[#2]:sort(field=#2<:aggr(freq:filter(#4,[1]))))",
    'Stringification');
 
 diag 'check frequencies! First priority';

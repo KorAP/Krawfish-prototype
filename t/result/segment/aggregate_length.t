@@ -38,7 +38,7 @@ ok(my $koral_query = $koral->to_query, 'Normalization');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "fields('id':sort(field='id'<:aggr(length:filter(<s>,[1]))))",
+   "enrich(fields:['id']:sort(field='id'<:aggr(length:filter(<s>,[1]))))",
    'Stringification');
 
 # This is a query that is fine to be send to segments:
@@ -47,7 +47,7 @@ ok($koral_query = $koral_query->identify($index->dict),
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "fields(#2:sort(field=#2<:aggr(length:filter(#4,[1]))))",
+   "enrich(fields:[#2]:sort(field=#2<:aggr(length:filter(#4,[1]))))",
    'Stringification');
 
 diag 'check lengths!';

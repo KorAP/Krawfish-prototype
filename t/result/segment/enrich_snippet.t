@@ -20,18 +20,20 @@ my $mb = $koral->meta_builder;
 $koral->query($qb->bool_or('aa', 'bb'));
 
 $koral->meta(
-  $mb->snippet
+  $mb->enrich(
+    $mb->e_snippet
+      )
 );
 
 is($koral->to_string,
-   "meta=[snippet],query=[aa|bb]",
+   "meta=[enrich=[snippet]],query=[aa|bb]",
    'Stringification');
 
 ok(my $koral_query = $koral->to_query, 'Normalization');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "snippet(?:fields('id':sort(field='id'<;sortFilter:filter(aa|bb,[1]))))",
+   "enrich(fields:['id'],snippet:sort(field='id'<;sortFilter:filter(aa|bb,[1])))",
    'Stringification');
 
 # This is a query that is fine to be send to segments:
@@ -39,7 +41,7 @@ ok($koral_query = $koral_query->identify($index->dict), 'Identify');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "snippet(?:fields(#4:sort(field=#4<;sortFilter:filter(#7|#8,[1]))))",
+   "enrich(fields:[#4],snippet:sort(field=#4<;sortFilter:filter(#7|#8,[1])))",
    'Stringification');
 
 TODO: {

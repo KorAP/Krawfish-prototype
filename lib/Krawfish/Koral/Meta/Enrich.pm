@@ -1,19 +1,14 @@
-package Krawfish::Koral::Meta::Aggregate;
-use Krawfish::Koral::Meta::Node::Aggregate;
-use Krawfish::Result::Node::Aggregate;
-use List::MoreUtils qw/uniq/;
+package Krawfish::Koral::Meta::Enrich;
+use Krawfish::Koral::Meta::Node::Enrich;
 use strict;
 use warnings;
 
-# TODO:
-#   Check that only valid aggregate objects are passed
-
-our %AGGR_ORDER = (
-  'length' => 1,
-  'freq'   => 2,
-  'facets' => 3,
-  'values' => 4
+our %ENRICH_ORDER = (
+  'fields'   => 1,
+  'snippet'  => 2,
+  'termfreq' => 3
 );
+
 
 sub new {
   my $class = shift;
@@ -22,7 +17,7 @@ sub new {
 
 
 sub type {
-  'aggregate';
+  'enrich';
 };
 
 # Get or set operations
@@ -36,12 +31,6 @@ sub operations {
 };
 
 
-sub to_nodes {
-  my ($self, $query) = @_;
-  warn 'DEPRECATED';
-  return Krawfish::Result::Node::Aggregate->new($query, [$self->operations]);
-};
-
 
 # TODO:
 #   wrap one aggregation type into another!
@@ -52,7 +41,7 @@ sub wrap {
   # TODO:
   #   Facets and values should be reordered
 
-  return Krawfish::Koral::Meta::Node::Aggregate->new(
+  return Krawfish::Koral::Meta::Node::Enrich->new(
     $query,
     [$self->operations]
   );
@@ -65,17 +54,18 @@ sub normalize {
 
   # Sort objects in defined order
   my @ops = sort {
-    $AGGR_ORDER{$a->type} <=> $AGGR_ORDER{$b->type}
+    $ENRICH_ORDER{$a->type} <=> $ENRICH_ORDER{$b->type}
   } @$self;
 
-  # Check for doubles
+
+    # Check for doubles
   for (my $i = 1; $i < @ops; $i++) {
 
     # Two consecutive operations are identical
     if ($ops[$i]->type eq $ops[$i-1]->type) {
 
       # Merge facets or values
-      if ($ops[$i]->type eq 'facets' || $ops[$i]->type eq 'values') {
+      if ($ops[$i]->type eq 'fields') {
         $ops[$i-1]->operations(
           $ops[$i-1]->operations,
           $ops[$i]->operations
@@ -108,9 +98,10 @@ sub normalize {
 };
 
 
+
 sub to_string {
   my $self = shift;
-  return 'aggr=[' . join(',', map { $_->to_string } @$self) . ']';
+  return 'enrich=[' . join(',', map { $_->to_string } @$self) . ']';
 };
 
 1;

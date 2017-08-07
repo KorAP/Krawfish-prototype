@@ -16,6 +16,7 @@ use Krawfish::Koral::Meta::Group::Fields;
 # TODO:
 #   Add an enrich-object to meta!
 
+use Krawfish::Koral::Meta::Enrich;
 use Krawfish::Koral::Meta::Enrich::Fields;
 use Krawfish::Koral::Meta::Enrich::Snippet;
 
@@ -91,10 +92,13 @@ sub a_values {
 };
 
 
+sub enrich {
+  shift;
+  return Krawfish::Koral::Meta::Enrich->new(@_);
+};
+
 # Enrich with fields
-# TODO:
-#   There may be an enrich type with fields and snippets instead
-sub fields {
+sub e_fields {
   shift;
   return Krawfish::Koral::Meta::Enrich::Fields->new(
     map {
@@ -103,27 +107,22 @@ sub fields {
   );
 };
 
-# TODO:
-#   Create enrich group, so this can be stripped from
-#   segment queries
-sub snippet {
+
+# Enrich with snippet
+sub e_snippet {
   shift;
   return Krawfish::Koral::Meta::Enrich::Snippet->new(@_);
 };
 
 
-# Sort results by different criteria
-sub sort_by {
-  shift;
-  return Krawfish::Koral::Meta::Sort->new(@_);
-};
-
-
+# Grouping object
 sub group_by {
   shift;
   return Krawfish::Koral::Meta::Group->new(@_);
 };
 
+
+# Group by fields
 sub g_fields {
   shift;
   return Krawfish::Koral::Meta::Group::Fields->new(
@@ -131,6 +130,13 @@ sub g_fields {
       blessed $_ ? $_ : Krawfish::Koral::Meta::Type::Key->new($_)
     } @_
   );
+};
+
+
+# Sort results by different criteria
+sub sort_by {
+  shift;
+  return Krawfish::Koral::Meta::Sort->new(@_);
 };
 
 
@@ -154,48 +160,3 @@ sub limit {
 1;
 
 __END__
-
-
-# Sort methods:
-sub field_sort_by {
-  my $self = shift;
-  my ($field, $desc) = @_;
-  push @{$self->{field_sort}},
-    [$field, $desc // 0];
-  return @_;
-};
-
-sub field_sort_asc_by {
-  my $self = shift;
-  $self->field_sort_by(shift);
-  $self;
-};
-
-sub field_sort_desc_by {
-  my $self = shift;
-  $self->field_sort_by(shift, 1);
-  $self;
-};
-
-
-sub field_count {
-  my $self = shift;
-  $self->{field_count} //= [];
-  push @{$self->{field_count}}, shift;
-  $self;
-};
-
-
-sub limit {
-  my $self = shift;
-  if (@_ == 2) {
-    $self->start_index(shift());
-    $self->items_per_page(shift());
-  }
-  else {
-    $self->start_index(0);
-    $self->items_per_page(shift());
-  };
-  $self;
-};
-

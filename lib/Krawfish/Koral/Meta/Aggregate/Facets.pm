@@ -2,6 +2,9 @@ package Krawfish::Koral::Meta::Aggregate::Facets;
 use strict;
 use warnings;
 
+# TODO:
+#   Rename to 'Fields'
+
 sub new {
   my $class = shift;
   bless [@_], $class;

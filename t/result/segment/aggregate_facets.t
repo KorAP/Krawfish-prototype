@@ -59,7 +59,7 @@ ok(my $koral_query = $koral->to_query, 'Normalization');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "fields('id':sort(field='id'<:aggr(facets:['genre','age']:filter(aa,[1]))))",
+   "enrich(fields:['id']:sort(field='id'<:aggr(facets:['genre','age']:filter(aa,[1]))))",
    'Stringification');
 
 # This is a query that is fine to be send to segments:
@@ -68,7 +68,7 @@ ok($koral_query = $koral_query->identify($index->dict), 'Identify');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "fields(#8:sort(field=#8<:aggr(facets:[#6,#2]:filter(#9,[1]))))",
+   "enrich(fields:[#8]:sort(field=#8<:aggr(facets:[#6,#2]:filter(#9,[1]))))",
    'Stringification');
 
 diag 'check facets!';

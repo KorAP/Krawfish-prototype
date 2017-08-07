@@ -5,8 +5,9 @@ use strict;
 use warnings;
 
 our %META_ORDER = (
-  snippet   => 1,
-  fields    => 2,
+  #  snippet   => 1,
+  #  fields    => 2,
+  enrich    => 1,
   limit     => 3,
   sort      => 4,
   aggregate => 5,
@@ -86,14 +87,16 @@ sub normalize {
   # 1. Introduce required information
   #    e.g. sort(field) => fields(field)
   my $sort_filtering = 1;
-  for (my $i = 0; $i < @meta; $i++) {
+  for (my $i = 0; $i < scalar @meta; $i++) {
 
     # For all sort fields, it may be beneficial to
     # retrieve the fields as well - as they need
     # to be retrieved nonetheless for search criteria
     if ($meta[$i]->type eq 'sort') {
+
+      my $mb = $self->builder;
       push @meta,
-        $self->builder->fields($meta[$i]->fields);
+        $mb->enrich($mb->e_fields($meta[$i]->fields));
 
       if (DEBUG) {
         print_log('kq_meta', 'Added sorting ' .
@@ -110,12 +113,6 @@ sub normalize {
     # There is at least one group option
     elsif ($meta[$i]->type eq 'group') {
       $sort_filtering = 0;
-    #}
-
-    # Remove any given sortfilter
-    #elsif ($meta[$i]->type eq 'sortFilter') {
-    #  splice @meta, $i, 1;
-    #  $i--;
     };
   };
 
@@ -139,7 +136,7 @@ sub normalize {
     if ($meta[$i]->type eq $meta[$i-1]->type) {
 
       # Join fields or aggregations
-      if ($meta[$i]->type eq 'fields' ||
+      if ($meta[$i]->type eq 'enrich' ||
             $meta[$i]->type eq 'aggregate' ||
             $meta[$i]->type eq 'sort'
           ) {
@@ -233,6 +230,7 @@ sub to_nodes {
 };
 
 
+# Wrap operations in a single query object
 sub wrap {
   my ($self, $query) = @_;
   foreach (reverse $self->operations) {
@@ -243,12 +241,13 @@ sub wrap {
 
 
 sub to_segment {
-  my ($self, $index) = @_;
   ...
 };
 
 
-sub optimize;
+sub optimize {
+  ...
+};
 
 1;
 

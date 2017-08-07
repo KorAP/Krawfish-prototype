@@ -1,10 +1,10 @@
 package Krawfish::Koral::Meta::Enrich::Fields;
-use Krawfish::Koral::Meta::Node::Enrich::Fields;
-use Krawfish::Result::Node::Enrich::Fields;
+# use Krawfish::Koral::Meta::Node::Enrich::Fields;
+# use Krawfish::Result::Node::Enrich::Fields;
 use strict;
 use warnings;
 
-# Define which fields per match should be aggregated
+# Define which fields per match should be used for enrichment
 
 sub new {
   my $class = shift;
@@ -26,12 +26,6 @@ sub operations {
 };
 
 
-sub to_string {
-  my $self = shift;
-  return 'fields=[' . join(',', map { $_->to_string } @$self) . ']';
-};
-
-
 # Remove duplicates
 sub normalize {
   my $self = shift;
@@ -47,11 +41,12 @@ sub normalize {
   return $self;
 };
 
+sub wrapo {
+  ...
+};
 
 sub identify {
   my ($self, $dict) = @_;
-
-  warn 'Deprecated!';
 
   my @identifier;
   foreach (@$self) {
@@ -71,11 +66,18 @@ sub identify {
   return $self;
 };
 
+sub to_string {
+  my $self = shift;
+  return 'fields:[' . join(',', map { $_->to_string } @$self) . ']';
+};
+
+
 
 # TODO:
 #   For the moment, I am not sure where "fields" act
 sub to_nodes {
   my ($self, $query) = @_;
+  warn 'DEPRECATED';
   return Krawfish::Result::Node::Enrich::Fields->new($query, [$self->operations]);
 };
 

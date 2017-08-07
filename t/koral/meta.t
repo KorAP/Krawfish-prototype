@@ -18,8 +18,10 @@ ok($meta = $mb->aggregate(
 ), 'Add aggregation');
 is($meta->to_string, "aggr=[facets:['size','age'],freq,length]", 'Stringification');
 
-ok($meta = $mb->fields('author', 'title', 'id'), 'Create fields');
-is($meta->to_string, "fields=['author','title','id']", 'Stringification');
+ok($meta = $mb->enrich(
+  $mb->e_fields('author', 'title', 'id')
+), 'Create fields');
+is($meta->to_string, "enrich=[fields:['author','title','id']]", 'Stringification');
 
 
 # Build sorting
@@ -29,12 +31,13 @@ is($meta->to_string, "sort=[field='author'>,field='age'<]", 'Stringification');
 
 my $meta_koral = Krawfish::Koral::Meta->new(
   $mb->sort_by($mb->s_field('author', 1), $mb->s_field('age')),
-  $mb->fields('author', 'title', 'id')
+  $mb->enrich($mb->e_fields('author', 'title', 'id'))
 );
+
 
 is(
   $meta_koral->to_string,
-  "sort=[field='author'>,field='age'<],fields=['author','title','id']",
+  "sort=[field='author'>,field='age'<],enrich=[fields:['author','title','id']]",
   'Stringification'
 );
 
@@ -42,15 +45,15 @@ is(
 # Introduce redundant operations and new sorts
 $meta_koral = Krawfish::Koral::Meta->new(
   $mb->sort_by($mb->s_field('author', 1), $mb->s_field('age')),
-  $mb->fields('author', 'title', 'id'),
+  $mb->enrich($mb->e_fields('author', 'title', 'id')),
   $mb->sort_by($mb->s_field('length')),
-  $mb->fields('subTitle')
+  $mb->enrich($mb->e_fields('subTitle'))
 );
 
 
 is(
   $meta_koral->to_string,
-  "sort=[field='author'>,field='age'<],fields=['author','title','id'],sort=[field='length'<],fields=['subTitle']",
+  "sort=[field='author'>,field='age'<],enrich=[fields:['author','title','id']],sort=[field='length'<],enrich=[fields:['subTitle']]",
   'Stringification'
 );
 
@@ -60,7 +63,7 @@ ok($meta_koral = $meta_koral->normalize, 'Normalize meta object');
 
 is(
   $meta_koral->to_string,
-  "fields=['author','title','id','subTitle','age','length'],sort=[field='author'>,field='age'<,field='length'<,field='id'<;sortFilter]",
+  "enrich=[fields:['author','title','id','subTitle','age','length']],sort=[field='author'>,field='age'<,field='length'<,field='id'<;sortFilter]",
   'Stringification'
 );
 
@@ -78,7 +81,7 @@ $meta_koral = Krawfish::Koral::Meta->new(
 ok($meta_koral = $meta_koral->normalize, 'Normalization');
 
 is($meta_koral->to_string,
-   "fields=['id'],sort=[field='id'<],aggr=[length,freq,facets:['author','age','corpus']]",
+   "enrich=[fields:['id']],sort=[field='id'<],aggr=[length,freq,facets:['author','age','corpus']]",
    'stringification');
 
 done_testing;
