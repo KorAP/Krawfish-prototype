@@ -226,7 +226,7 @@ sub has_problems {
 
 # Optimize the query
 sub optimize {
-  my ($self, $index) = @_;
+  my ($self, $segment) = @_;
 
   # The second operand in constraint queries should probably be less frequent,
   # because it needs to be buffered! Another thing to keep in mind is the complexity
@@ -269,7 +269,7 @@ sub optimize {
       unless ($ops->[$i]->is_optional) {
 
         # Directly collect positive queries
-        my $query = $ops->[$i]->optimize($index);
+        my $query = $ops->[$i]->optimize($segment);
 
         # Get frequency of operand
         my $freq = $query->max_freq;
@@ -388,7 +388,7 @@ sub optimize {
 
       # The inbetween is NEGATIVE
       elsif ($queries->[$index_between]->[TYPE] == NEG) {
-        _combine_neg($queries, $index_a, $index_b, $index_between, $index);
+        _combine_neg($queries, $index_a, $index_b, $index_between, $segment);
         next;
       };
 
@@ -411,7 +411,7 @@ sub optimize {
     #    make an extension
     if (($surr_l_query && $surr_l_query->[TYPE] == OPT) ||
           ($surr_r_query && $surr_r_query->[TYPE] == OPT)) {
-      _extend_opt($queries, $index_a, $index_b, $index);
+      _extend_opt($queries, $index_a, $index_b, $segment);
       next;
     }
 

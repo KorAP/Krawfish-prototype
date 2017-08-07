@@ -42,10 +42,10 @@ sub normalize {
 
 
 sub optimize {
-  my ($self, $index) = @_;
+  my ($self, $segment) = @_;
 
   # Plan corpus
-  my $corpus = $self->operand->optimize($index);
+  my $corpus = $self->operand->optimize($segment);
 
   # Create class query
   return Krawfish::Corpus::Class->new(

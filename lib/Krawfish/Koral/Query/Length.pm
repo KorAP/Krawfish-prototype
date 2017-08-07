@@ -208,11 +208,11 @@ sub normalize {
 
 # Optimize query
 sub optimize {
-  my ($self, $index) = @_;
+  my ($self, $segment) = @_;
 
   # TODO: Add constraint instead of query, if implemented
 
-  my $span = $self->operand->optimize($index);
+  my $span = $self->operand->optimize($segment);
 
   # Nothing set
   if ($span->max_freq == 0) {

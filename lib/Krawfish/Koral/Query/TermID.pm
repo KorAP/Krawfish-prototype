@@ -56,8 +56,8 @@ sub normalize {
 };
 
 sub optimize {
-  my ($self, $index) = @_;
-  return Krawfish::Query::TermID->new($index, $self->term_id);
+  my ($self, $segment) = @_;
+  return Krawfish::Query::TermID->new($segment, $self->term_id);
 };
 
 sub is_any {

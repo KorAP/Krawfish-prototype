@@ -27,12 +27,12 @@ sub nrs {
 
 # Optimize query to potentially need sorting
 sub optimize {
-  my ($self, $index) = @_;
+  my ($self, $segment) = @_;
 
   my $span;
 
   # Not plannable
-  unless ($span = $self->operand->optimize($index)) {
+  unless ($span = $self->operand->optimize($segment)) {
     $self->copy_info_from($self->span);
     return;
   };

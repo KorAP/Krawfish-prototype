@@ -81,10 +81,10 @@ sub normalize {
 
 # Optimize constraint
 sub optimize {
-  my ($self, $index) = @_;
+  my ($self, $segment) = @_;
 
   # Optimize query
-  my $query = $self->{query}->optimize($index);
+  my $query = $self->{query}->optimize($segment);
 
   # Span has no match
   return if $query->max_freq == 0;

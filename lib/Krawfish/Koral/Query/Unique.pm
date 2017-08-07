@@ -39,9 +39,9 @@ sub normalize {
 
 # Optimize unique query
 sub optimize {
-  my ($self, $index) = @_;
+  my ($self, $segment) = @_;
 
-  my $span = $self->operand->optimize($index) or return;
+  my $span = $self->operand->optimize($segment) or return;
 
   if ($span->max_freq == 0) {
     return $self->builder->nothing;

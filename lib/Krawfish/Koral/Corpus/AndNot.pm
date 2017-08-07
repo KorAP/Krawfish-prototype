@@ -42,7 +42,7 @@ sub normalize {
 
 # Optimize query
 sub optimize {
-  my ($self, $index) = @_;
+  my ($self, $segment) = @_;
   my ($pos, $neg) = @{$self->operands};
 
   if (DEBUG) {
@@ -50,14 +50,14 @@ sub optimize {
   };
 
   # Get the positive query
-  my $pos_query = $pos->optimize($index);
+  my $pos_query = $pos->optimize($segment);
 
   if ($pos_query->max_freq == 0) {
     return Krawfish::Query::Nothing->new;
   };
 
   # Get the negative query
-  my $neg_query = $neg->optimize($index);
+  my $neg_query = $neg->optimize($segment);
 
   if ($neg_query->max_freq == 0) {
     return $pos_query;

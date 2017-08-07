@@ -101,11 +101,11 @@ sub finalize {
 };
 
 
-# Optimize on index
+# Optimize on segment
 sub optimize {
-  my ($self, $index) = @_;
+  my ($self, $segment) = @_;
 
-  my $span = $self->operand->optimize($index);
+  my $span = $self->operand->optimize($segment);
 
   # Span has no match
   if ($span->max_freq == 0) {

@@ -132,7 +132,7 @@ sub finalize {
 
 
 sub optimize {
-  my ($self, $index) = @_;
+  my ($self, $segment) = @_;
 
   # Create token query
   unless ($self->operand) {
@@ -151,7 +151,7 @@ sub optimize {
   #};
 
   print_log('kq_token', 'Optimize and return wrap token') if DEBUG;
-  return $self->operand->optimize($index);
+  return $self->operand->optimize($segment);
 };
 
 

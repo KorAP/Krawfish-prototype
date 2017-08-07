@@ -160,7 +160,7 @@ sub identify {
 
 
 sub optimize {
-  my ($self, $index) = @_;
+  my ($self, $segment) = @_;
 
   print_log('kq_excl', 'Optimize exclusion') if DEBUG;
 
@@ -168,8 +168,8 @@ sub optimize {
 
   my $ops = $self->operands;
 
-  my $first = $ops->[0]->optimize($index);
-  my $second = $ops->[1]->optimize($index);
+  my $first = $ops->[0]->optimize($segment);
+  my $second = $ops->[1]->optimize($segment);
 
   # Second object does not occur
   if ($second->max_freq == 0) {

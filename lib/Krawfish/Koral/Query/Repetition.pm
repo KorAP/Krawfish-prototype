@@ -255,12 +255,12 @@ sub finalize {
 };
 
 
-# Optimize for index
+# Optimize for segment
 sub optimize {
-  my ($self, $index) = @_;
+  my ($self, $segment) = @_;
 
   # optimize span query
-  my $span = $self->operand->optimize($index);
+  my $span = $self->operand->optimize($segment);
 
   # Span matches nowhere
   return $span if $span->max_freq == 0;

@@ -157,7 +157,7 @@ sub is_regex {
 
 
 sub optimize {
-  my ($self, $index) = @_;
+  my ($self, $segment) = @_;
 
   warn 'Optimization not supported!';
 
@@ -169,7 +169,7 @@ sub optimize {
 
   # Positive field
   my $query = Krawfish::Corpus::Field->new(
-    $index,
+    $segment,
     $self->to_term
   );
 

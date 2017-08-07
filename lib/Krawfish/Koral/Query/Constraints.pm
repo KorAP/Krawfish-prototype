@@ -268,17 +268,17 @@ sub _normalize_single_position {
 };
 
 
-# Optimize the query for an index
+# Optimize the query for an segment
 sub optimize {
-  my ($self, $index) = @_;
+  my ($self, $segment) = @_;
 
   # Optimize operands
-  my $first = $self->{operands}->[0]->optimize($index);
+  my $first = $self->{operands}->[0]->optimize($segment);
   if ($first->max_freq == 0) {
     return Krawfish::Query::Nothing->new;
   };
 
-  my $second = $self->{operands}->[1]->optimize($index);
+  my $second = $self->{operands}->[1]->optimize($segment);
   if ($second->max_freq == 0) {
     return Krawfish::Query::Nothing->new;
   };
@@ -286,7 +286,7 @@ sub optimize {
   # Optimize constraints
   my @constraints = ();
   foreach (@{$self->constraints}) {
-    my $opt = $_->optimize($index) or next;
+    my $opt = $_->optimize($segment) or next;
     push @constraints, $opt;
   };
 

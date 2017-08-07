@@ -92,7 +92,7 @@ sub finalize {
 };
 
 
-# Optimize on index
+# Optimize on segment
 sub optimize {
   my ($self, $segment) = @_;
 

@@ -418,10 +418,7 @@ sub identify {
 
 
 sub optimize {
-
   warn 'Not supported!';
-#  my ($self, $index) = @_;
-#  return Krawfish::Query::Term->new($index, $self->to_term);
 };
 
 

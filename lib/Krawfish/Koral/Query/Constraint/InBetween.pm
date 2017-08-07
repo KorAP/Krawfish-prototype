@@ -74,8 +74,11 @@ sub identify {
 
 # Optimize constraint
 sub optimize {
-  my ($self, $index) = @_;
-  return Krawfish::Query::Constraint::InBetween->new($self->{min}, $self->{max});
+  my $self = shift;
+  return Krawfish::Query::Constraint::InBetween->new(
+    $self->{min},
+    $self->{max}
+  );
 };
 
 

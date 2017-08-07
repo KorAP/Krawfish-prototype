@@ -19,10 +19,10 @@ sub type {
 
 
 sub optimize {
-  my ($self, $index) = @_;
+  my ($self, $segment) = @_;
 
   my $query;
-  unless ($query = $self->operand->optimize($index)) {
+  unless ($query = $self->operand->optimize($segment)) {
     $self->copy_info_from($self->operand);
     return;
   };
@@ -30,7 +30,7 @@ sub optimize {
   # Return cache
   return Krawfish::Corpus::Cache->new(
     $query,
-    $index->cache
+    $segment->cache
   );
 };
 

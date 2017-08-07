@@ -712,7 +712,7 @@ sub _replace_negative {
 
 # Optimize boolean queries based on their frequencies
 sub optimize {
-  my ($self, $index) = @_;
+  my ($self, $segment) = @_;
 
   # Get operands
   my $ops = $self->operands;
@@ -724,7 +724,7 @@ sub optimize {
   for (my $i = 0; $i < @$ops; $i++) {
 
     # Get query operation for next operand
-    my $next = $ops->[$i]->optimize($index);
+    my $next = $ops->[$i]->optimize($segment);
 
     # Get maximum frequency
     my $freq = $next->max_freq;

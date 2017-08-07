@@ -92,17 +92,12 @@ sub to_term {
   $_[0]->operand->to_string;
 };
 
+
 # Todo: May be more complicated
 sub optimize {
-  my ($self, $index) = @_;
-
-  warn 'DEPRECATED';
-  
-  return Krawfish::Query::Span->new(
-    $index,
-    $self->operand->to_term
-  );
+  warn 'Span queries need to be identified before';
 };
+
 
 # A span may have length 0 in case it is an empty annotation
 # like a page break
