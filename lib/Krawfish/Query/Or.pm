@@ -63,38 +63,38 @@ sub next {
   }
 
   elsif ($first->doc_id < $second->doc_id) {
-    print_log('or', 'Current is first (1)') if DEBUG;
+    print_log('or', 'Current is first (based on document id)') if DEBUG;
     $curr = 'first';
   }
   elsif ($first->doc_id > $second->doc_id) {
-    print_log('or', 'Current is second (1)') if DEBUG;
+    print_log('or', 'Current is second (based on document id)') if DEBUG;
     $curr = 'second';
   }
   elsif ($first->start < $second->start) {
-    print_log('or', 'Current is first (2)') if DEBUG;
+    print_log('or', 'Current is first (based on start position)') if DEBUG;
     $curr = 'first';
   }
   elsif ($first->start > $second->start) {
-    print_log('or', 'Current is second (2)') if DEBUG;
+    print_log('or', 'Current is second (based on start position)') if DEBUG;
     $curr = 'second';
   }
   elsif ($first->end < $second->end) {
-    print_log('or', 'Current is first (3)') if DEBUG;
+    print_log('or', 'Current is first (based on end position)') if DEBUG;
     $curr = 'first';
   }
   elsif ($first->end > $second->end) {
-    print_log('or', 'Current is second (3)') if DEBUG;
+    print_log('or', 'Current is second (based on end position)') if DEBUG;
     $curr = 'second';
   }
   else {
-    print_log('or', 'Current is first (4)') if DEBUG;
+    print_log('or', 'Current is first (just because both are identical)') if DEBUG;
     $curr = 'first';
   };
 
-  my $curr_post = $self->{$curr}->current;
-  $self->{doc_id} = $curr_post->doc_id;
-  $self->{start} = $curr_post->start;
-  $self->{end} = $curr_post->end;
+  my $curr_post    = $self->{$curr}->current;
+  $self->{doc_id}  = $curr_post->doc_id;
+  $self->{start}   = $curr_post->start;
+  $self->{end}     = $curr_post->end;
   $self->{payload} = $curr_post->payload->clone;
 
   if (DEBUG) {

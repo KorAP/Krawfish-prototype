@@ -152,23 +152,11 @@ is($koral_query->to_string,
    "or(or([[and(#1,[1]):0-1]],[[and(#7,[1]):1-2]]),[[and(#9,[1]):0-1]])",
    'Stringification');
 
-# That works
-#  'or(or([[#1:0-1]],[[#7:1-2]]),[[#9:0-1]])', 'Stringification');
-
-
-ok($koral_query->next, 'There is a first match');
-is($koral_query->current->to_string, '[0:0-1]', 'First match');
-ok($koral_query->next, 'There is a next match');
-# is($koral_query->current->to_string, '[1:1-2]', 'First match');
+matches($koral_query, [qw/[0:0-1] [1:1-2] [2:0-1]/], 'Matches');
 
 
 
-
-done_testing;
-__END__
-
-
-# Some more matches
+# Some more matches with a filter
 $koral = Krawfish::Koral->new;
 $koral->query(
   $qb->bool_or(
@@ -187,7 +175,6 @@ is($koral->to_string,
    'Stringification');
 
 ok($koral_query = $koral->to_query, 'Normalization');
-
 
 # This is a query that is fine to be send to nodes
 # It respects that documents need to be live
@@ -213,12 +200,7 @@ is($koral_query->to_string,
    "or(or([[and(#1,#3):0-1]],[[and(#7,#3):1-2]]),[[and(#9,#3):0-1]])",
    'Stringification');
 
-ok($koral_query->next, 'There is a first match');
-is($koral_query->current->to_string, '[0:0-1]', 'First match');
-ok($koral_query->next, 'There is a next match');
-is($koral_query->current->to_string, '[1:1-2]', 'First match');
-
-# matches($koral_query, [qw/[0:0-1] [1:1-2]/], 'Get match');
+matches($koral_query, [qw/[0:0-1] [1:1-2]/], 'Get match');
 
 
 done_testing;

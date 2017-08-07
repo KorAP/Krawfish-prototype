@@ -29,13 +29,11 @@ sub new {
 sub next {
   my $self = shift;
 
-  print_log('term_id', 'Next "' . $self->term_id . "\"") if DEBUG;
-
   # TODO: This should respect filters
   my $return = $self->{postings}->next;
   if (DEBUG) {
-    print_log('term_id', ' - current is ' . $self->current) if $return;
-    print_log('term_id', ' - no current');
+    print_log('term_id', 'Next #' . $self->term_id . ' - current is ' .
+                ($return ? $self->current : 'none'));
   };
   return $return;
 };
@@ -80,7 +78,7 @@ sub skip_doc {
 sub filter_by {
   my ($self, $corpus) = @_;
   return Krawfish::Query::Filter->new(
-    $self, $corpus
+    $self, $corpus->clone
   );
 };
 

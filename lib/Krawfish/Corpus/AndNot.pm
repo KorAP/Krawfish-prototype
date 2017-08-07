@@ -21,6 +21,16 @@ sub init  {
   $_[0]->{second}->next;
 };
 
+# Clone query
+sub clone {
+  my $self = shift;
+  return __PACKAGE__->new(
+    $self->{first}->clone,
+    $self->{second}->clone
+  );
+};
+
+
 sub next {
   my $self = shift;
   $self->init;

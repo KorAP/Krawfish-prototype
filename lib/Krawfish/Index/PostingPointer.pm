@@ -3,11 +3,12 @@ use parent 'Krawfish::Query';
 use Krawfish::Log;
 use Krawfish::Posting::Data;
 use Krawfish::Posting;
+use Scalar::Util qw/refaddr/;
 use strict;
 use warnings;
 
 use constant {
-  DEBUG => 0,
+  DEBUG => 1,
   DOC_ID => 0
 };
 
@@ -60,7 +61,8 @@ sub next {
 sub freq_in_doc {
   my $self = shift;
 
-  print_log('ppointer', 'TEMP SLOW Get the frequency of the term in the doc');
+  print_log('ppointer', refaddr($self) .
+              ': TEMP SLOW Get the frequency of the term in the doc') if DEBUG;
 
   # This is the doc_id
   my $current_doc_id = $self->current->doc_id;
@@ -117,7 +119,7 @@ sub list {
 sub skip_doc {
   my ($self, $doc_id) = @_;
 
-  print_log('ppointer', 'TEMP SLOW Skip to chosen document') if DEBUG;
+  print_log('ppointer', refaddr($self) . ': TEMP SLOW Skip to chosen document') if DEBUG;
 
   while (!$self->current || $self->current->doc_id < $doc_id) {
     $self->next or return;
@@ -128,7 +130,8 @@ sub skip_doc {
 
 sub skip_pos {
   my ($self, $pos) = @_;
-  print_log('ppointer', 'TEMP SLOW Skip to chosen position or after') if DEBUG;
+  print_log('ppointer', refaddr($self) . ': TEMP SLOW Skip to chosen position or after')
+    if DEBUG;
 
   unless ($self->current) {
     $self->next or return;

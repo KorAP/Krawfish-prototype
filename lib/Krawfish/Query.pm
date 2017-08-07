@@ -1,6 +1,6 @@
 package Krawfish::Query;
 use Krawfish::Log;
-use Scalar::Util qw/blessed/;
+use Scalar::Util qw/blessed refaddr/;
 use strict;
 use warnings;
 
@@ -27,6 +27,11 @@ sub current {
 sub next;
 
 
+sub clone {
+  ...
+};
+
+
 # TODO:
 # This is a value that should probably be stored
 # at span-beginnings and can help to jump through very long
@@ -39,7 +44,7 @@ sub next_doc {
   my $self = shift;
   my $current_doc_id = $self->current->doc_id;
 
-  print_log('query', "Go to next doc following $current_doc_id") if DEBUG;
+  print_log('query', refaddr($self) . ": go to next doc following $current_doc_id") if DEBUG;
 
   do {
     $self->next or return;
@@ -58,7 +63,7 @@ sub freq_in_doc {
 sub skip_doc {
   my ($self, $doc_id) = @_;
 
-  print_log('query', 'Skip to doc id ' . $doc_id) if DEBUG;
+  print_log('query', refaddr($self) . ': skip to doc id ' . $doc_id) if DEBUG;
 
   while (!$self->current || $self->current->doc_id < $doc_id) {
     $self->next_doc or return;

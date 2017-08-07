@@ -14,9 +14,18 @@ sub new {
     or return Krawfish::Query::Nothing->new;
 
   bless {
+    segment => $segment,
     postings => $postings->pointer,
     term_id => $term_id
   }, $class;
+};
+
+sub clone {
+  my $self = shift;
+  return __PACKAGE__->new(
+    $self->{segment},
+    $self->{term_id}
+  );
 };
 
 sub next {

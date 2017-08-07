@@ -2,16 +2,17 @@ package Krawfish::Corpus::Any;
 use Krawfish::Index::PostingsLive;
 use Krawfish::Posting::Doc;
 use Krawfish::Query::Nothing;
+use Scalar::Util qw/refaddr/;
 use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 
 # Construct query on live documents
 sub new {
-  my ($class,$segment) = @_;
+  my ($class, $segment) = @_;
 
   # Get live pointer
   my $live = $segment->live->pointer;
@@ -21,18 +22,27 @@ sub new {
     if $live->freq == 0;
 
   bless {
+    segment => $segment,
     live => $live
   }, $class;
+};
+
+sub clone {
+  __PACKAGE__->new(
+    $_[0]->{segment}
+  );
 };
 
 sub next {
   my $self = shift;
 
-  print_log('vc_any', 'Next live doc') if DEBUG;
+  print_log('vc_any', refaddr($self) . ': Next live doc') if DEBUG;
 
   return $self->{live}->next;
 };
 
+
+# Get number of live documents
 sub max_freq {
   $_[0]->{live}->freq;
 };

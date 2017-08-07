@@ -5,8 +5,11 @@ use Krawfish::Koral::Corpus::Builder;
 use Krawfish::Koral::Meta::Builder;
 use Krawfish::Koral::Meta;
 use Krawfish::Koral::Document;
+use Krawfish::Log;
 use strict;
 use warnings;
+
+use constant DEBUG => 1;
 
 # Parse a koral query and transform to an actual
 # index query.
@@ -170,6 +173,8 @@ sub to_nodes {
 
   # Only a query is given
   elsif ($self->query) {
+
+    print_log('koral', 'Added live document filter') if DEBUG;
 
     # Add corpus filter for live documents
     $query = $self->query_builder->filter_by(

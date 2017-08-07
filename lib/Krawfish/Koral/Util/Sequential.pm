@@ -965,6 +965,7 @@ sub _extend_opt {
   # TODO:
   #   Introduce a ->clone() method!
   $new_query = _or($query_a->[KQUERY]->optimize($index), $new_query);
+  # $new_query = _or($query_a->[QUERY]->clone, $new_query);
 
   # Add new query
   $queries->[$index_a] = [POS, $new_query->max_freq, $new_query];

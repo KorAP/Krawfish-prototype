@@ -4,7 +4,7 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 sub new {
   my $class = shift;
@@ -88,7 +88,7 @@ sub filter_by {
   my ($self, $corpus) = @_;
 
   # TODO: Check always that the query isn't moved forward yet!
-  $self->{doc} = Krawfish::Corpus::And->new($self->{doc}, $corpus);
+  $self->{doc} = Krawfish::Corpus::And->new($self->{doc}, $corpus->clone);
   $self;
 };
 

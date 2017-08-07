@@ -4,7 +4,7 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # Filters a term to check, if it is
 # in a supported document
@@ -35,8 +35,20 @@ sub next {
 
   print_log('filter', 'Check next valid span') if DEBUG;
 
-  my $span = $self->{span}->current or return;
-  my $doc = $self->{docs}->current or return;
+  my $span = $self->{span}->current;
+
+  # No valid span
+  unless ($span) {
+    $self->{doc_id} = undef;
+    return;
+  };
+
+  my $doc = $self->{docs}->current;
+
+  unless ($doc) {
+    $self->{doc_id} = undef;
+    return;
+  };
 
   # TODO:
   #   Replace with same_doc
@@ -100,7 +112,7 @@ sub filter_by {
   my ($self, $corpus) = @_;
 
   # TODO: Check always that the query isn't moved forward yet!
-  $self->{docs} = Krawfish::Corpus::And->new($self->{docs}, $corpus);
+  $self->{docs} = Krawfish::Corpus::And->new($self->{docs}, $corpus->clone);
   $self;
 };
 

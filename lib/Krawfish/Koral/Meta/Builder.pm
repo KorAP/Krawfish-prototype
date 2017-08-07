@@ -19,6 +19,10 @@ use Krawfish::Koral::Meta::Group::Fields;
 use Krawfish::Koral::Meta::Enrich::Fields;
 use Krawfish::Koral::Meta::Enrich::Snippet;
 
+# TODO:
+#   Add enrich for term_ids (necessary for sorting
+#   by surface forms)
+
 use Krawfish::Koral::Meta::Type::Key;
 use Scalar::Util qw/blessed/;
 use strict;

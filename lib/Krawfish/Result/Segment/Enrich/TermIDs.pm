@@ -7,7 +7,6 @@ use warnings;
 # Enrich each match with all term ids for a specific region and
 # for a specific class
 
-
 # TODO:
 #   Move Fields, Snippet, TermIDs to
 #   Krawfish::Result::Segment::Enrich::*

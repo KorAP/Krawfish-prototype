@@ -5,9 +5,10 @@ use Krawfish::Posting::Span;
 use strict;
 use warnings;
 
-
+# ---------------------------
 # TODO:
 #   May be useless, if Postings can be adjusted.
+# ---------------------------
 
 # TODO: Probably rename to posting - and return a posting
 # that augments the given payload

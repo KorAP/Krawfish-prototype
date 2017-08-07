@@ -4,7 +4,7 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # TODO:
 #   Use different PostingsList (or rather different PostingPointer)

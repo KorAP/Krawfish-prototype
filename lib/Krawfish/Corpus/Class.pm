@@ -43,6 +43,14 @@ sub new {
   }, $class;
 };
 
+sub clone {
+  my $self = shift;
+  __PACKAGE__->new(
+    $self->{corpus}->clone,
+    $self->{number}
+  )
+};
+
 
 # Return flag in bit stringification
 sub flag {
