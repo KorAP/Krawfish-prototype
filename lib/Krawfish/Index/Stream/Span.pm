@@ -1,6 +1,6 @@
 package Krawfish::Index::Stream::Span;
 use parent 'Krawfish::Index::Stream';
-use Krawfish::Posting::Span;
+use Krawfish::Posting::Token;
 use strict;
 use warnings;
 
@@ -85,7 +85,7 @@ sub get {
 
 sub posting {
   shift;
-  return Krawfish::Posting::Span->new(@_);
+  return Krawfish::Posting::Token->new(@_);
 };
 
 

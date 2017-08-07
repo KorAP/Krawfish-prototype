@@ -37,7 +37,7 @@ sub next {
 
   my $span = $self->{span}->current;
 
-  # No valid span
+  # Invalidate current if no current span exists
   unless ($span) {
     $self->{doc_id} = undef;
     return;
@@ -45,6 +45,7 @@ sub next {
 
   my $doc = $self->{docs}->current;
 
+  # Invalidate current if no current doc exists
   unless ($doc) {
     $self->{doc_id} = undef;
     return;

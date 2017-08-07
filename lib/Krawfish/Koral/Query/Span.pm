@@ -1,14 +1,11 @@
 package Krawfish::Koral::Query::Span;
 use parent 'Krawfish::Koral::Query';
-use Krawfish::Koral::Query::SpanID;
+use Krawfish::Koral::Query::TermID;
 use Krawfish::Koral::Query::Term;
 use Krawfish::Log;
-# use Krawfish::Query::Span;
 use Scalar::Util qw/blessed/;
 use strict;
 use warnings;
-
-# TODO: Rename 'wrap' to 'operand'
 
 use constant DEBUG => 0;
 
@@ -77,7 +74,7 @@ sub identify {
 
     return $self->builder->nothing unless defined $term_id;
 
-    return Krawfish::Koral::Query::SpanID->new($term_id);
+    return Krawfish::Koral::Query::TermID->new($term_id);
   };
 
   warn 'Regexes are currently not supported';
