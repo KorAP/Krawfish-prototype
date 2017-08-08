@@ -15,16 +15,24 @@ use Krawfish::Log;
 #
 # Terms have different prefixes:
 #
-#   terms:     *
-#   subterms:  ~
-#   fields:    +
-#   fieldkeys: !
+#   terms:       *
+#   (casefolded) '
+#   subterms:    ~
+#   annotations
+#     token      #
+#     span       <>
+#   fields:      +
+#   fieldkeys:   !
 #
 # add_term:
 #   First the static dictionary will do a look-up if the term exists,
 #   then the dynamic dictionary will do an insert_or_search, meaning
 #   an existing term will return the term_id and a non-existing term
 #   will be added, returning a term_id.
+#
+#   For casefolded search, it may be necessary to index the casefolded
+#   string as well, with the same term_id (though, the reverse lookup)
+#   is not possible. The same MAY be useful for diacriticless search.
 #
 #   When a new subterm is added, a binary search on the static
 #   rank file is done to find the alphabetically preceeding term of
@@ -45,7 +53,14 @@ use Krawfish::Log;
 #   First a look-up to the static dictionary is done.
 #   In case of failure, a lookup to the dynamic dictionary is done.
 #
-# range_search (regex/approx/wildcard):
+# range_search:
+#   Returns an array of valid term_ids.
+#   Required searches are:
+#     - casefolded
+#     - without_diacritics
+#     - regular expression
+#     - approximate matching
+#     - wildcards
 #   Both dictionaries are searched (maybe in parallel).
 #
 # term_id_to_term:
@@ -55,7 +70,7 @@ use Krawfish::Log;
 #   This feature may be more complicated when term_ids can be reused
 #   (see delete).
 #
-# delete
+# delete:
 #   Not necessary, but could be implemented in both dictionaries.
 #   In the dynamic dictionary the branches are removed.
 #   In the static dictionary the term (and potentially branches)
@@ -64,12 +79,12 @@ use Krawfish::Log;
 #   ignored. Though - this feature has not really any benefits,
 #   as old term_ids can't be reused.
 #
-# merge
+# merge:
 #   Merges the static dictionary with the dynamic dictionary and
 #   creates a new static dictionary.
 #   This will also merge the ranks.
 #
-# rank_subterm
+# rank_subterm:
 #   Returns the numerical rank of a subterm in alphabetic order.
 #   The static dictionary will return a simple even numerical rank
 #   (calculated on merge). The dynamic dictionary will
@@ -103,6 +118,11 @@ use Krawfish::Log;
 #   This may e.g. use a binary search in the suffix ranking.
 #   Alternatively, if trigrams are indexed, this would of course
 #   look for 'ig$'.
+
+# TODO:
+#   Although subterms will not be requested by the user, they are
+#   requested, for example, by the term_id API for co-occurrence search.
+#   That's why all subterms need to be stored as well.
 
 use constant DEBUG => 0;
 

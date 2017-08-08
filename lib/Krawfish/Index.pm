@@ -69,7 +69,8 @@ use constant DEBUG => 0;
 #   Maybe logarithmic merge
 #   https://www.youtube.com/watch?v=VNjf2dxWH2Y&spfreload=5
 
-# TODO: Maybe 65.535 documents are enough per segment ...
+# TODO:
+#   Maybe 65.535 documents are enough per segment ...
 
 
 # Construct a new index object
@@ -120,6 +121,16 @@ sub dict {
 sub add {
   my ($self, $doc, $replicant_id) = @_;
 
+  # TODO:
+  #   The document should first be converted in inverted index form
+  #   using a hash with
+  #
+  #   +field => title,
+  #   *term => [postings*]
+  #
+  #   Then, when the document is added to certain nodes,
+  #   the keys will be translated to term_ids and the document
+  #   can be added with all freq_in_doc information
   unless (ref $doc) {
     $doc = decode_json(Mojo::File->new($doc)->slurp);
   };

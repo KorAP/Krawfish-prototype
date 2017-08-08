@@ -2,6 +2,12 @@ package Krawfish::Index::ForwardIndex;
 use strict;
 use warnings;
 
+
+# WARNING!
+# This is deprecated! Use everything in Krawfish::Index::Forward::*
+
+
+
 # This represents a forward index of the data,
 # accessible by document ID and byte offset.
 #
