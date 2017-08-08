@@ -8,6 +8,9 @@ use warnings;
 use Data::BitStream;
 
 # TODO:
+#   ForwardIndex and Fields should be stored in one file!
+
+# TODO:
 #   This should probably be renamed to ForwardStream,
 #   while the index needs to contain an index pointing to the
 #   offsets for the documents in question!

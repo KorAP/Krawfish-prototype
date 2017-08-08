@@ -14,6 +14,21 @@ use warnings;
 # This is the base for dynamic and
 # static segment stores.
 
+#
+# TERMS: The dictionary will have one value lists with data,
+#        accessible by their term_id position in the list:
+#
+#  ([leaf-backref][freq][postinglistpos])*
+#
+#  However - it may be useful to have the postinglistpos
+#  separated per segment, so it's
+#  seg1:[postinglistpos1][postinglistpos2][0][postinglistpos4]
+#  seg1:[postinglistpos1][postinglistpos2][postinglistpos3][0]
+#  ...
+#
+# SUBTERMS: The dictionary will have one list with data,
+#           accessible by their sub_term_id position in the list:
+#  ([leaf-backref][prefix-rank][suffix-rank])*
 
 
 use constant DEBUG => 1;

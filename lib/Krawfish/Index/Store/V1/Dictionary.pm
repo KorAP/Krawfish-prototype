@@ -12,6 +12,15 @@ use warnings;
 
 # The term_id array points to the '00' terminal nodes of the tree structure.
 
+# TODO:
+#   It may be useful to check for big file limitations
+#   https://www.codeproject.com/articles/563200/indexer-index-large-collections-by-different-keys
+
+# TODO:
+#   In Lucy the dictionary is stored in a list
+#   using incremental encoding / front coding.
+#
+
 # This is necessary to deal with the dynamic structure
 use constant {
   SPLIT_CHAR => 0,

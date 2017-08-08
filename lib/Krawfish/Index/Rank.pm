@@ -66,6 +66,24 @@ use warnings;
 #   In case, a field is only set for a couple of documents, a different
 #   strategy may be valid.
 
+# TODO:
+#   For fields it's necessary to have methods to add
+#   a term and retrieve entries before and after, in case
+#   a term is not yet added. This gives the possibility
+#   to retrieve ranks for this field value and rerank the
+#   field rank in place (meaning the new value has the
+#   rank of the next value in the dictionary and in the
+#   FieldsRank all documents with a rank > the new
+#   rank value needs to be incremented.
+#   However, keep in mind: That only works for fields
+#   with the same collation mechanism as the dictionary.
+#   Maybe it's better to have redundant rank-lists
+#   (including surface forms) per field,
+#   that are only used for ranking and reranking
+#   (but never for live-searching, so they can be stored
+#   compressed on disk and can be decompressed for reranking)
+
+
 sub max {
   $_[0]->{max};
 };
