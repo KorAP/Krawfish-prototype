@@ -11,6 +11,24 @@ sub new {
   }, $class;
 };
 
+sub type {
+  'int';
+};
+
+# Get key_value combination
+sub term_id {
+  $_[0]->{key_value_id};
+};
+
+
+# Get key identifier
+sub key_id {
+  $_[0]->{key_id};
+};
+
+sub value {
+  $_[0]->{value};
+};
 
 
 sub identify {

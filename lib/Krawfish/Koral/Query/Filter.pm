@@ -1,5 +1,6 @@
 package Krawfish::Koral::Query::Filter;
 use parent 'Krawfish::Koral::Query';
+use Krawfish::Log;
 use Krawfish::Query::Nothing;
 use strict;
 use warnings;
@@ -106,6 +107,10 @@ sub optimize {
 
   # Filter would rule out everything
   if ($corpus->max_freq == 0) {
+
+    if (DEBUG) {
+      print_log('kq_filter', 'Corpus ' . $self->corpus->to_string . ' is empty');
+    };
     return Krawfish::Query::Nothing->new;
   };
 

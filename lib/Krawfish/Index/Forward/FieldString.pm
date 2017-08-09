@@ -12,6 +12,22 @@ sub new {
 };
 
 
+sub type {
+  'string';
+};
+
+# Get key_value combination
+sub term_id {
+  $_[0]->{key_value_id};
+};
+
+
+# Get key identifier
+sub key_id {
+  $_[0]->{key_id};
+};
+
+
 sub identify {
   my ($self, $dict) = @_;
 

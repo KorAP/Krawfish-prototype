@@ -1,6 +1,7 @@
 package Krawfish::Koral::Document;
 use Krawfish::Index::Forward::Stream;
 use Krawfish::Index::Forward::Fields;
+use Krawfish::Koral::Query::Term;
 use Krawfish::Log;
 use Mojo::File;
 use Mojo::JSON qw/encode_json decode_json/;
@@ -17,6 +18,12 @@ use List::MoreUtils qw/uniq/;
 #   Then, when the document is added to certain nodes,
 #   the keys will be translated to term_ids and the document
 #   can be added with all freq_in_doc information
+
+
+# TODO:
+#   Don't forget to deal with TUIs!
+
+# foundry and layer may need separated term_ids so they are exceptional small.
 
 
 use constant DEBUG => 1;
@@ -51,11 +58,13 @@ sub primary_data {
 };
 
 
+# Get the stream object
 sub stream {
   $_[0]->{stream};
 };
 
 
+# Get the fields object
 sub fields {
   $_[0]->{fields};
 };
@@ -65,6 +74,9 @@ sub sortable {
   $_[0]->{sortable};
 };
 
+
+# Translate all terms into term_ids and
+# add unknown terms to the dictionary
 sub identify {
   my ($self, $dict) = @_;
   $self->{fields} = $self->{fields}->identify($dict);
@@ -73,6 +85,7 @@ sub identify {
 };
 
 
+# Stringification
 sub to_string {
   my $self = shift;
   return '[' . $self->fields->to_string . ']' . $self->stream->to_string;
@@ -238,8 +251,10 @@ sub _parse {
       foreach (@keys) {
 
         # Add token annotation
-        my $length = $subtoken_offset[1] ? ($subtoken_offset[1]-$subtoken_offset[0]-1) : 0;
-        $stream->subtoken($subtoken_offset[0])->add_annotation('#' . $_, $length);
+        # my $length = $subtoken_offset[1] ? ($subtoken_offset[1]-$subtoken_offset[0]-1) : 0;
+        $stream->subtoken(
+          $subtoken_offset[0]
+        )->add_annotation($_, $subtoken_offset[1] ? $subtoken_offset[1] : $subtoken_offset[0] + 1);
       };
     }
 
@@ -247,14 +262,17 @@ sub _parse {
     elsif ($item->{'@type'} eq 'koral:span') {
 
       # Create key string
-      my $key = '<>' . _term($item->{wrap});
-
+      my $term = _term($item->{wrap});
+      $term->term_type('span');
 
       # Add span to forward stream
-      my $length = $item->{subtokens}->[1] ? (
-        $item->{subtokens}->[-1] - $item->{subtokens}->[0]
-      ) : 0;
-      $stream->subtoken($item->{subtokens}->[0])->add_annotation($key, $length);
+      #my $length = $item->{subtokens}->[1] ? (
+      #  $item->{subtokens}->[-1] - $item->{subtokens}->[0]
+      #) : 0;
+      $stream->subtoken($item->{subtokens}->[0])->add_annotation(
+        $term,
+        $item->{subtokens}->[-1] + 1
+      );
     };
   };
 
@@ -273,17 +291,36 @@ sub _parse {
 # Potentially with a prefix
 sub _term {
   my $item = shift;
+  my $term = Krawfish::Koral::Query::Term->new;
 
-  my $key = '';
-  # Create term for term dictionary
   if ($item->{foundry}) {
-    $key .= $item->{foundry};
-    if ($item->{layer}) {
-      $key .= '/' . $item->{layer};
-    }
-    $key .= '=';
+    $term->foundry($item->{foundry});
   };
-  return $key . ($item->{key} // '');
+
+  if ($item->{layer}) {
+    $term->layer($item->{layer});
+  };
+
+  if ($item->{key}) {
+    $term->key($item->{key});
+  };
+
+  if ($item->{value}) {
+    $term->value($item->{value});
+  };
+
+  return $term;
+
+  #my $key = '';
+  ## Create term for term dictionary
+  #if ($item->{foundry}) {
+  #  $key .= $item->{foundry};
+  #  if ($item->{layer}) {
+  #    $key .= '/' . $item->{layer};
+  #  }
+  #  $key .= '=';
+  #};
+  #return $key . ($item->{key} // '');
 }
 
 

@@ -272,6 +272,10 @@ sub _normalize_single_position {
 sub optimize {
   my ($self, $segment) = @_;
 
+  if (DEBUG) {
+    print_log('kq_constr', 'Optimize constraint for ' . $self->to_string);
+  };
+
   # Optimize operands
   my $first = $self->{operands}->[0]->optimize($segment);
   if ($first->max_freq == 0) {

@@ -4,6 +4,9 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
+# TODO:
+#   This is deprecated in favor of Forward::*
+
 # All values are stored as varints in a skiplist
 # augmented postingslist
 

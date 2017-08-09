@@ -7,6 +7,11 @@ use warnings;
 use constant DEBUG => 0;
 
 # TODO:
+#   This is deprecated in favor of Forward::*, though ranking is
+#   a separate issue.
+
+
+# TODO:
 #   Currently ranking is not collation based. It should be possible
 #   to define a collation per field and
 #   use one collation for prefix and suffix sorting.

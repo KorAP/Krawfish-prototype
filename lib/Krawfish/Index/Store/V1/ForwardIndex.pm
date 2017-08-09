@@ -7,24 +7,37 @@ use strict;
 use warnings;
 use Data::BitStream;
 
-# TODO:
-#   ForwardIndex and Fields should be stored in one file!
+
+# To be stored as
+#   [field-data-length]          # Necessary for skipping to annotations
+#   (                            # These are sorted in term_id order
+#     [field-key-termid-varint]
+#     [field-type-bit]
+#     [field-value-termid-varint|field-value-int]
+#   )*
+#   [annotation-data-length]     # Necessary for skipping to next doc
+#   (
+#     [next-subtoken-xor-int]    # xor-double-linked-list for next and prev
+#     [subterm-termid-varint]    # Necessary for primary data retrieval,
+#                                # co-occurrence search ...
+#     [subterm-length-varint]    # Necessary for character offsets for snippet contexts
+#                                # and potentially character-length sorting
+#     [preceding-data-string]    # Necessary for primary data retrieval,
+#                                # may need preceeding length information
+#     (                          # These are sorted in term_id order
+#       [foundry-id-varint]
+#       [layer-id-varint]
+#       [term-id|term-string]    # Value is optional for hapax-legomena dealing
+#       [payload-length]
+#       [payload]                # Redundancy of payload is unfortunate
+#     )*
+#   )*
+#
+#   The positions are augmented with SkipList marker
+
 
 # TODO:
-#   This should probably be renamed to ForwardStream,
-#   while the index needs to contain an index pointing to the
-#   offsets for the documents in question!
-#
-# TODO:
-#   This should store all document data using
-#   term-IDs (where possible).
-#   Structure like
-#   [length][subtoken-surface-token-ID][foundry-layer-ID][term] ...
-#   [length][plain-text]
-#   [length][subtoken-surface-token-ID][foundry-layer-ID][term] ...
-#
-#   The plain text contains blanks, commata, etc.
-#   The subtokens point to byte offsets in the highly compressed forward index.
+#   This should probably be renamed to ForwardStream
 
 use constant {
   SUBTOKEN_MARKER    => 0b0000_0000,

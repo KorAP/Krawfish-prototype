@@ -19,7 +19,7 @@ is($doc->primary_data,
  );
 
 is(substr($doc->stream->to_string, 0, 40),
-   q!(0)['Der';'#Der'$0](1) ['alte';'#alte'$0!,
+   q!(0)['Der';'Der'$1](1) ['alte';'alte'$2](!,
    'Get stream');
 
 is($doc->fields->to_string,
@@ -38,8 +38,9 @@ is($doc->primary_data,
  );
 
 is(substr($doc->stream->to_string, 0, 100),
-   q!(0)['Der';'#akron=Der'$0;'<>akron/c=NP'$2](1) ['Bau';'#akron=Bau-Leiter'$1](2)-['Leiter'](3) ['trug'!,
+   q!(0)['Der';'akron=Der'$1;'<>akron/c=NP'$3](1) ['Bau';'akron=Bau-Leiter'$3](2)-['Leiter'](3) ['trug';'!,
    'Get stream');
+
 
 is($doc->fields->to_string, "'docID'='doc-3';'license'='closed';'textLength'=8", 'Fields');
 
@@ -50,9 +51,9 @@ ok($doc = $doc->identify($index->dict), 'Turn terms into term_ids');
 
 is($doc->fields->to_string, '1=2;3=4;5=6(8)', 'Fields');
 
-is($doc->stream->to_string, '(0)[7;8$0;9$2](1) [10;11$1](2)-[12](3) [13;14$0;15$0](4) [16;17$0;9$3](5) [18;19$0](6) [10;20$1](7)-[21](8).[22]', 'Stream');
+is($doc->stream->to_string, q!(0)[7;8$1;10$3](1) [12;13$3](2)-[14](3) [15;16$4;17$4](4) [20;21$5;10$8](5) [22;23$6](6) [12;24$8](7)-[25](8).['']!, 'Stream');
 
-is($doc->to_string, '[1=2;3=4;5=6(8)](0)[7;8$0;9$2](1) [10;11$1](2)-[12](3) [13;14$0;15$0](4) [16;17$0;9$3](5) [18;19$0](6) [10;20$1](7)-[21](8).[22]', 'Stringification');
+is($doc->to_string, q![1=2;3=4;5=6(8)](0)[7;8$1;10$3](1) [12;13$3](2)-[14](3) [15;16$4;17$4](4) [20;21$5;10$8](5) [22;23$6](6) [12;24$8](7)-[25](8).['']!, 'Stringification');
 
 done_testing;
 __END__

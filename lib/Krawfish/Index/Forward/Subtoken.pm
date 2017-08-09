@@ -27,6 +27,14 @@ sub subterm {
   $_[0]->{subterm};
 };
 
+sub term_id {
+  $_[0]->{subterm_id};
+};
+
+
+sub annotations {
+  $_[0]->{anno};
+};
 
 # Add annotations
 sub add_annotation {
@@ -37,6 +45,9 @@ sub add_annotation {
 
 sub identify {
   my ($self, $dict) = @_;
+
+  # This is the final subtoken that's only required for preceding bytes
+  return $self unless $self->{subterm};
 
   my $term = '*' . $self->{subterm};
   my $term_id = $dict->term_id_by_term($term);

@@ -18,9 +18,13 @@ use Krawfish::Log;
 #   terms:       *
 #   (casefolded) '
 #   subterms:    ~
+#   foundry:     ^
+#   layer:       °
 #   annotations
-#     token      #
+#     token      #   (not yet supported)
 #     span       <>
+#     relations  <, >
+#     attributes @
 #   fields:      +
 #   fieldkeys:   !
 #
@@ -124,7 +128,7 @@ use Krawfish::Log;
 #   requested, for example, by the term_id API for co-occurrence search.
 #   That's why all subterms need to be stored as well.
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 sub new {
   my $class = shift;

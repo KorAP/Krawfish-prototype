@@ -4,6 +4,8 @@ use warnings;
 use strict;
 
 # This is one single stream of the forward index;
+# TODO:
+#   This should probably be part of Koral::Document::*
 
 sub new {
   my $class = shift;
@@ -25,6 +27,10 @@ sub subtoken {
 sub to_string {
   my $i = 0;
   return join '', map { '(' . ($i++) . ')' .  $_->to_string } @{$_[0]}
+};
+
+sub length {
+  @{$_[0]};
 };
 
 

@@ -6,11 +6,10 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-# TODO:
-#   Inflate may be renamed to ->identify(),
-#   Because while regexes are inflated, terms
-#   should probably already be rewritten to term_ids
 
+# TODO:
+#  Probably introduce '#' as a prefix for
+#  token annotations!
 
 # TODO: Support escaping! Especially for regex!
 

@@ -1,9 +1,10 @@
 package Krawfish::Index::Segment;
 use Krawfish::Index::Subtokens;
-use Krawfish::Index::PrimaryData;
-use Krawfish::Index::Fields;
+use Krawfish::Index::PrimaryData;  # Maybe irrelevant
+use Krawfish::Index::Fields;       # Maybe irrelevant
 use Krawfish::Index::PostingsLive;
 use Krawfish::Index::PostingsList;
+use Krawfish::Index::Forward;
 use Krawfish::Cache;
 use Krawfish::Log;
 use Scalar::Util qw!blessed!;
@@ -40,7 +41,7 @@ sub new {
     file => $file
   }, $class;
 
-  print_log('segment', 'Instantiate new segment') if DEBUG;
+  print_log('seg', 'Instantiate new segment') if DEBUG;
 
   # Load offsets
   $self->{subtokens} = Krawfish::Index::Subtokens->new(
@@ -78,6 +79,9 @@ sub new {
 
   # Add cache
   $self->{cache} = Krawfish::Cache->new;
+
+  # Add forward index
+  $self->{forward} = Krawfish::Index::Forward->new;
 
   return $self;
 };
@@ -142,5 +146,76 @@ sub postings {
 
   return $self->{$term_id};
 };
+
+
+sub forward {
+  $_[0]->{forward};
+};
+
+
+# This will make add() in Krawfish::Index obsolete
+sub add {
+  my ($self, $doc) = @_;
+
+  # TODO:
+  # Alternatively get this from the forward index
+  # Get new doc_id for the segment
+  my $doc_id = $self->live->incr;
+
+  # TODO:
+  #   The document should already have a field with __1:1 and id!
+
+  # TODO:
+  #   Index forward index
+  #   Alternatively, this could be done in the same method here!
+  my $doc_id_2 = $self->forward->add($doc);
+
+  # TODO:
+  #   Rank fields!
+
+  # TODO:
+  #   Deal with sortables!
+
+  # $self->invert->add()
+
+  # Create term index for fields
+  my $fields = $doc->fields;
+  foreach (@$fields) {
+    if (DEBUG) {
+      print_log('seg', 'Added field #' . $_->term_id . ' for doc_id=' . $doc_id);
+    };
+    $self->postings($_->term_id)->append($doc_id);
+  };
+
+  # TODO:
+  #   This should probably collect all [term_id => data] in advanced,
+  #   so skiplist info, freq_in_doc etc. can be adjusted in advance
+  my $stream = $doc->stream;
+  for (my $start = 0; $start < $stream->length; $start++) {
+    my $subtoken = $stream->subtoken($start);
+
+    # This is the last token - only existing for preceeding bytes
+    next unless $subtoken->term_id;
+
+    # Add subtoken to postingslist
+    $self->postings($subtoken->term_id)->append($doc_id, $start, $start + 1);
+
+    if (DEBUG) {
+      print_log('seg', 'Added subterm #' . $subtoken->term_id . ' for doc_id=' . $doc_id);
+    };
+
+    # Add all annotations
+    foreach (@{$subtoken->annotations}) {
+      $self->postings($_->term_id)->append($doc_id, $start, @{$_->data});
+
+      if (DEBUG) {
+        print_log('seg', 'Added anno term #' . $_->term_id . ' for doc_id=' . $doc_id);
+      };
+    };
+  };
+
+  return $doc_id;
+};
+
 
 1;
