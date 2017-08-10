@@ -4,11 +4,10 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
-# TODO:
-#   This is deprecated in favor of Forward::*, though ranking is
-#   a separate issue.
+# This is similar to Forward::* as it also
+# is augmented by a skiplist.
 
 
 # TODO:

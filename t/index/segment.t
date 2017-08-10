@@ -25,7 +25,7 @@ is($term_id, 9, 'Term id valid');
 ok(!$index->dict->term_id_by_term('Haus'), 'Get term id');
 
 
-is_deeply(_postings('Der')->list->{array}, [[0,0]], 'PostingsList');
+is_deeply(_postings('Der')->{list}->{array}, [[0,0]], 'PostingsList');
 
 my $seg = $index->segment;
 
@@ -34,9 +34,9 @@ is($seg->primary->get($doc_id, 0, 3), 'Der', 'Get primary');
 
 ok($index->add('t/data/doc2.jsonld'), 'Add new document');
 
-is_deeply(_postings('Der')->list->{array}, [[0,0],[1,0]], 'PostingsList');
+is_deeply(_postings('Der')->{list}->{array}, [[0,0],[1,0]], 'PostingsList');
 
-is_deeply(_postings('Hut')->list->{array}, [[0,11],[1,1]], 'PostingsList');
+is_deeply(_postings('Hut')->{list}->{array}, [[0,11],[1,1]], 'PostingsList');
 
 
 # Index as data structure
@@ -68,15 +68,15 @@ $index->add(
 );
 
 
-is_deeply(_postings('alte')->list->{array}, [[0,1],[2,1]], 'PostingsList');
+is_deeply(_postings('alte')->{list}->{array}, [[0,1],[2,1]], 'PostingsList');
 
 ok($index->add('t/data/doc3-segments.jsonld'), 'Add new document with segments');
 
-is_deeply(_postings('Der')->list->{array}, [[0,0],[1,0]], 'PostingsList');
-is_deeply(_postings('akron=Der')->list->{array}, [[3,0]], 'PostingsList');
+is_deeply(_postings('Der')->{list}->{array}, [[0,0],[1,0]], 'PostingsList');
+is_deeply(_postings('akron=Der')->{list}->{array}, [[3,0]], 'PostingsList');
 
-is_deeply(_postings('akron=trug')->list->{array}, [[3,3]], 'PostingsList');
-is_deeply(_postings('opennlp/p=V')->list->{array}, [[3,3]], 'PostingsList');
+is_deeply(_postings('akron=trug')->{list}->{array}, [[3,3]], 'PostingsList');
+is_deeply(_postings('opennlp/p=V')->{list}->{array}, [[3,3]], 'PostingsList');
 
 
 done_testing;

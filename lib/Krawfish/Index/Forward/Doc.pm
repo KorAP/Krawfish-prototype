@@ -1,45 +1,15 @@
 package Krawfish::Index::Forward::Doc;
+use Krawfish::Log;
 use warnings;
 use strict;
+
+use constant DEBUG => 1;
 
 sub new {
   my $class = shift;
   my $doc = shift;
 
-  # Create fields
-  my $fields = $doc->fields;
-
-  # Sort fields by term identifiers
-  # Should probably be part of the doczument
-  my @sorted_fields = sort {
-    if ($a->key_id < $b->key_id) {
-      return -1;
-    }
-    elsif ($a->key_id > $b->key_id) {
-      return 1;
-    }
-    elsif ($a->term_id < $b->term_id) {
-      return -1;
-    }
-    elsif ($a->term_id > $b->term_id) {
-      return 1;
-    }
-    else {
-      warn 'Multiple fields given!';
-      return 0;
-    };
-  } @$fields;
-
-
-  # Add field data
-  my @data = ();
-  foreach (@sorted_fields) {
-    push @data, $_->key_id;     # Key data
-    push @data, $_->type;       # Key type marker
-                                # Store term or value!
-    push @data, ($_->type eq 'int' ? $_->value : $_->term_id);
-  };
-  push @data, 'EOF';
+  my @data;
   push @data, 0;           # Point to previous subtoken (should be xor)
 
   my $start_marker;
@@ -48,7 +18,7 @@ sub new {
   my $stream = $doc->stream;
   foreach my $subtoken (@$stream) {
 
-    push @data, 0;           # Point to next subtoken (should be xor)
+    push @data, '?';           # Point to next subtoken (should be xor)
     $start_marker = $#data;
 
     push @data, $subtoken->term_id;
@@ -87,14 +57,38 @@ sub new {
     };
 
     push @data, $start_marker;         # Point to previous subtoken
+    if (DEBUG) {
+      print_log('fwd_doc', "Set start marker at $start_marker from " .
+                  $data[$start_marker] . " to " . $#data);
+    };
     $data[$start_marker] = $#data;     # Update last subtoken
+
+    if (DEBUG) {
+      print_log(
+        'fwd_doc',
+        'Subtoken is ' .
+          join(
+            ',',
+            map { defined $_ ? $_ : '?' }
+              @data[$start_marker - 1 .. $#data -1]
+            )
+        );
+    };
   };
 
-  bless {
-    stream => \@data
-  }, $class;
+  bless \@data, $class;
 };
 
+
+sub to_string {
+  my $self = shift;
+  my ($offset, $length) = @_;
+  $offset //= 0;
+  $length //= 10;
+  return join(',', map {
+    '[' . (defined $_ ? $_ : '?') . ']'
+  } @{$self}[$offset .. $length]);
+};
 
 
 

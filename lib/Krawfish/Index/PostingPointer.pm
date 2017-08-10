@@ -109,9 +109,9 @@ sub close {
 };
 
 
-sub list {
-  return $_[0]->{list};
-};
+#sub list {
+#  return $_[0]->{list};
+#};
 
 
 # Skip to a certain document, return the current

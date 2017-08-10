@@ -4,6 +4,23 @@ use warnings;
 
 # Base class for ranking of fields and subterms
 
+
+
+# TODO:
+#   Although field rank files are stored per segment, field rank logs
+#   are stored on the node-level and they are used to rank dynamic segment
+#   rank files.
+#   Each field_rank_log has the following structure:
+#
+#     [collocation]([term_id][term/field-value][rank])*
+#
+#   Every entry is sorted in term_id order.
+#   New entries are added to the lists with no rank defined
+#
+#     [term_id][term/field-value][0]
+#   In the rank-file, the rank for the doc is also given as [0]
+
+
 # TODO:
 #   Each field, the prefixes for subterms, and the
 #   suffixes for subterms have - in addition to the

@@ -169,7 +169,7 @@ sub _parse {
       # Get the term surface from the primary text
       # TODO:
       #   Ensure that the offsets are valid!
-      my $preceding = substr($primary, $primary_index, $start - $primary_index);
+      my $preceding = substr($primary, $primary_index, $start - $primary_index) // '';
       my $term      = substr($primary, $start, $end - $start);
       $primary_index = $end;
 

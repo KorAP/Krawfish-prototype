@@ -18,7 +18,7 @@ sub new {
 
 # Preceeding bytes of the subterm
 sub preceding {
-  $_[0]->{preceding};
+  $_[0]->{preceding} // '';
 };
 
 
@@ -69,7 +69,7 @@ sub identify {
 # Stringification
 sub to_string {
   my $self = shift;
-  my $str = ($self->{preceding} ? $self->{preceding} : '');
+  my $str = $self->preceding;
   $str .= '[';
 
   if ($self->{subterm_id}) {

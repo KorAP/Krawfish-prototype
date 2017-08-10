@@ -1,12 +1,13 @@
 package Krawfish::Index::Dynamic;
 use parent 'Krawfish::Index';
 
+warn 'THIS IS DEPRECATED';
+
 # The dynamic index segment can easily
 # add new documents.
 # It will use the global dictionary and for
 # new terms it adds them to a secondary
 # dictionary.
-
 
 # TODO:
 #   This needs to have a different ranking
