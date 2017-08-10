@@ -86,10 +86,16 @@ is($fwd->current->term_id, 14, 'Get term id');
 is($fwd->current->preceding_data, '-', 'Get term id');
 is($index->dict->term_by_term_id(14), '*Leiter', 'Get term by term id');
 
+ok($fwd->prev, 'Go to first subtoken');
+is($fwd->current->term_id, 12, 'Get term id');
+is($fwd->current->term_id, 12, 'Get term id');
+is($fwd->current->preceding_data, ' ', 'Get term id');
+is($index->dict->term_by_term_id(12), '*Bau', 'Get term by term id');
 
+ok(my @anno = $fwd->current->annotations, 'Get annotations');
+is($anno[0]->[0], 13, 'Annotation');
+is($index->dict->term_by_term_id($anno[0]->[0]), 'akron=Bau-Leiter', 'Annotation');
 
-
-diag 'Test forward index!';
 
 done_testing;
 __END__

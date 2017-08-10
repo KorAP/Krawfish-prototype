@@ -20,11 +20,6 @@ use constant DEBUG => 1;
 # ->pos                   # The current subtoken position
 #
 # ->current               # The current subtoken object
-#   ->preceding_data      # The whitespace data before the subtoken
-#   ->subterm_id          # The current subterm identifier
-#   ->annotations         # Get all annotations as terms
-#   ->annotations(foundry_id)
-#   ->annotations(foundry_id, layer_id)
 
 
 sub new {
@@ -112,7 +107,8 @@ sub current {
   $self->{current} = Krawfish::Posting::Forward->new(
     term_id        => $doc->[$pos++],
     preceding_data => $doc->[$pos++],
-    pos            => $pos
+    pos            => $pos,
+    stream         => $doc
   );
 
   $self->{pos} = $pos;
@@ -154,6 +150,32 @@ sub next {
   $self->{current} = undef;
   return 1;
 };
+
+
+sub prev {
+  my $self = shift;
+
+  # Not initialized
+  return if !defined $self->{doc};
+  return if !defined $self->{prev};
+
+  # Get document
+  my $doc = $self->{doc};
+
+  # Get next token from data
+  $self->{pos} = $self->{prev};
+  $self->{prev} = $doc->[$self->{pos}++];
+  $self->{next} = $doc->[$self->{pos}++];
+
+  if (DEBUG) {
+    print_log('fwd_point', "Previous subtoken at " . $self->{prev});
+    print_log('fwd_point', "Next subtoken at " . $self->{next});
+  };
+
+  $self->{current} = undef;
+  return 1;
+};
+
 
 
 1;

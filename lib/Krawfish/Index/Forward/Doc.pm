@@ -52,11 +52,14 @@ sub new {
     foreach (@sorted_annotations) {
       push @data, $_->foundry_id;
       push @data, $_->layer_id;
+      push @data, $_->type;
       push @data, $_->term_id;
       push @data, [@{$_->data}];
     };
 
-    push @data, $start_marker;         # Point to previous subtoken
+    push @data, 'EOA';
+
+    push @data, $start_marker -1;         # Point to previous subtoken
     if (DEBUG) {
       print_log('fwd_doc', "Set start marker at $start_marker from " .
                   $data[$start_marker] . " to " . $#data);
@@ -75,6 +78,8 @@ sub new {
         );
     };
   };
+
+  push @data, 'EOF';
 
   bless \@data, $class;
 };

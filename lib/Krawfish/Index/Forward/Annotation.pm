@@ -35,6 +35,10 @@ sub layer_id {
 };
 
 
+sub type {
+  $_[0]->{term}->term_type;
+};
+
 sub term_id {
   $_[0]->{term_id};
 };
