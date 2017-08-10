@@ -53,11 +53,11 @@ use Krawfish::Log;
 #   4 and you want to add it as 3.5) would be nice, but I wasn't
 #   able to find one that's precise in all circumstances.
 #
-# search:
+# term_to_term_id:
 #   First a look-up to the static dictionary is done.
 #   In case of failure, a lookup to the dynamic dictionary is done.
 #
-# range_search:
+# search:
 #   Returns an array of valid term_ids.
 #   Required searches are:
 #     - casefolded
@@ -98,6 +98,17 @@ use Krawfish::Log;
 #
 # rank_subterm_suffix
 #   see rank_subterm, but uses the reverse list.
+
+# TODO:
+#   collect:
+#     This may be beneficial for co-occurrence search etc.
+#     Accepts a list of alphabetically sorted strings,
+#     that are prepared for common prefixes. In that way, a term
+#     search does not have to start at the dictionary root,
+#     but can go up just the necessary steps again and search
+#     further.
+#     As sorting and prefix-preparing may be quite time consuming,
+#     this may not be an option though.
 
 # TODO:
 #   Currently all terms have a term_id, which may limit the whole dictionary

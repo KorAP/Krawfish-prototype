@@ -1,14 +1,12 @@
 package Krawfish::Index::Fields;
+use Krawfish::Index::Fields::Doc;
+use Krawfish::Index::Fields::Pointer;
 use Krawfish::Index::Rank::Fields;
 use Krawfish::Log;
-use strict;
 use warnings;
+use strict;
 
 use constant DEBUG => 1;
-
-# This is similar to Forward::* as it also
-# is augmented by a skiplist.
-
 
 # TODO:
 #   Currently ranking is not collation based. It should be possible
@@ -28,68 +26,6 @@ use constant DEBUG => 1;
 #   BUT: This only works if the field has the same collation as the
 #   dictionary!
 
-sub new {
-  my $class = shift;
-  bless {
-    file => shift,
-    array => [], # doc array
-    ranks => {}, # ranked lists
-    identifier => shift
-  }, $class;
-};
-
-# Todo: Probably store multiple key/values at once
-
-sub store {
-  my $self = shift;
-  my $doc_id = shift;
-  my ($key, $value) = @_;
-
-  # Preset fields with doc_id
-  my $fields = ($self->{array}->[$doc_id] //= {});
-
-  # Delete cached ranks
-  delete $self->{ranks}->{$key};
-
-  print_log(
-    'fields',
-    'Store field ' . $key . ':' . $value . ' for ' . $doc_id
-  ) if DEBUG;
-
-  # TODO:
-  #   This needs to have information whether it's a string
-  #   or an integer (mainly for sorting)
-  $fields->{$key} = $value;
-};
-
-
-# Get the field value of a document
-sub get {
-  my $self = shift;
-  my $doc_id = shift;
-  my $doc = $self->{array}->[$doc_id];
-
-  # Get specific field
-  if (@_) {
-    print_log(
-      'fields',
-      'Get field ' . $_[0] . ' for ' . $doc_id
-    ) if DEBUG;
-
-    return $doc->{$_[0]} ;
-  };
-
-  # Get all fields
-  return $doc;
-};
-
-
-# Return documents by array
-sub docs {
-  return $_[0]->{array};
-};
-
-
 # Sort documents by a field and attach a numerical rank.
 # Returns the maximum rank and a vector of ranks at doc id position.
 # Ranks can be set multiple timnes
@@ -104,9 +40,55 @@ sub docs {
 #   But nonetheless, the max_rank field may also give a hint,
 #   if the field is good for faceting! (unique ranks per field
 #   are bad, for example!)
-#
+
+
+sub new {
+  my $class = shift;
+  bless {
+    docs => [],
+    last_doc_id => -1
+  }, $class;
+};
+
+# Get last document identifier aka max_doc_id
+sub last_doc_id {
+  $_[0]->{last_doc_id};
+};
+
+
+sub add {
+  my ($self, $doc) = @_;
+  my $doc_id = $self->{last_doc_id}++;
+
+  # TODO:
+  #   use Krawfish::Index::Store::V1::Fields->new;
+  $self->{docs}->[$self->last_doc_id] = Krawfish::Index::Fields::Doc->new($doc);
+
+  return $doc_id;
+};
+
+# Get doc from list (as long as the list provides random access to docs
+sub doc {
+  my ($self, $doc_id) = @_;
+  print_log('fields', 'Get document for id ' . $doc_id) if DEBUG;
+  return $self->{docs}->[$doc_id];
+};
+
+
+# Get a specific forward indexed document by doc_id
+sub pointer {
+  my $self = shift;
+  return Krawfish::Index::Fields::Pointer->new($self);
+};
+
+
+sub store {
+  # DEPRECATED!
+};
+
+
 # TODO:
-#   Return object
+#   Unused yet!
 #
 sub ranked_by {
   my ($self, $field) = @_;
@@ -145,4 +127,8 @@ sub ranked_by {
 };
 
 
+
 1;
+
+
+__END__

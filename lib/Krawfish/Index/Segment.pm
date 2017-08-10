@@ -1,8 +1,7 @@
 package Krawfish::Index::Segment;
 use Krawfish::Index::Subtokens;
 use Krawfish::Index::PrimaryData;  # Maybe irrelevant
-use Krawfish::Index::Fields;       # Maybe irrelevant
-use Krawfish::Index::Fields2;
+use Krawfish::Index::Fields;
 use Krawfish::Index::PostingsLive;
 use Krawfish::Index::PostingsList;
 use Krawfish::Index::Forward;
@@ -58,8 +57,6 @@ sub new {
   $self->{fields} = Krawfish::Index::Fields->new(
     $self->{file}
   );
-
-  $self->{fields2} = Krawfish::Index::Fields2->new;
 
   # Load live document pointer
   $self->{live} = Krawfish::Index::PostingsLive->new(
@@ -128,20 +125,14 @@ sub primary {
 
 # Get fields
 sub fields {
-  # DEPRECATED
   $_[0]->{fields};
 };
 
 
 # Get field values for addition
 sub field_values {
-  # DEPRECATED
+  warn 'DEPRECATED';
   $_[0]->{field_values};
-};
-
-
-sub fields2 {
-  $_[0]->{fields2}
 };
 
 
@@ -175,10 +166,12 @@ sub add {
   # TODO:
   #   The document should already have a field with __1:1 and id!
 
+  my $doc_id_2 = $self->fields->add($doc);
+
   # TODO:
   #   Index forward index
   #   Alternatively, this could be done in the same method here!
-  my $doc_id_2 = $self->forward->add($doc);
+  my $doc_id_3 = $self->forward->add($doc);
 
   # TODO:
   #   Rank fields!

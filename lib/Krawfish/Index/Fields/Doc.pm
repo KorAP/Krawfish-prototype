@@ -1,8 +1,11 @@
 package Krawfish::Index::Fields::Doc;
+use Krawfish::Log;
 use warnings;
 use strict;
 
 # This is similar to Forward::Doc!
+
+use constant DEBUG => 1;
 
 sub new {
   my $class = shift;
@@ -36,12 +39,19 @@ sub new {
   # Add field data
   my @data = ();
   foreach (@sorted_fields) {
+    if (DEBUG) {
+      print_log('fields_doc', 'Add ' . $_->to_string);
+    };
     push @data, $_->key_id;     # Key data
     push @data, $_->type;       # Key type marker
                                 # Store term or value!
-    push @data, ($_->type eq 'int' ? $_->value : $_->term_id);
+    push @data, $_->term_id;
+    push @data, $_->value if $_->type eq 'int';;
   };
 
+  push @data, 'EOF';
+
+  print_log('fields_doc', 'The fields are ' . join(',', map { defined $_ ? $_ : '?' } @data)) if DEBUG;
 
   bless \@data, $class;
 };

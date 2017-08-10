@@ -28,10 +28,11 @@ sub new {
     list => shift,
     pos => 0,
     doc_id => -1,
-
     current => undef,
+    prev => undef,
+    next => undef,
 
-    # Temporary
+    # Temporary until all is in one stream
     doc => -1
   }, $class;
 };
@@ -49,6 +50,7 @@ sub pos {
 };
 
 sub next_doc {
+  ...
 };
 
 
@@ -81,7 +83,7 @@ sub skip_doc {
 
 
 sub skip_pos {
-  my ($self, $pos) = @_;
+  ...
 };
 
 
