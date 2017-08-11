@@ -45,6 +45,10 @@ sub next_doc;
 
 sub close;
 
+
+# Skip doc moves the pointer forward in the stream. Although currently
+# there are multiple streams (one stream per doc), in the future there
+# will only be one - that's why it can only move forward.
 sub skip_doc {
   my ($self, $doc_id) = @_;
   if ($self->{doc_id} <= $doc_id && $doc_id < $self->freq) {
@@ -63,25 +67,74 @@ sub skip_doc {
   return 0;
 };
 
+
+# Get all field term ids.
+# If key ids are passed, they need to be in numerical order!
 sub fields {
   my $self = shift;
+
   my @fields = ();
   my $doc = $self->{doc};
+  my $type;
 
   my $current = $doc->[$self->{pos}];
-  while ($current && $current ne 'EOF') {
 
-    $self->{pos}++; # skip key_id
+  unless (@_) {
+    while ($current && $current ne 'EOF') {
 
-    my $type = $doc->[$self->{pos}++];
+      $self->{pos}++; # skip key_id
 
-    push @fields, $doc->[$self->{pos}++];
+      $type = $doc->[$self->{pos}++];
 
-    # Skip value
-    $self->{pos}++ if $type eq 'int';
-    $current = $doc->[$self->{pos}];
+      push @fields, $doc->[$self->{pos}++];
+
+      # Skip value
+      $self->{pos}++ if $type eq 'int';
+      $current = $doc->[$self->{pos}];
+    };
+  }
+
+  # There are key ids given, that need to be in numerical order
+  else {
+    my @key_ids = @_;
+    my $key_pos = 0;
+
+    while ($current && $current ne 'EOF') {
+
+      # The key id matches the first id
+      if ($current == $key_ids[$key_pos]) {
+        $self->{pos}++;
+        $type = $doc->[$self->{pos}++];
+        push @fields, $doc->[$self->{pos}++];
+        $key_pos++;
+      }
+
+      # The requested key does not exist
+      elsif ($current > $key_ids[0]) {
+
+        # Ignore the key id
+        $key_pos++;
+        next;
+      }
+
+      # Ignore the field
+      else {
+        $self->{pos}++;
+        $type = $doc->[$self->{pos}++];
+        $self->{pos}++;
+      };
+
+
+      # Skip value
+      $self->{pos}++ if $type eq 'int';
+      $current = $doc->[$self->{pos}];
+    };
+
   };
   return @fields;
 };
+
+
+
 
 1;

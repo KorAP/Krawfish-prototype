@@ -100,15 +100,18 @@ use Krawfish::Log;
 #   see rank_subterm, but uses the reverse list.
 
 # TODO:
-#   collect:
+#   collect_term_ids:
 #     This may be beneficial for co-occurrence search etc.
-#     Accepts a list of alphabetically sorted strings,
-#     that are prepared for common prefixes. In that way, a term
-#     search does not have to start at the dictionary root,
+#     Accepts a list of alphabetically sorted strings.
+#     The list will be prepared as a stream of common suffixes,
+#     like 'Banane', -4, 'jo', -3, 'ptist' ...
+#     In that way, a term search does not have to start at the
+#     dictionary root,
 #     but can go up just the necessary steps again and search
 #     further.
 #     As sorting and prefix-preparing may be quite time consuming,
-#     this may not be an option though.
+#     this may not be an option everytime.
+#     In addition, the collation needs to be identical.
 
 # TODO:
 #   Currently all terms have a term_id, which may limit the whole dictionary

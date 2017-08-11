@@ -100,13 +100,17 @@ sub frequencies {
 
   # This is a very important endpoint as it is used for
   # statistics on a virtual corpus (number of sentences in a corpus)
-  # as well as for co-occurrence search.
+  # as well as for co-occurrence search and potentially systems like glemm.
   #
   # Beside terms, this also support the frequency count of tokens
   # for certain foundries.
   #
   # This uses Result::Aggregate::TermFreq and
   # Result::Aggregate::TokenFreq
+  #
+  # It may be beneficial to sort terms in advance to use the
+  # potentially faster collection() API in dict. In this case,
+  # a flag may need to be provided, marking the parameter list as "sorted".
 };
 
 1;

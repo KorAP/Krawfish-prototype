@@ -37,5 +37,22 @@ is($fields[2], 6, 'Field id');
 is($index->dict->term_by_term_id(6), '+textLength:8', 'Term');
 ok(!$fields[3], 'Field id');
 
+
+
+
+ok($pointer = $index->segment->fields->pointer, 'Get pointer');
+ok($pointer->skip_doc(0), 'Skip');
+
+# Get the +license and +textLength fields
+ok(@fields = $pointer->fields(3, 5, 17), 'Get fields');
+
+is($fields[0], 4, 'Field id');
+is($index->dict->term_by_term_id(4), '+license:closed', 'Term');
+is($fields[1], 6, 'Field id');
+is($index->dict->term_by_term_id(6), '+textLength:8', 'Term');
+ok(!$fields[2], 'Field id');
+
+
+
 done_testing;
 __END__
