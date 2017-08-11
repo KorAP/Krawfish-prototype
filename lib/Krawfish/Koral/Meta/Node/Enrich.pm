@@ -8,6 +8,9 @@ use constant DEBUG => 1;
 sub new {
   my $class = shift;
 
+  warn 'DEPRECATED';
+
+
   my $self = bless {
     query => shift,
     enrichments => shift
@@ -15,10 +18,14 @@ sub new {
 };
 
 
+
 # Get identifiers
 sub identify {
   my ($self, $dict) = @_;
 
+  warn 'DEPRECATED';
+
+  
   my @identifier;
   foreach (@{$self->{enrichments}}) {
     my $enrich = $_->identify($dict);
@@ -41,10 +48,14 @@ sub identify {
 
 sub to_string {
   my $self = shift;
+
+  warn 'DEPRECATED';
+
   return 'enrich(' .
     join(',', map { $_->to_string } @{$self->{enrichments}}) .
     ':' . $self->{query}->to_string . ')';
 };
+
 
 
 1;

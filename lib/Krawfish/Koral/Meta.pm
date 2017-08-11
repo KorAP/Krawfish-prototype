@@ -4,21 +4,27 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-our %META_ORDER = (
-  #  snippet   => 1,
-  #  fields    => 2,
-  enrich    => 1,
-  limit     => 3,
-  sort      => 4,
-  aggregate => 5,
-  group     => 6,
-  filter    => 7
-);
+# WARNING! / TODO!
+#   An enrichment for fields or snippets (better any enrichments)
+#   can never wrap around a sort query, because the relevant
+#   data structures and algorithms require the results to be in doc_id order!
 
 # TODO:
 #   When a group filter is added,
 #   sorting does not work etc.
 #   This has to be thought through
+
+
+our %META_ORDER = (
+  #  snippet   => 1,
+  #  fields    => 2,
+  limit     => 1,
+  sort      => 2,
+  enrich    => 3,
+  aggregate => 4,
+  group     => 5,
+  filter    => 6
+);
 
 use constant {
   DEBUG => 1,
@@ -74,14 +80,14 @@ sub normalize {
   };
 
   # Add unique sorting per default - unless it's a group query
-  unless ($group_query) {
-    push @meta,
-      $mb->sort_by($mb->s_field(UNIQUE_FIELD));
-
-    if (DEBUG) {
-      print_log('kq_meta', 'Added unique field ' . UNIQUE_FIELD . ' to order');
-    };
-  };
+  #unless ($group_query) {
+  #  push @meta,
+  #    $mb->sort_by($mb->s_field(UNIQUE_FIELD));
+  #
+  #  if (DEBUG) {
+  #    print_log('kq_meta', 'Added unique field ' . UNIQUE_FIELD . ' to order');
+  #  };
+  #};
 
 
   # 1. Introduce required information
@@ -92,21 +98,22 @@ sub normalize {
     # For all sort fields, it may be beneficial to
     # retrieve the fields as well - as they need
     # to be retrieved nonetheless for search criteria
-    if ($meta[$i]->type eq 'sort') {
-
-      my $mb = $self->builder;
-      push @meta,
-        $mb->enrich($mb->e_fields($meta[$i]->fields));
-
-      if (DEBUG) {
-        print_log('kq_meta', 'Added sorting ' .
-                    join(',', map {$_->to_string } $meta[$i]->fields) .
-                    ' to fields');
-      };
-    }
+    #if ($meta[$i]->type eq 'sort') {
+    #
+    #  my $mb = $self->builder;
+    #  push @meta,
+    #    $mb->enrich($mb->e_fields($meta[$i]->fields));
+    #
+    #  if (DEBUG) {
+    #    print_log('kq_meta', 'Added sorting ' .
+    #                join(',', map {$_->to_string } $meta[$i]->fields) .
+    #                ' to fields');
+    #  };
+    #}
 
     # There is at least one aggregation field
-    elsif ($meta[$i]->type eq 'aggregate') {
+    #els
+    if ($meta[$i]->type eq 'aggregate') {
       $sort_filtering = 0;
     }
 
@@ -208,25 +215,6 @@ sub identify {
   };
 
   return $self;
-};
-
-
-# This will create a Krawfish::Result::Node::* query
-sub to_nodes {
-  my ($self, $query) = @_;
-
-  # TODO:
-  #   Don't forget the warnings etc.
-
-  # The order is probably:
-  #   snippets(fields(aggregate(limit(sort()))))
-
-  # The meta query is expected to be normalized
-  foreach (reverse $self->operations) {
-    $query = $_->to_nodes($query);
-  };
-
-  return $query;
 };
 
 

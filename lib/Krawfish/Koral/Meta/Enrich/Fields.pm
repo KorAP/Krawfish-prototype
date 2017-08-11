@@ -1,5 +1,5 @@
 package Krawfish::Koral::Meta::Enrich::Fields;
-# use Krawfish::Koral::Meta::Node::Enrich::Fields;
+use Krawfish::Koral::Meta::Node::Enrich::Fields;
 # use Krawfish::Result::Node::Enrich::Fields;
 use strict;
 use warnings;
@@ -11,9 +11,11 @@ sub new {
   bless [@_], $class;
 };
 
+
 sub type {
   'fields';
 };
+
 
 # Get or set operations
 sub operations {
@@ -41,12 +43,21 @@ sub normalize {
   return $self;
 };
 
-sub wrapo {
-  ...
+
+# Create a single query tree
+sub wrap {
+  my ($self, $query) = @_;
+  return Krawfish::Koral::Meta::Node::Enrich::Fields->new(
+    $query,
+    [$self->operations]
+  );
 };
+
 
 sub identify {
   my ($self, $dict) = @_;
+
+  warn 'DEPRECATED???';
 
   my @identifier;
   foreach (@$self) {
@@ -66,29 +77,12 @@ sub identify {
   return $self;
 };
 
+
+
 sub to_string {
   my $self = shift;
   return 'fields:[' . join(',', map { $_->to_string } @$self) . ']';
 };
 
-
-
-# TODO:
-#   For the moment, I am not sure where "fields" act
-sub to_nodes {
-  my ($self, $query) = @_;
-  warn 'DEPRECATED';
-  return Krawfish::Result::Node::Enrich::Fields->new($query, [$self->operations]);
-};
-
-
-# Create a single query tree
-sub wrap {
-  my ($self, $query) = @_;
-  return Krawfish::Koral::Meta::Node::Enrich::Fields->new(
-    $query,
-    [$self->operations]
-  );
-};
 
 1;

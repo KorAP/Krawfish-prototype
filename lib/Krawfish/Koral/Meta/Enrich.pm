@@ -1,7 +1,10 @@
 package Krawfish::Koral::Meta::Enrich;
 use Krawfish::Koral::Meta::Node::Enrich;
+use Krawfish::Log;
 use strict;
 use warnings;
+
+use constant DEBUG => 1;
 
 our %ENRICH_ORDER = (
   'fields'   => 1,
@@ -24,7 +27,10 @@ sub type {
 sub operations {
   my $self = shift;
   if (@_) {
-    @$self = @_;
+    if (DEBUG) {
+      print_log('kq_enrich', 'Set operations to ' . join(',', map { $_->to_string } @_));
+    };
+    @{$self} = @_;
     return $self;
   };
   return @$self;
@@ -33,18 +39,25 @@ sub operations {
 
 
 # TODO:
-#   wrap one aggregation type into another!
+#   wrap one enrichment type into another!
 #
 sub wrap {
   my ($self, $query) = @_;
 
-  # TODO:
-  #   Facets and values should be reordered
+  if (DEBUG) {
+    print_log('kq_enrich', 'Wrap operation ' . join(',', @$self));
+  };
 
-  return Krawfish::Koral::Meta::Node::Enrich->new(
-    $query,
-    [$self->operations]
-  );
+  foreach ($self->operations) {
+    $query = $_->wrap($query);
+  };
+
+  return $query;
+
+  #return Krawfish::Koral::Meta::Node::Enrich->new(
+  #  $query,
+  #  [$self->operations]
+  #);
 };
 
 
@@ -56,7 +69,6 @@ sub normalize {
   my @ops = sort {
     $ENRICH_ORDER{$a->type} <=> $ENRICH_ORDER{$b->type}
   } @$self;
-
 
     # Check for doubles
   for (my $i = 1; $i < @ops; $i++) {

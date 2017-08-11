@@ -7,6 +7,10 @@ sub new {
   bless \$term_id, $class;
 };
 
+sub term_id {
+  ${$_[0]};
+};
+
 sub to_string {
   '#' . ${$_[0]};
 };

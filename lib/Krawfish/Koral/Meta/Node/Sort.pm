@@ -13,9 +13,9 @@ sub new {
   };
 
   my $self = bless {
-    query => shift,
-    sort => shift,
-    top_k => shift,
+    query  => shift,
+    sort   => shift,
+    top_k  => shift,
     filter => shift
   }, $class;
 };
@@ -63,5 +63,13 @@ sub to_string {
   return 'sort(' . $str . ':' . $self->{query}->to_string . ')';
 };
 
+
+sub optimize {
+  my ($self, $segment) = @_;
+
+  warn 'Sorting not yet implemented';
+
+  return $self->{query}->optimize($segment);
+};
 
 1;

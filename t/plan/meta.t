@@ -61,7 +61,7 @@ is($meta->to_string, "enrich=[fields:['author','title','id']],sort=[field='id'<;
 
 ok($meta = $koral->to_query->identify($index->dict), 'Identification');
 
-is($meta->to_string, "enrich(fields:[#4,#16,#8]:sort(field=#8<;sortFilter:[0]))",
+is($meta->to_string, "fields(#4,#8,#16:sort(field=#8<;sortFilter:[0]))",
    'Stringification');
 
 
@@ -100,11 +100,9 @@ ok(my $query = $koral->to_query->identify($index->dict), 'Translate to identifie
 
 is(
   $query->to_string,
-  "enrich(fields:[#4,#16,#8,#2]:sort(field=#4>,field=#2<,field=#8<;sortFilter:[0]))",
+  "fields(#2,#4,#8,#16:sort(field=#4>,field=#2<,field=#8<;sortFilter:[0]))",
   'Stringification'
 );
-
-
 
 
 done_testing;

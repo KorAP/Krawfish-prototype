@@ -8,8 +8,46 @@ use strict;
 # Matches are returned from searches and can be enriched
 # with various information
 
+# TODO:
+#   there should only be one additional parameter called "enrichments"
+#   that would contain an array of enrichments, that can be "to_koral_query"ied,
+#   stringified, inflated etc.
+
+
+# Add an enrichment
+sub add {
+  my $self = shift;
+  push @{$self->{enrichments}}, @_;
+};
+
+
+sub to_string2 {
+  my $self = shift;
+  my $str = '[';
+
+  # Identical to Posting
+  $str .= $self->doc_id . ':' .
+    $self->start . '-' .
+    $self->end;
+
+  if ($self->payload->length) {
+    $str .= '$' . $self->payload->to_string;
+  };
+
+  foreach (@{$self->{enrichments}}) {
+    $str .= '|' . $_->to_string;
+  };
+
+  return $str . ']';
+};
+
+
+
+# This is deprecated:
+
 # Get or set field to match
 sub fields {
+
   my $self = shift;
   my $data = shift;
   my $fields = ($self->{fields} //= {});
@@ -22,6 +60,7 @@ sub fields {
 
   return $fields
 };
+
 
 
 # Get or set term ids to match
@@ -68,11 +107,16 @@ sub to_string {
     $str .= '$' . $self->payload->to_string;
   };
 
-  if ($self->{fields}) {
+  #if ($self->{fields}) {
+  #  $str .= '|';
+  #  $str .= join ';', map {
+  #    $_ . '=' . squote($self->{fields}->{$_})
+  #  } sort keys %{$self->{fields}};
+  #};
+
+  if ($self->{field_ids}) {
     $str .= '|';
-    $str .= join ';', map {
-      $_ . '=' . squote($self->{fields}->{$_})
-    } sort keys %{$self->{fields}};
+    $str .= join(',', @{$self->{field_ids}});
   };
 
   if ($self->{term_ids}) {

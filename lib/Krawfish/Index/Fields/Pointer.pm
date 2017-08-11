@@ -62,9 +62,9 @@ sub skip_doc {
 
     $self->{doc} = $doc;
     $self->{pos} = 0;
-    return 1;
+    return $doc_id;
   };
-  return 0;
+  return -1;
 };
 
 
@@ -79,7 +79,7 @@ sub fields {
 
   my $current = $doc->[$self->{pos}];
 
-  unless (@_) {
+  unless (@_ > 0) {
     while ($current && $current ne 'EOF') {
 
       $self->{pos}++; # skip key_id
@@ -99,19 +99,36 @@ sub fields {
     my @key_ids = @_;
     my $key_pos = 0;
 
+    if (DEBUG) {
+      print_log('f_point', 'Get fields ' . join(',', @key_ids));
+    };
+
+
     while ($current && $current ne 'EOF') {
+
+      unless (defined $key_ids[$key_pos]) {
+        if (DEBUG) {
+          print_log('f_point', "There are no more fields to fetch at " . $key_pos);
+        };
+        last;
+      };
 
       # The key id matches the first id
       if ($current == $key_ids[$key_pos]) {
         $self->{pos}++;
         $type = $doc->[$self->{pos}++];
-        push @fields, $doc->[$self->{pos}++];
+        my $field = $doc->[$self->{pos}++];
+        push @fields, $field;
+
+        if (DEBUG) {
+          print_log('f_point', "Found field_id $field for " . $key_ids[$key_pos] . ' at ' . $key_pos);
+        };
+
         $key_pos++;
       }
 
       # The requested key does not exist
-      elsif ($current > $key_ids[0]) {
-
+      elsif ($current > $key_ids[$key_pos]) {
         # Ignore the key id
         $key_pos++;
         next;
@@ -124,9 +141,10 @@ sub fields {
         $self->{pos}++;
       };
 
-
       # Skip value
       $self->{pos}++ if $type eq 'int';
+
+      # Remember the current field
       $current = $doc->[$self->{pos}];
     };
 

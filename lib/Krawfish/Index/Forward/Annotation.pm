@@ -56,8 +56,8 @@ sub identify {
   # Term id is already known!
   if ($term_id) {
     $self->{term_id} = $term_id;
-    $self->{foundry_id} = $dict->term_id_by_term('^' . $term->foundry);
-    $self->{layer_id} = $dict->term_id_by_term('°' . $term->layer);
+    $self->{foundry_id} = $dict->term_id_by_term('^' . $term->foundry) if $term->foundry;
+    $self->{layer_id} = $dict->term_id_by_term('°' . $term->layer) if $term->layer;
     return $self;
   }
 

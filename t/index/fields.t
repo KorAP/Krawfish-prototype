@@ -25,7 +25,7 @@ my $doc_id = $index->segment->add($doc);
 is($doc_id, 0, 'Doc id well added');
 
 ok(my $pointer = $index->segment->fields->pointer, 'Get pointer');
-ok($pointer->skip_doc(0), 'Skip');
+is($pointer->skip_doc(0), 0, 'Skip');
 
 ok(my @fields = $pointer->fields, 'Get fields');
 
@@ -41,7 +41,7 @@ ok(!$fields[3], 'Field id');
 
 
 ok($pointer = $index->segment->fields->pointer, 'Get pointer');
-ok($pointer->skip_doc(0), 'Skip');
+is($pointer->skip_doc(0), 0, 'Skip');
 
 # Get the +license and +textLength fields
 ok(@fields = $pointer->fields(3, 5, 17), 'Get fields');

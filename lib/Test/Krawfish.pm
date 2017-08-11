@@ -6,7 +6,7 @@ use strict;
 use Test::More ();
 use File::Basename 'dirname';
 use File::Spec::Functions qw/catfile rel2abs splitdir/;
-our @EXPORT = qw(test_doc test_file ok_index matches);
+our @EXPORT = qw(test_doc test_file ok_index ok_index_2 matches);
 
 use constant DEBUG => 0;
 
@@ -53,6 +53,8 @@ sub test_doc {
 
 sub ok_index {
   my $index = shift;
+
+  # This is in fact deprecated!
   my $meta;
   my $kq = test_doc(@_);
 
@@ -62,6 +64,30 @@ sub ok_index {
 
   my $tb = Test::More->builder;
   $tb->ok(defined $index->add($kq), $desc);
+};
+
+
+sub ok_index_2 {
+  my $index = shift;
+
+  # This is in fact deprecated!
+  my $meta;
+  my $kq = test_doc(@_);
+
+  # Get Koral document
+  $kq = Krawfish::Koral::Document->new($kq);
+
+  # Transform to term_ids
+  $kq = $kq->identify($index->dict);
+
+  my $desc = 'Add example document';
+
+  local $Test::Builder::Level = $Test::Builder::Level + 1;
+
+  my $tb = Test::More->builder;
+
+  # Add to segment
+  $tb->ok(defined $index->segment->add($kq), $desc);
 };
 
 
