@@ -4,6 +4,9 @@ use warnings;
 
 # TODO:
 #   This may be embedded in documents!
+#
+# TODO:
+#   This may rather be Krawish::Posting::Match ...
 
 sub new {
   my $class = shift;

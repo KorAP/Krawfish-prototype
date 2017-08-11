@@ -3,7 +3,7 @@ use parent 'Krawfish::Result';
 use strict;
 use warnings;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # TODO:
 #   It may be better to have one aggregator per match
@@ -19,14 +19,33 @@ use constant DEBUG => 0;
 sub new {
   my $class = shift;
   my $result = {};
-  return bless {
+  my $self = bless {
+    query       => shift,
+    ops         => shift,
+
     last_doc_id => -1,
-    query => shift,
-    ops => shift,
-    result => $result,
+    result      => $result,
     last_doc_id => -1,
-    finished => 0
+    finished    => 0
   }, $class;
+
+  # The aggregation needs to trigger on each match
+  my (@each_doc, @each_match);
+  foreach my $op (@{$self->{ops}}) {
+    if ($op->can('each_match')) {
+      push @each_match, $op;
+    };
+
+    # The aggregation needs to trigger on each doc
+    if ($op->can('each_doc')) {
+      push @each_doc, $op;
+    };
+  };
+
+  $self->{each_doc} = \@each_doc;
+  $self->{each_match} = \@each_match;
+
+  return $self;
 };
 
 sub result {
@@ -52,7 +71,7 @@ sub next {
     if ($current->doc_id != $self->{last_doc_id}) {
 
       # Collect data of current operation
-      foreach (@{$self->{ops}}) {
+      foreach (@{$self->{each_doc}}) {
         $_->each_doc($current, $result);
       };
 
@@ -61,7 +80,7 @@ sub next {
     };
 
     # Collect data of current operation
-    foreach (@{$self->{ops}}) {
+    foreach (@{$self->{each_match}}) {
       $_->each_match($current, $result);
     };
 

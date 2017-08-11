@@ -38,7 +38,7 @@ ok(my $koral_query = $koral->to_query, 'Normalization');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "enrich(fields:['id']:sort(field='id'<:aggr(length:filter(<s>,[1]))))",
+   "aggr(length:filter(<s>,[1]))",
    'Stringification');
 
 # This is a query that is fine to be send to segments:
@@ -47,32 +47,22 @@ ok($koral_query = $koral_query->identify($index->dict),
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "enrich(fields:[#2]:sort(field=#2<:aggr(length:filter(#4,[1]))))",
+   "aggr(length:filter(#4,[1]))",
    'Stringification');
+
+ok(my $query = $koral_query->optimize($index->segment), 'Optimization');
+
+is($query->to_string, 'aggregate([length]:filter(#4,[1]))', 'Stringification');
+
+ok($query->next, 'Next');
+ok($query->next, 'Next');
+ok($query->next, 'Next');
+ok($query->next, 'Next');
+ok(!$query->next, 'No more nexts');
 
 diag 'check lengths!';
 
-
-done_testing;
-__END__
-
-my $length = Krawfish::Result::Segment::Aggregate::Length->new;
-
-# Get length object
-ok(my $aggr = Krawfish::Result::Segment::Aggregate->new(
-  $query->normalize->finalize->optimize($index),
-  [$length]
-), 'Create length object');
-
-is($aggr->to_string, q!aggregate([length]:'<>s')!, 'Stringification');
-
-ok($aggr->next, 'Next');
-ok($aggr->next, 'Next');
-ok($aggr->next, 'Next');
-ok($aggr->next, 'Next');
-ok(!$aggr->next, 'No more nexts');
-
-is_deeply($aggr->result, {
+is_deeply($query->result, {
   length => {
     avg => 1.75,
     min => 1,
@@ -80,6 +70,7 @@ is_deeply($aggr->result, {
     sum => 7
   }
 }, 'Get aggregation results');
+
 
 
 done_testing;

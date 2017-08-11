@@ -1,4 +1,6 @@
 package Krawfish::Koral::Meta::Aggregate::Length;
+use Krawfish::Result::Segment::Aggregate::Length;
+use Krawfish::Query::Nothing;
 use strict;
 use warnings;
 
@@ -22,8 +24,18 @@ sub identify {
   $_[0];
 };
 
+
 sub to_string {
   'length';
 };
+
+
+# Materialize query for segment search
+sub optimize {
+  my ($self, $segment) = @_;
+
+  return Krawfish::Result::Segment::Aggregate::Length->new;
+};
+
 
 1;

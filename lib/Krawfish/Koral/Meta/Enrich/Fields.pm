@@ -1,6 +1,5 @@
 package Krawfish::Koral::Meta::Enrich::Fields;
 use Krawfish::Koral::Meta::Node::Enrich::Fields;
-# use Krawfish::Result::Node::Enrich::Fields;
 use strict;
 use warnings;
 
@@ -52,31 +51,6 @@ sub wrap {
     [$self->operations]
   );
 };
-
-
-sub identify {
-  my ($self, $dict) = @_;
-
-  warn 'DEPRECATED???';
-
-  my @identifier;
-  foreach (@$self) {
-
-    # Field may not exist in dictionary
-    my $field = $_->identify($dict);
-    if ($field) {
-      push @identifier, $field;
-    };
-  };
-
-  # Do not return any fields
-  return if @identifier == 0;
-
-  @$self = @identifier;
-
-  return $self;
-};
-
 
 
 sub to_string {

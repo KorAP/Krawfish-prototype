@@ -14,11 +14,11 @@ use constant DEBUG => 1;
 sub new {
   my $class = shift;
   bless {
-    segment => shift,
-    query   => shift,
-    fields  => shift, # Expects to be numerical sorted field identifier
-    match   => undef,
-    pointer => undef,
+    field_obj => shift,
+    query     => shift,
+    fields    => shift, # Expects to be numerical sorted field identifier
+    match     => undef,
+    pointer   => undef,
     last_doc_id => -1
   }, $class;
 };
@@ -37,7 +37,7 @@ sub _init {
     );
   };
 
-  $self->{pointer} = $self->{segment}->fields->pointer;
+  $self->{pointer} = $self->{field_obj}->pointer;
   return;
 };
 

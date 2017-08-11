@@ -16,6 +16,8 @@ use constant DEBUG => 0;
 sub new {
   my $class = shift;
   bless {
+    segment => shift,
+    query => shift,
     min  => 32_000,
     max  => 0,
     sum  => 0,

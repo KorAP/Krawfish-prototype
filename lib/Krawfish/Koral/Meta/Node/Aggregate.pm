@@ -1,10 +1,11 @@
 package Krawfish::Koral::Meta::Node::Aggregate;
+use Krawfish::Result::Segment::Aggregate;
 use strict;
 use warnings;
 
+
 sub new {
   my $class = shift;
-
   bless {
     query => shift,
     aggregates => shift
@@ -38,6 +39,29 @@ sub identify {
 };
 
 
+sub optimize {
+  my ($self, $segment) = @_;
+
+  my $query = $self->{query}->optimize($segment);
+
+  if ($query->max_freq == 0) {
+    return Krawfish::Query::Nothing->new;
+  };
+
+  my $aggr = $self->{aggregates};
+
+  for (my $i = 0; $i < @$aggr; $i++) {
+    $aggr->[$i] = $aggr->[$i]->optimize($segment);
+  };
+
+  return Krawfish::Result::Segment::Aggregate->new(
+    $query,
+    $aggr
+  );
+};
+
+
+# Stringification
 sub to_string {
   my $self = shift;
   return 'aggr(' .

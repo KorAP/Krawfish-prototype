@@ -10,7 +10,6 @@ sub new {
 
   warn 'DEPRECATED';
 
-
   my $self = bless {
     query => shift,
     enrichments => shift

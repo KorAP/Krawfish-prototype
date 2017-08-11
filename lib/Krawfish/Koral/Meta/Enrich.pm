@@ -23,6 +23,7 @@ sub type {
   'enrich';
 };
 
+
 # Get or set operations
 sub operations {
   my $self = shift;
@@ -37,10 +38,7 @@ sub operations {
 };
 
 
-
-# TODO:
-#   wrap one enrichment type into another!
-#
+# Wrap enrichments in each other
 sub wrap {
   my ($self, $query) = @_;
 
@@ -53,11 +51,6 @@ sub wrap {
   };
 
   return $query;
-
-  #return Krawfish::Koral::Meta::Node::Enrich->new(
-  #  $query,
-  #  [$self->operations]
-  #);
 };
 
 

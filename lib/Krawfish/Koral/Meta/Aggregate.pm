@@ -1,9 +1,12 @@
 package Krawfish::Koral::Meta::Aggregate;
 use Krawfish::Koral::Meta::Node::Aggregate;
 use Krawfish::Result::Node::Aggregate;
+use Krawfish::Log;
 use List::MoreUtils qw/uniq/;
 use strict;
 use warnings;
+
+use constant DEBUG => 1;
 
 # TODO:
 #   Check that only valid aggregate objects are passed
@@ -25,6 +28,7 @@ sub type {
   'aggregate';
 };
 
+
 # Get or set operations
 sub operations {
   my $self = shift;
@@ -36,26 +40,21 @@ sub operations {
 };
 
 
-sub to_nodes {
-  my ($self, $query) = @_;
-  warn 'DEPRECATED';
-  return Krawfish::Result::Node::Aggregate->new($query, [$self->operations]);
-};
-
-
-# TODO:
-#   wrap one aggregation type into another!
-#
+# Wrap aggregates in each other
 sub wrap {
   my ($self, $query) = @_;
 
-  # TODO:
-  #   Facets and values should be reordered
+  if (DEBUG) {
+    print_log('kq_aggr', 'Wrap operation ' . join(',', @$self));
+  };
 
+  # Join aggregates
   return Krawfish::Koral::Meta::Node::Aggregate->new(
     $query,
     [$self->operations]
   );
+
+  return $query;
 };
 
 

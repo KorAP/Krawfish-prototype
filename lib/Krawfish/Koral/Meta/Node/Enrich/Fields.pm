@@ -67,7 +67,7 @@ sub optimize {
   };
 
   return Krawfish::Result::Segment::Enrich::Fields->new(
-    $segment,
+    $segment->fields,
     $query,
     $self->term_ids
   );
