@@ -39,10 +39,10 @@ sub each_match {
 
 # Finish the aggregation
 sub on_finish {
-  my ($self, $result) = @_;
+  my ($self, $collection) = @_;
 
   return if $self->{freq} == 0;
-  $result->{length} = {
+  $collection->{length} = {
     min  => $self->{min},
     max  => $self->{max},
     sum  => $self->{sum},

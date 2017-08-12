@@ -62,7 +62,7 @@ ok(!$query->next, 'No more nexts');
 
 diag 'check lengths!';
 
-is_deeply($query->result, {
+is_deeply($query->collection, {
   length => {
     avg => 1.75,
     min => 1,

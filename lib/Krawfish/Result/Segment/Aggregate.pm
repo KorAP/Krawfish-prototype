@@ -24,7 +24,7 @@ sub new {
     ops         => shift,
 
     last_doc_id => -1,
-    result      => $result,
+    collection  => $result,
     last_doc_id => -1,
     finished    => 0
   }, $class;
@@ -48,17 +48,31 @@ sub new {
   return $self;
 };
 
-sub result {
-  $_[0]->{result};
+
+sub collection {
+  $_[0]->{collection};
 };
 
+
+# TODO:
+#   Add collection data to result document
+sub collect {
+  my ($self, $result) = @_;
+
+  # Add collect
+  $result->add_collection($self->collection);
+
+  # Collect result from nested query
+  $self->{query}->collect($result);
+  return $result;
+};
 
 # Iterate to the next result
 sub next {
   my $self = shift;
 
   # Get container object
-  my $result = $self->result;
+  my $collection = $self->collection;
 
   # There is a next match
   # TODO:
@@ -72,7 +86,7 @@ sub next {
 
       # Collect data of current operation
       foreach (@{$self->{each_doc}}) {
-        $_->each_doc($current, $result);
+        $_->each_doc($current, $collection);
       };
 
       # Set last doc to current doc
@@ -81,7 +95,7 @@ sub next {
 
     # Collect data of current operation
     foreach (@{$self->{each_match}}) {
-      $_->each_match($current, $result);
+      $_->each_match($current, $collection);
     };
 
     return 1;
@@ -90,7 +104,7 @@ sub next {
   # Release on_finish event
   unless ($self->{finished}) {
     foreach (@{$self->{ops}}) {
-      $_->on_finish($result);
+      $_->on_finish($collection);
     };
     $self->{finished} = 1;
   };
