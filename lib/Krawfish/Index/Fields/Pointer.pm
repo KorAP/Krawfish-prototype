@@ -82,11 +82,12 @@ sub fields {
   unless (@_ > 0) {
     while ($current && $current ne 'EOF') {
 
-      $self->{pos}++; # skip key_id
+      # The structure [key_id, key] is necessary for multivalued fields!
+      my $key_id = $self->{pos}++;
 
       $type = $doc->[$self->{pos}++];
 
-      push @fields, $doc->[$self->{pos}++];
+      push @fields, [$key_id, $doc->[$self->{pos}++]];
 
       # Skip value
       $self->{pos}++ if $type eq 'int';
@@ -98,6 +99,9 @@ sub fields {
   else {
     my @key_ids = @_;
     my $key_pos = 0;
+
+    # TODO:
+    #   Check treatment of wrongly sorted fields.
 
     if (DEBUG) {
       print_log('f_point', 'Get fields ' . join(',', @key_ids));
@@ -115,10 +119,11 @@ sub fields {
 
       # The key id matches the first id
       if ($current == $key_ids[$key_pos]) {
+        # The structure [key_id, key] is necessary for multivalued fields!
         $self->{pos}++;
         $type = $doc->[$self->{pos}++];
         my $field = $doc->[$self->{pos}++];
-        push @fields, $field;
+        push @fields, [$current, $field];
 
         if (DEBUG) {
           print_log('f_point', "Found field_id $field for " . $key_ids[$key_pos] . ' at ' . $key_pos);

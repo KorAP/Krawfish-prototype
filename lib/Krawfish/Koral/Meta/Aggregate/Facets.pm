@@ -1,4 +1,5 @@
 package Krawfish::Koral::Meta::Aggregate::Facets;
+use Krawfish::Result::Segment::Aggregate::Facets;
 use strict;
 use warnings;
 
@@ -43,15 +44,6 @@ sub normalize {
 };
 
 
-# TODO:
-#   Create one facet wrapping each other!
-#   OR as fields are sorted in order, fetching multiple
-#   fields for a document at once may be beneficial
-sub wrap {
-  ...
-};
-
-
 sub identify {
   my ($self, $dict) = @_;
 
@@ -67,7 +59,8 @@ sub identify {
 
   return unless @identifier;
 
-  @{$self} = @identifier;
+  # Sort field ids in ascending order!
+  @{$self} = reverse sort @identifier;
 
   return $self;
 };
@@ -75,7 +68,18 @@ sub identify {
 
 sub to_string {
   my $self = shift;
-  return 'facets:[' . join(',', map { $_->to_string } @$self) . ']';
+  return 'facets:[' . join(',', map { defined $_ ? $_->to_string : '?' } @$self) . ']';
 };
+
+
+sub optimize {
+  my ($self, $segment) = @_;
+
+  return Krawfish::Result::Segment::Aggregate::Facets->new(
+    $segment->fields,
+    [$self->operations]
+  );
+};
+
 
 1;

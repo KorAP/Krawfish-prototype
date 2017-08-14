@@ -120,7 +120,7 @@ sub current {
 
 sub to_string {
   my $self = shift;
-  my $str = 'aggregate(';
+  my $str = 'aggr(';
   $str .= '[' . join(',', map { $_->to_string } @{$self->{ops}}) . ']:';
   $str .= $self->{query}->to_string;
   return $str . ')';

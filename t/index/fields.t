@@ -29,15 +29,13 @@ is($pointer->skip_doc(0), 0, 'Skip');
 
 ok(my @fields = $pointer->fields, 'Get fields');
 
-is($fields[0], 2, 'Field id');
+is($fields[0]->[1], 2, 'Field id');
 is($index->dict->term_by_term_id(2), '+docID:doc-3', 'Term');
-is($fields[1], 4, 'Field id');
+is($fields[1]->[1], 4, 'Field id');
 is($index->dict->term_by_term_id(4), '+license:closed', 'Term');
-is($fields[2], 6, 'Field id');
+is($fields[2]->[1], 6, 'Field id');
 is($index->dict->term_by_term_id(6), '+textLength:8', 'Term');
-ok(!$fields[3], 'Field id');
-
-
+ok(!$fields[3]->[1], 'Field id');
 
 
 ok($pointer = $index->segment->fields->pointer, 'Get pointer');
@@ -46,9 +44,9 @@ is($pointer->skip_doc(0), 0, 'Skip');
 # Get the +license and +textLength fields
 ok(@fields = $pointer->fields(3, 5, 17), 'Get fields');
 
-is($fields[0], 4, 'Field id');
+is($fields[0]->[1], 4, 'Field id');
 is($index->dict->term_by_term_id(4), '+license:closed', 'Term');
-is($fields[1], 6, 'Field id');
+is($fields[1]->[1], 6, 'Field id');
 is($index->dict->term_by_term_id(6), '+textLength:8', 'Term');
 ok(!$fields[2], 'Field id');
 

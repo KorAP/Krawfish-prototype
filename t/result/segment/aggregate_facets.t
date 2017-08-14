@@ -1,5 +1,6 @@
 use Test::More;
 use Test::Krawfish;
+use Data::Dumper;
 use strict;
 use warnings;
 
@@ -26,9 +27,15 @@ ok_index_2($index, {
   genre => 'newsletter',
   title => 'Your way to success!',
   age => 4
-} => [qw/aa bb/], 'Add complex document');
+} => [qw/aa bb aa/], 'Add complex document');
 ok_index_2($index, {
   id => 6,
+  author => 'Fritz',
+  genre => 'newsletter',
+  age => 3
+} => [qw/bb/], 'Add complex document');
+ok_index_2($index, {
+  id => 7,
   author => 'Michael',
   genre => 'newsletter',
   age => 7
@@ -68,10 +75,46 @@ ok($koral_query = $koral_query->identify($index->dict), 'Identify');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "aggr(facets:[#5,#1]:filter(#10,[1]))",
+   "aggr(facets:[#1,#5]:filter(#10,[1]))",
    'Stringification');
 
-diag 'check facets!';
+ok(my $query = $koral_query->optimize($index->segment),
+   'Queryfication');
+
+is($query->to_string, 'aggr([facets:#1,#5]:filter(#10,[1]))', 'Stringification');
+
+ok($query->next, 'Next');
+ok($query->next, 'Next');
+ok($query->next, 'Next');
+ok($query->next, 'Next');
+ok($query->next, 'Next');
+ok(!$query->next, 'No more nexts');
+
+ok(my $coll = $query->collection->{fields}->to_terms($index->dict), 'To terms');
+is($coll->to_string, 'facets=age:3[1,1],4[1,2],7[1,1];genre:newsletter[2,3],novel[1,1]');
+
+done_testing;
+__END__
+
+
+$hash = $aggr->result->{facets}->{corpus};
+is($hash->{'corpus-2'}->[0], 2, 'Document frequency');
+is($hash->{'corpus-2'}->[1], 2, 'frequency');
+
+is_deeply($aggr->result, {
+  facets => {
+    license => {
+      free => [1,1],
+      closed => [1,1]
+    },
+    corpus => {
+      'corpus-2' => [2,2]
+    }
+  }
+}, 'aggregated results');
+
+
+
 
 done_testing;
 __END__
@@ -109,31 +152,6 @@ is(
   'Stringification'
 );
 
-ok($aggr->next, 'Next');
-ok($aggr->next, 'Next');
-ok(!$aggr->next, 'No more nexts');
-
-my $hash = $aggr->result->{facets}->{license};
-is($hash->{free}->[0], 1, 'Document frequency');
-is($hash->{free}->[1], 1, 'frequency');
-is($hash->{closed}->[0], 1, 'Document frequency');
-is($hash->{closed}->[1], 1, 'frequency');
-
-$hash = $aggr->result->{facets}->{corpus};
-is($hash->{'corpus-2'}->[0], 2, 'Document frequency');
-is($hash->{'corpus-2'}->[1], 2, 'frequency');
-
-is_deeply($aggr->result, {
-  facets => {
-    license => {
-      free => [1,1],
-      closed => [1,1]
-    },
-    corpus => {
-      'corpus-2' => [2,2]
-    }
-  }
-}, 'aggregated results');
 
 done_testing;
 __END__

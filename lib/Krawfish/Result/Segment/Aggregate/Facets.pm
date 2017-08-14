@@ -1,15 +1,29 @@
 package Krawfish::Result::Segment::Aggregate::Facets;
 use parent 'Krawfish::Result::Segment::Aggregate::Base';
+use Krawfish::Posting::Aggregate::Fields;
 use Krawfish::Util::String qw/squote/;
 use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
+
+# TODO:
+#   Simplify the counting by mapping the requested fields to
+#   an array, that points to a map.
+
+
+# TODO:
+#   Support corpus classes!
+#
 # TODO:
 #   Currently this would not work for fields with multiple values!
 #   There may be a need for K::R::S::A::MultiFacets!
+
+# TODO:
+#   In case the field has no rank, because it is a multivalued field,
+#   a different mechanism has to be used!
 
 # TODO: It may be beneficial to store example documents in the
 #   field ranks, too - so they don't need to be collected on the way ...
@@ -24,100 +38,100 @@ use constant DEBUG => 0;
 sub new {
   my $class = shift;
   bless {
-    index   => shift,
-    field   => shift,
+    field_obj  => shift,
+    field_keys => [map { ref($_) ? $_->term_id : $_ } @{shift()}],
 
-    # TODO: May as well be groups ...
-    buckets => [], # The buckets in memory
-    freq    => undef
+    # TODO:
+    #   This needs to be an object, so it can be inflated again!
+    # collection => {}, # The buckets in memory
+
+    aggregation => Krawfish::Posting::Aggregate::Fields->new,
+
+    freq    => 0,
+    field_freqs => {}
   }, $class;
 };
 
+
+# Initialize field pointer
 sub _init {
-  return if $_[0]->{rank};
+  return if $_[0]->{field_pointer};
 
   my $self = shift;
 
-  print_log('aggr_facets', 'Load ranks for ' . $self->{field}) if DEBUG;
+  print_log('aggr_facets', 'Load fields') if DEBUG;
 
   # Load the ranked list - may be too large for memory!
-  $self->{rank} = $self->{index}->fields->ranked_by($self->{field});
-
-  # TODO:
-  #   In case the field has no rank, because it is a multivalued field,
-  #   a different mechanism has to be used!
+  $self->{field_pointer} = $self->{field_obj}->pointer;
 };
 
 
 # On every doc
 sub each_doc {
-  my $self = shift;
+  my ($self, $current) = @_;
+
   $self->_init;
-  my $current = shift;
+
+  print_log('aggr_facets', 'Aggregate on fields') if DEBUG;
+
 
   my $doc_id = $current->doc_id;
 
-  # Get the document rank
-  my $rank = $self->{rank}->get($doc_id);
+  my $pointer = $self->{field_pointer};
 
-  # Rank exists
-  # TODO:
-  #   Check if zero don't mean, the field
-  #   is not ranked yet!
-  if ($rank != 0) {
+  # Set match frequencies to all remembered doc frequencies
+  my $aggr = $self->{aggregation};
+  $aggr->flush;
 
-    # This will contain 'doc_freq', 'freq', and an example 'doc_id'
-    $self->{freq} = $self->{buckets}->[$rank] //= [0,0, $doc_id];
-    $self->{freq}->[0]++;
+  # Skip to document in question
+  if ($pointer->skip_doc($doc_id)) {
 
-    print_log('aggr_facets', $self->{field} . ' has frequencies') if DEBUG;
+    my $coll = $self->{collection};
+
+    # Get all requested fields
+    my @fields;
+
+    if (DEBUG) {
+      print_log('aggr_facets', 'Look for frequencies for ' .
+                  join(',', @{$self->{field_keys}}));
+    };
+
+    # Iterate over all fields
+    foreach my $field ($pointer->fields(@{$self->{field_keys}}))  {
+
+      # Increment occurrence
+      $aggr->incr_doc($field->[0], $field->[1]);
+
+      if (DEBUG) {
+        print_log('aggr_facets', '#' . $field->[0] . ' has frequencies');
+      };
+    };
   }
 
   # Do not check rank
   else {
-    $_[0]->{freq} = undef;
+    $aggr->flush;
   };
 };
 
 
 # On every match
 sub each_match {
-  if ($_[0]->{freq}) {
-    $_[0]->{freq}->[1]++;
-  };
+  $_[0]->{aggregation}->incr_match;
 };
 
 
 # finish the results
 sub on_finish {
-  my ($self, $result) = @_;
+  my ($self, $collection) = @_;
 
-  # Get fields
-  my $fields = $self->{index}->fields;
-  my $field = $self->{field};
+  $self->{aggregation}->flush;
 
-  my %facets = ();
+  $collection->{fields} = $self->{aggregation};
+};
 
-  # Iterate over all ranked buckets of the field
-  foreach my $rank (grep { defined $_ } @{$self->{buckets}}) {
 
-    print_log('aggr_facets', "Get rank $rank for $field") if DEBUG;
-
-    # Get information from rank
-    my ($doc_freq, $freq, $example_doc_id) = @$rank;
-
-    # This rank occurrs in the query
-    if ($doc_freq) {
-
-      # Get the field name of the frequency
-      my $field_value = $fields->get($example_doc_id, $field);
-
-      # Set facet information
-      # May need the field key prepended
-      $facets{$field_value} = [$doc_freq, $freq];
-    };
-  };
-
+sub collection {
   # Return facets
   # Example structure for year
   # {
@@ -125,12 +139,12 @@ sub on_finish {
   #   1998 => [5, 89],
   #   1999 => [3, 20]
   # }
-  my $facet_result = ($result->{facets} //= {});
-  $facet_result->{$self->{field}} = \%facets;
+  $_[0]->{collection};
 };
 
+
 sub to_string {
-  return 'facet:' . squote($_[0]->{field});
+  return 'facets:' . join(',', map { '#' . $_ } @{$_[0]->{field_keys}});
 };
 
 

@@ -44,6 +44,7 @@ sub optimize {
 
   my $query = $self->{query}->optimize($segment);
 
+
   if ($query->max_freq == 0) {
     return Krawfish::Query::Nothing->new;
   };
@@ -51,6 +52,7 @@ sub optimize {
   my $aggr = $self->{aggregates};
 
   for (my $i = 0; $i < @$aggr; $i++) {
+
     $aggr->[$i] = $aggr->[$i]->optimize($segment);
   };
 

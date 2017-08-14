@@ -22,4 +22,8 @@ sub to_string {
   ...
 };
 
+sub collection {
+  ...
+};
+
 1;
