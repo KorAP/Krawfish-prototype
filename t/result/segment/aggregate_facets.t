@@ -8,26 +8,26 @@ use_ok('Krawfish::Koral');
 
 # Create some documents
 my $index = Krawfish::Index->new;
-ok_index($index, {
+ok_index_2($index, {
   id => 2,
   author => 'Peter',
   genre => 'novel',
   age => 4
 } => [qw/aa bb/], 'Add complex document');
-ok_index($index, {
+ok_index_2($index, {
   id => 3,
   author => 'Peter',
   genre => 'novel',
   age => 3
 } => [qw/aa bb/], 'Add complex document');
-ok_index($index, {
+ok_index_2($index, {
   id => 5,
   author => 'Peter',
   genre => 'newsletter',
   title => 'Your way to success!',
   age => 4
 } => [qw/aa bb/], 'Add complex document');
-ok_index($index, {
+ok_index_2($index, {
   id => 6,
   author => 'Michael',
   genre => 'newsletter',
@@ -59,7 +59,7 @@ ok(my $koral_query = $koral->to_query, 'Normalization');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "enrich(fields:['id']:sort(field='id'<:aggr(facets:['genre','age']:filter(aa,[1]))))",
+   "aggr(facets:['genre','age']:filter(aa,[1]))",
    'Stringification');
 
 # This is a query that is fine to be send to segments:
@@ -68,7 +68,7 @@ ok($koral_query = $koral_query->identify($index->dict), 'Identify');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "enrich(fields:[#8]:sort(field=#8<:aggr(facets:[#6,#2]:filter(#9,[1]))))",
+   "aggr(facets:[#5,#1]:filter(#10,[1]))",
    'Stringification');
 
 diag 'check facets!';

@@ -27,10 +27,6 @@ sub preceding_data {
   $_[0]->{preceding_data} // '';
 };
 
-sub pos {
-  $_[0]->{pos};
-};
-
 sub stream {
   $_[0]->{stream};
 };
@@ -42,10 +38,10 @@ sub annotations {
   my @anno = ();
 
   my $list = $self->stream;
-  while ($list->[$self->{pos}] ne 'EOA') {
-    $self->{pos} += 3; # skip foundry_id, layer_id, type
-    my $anno_id = $list->[$self->{pos}++];
-    my $data = $list->[$self->{pos}++];
+  while ($list->[$self->{cur}] ne 'EOA') {
+    $self->{cur} += 3; # skip foundry_id, layer_id, type
+    my $anno_id = $list->[$self->{cur}++];
+    my $data = $list->[$self->{cur}++];
 
     push @anno, [$anno_id, $data];
   };

@@ -26,7 +26,8 @@ sub new {
   my $class = shift;
   bless {
     list => shift,
-    pos => 0,
+    pos => -1,        # The subtoken position
+    cur => 0,         # The cur position in the stream
     doc_id => -1,
     current => undef,
     prev => undef,
@@ -38,15 +39,28 @@ sub new {
 };
 
 sub freq {
-  $_[0]->{list}->last_doc_id + 1;
+  my $freq = $_[0]->{list}->last_doc_id + 1;
+
+  if (DEBUG) {
+    print_log('fwd_point', "Doc frequency is $freq");
+  };
+
+  return $freq;
 };
 
 sub doc_id {
   $_[0]->{doc_id};
 };
 
+
+# The subtoken position
 sub pos {
   $_[0]->{pos};
+};
+
+
+sub cur {
+  $_[0]->{cur};
 };
 
 sub next_doc {
@@ -61,7 +75,15 @@ sub close {
 
 sub skip_doc {
   my ($self, $doc_id) = @_;
-  if ($self->{doc_id} <= $doc_id && $doc_id < $self->freq) {
+
+  if (DEBUG) {
+    print_log('fwd_point', "Skip from " . $self->{doc_id} . " to $doc_id");
+  };
+
+  if ($self->{doc_id} == $doc_id) {
+    return 1;
+  }
+  elsif ($self->{doc_id} < $doc_id && $doc_id < $self->freq) {
 
     if (DEBUG) {
       print_log('fwd_point', 'Get document for id ' . $doc_id);
@@ -70,7 +92,8 @@ sub skip_doc {
     $self->{doc_id} = $doc_id;
     my $doc = $self->{list}->doc($doc_id);
     $self->{doc} = $doc;
-    $self->{pos} = 0;
+    $self->{cur} = 0;
+    $self->{pos} = -1;
 
     delete $self->{current};
     delete $self->{prev};
@@ -83,7 +106,17 @@ sub skip_doc {
 
 
 sub skip_pos {
-  ...
+  my ($self, $pos) = @_;
+
+  return 0 if $pos < $self->{pos};
+
+  # TODO:
+  #   This should use skip lists!
+  while($pos > $self->{pos}) {
+    $self->next or return 0;
+  };
+
+  return 1;
 };
 
 
@@ -95,25 +128,25 @@ sub current {
 
   my $doc = $self->{doc};
 
-  my $pos = $self->pos;
+  my $cur = $self->cur;
 
   if (DEBUG) {
-    print_log('fwd_point', "Point to subtoken at $pos is " . $doc->[$pos]);
+    print_log('fwd_point', "Point to subtoken at $cur is " . $doc->[$cur]);
   };
 
   if (DEBUG) {
-    print_log('fwd_point', 'Doc is ' . $self->{doc}->to_string($self->{pos}));
+    print_log('fwd_point', 'Doc is ' . $self->{doc}->to_string($self->{cur}));
   };
 
   # Establish subtoken
   $self->{current} = Krawfish::Posting::Forward->new(
-    term_id        => $doc->[$pos++],
-    preceding_data => $doc->[$pos++],
-    pos            => $pos,
+    term_id        => $doc->[$cur++],
+    preceding_data => $doc->[$cur++],
+    cur            => $cur,
     stream         => $doc
   );
 
-  $self->{pos} = $pos;
+  $self->{cur} = $cur;
 
   return $self->{current};
 };
@@ -132,16 +165,18 @@ sub next {
   if (!defined $self->{next}) {
 
     # Move forward
-    $self->{prev} = $doc->[$self->{pos}++];
-    $self->{next} = $doc->[$self->{pos}++];
+    $self->{prev} = $doc->[$self->{cur}++];
+    $self->{next} = $doc->[$self->{cur}++];
+    $self->{pos} = 0;
   }
 
   else {
 
     # Get next token from data
-    $self->{pos} = $self->{next};
-    $self->{prev} = $doc->[$self->{pos}++];
-    $self->{next} = $doc->[$self->{pos}++];
+    $self->{cur} = $self->{next};
+    $self->{prev} = $doc->[$self->{cur}++];
+    $self->{next} = $doc->[$self->{cur}++];
+    $self->{pos}++;
   };
 
   if (DEBUG) {
@@ -165,9 +200,10 @@ sub prev {
   my $doc = $self->{doc};
 
   # Get next token from data
-  $self->{pos} = $self->{prev};
-  $self->{prev} = $doc->[$self->{pos}++];
-  $self->{next} = $doc->[$self->{pos}++];
+  $self->{cur} = $self->{prev};
+  $self->{pos}--;
+  $self->{prev} = $doc->[$self->{cur}++];
+  $self->{next} = $doc->[$self->{cur}++];
 
   if (DEBUG) {
     print_log('fwd_point', "Previous subtoken at " . $self->{prev});

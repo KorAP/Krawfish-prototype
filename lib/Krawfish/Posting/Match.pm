@@ -17,6 +17,7 @@ use strict;
 # Add an enrichment
 sub add {
   my $self = shift;
+  $self->{enrichments} //= [];
   push @{$self->{enrichments}}, @_;
 };
 
@@ -40,6 +41,8 @@ sub to_string2 {
 
   return $str . ']';
 };
+
+
 
 
 

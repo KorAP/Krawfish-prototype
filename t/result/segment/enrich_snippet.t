@@ -7,7 +7,7 @@ use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral');
 
 my $index = Krawfish::Index->new;
-ok_index($index, {
+ok_index_2($index, {
   id => 'doc-1',
   license => 'free',
   corpus => 'corpus-2'
@@ -33,7 +33,7 @@ ok(my $koral_query = $koral->to_query, 'Normalization');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "enrich(fields:['id'],snippet:sort(field='id'<;sortFilter:filter(aa|bb,[1])))",
+   "snippet(?:filter(aa|bb,[1]))",
    'Stringification');
 
 # This is a query that is fine to be send to segments:
@@ -41,8 +41,24 @@ ok($koral_query = $koral_query->identify($index->dict), 'Identify');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "enrich(fields:[#4],snippet:sort(field=#4<;sortFilter:filter(#7|#8,[1])))",
+   "snippet(?:filter(#10|#8,[1]))",
    'Stringification');
+
+ok(my $query = $koral_query->optimize($index->segment), 'Optimize');
+is ($query->to_string, 'snippet(or(filter(#10,[1]),filter(#8,[1])))', 'Stringification');
+
+ok($query->next, 'Next match');
+is($query->current_match->to_string2, "[0:0-1|snippet:#7]", 'Current match');
+ok($query->next, 'Next match');
+is($index->dict->term_by_term_id(7), '*aa', 'Get term');
+is($query->current_match->to_string2, "[0:1-2|snippet:#9]", 'Current match');
+ok($query->next, 'Next match');
+is($index->dict->term_by_term_id(9), '*bb', 'Get term');
+is($query->current_match->to_string2, "[0:2-3|snippet:#7]", 'Current match');
+ok($query->next, 'Next match');
+is($query->current_match->to_string2, "[0:3-4|snippet:#9]", 'Current match');
+ok(!$query->next, 'No more match');
+
 
 TODO: {
   local $TODO = 'Test further - with matches'
@@ -53,11 +69,6 @@ TODO: {
 done_testing;
 __END__
 
-is($query->to_string, 'aa|bb', 'Stringification');
-
-my $prepare = $query->normalize->finalize->optimize($index);
-
-is($prepare->to_string, "or('aa','bb')", 'Stringification');
 
 # Get facets object
 ok(my $snippet = Krawfish::Result::Segment::Enrich::Snippet->new(
@@ -65,15 +76,6 @@ ok(my $snippet = Krawfish::Result::Segment::Enrich::Snippet->new(
   index => $index
 ), 'Create count object');
 
-ok($snippet->next, 'Next match');
-is($snippet->current_match->to_string, "[0:0-1|snippet='aa bb aa bb']", 'Current match');
-ok($snippet->next, 'Next match');
-is($snippet->current_match->to_string, "[0:1-2|snippet='aa bb aa bb']", 'Current match');
-ok($snippet->next, 'Next match');
-is($snippet->current_match->to_string, "[0:2-3|snippet='aa bb aa bb']", 'Current match');
-ok($snippet->next, 'Next match');
-is($snippet->current_match->to_string, "[0:3-4|snippet='aa bb aa bb']", 'Current match');
-ok(!$snippet->next, 'No more match');
 
 
 done_testing;

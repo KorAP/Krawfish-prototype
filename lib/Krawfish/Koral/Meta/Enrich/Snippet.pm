@@ -3,8 +3,15 @@ use Krawfish::Koral::Meta::Node::Enrich::Snippet;
 use strict;
 use warnings;
 
-# Define the context and the annotations
-# to retrieve for a match
+# TODO:
+#   Define the context and the annotations
+#   to retrieve for a match
+#
+# TODO:
+#   Define annotations to retrieve for a match
+#
+# TODO:
+#   Define highlights to retrieve for a match.
 
 sub new {
   my $class = shift;
@@ -24,15 +31,12 @@ sub normalize {
 };
 
 
-sub identify {
-  $_[0];
-};
-
 sub to_string {
   'snippet';
 };
 
 
+# Wrap the query
 sub wrap {
   my ($self, $query) = @_;
     return Krawfish::Koral::Meta::Node::Enrich::Snippet->new(
