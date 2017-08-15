@@ -5,6 +5,11 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
+# Counts the frequency for each term in a TermFrequency
+# query. This is necessary for co-occurrence search and the
+# Glemm service.
+
+
 # TODO:
 #   This is rather a group query than an aggregation query.
 
