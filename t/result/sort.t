@@ -46,7 +46,7 @@ ok(my $koral_query = $koral->to_query, 'Normalization');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "enrich(fields:['id']:sort(field='id'<;sortFilter:filter(aa|bb,[1])))",
+   "sort(field='id'<;sortFilter:filter(aa|bb,[1]))",
    'Stringification');
 
 # This is a query that is fine to be send to segments:
@@ -55,7 +55,7 @@ ok($koral_query = $koral_query->identify($index->dict), 'Identify');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "enrich(fields:[#4]:sort(field=#4<;sortFilter:filter(#5|#6,[1])))",
+   "sort(field=#4<;sortFilter:filter(#5|#6,[1]))",
    'Stringification');
 
 diag 'check sorting!';

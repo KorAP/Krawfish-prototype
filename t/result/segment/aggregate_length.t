@@ -52,7 +52,7 @@ is($koral_query->to_string,
 
 ok(my $query = $koral_query->optimize($index->segment), 'Optimization');
 
-is($query->to_string, 'aggregate([length]:filter(#4,[1]))', 'Stringification');
+is($query->to_string, 'aggr([length]:filter(#4,[1]))', 'Stringification');
 
 ok($query->next, 'Next');
 ok($query->next, 'Next');

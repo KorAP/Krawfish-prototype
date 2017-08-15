@@ -6,6 +6,10 @@ use warnings;
 # This remembers facets for multiple classes,
 # both using ids and terms
 
+# TODO:
+#   The first field level should be initiated
+#   beforehand, so it is not necessary to check
+#   this level on each doc.
 
 # TODO:
 #   This should be part of Koral::Result!
@@ -140,6 +144,8 @@ sub to_string {
     chop $str;
     return $str;
   };
+
+  warn 'Please inflate before!';
   return '';
 };
 

@@ -84,14 +84,15 @@ sub each_doc {
   # Skip to document in question
   # TODO:
   #   skip_doc should ALWAYS return either the document or NOMOREDOC!
-  if ($pointer->skip_doc($doc_id) != -1) {
+
+  if ($pointer->skip_doc($doc_id) == $doc_id) {
 
     $aggr->flush;
 
-    my $coll = $self->{collection};
+    # my $coll = $self->{collection};
 
     # Get all requested fields
-    my @fields;
+    # my @fields;
 
     if (DEBUG) {
       print_log('aggr_facets', 'Look for frequencies for key ids ' .

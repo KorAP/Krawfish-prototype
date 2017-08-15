@@ -1,6 +1,8 @@
 package Krawfish::Koral::Meta::Aggregate::Values;
+use Krawfish::Result::Segment::Aggregate::Values;
 use strict;
 use warnings;
+
 
 # Constructor
 # Accepts a list of numerical key objects
@@ -56,7 +58,8 @@ sub identify {
 
   return unless @identifier;
 
-  @{$self} = @identifier;
+  # Sort field ids in ascending order!
+  @{$self} = reverse sort @identifier;
 
   return $self;
 };
@@ -66,5 +69,17 @@ sub to_string {
   my $self = shift;
   return 'values:[' . join(',', map { $_->to_string } @$self) . ']';
 };
+
+
+sub optimize {
+  my ($self, $segment) = @_;
+
+  return Krawfish::Result::Segment::Aggregate::Values->new(
+    $segment->fields,
+    [$self->operations]
+  );
+};
+
+
 
 1;

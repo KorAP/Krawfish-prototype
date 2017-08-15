@@ -129,7 +129,7 @@ sub to_string {
 # Shorthand for "search through"
 sub finalize {
   while ($_[0]->next) {};
-  return 1;
+  return $_[0];
 };
 
 1;

@@ -53,7 +53,7 @@ is($koral_query->to_string,
 
 ok(my $query = $koral_query->optimize($index->segment), 'Optimization');
 
-is($query->to_string, 'aggregate([freq]:filter(#4,[1]))', 'Stringification');
+is($query->to_string, 'aggr([freq]:filter(#4,[1]))', 'Stringification');
 
 ok($query->next, 'Next');
 ok($query->next, 'Next');
@@ -78,7 +78,7 @@ ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment),
 ok($query->finalize, 'Finish');
 
 # Stringify
-is($query->to_string, "aggregate([freq]:filter(#6,[1]))", 'Get freqs');
+is($query->to_string, "aggr([freq]:filter(#6,[1]))", 'Get freqs');
 
 is($query->collection->{totalResources}, 1, 'Document frequency');
 is($query->collection->{totalResults}, 2, 'Occurrence frequency');
