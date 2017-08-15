@@ -63,7 +63,7 @@ ok($meta_koral = $meta_koral->normalize, 'Normalize meta object');
 
 is(
   $meta_koral->to_string,
-  "enrich=[fields:['author','title','id','subTitle','age','length']],sort=[field='author'>,field='age'<,field='length'<,field='id'<;sortFilter]",
+  "sort=[field='author'>,field='age'<,field='length'<;sortFilter],enrich=[fields:['author','title','id','subTitle']]",
   'Stringification'
 );
 
@@ -81,7 +81,7 @@ $meta_koral = Krawfish::Koral::Meta->new(
 ok($meta_koral = $meta_koral->normalize, 'Normalization');
 
 is($meta_koral->to_string,
-   "enrich=[fields:['id']],sort=[field='id'<],aggr=[length,freq,facets:['author','age','corpus']]",
+   "aggr=[length,freq,facets:['author','age','corpus']]",
    'stringification');
 
 done_testing;

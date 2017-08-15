@@ -72,6 +72,9 @@ use constant DEBUG => 0;
 # TODO:
 #   Maybe 65.535 documents are enough per segment ...
 
+# TODO:
+#   Commits need to be logged and per commit, information
+#   regarding newly added documents need to be accessible.
 
 # Construct a new index object
 sub new {

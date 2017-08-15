@@ -16,6 +16,7 @@ sub startup {
   );
 
 
+  # This returns the local dictionary
   $self->helper(
     'krawfish.node.dictionary' => sub {
       ...
@@ -70,6 +71,11 @@ sub startup {
   #   - document frequency of group
   #   - alphabetic (per classes)
   $r->post('/group')->to('Index#group');
+
+
+  # Get information on commits
+  $r->get('/commit')->to('Index#commit_info')
+  $r->get('/commit/:commit_id')->to('Index#commit_info');
 
   # TODO:
   #   Provide a streaming API (possibly accessible via socket)

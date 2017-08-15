@@ -59,7 +59,7 @@ sub _init {
 
   my $self = shift;
 
-  print_log('aggr_facets', 'Load fields') if DEBUG;
+  print_log('aggr_facets', 'Create pointer on fields') if DEBUG;
 
   # Load the ranked list - may be too large for memory!
   $self->{field_pointer} = $self->{field_obj}->pointer;
@@ -74,17 +74,19 @@ sub each_doc {
 
   print_log('aggr_facets', 'Aggregate on fields') if DEBUG;
 
-
   my $doc_id = $current->doc_id;
 
   my $pointer = $self->{field_pointer};
 
   # Set match frequencies to all remembered doc frequencies
   my $aggr = $self->{aggregation};
-  $aggr->flush;
 
   # Skip to document in question
-  if ($pointer->skip_doc($doc_id)) {
+  # TODO:
+  #   skip_doc should ALWAYS return either the document or NOMOREDOC!
+  if ($pointer->skip_doc($doc_id) != -1) {
+
+    $aggr->flush;
 
     my $coll = $self->{collection};
 
@@ -92,8 +94,8 @@ sub each_doc {
     my @fields;
 
     if (DEBUG) {
-      print_log('aggr_facets', 'Look for frequencies for ' .
-                  join(',', @{$self->{field_keys}}));
+      print_log('aggr_facets', 'Look for frequencies for key ids ' .
+                  join(',', @{$self->{field_keys}}) . " in $doc_id");
     };
 
     # Iterate over all fields

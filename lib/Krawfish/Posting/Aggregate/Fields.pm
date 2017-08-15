@@ -1,9 +1,20 @@
 package Krawfish::Posting::Aggregate::Fields;
+use Krawfish::Log;
 use strict;
 use warnings;
 
+# This remembers facets for multiple classes,
+# both using ids and terms
+
+
 # TODO:
 #   This should be part of Koral::Result!
+
+# TODO:
+#   It may be beneficial to deal with Koral::Type here,
+#   so inflate() would be an action directly done in Koral::Type
+
+use constant DEBUG => 1;
 
 sub new {
   my $class = shift;
@@ -14,6 +25,8 @@ sub new {
   }, $class;
 };
 
+
+# Increment the field frequency for each field in the current doc
 sub incr_doc {
   my ($self, $key_id, $field_id) = @_;
 
@@ -26,16 +39,29 @@ sub incr_doc {
   # Increase doc frequency for the key
   $field_freq->[0]++;
 
-  # Remember
+  if (DEBUG) {
+    print_log('p_a_facets', 'Increment doc frequency for ' . $key_id . ':' . $field_id);
+  };
+
+
+  # Remember the frequency
+  # The problem here is, that they are only loosely coupled to the field
+  # frequency of the field. This may be problematic
   push @{$self->{cache}}, $field_freq;
 };
 
 
+# Increment the field frequency for each field per match
 sub incr_match {
   $_[0]->{freq}++;
+
+  if (DEBUG) {
+    print_log('p_a_facets', 'Increment match frequency');
+  };
 };
 
 
+# Flush all frequency information remembered
 sub flush {
   my $self = shift;
 
@@ -46,11 +72,16 @@ sub flush {
 
     $self->{cache} = [];
     $self->{freq} = 0;
+
+    if (DEBUG) {
+      print_log('p_a_facets', 'Flush field frequency for all remembered frequencies');
+    };
   };
 };
 
 
-sub to_terms {
+# Translate this to terms
+sub inflate {
   my ($self, $dict) = @_;
 
   # Get fields
@@ -59,14 +90,21 @@ sub to_terms {
 
   # Iterate over field identifier
   foreach my $field_id (keys %$fields) {
+
+    # Request the term from the dictionary
     my $field_term = $dict->term_by_term_id($field_id);
 
+    # Remove the term marker
+    # TODO:
+    #   this may be a direct feature of the dictionary instead
     $field_term =~ s/^!//;
     my $aggr = ($fields{$field_term} //= {});
 
     # Get facets for field
     my $values = $fields->{$field_id};
     foreach my $value (keys %$values) {
+
+      # Get the 
       my $facet = $dict->term_by_term_id($value);
       $facet =~ s/^\+$field_term://;
 

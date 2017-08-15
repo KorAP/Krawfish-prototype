@@ -41,9 +41,6 @@ ok_index_2($index, {
   age => 7
 } => [qw/aa bb/], 'Add complex document');
 
-# ok(defined $index->add('t/data/doc1.jsonld'), 'Add new document');
-# ok(defined $index->add('t/data/doc2.jsonld'), 'Add new document');
-# ok(defined $index->add('t/data/doc3-segments.jsonld'), 'Add new document');
 
 my $koral = Krawfish::Koral->new;
 my $qb = $koral->query_builder;
@@ -90,8 +87,12 @@ ok($query->next, 'Next');
 ok($query->next, 'Next');
 ok(!$query->next, 'No more nexts');
 
-ok(my $coll = $query->collection->{fields}->to_terms($index->dict), 'To terms');
-is($coll->to_string, 'facets=age:3[1,1],4[1,2],7[1,1];genre:newsletter[2,3],novel[1,1]');
+# TODO:
+#   This API is only temporarily implemented
+ok(my $coll = $query->collection->{fields}->inflate($index->dict), 'To terms');
+is($coll->to_string, 'facets=age:3[1,1],4[2,3],7[1,1];genre:newsletter[2,3],novel[2,2]');
+
+diag 'check for multivalued fields';
 
 done_testing;
 __END__
@@ -114,48 +115,9 @@ is_deeply($aggr->result, {
 }, 'aggregated results');
 
 
-
-
-done_testing;
-__END__
-
-
-
-ok(my $koral_nodes = $koral->to_nodes, 'Normalization');
-
-is($koral_nodes->to_string, "fields('id':sort(field='id'<:aggr(facets:['license','corpus']:filter(Der,[1]))))", 'Stringification');
-
-use_ok('Krawfish::Result::Segment::Aggregate');
-use_ok('Krawfish::Result::Segment::Aggregate::Facets');
-
-
-my $facet_license = Krawfish::Result::Segment::Aggregate::Facets->new(
-  $index,
-  'license'
-);
-
-my $facet_corpus = Krawfish::Result::Segment::Aggregate::Facets->new(
-  $index,
-  'corpus'
-);
-
-
-# Get facets object
-ok(my $aggr = Krawfish::Result::Segment::Aggregate->new(
-  $query->normalize->finalize->optimize($index),
-  [$facet_license, $facet_corpus]
-), 'Create facet object');
-
-is(
-  $aggr->to_string,
-  "aggregate([facet:'license',facet:'corpus']:'Der')",
-  'Stringification'
-);
-
-
-done_testing;
-__END__
-
+TODO: {
+  local $TODO = 'Test with multivalued fields';
+};
 
 done_testing;
 __END__
