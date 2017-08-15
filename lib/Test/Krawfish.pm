@@ -246,14 +246,15 @@ sub _fields {
   my @fields = ();
   foreach my $key (sort keys %$hash) {
     my $type = 'string';
-    if ($key =~ s/^([string])_//) {
+    my $long_key = $key;
+    if ($key =~ s/^(string|integer)_//) {
       $type = $1;
     };
 
     push(@fields, {
       '@type' => 'koral:field',
       'key' => $key,
-      'value' => $hash->{$key},
+      'value' => $hash->{$long_key},
       'type' => 'type:' . $type
     });
   };
