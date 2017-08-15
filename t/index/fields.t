@@ -52,5 +52,37 @@ ok(!$fields[2], 'Field id');
 
 
 
+ok($index = Krawfish::Index->new, 'Create new index');
+
+ok_index_2($index, {
+  id => 7,
+  integer_size => 2,
+} => [qw/aa bb/], 'Add complex document');
+ok_index_2($index, {
+  id => 3,
+  integer_size => 3,
+} => [qw/aa cc cc/], 'Add complex document');
+ok_index_2($index, {
+  id => 1,
+  integer_size => 17,
+} => [qw/aa bb/], 'Add complex document');
+
+ok($pointer = $index->segment->fields->pointer, 'Get pointer');
+is($pointer->skip_doc(0), 0, 'Skip');
+
+# Get the +size value
+ok(my @values = $pointer->values($index->dict->term_id_by_term('!size')),
+   'Get field value');
+is($values[0]->[1], 2, 'Size');
+
+
+# Get +size of doc_id 2
+is($pointer->skip_doc(2), 2, 'Skip');
+ok(@values = $pointer->values($index->dict->term_id_by_term('!size')),
+   'Get field value');
+
+is($values[0]->[1], 17, 'Size');
+
+
 done_testing;
 __END__

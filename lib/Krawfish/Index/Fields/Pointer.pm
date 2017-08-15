@@ -16,6 +16,10 @@ use constant DEBUG => 1;
 # ->fields(field_key_id*) # All fields with the key_id
 # ->values(field_key_id)  # The value with the given key_id
 
+# TODO:
+#   Multiple aggregations (e.g. values and facets) will currently
+#   use multiple pointers, though this could be optimized.
+
 sub new {
   my $class = shift;
   bless {
@@ -68,6 +72,69 @@ sub skip_doc {
 };
 
 
+sub values {
+  my $self = shift;
+  my @key_ids = @_;  # Need to be sorted in order!
+
+  my $doc = $self->{doc};
+  my ($key_id, $type);
+  my $key_pos = 0;
+
+  # Collect values
+  my @values = ();
+
+  my $current = $doc->[$self->{pos}];
+  while ($current && $current ne 'EOF') {
+
+    unless (defined $key_ids[$key_pos]) {
+      if (DEBUG) {
+        print_log('f_point', "There are no more fields to fetch at " . $key_pos);
+      };
+      last;
+    };
+
+    if ($current == $key_ids[$key_pos]) {
+
+      # The structure [key_id, value] is necessary for multivalued fields!
+      $key_id = $doc->[$self->{pos}++];
+      $type = $doc->[$self->{pos}++];
+
+      # Skip key term
+      $self->{pos}++;
+
+      # There is a value to aggregate
+      if ($type eq 'int') {
+        if (DEBUG) {
+          print_log('f_point', "Found value for " . $key_ids[$key_pos] . ' at ' . $key_pos);
+        };
+        push @values, [$key_id, $doc->[$self->{pos}++]];
+      };
+
+      $key_pos++;
+    }
+
+    # The requested key does not exist
+    elsif ($current > $key_ids[$key_pos]) {
+      # Ignore the key id
+      $key_pos++;
+      next;
+    }
+
+    # Ignore the field
+    else {
+      $self->{pos}++;
+      $type = $doc->[$self->{pos}++];
+      $self->{pos}++;
+      $self->{pos}++ if $type eq 'int'
+    };
+
+    # Remember the current field
+    $current = $doc->[$self->{pos}];
+  };
+
+  return @values;
+};
+
 # Get all field term ids.
 # If key ids are passed, they need to be in numerical order!
 sub fields {
@@ -75,7 +142,7 @@ sub fields {
 
   my @fields = ();
   my $doc = $self->{doc};
-  my $type;
+  my ($type, $key_id);
 
   my $current = $doc->[$self->{pos}];
 
@@ -83,7 +150,7 @@ sub fields {
     while ($current && $current ne 'EOF') {
 
       # The structure [key_id, key] is necessary for multivalued fields!
-      my $key_id = $self->{pos}++;
+      $key_id = $self->{pos}++;
 
       $type = $doc->[$self->{pos}++];
 
@@ -157,6 +224,11 @@ sub fields {
   return @fields;
 };
 
+
+sub field_terms {
+  my $self = shift;
+  return map { $_->[1] } $self->fields(@_);
+};
 
 
 
