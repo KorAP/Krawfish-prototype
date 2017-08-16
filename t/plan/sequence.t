@@ -1,4 +1,5 @@
 use Test::More;
+use Test::Krawfish;
 use strict;
 use warnings;
 use Data::Dumper;
@@ -8,7 +9,7 @@ use_ok('Krawfish::Index');
 
 my $index = Krawfish::Index->new;
 
-ok(defined $index->add('t/data/doc1.jsonld'), 'Add new document');
+ok_index_file($index, 'doc1.jsonld', 'Add new document');
 
 my $koral = Krawfish::Koral->new;
 

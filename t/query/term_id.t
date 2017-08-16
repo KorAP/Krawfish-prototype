@@ -1,21 +1,16 @@
 use Test::More;
+use Test::Krawfish;
 use strict;
 use warnings;
 use Data::Dumper;
-use File::Basename 'dirname';
-use File::Spec::Functions 'catfile';
 
 use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Query::Builder');
 
 my $index = Krawfish::Index->new;
 
-sub cat_t {
-  return catfile(dirname(__FILE__), '..', @_);
-};
-
-ok(defined $index->add(cat_t('data','doc1.jsonld')), 'Add new document');
-ok(defined $index->add(cat_t('data','doc2.jsonld')), 'Add new document');
+ok_index_file($index, 'doc1.jsonld', 'Add new document');
+ok_index_file($index, 'doc2.jsonld', 'Add new document');
 
 ok(my $qb = Krawfish::Koral::Query::Builder->new, 'Create Koral::Builder');
 
@@ -27,12 +22,12 @@ is($term->to_string, 'Hut');
 ok($term = $term->identify($index->dict), 'To term ids');
 
 # Probably don't check that!
-is($term->to_string, '#20', 'Hut-term_id');
+# is($term->to_string, '#32', 'Hut-term_id');
 
 ok($term = $term->optimize($index->segment), 'Optimize');
 
 # Probably don't check that!
-is($term->to_string, '#20', 'Hut-term_id');
+# is($term->to_string, '#32', 'Hut-term_id');
 
 
 ok(!$term->current, 'Not initialized yet');

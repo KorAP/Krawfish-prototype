@@ -20,6 +20,7 @@ ok(my $index = Krawfish::Index->new, 'Create new index');
 # Transform dictionary to term_id stream
 ok($doc = $doc->identify($index->dict), 'Translate to term identifiers');
 
+
 # Add document to segment
 my $doc_id = $index->segment->add($doc);
 is($doc_id, 0, 'Doc id well added');
@@ -51,13 +52,13 @@ is($index->dict->term_by_term_id(6), '+textLength:8', 'Term');
 ok(!$fields[2], 'Field id');
 
 
-
 ok($index = Krawfish::Index->new, 'Create new index');
 
 ok_index_2($index, {
   id => 7,
   integer_size => 2,
 } => [qw/aa bb/], 'Add complex document');
+
 ok_index_2($index, {
   id => 3,
   integer_size => 3,
@@ -69,6 +70,8 @@ ok_index_2($index, {
 
 ok($pointer = $index->segment->fields->pointer, 'Get pointer');
 is($pointer->skip_doc(0), 0, 'Skip');
+
+
 
 # Get the +size value
 ok(my @values = $pointer->values($index->dict->term_id_by_term('!size')),

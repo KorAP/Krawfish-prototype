@@ -1,20 +1,15 @@
 use Test::More;
+use Test::Krawfish;
 use strict;
 use warnings;
 use Data::Dumper;
-use File::Basename 'dirname';
-use File::Spec::Functions 'catfile';
 
 use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Query::Builder');
 
 my $index = Krawfish::Index->new('index.dat');
 
-sub cat_t {
-  return catfile(dirname(__FILE__), '..', @_);
-};
-
-ok(defined $index->add(cat_t('data','doc3-segments.jsonld')), 'Add new document');
+ok_index_file($index, 'doc3-segments.jsonld', 'Add new document');
 
 ok(my $qb = Krawfish::Koral::Query::Builder->new, 'Create Koral::Builder');
 

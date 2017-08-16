@@ -7,7 +7,8 @@ use strict;
 use Test::More ();
 use File::Basename 'dirname';
 use File::Spec::Functions qw/catfile rel2abs splitdir/;
-our @EXPORT = qw(test_doc test_file ok_index ok_index_2 matches);
+our @EXPORT = qw(test_doc ok_index ok_index_file ok_index_koral matches
+ok_index_2 test_file); # Last line deprecated!
 
 use constant DEBUG => 0;
 
@@ -16,6 +17,8 @@ sub test_file {
   my ($x, $fn) = caller();
   my @caller_dir = splitdir(rel2abs(dirname($fn)));
   my $i = 3;
+
+  warn join('', @caller_dir);
 
   # Remove path till 't'
   while ($caller_dir[-1] ne 't') {
@@ -53,27 +56,14 @@ sub test_doc {
 };
 
 sub ok_index {
-  my $index = shift;
-
   warn 'This is deprecated!';
-
-  # This is in fact deprecated!
-  my $meta;
-  my $kq = test_doc(@_);
-
-  my $desc = 'Add example document';
-
-  local $Test::Builder::Level = $Test::Builder::Level + 1;
-
-  my $tb = Test::More->builder;
-  $tb->ok(defined $index->add($kq), $desc);
+  ok_index_2(@_);
 };
 
 
 sub ok_index_2 {
   my $index = shift;
 
-  # This is in fact deprecated!
   my $meta;
   my $kq = test_doc(@_);
 
@@ -93,6 +83,60 @@ sub ok_index_2 {
   $tb->ok(defined $index->segment->add($kq), $desc);
 };
 
+
+sub ok_index_koral {
+  my $index = shift;
+
+  # Get Koral document
+  my $kq = Krawfish::Koral::Document->new(shift);
+
+  # Transform to term_ids
+  $kq = $kq->identify($index->dict);
+
+  my $desc = shift // 'Add example document';
+
+  local $Test::Builder::Level = $Test::Builder::Level + 1;
+
+  my $tb = Test::More->builder;
+
+  # Add to segment
+  $tb->ok(defined $index->segment->add($kq), $desc);
+};
+
+sub ok_index_file {
+  my $index = shift;
+  my $file = shift;
+
+  my ($x, $fn) = caller();
+  my @caller_dir = splitdir(rel2abs(dirname($fn)));
+  my $i = 3;
+
+  # Remove path till 't'
+  while ($caller_dir[-1] ne 't') {
+    pop @caller_dir;
+    return if $i-- < 0;
+  };
+
+  $file = catfile(@caller_dir, 'data', $file);
+
+  # This is in fact deprecated!
+  my $meta;
+
+  # Get Koral document
+  my $kq = Krawfish::Koral::Document->new($file);
+
+  # Transform to term_ids
+  $kq = $kq->identify($index->dict);
+
+  my $desc = 'Add example document';
+
+  local $Test::Builder::Level = $Test::Builder::Level + 1;
+
+  my $tb = Test::More->builder;
+
+  # Add to segment
+  $tb->ok(defined $index->segment->add($kq), $desc);
+};
 
 sub matches {
   my ($query, $matches, $desc) = @_;

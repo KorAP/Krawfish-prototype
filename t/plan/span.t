@@ -1,4 +1,5 @@
 use Test::More;
+use Test::Krawfish;
 use strict;
 use warnings;
 use Data::Dumper;
@@ -8,7 +9,7 @@ use_ok('Krawfish::Index');
 
 my $index = Krawfish::Index->new;
 
-ok(defined $index->add('t/data/doc3-segments.jsonld'), 'Add new document');
+ok_index_file($index, 'doc3-segments.jsonld', 'Add new document');
 
 my $koral = Krawfish::Koral->new;
 
@@ -26,7 +27,7 @@ is($query->to_string, '<akron/c=NP>', 'Stringification');
 ok($query = $query->normalize, 'Normalization');
 is($query->to_string, "<akron/c=NP>", 'Stringification');
 ok($query = $query->identify($index->dict)->optimize($index->segment), 'Normalization');
-is($query->to_string, "#8", 'Stringification');
+is($query->to_string, "#10", 'Stringification');
 
 # Span planning with zero freq
 $query = $builder->span('xxxx');

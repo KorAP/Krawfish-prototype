@@ -1,6 +1,7 @@
 use Test::More;
 use strict;
 use warnings;
+use Test::Krawfish;
 use Data::Dumper;
 
 use_ok('Krawfish::Koral');
@@ -8,7 +9,7 @@ use_ok('Krawfish::Index');
 
 my $index = Krawfish::Index->new;
 
-ok(defined $index->add('t/data/doc1.jsonld'), 'Add new document');
+ok_index_file($index, 'doc1.jsonld', 'Add new document');
 
 my $koral = Krawfish::Koral->new;
 
@@ -24,7 +25,8 @@ ok(!$query->is_null, 'Isn\'t null');
 ok(!$query->is_negative, 'Isn\'t negative');
 ok(!$query->is_extended, 'Isn\'t extended');
 is($query->to_string, 'unique(Der)', 'Stringification');
-is($query->normalize->finalize->identify($index->dict)->optimize($index->segment)->to_string, "unique(#9)", 'Planned Stringification');
+is($query->normalize->finalize->identify($index->dict)->optimize($index->segment)->to_string,
+   "unique(#10)", 'Planned Stringification');
 
 # Span planning with freq == 0
 $query = $builder->unique($builder->term('xxx'));

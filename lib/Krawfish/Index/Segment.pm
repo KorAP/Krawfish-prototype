@@ -49,6 +49,8 @@ sub new {
   );
 
   # Load primary
+  # TODO:
+  #   DEPRECATED!
   $self->{primary} = Krawfish::Index::PrimaryData->new(
     $self->{file}
   );
@@ -119,6 +121,7 @@ sub live {
 
 # Get primary
 sub primary {
+  warn 'DEPRECATED';
   $_[0]->{primary};
 };
 

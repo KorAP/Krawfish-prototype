@@ -9,9 +9,9 @@ use_ok('Krawfish::Koral::Query::Builder');
 my $index = Krawfish::Index->new;
 
 # Der alte Mann ging über die Straße. Er trug einen lustigen Hut
-ok(defined $index->add(test_file('doc1.jsonld')), 'Add new document');
+ok_index_file($index, 'doc1.jsonld', 'Add new document');
 # Der Hut stand dem jungen Mann sehr gut. Er betrachtete sich gern im Spiegel.
-ok(defined $index->add(test_file('doc2.jsonld')), 'Add new document');
+ok_index_file($index, 'doc2.jsonld', 'Add new document');
 
 ok(my $qb = Krawfish::Koral::Query::Builder->new, 'Create QueryBuilder');
 
