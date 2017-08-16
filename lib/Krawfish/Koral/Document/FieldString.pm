@@ -1,4 +1,4 @@
-package Krawfish::Index::Forward::FieldInt;
+package Krawfish::Koral::Document::FieldString;
 use Krawfish::Util::String qw/squote/;
 use warnings;
 use strict;
@@ -11,8 +11,9 @@ sub new {
   }, $class;
 };
 
+
 sub type {
-  'int';
+  'string';
 };
 
 # Get key_value combination
@@ -24,11 +25,6 @@ sub term_id {
 # Get key identifier
 sub key_id {
   $_[0]->{key_id};
-};
-
-
-sub value {
-  $_[0]->{value};
 };
 
 
@@ -70,12 +66,9 @@ sub identify {
 sub to_string {
   my $self = shift;
   unless ($self->{key_id}) {
-    return squote($self->{key}) . '=' . $self->{value};
+    return squote($self->{key}) . '=' . squote($self->{value});
   };
-  return $self->{key_id} . '=' . $self->{key_value_id} . '(' . $self->{value} . ')';
+  return $self->{key_id} . '=' . $self->{key_value_id};
 };
-
-
-
 
 1;

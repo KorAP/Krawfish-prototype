@@ -3,6 +3,9 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
+# TODO:
+#   Probably move to Krawfish::Koral::Info
+
 use constant DEBUG => 1;
 
 # Add error

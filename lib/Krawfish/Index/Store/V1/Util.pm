@@ -24,6 +24,9 @@ our @EXPORT_OK = qw/enc_varint
 # for other encodings.
 #
 # A simple nice compact integer packaging is LSIC: http://ticki.github.io/blog/how-lz4-works/
+#
+# TODO: Add text compression with random access
+# e.g. based on http://www.unicode.org/notes/tn31/
 
 sub enc_string ($$) {
   warn 'Short string encoding not implemented yet';

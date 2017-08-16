@@ -1,6 +1,6 @@
-package Krawfish::Index::Forward::Fields;
-use Krawfish::Index::Forward::FieldString;
-use Krawfish::Index::Forward::FieldInt;
+package Krawfish::Koral::Document::Fields;
+use Krawfish::Koral::Document::FieldString;
+use Krawfish::Koral::Document::FieldInt;
 use warnings;
 use strict;
 
@@ -14,7 +14,7 @@ sub add_string {
   my ($key, $value) = @_;
 
   # This may be an integer value
-  push @$self, Krawfish::Index::Forward::FieldString->new($key, $value);
+  push @$self, Krawfish::Koral::Document::FieldString->new($key, $value);
 };
 
 
@@ -23,7 +23,7 @@ sub add_int {
   my ($key, $value) = @_;
 
   # This may be an integer value
-  push @$self, Krawfish::Index::Forward::FieldInt->new($key, $value);
+  push @$self, Krawfish::Koral::Document::FieldInt->new($key, $value);
 };
 
 

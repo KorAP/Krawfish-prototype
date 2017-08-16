@@ -1,11 +1,9 @@
-package Krawfish::Index::Forward::Stream;
-use Krawfish::Index::Forward::Subtoken;
+package Krawfish::Koral::Document::Stream;
+use Krawfish::Koral::Document::Subtoken;
 use warnings;
 use strict;
 
 # This is one single stream of the forward index;
-# TODO:
-#   This should probably be part of Koral::Document::*
 
 sub new {
   my $class = shift;
@@ -18,7 +16,7 @@ sub subtoken {
   my $self = shift;
   my $pos = shift;
   if (@_) {
-    $self->[$pos] = Krawfish::Index::Forward::Subtoken->new(@_);
+    $self->[$pos] = Krawfish::Koral::Document::Subtoken->new(@_);
   };
   return $self->[$pos];
 };

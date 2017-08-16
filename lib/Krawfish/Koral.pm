@@ -1,4 +1,6 @@
 package Krawfish::Koral;
+
+# TODO: Make this a role
 use parent 'Krawfish::Info';
 use Krawfish::Koral::Query::Builder;
 use Krawfish::Koral::Corpus::Builder;

@@ -1,4 +1,4 @@
-package Krawfish::Index::Forward::Annotation;
+package Krawfish::Koral::Document::Annotation;
 use Krawfish::Koral::Query::Term;
 use Krawfish::Util::String qw/squote/;
 use warnings;

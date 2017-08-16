@@ -31,9 +31,9 @@ sub clone;
 
 
 # TODO:
-# This is a value that should probably be stored
-# at span-beginnings and can help to jump through very long
-# sequences of spans
+#   This is a value that should probably be stored
+#   at span-beginnings and can help to jump through very long
+#   sequences of spans
 sub max_length;
 
 

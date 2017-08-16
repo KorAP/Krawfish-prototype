@@ -1,6 +1,6 @@
 package Krawfish::Koral::Document;
-use Krawfish::Index::Forward::Stream;
-use Krawfish::Index::Forward::Fields;
+use Krawfish::Koral::Document::Stream;
+use Krawfish::Koral::Document::Fields;
 use Krawfish::Koral::Query::Term;
 use Krawfish::Log;
 use Mojo::File;
@@ -35,8 +35,8 @@ sub new {
   my $self = bless {
     primary => '',
     sortable => {},
-    stream => Krawfish::Index::Forward::Stream->new,
-    fields => Krawfish::Index::Forward::Fields->new
+    stream => Krawfish::Koral::Document::Stream->new,
+    fields => Krawfish::Koral::Document::Fields->new
   }, $class;
 
   my $doc = shift;

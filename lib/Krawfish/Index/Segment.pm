@@ -1,6 +1,5 @@
 package Krawfish::Index::Segment;
 use Krawfish::Index::Subtokens;
-use Krawfish::Index::PrimaryData;  # Maybe irrelevant
 use Krawfish::Index::Fields;
 use Krawfish::Index::PostingsLive;
 use Krawfish::Index::PostingsList;

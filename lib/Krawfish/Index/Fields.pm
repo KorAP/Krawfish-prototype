@@ -26,6 +26,10 @@ use constant DEBUG => 1;
 #   BUT: This only works if the field has the same collation as the
 #   dictionary!
 
+
+# Merging the fields index is pretty simple, as it only needs to be indexed
+# on the document level and then simply be appended.
+
 # Sort documents by a field and attach a numerical rank.
 # Returns the maximum rank and a vector of ranks at doc id position.
 # Ranks can be set multiple timnes

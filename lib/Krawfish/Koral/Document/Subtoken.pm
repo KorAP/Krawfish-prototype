@@ -1,5 +1,5 @@
-package Krawfish::Index::Forward::Subtoken;
-use Krawfish::Index::Forward::Annotation;
+package Krawfish::Koral::Document::Subtoken;
+use Krawfish::Koral::Document::Annotation;
 use Krawfish::Util::String qw/squote/;
 use warnings;
 use strict;
@@ -39,7 +39,7 @@ sub annotations {
 # Add annotations
 sub add_annotation {
   my $self = shift;
-  push @{$self->{anno}}, Krawfish::Index::Forward::Annotation->new(@_);
+  push @{$self->{anno}}, Krawfish::Koral::Document::Annotation->new(@_);
 };
 
 
