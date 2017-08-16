@@ -360,33 +360,7 @@ sub to_koral_query {
 
 
 # Get KoralQuery with results
-sub to_result {
-  my ($self, $index) = @_;
-
-  warn 'THIS HAS TO BE DONE DIFFERENTLY';
-
-  # Get KoralQuery object
-  my $koral = $self->to_koral_query;
-
-  # Prepare query
-  my $query = $self->prepare_for($index);
-
-  # TODO:
-  #   This is only for matches - not for groups
-  while ($query->next) {
-
-    # Add matches to koral
-    $koral->add_match(
-
-      # Get current match
-      $query->current_match
-    )
-  };
-
-  # Get result hash (e.g. totalResults)
-  $koral->{result} = $query->result;
-};
-
+sub to_result;
 
 
 # TODO:
@@ -409,80 +383,6 @@ sub prepare_for_segment {
 };
 
 
-# Prepare the query for index
-sub prepare_for {
-  my ($self, $index) = @_;
-
-  warn 'DEPRECATED';
-
-  my $query;
-
-  # Corpus and query are given - filter!
-  if ($self->query && $self->corpus) {
-
-    my $corpus = $self->corpus;
-
-    # Meta is defined
-    if ($self->meta) {
-
-      # Wrap in sort filter if available
-      $corpus = $self->meta->sort_filter($corpus);
-    };
-
-    # Add corpus filter
-    $query = $self->query_builder->filter_by($self->query, $self->corpus);
-  }
-
-  # Only corpus is given
-  elsif ($self->corpus) {
-    $query = $self->corpus;
-
-    # Wrap in sort filter if available
-    $query = $self->meta->sort_filter($query, $index) if $self->meta;
-  }
-
-  # Only query is given
-  elsif ($self->query) {
-    $query = $self->query;
-
-    # TODO:
-    #   Somehow do sort_filtering here with a corpus based
-    #   on non-deleted documents or so.
-  };
-
-  # If meta is defined, prepare results
-  $query = $self->meta->search_for($query) if $self->meta;
-
-  # TODO:
-  # The following operations will invalidate sort filtering:
-  # - grouping
-  # - aggregate (except result is already cached)
-
-  # TODO:
-  # if ($self->sorting && $self->sorting->filter) {
-  #   # Filter matches using a sort filter
-  #   $query = $self->query->filter_by($self->sorting->filter);
-  # };
-
-  # TODO:
-  #  - Find identical subqueries
-  #  - This is especially useful for VC filtering,
-  #  - Terms (PostingsList) will automatically avoid
-  #    lifting posting lists multiple times.
-  #
-  # That means: create a buffered version of $self->corpus
-  #
-  # TODO: Make this part of ->plan_for($index, $refs)
-  #
-  # $query->replace_references;
-
-
-  # Prepare query
-  $query = $query->prepare_for($index);
-  # $query = $query->normalize->finalize->inflate($index->dict)->optimize($index);
-
-  return $query;
-};
 
 
 # Find identical subqueries and replace outer queries with
@@ -524,68 +424,8 @@ sub to_string {
   return join(',', @list);
 };
 
+
 1;
 
+
 __END__
-
-
-
-sub sorting {
-  ...
-};
-
-
-# Normalize object
-sub normalize {
-  my $self = shift;
-
-  my $query;
-
-  # Corpus and query are given - filter!
-  if ($self->query && $self->corpus) {
-
-    my $corpus = $self->corpus;
-
-    # Add corpus filter
-    $query = $self->query_builder->filter_by($self->query, $self->corpus);
-
-    # Meta is defined
-    if ($self->meta) {
-
-      # TODO: Make this a filter query!
-
-      # Wrap in sort filter if available
-      $corpus = $self->meta->sort_filter($corpus);
-    };
-  }
-
-  # Only corpus is given
-  elsif ($self->corpus) {
-    $query = $self->corpus;
-
-    # Wrap in sort filter if available
-
-    # TODO:
-    # $query = $self->meta->sort_filter($query, $index) if $self->meta;
-  }
-
-  # Only query is given
-  elsif ($self->query) {
-
-    # Add corpus filter for live documents
-    $query = $self->query_builder->filter_by(
-      $self->query,
-      $self->corpus_builder->any
-    );
-  };
-
-
-  # If meta is defined, prepare results
-  if ($self->meta) {
-    $query = $self->meta->search_for($query);
-  };
-
-
-  # Prepare query
-  return $query->normalize;
-};

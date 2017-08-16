@@ -340,42 +340,10 @@ sub normalize {
 };
 
 
-sub inflate {
-  my ($self, $dict) = @_;
-
-  # Do not inflate
-  return $self unless $self->is_regex;
-
-  # Get terms
-  my $term = $self->to_term_escaped;
-
-  print_log('kq_term', 'Inflate /^' . $term . '$/') if DEBUG;
-
-  # Get terms from dictionary
-  my @terms = $dict->terms(qr/^$term$/);
-
-  if (DEBUG) {
-    print_log('kq_term', 'Expand /^' . $term . '$/');
-    print_log('kq_term', 'to ' . (@terms > 0 ? substr(join(',', @terms), 0, 50) : '[0]'));
-  };
-
-  # Build empty term instead of nothing
-  return $self->builder->nothing unless @terms;
-
-  # TODO:
-  #   Use refer?
-  return $self->builder->bool_or(@terms)->normalize;
-};
-
-
-
-# This is alternative to inflate
+# Translate all terms to term_ids
 sub identify {
   my ($self, $dict) = @_;
 
-  # Do not inflate
-  # TODO:
-  #   But identify!!!
   unless ($self->is_regex) {
 
     my $term = $self->to_term;

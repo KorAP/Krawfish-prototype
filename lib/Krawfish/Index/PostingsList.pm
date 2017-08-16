@@ -16,9 +16,9 @@ use constant DEBUG => 0;
 # TODO: Return K::P::Data for at()
 
 sub new {
-  my ($class, $index_file, $term, $term_id) = @_;
+  my ($class, $index_file, $term_id) = @_;
+
   bless {
-    term => $term, ### Term is irrelevant now!
     term_id => $term_id,
     index_file => $index_file,
     array => [],
@@ -48,9 +48,6 @@ sub freq {
   return scalar @{$_[0]->{array}};
 };
 
-sub term {
-  return $_[0]->{term} // 'unknown';
-};
 
 sub term_id {
   return $_[0]->{term_id};

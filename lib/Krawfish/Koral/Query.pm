@@ -50,17 +50,6 @@ sub type;
 # Query Planning methods and attributes #
 #########################################
 
-sub plan_for_new {
-  my ($self, $index) = @_;
-  $self
-    ->normalize
-    ->finalize
-    ->refer
-    ->inflate($index->dict)
-    ->cache
-    ->optimize($index);
-};
-
 
 # Normalize the query
 sub normalize;
@@ -71,20 +60,6 @@ sub refer {
   $_[0];
 };
 
-
-# Expand regular expressions
-sub inflate {
-  my ($self, $dict) = @_;
-
-  warn 'Inflate is deprecated - use ->identify()';
-
-  my $ops = $self->operands;
-  return $self unless $ops;
-  for (my $i = 0; $i < @$ops; $i++) {
-    $ops->[$i] = $ops->[$i]->inflate($dict);
-  };
-  return $self;
-};
 
 
 # TODO:

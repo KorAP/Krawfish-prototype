@@ -25,12 +25,15 @@ sub new {
   }, $class;
 };
 
+
 sub type { 'span' };
+
 
 # There are no classes allowed in spans
 sub remove_classes {
   $_[0];
 };
+
 
 sub to_koral_fragment {
   my $self = shift;
@@ -50,14 +53,6 @@ sub normalize {
   return $_[0];
 };
 
-#sub inflate {
-#  my ($self, $dict) = @_;
-
-#  print_log('kq_span', 'Inflate span') if DEBUG;
-
-#  $self->{operands}->[0] = $self->operand->inflate($dict);
-#  return $self;
-#};
 
 
 sub identify {

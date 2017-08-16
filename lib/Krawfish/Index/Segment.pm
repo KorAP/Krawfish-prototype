@@ -43,15 +43,8 @@ sub new {
 
   print_log('seg', 'Instantiate new segment') if DEBUG;
 
-  # Load offsets
+  # Load subtokens list
   $self->{subtokens} = Krawfish::Index::Subtokens->new(
-    $self->{file}
-  );
-
-  # Load primary
-  # TODO:
-  #   DEPRECATED!
-  $self->{primary} = Krawfish::Index::PrimaryData->new(
     $self->{file}
   );
 
@@ -75,9 +68,6 @@ sub new {
 
   # Collect fields to sort
   $self->{sortable} = {};
-
-  # Collect values to sum
-  $self->{summable} = {};
 
   # Add cache
   $self->{cache} = Krawfish::Cache->new;
@@ -119,47 +109,41 @@ sub live {
 };
 
 
-# Get primary
-sub primary {
-  warn 'DEPRECATED';
-  $_[0]->{primary};
-};
-
-
-# Get fields
+# Get fields index
 sub fields {
   $_[0]->{fields};
 };
 
 
-# Get field values for addition
-sub field_values {
-  warn 'DEPRECATED';
-  $_[0]->{field_values};
+# Get forward index
+sub forward {
+  $_[0]->{forward};
 };
 
 
-# Return a postings list
-# based on a term_id
+# Return a postings list based on a term_id
 sub postings {
   my ($self, $term_id) = @_;
 
+  # TODO:
+  #   There may already be a prepared pool of postingslist
+  #   based on the numerically sorted term ids
+
   $self->{$term_id} //= Krawfish::Index::PostingsList->new(
-    'unknown', 'unknown', $term_id
+     $self->{file}, $term_id
   );
 
   return $self->{$term_id};
 };
 
 
-sub forward {
-  $_[0]->{forward};
-};
-
-
-# This will make add() in Krawfish::Index obsolete
+# Add a prepared document to the index
 sub add {
   my ($self, $doc) = @_;
+
+  # TODO:
+  #   This may use a prepared pool of PostingsLists
+  #   that are lifted before - for term_ids in numerical order
 
   # TODO:
   # Alternatively get this from the forward index
@@ -168,7 +152,6 @@ sub add {
 
   # TODO:
   #   The document should already have a field with __1:1 and id!
-
   my $doc_id_2 = $self->fields->add($doc);
 
   # TODO:
@@ -192,6 +175,7 @@ sub add {
     };
     $self->postings($_->term_id)->append($doc_id);
   };
+
 
   # TODO:
   #   This should probably collect all [term_id => data] in advanced,

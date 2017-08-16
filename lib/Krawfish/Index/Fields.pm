@@ -50,6 +50,7 @@ sub new {
   }, $class;
 };
 
+
 # Get last document identifier aka max_doc_id
 sub last_doc_id {
   $_[0]->{last_doc_id};
@@ -67,6 +68,7 @@ sub add {
   return $doc_id;
 };
 
+
 # Get doc from list (as long as the list provides random access to docs
 sub doc {
   my ($self, $doc_id) = @_;
@@ -81,10 +83,6 @@ sub pointer {
   return Krawfish::Index::Fields::Pointer->new($self);
 };
 
-
-sub store {
-  # DEPRECATED!
-};
 
 
 # TODO:
@@ -125,7 +123,6 @@ sub ranked_by {
   # Return ranked list
   return $ranks->{$field};
 };
-
 
 
 1;

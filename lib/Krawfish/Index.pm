@@ -88,11 +88,12 @@ sub new {
     $self->{file}
   );
 
-  $self->{segments} = [];
-
-  $self->{dyn_segment} = Krawfish::Index::Segment->new(
-    $self->{file}
-  );
+  # The first segment in the list of segments is always the dynamic one
+  $self->{segments} = [
+    Krawfish::Index::Segment->new(
+      $self->{file}
+    )
+  ];
 
   return $self;
 };
@@ -106,7 +107,7 @@ sub segments {
 
 # Get the dynamic segment
 sub segment {
-  $_[0]->{dyn_segment};
+  $_[0]->{segments}->[0];
 };
 
 

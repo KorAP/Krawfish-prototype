@@ -1,5 +1,4 @@
 package Krawfish::Koral::Meta::Enrich;
-use Krawfish::Koral::Meta::Node::Enrich;
 use Krawfish::Log;
 use strict;
 use warnings;

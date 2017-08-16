@@ -105,13 +105,6 @@ sub normalize {
 };
 
 
-sub inflate {
-  my ($self, $dict) = @_;
-  print_log('kq_token', 'Inflate wrapper') if DEBUG;
-  $self->operands([$self->operand->inflate($dict)]);
-  return $self;
-};
-
 sub finalize {
   my $self = shift;
 

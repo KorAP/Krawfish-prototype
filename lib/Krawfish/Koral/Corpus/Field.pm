@@ -111,20 +111,11 @@ sub excludes {
 sub can_toggle_negativity;
 
 
-sub inflate {
-  # Inflate for RegEx and existence!
-  warn 'Inflation on fields not yet implemented';
-  return $_[0];
-};
 
-
-# This is alternative to inflate
+# Translate all terms to term ids
 sub identify {
   my ($self, $dict) = @_;
 
-  # Do not inflate
-  # TODO:
-  #   But identify!!!
   unless ($self->is_regex) {
 
     my $term = $self->to_term;

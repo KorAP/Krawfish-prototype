@@ -12,7 +12,7 @@ use warnings;
 # TODO:
 #   Preparation should be:
 #   -> normalize()
-#   -> inflate()
+#   -> identify()
 #   -> finalize()
 #   -> memoize(cache)
 #   -> optimize(index)
