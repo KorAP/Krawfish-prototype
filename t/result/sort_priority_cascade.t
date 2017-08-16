@@ -10,15 +10,15 @@ use_ok('Krawfish::Result::Segment::Enrich::Fields');
 
 my $index = Krawfish::Index->new;
 
-ok_index($index, {
+ok_index_2($index, {
   docID => 7,
   author => 'Arthur'
 } => [qw/aa bb/], 'Add complex document');
-ok_index($index, {
+ok_index_2($index, {
   docID => 3,
   author => 'Arthur'
 } => [qw/aa bb cc/], 'Add complex document');
-ok_index($index, {
+ok_index_2($index, {
   docID => 1,
   author => 'Bob'
 } => [qw/aa bb cc/], 'Add complex document');

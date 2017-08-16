@@ -292,6 +292,12 @@ sub term_ids {
 };
 
 
+sub terms {
+  my $self = shift;
+  return sort keys %{$self->{hash}};
+};
+
+
 # This should be implemented in the dynamic dictionary only
 sub process_subterm_ranks {
   return if $_[0]->{ranked};

@@ -76,25 +76,25 @@ use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Corpus::Builder');
 
 ok(my $index = Krawfish::Index->new, 'New index');
-ok_index($index, {
+ok_index_2($index, {
   id => 2,
   author => 'Peter',
   genre => 'novel',
   age => 4
 } => [qw/aa bb/], 'Add complex document');
-ok_index($index, {
+ok_index_2($index, {
   id => 3,
   author => 'Peter',
   genre => 'novel',
   age => 3
 } => [qw/aa bb/], 'Add complex document');
-ok_index($index, {
+ok_index_2($index, {
   id => 5,
   author => 'Peter',
   genre => 'newsletter',
   age => 4
 } => [qw/aa bb/], 'Add complex document');
-ok_index($index, {
+ok_index_2($index, {
   id => 6,
   author => 'Michael',
   genre => 'newsletter',
@@ -113,7 +113,7 @@ is($plan->to_string, '[1]&author=Peter', 'Stringification');
 ok($plan = $plan->identify($index->dict), 'Add identification');
 
 ok(my $fin = $plan->optimize($index->segment), 'Optimizing');
-is($fin->to_string, "and([1],#3)", 'Stringification');
+is($fin->to_string, "and([1],#4)", 'Stringification');
 
 matches($fin, [qw/[0] [1] [2]/]);
 
@@ -139,7 +139,7 @@ is($query->to_string, '([1]&age=4)|([1]&genre=newsletter)', 'Stringification');
 
 ok($plan = $query->identify($index->dict)->optimize($index->segment), 'Planning');
 
-is($plan->to_string, 'or(and([1],#1),and([1],#13))', 'Stringification');
+is($plan->to_string, 'or(and([1],#15),and([1],#2))', 'Stringification');
 matches($plan, [qw/[0] [2] [3]/], 'Test matches');
 
 
@@ -164,7 +164,7 @@ is($query->to_string, '([1]&age=4)|([1]&author=Michael)|([1]&genre=newsletter)',
 
 ok($plan = $query->identify($index->dict)->optimize($index->segment), 'Planning');
 
-is($plan->to_string, 'or(or(and([1],#16),and([1],#1)),and([1],#13))', 'Stringification');
+is($plan->to_string, 'or(or(and([1],#18),and([1],#15)),and([1],#2))', 'Stringification');
 matches($plan, [qw/[0] [2] [3]/], 'Test matches');
 
 

@@ -15,7 +15,7 @@ sub cat_t {
 
 my $index = Krawfish::Index->new;
 
-ok_index($index, [qw/first second third fourth fifth sixth/], 'Add new document');
+ok_index_2($index, [qw/first second third fourth fifth sixth/], 'Add new document');
 
 my $koral = Krawfish::Koral->new;
 
@@ -61,7 +61,7 @@ $query = $qb->token(
 # like the least common operand, which in a constraint query means,
 # it's the second one
 is($query->normalize->finalize->identify($index->dict)->optimize($index->segment)->to_string,
-   "constr(pos=32:#2,#1)", 'Planned Stringification');
+   "constr(pos=32:#4,#2)", 'Planned Stringification');
 
 
 $query = $qb->token(
@@ -100,11 +100,11 @@ ok($query = $query->normalize, 'Normalize');
 is($query->to_string, '(first&second)|(fourth&third)', 'Stringification');
 ok($query = $query->finalize->identify($index->dict)->optimize($index->segment), 'Normalize');
 is($query->to_string,
-   "or(constr(pos=32:#2,#1),constr(pos=32:#4,#3))",
+   "or(constr(pos=32:#4,#2),constr(pos=32:#8,#6))",
    'Stringification');
 
-is($index->dict->term_by_term_id(3), 'third', 'Check mapping');
-is($index->dict->term_by_term_id(4), 'fourth', 'Check mapping');
+is($index->dict->term_by_term_id(6), 'third', 'Check mapping');
+is($index->dict->term_by_term_id(8), 'fourth', 'Check mapping');
 
 $query = $qb->token(
   $qb->bool_or(
@@ -129,7 +129,7 @@ ok($query = $query->normalize, 'Normalize');
 is($query->to_string, '((fifth|fourth)&third)|(first&second)|sixth', 'Stringification');
 ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimize');
 is($query->to_string,
-   "or(or(#6,constr(pos=32:#2,#1)),constr(pos=32:or(#4,#5),#3))",
+   "or(or(#12,constr(pos=32:#4,#2)),constr(pos=32:or(#10,#8),#6))",
    'Stringification');
 
 # Group with null
@@ -140,7 +140,7 @@ is($query->to_string, '[-&first]', 'Stringifications');
 ok($query = $query->normalize, 'Normalize');
 is($query->to_string, 'first', 'Stringifications');
 ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimize');
-is($query->to_string, "#1", 'Stringifications');
+is($query->to_string, "#2", 'Stringifications');
 
 
 # Group with negation
@@ -152,7 +152,7 @@ is($query->to_string, '[!second&first]', 'Stringifications');
 ok($query = $query->normalize, 'Normalize');
 is($query->to_string, 'excl(32:first,second)', 'Stringifications');
 ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimize');
-is($query->to_string, "excl(32:#1,#2)", 'Stringifications');
+is($query->to_string, "excl(32:#2,#4)", 'Stringifications');
 
 
 # Group with negation and zero freq
@@ -164,7 +164,7 @@ is($query->to_string, '[first&opennlp/c!=NN]', 'Stringifications');
 ok($query = $query->normalize, 'Normalize');
 is($query->to_string, 'excl(32:first,opennlp/c=NN)', 'Stringifications');
 ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimize');
-is($query->to_string, "#1", 'Stringifications');
+is($query->to_string, "#2", 'Stringifications');
 
 
 
@@ -179,7 +179,7 @@ is($query->to_string, '[(!fourth&second)&(!third&first)]', 'Stringifications');
 ok($query = $query->normalize, 'Normalize');
 is($query->to_string, 'excl(32:first&second,fourth|third)', 'Stringifications');
 ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimize');
-is($query->to_string, "excl(32:constr(pos=32:#2,#1),or(#3,#4))", 'Stringifications');
+is($query->to_string, "excl(32:constr(pos=32:#4,#2),or(#6,#8))", 'Stringifications');
 
 # And group with not-founds
 # [first&opennlp/c!=NN&second&third&tt/p!=ADJA]
@@ -193,7 +193,7 @@ is($query->to_string, '[(first&opennlp/c!=NN)&(second&tt/p!=ADJA)]', 'Stringific
 ok($query = $query->normalize->finalize, 'Normalize');
 is($query->to_string, 'excl(32:first&second,opennlp/c=NN|tt/p=ADJA)', 'Stringifications');
 ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimize');
-is($query->to_string, "constr(pos=32:#2,#1)", 'Stringifications');
+is($query->to_string, "constr(pos=32:#4,#2)", 'Stringifications');
 
 done_testing;
 __END__

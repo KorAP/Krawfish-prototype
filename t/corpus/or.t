@@ -7,9 +7,9 @@ use_ok('Krawfish::Koral::Corpus::Builder');
 use_ok('Krawfish::Index');
 
 my $index = Krawfish::Index->new;
-ok_index($index, {id => 2} => [qw/aa bb/], 'Add complex document');
-ok_index($index, {id => 3} => [qw/aa bb/], 'Add complex document');
-ok_index($index, {id => 5} => [qw/aa bb/], 'Add complex document');
+ok_index_2($index, {id => 2} => [qw/aa bb/], 'Add complex document');
+ok_index_2($index, {id => 3} => [qw/aa bb/], 'Add complex document');
+ok_index_2($index, {id => 5} => [qw/aa bb/], 'Add complex document');
 
 ok(my $cb = Krawfish::Koral::Corpus::Builder->new, 'Create CorpusBuilder');
 
@@ -23,7 +23,7 @@ is($query->to_string, 'id=2|id=3', 'Stringification');
 
 ok(my $plan = $query->normalize->identify($index->dict)->optimize($index->segment), 'Planning');
 
-is($plan->to_string, "or(#1,#5)", 'Stringification');
+is($plan->to_string, "or(#2,#7)", 'Stringification');
 
 ok($plan->next, 'Init vc');
 is($plan->current->to_string, '[0]', 'First doc');
@@ -32,8 +32,8 @@ is($plan->current->to_string, '[1]', 'First doc');
 ok(!$plan->next, 'No more next doc');
 
 
-ok_index($index, {id => 7} => [qw/aa bb/], 'Add complex document');
-ok_index($index, {id => 9} => [qw/aa bb/], 'Add complex document');
+ok_index_2($index, {id => 7} => [qw/aa bb/], 'Add complex document');
+ok_index_2($index, {id => 9} => [qw/aa bb/], 'Add complex document');
 
 ok($query = $cb->bool_or(
   $cb->string('id')->eq('3'),
@@ -45,7 +45,7 @@ is($query->to_string, 'id=2|id=3|id=9', 'Stringification');
 
 ok($plan = $query->normalize->identify($index->dict)->optimize($index->segment), 'Planning');
 
-is($plan->to_string, "or(or(#1,#5),#8)", 'Stringification');
+is($plan->to_string, "or(or(#10,#2),#7)", 'Stringification');
 
 matches($plan, [qw/[0] [1] [4]/], 'Matches');
 
@@ -57,7 +57,7 @@ ok($query = $cb->bool_or(
 
 is($query->to_string, 'id!=2|id=5', 'Stringification');
 ok($plan = $query->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Planning');
-is($plan->to_string, "and(or(#6,andNot([1],#1)),[1])", 'Stringification');
+is($plan->to_string, "and(or(#8,andNot([1],#2)),[1])", 'Stringification');
 
 # matches($plan, [qw/[0] [1] [2] [3] [4]/], 'Matches');
 

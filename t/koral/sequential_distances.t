@@ -8,8 +8,8 @@ use_ok('Krawfish::Koral::Query::Builder');
 use_ok('Krawfish::Index');
 
 my $index = Krawfish::Index->new;
-ok_index($index, '[a|b][a|b|c][a][b|c]', 'Add complex document');
-ok_index($index, '[b][b|c][a]', 'Add complex document');
+ok_index_2($index, '[a|b][a|b|c][a][b|c]', 'Add complex document');
+ok_index_2($index, '[b][b|c][a]', 'Add complex document');
 # c: 3
 # a: 4
 # b: 5
@@ -31,7 +31,7 @@ is($seq->to_string, 'a[]b', 'Stringification');
 ok($seq = $seq->identify($index->dict)->optimize($index->segment), 'Optimization');
 
 # Do not check for stringifications
-is($seq->to_string, "constr(pos=4096,between=1-1:#2,#1)",
+is($seq->to_string, "constr(pos=4096,between=1-1:#3,#2)",
    'Stringification');
 
 # Matches once
@@ -51,7 +51,7 @@ is($seq->to_string, 'a[]?b', 'Stringification');
 ok($seq = $seq->identify($index->dict)->optimize($index->segment), 'Optimization');
 
 # Do not check for stringifications
-is($seq->to_string, "constr(pos=6144,between=0-1:#2,#1)",
+is($seq->to_string, "constr(pos=6144,between=0-1:#3,#2)",
    'Stringification');
 
 # Matches once
@@ -72,7 +72,7 @@ is($seq->to_string, 'a[]{1,3}b', 'Stringification');
 ok($seq = $seq->identify($index->dict)->optimize($index->segment), 'Optimization');
 
 # Do not check for stringifications
-is($seq->to_string, "constr(pos=4096,between=1-3:#2,#1)",
+is($seq->to_string, "constr(pos=4096,between=1-3:#3,#2)",
    'Stringification');
 
 # Matches once
@@ -90,7 +90,7 @@ is($seq->to_string, 'a[]{0,100}b', 'Stringification');
 ok($seq = $seq->identify($index->dict)->optimize($index->segment), 'Optimization');
 
 # Do not check for stringifications
-is($seq->to_string, "constr(pos=6144,between=0-100:#2,#1)",
+is($seq->to_string, "constr(pos=6144,between=0-100:#3,#2)",
    'Stringification');
 
 # Matches once
@@ -109,7 +109,7 @@ is($seq->to_string, 'a{1:[]{0,100}}b', 'Stringification');
 ok($seq = $seq->identify($index->dict)->optimize($index->segment), 'Optimization');
 
 # Do not check for stringifications
-is($seq->to_string, "constr(pos=6144,between=0-100,class=1:#2,#1)",
+is($seq->to_string, "constr(pos=6144,between=0-100,class=1:#3,#2)",
    'Stringification');
 
 # Matches once
@@ -129,7 +129,7 @@ is($seq->to_string, 'a{4:{3:[]{0,100}}}b', 'Stringification');
 ok($seq = $seq->identify($index->dict)->optimize($index->segment), 'Optimization');
 
 # Do not check for stringifications
-is($seq->to_string, "constr(pos=6144,between=0-100,class=4,class=3:#2,#1)",
+is($seq->to_string, "constr(pos=6144,between=0-100,class=4,class=3:#3,#2)",
    'Stringification');
 
 
@@ -146,7 +146,7 @@ is($seq->to_string, 'a{4:{3:[]{0,100}}}b', 'Stringification');
 ok($seq = $seq->identify($index->dict)->optimize($index->segment), 'Optimization');
 
 # Do not check for stringifications
-is($seq->to_string, "constr(pos=6144,between=0-100,class=4,class=3:#2,#1)",
+is($seq->to_string, "constr(pos=6144,between=0-100,class=4,class=3:#3,#2)",
    'Stringification');
 
 

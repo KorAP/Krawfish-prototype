@@ -10,15 +10,15 @@ use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral');
 
 my $index = Krawfish::Index->new;
-ok_index($index, {
+ok_index_2($index, {
   id => 1,
   genre => 'novel',
 } => '[a|b]<1:x>[a|b|c]</1>[a][b|c]', 'Add complex document');
-ok_index($index, {
+ok_index_2($index, {
   id => 2,
   genre => 'news',
 } => '[a|b][a|b|c][a][b|c]', 'Add complex document');
-ok_index($index, {
+ok_index_2($index, {
   id => 3,
   genre => 'novel',
 } => '<1:x>[a|b][a|b|c][a]</1>[b|c]', 'Add complex document');
@@ -82,7 +82,7 @@ is($query->to_string,
 ok($query = $query->identify($index->dict), 'Identify');
 
 is($query->to_string,
-   'filter(unique({3:(#5&#6)|#8}[]#5{1,4}),(#11|#3)&(#1|#9))',
+   'filter(unique({3:(#6&#7)|#9}[]#6{1,4}),(#11|#2)&(#13|#4))',
    'stringification');
 
 ok($query = $query->optimize($index->segment), 'Materialize');

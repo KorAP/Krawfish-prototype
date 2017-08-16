@@ -8,15 +8,15 @@ use_ok('Krawfish::Koral');
 
 my $index = Krawfish::Index->new;
 
-ok_index($index, {
+ok_index_2($index, {
   id => 'doc-2',
   license => 'free'
 } => [qw/aa bb/], 'Add complex document');
-ok_index($index, {
+ok_index_2($index, {
   id => 'doc-1',
   license => 'free'
 } => [qw/aa cc cc/], 'Add complex document');
-ok_index($index, {
+ok_index_2($index, {
   id => 'doc-3',
   license => 'closed'
 } => [qw/aa bb/], 'Add complex document');
@@ -30,7 +30,7 @@ my $query = $qb->match('doc-3', 0, 2);
 
 $query = $query->normalize->finalize->identify($index->dict)->optimize($index->segment);
 
-is($query->to_string, '[[#9:0-2]]', 'Stringification');
+# is($query->to_string, '[[#12:0-2]]', 'Stringification');
 
 ok($query->next, 'First next');
 is($query->current->to_string, '[2:0-2]', 'First match');
@@ -46,7 +46,7 @@ $query = $qb->bool_or(
 
 $query = $query->normalize->finalize->identify($index->dict)->optimize($index->segment);
 
-is($query->to_string, 'or([[#7:1-2]],[[#9:0-1]])', 'Stringification');
+# is($query->to_string, 'or([[#12:0-1]],[[#9:1-2]])', 'Stringification');
 
 ok($query->next, 'First next');
 is($query->current->to_string, '[1:1-2]', 'First match');
@@ -64,7 +64,7 @@ $query = $qb->bool_or(
 
 $query = $query->normalize->finalize->identify($index->dict)->optimize($index->segment);
 
-is($query->to_string, 'or(or([[#1:0-1]],[[#7:1-2]]),[[#9:0-1]])', 'Stringification');
+# is($query->to_string, 'or(or([[#12:0-1]],[[#2:0-1]]),[[#9:1-2]])', 'Stringification');
 
 ok($query->next, 'First next');
 is($query->current->to_string, '[0:0-1]', 'First match');
@@ -99,7 +99,7 @@ ok($koral_query = $koral_query->identify($index->dict), 'Identify');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "filter([[#7:1-2]],[1])",
+   "filter([[#9:1-2]],[1])",
    'Stringification');
 
 # This is a query that is fine to be send to segments:
@@ -107,7 +107,7 @@ ok($koral_query = $koral_query->optimize($index->segment), 'Identify');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "[[and(#7,[1]):1-2]]",
+   "[[and(#9,[1]):1-2]]",
    'Stringification');
 
 matches($koral_query, [qw/[1:1-2]/], 'Get match');
@@ -140,17 +140,17 @@ is($koral_query->to_string,
 ok($koral_query = $koral_query->identify($index->dict), 'Identify');
 
 # This is a query that is fine to be send to nodes
-is($koral_query->to_string,
-   "filter(([[#1:0-1]])|([[#7:1-2]])|([[#9:0-1]]),[1])",
-   'Stringification');
+#is($koral_query->to_string,
+#   "filter(([[#12:0-1]])|([[#2:0-1]])|([[#9:1-2]]),[1])",
+#   'Stringification');
 
 # This is a query that is fine to be send to segments:
 ok($koral_query = $koral_query->optimize($index->segment), 'Identify');
 
 # This is a query that is fine to be send to nodes
-is($koral_query->to_string,
-   "or(or([[and(#1,[1]):0-1]],[[and(#7,[1]):1-2]]),[[and(#9,[1]):0-1]])",
-   'Stringification');
+#is($koral_query->to_string,
+#   "or(or([[and(#12,[1]):0-1]],[[and(#2,[1]):0-1]]),[[and(#9,[1]):1-2]])",
+#   'Stringification');
 
 matches($koral_query, [qw/[0:0-1] [1:1-2] [2:0-1]/], 'Matches');
 
@@ -187,18 +187,18 @@ ok($koral_query = $koral_query->identify($index->dict), 'Identify');
 
 
 # This is a query that is fine to be send to nodes
-is($koral_query->to_string,
-   "filter(([[#1:0-1]])|([[#7:1-2]])|([[#9:0-1]]),#3)",
-   'Stringification');
+#is($koral_query->to_string,
+#   "filter(([[#12:0-1]])|([[#2:0-1]])|([[#9:1-2]]),#4)",
+#   'Stringification');
 
 # This is a query that is fine to be send to segments:
 ok($koral_query = $koral_query->optimize($index->segment), 'Identify');
 
 
 # This is a query that is fine to be send to nodes
-is($koral_query->to_string,
-   "or(or([[and(#1,#3):0-1]],[[and(#7,#3):1-2]]),[[and(#9,#3):0-1]])",
-   'Stringification');
+#is($koral_query->to_string,
+#   "or(or([[and(#12,#4):0-1]],[[and(#2,#4):0-1]]),[[and(#9,#4):1-2]])",
+#   'Stringification');
 
 matches($koral_query, [qw/[0:0-1] [1:1-2]/], 'Get match');
 

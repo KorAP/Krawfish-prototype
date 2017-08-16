@@ -18,9 +18,21 @@ ok(!Krawfish::Corpus::Class->new(undef, -5), 'Create class corpus');
 ok(!Krawfish::Corpus::Class->new(undef, 25), 'Create class corpus');
 
 my $index = Krawfish::Index->new;
-ok_index($index, {id => 2, author => 'David', age => 22} => [qw/aa bb/], 'Add complex document');
-ok_index($index, {id => 3, author => 'David', age => 24} => [qw/aa bb/], 'Add complex document');
-ok_index($index, {id => 5, author => 'David', age => 24} => [qw/aa bb/], 'Add complex document');
+ok_index_2($index, {
+  id => 2,
+  author => 'David',
+  integer_age => 22
+} => [qw/aa bb/], 'Add complex document');
+ok_index_2($index, {
+  id => 3,
+  author => 'David',
+  integer_age => 24
+} => [qw/aa bb/], 'Add complex document');
+ok_index_2($index, {
+  id => 5,
+  author => 'David',
+  integer_age => 24
+} => [qw/aa bb/], 'Add complex document');
 
 ok(my $cb = Krawfish::Koral::Corpus::Builder->new, 'Create CorpusBuilder');
 
@@ -71,7 +83,7 @@ is_deeply($query->to_koral_fragment, {
 ok(my $plan = $query->normalize->identify($index->dict)->optimize($index->segment), 'Planning');
 
 is($plan->to_string,
-   "or(class(3:#9),class(2:#3))",
+   "or(class(3:#12),class(2:#2))",
    'Stringification');
 
 TODO: {

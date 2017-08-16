@@ -7,7 +7,7 @@ use_ok('Krawfish::Koral');
 use_ok('Krawfish::Index');
 
 my $index = Krawfish::Index->new;
-ok_index($index, '[a|b][a|b|c][a][b|c]', 'Add complex document');
+ok_index_2($index, '[a|b][a|b|c][a][b|c]', 'Add complex document');
 
 
 # The problem is, that negativity in tokens is resolved using bool_and_not(any, neg).

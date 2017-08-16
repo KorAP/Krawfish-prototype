@@ -1,5 +1,6 @@
 package Test::Krawfish;
 use Krawfish::Log;
+use Krawfish::Koral::Document;
 use parent 'Test::Builder::Module';
 use warnings;
 use strict;
@@ -53,6 +54,8 @@ sub test_doc {
 
 sub ok_index {
   my $index = shift;
+
+  warn 'This is deprecated!';
 
   # This is in fact deprecated!
   my $meta;

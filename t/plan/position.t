@@ -8,7 +8,7 @@ use_ok('Krawfish::Index');
 
 my $index = Krawfish::Index->new;
 
-ok_index($index, '<1:opennlp/c=NP>[Der][hey]</1>', 'Add new document');
+ok_index_2($index, '<1:opennlp/c=NP>[Der][hey]</1>', 'Add new document');
 
 my $koral = Krawfish::Koral->new;
 
@@ -30,9 +30,9 @@ ok($query = $query->normalize, 'Normalize');
 is($query->to_string, 'constr(pos=isAround:<opennlp/c=NP>,Der)', 'Stringification');
 ok(!$query->has_error, 'Builder has no error');
 ok($query = $query->identify($index->dict), 'Optimize');
-is($query->to_string, "constr(pos=isAround:#2,#1)", 'Stringification');
+is($query->to_string, "constr(pos=isAround:#3,#2)", 'Stringification');
 ok($query = $query->optimize($index->segment), 'Optimize');
-is($query->to_string, "constr(pos=128:#2,#1)", 'Stringification');
+is($query->to_string, "constr(pos=128:#3,#2)", 'Stringification');
 
 
 
@@ -55,7 +55,7 @@ ok($query = $query->normalize, 'Normalize');
 ok(!$query->has_error, 'Builder has no error');
 is($query->to_string, '<opennlp/c=NP>', 'Stringification');
 ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimize');
-is($query->to_string, "#2", 'Planned Stringification');
+is($query->to_string, "#3", 'Planned Stringification');
 
 
 #####################

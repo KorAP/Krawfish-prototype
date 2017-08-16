@@ -9,26 +9,26 @@ use_ok('Krawfish::Index');
 
 # Create some documents
 my $index = Krawfish::Index->new;
-ok_index($index, {
+ok_index_2($index, {
   id => 2,
   author => 'Peter',
   genre => 'novel',
   age => 4
 } => [qw/aa bb/], 'Add complex document');
-ok_index($index, {
+ok_index_2($index, {
   id => 3,
   author => 'Peter',
   genre => 'novel',
   age => 3
 } => [qw/aa bb/], 'Add complex document');
-ok_index($index, {
+ok_index_2($index, {
   id => 5,
   author => 'Peter',
   genre => 'newsletter',
   title => 'Your way to success!',
   age => 4
 } => [qw/aa bb/], 'Add complex document');
-ok_index($index, {
+ok_index_2($index, {
   id => 6,
   author => 'Michael',
   genre => 'newsletter',
@@ -61,7 +61,7 @@ is($meta->to_string, "enrich=[fields:['author','title','id']]",
 
 ok($meta = $koral->to_query->identify($index->dict), 'Identification');
 
-is($meta->to_string, "fields(#4,#8,#16:[0])",
+is($meta->to_string, "fields(#3,#7,#17:[0])",
    'Stringification');
 
 
@@ -100,7 +100,7 @@ ok(my $query = $koral->to_query->identify($index->dict), 'Translate to identifie
 
 is(
   $query->to_string,
-  "sort(field=#4>,field=#2<;sortFilter:fields(#4,#8,#16:[0]))",
+  "sort(field=#3>,field=#1<;sortFilter:fields(#3,#7,#17:[0]))",
   'Stringification'
 );
 

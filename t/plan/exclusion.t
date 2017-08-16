@@ -10,7 +10,7 @@ my $index = Krawfish::Index->new;
 my $koral = Krawfish::Koral->new;
 my $qb = $koral->query_builder;
 
-ok_index($index, '<1:aa>[aa]</1>[bb][aa][bb]', 'Add new document');
+ok_index_2($index, '<1:aa>[aa]</1>[bb][aa][bb]', 'Add new document');
 
 # Exclusion planning
 
@@ -32,7 +32,7 @@ ok($query = $query->normalize, 'Normalization');
 is($query->to_string, 'excl(128:<aa>,bb)', 'Stringification');
 ok(!$query->has_error, 'Builder has no error');
 ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimization');
-is($query->to_string, "excl(128:#1,#3)", 'Stringification');
+is($query->to_string, "excl(128:#2,#5)", 'Stringification');
 
 # Exclusion that translates to nothing
 $query = $qb->exclusion(
@@ -52,11 +52,11 @@ ok(!$query->has_error, 'Builder has no error');
 ok($query = $query->normalize, 'Normalization');
 is($query->to_string, 'excl(128:<aa>,/h.*/)', 'Stringification');
 ok($query = $query->identify($index->dict), 'Optimization');
-is($query->to_string, "#1", 'Stringification');
+is($query->to_string, "#2", 'Stringification');
 ok($query = $query->normalize, 'Normalization');
-is($query->to_string, "#1", 'Stringification');
+is($query->to_string, "#2", 'Stringification');
 ok($query = $query->optimize($index->segment), 'Optimization');
-is($query->to_string, "#1", 'Stringification');
+is($query->to_string, "#2", 'Stringification');
 
 # Exclusion that translates to nothing
 $query = $qb->exclusion(

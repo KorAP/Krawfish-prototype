@@ -8,8 +8,8 @@ use_ok('Krawfish::Koral::Query::Builder');
 use_ok('Krawfish::Index');
 
 my $index = Krawfish::Index->new;
-ok_index($index, '[a|b][a|b|c][a][b|c]', 'Add complex document');
-ok_index($index, '[b][b|c][a]', 'Add complex document');
+ok_index_2($index, '[a|b][a|b|c][a][b|c]', 'Add complex document');
+ok_index_2($index, '[b][b|c][a]', 'Add complex document');
 # c: 3
 # a: 4
 # b: 5
@@ -118,7 +118,7 @@ is($seq->to_string, 'abcdef', 'Stringification');
 ok($seq = $seq->identify($index->dict), 'Optimization');
 
 # May already be [0]!
-is($seq->to_string, '#1#2#3[0][0][0]', 'Stringification');
+is($seq->to_string, '#2#3#4[0][0][0]', 'Stringification');
 ok($seq = $seq->optimize($index->segment), 'Optimization');
 is($seq->to_string, '[0]', 'Stringification');
 
@@ -227,7 +227,7 @@ ok($seq = $seq->identify($index->dict)->optimize($index->segment), 'Normalizatio
 
 
 # Do not check for stringifications
-is($seq->to_string, "constr(pos=2048:#2,constr(pos=2:#1,#3))", 'Stringification');
+is($seq->to_string, "constr(pos=2048:#3,constr(pos=2:#2,#4))", 'Stringification');
 
 # Matches nowhere
 matches($seq, [], 'Matches nowhere');
@@ -246,7 +246,7 @@ is($seq->to_string, 'abc', 'Stringification');
 ok($seq = $seq->identify($index->dict)->optimize($index->segment), 'Normalization');
 
 # Do not check for stringifications
-is($seq->to_string, "constr(pos=2:#1,constr(pos=2:#2,#3))", 'Stringification');
+is($seq->to_string, "constr(pos=2:#2,constr(pos=2:#3,#4))", 'Stringification');
 
 # Matches nowhere
 matches($seq, [], 'Matches nowhere');
@@ -265,7 +265,7 @@ is($seq->to_string, 'bba', 'Stringification');
 ok($seq = $seq->identify($index->dict)->optimize($index->segment), 'Normalization');
 
 # Do not check for stringifications
-is($seq->to_string, "constr(pos=2:#2,constr(pos=2:#2,#1))", 'Stringification');
+is($seq->to_string, "constr(pos=2:#3,constr(pos=2:#3,#2))", 'Stringification');
 
 # Matches twice
 matches($seq, [qw/[0:0-3] [1:0-3]/], 'Matches twice');
@@ -286,7 +286,7 @@ ok($seq = $seq->identify($index->dict)->optimize($index->segment), 'Normalizatio
 
 
 # Do not check for stringifications
-is($seq->to_string, "constr(pos=2048:or(#1,constr(pos=2:#2,#1)),#2)", 'Stringification');
+is($seq->to_string, "constr(pos=2048:or(#2,constr(pos=2:#3,#2)),#3)", 'Stringification');
 
 # Matches
 matches($seq, [qw/[0:0-2] [0:0-3] [0:1-3] [1:0-3] [1:1-3]/], 'Matches twice');

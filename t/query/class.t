@@ -7,7 +7,7 @@ use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Query::Builder');
 
 my $index = Krawfish::Index->new;
-ok_index($index, [qw/aa bb aa bb/], 'Add new document');
+ok_index_2($index, [qw/aa bb aa bb/], 'Add new document');
 
 ok(my $qb = Krawfish::Koral::Query::Builder->new, 'Create QueryBuilder');
 ok(my $wrap = $qb->class($qb->token('bb'), 2), 'Class');
@@ -16,7 +16,7 @@ is($wrap->to_string, '{2:[bb]}', 'Stringification');
 ok(my $class = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
 
 
-is($class->to_string, "class(2:#2)", 'stringification');
+is($class->to_string, "class(2:#4)", 'stringification');
 ok($class->next, 'More');
 is($class->current->to_string, '[0:1-2$0,2,1,2]', 'Match');
 ok($class->next, 'More');
@@ -34,7 +34,7 @@ is($wrap->to_string, '{1:[aa]}{2:[bb]}', 'Stringification');
 ok($class = $wrap->normalize->finalize, 'Normalize');
 is($class->to_string, '{1:aa}{2:bb}', 'Stringification');
 ok($class = $wrap->identify($index->dict)->optimize($index->segment), 'Rewrite');
-is($class->to_string, "constr(pos=2:class(1:#1),class(2:#2))", 'stringification');
+is($class->to_string, "constr(pos=2:class(1:#2),class(2:#4))", 'stringification');
 ok($class->next, 'More');
 is($class->current->to_string, '[0:0-2$0,1,0,1|0,2,1,2]', 'Match');
 ok($class->next, 'More');

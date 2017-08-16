@@ -9,17 +9,17 @@ use_ok('Krawfish::Koral');
 
 my $index = Krawfish::Index->new;
 
-ok_index($index, {
+ok_index_2($index, {
   docID => 7,
   author => 'Carol'
 } => [qw/aa bb/], 'Add complex document');
 
-ok_index($index, {
+ok_index_2($index, {
   docID => 3,
   author => 'Arthur'
 } => [qw/aa bb cc/], 'Add complex document');
 
-ok_index($index, {
+ok_index_2($index, {
   docID => 1,
   author => 'Bob'
 } => [qw/aa bb cc/], 'Add complex document');
@@ -46,7 +46,7 @@ $query = $koral->to_nodes->identify($index->dict)->optimize($index->segment);
 
 
 # Can't match anywhere:
-is($query->to_string, "filter(#6,#7)", 'Planned stringification');
+is($query->to_string, "filter(#8,#9)", 'Planned stringification');
 
 ok($query->next, 'Get next filtered match');
 is($query->current->to_string, '[1:1-2]', 'Stringification');

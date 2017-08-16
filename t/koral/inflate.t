@@ -7,8 +7,7 @@ use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Query::Builder');
 
 my $index = Krawfish::Index->new;
-ok_index($index, [qw/aa bb aa bc ac bb cc ca/], 'Add complex document');
-
+ok_index_2($index, [qw/aa bb aa bc ac bb cc ca/], 'Add complex document');
 
 # Simple
 ok(my $qb = Krawfish::Koral::Query::Builder->new, 'Create Builder');
@@ -16,10 +15,10 @@ ok(my $q = $qb->term_re('[ac].'), 'Regex');
 ok($q = $q->normalize->finalize, 'Prepare query');
 is($q->to_string, "/[ac]./", 'Stringification');
 ok($q = $q->identify($index->dict), 'Prepare query');
-is($q->to_string, '(#1)|(#4)|(#5)|(#6)', 'Stringification');
+is($q->to_string, '(#10)|(#12)|(#2)|(#8)', 'Stringification');
 
 ok($q = $q->optimize($index->segment), 'Prepare query');
-is($q->to_string, "or(or(or(#4,#5),#6),#1)", 'Stringification');
+is($q->to_string, "or(or(or(#10,#12),#8),#2)", 'Stringification');
 
 
 # Class
@@ -27,7 +26,7 @@ ok($q = $qb->class(
   $qb->term_re('[ac].'),
 2), 'Regex in class');
 ok($q = $q->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Prepare query');
-is($q->to_string, "class(2:or(or(or(#4,#5),#6),#1))", 'Stringification');
+is($q->to_string, "class(2:or(or(or(#10,#12),#8),#2))", 'Stringification');
 
 # Constraints
 ok($q = $qb->constraints(
@@ -36,7 +35,7 @@ ok($q = $qb->constraints(
   $qb->term_re('b.')
 ), 'Regex in constraint');
 ok($q = $q->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Prepare query');
-is($q->to_string, "constr(pos=1:or(or(or(#4,#5),#6),#1),or(#3,#2))",
+is($q->to_string, "constr(pos=1:or(or(or(#10,#12),#8),#2),or(#6,#4))",
    'Stringification');
 
 
@@ -52,10 +51,10 @@ ok($q = $qb->constraints(
   $qb->term('bb')
 ), 'Regex in constraint');
 ok($q = $q->normalize->finalize->identify($index->dict), 'Prepare query');
-is($q->to_string, "constr(pos=precedes,between=1-1,notBetween=(#1)|(#4)|(#5)|(#6):#1,#2)",
+is($q->to_string, "constr(pos=precedes,between=1-1,notBetween=(#10)|(#12)|(#2)|(#8):#2,#4)",
    'Stringification');
 ok($q = $q->optimize($index->segment), 'Prepare query');
-is($q->to_string, "constr(pos=1,between=1-1,notBetween=or(or(or(#4,#5),#6),#1):#1,#2)",
+is($q->to_string, "constr(pos=1,between=1-1,notBetween=or(or(or(#10,#12),#8),#2):#2,#4)",
    'Stringification');
 
 # Constraints: One operand is missing
@@ -89,11 +88,11 @@ ok($q = $q->normalize->finalize, 'Prepare query');
 is($q->to_string, "constr(pos=precedes;succeeds,between=1-1,notBetween=/[e]./:/[ac]./,/b./)", 'Stringification');
 ok($q = $q->identify($index->dict), 'Prepare query');
 is($q->to_string,
-   "constr(pos=precedes;succeeds,between=1-1,notBetween=[0]:(#1)|(#4)|(#5)|(#6),(#2)|(#3))",
+   "constr(pos=precedes;succeeds,between=1-1,notBetween=[0]:(#10)|(#12)|(#2)|(#8),(#4)|(#6))",
    'Stringification');
 ok($q = $q->optimize($index->segment), 'Prepare query');
 is($q->to_string,
-   "constr(pos=4097,between=1-1:or(or(or(#4,#5),#6),#1),or(#3,#2))",
+   "constr(pos=4097,between=1-1:or(or(or(#10,#12),#8),#2),or(#6,#4))",
    'Stringification');
 
 
@@ -104,7 +103,7 @@ ok($q = $qb->seq(
   $qb->term_re('[ac].'),
 ), 'Regex in sequence');
 ok($q = $q->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Prepare query');
-is($q->to_string, "constr(pos=2048:or(or(or(#4,#5),#6),#1),#1)", 'Stringification');
+is($q->to_string, "constr(pos=2048:or(or(or(#10,#12),#8),#2),#2)", 'Stringification');
 
 
 

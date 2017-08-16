@@ -8,7 +8,7 @@ use_ok('Krawfish::Index');
 
 my $index = Krawfish::Index->new;
 
-ok_index($index, '<1:aaa>[hey][hey]</1>', 'Add new document');
+ok_index_2($index, '<1:aaa>[hey][hey]</1>', 'Add new document');
 
 my $koral = Krawfish::Koral->new;
 
@@ -40,7 +40,7 @@ ok($rep->has_warning, 'Error set');
 is($rep->warning->[0]->[1], 'Optionality of query is ignored', 'Error');
 is($rep->to_string, 'hey{1,3}', 'Normalization');
 ok($rep = $rep->identify($index->dict)->optimize($index->segment), 'Normalization');
-is($rep->to_string, "rep(1-3:#1)", 'Normalization');
+is($rep->to_string, "rep(1-3:#2)", 'Normalization');
 
 
 # [hey]{1,3}
@@ -62,7 +62,7 @@ is($rep->to_string, 'hey{1,3}', 'Stringification');
 is($rep->min_span, 1, 'Span length');
 is($rep->max_span, 3, 'Span length');
 ok($rep = $rep->identify($index->dict)->optimize($index->segment), 'Normalization');
-is($rep->to_string, "rep(1-3:#1)", 'Normalization');
+is($rep->to_string, "rep(1-3:#2)", 'Normalization');
 
 
 # [hey]{2,}
@@ -89,7 +89,7 @@ is($rep->to_string, 'hey{2,100}', 'Stringification');
 is($rep->min_span, 2, 'Span length');
 is($rep->max_span, -1, 'Span length');
 ok($rep = $rep->identify($index->dict)->optimize($index->segment), 'Normalization');
-is($rep->to_string, "rep(2-100:#1)", 'Normalization');
+is($rep->to_string, "rep(2-100:#2)", 'Normalization');
 
 
 # [hey]*
@@ -113,7 +113,7 @@ is($rep->warning->[0]->[1], 'Maximum value is limited', 'Error');
 is($rep->warning->[1]->[1], 'Optionality of query is ignored', 'Error');
 is($rep->to_string, 'hey{1,100}', 'Stringification');
 ok($rep = $rep->identify($index->dict)->optimize($index->segment), 'Normalization');
-is($rep->to_string, "rep(1-100:#1)", 'Normalization');
+is($rep->to_string, "rep(1-100:#2)", 'Normalization');
 
 
 # [hey]{0,2}
@@ -136,7 +136,7 @@ ok(!$rep->has_error, 'Error not set');
 is($rep->to_string, 'hey{1,2}', 'Stringification');
 is($rep->warning->[0]->[1], 'Optionality of query is ignored', 'Error');
 ok($rep = $rep->identify($index->dict)->optimize($index->segment), 'Normalization');
-is($rep->to_string, "rep(1-2:#1)", 'Normalization');
+is($rep->to_string, "rep(1-2:#2)", 'Normalization');
 
 
 # [hey]{3}
@@ -159,7 +159,7 @@ ok(!$rep->has_warning, 'Error not set');
 ok(!$rep->has_error, 'Error not set');
 is($rep->to_string, 'hey{3}', 'Stringification');
 ok($rep = $rep->identify($index->dict)->optimize($index->segment), 'Normalization');
-is($rep->to_string, "rep(3-3:#1)", 'Normalization');
+is($rep->to_string, "rep(3-3:#2)", 'Normalization');
 
 
 # []{2,4}
@@ -266,7 +266,7 @@ ok($rep = $rep->finalize, 'Normalization');
 ok(!$rep->has_warning, 'Error not set');
 ok(!$rep->has_error, 'Error not set');
 ok($rep = $rep->identify($index->dict)->optimize($index->segment), 'Normalization');
-is($rep->to_string, "rep(2-3:#2)", 'Stringification');
+is($rep->to_string, "rep(2-3:#3)", 'Stringification');
 
 # [0]{,3} -> null
 $rep = $qb->repeat($qb->nothing, 0, 3);
@@ -322,7 +322,7 @@ ok($rep = $rep->finalize, 'Normalization');
 ok(!$rep->has_error, 'Error not set');
 is($rep->to_string, 'hey', 'Stringification');
 ok($rep = $rep->identify($index->dict)->optimize($index->segment), 'Normalization');
-is($rep->to_string, "#1", 'Normalization');
+is($rep->to_string, "#2", 'Normalization');
 
 # [hey]{0,1}
 $rep = $qb->repeat($qb->token('hey'), 0, 1);
@@ -343,7 +343,7 @@ ok($rep->has_warning, 'Error set');
 is($rep->warning->[0]->[1], 'Optionality of query is ignored', 'Error');
 is($rep->to_string, 'hey', 'Normalization');
 ok($rep = $rep->identify($index->dict)->optimize($index->segment), 'Normalization');
-is($rep->to_string, "#1", 'Normalization');
+is($rep->to_string, "#2", 'Normalization');
 
 
 # Flip classes
