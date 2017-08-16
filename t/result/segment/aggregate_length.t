@@ -8,13 +8,13 @@ use_ok('Krawfish::Koral');
 
 my $index = Krawfish::Index->new;
 
-ok_index_2($index, {
+ok_index($index, {
   id => 7
 } => '<1:s>[Der][hey]</1>', 'Add complex document');
-ok_index_2($index, {
+ok_index($index, {
   id => 3,
 } => '<1:s>[Der]</1>[Baum]', 'Add complex document');
-ok_index_2($index, {
+ok_index($index, {
   id => 1,
 } => '<1:s>[Der]</1><2:s>[alte][graue][Baum]</2>', 'Add complex document');
 

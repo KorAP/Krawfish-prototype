@@ -11,8 +11,8 @@ use_ok('Krawfish::Koral::Query::Builder');
 
 ok(my $qb = Krawfish::Koral::Query::Builder->new, 'Create Koral::Builder');
 my $index = Krawfish::Index->new;
-ok_index_2($index, '[a|b][a|b|c][a][b|c]', 'Add complex document');
-ok_index_2($index, '[b][b|c][a]', 'Add complex document');
+ok_index($index, '[a|b][a|b|c][a][b|c]', 'Add complex document');
+ok_index($index, '[b][b|c][a]', 'Add complex document');
 
 my $query = $qb->bool_or(
   $qb->token('a'), $qb->token('b'), $qb->token('c')

@@ -8,7 +8,7 @@ use_ok('Krawfish::Index');
 
 my $index = Krawfish::Index->new;
 
-ok_index_2($index, '<1:aaa>[hey][hey]</1>', 'Add new document');
+ok_index($index, '<1:aaa>[hey][hey]</1>', 'Add new document');
 
 my $koral = Krawfish::Koral->new;
 

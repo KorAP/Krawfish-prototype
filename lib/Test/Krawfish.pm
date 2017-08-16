@@ -7,27 +7,9 @@ use strict;
 use Test::More ();
 use File::Basename 'dirname';
 use File::Spec::Functions qw/catfile rel2abs splitdir/;
-our @EXPORT = qw(test_doc ok_index ok_index_file ok_index_koral matches
-ok_index_2 test_file); # Last line deprecated!
+our @EXPORT = qw(test_doc ok_index ok_index_file ok_index_koral matches);
 
 use constant DEBUG => 0;
-
-sub test_file {
-  my @file = @_;
-  my ($x, $fn) = caller();
-  my @caller_dir = splitdir(rel2abs(dirname($fn)));
-  my $i = 3;
-
-  warn join('', @caller_dir);
-
-  # Remove path till 't'
-  while ($caller_dir[-1] ne 't') {
-    pop @caller_dir;
-    return if $i-- < 0;
-  };
-
-  return catfile(@caller_dir, 'data', @file);
-};
 
 
 sub test_doc {
@@ -55,13 +37,9 @@ sub test_doc {
   return $kq;
 };
 
+
+
 sub ok_index {
-  warn 'This is deprecated!';
-  ok_index_2(@_);
-};
-
-
-sub ok_index_2 {
   my $index = shift;
 
   my $meta;
@@ -103,6 +81,8 @@ sub ok_index_koral {
   $tb->ok(defined $index->segment->add($kq), $desc);
 };
 
+
+
 sub ok_index_file {
   my $index = shift;
   my $file = shift;
@@ -137,6 +117,8 @@ sub ok_index_file {
   # Add to segment
   $tb->ok(defined $index->segment->add($kq), $desc);
 };
+
+
 
 sub matches {
   my ($query, $matches, $desc) = @_;

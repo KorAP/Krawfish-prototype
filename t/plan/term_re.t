@@ -22,7 +22,7 @@ is($re->match, '~', 'Match operator');
 is($re->min_span, 1, 'Span length');
 is($re->max_span, 1, 'Span length');
 
-ok_index_2($index,'[a/b=CDE|a/c=FGH][a/l=PART|a/l=BAU|a/l=PUM][b/c=DAU][e/f=UM]', 'Add doc');
+ok_index($index,'[a/b=CDE|a/c=FGH][a/l=PART|a/l=BAU|a/l=PUM][b/c=DAU][e/f=UM]', 'Add doc');
 
 
 ok(my $plan = $re->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Plan Regex');

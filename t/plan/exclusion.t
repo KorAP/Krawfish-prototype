@@ -10,7 +10,7 @@ my $index = Krawfish::Index->new;
 my $koral = Krawfish::Koral->new;
 my $qb = $koral->query_builder;
 
-ok_index_2($index, '<1:aa>[aa]</1>[bb][aa][bb]', 'Add new document');
+ok_index($index, '<1:aa>[aa]</1>[bb][aa][bb]', 'Add new document');
 
 # Exclusion planning
 

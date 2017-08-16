@@ -7,7 +7,7 @@ use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral');
 
 my $index = Krawfish::Index->new;
-ok_index_2($index, {
+ok_index($index, {
   id => 'doc-1',
   license => 'free',
   corpus => 'corpus-2'

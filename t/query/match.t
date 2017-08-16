@@ -8,15 +8,15 @@ use_ok('Krawfish::Koral');
 
 my $index = Krawfish::Index->new;
 
-ok_index_2($index, {
+ok_index($index, {
   id => 'doc-2',
   license => 'free'
 } => [qw/aa bb/], 'Add complex document');
-ok_index_2($index, {
+ok_index($index, {
   id => 'doc-1',
   license => 'free'
 } => [qw/aa cc cc/], 'Add complex document');
-ok_index_2($index, {
+ok_index($index, {
   id => 'doc-3',
   license => 'closed'
 } => [qw/aa bb/], 'Add complex document');

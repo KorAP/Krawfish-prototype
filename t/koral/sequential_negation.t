@@ -8,8 +8,8 @@ use_ok('Krawfish::Koral::Query::Builder');
 use_ok('Krawfish::Index');
 
 my $index = Krawfish::Index->new;
-ok_index_2($index, '[a|b][a|b|c][a][b|c]', 'Add complex document');
-ok_index_2($index, '[b][b|c][a]', 'Add complex document');
+ok_index($index, '[a|b][a|b|c][a][b|c]', 'Add complex document');
+ok_index($index, '[b][b|c][a]', 'Add complex document');
 # c: 3
 # a: 4
 # b: 5

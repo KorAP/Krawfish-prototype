@@ -7,7 +7,7 @@ use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Query::Builder');
 
 my $index = Krawfish::Index->new;
-ok_index_2($index, [qw/aa bb aa bb/], 'Add new document');
+ok_index($index, [qw/aa bb aa bb/], 'Add new document');
 
 ok(my $qb = Krawfish::Koral::Query::Builder->new, 'Create QueryBuilder');
 ok(my $wrap = $qb->class($qb->token('bb'), 2), 'Class');

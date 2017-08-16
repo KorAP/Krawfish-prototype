@@ -8,7 +8,7 @@ use_ok('Krawfish::Koral::Query::Builder');
 
 ok(my $qb = Krawfish::Koral::Query::Builder->new, 'Create Koral::Builder');
 my $index = Krawfish::Index->new;
-ok_index_2($index, '[aa|bb][aa|bb][aa|bb]', 'Add new document');
+ok_index($index, '[aa|bb][aa|bb][aa|bb]', 'Add new document');
 
 my $query = $qb->token(
   $qb->bool_or('aa', 'bb')

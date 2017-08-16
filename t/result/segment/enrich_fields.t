@@ -7,18 +7,18 @@ use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral');
 
 my $index = Krawfish::Index->new;
-ok_index_2($index, {
+ok_index($index, {
   id => 'doc-1',
   license => 'free',
   corpus => 'corpus-2'
 } => [qw/aa bb/], 'Add new document');
 
-ok_index_2($index, {
+ok_index($index, {
   id => 'doc-2',
   license => 'closed',
   corpus => 'corpus-3'
 } => [qw/aa bb/], 'Add new document');
-ok_index_2($index, {
+ok_index($index, {
   id => 'doc-3',
   license => 'free',
   corpus => 'corpus-1'

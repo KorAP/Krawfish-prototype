@@ -23,7 +23,7 @@ is($query->to_string, 'excl(432:<aa>,[bb])', 'Stringification');
 
 
 # Exclusion planning
-ok_index_2($index, '<1:aa>[bb][bb]</1><2:aa>[cc]</2>', 'Add complex document');
+ok_index($index, '<1:aa>[bb][bb]</1><2:aa>[cc]</2>', 'Add complex document');
 ok($wrap = $query->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Planning');
 is($wrap->to_string, "excl(432:#3,#2)",
    'Planned Stringification');
@@ -38,8 +38,8 @@ $query = $qb->exclusion(
   $qb->token('bb')
 );
 $index = Krawfish::Index->new;
-ok_index_2($index, '<1:aa>[bb][bb]</1><2:aa><3:aa>[cc]</3>[bb]</2>', 'Add complex document');
-ok_index_2($index, '<1:aa>[dd]</1><2:aa>[dd][bb]</2><3:aa>[dd]</3>', 'Add complex document');
+ok_index($index, '<1:aa>[bb][bb]</1><2:aa><3:aa>[cc]</3>[bb]</2>', 'Add complex document');
+ok_index($index, '<1:aa>[dd]</1><2:aa>[dd][bb]</2><3:aa>[dd]</3>', 'Add complex document');
 ok($wrap = $query->normalize->finalize, 'Planning');
 is($wrap->to_string, "excl(432:<aa>,bb)",
    'Planned Stringification');
@@ -61,8 +61,8 @@ $query = $qb->exclusion(
   $qb->token('bb')
 );
 $index = Krawfish::Index->new;
-ok_index_2($index, '<1:aa>[bb][bb]</1><2:aa><3:aa>[cc]</3>[bb]</2>', 'Add complex document');
-ok_index_2($index, '<1:aa>[dd]</1><2:aa>[dd][bb]</2><3:aa>[dd]</3>', 'Add complex document');
+ok_index($index, '<1:aa>[bb][bb]</1><2:aa><3:aa>[cc]</3>[bb]</2>', 'Add complex document');
+ok_index($index, '<1:aa>[dd]</1><2:aa>[dd][bb]</2><3:aa>[dd]</3>', 'Add complex document');
 ok($wrap = $query->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Planning');
 matches($wrap, [qw/[0:2-3] [1:0-1] [1:3-4]/], 'Matches');
 
@@ -164,9 +164,9 @@ $query = $qb->exclusion(
   $qb->token('bb')
 );
 $index = Krawfish::Index->new;
-ok_index_2($index, '[aa|bb][bb]', 'Add complex document');
-ok_index_2($index, '[aa]', 'Add complex document');
-ok_index_2($index, '[aa]', 'Add complex document');
+ok_index($index, '[aa|bb][bb]', 'Add complex document');
+ok_index($index, '[aa]', 'Add complex document');
+ok_index($index, '[aa]', 'Add complex document');
 is($query->to_string, 'excl(2:[aa],[bb])', 'Stringification');
 
 
@@ -182,7 +182,7 @@ matches($wrap, [qw/[1:0-1] [2:0-1]/]);
 
 
 
-ok_index_2($index, '[bb]', 'Add complex document');
+ok_index($index, '[bb]', 'Add complex document');
 $query = $qb->exclusion(
   [qw/precedesDirectly/],
   $qb->token('aa'),
@@ -193,7 +193,7 @@ matches($wrap, [qw/[1:0-1] [2:0-1]/]);
 
 
 
-ok_index_2($index, '[aa][bb]', 'Add complex document');
+ok_index($index, '[aa][bb]', 'Add complex document');
 $query = $qb->exclusion(
   [qw/precedesDirectly/],
   $qb->token('aa'),

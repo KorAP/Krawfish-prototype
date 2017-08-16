@@ -8,15 +8,15 @@ use_ok('Krawfish::Koral::Query::Builder');
 use_ok('Krawfish::Index');
 
 my $index = Krawfish::Index->new;
-ok_index_2($index, {
+ok_index($index, {
   id => 1,
   genre => 'novel',
 } => [qw/aa bb aa bb cc/], 'Add complex document');
-ok_index_2($index, {
+ok_index($index, {
   id => 2,
   genre => 'news',
 } => [qw/aa bb aa/], 'Add complex document');
-ok_index_2($index, {
+ok_index($index, {
   id => 3,
   genre => 'novel',
 } => [qw/aa cc/], 'Add complex document');

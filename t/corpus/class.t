@@ -18,17 +18,17 @@ ok(!Krawfish::Corpus::Class->new(undef, -5), 'Create class corpus');
 ok(!Krawfish::Corpus::Class->new(undef, 25), 'Create class corpus');
 
 my $index = Krawfish::Index->new;
-ok_index_2($index, {
+ok_index($index, {
   id => 2,
   author => 'David',
   integer_age => 22
 } => [qw/aa bb/], 'Add complex document');
-ok_index_2($index, {
+ok_index($index, {
   id => 3,
   author => 'David',
   integer_age => 24
 } => [qw/aa bb/], 'Add complex document');
-ok_index_2($index, {
+ok_index($index, {
   id => 5,
   author => 'David',
   integer_age => 24

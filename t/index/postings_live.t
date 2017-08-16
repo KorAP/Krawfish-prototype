@@ -76,25 +76,25 @@ use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Corpus::Builder');
 
 ok(my $index = Krawfish::Index->new, 'New index');
-ok_index_2($index, {
+ok_index($index, {
   id => 2,
   author => 'Peter',
   genre => 'novel',
   age => 4
 } => [qw/aa bb/], 'Add complex document');
-ok_index_2($index, {
+ok_index($index, {
   id => 3,
   author => 'Peter',
   genre => 'novel',
   age => 3
 } => [qw/aa bb/], 'Add complex document');
-ok_index_2($index, {
+ok_index($index, {
   id => 5,
   author => 'Peter',
   genre => 'newsletter',
   age => 4
 } => [qw/aa bb/], 'Add complex document');
-ok_index_2($index, {
+ok_index($index, {
   id => 6,
   author => 'Michael',
   genre => 'newsletter',

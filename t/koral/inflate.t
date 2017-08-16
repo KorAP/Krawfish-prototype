@@ -7,7 +7,7 @@ use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Query::Builder');
 
 my $index = Krawfish::Index->new;
-ok_index_2($index, [qw/aa bb aa bc ac bb cc ca/], 'Add complex document');
+ok_index($index, [qw/aa bb aa bc ac bb cc ca/], 'Add complex document');
 
 # Simple
 ok(my $qb = Krawfish::Koral::Query::Builder->new, 'Create Builder');

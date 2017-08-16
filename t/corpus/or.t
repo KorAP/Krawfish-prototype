@@ -7,9 +7,9 @@ use_ok('Krawfish::Koral::Corpus::Builder');
 use_ok('Krawfish::Index');
 
 my $index = Krawfish::Index->new;
-ok_index_2($index, {id => 2} => [qw/aa bb/], 'Add complex document');
-ok_index_2($index, {id => 3} => [qw/aa bb/], 'Add complex document');
-ok_index_2($index, {id => 5} => [qw/aa bb/], 'Add complex document');
+ok_index($index, {id => 2} => [qw/aa bb/], 'Add complex document');
+ok_index($index, {id => 3} => [qw/aa bb/], 'Add complex document');
+ok_index($index, {id => 5} => [qw/aa bb/], 'Add complex document');
 
 ok(my $cb = Krawfish::Koral::Corpus::Builder->new, 'Create CorpusBuilder');
 
@@ -32,8 +32,8 @@ is($plan->current->to_string, '[1]', 'First doc');
 ok(!$plan->next, 'No more next doc');
 
 
-ok_index_2($index, {id => 7} => [qw/aa bb/], 'Add complex document');
-ok_index_2($index, {id => 9} => [qw/aa bb/], 'Add complex document');
+ok_index($index, {id => 7} => [qw/aa bb/], 'Add complex document');
+ok_index($index, {id => 9} => [qw/aa bb/], 'Add complex document');
 
 ok($query = $cb->bool_or(
   $cb->string('id')->eq('3'),

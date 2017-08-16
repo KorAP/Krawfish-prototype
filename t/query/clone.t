@@ -10,15 +10,15 @@ use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral');
 
 my $index = Krawfish::Index->new;
-ok_index_2($index, {
+ok_index($index, {
   id => 1,
   genre => 'novel',
 } => '[a|b]<1:x>[a|b|c]</1>[a][b|c]', 'Add complex document');
-ok_index_2($index, {
+ok_index($index, {
   id => 2,
   genre => 'news',
 } => '[a|b][a|b|c][a][b|c]', 'Add complex document');
-ok_index_2($index, {
+ok_index($index, {
   id => 3,
   genre => 'novel',
 } => '<1:x>[a|b][a|b|c][a]</1>[b|c]', 'Add complex document');

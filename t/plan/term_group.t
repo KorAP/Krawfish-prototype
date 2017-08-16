@@ -8,14 +8,9 @@ use_ok('Krawfish::Koral');
 use_ok('Krawfish::Index');
 
 
-sub cat_t {
-  return catfile(dirname(__FILE__), '..', @_);
-};
-
-
 my $index = Krawfish::Index->new;
 
-ok_index_2($index, [qw/first second third fourth fifth sixth/], 'Add new document');
+ok_index($index, [qw/first second third fourth fifth sixth/], 'Add new document');
 
 my $koral = Krawfish::Koral->new;
 

@@ -7,9 +7,9 @@ use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Query::Builder');
 
 my $index = Krawfish::Index->new;
-ok_index_2($index, '[aa|xx][cc][bb|xx]', 'Add complex document');
-ok_index_2($index, '[aa|xx][dd][bb|xx]', 'Add complex document');
-ok_index_2($index, '[aa|xx][cc][bb|xx]', 'Add complex document');
+ok_index($index, '[aa|xx][cc][bb|xx]', 'Add complex document');
+ok_index($index, '[aa|xx][dd][bb|xx]', 'Add complex document');
+ok_index($index, '[aa|xx][cc][bb|xx]', 'Add complex document');
 
 my $qb = Krawfish::Koral::Query::Builder->new;
 
