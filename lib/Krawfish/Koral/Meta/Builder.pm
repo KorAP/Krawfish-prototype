@@ -7,7 +7,7 @@ use Krawfish::Koral::Meta::Limit;
 use Krawfish::Koral::Meta::Sort;
 use Krawfish::Koral::Meta::Sort::Field;
 use Krawfish::Koral::Meta::Aggregate::Frequencies;
-use Krawfish::Koral::Meta::Aggregate::Facets;
+use Krawfish::Koral::Meta::Aggregate::Fields;
 use Krawfish::Koral::Meta::Aggregate::Length;
 use Krawfish::Koral::Meta::Aggregate::Values;
 use Krawfish::Koral::Meta::Group;
@@ -36,10 +36,10 @@ sub new {
 
 #   $koral->meta(
 #     $mb->aggregate(
-#       $mb->aggr_frequencies,
-#       $mb->aggr_facets('license'),
-#       $mb->aggr_facets('corpus'),
-#       $mb->aggr_length
+#       $mb->a_frequencies,
+#       $mb->a_fields('license'),
+#       $mb->a_fields('corpus'),
+#       $mb->a_length
 #     ),
 #     $mb->start_index(0),
 #     $mn->items_per_page(20)
@@ -61,13 +61,10 @@ sub a_frequencies {
 };
 
 
-# Aggregate facets
-# TODO:
-#   Rename to fields, as this is similar to
-#   'group by fields' and 'enrich with fields'
-sub a_facets {
+# Aggregate fields
+sub a_fields {
   shift;
-  return Krawfish::Koral::Meta::Aggregate::Facets->new(
+  return Krawfish::Koral::Meta::Aggregate::Fields->new(
     map {
       blessed $_ ? $_ : Krawfish::Koral::Meta::Type::Key->new($_)
     } @_

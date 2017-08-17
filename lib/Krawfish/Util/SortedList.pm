@@ -1,8 +1,8 @@
 package Krawfish::Util::SortedList;
 use parent 'Krawfish::Query';
+use Krawfish::Posting::Sorted;
 use strict;
 use warnings;
-use Krawfish::Posting::Sorted;
 
 
 use constant {

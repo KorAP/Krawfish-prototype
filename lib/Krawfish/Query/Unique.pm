@@ -32,7 +32,7 @@ sub next {
 
     print_log('unique', 'Found ' . $current->to_string) if DEBUG;
 
-    unless ($current->is_identical($self->{last})) {
+    unless ($current->same_as($self->{last})) {
 
       print_log('unique', 'Span is unique') if DEBUG;
 

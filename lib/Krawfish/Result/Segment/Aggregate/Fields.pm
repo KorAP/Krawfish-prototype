@@ -1,4 +1,4 @@
-package Krawfish::Result::Segment::Aggregate::Facets;
+package Krawfish::Result::Segment::Aggregate::Fields;
 use parent 'Krawfish::Result::Segment::Aggregate::Base';
 use Krawfish::Posting::Aggregate::Fields;
 use Krawfish::Util::String qw/squote/;
@@ -21,10 +21,6 @@ use constant DEBUG => 1;
 
 # TODO:
 #   Support corpus classes!
-#
-# TODO:
-#   Currently this would not work for fields with multiple values!
-#   There may be a need for K::R::S::A::MultiFacets!
 
 # TODO:
 #   In case the field has no rank, because it is a multivalued field,
@@ -64,7 +60,7 @@ sub _init {
 
   my $self = shift;
 
-  print_log('aggr_facets', 'Create pointer on fields') if DEBUG;
+  print_log('aggr_fields', 'Create pointer on fields') if DEBUG;
 
   # Load the ranked list - may be too large for memory!
   $self->{field_pointer} = $self->{field_obj}->pointer;
@@ -77,7 +73,7 @@ sub each_doc {
 
   $self->_init;
 
-  print_log('aggr_facets', 'Aggregate on fields') if DEBUG;
+  print_log('aggr_fields', 'Aggregate on fields') if DEBUG;
 
   my $doc_id = $current->doc_id;
 
@@ -100,7 +96,7 @@ sub each_doc {
     # my @fields;
 
     if (DEBUG) {
-      print_log('aggr_facets', 'Look for frequencies for key ids ' .
+      print_log('aggr_fields', 'Look for frequencies for key ids ' .
                   join(',', @{$self->{field_keys}}) . " in $doc_id");
     };
 
@@ -114,7 +110,7 @@ sub each_doc {
       $aggr->incr_doc($field->key_id, $field->term_id);
 
       if (DEBUG) {
-        print_log('aggr_facets', '#' . $field->term_id . ' has frequencies');
+        print_log('aggr_fields', '#' . $field->term_id . ' has frequencies');
       };
     };
   }
@@ -143,7 +139,7 @@ sub on_finish {
 
 
 sub collection {
-  # Return facets
+  # Return fields
   # Example structure for year
   # {
   #   1997 => [4, 67],
@@ -155,7 +151,7 @@ sub collection {
 
 
 sub to_string {
-  return 'facets:' . join(',', map { '#' . $_ } @{$_[0]->{field_keys}});
+  return 'fields:' . join(',', map { '#' . $_ } @{$_[0]->{field_keys}});
 };
 
 

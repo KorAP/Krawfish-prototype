@@ -31,10 +31,10 @@ use constant DEBUG => 1;
 #   my $mb = $koral->meta_builder;
 #   $koral->meta(
 #     $mb->aggregate(
-#       $mb->aggr_frequencies,
-#       $mb->aggr_facets('license'),
-#       $mb->aggr_facets('corpus'),
-#       $mb->aggr_length
+#       $mb->a_frequencies,
+#       $mb->a_fields('license'),
+#       $mb->a_fields('corpus'),
+#       $mb->a_length
 #     )->start_index(0)
 #     ->items_per_page(20)
 #     ->sort_by(

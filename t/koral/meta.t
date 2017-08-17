@@ -12,11 +12,11 @@ ok(my $meta = $mb->aggregate( $mb->a_frequencies ), 'Add aggregation');
 is($meta->to_string, 'aggr=[freq]', 'Stringification');
 
 ok($meta = $mb->aggregate(
-  $mb->a_facets('size', 'age'),
+  $mb->a_fields('size', 'age'),
   $mb->a_frequencies,
   $mb->a_length
 ), 'Add aggregation');
-is($meta->to_string, "aggr=[facets:['size','age'],freq,length]", 'Stringification');
+is($meta->to_string, "aggr=[fields:['size','age'],freq,length]", 'Stringification');
 
 ok($meta = $mb->enrich(
   $mb->e_fields('author', 'title', 'id')
@@ -72,16 +72,16 @@ is(
 $meta_koral = Krawfish::Koral::Meta->new(
   $mb->aggregate(
     $mb->a_length,
-    $mb->a_facets('author', 'age'),
+    $mb->a_fields('author', 'age'),
     $mb->a_frequencies,
-    $mb->a_facets('corpus', 'age')
+    $mb->a_fields('corpus', 'age')
   )
 );
 
 ok($meta_koral = $meta_koral->normalize, 'Normalization');
 
 is($meta_koral->to_string,
-   "aggr=[length,freq,facets:['author','age','corpus']]",
+   "aggr=[length,freq,fields:['author','age','corpus']]",
    'stringification');
 
 done_testing;

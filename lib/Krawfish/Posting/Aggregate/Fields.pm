@@ -44,7 +44,7 @@ sub incr_doc {
   $field_freq->[0]++;
 
   if (DEBUG) {
-    print_log('p_a_facets', 'Increment doc frequency for ' . $key_id . ':' . $field_id);
+    print_log('p_a_fields', 'Increment doc frequency for ' . $key_id . ':' . $field_id);
   };
 
 
@@ -60,7 +60,7 @@ sub incr_match {
   $_[0]->{freq}++;
 
   if (DEBUG) {
-    print_log('p_a_facets', 'Increment match frequency');
+    print_log('p_a_fields', 'Increment match frequency');
   };
 };
 
@@ -78,7 +78,7 @@ sub flush {
     $self->{freq} = 0;
 
     if (DEBUG) {
-      print_log('p_a_facets', 'Flush field frequency for all remembered frequencies');
+      print_log('p_a_fields', 'Flush field frequency for all remembered frequencies');
     };
   };
 };
@@ -109,10 +109,10 @@ sub inflate {
     foreach my $value (keys %$values) {
 
       # Get the 
-      my $facet = $dict->term_by_term_id($value);
-      $facet =~ s/^\+$field_term://;
+      my $field = $dict->term_by_term_id($value);
+      $field =~ s/^\+$field_term://;
 
-      $aggr->{$facet} = $values->{$value};
+      $aggr->{$field} = $values->{$value};
     };
   };
 
@@ -125,7 +125,7 @@ sub inflate {
 sub to_string {
   my $self = shift;
   if ($self->{fields_terms}) {
-    my $str = 'facets=';
+    my $str = 'fields=';
 
     my $fields = $self->{fields_terms};
 

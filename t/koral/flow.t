@@ -13,7 +13,7 @@ my $mb = $koral->meta_builder;
 # Create meta
 $koral->meta(
   $mb->aggregate(
-    $mb->a_facets('size', 'age'),
+    $mb->a_fields('size', 'age'),
     $mb->a_frequencies,
     $mb->a_length,
   ),
@@ -47,12 +47,12 @@ $koral->corpus(
   )
 );
 
-is($koral->to_string, "meta=[aggr=[facets:['size','age'],freq,length],enrich=[fields:['age']],sort=[field='author'<]],corpus=[1880&author=Goethe],query=[[/b./|aa][]cc]", 'Serialization');
+is($koral->to_string, "meta=[aggr=[fields:['size','age'],freq,length],enrich=[fields:['age']],sort=[field='author'<]],corpus=[1880&author=Goethe],query=[[/b./|aa][]cc]", 'Serialization');
 
 # Get the query
 ok(my $query = $koral->to_query, 'Create complex query construct');
 
-is($query->to_string, "sort(field='author'<:fields('age':aggr(length,freq,facets:['size','age']:filter(/b./|aa[]cc,1880&author=Goethe))))", 'Stringification');
+is($query->to_string, "sort(field='author'<:fields('age':aggr(length,freq,fields:['size','age']:filter(/b./|aa[]cc,1880&author=Goethe))))", 'Stringification');
 
 # Identify
 # ok($query = $query->identify($index->dict), 'Create complex query construct');

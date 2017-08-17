@@ -5,7 +5,7 @@ use warnings;
 
 # TODO!
 
-# Fields with multiple value need to create
+# Fields with multiple values need to create
 # two ranking vectors: a forward rank and a
 # backward rank.
 #

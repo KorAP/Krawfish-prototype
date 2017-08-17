@@ -40,6 +40,7 @@ sub flags {
   return $_[0]->{flags} //= 0b0000_0000_0000_0000;
 };
 
+
 # Compare posting order
 sub compare {
   my ($self, $post) = @_;
@@ -157,7 +158,7 @@ sub to_string {
 
 
 # Check if two postings are identical
-sub is_identical {
+sub same_as {
   my ($self, $comp) = @_;
   return unless $comp;
   return $self->to_string eq $comp->to_string;

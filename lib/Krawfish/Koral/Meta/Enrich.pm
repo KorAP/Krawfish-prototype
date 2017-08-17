@@ -68,7 +68,7 @@ sub normalize {
     # Two consecutive operations are identical
     if ($ops[$i]->type eq $ops[$i-1]->type) {
 
-      # Merge facets or values
+      # Merge fields or values
       if ($ops[$i]->type eq 'fields') {
         $ops[$i-1]->operations(
           $ops[$i-1]->operations,

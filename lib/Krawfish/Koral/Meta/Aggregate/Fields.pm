@@ -1,10 +1,7 @@
-package Krawfish::Koral::Meta::Aggregate::Facets;
-use Krawfish::Result::Segment::Aggregate::Facets;
+package Krawfish::Koral::Meta::Aggregate::Fields;
+use Krawfish::Result::Segment::Aggregate::Fields;
 use strict;
 use warnings;
-
-# TODO:
-#   Rename to 'Fields'
 
 sub new {
   my $class = shift;
@@ -13,7 +10,7 @@ sub new {
 
 
 sub type {
-  'facets'
+  'fields'
 };
 
 
@@ -68,14 +65,14 @@ sub identify {
 
 sub to_string {
   my $self = shift;
-  return 'facets:[' . join(',', map { defined $_ ? $_->to_string : '?' } @$self) . ']';
+  return 'fields:[' . join(',', map { defined $_ ? $_->to_string : '?' } @$self) . ']';
 };
 
 
 sub optimize {
   my ($self, $segment) = @_;
 
-  return Krawfish::Result::Segment::Aggregate::Facets->new(
+  return Krawfish::Result::Segment::Aggregate::Fields->new(
     $segment->fields,
     [$self->operations]
   );

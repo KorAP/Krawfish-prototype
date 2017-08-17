@@ -45,7 +45,7 @@ sub startup {
   #   - random
   # - limited
   # - accompanied with
-  #   - field-facets
+  #   - fields
   #   - frequencies
   #   - length information
   #   - field value aggregated information

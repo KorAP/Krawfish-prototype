@@ -50,20 +50,20 @@ $koral->query($qb->token('aa'));
 
 $koral->meta(
   $mb->aggregate(
-    $mb->a_facets('genre'),
-    $mb->a_facets('age')
+    $mb->a_fields('genre'),
+    $mb->a_fields('age')
   )
 );
 
 is($koral->to_string,
-   "meta=[aggr=[facets:['genre'],facets:['age']]],query=[[aa]]",
+   "meta=[aggr=[fields:['genre'],fields:['age']]],query=[[aa]]",
    'Stringification');
 
 ok(my $koral_query = $koral->to_query, 'Normalization');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "aggr(facets:['genre','age']:filter(aa,[1]))",
+   "aggr(fields:['genre','age']:filter(aa,[1]))",
    'Stringification');
 
 # This is a query that is fine to be send to segments:
@@ -72,13 +72,13 @@ ok($koral_query = $koral_query->identify($index->dict), 'Identify');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "aggr(facets:[#1,#5]:filter(#10,[1]))",
+   "aggr(fields:[#1,#5]:filter(#10,[1]))",
    'Stringification');
 
 ok(my $query = $koral_query->optimize($index->segment),
    'Queryfication');
 
-is($query->to_string, 'aggr([facets:#1,#5]:filter(#10,[1]))', 'Stringification');
+is($query->to_string, 'aggr([fields:#1,#5]:filter(#10,[1]))', 'Stringification');
 
 ok($query->next, 'Next');
 ok($query->next, 'Next');
@@ -90,7 +90,7 @@ ok(!$query->next, 'No more nexts');
 # TODO:
 #   This API is only temporarily implemented
 ok(my $coll = $query->collection->{fields}->inflate($index->dict), 'To terms');
-is($coll->to_string, 'facets=age:3[1,1],4[2,3],7[1,1];genre:newsletter[2,3],novel[2,2]');
+is($coll->to_string, 'fields=age:3[1,1],4[2,3],7[1,1];genre:newsletter[2,3],novel[2,2]');
 
 diag 'check for multivalued fields';
 

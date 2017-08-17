@@ -14,7 +14,7 @@ use constant DEBUG => 1;
 our %AGGR_ORDER = (
   'length' => 1,
   'freq'   => 2,
-  'facets' => 3,
+  'fields' => 3,
   'values' => 4
 );
 
@@ -73,8 +73,8 @@ sub normalize {
     # Two consecutive operations are identical
     if ($ops[$i]->type eq $ops[$i-1]->type) {
 
-      # Merge facets or values
-      if ($ops[$i]->type eq 'facets' || $ops[$i]->type eq 'values') {
+      # Merge fields or values
+      if ($ops[$i]->type eq 'fields' || $ops[$i]->type eq 'values') {
         $ops[$i-1]->operations(
           $ops[$i-1]->operations,
           $ops[$i]->operations
