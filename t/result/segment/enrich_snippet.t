@@ -48,15 +48,15 @@ ok(my $query = $koral_query->optimize($index->segment), 'Optimize');
 is ($query->to_string, 'snippet(or(filter(#10,[1]),filter(#8,[1])))', 'Stringification');
 
 ok($query->next, 'Next match');
-is($query->current_match->to_string2, "[0:0-1|snippet:#7]", 'Current match');
+is($query->current_match->to_string, "[0:0-1|snippet:#7]", 'Current match');
 ok($query->next, 'Next match');
 is($index->dict->term_by_term_id(7), '*aa', 'Get term');
-is($query->current_match->to_string2, "[0:1-2|snippet:#9]", 'Current match');
+is($query->current_match->to_string, "[0:1-2|snippet:#9]", 'Current match');
 ok($query->next, 'Next match');
 is($index->dict->term_by_term_id(9), '*bb', 'Get term');
-is($query->current_match->to_string2, "[0:2-3|snippet:#7]", 'Current match');
+is($query->current_match->to_string, "[0:2-3|snippet:#7]", 'Current match');
 ok($query->next, 'Next match');
-is($query->current_match->to_string2, "[0:3-4|snippet:#9]", 'Current match');
+is($query->current_match->to_string, "[0:3-4|snippet:#9]", 'Current match');
 ok(!$query->next, 'No more match');
 
 

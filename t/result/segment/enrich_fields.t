@@ -63,11 +63,11 @@ ok(my $fields = $koral_query->optimize($index->segment), 'optimize query');
 ok($fields->next, 'Next');
 is($fields->current->to_string, '[0:0-1]', 'Current object');
 
-is($fields->current_match->to_string2, "[0:0-1|fields:#1=#2,#5=#6]",
+is($fields->current_match->to_string, "[0:0-1|fields:#1=#2,#5=#6]",
    'Current match');
 
 ok($fields->next, 'Next');
-is($fields->current_match->to_string2, "[1:0-1|fields:#1=#11,#5=#13]",
+is($fields->current_match->to_string, "[1:0-1|fields:#1=#11,#5=#13]",
    'Current match');
 ok(!$fields->next, 'No more next');
 
@@ -87,27 +87,27 @@ $fields = $koral->to_query->identify($index->dict)->optimize($index->segment);
 
 ok($fields->next, 'Next');
 is($fields->current->to_string, '[0:0-1]', 'Current object');
-is($fields->current_match->to_string2, "[0:0-1|fields:#1=#2,#5=#6]",
+is($fields->current_match->to_string, "[0:0-1|fields:#1=#2,#5=#6]",
    'Current match');
 
 ok($fields->next, 'Next');
 is($fields->current->to_string, '[0:1-2]', 'Current object');
-is($fields->current_match->to_string2, "[0:1-2|fields:#1=#2,#5=#6]",
+is($fields->current_match->to_string, "[0:1-2|fields:#1=#2,#5=#6]",
    'Current match');
 
 ok($fields->next, 'Next');
 is($fields->current->to_string, '[1:0-1]', 'Current object');
-is($fields->current_match->to_string2, "[1:0-1|fields:#1=#11,#5=#13]",
+is($fields->current_match->to_string, "[1:0-1|fields:#1=#11,#5=#13]",
    'Current match');
 
 ok($fields->next, 'Next');
 is($fields->current->to_string, '[1:1-2]', 'Current object');
-is($fields->current_match->to_string2, "[1:1-2|fields:#1=#11,#5=#13]",
+is($fields->current_match->to_string, "[1:1-2|fields:#1=#11,#5=#13]",
    'Current match');
 
 ok($fields->next, 'Next');
 is($fields->current->to_string, '[2:0-1]', 'Current object');
-is($fields->current_match->to_string2, "[2:0-1|fields:#1=#14,#5=#6,#16='My URL']",
+is($fields->current_match->to_string, "[2:0-1|fields:#1=#14,#5=#6,#16='My URL']",
    'Current match');
 
 ok(!$fields->next, 'Next');

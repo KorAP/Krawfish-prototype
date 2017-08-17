@@ -100,8 +100,6 @@ is($pointer->skip_doc(0), 0, 'Skip');
 
 ok(@fields = $pointer->fields($index->dict->term_id_by_term('!uri')), 'Get fields');
 is($fields[0]->value, 'https://korap.ids-mannheim.de/instance/example7', 'Field id');
-# is($index->dict->term_by_term_id(2), '+docID:doc-3', 'Term');
-#is($fields[1]->[1], 4, 'Field id');
 
 
 diag 'Checked for multivalued fields';

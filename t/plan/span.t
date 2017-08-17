@@ -39,5 +39,3 @@ is($query->to_string, "[0]", 'Stringification');
 
 done_testing;
 __END__
-
-done_testing;
