@@ -57,6 +57,8 @@ sub new {
 };
 
 
-sub to_stream;
+sub to_stream {
+  ...
+};
 
 1;

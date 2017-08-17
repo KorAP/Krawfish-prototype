@@ -9,10 +9,16 @@ use warnings;
 # TODO:
 #   This is quite similar to K::P::Bundle
 
-sub freq;
+sub freq {
+  ...
+};
 
-sub doc_freq;
+sub doc_freq {
+  ...
+};
 
-sub to_hash;
+sub to_hash {
+  ...
+};
 
 1;

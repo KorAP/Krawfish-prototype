@@ -21,15 +21,21 @@ sub normalize {
 
 # Check if the ID is cached. In case it is cached,
 # Return the cache query.
-sub memoize;
+sub memoize {
+  ...
+};
 
 # Load the KoralQuery file, optimize the query,
 # and wrap it in a cache for the next type it is consulted.
 # The query is already normalized.
 # This should only be loaded by some segments with updates.
-sub optimize;
+sub optimize {
+  ...
+};
 
 
-sub operands;
+sub operands {
+  ...
+};
 
 1;

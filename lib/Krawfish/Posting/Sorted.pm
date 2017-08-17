@@ -8,12 +8,20 @@ use warnings;
 
 # This posting iterator is returned by the HeapSort system.
 
-sub doc_id;
+sub doc_id {
+  ...
+};
 
-sub matches;
+sub matches {
+  ...
+};
 
-sub rank;
+sub rank {
+  ...
+};
 
-sub same;
+sub same {
+  ...
+};
 
 1;

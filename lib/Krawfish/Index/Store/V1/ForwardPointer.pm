@@ -31,8 +31,12 @@ sub get {
 };
 
 
-sub next {}
+sub next {
+  ...
+}
 
-sub previous {};
+sub previous {
+  ...
+};
 
 1;

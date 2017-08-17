@@ -9,13 +9,16 @@ sub new {
 };
 
 # Per default do nothing
-sub each_doc {};
+sub each_doc {
+};
 
 # Per default do nothing
-sub each_match {};
+sub each_match {
+};
 
 # Per default do nothing
-sub on_finish {};
+sub on_finish {
+};
 
 # Not implemented on base
 sub to_string {

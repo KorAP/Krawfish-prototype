@@ -1,5 +1,6 @@
 package Krawfish::Koral::Corpus;
-use parent 'Krawfish::Info';
+use Role::Tiny::With;
+with 'Krawfish::Koral::Info';
 # TODO: Use the same parent as Koral::Query
 use Krawfish::Koral::Corpus::Builder;
 use Krawfish::Log;
@@ -63,7 +64,9 @@ sub cache {
 
 
 # Optimize for an index
-sub optimize;
+sub optimize {
+  ...
+};
 
 
 # Normalize to be on the root
@@ -186,11 +189,17 @@ sub builder {
 # Query Application methods #
 #############################
 
-sub from_koral;
+sub from_koral {
+  ...
+};
 
-sub to_koral_fragment;
+sub to_koral_fragment {
+  ...
+};
 
-sub to_string;
+sub to_string {
+  ...
+};
 
 sub to_neutral {
   $_[0]->to_string;

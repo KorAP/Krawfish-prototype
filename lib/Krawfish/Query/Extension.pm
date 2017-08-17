@@ -21,7 +21,9 @@ sub new {
 };
 
 
-sub clone;
+sub clone {
+  ...
+};
 
 # Check the configuration
 sub check {

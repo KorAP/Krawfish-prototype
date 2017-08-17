@@ -233,7 +233,9 @@ sub maybe_unsorted {
 };
 
 
-sub from_koral;
+sub from_koral {
+  ...
+};
 
 
 sub to_string {

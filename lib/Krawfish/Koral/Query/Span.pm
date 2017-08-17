@@ -111,7 +111,9 @@ sub max_span {
 sub maybe_unsorted { 0 };
 
 
-sub from_koral;
+sub from_koral {
+  ...
+};
 # Todo: Change the term_type!
 
 

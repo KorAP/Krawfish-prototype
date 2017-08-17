@@ -127,7 +127,9 @@ sub duplicate_rank {
 # in sorted order to document the sort criteria.
 # Like: [[class_1 => 'cba'], [author => 'Goethe']]...
 # This is necessary for the cluster-merge-sort
-sub current_sort;
+sub current_sort {
+  ...
+};
 
 
 sub to_string {

@@ -59,7 +59,9 @@ sub new {
   bless \$stream, $class;
 };
 
-sub pos;
+sub pos {
+  ...
+};
 
 # Add term by id
 sub add_term_id {

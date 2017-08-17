@@ -31,12 +31,16 @@ sub new {
 
 # Override
 # This will describe the compression scheme
-sub add;
+sub add {
+  ...
+};
 
 
 # Override
 # This will describe the compression scheme
-sub get;
+sub get {
+  ...
+};
 
 
 sub freq {

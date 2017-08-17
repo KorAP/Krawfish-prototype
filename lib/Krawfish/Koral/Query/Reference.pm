@@ -28,7 +28,9 @@ sub new {
   }, $class;
 };
 
-sub to_koral_fragment;
+sub to_koral_fragment {
+  ...
+};
 
 sub type { 'reference' };
 
@@ -36,11 +38,23 @@ sub to_string {
   'ref(#' . $_[0]->{signature} . ')';
 };
 
-sub is_extended_left;
-sub is_extended_right;
-sub is_extended;
-sub maybe_unsorted;
-sub min_span;
-sub max_span;
+sub is_extended_left {
+  ...
+};
+sub is_extended_right {
+  ...
+};
+sub is_extended {
+  ...
+};
+sub maybe_unsorted {
+  ...
+};
+sub min_span {
+  ...
+};
+sub max_span {
+  ...
+};
 
 1;

@@ -87,7 +87,9 @@ sub next {
 };
 
 # Return index to last added element
-sub buffer_last;
+sub buffer_last {
+  ...
+};
 
 # Points to the latest freed element in the buffer
 # (normally this is -1 to first)
@@ -102,11 +104,16 @@ sub buffer_first {
 };
 
 # sub buffer_push;
-sub buffer_shift;
-sub buffer_get;
+sub buffer_shift {
+  ...
+};
+
+sub buffer_get {
+  ...
+};
+
 sub buffer_insert_after {
   my ($self, $index, $element) = @_;
-  
 };
 
 1;

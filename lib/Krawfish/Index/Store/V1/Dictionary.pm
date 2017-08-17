@@ -141,24 +141,38 @@ sub search {
   return;
 };
 
-sub search_case_insensitive;
+sub search_case_insensitive {
+  ...
+};
 
-sub search_diacritic_insensitive;
+sub search_diacritic_insensitive {
+  ...
+};
 
-sub search_approximative;
+sub search_approximative {
+  ...
+};
 
-sub search_regex;
+sub search_regex {
+  ...
+};
 
 # Merge static tree with dynamic tree
-sub merge;
+sub merge {
+  ...
+};
 
 # Return iterator of term ids
 # TODO:
 #   Be aware, this is only in collation
 #   order of the insertion, that may not be very helpful.
-sub in_prefix_order;
+sub in_prefix_order {
+  ...
+};
 
-sub in_suffix_order;
+sub in_suffix_order {
+  ...
+};
 
 
 
@@ -166,11 +180,15 @@ sub in_suffix_order;
 # Read with header
 # This may first be done in the parent dictionary module
 # and then be delegated to the right version
-sub from_file;
+sub from_file {
+  ...
+};
 
 
 # write a header
-sub to_file;
+sub to_file {
+  ...
+};
 
 
 # Stringification

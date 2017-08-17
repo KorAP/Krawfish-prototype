@@ -26,9 +26,13 @@ sub _init {
   # Load first X bytes from file
 };
 
-sub skip_doc;
+sub skip_doc {
+  ...
+};
 
-sub next;
+sub next {
+  ...
+};
 
 # This appends a byte sequence to a stream
 # and updates the skiplist

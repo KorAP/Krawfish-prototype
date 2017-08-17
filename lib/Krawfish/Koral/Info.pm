@@ -1,7 +1,8 @@
-package Krawfish::Info;
-use Krawfish::Log;
+package Krawfish::Koral::Info;
+use Role::Tiny;
 use strict;
 use warnings;
+use Krawfish::Log;
 
 # TODO:
 #   Probably move to Krawfish::Koral::Info

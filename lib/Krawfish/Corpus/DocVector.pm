@@ -23,14 +23,24 @@ sub new {
 # in the dictionary and fetching the relevant doc_ids per
 # segment. While doing that, the doc_ids are sorted and
 # resulting in an index vector.
-sub _init;
+sub _init {
+  ...
+};
 
-sub next;
+sub next {
+  ...
+};
 
-sub current;
+sub current {
+  ...
+};
 
-sub max_freq;
+sub max_freq {
+  ...
+};
 
-sub to_string;
+sub to_string {
+  ...
+};
 
 1;

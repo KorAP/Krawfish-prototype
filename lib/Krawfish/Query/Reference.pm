@@ -37,17 +37,27 @@ sub new {
 };
 
 
-sub clone;
+sub clone {
+  ...
+};
 
-sub next;
+sub next {
+  ...
+};
 
 
 sub to_string {
   my $self = shift;
 };
 
-sub max_freq;
+sub max_freq {
+  ...
+};
 
 
-sub filter_by;
+sub filter_by {
+  ...
+};
+
+
 1;

@@ -124,7 +124,9 @@ sub span {
   $_[0]->{span};
 };
 
-sub to_string;
+sub to_string {
+  ...
+};
 
 # sub size;
 # sub clear;

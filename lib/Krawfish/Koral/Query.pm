@@ -1,5 +1,6 @@
 package Krawfish::Koral::Query;
-use parent 'Krawfish::Info';
+use Role::Tiny::With;
+with 'Krawfish::Koral::Info';
 # TODO: Use the same parent as Koral::Corpus
 use Krawfish::Koral::Query::Builder;
 use Krawfish::Koral::Query::Importer;
@@ -43,7 +44,9 @@ sub new {
 };
 
 
-sub type;
+sub type {
+  ...
+};
 
 
 #########################################
@@ -51,8 +54,11 @@ sub type;
 #########################################
 
 
+
 # Normalize the query
-sub normalize;
+sub normalize {
+  ...
+};
 
 
 # Refer to common subqueries
@@ -86,7 +92,9 @@ sub cache {
 
 
 # Optimize for an index
-sub optimize;
+sub optimize {
+  ...
+};
 
 
 # This is the class to be overwritten
@@ -155,7 +163,9 @@ sub finalize {
 
 # Returns a list of classes used by the query,
 # e.g. in a focus() context.
-sub uses_classes;
+sub uses_classes {
+  ...
+};
 
 
 sub remove_unused_classes {
@@ -379,7 +389,10 @@ sub from_koral {
 
 
 # Overwritten
-sub to_koral_fragment;
+sub to_koral_fragment {
+  ...
+};
+
 
 sub to_koral_query {
   my $self = shift;
@@ -389,7 +402,9 @@ sub to_koral_query {
 };
 
 # Overwritten
-sub to_string;
+sub to_string {
+  ...
+};
 
 
 sub to_neutral {
@@ -406,7 +421,9 @@ sub to_signature {
 
 # TODO: Returns a value of complexity of the query,
 # that can be used to decide, if a query should be cached.
-sub complexity;
+sub complexity {
+  ...
+};
 
 
 # Create KoralQuery builder

@@ -1,9 +1,8 @@
 package Krawfish::Koral::Document::Annotation;
-use Krawfish::Koral::Query::Term;
 use Krawfish::Util::String qw/squote/;
 use warnings;
 use strict;
-
+use Krawfish::Koral::Query::Term;
 
 # Accepts a Krawfish::Koral::Query::Term object
 sub new {

@@ -24,17 +24,23 @@ sub current {
 # Overwrite
 # TODO: Accepts a target doc
 # TODO: Returns the doc_id of the current posting
-sub next;
+sub next {
+  ...
+};
 
 
-sub clone;
+sub clone {
+  ...
+};
 
 
 # TODO:
 #   This is a value that should probably be stored
 #   at span-beginnings and can help to jump through very long
 #   sequences of spans
-sub max_length;
+sub max_length {
+  ...
+};
 
 
 # This is only relevant for term posting lists

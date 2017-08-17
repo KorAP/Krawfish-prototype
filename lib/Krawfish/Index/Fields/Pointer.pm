@@ -48,9 +48,13 @@ sub pos {
 };
 
 
-sub next_doc;
+sub next_doc {
+  ...
+};
 
-sub close;
+sub close {
+  ...
+};
 
 
 # Skip doc moves the pointer forward in the stream. Although currently

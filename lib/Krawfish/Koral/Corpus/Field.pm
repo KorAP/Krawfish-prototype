@@ -108,7 +108,9 @@ sub excludes {
   return $self;
 };
 
-sub can_toggle_negativity;
+sub can_toggle_negativity {
+  ...
+};
 
 
 

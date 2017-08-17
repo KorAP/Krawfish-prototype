@@ -82,7 +82,9 @@ sub next {
   return;
 };
 
-sub skip_to;
+sub skip_to {
+  ...
+};
 
 sub to_string {
   my $self = shift;

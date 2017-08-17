@@ -22,7 +22,9 @@ sub new {
   }, $class;
 };
 
-sub clone;
+sub clone {
+  ...
+};
 
 sub _init {
   return if $_[0]->{init}++;

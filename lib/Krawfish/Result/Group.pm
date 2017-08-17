@@ -164,7 +164,9 @@ sub next {
 };
 
 
-sub current;
+sub current {
+  ...
+};
 
 
 # Return a hash reference with information

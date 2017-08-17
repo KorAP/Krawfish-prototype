@@ -25,6 +25,8 @@ sub new {
   }, $class;
 };
 
-sub next;
+sub next {
+  ...
+};
 
 1;

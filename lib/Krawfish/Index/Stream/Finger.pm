@@ -24,11 +24,17 @@ sub next {
 };
 
 
-sub skip_to;
+sub skip_to {
+  ...
+};
 
-sub next_pos;
+sub next_pos {
+  ...
+};
 
-sub next_doc;
+sub next_doc {
+  ...
+};
 
 # Get the current posting object
 sub current {

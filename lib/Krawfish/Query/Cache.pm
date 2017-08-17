@@ -17,10 +17,16 @@ sub new {
 
 # The doc_ids are not stored as deltas,
 # so sorting with offstes is supported
-sub next;
+sub next {
+  ...
+};
 
-sub max_freq;
+sub max_freq {
+  ...
+};
 
-sub clone;
+sub clone {
+  ...
+};
 
 1;

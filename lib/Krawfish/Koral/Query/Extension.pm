@@ -63,9 +63,13 @@ sub normalize {
   };
 };
 
-sub min_span;
+sub min_span {
+  ...
+};
 
-sub max_span;
+sub max_span {
+  ...
+};
 
 sub to_string {
   my $self = shift;

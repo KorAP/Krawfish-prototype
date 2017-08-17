@@ -1,13 +1,21 @@
-package Krawfish::Result::Snippet::Element;
+package Krawfish::Result::Segment::Snippet::Element;
 use Krawfish::Log;
 use strict;
 use warnings;
 
-sub start_char;
-sub end_char;
+sub start_char {
+  ...
+};
+sub end_char {
+  ...
+};
 
-sub open_html;
-sub close_html;
+sub open_html {
+  ...
+};
+sub close_html {
+  ...
+};
 
 1;
 

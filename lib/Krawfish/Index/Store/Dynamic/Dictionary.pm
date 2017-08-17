@@ -146,7 +146,9 @@ sub insert_alias {
 # This will return an array of term ids,
 # in case the term is stored as an alias.
 # Otherwise the array has only one item.
-sub search_alias;
+sub search_alias {
+  ...
+};
 
 
 

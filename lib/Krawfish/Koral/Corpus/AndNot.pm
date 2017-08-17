@@ -28,7 +28,9 @@ sub _resolve_negative {
 };
 
 
-sub toggle_negativity;
+sub toggle_negativity {
+  ...
+};
 
 
 # Normalize queries
@@ -80,7 +82,9 @@ sub has_classes {
 
 # Return koral - this is not necessary to be implemented,
 # as "AndNot" is an intermediate query
-sub to_koral_fragment;
+sub to_koral_fragment {
+  ...
+};
 
 
 # Stringification

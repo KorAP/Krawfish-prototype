@@ -64,9 +64,13 @@ sub count {
   ...
 };
 
-sub freq_in_doc;
+sub freq_in_doc {
+  ...
+};
 
-sub max_subtokens;
+sub max_subtokens {
+  ...
+};
 
 1;
 

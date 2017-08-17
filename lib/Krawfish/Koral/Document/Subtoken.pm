@@ -1,6 +1,6 @@
 package Krawfish::Koral::Document::Subtoken;
-use Krawfish::Koral::Document::Annotation;
 use Krawfish::Util::String qw/squote/;
+use Krawfish::Koral::Document::Annotation;
 use warnings;
 use strict;
 

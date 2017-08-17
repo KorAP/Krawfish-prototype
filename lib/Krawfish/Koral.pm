@@ -1,17 +1,19 @@
 package Krawfish::Koral;
-
-# TODO: Make this a role
-use parent 'Krawfish::Info';
+use Role::Tiny::With;
+use strict;
+use warnings;
+with 'Krawfish::Koral::Info';
+use Krawfish::Log;
+use Krawfish::Koral::Document;
 use Krawfish::Koral::Query::Builder;
 use Krawfish::Koral::Corpus::Builder;
 use Krawfish::Koral::Meta::Builder;
 use Krawfish::Koral::Meta;
-use Krawfish::Koral::Document;
-use Krawfish::Log;
-use strict;
-use warnings;
 
 use constant DEBUG => 1;
+
+
+
 
 # Parse a koral query and transform to an actual
 # index query.
@@ -362,7 +364,9 @@ sub to_koral_query {
 
 
 # Get KoralQuery with results
-sub to_result;
+sub to_result {
+  ...
+};
 
 
 # TODO:
