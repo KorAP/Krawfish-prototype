@@ -21,7 +21,8 @@ ok_index($index, {
 ok_index($index, {
   id => 'doc-3',
   license => 'free',
-  corpus => 'corpus-1'
+  corpus => 'corpus-1',
+  store_uri => 'My URL'
 } => [qw/bb cc/], 'Add new document');
 
 
@@ -62,22 +63,23 @@ ok(my $fields = $koral_query->optimize($index->segment), 'optimize query');
 ok($fields->next, 'Next');
 is($fields->current->to_string, '[0:0-1]', 'Current object');
 
-is($fields->current_match->to_string2, "[0:0-1|fields:#2,#6]",
+is($fields->current_match->to_string2, "[0:0-1|fields:#1=#2,#5=#6]",
    'Current match');
 
 ok($fields->next, 'Next');
-is($fields->current_match->to_string2, "[1:0-1|fields:#11,#13]",
+is($fields->current_match->to_string2, "[1:0-1|fields:#1=#11,#5=#13]",
    'Current match');
 ok(!$fields->next, 'No more next');
 
 
 
 # Fields for multiple spans
+# Retrieve including stored data
 $koral = Krawfish::Koral->new;
 $koral->query($qb->bool_or('aa', 'bb'));
 $koral->meta(
   $mb->enrich(
-    $mb->e_fields('license','corpus')
+    $mb->e_fields('license','corpus', 'uri')
   )
 );
 $fields = $koral->to_query->identify($index->dict)->optimize($index->segment);
@@ -85,27 +87,27 @@ $fields = $koral->to_query->identify($index->dict)->optimize($index->segment);
 
 ok($fields->next, 'Next');
 is($fields->current->to_string, '[0:0-1]', 'Current object');
-is($fields->current_match->to_string2, "[0:0-1|fields:#2,#6]",
+is($fields->current_match->to_string2, "[0:0-1|fields:#1=#2,#5=#6]",
    'Current match');
 
 ok($fields->next, 'Next');
 is($fields->current->to_string, '[0:1-2]', 'Current object');
-is($fields->current_match->to_string2, "[0:1-2|fields:#2,#6]",
+is($fields->current_match->to_string2, "[0:1-2|fields:#1=#2,#5=#6]",
    'Current match');
 
 ok($fields->next, 'Next');
 is($fields->current->to_string, '[1:0-1]', 'Current object');
-is($fields->current_match->to_string2, "[1:0-1|fields:#11,#13]",
+is($fields->current_match->to_string2, "[1:0-1|fields:#1=#11,#5=#13]",
    'Current match');
 
 ok($fields->next, 'Next');
 is($fields->current->to_string, '[1:1-2]', 'Current object');
-is($fields->current_match->to_string2, "[1:1-2|fields:#11,#13]",
+is($fields->current_match->to_string2, "[1:1-2|fields:#1=#11,#5=#13]",
    'Current match');
 
 ok($fields->next, 'Next');
 is($fields->current->to_string, '[2:0-1]', 'Current object');
-is($fields->current_match->to_string2, "[2:0-1|fields:#14,#6]",
+is($fields->current_match->to_string2, "[2:0-1|fields:#1=#14,#5=#6,#16='My URL']",
    'Current match');
 
 ok(!$fields->next, 'Next');

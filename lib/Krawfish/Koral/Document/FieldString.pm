@@ -3,12 +3,12 @@ use Krawfish::Util::String qw/squote/;
 use warnings;
 use strict;
 
+# Class for string fields
+
 sub new {
   my $class = shift;
-  bless {
-    key => shift,
-    value => shift
-  }, $class;
+  # key, value
+  bless { @_ }, $class;
 };
 
 
@@ -68,7 +68,7 @@ sub to_string {
   unless ($self->{key_id}) {
     return squote($self->{key}) . '=' . squote($self->{value});
   };
-  return $self->{key_id} . '=' . $self->{key_value_id};
+  return '#' . $self->{key_id} . '=' . '#' . $self->{key_value_id};
 };
 
 1;

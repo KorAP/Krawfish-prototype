@@ -2,23 +2,18 @@ package Krawfish::Posting::Match::Fields;
 use strict;
 use warnings;
 
+# The fields are represented as Krawfish::Koral::Document::Field* objects!
+
 sub new {
   my $class = shift;
   bless {
-    field_ids => [@_],
-    fields => undef,
+    fields => [@_]
   }, $class;
 };
 
 sub to_string {
   my $self = shift;
-
-  if ($self->{fields}) {
-    return 'fields:' . join(',', @{$self->{fields}});
-  }
-  else {
-    return 'fields:' . join(',', map { '#' . $_ } @{$self->{field_ids}});
-  }
+  return 'fields:' . join(',', map { $_->to_string } @{$self->{fields}});
 };
 
 1;

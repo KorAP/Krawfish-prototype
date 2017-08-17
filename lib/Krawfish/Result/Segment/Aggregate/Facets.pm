@@ -13,6 +13,11 @@ use constant DEBUG => 1;
 #   Simplify the counting by mapping the requested fields to
 #   an array, that points to a map.
 
+# TODO:
+#   Look for fast int => int hash maps
+#   http://java-performance.info/implementing-world-fastest-java-int-to-int-hash-map/
+#   http://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx
+#   https://gist.github.com/badboy/6267743
 
 # TODO:
 #   Support corpus classes!
@@ -102,11 +107,14 @@ sub each_doc {
     # Iterate over all fields
     foreach my $field ($pointer->fields(@{$self->{field_keys}}))  {
 
+      # This should probably be a method in the fields pointer!
+      next if $field->type eq 'store';
+
       # Increment occurrence
-      $aggr->incr_doc($field->[0], $field->[1]);
+      $aggr->incr_doc($field->key_id, $field->term_id);
 
       if (DEBUG) {
-        print_log('aggr_facets', '#' . $field->[0] . ' has frequencies');
+        print_log('aggr_facets', '#' . $field->term_id . ' has frequencies');
       };
     };
   }

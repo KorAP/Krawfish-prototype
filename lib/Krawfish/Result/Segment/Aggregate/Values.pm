@@ -69,7 +69,7 @@ sub each_doc {
     foreach my $field (@values) {
 
       # Aggregate value
-      $aggr->add($field->[0], $field->[1]);
+      $aggr->add($field->key_id, $field->value);
     };
   };
 };

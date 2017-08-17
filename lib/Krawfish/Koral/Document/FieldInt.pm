@@ -1,14 +1,15 @@
 package Krawfish::Koral::Document::FieldInt;
 use Krawfish::Util::String qw/squote/;
+# TODO:
+#   Probably use Krawfish::Koral::Meta::Type::KeyID and
+#   Krawfish::Koral::Meta::Type::Key.
 use warnings;
 use strict;
 
 sub new {
   my $class = shift;
-  bless {
-    key => shift,
-    value => shift
-  }, $class;
+  # key, value, key_id, key_value_id
+  bless { @_ }, $class;
 };
 
 sub type {
@@ -34,6 +35,8 @@ sub value {
 
 sub identify {
   my ($self, $dict) = @_;
+
+  return if $self->{key_id};
 
   my $key  = '!' . $self->{key};
   my $term = '+' . $self->{key} . ':' . $self->{value};
@@ -67,12 +70,16 @@ sub identify {
 };
 
 
+sub inflate {
+  ...
+};
+
 sub to_string {
   my $self = shift;
   unless ($self->{key_id}) {
     return squote($self->{key}) . '=' . $self->{value};
   };
-  return $self->{key_id} . '=' . $self->{key_value_id} . '(' . $self->{value} . ')';
+  return '#' . $self->{key_id} . '=' . '#' . $self->{key_value_id} . '(' . $self->{value} . ')';
 };
 
 

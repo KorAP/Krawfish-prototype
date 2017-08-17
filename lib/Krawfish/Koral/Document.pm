@@ -33,7 +33,6 @@ sub new {
   my $class = shift;
 
   my $self = bless {
-    primary => '',
     sortable => {},
     stream => Krawfish::Koral::Document::Stream->new,
     fields => Krawfish::Koral::Document::Fields->new
@@ -49,12 +48,6 @@ sub new {
   $self->_parse($doc);
 
   return $self;
-};
-
-
-# Get the primary data
-sub primary_data {
-  $_[0]->{primary};
 };
 
 
@@ -110,8 +103,6 @@ sub _parse {
     $primary = $doc->{primaryData};
   };
 
-  $self->{primary} = $primary;
-
   # Add metadata fields
   my $pos = 0;
   my %sortable;
@@ -132,11 +123,17 @@ sub _parse {
 
 
     # Prepare for summarization
-    if ($field->{type} && $field->{type} eq 'type:integer') {
+    if (!$field->{type} || $field->{type} eq 'type:string') {
+      $fields->add_string($field->{key}, $field->{value});
+    }
+    elsif ($field->{type} eq 'type:integer') {
       $fields->add_int($field->{key}, $field->{value});
     }
+    elsif ($field->{type} eq 'type:store') {
+      $fields->add_store($field->{key}, $field->{value});
+    }
     else {
-      $fields->add_string($field->{key}, $field->{value});
+      warn 'unknown field type: ' . $field->{type};
     };
 
     # This will later be indexed for search as well as retrieval in

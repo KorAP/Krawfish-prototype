@@ -165,6 +165,7 @@ sub add {
   # Create term index for fields
   my $fields = $doc->fields;
   foreach (@$fields) {
+    next if $_->type eq 'store';
     if (DEBUG) {
       print_log('seg', 'Added field #' . $_->term_id . ' for doc_id=' . $doc_id);
     };

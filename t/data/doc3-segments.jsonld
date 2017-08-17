@@ -25,6 +25,12 @@
         "value": 8,
         "type":"type:integer",
         "sortable":true
+      },
+      {
+        "@type":"koral:field",
+        "key":"URI",
+        "value": "http://korap.ids-mannheim.de/instance/example",
+        "type":"type:store"
       }
     ],
     "subtokens" : [

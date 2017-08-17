@@ -17,10 +17,10 @@ use warnings;
 
 
 sub new {
-  my ($class, $index_a, $index_b) = @_;
+  my ($class, $segment_a, $segment_b) = @_;
   bless {
-    index_a => $index_a,
-    index_b => $index_b
+    segment_a => $segment_a,
+    segment_b => $segment_b
   }, $class;
 };
 
@@ -63,6 +63,7 @@ sub merge {
   # Launch the newly created index
   $self->_launch;
 };
+
 
 sub _launch {
   # TODO:

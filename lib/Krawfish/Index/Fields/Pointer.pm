@@ -1,4 +1,7 @@
 package Krawfish::Index::Fields::Pointer;
+use Krawfish::Koral::Document::FieldInt;
+use Krawfish::Koral::Document::FieldStore;
+use Krawfish::Koral::Document::FieldString;
 use Krawfish::Log;
 use warnings;
 use strict;
@@ -72,6 +75,7 @@ sub skip_doc {
 };
 
 
+# This returns only int-values - so it may need to be renamed
 sub values {
   my $self = shift;
   my @key_ids = @_;  # Need to be sorted in order!
@@ -99,7 +103,7 @@ sub values {
       $key_id = $doc->[$self->{pos}++];
       $type = $doc->[$self->{pos}++];
 
-      # Skip key term
+      # Skip key term or value (in case of store)
       $self->{pos}++;
 
       # There is a value to aggregate
@@ -107,7 +111,10 @@ sub values {
         if (DEBUG) {
           print_log('f_point', "Found value for " . $key_ids[$key_pos] . ' at ' . $key_pos);
         };
-        push @values, [$key_id, $doc->[$self->{pos}++]];
+        push @values, Krawfish::Koral::Document::FieldInt->new(
+          key_id => $key_id,
+          value => $doc->[$self->{pos}++]
+        );
       };
 
       $key_pos++;
@@ -125,7 +132,7 @@ sub values {
       $self->{pos}++;
       $type = $doc->[$self->{pos}++];
       $self->{pos}++;
-      $self->{pos}++ if $type eq 'int'
+      $self->{pos}++ if $type eq 'int' || $type eq 'store'
     };
 
     # Remember the current field
@@ -134,6 +141,7 @@ sub values {
 
   return @values;
 };
+
 
 # Get all field term ids.
 # If key ids are passed, they need to be in numerical order!
@@ -149,15 +157,7 @@ sub fields {
   unless (@_ > 0) {
     while ($current && $current ne 'EOF') {
 
-      # The structure [key_id, key] is necessary for multivalued fields!
-      $key_id = $self->{pos}++;
-
-      $type = $doc->[$self->{pos}++];
-
-      push @fields, [$key_id, $doc->[$self->{pos}++]];
-
-      # Skip value
-      $self->{pos}++ if $type eq 'int';
+      push @fields, $self->_get_by_type($doc);
       $current = $doc->[$self->{pos}];
     };
   }
@@ -186,14 +186,12 @@ sub fields {
 
       # The key id matches the first id
       if ($current == $key_ids[$key_pos]) {
-        # The structure [key_id, key] is necessary for multivalued fields!
-        $self->{pos}++;
-        $type = $doc->[$self->{pos}++];
-        my $field = $doc->[$self->{pos}++];
-        push @fields, [$current, $field];
+        push @fields, $self->_get_by_type($doc);
 
         if (DEBUG) {
-          print_log('f_point', "Found field_id $field for " . $key_ids[$key_pos] . ' at ' . $key_pos);
+          print_log('f_point', 'Found field ' .
+                      $fields[-1]->to_string .
+                      ' for ' . $key_ids[$key_pos]);
         };
 
         $key_pos++;
@@ -210,11 +208,10 @@ sub fields {
       else {
         $self->{pos}++;
         $type = $doc->[$self->{pos}++];
-        $self->{pos}++;
+        $self->{pos}++ if $type ne 'store';
+        $self->{pos}++ if $type eq 'int' || $type eq 'store';
       };
 
-      # Skip value
-      $self->{pos}++ if $type eq 'int';
 
       # Remember the current field
       $current = $doc->[$self->{pos}];
@@ -225,9 +222,44 @@ sub fields {
 };
 
 
+sub _get_by_type {
+  my ($self, $doc) = @_;
+
+  my $key_id = $doc->[$self->{pos}++];
+
+  my $type = $doc->[$self->{pos}++];
+
+  # Read integer
+  if ($type eq 'int') {
+    return Krawfish::Koral::Document::FieldInt->new(
+      key_id => $key_id,
+      key_value_id => $doc->[$self->{pos}++],
+      value => $doc->[$self->{pos}++]
+    );
+  }
+
+  # read string
+  elsif ($type eq 'string') {
+    return Krawfish::Koral::Document::FieldString->new(
+      key_id => $key_id,
+      key_value_id => $doc->[$self->{pos}++]
+    );
+  }
+
+  # read store
+  elsif ($type eq 'store') {
+    return Krawfish::Koral::Document::FieldStore->new(
+      key_id => $key_id,
+      value => $doc->[$self->{pos}++]
+    );
+  };
+};
+
+
 sub field_terms {
   my $self = shift;
-  return map { $_->[1] } $self->fields(@_);
+  warn 'probably wrong!';
+  return map { $_->term_id } $self->fields(@_);
 };
 
 

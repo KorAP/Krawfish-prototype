@@ -98,7 +98,7 @@ sub current_match {
   };
 
   # Get the fields from the fields stream
-  my @fields = $fields->field_terms(@{$self->{fields}});
+  my @fields = $fields->fields(@{$self->{fields}});
 
   $self->{last_doc_id} = $match->doc_id;
   $self->{last_fields} = [@fields];
