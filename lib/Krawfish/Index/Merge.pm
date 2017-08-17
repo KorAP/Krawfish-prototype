@@ -2,6 +2,12 @@ package Krawfish::Index::Merge;
 use strict;
 use warnings;
 
+# TODO:
+#   This is not an actual implementation,
+#   just a guide to keep notes what is necessary
+#   to merge two segments and two dictionaries.
+
+
 # There are two types of segments:
 # a) multiple static segments
 # b) One dynamic segment
@@ -28,11 +34,15 @@ sub merge {
   #   - This is also necessary for reranking
   $self->_merge_fields;
 
+  $self->_merge_forward;
+
+  $self->_merge_live;
+
   # - concatenate docid->uuid field mappers
-  $self->_merge_identifier_lists;
+  # $self->_merge_identifier_lists;
 
   # - concatenate all subtoken lists
-  $self->_merge_subtoken_lists;
+  # $self->_merge_subtoken_lists;
 
   # - Rerank all field ranks
   #   (ignoring deleted documents)
@@ -42,7 +52,7 @@ sub merge {
   $self->_rerank_fields;
 
   # - Concatenate and update primary files / forward index
-  $self->_merge_primary_data;
+  # $self->_merge_primary_data;
 
   # In case the second index is dynamic, also
   # Merge the dictionaries

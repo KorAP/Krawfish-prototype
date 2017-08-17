@@ -1,5 +1,4 @@
 package Krawfish::Index::Segment;
-use Krawfish::Index::Subtokens;
 use Krawfish::Index::Fields;
 use Krawfish::Index::PostingsLive;
 use Krawfish::Index::PostingsList;
@@ -30,6 +29,8 @@ use warnings;
 #           accessible by their sub_term_id position in the list:
 #  ([leaf-backref][prefix-rank][suffix-rank])*
 
+# TODO:
+#   Store token information per foundry/layer tokens
 
 use constant DEBUG => 0;
 
@@ -41,11 +42,6 @@ sub new {
   }, $class;
 
   print_log('seg', 'Instantiate new segment') if DEBUG;
-
-  # Load subtokens list
-  $self->{subtokens} = Krawfish::Index::Subtokens->new(
-    $self->{file}
-  );
 
   # Load fields
   $self->{fields} = Krawfish::Index::Fields->new(

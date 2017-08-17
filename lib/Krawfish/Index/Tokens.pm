@@ -3,11 +3,9 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-# See Krawfish::Index::Subtokens
-
 # There is one token list per tokenization
 
-# The Tokens list has the following jobs:
+# The Token list has the following jobs:
 #
 # * Check if the number of tokens between two subtokens is
 #   in a certain range
@@ -21,12 +19,21 @@ use warnings;
 #
 # * Get the number of tokens per doc_id
 #   API: ->count($doc_id)
-#        or ->freq_doc($doc_id)
+#        or ->freq_in_doc($doc_id)
 #   (Necessary for Result::Aggregate::TokenFreq)
 #
 # * Get the maximum number of subtokens a token
 #   of this foundry can have (necessary for Constraint::InBetween)
 #   ->max_subtokens;
+
+# TODO:
+#   A possible structure would be (without including skip data)
+#   ([doc-id]([pos-delta][length-varint])*)
+#   where only start positions are stored for lengths > 1.
+#   Skip data should be included only for every ~128 entries
+#   and each skipblock should have a previous pointer
+#   to make skipping back possible.
+
 
 # Get an array of start positions that are in the range of min/max
 # Start with the lowest
@@ -57,7 +64,7 @@ sub count {
   ...
 };
 
-sub freq_doc;
+sub freq_in_doc;
 
 sub max_subtokens;
 
