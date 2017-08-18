@@ -20,6 +20,20 @@ use warnings;
 #   In Lucy the dictionary is stored in a list
 #   using incremental encoding / front coding.
 #
+# TODO:
+#   Ranks for terms should be added at a prefinal level for surface
+#   terms with an epsilon character to ignore
+#   Example (d=down;u=up)
+#
+#   *[d][u]...->d[d][u]...->e[d][u]...->r[d][u]...
+#   ->0[d][u][forward-rank][backward-rank]->[terminal][u][term-id]
+#
+#   That way a lookup for a rank based on term id is very fast
+#   and not very costly (as the term id array access is O(1))!
+#
+# TODO:
+#   The information if a field is sortable, should also be added
+#   to a preterminal epsilon edge to all field-ids
 
 # This is necessary to deal with the dynamic structure
 use constant {

@@ -89,6 +89,10 @@ sub pointer {
 
 
 
+
+# TODO:
+#   Make this part of Krawfish::Index::Fields::Rank!
+#
 # TODO:
 #   Unused yet!
 #

@@ -8,6 +8,7 @@ use warnings;
 
 # See http://verdi.uwplse.org/
 
+
 sub new {
   my $class = shift;
   bless {
@@ -65,6 +66,15 @@ sub search_for {
   )->wait;
 
   return $query->to_result;
+};
+
+
+# Initialize a sortable field
+sub init_field {
+  my ($self, $field_term, $type, $collation) = @_;
+  # Non-initialized fields are stored and searchable,
+  # but they can't be sorted
+  ...
 };
 
 

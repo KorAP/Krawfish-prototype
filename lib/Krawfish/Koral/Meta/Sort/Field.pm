@@ -19,6 +19,11 @@ sub identify {
   my ($self, $dict) = @_;
   my $field = $self->{field}->identify($dict);
 
+  # TODO:
+  #   In case the requested field is not sortable,
+  #   ignore this sortable field as well!
+  #   But add a warning to the user!
+
   # Field does not exist in the dictionary
   return unless $field;
 

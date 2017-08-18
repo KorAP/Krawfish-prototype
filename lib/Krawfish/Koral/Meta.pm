@@ -9,6 +9,10 @@ use warnings;
 #   can never wrap around a sort query, because the relevant
 #   data structures and algorithms require the results to be in doc_id order!
 
+# WARNING!
+#   It's important to remember that sortFilter can't be shared in parallel
+#   processing - especially for fields, as segment rankings can differ!
+
 # TODO:
 #   When a group filter is added,
 #   sorting does not work etc.

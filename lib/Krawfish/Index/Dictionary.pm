@@ -47,11 +47,16 @@ use Krawfish::Log;
 #   before finding the preceding terms in the subterm rank file.
 #   In that way, each preceeding match using binary search will narrow
 #   the following binary search by moving the starting index.
+#   (THIS MAY BE OLD INFORMATION - consult Krawfish::Index::Rank)
 #
 #   A data structure that supports relational ordering (let's say
 #   the previous term has the rank 3 and the folowing has the term
 #   4 and you want to add it as 3.5) would be nice, but I wasn't
 #   able to find one that's precise in all circumstances.
+#
+# add_field($term):
+#   Identical to add_term(), but returns the term_id and a boolean value
+#   if the field was set to be sortable.
 #
 # term_to_term_id:
 #   First a look-up to the static dictionary is done.
@@ -88,7 +93,7 @@ use Krawfish::Log;
 #   creates a new static dictionary.
 #   This will also merge the ranks.
 #
-# rank_subterm:
+# rank_subterm_prefix:
 #   Returns the numerical rank of a subterm in alphabetic order.
 #   The static dictionary will return a simple even numerical rank
 #   (calculated on merge). The dynamic dictionary will
@@ -156,6 +161,7 @@ use Krawfish::Log;
 #   requested, for example, by the term_id API for co-occurrence search.
 #   That's why all subterms need to be stored as well.
 
+
 use constant DEBUG => 1;
 
 sub new {
@@ -216,6 +222,14 @@ sub add_term {
   return $hash->{$term};
 };
 
+
+sub init_field {
+  my ($self, $field, $collation) = @_;
+};
+
+sub add_field {
+  ...
+};
 
 
 # Add subterm to dictionary

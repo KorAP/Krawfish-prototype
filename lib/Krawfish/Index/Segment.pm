@@ -32,6 +32,9 @@ use warnings;
 # TODO:
 #   Store token information per foundry/layer tokens
 
+# TODO:
+#   Which fields are sortable can be retrieved from the dictionary.
+
 use constant DEBUG => 0;
 
 sub new {
@@ -61,8 +64,8 @@ sub new {
   # 18.446.744.073.709.551.615 documents in the index
   # $self->{identifier} = [];
 
-  # Collect fields to sort
-  $self->{sortable} = {};
+  # Remember fields to sort
+  # $self->{sortable} = {};
 
   # Add cache
   $self->{cache} = Krawfish::Cache->new;
@@ -74,10 +77,10 @@ sub new {
 };
 
 
-sub add_sortable {
-  my ($self, $field) = @_;
-  $self->{sortable}->{$field}++;
-};
+#sub add_sortable {
+#  my ($self, $field) = @_;
+#  $self->{sortable}->{$field}++;
+#};
 
 
 # Get the last document index

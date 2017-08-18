@@ -94,6 +94,7 @@ sub enrich {
   return Krawfish::Koral::Meta::Enrich->new(@_);
 };
 
+
 # Enrich with fields
 sub e_fields {
   shift;
@@ -145,6 +146,9 @@ sub s_field {
     $_[1]
   );
 };
+
+# TODO:
+#   s_class (sort by the surface form of a class, necessary for concordances)
 
 
 sub limit {

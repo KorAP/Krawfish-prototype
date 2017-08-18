@@ -4,78 +4,112 @@ use warnings;
 
 # Base class for ranking of fields and subterms
 
+# Strategy:
+#
+#   SURFACE RANKING
+#   ===============
+#   The dictionary contains all ranking information for surface forms.
+#   When a surface form is added, the information on the ranking in
+#   the dynamic dictionary is stored as empty epsilon information initially.
+#   (See the store variant of the static dictionary).
+#   Every new term in the dynamic dictionary is added to a list of
+#   terms with attached term ids.
+#
+#   On MERGE
+#     1 The dictionaries are merged
+#     2 The list of new terms is sorted both in prefix and
+#       suffix order (respect collations)
+#     3 The sorted new term list in prefix order is merged with the
+#       sorted list in prefix order of the static dictionary
+#     4 When a new term is first found to be merged in,
+#       the term gets the prefix rank in the merged static dictionary
+#     5 All following terms are updated in the static dictionary
+#       accordingly
+#       (which is fast, because term-id lookup + one up is reasonable
+#       fast in memory)
+#     6 Do 2-5 for the suffix ordered list
+#
+#   The static sorted lists have the following structure:
+#     [collocation]([term-with-front-coding][term_id])*
+#   The dynamic new term list (unsorted) has the following structure:
+#     ([term][term_id])*  # though, this may be redundant
+#   Ranks are stored at the pre-terminal level in the dictionary.
+#
+#   Ranking information is stored on the node level
+#     [term_id] -> [RANK]
+#     ->rank_by_term_id(term_id)
+#     ->rev_rank_by_term_id(term_id)
+#
+#
+#   FIELD RANKING
+#   =============
+#   Each segment contains all ranking information for sortable fields.
+#   When a document is added to the dynamic segment, all sortable fields
+#   are recognized with their surface forms and the attached doc id.
+#   Each static segment has a rank file per field with the length of
+#   the segment's doc vector including a forward rank and a backward rank.
+#   To make reranking possible on merging, each static segment also has a
+#   sorted list of field terms with all documents the field is attached to.
+#   To deal with multivalued fields (e.g. keywords), the ranking file has
+#   two fields: One for forward sorting, one for backwards sorting.
+#
+#   On MERGE
+#     1 Sort the dynamic field list in alphabetically order
+#       (respect a chosen collation)
+#     2 Merge all postingslists, forward indices etc.
+#     3 Merge the dynamic field list with the static field list
+#     4 Iterate through the new list from beginning to the end to
+#       fill the forward ranking list. Increment starting with 1.
+#       The first occurrence of a doc_id is taken.
+#       The maximum rank is remembered.
+#     5 Iterate through the new list from beginning to the end to
+#       fill the reverse ranking list. Decrement stating with the maximum rank.
+#       The last occurrence of a doc_id is taken.
+#     6 Based on the relation between maximum rank and the length of the
+#       document vector, the ranking file is encoded and stored.
+#       The number of unset documents may also be taken into account for encoding.
+#
+#   The sorted lists have the following structure:
+#     [collocation]([field-term-with-front-coding][doc_id]*)*
+#   The dynamic field list (unsorted) has the following structure:
+#     ([field-term][doc_id])*
+#   The static ranking lists have the following structure:
+#     ([rank][revrank]){MAX_DOC_ID}
+#
+#   Ranking information is stored on the segment level
+#     [doc_id] -> [RANK]
+#     ->rank_by_doc_id(doc_id)
+#     ->rev_rank_by_doc_id(doc_id)
+#
+#
+#   COLLATIONS
+#   ==========
+#   Sortable fields need to be initialized before documents using
+#   this field are added. The dictionary will have a "sortable" flag
+#   on a pre-terminal edge in the dictionary that is retrievable.
+#   when a field is requested, that is not sortable, an error is raised
+#   when the sorting is initialized.
+#   The collation file is sorted by field-term-id and probably quite short
+#   and kept in memory
+#
+#     ([sortable-field-id][collation])*
+#
+#   When a new field is initialized, this list is immediately updated.
+#
+#   Collation information is stored on the node level
+#     [term_id] -> [COLLATION]
+#     ->init_field(field, collation)
+#     ->collation_by_field_id(field_id)
+#
+#   Because collation for fields is also stored per segment, this is not
+#   requested often.
 
 
 # TODO:
-#   Although field rank files are stored per segment, field rank logs
-#   are stored on the node-level and they are used to rank dynamic segment
-#   rank files.
-#   Each field_rank_log has the following structure:
-#
-#     [collocation]([term_id][term/field-value][rank])*
-#
-#   Every entry is sorted in term_id order.
-#   New entries are added to the lists with no rank defined
-#
-#     [term_id][term/field-value][0]
-#   In the rank-file, the rank for the doc is also given as [0]
-
-
-# TODO:
-#   Each field, the prefixes for subterms, and the
-#   suffixes for subterms have - in addition to the
-#   dictionary - a rank-file that does not only
-#   store the ranks per doc, but all values
-#   in sorted order, respecting a certain collation.
-#
-#   This file will only be consulted for reranking (merging),
-#   so it may be compressed on disk and potentially
-#   stored with incremental encoding/front coding
-
-# TODO:
-#   Ranking is simple:
-#     1. rank all values by sorting them - give them rank numbers.
-#   If new values are added:
-#     1. Sort all new values separately
-#        Start at position i = MAX_RANK/2
-#        while there are values in the list:
-#        2. Look up, if the smallest value is already present
-#           LOOKUP
-#           yes -> ignore, keep position as i
-#                  but for rank-integration, keep the rank in
-#                  a special data strukture like ranked_cache
-#           no -> go to 3
-#        # HOW TO SEARCH HERE!?
-#        3. Get the preceeding and following rank values and
-#           define the middle value for the value as a prerank
-#           and set position value to 0.
-#        4. For all next values to prerank, look, if they have the same
-#           surrounding ranks (just check, if the greater ranked value is also greater
-#           as the current value).
-#           yes ->
-#             Check, if the value is identical
-#             yes -> add known prerank and same position value, go to 2
-#             no -> add known prerank and an incremented position value, go to 2
-#           no -> go to 2
-#   For merging, just go linearly through all
-#   Ranks in a merge sort way. Whenever there is a value that needs to be integrated
-#   from the prerank list, increment all values.
-#   HOW:
-#     The ranked list will be iterated in document order
-#     The precached_rank needs to have a special data structure with an API:
-#     ->update_rank(rank), that will take a rank of the ranked list
-#     and returns the rank incremented by the number of preranks before this rank.
-#     in case, no rank was inserted before, this will be the same.
-#     Then, all new documents with preranked or ranked but not integrated yet
-#     values will be appended to the rank stream.
-#
-# TODO:
-#   Use something like that:
+#   For encoding dense but not diverse field ranks use something like that:
 #   http://pempek.net/articles/2013/08/03/bit-packing-with-packedarray/
 #   https://github.com/gpakosz/PackedArray
-#
-# TODO:
-#   $max_rank is important, because it indicates
+#   That's why max_rank is important, because it indicates
 #   how many bits per doc are necessary to encode
 #   the rank!
 #
@@ -84,22 +118,14 @@ use warnings;
 #   strategy may be valid.
 
 # TODO:
-#   For fields it's necessary to have methods to add
-#   a term and retrieve entries before and after, in case
-#   a term is not yet added. This gives the possibility
-#   to retrieve ranks for this field value and rerank the
-#   field rank in place (meaning the new value has the
-#   rank of the next value in the dictionary and in the
-#   FieldsRank all documents with a rank > the new
-#   rank value needs to be incremented.
-#   However, keep in mind: That only works for fields
-#   with the same collation mechanism as the dictionary.
-#   Maybe it's better to have redundant rank-lists
-#   (including surface forms) per field,
-#   that are only used for ranking and reranking
-#   (but never for live-searching, so they can be stored
-#   compressed on disk and can be decompressed for reranking)
-
+#   Think about a different design, where the field lists are stored on the
+#   node level:
+#     [collation]([field-term-with-front-coding][term_id])
+#   Now, the new terms will be merged in the list and the new segment will incorporate
+#   the new ranking.
+#   When a new term is added, it is added as
+#     ([term][term_id][doc_id])*
+#   ...
 
 sub max {
   $_[0]->{max};
