@@ -50,14 +50,7 @@ sub identify {
   return $self unless $self->{subterm};
 
   my $term = '*' . $self->{subterm};
-  my $term_id = $dict->term_id_by_term($term);
-
-  if (defined $term_id) {
-    $self->{subterm_id} = $term_id;
-  }
-  else {
-    $self->{subterm_id} = $dict->add_term($term);
-  };
+  $self->{subterm_id} = $dict->add_term($term);
 
   foreach (@{$self->{anno}}) {
     $_->identify($dict);

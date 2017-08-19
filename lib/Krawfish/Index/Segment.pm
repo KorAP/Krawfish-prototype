@@ -46,6 +46,11 @@ sub new {
 
   print_log('seg', 'Instantiate new segment') if DEBUG;
 
+  # Add forward index
+  $self->{forward} = Krawfish::Index::Forward->new(
+    $self->{file}
+  );
+
   # Load fields
   $self->{fields} = Krawfish::Index::Fields->new(
     $self->{file}
@@ -55,6 +60,8 @@ sub new {
   $self->{live} = Krawfish::Index::PostingsLive->new(
     $self->{file}
   );
+
+  # $self->{field_ranks} = ...
 
   # Create a list of docid -> uuid mappers
   # This may be problematic as uuids may need to be uint64,
@@ -69,9 +76,6 @@ sub new {
 
   # Add cache
   $self->{cache} = Krawfish::Cache->new;
-
-  # Add forward index
-  $self->{forward} = Krawfish::Index::Forward->new;
 
   return $self;
 };

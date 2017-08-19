@@ -61,6 +61,7 @@ sub last_doc_id {
 };
 
 
+# Accepts a Krawfish::Koral::Document
 sub add {
   my ($self, $doc) = @_;
   my $doc_id = $self->{last_doc_id}++;
@@ -73,7 +74,7 @@ sub add {
 };
 
 
-# Get doc from list (as long as the list provides random access to docs
+# Get doc from list (as long as the list provides random access to docs)
 sub doc {
   my ($self, $doc_id) = @_;
   print_log('fields', 'Get document for id ' . $doc_id) if DEBUG;

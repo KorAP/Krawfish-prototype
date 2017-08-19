@@ -54,7 +54,7 @@ use warnings;
 #   two fields: One for forward sorting, one for backwards sorting.
 #
 #   On MERGE
-#     1 Sort the dynamic field list in alphabetically order
+#     1 Sort the dynamic field list in alphabetically/numerical order
 #       (respect a chosen collation)
 #     2 Merge all postingslists, forward indices etc.
 #     3 Merge the dynamic field list with the static field list
@@ -70,7 +70,7 @@ use warnings;
 #       The number of unset documents may also be taken into account for encoding.
 #
 #   The sorted lists have the following structure:
-#     [collocation]([field-term-with-front-coding][doc_id]*)*
+#     [collocation]([field-term-with-front-coding|value-as-delta][doc_id]*)*
 #   The dynamic field list (unsorted) has the following structure:
 #     ([field-term][doc_id])*
 #   The static ranking lists have the following structure:

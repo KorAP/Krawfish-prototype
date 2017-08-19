@@ -117,5 +117,30 @@ sub dict {
 };
 
 
+sub introduce_field {
+  my ($self, $field_term, $collation) = @_;
+
+  my $dict = $self->dict;
+
+  # Add field
+  if ($dict->add_field($field_term, $collation)) {
+    # Field is added to the dictionary
+    return 1;
+  };
+
+  # Get term id (again)
+  my $term_id = $dict->term_id_by_term('!' . $field_term);
+
+  # The field already consists and it differs regarding the
+  # collation
+  return if $dict->collation($term_id);
+
+  # No collation defined yet
+  # TODO:
+  #  Iterate over all fields for all documents and
+  #  create sorted lists for the field
+  #  This may take quite a while.
+};
+
 1;
 

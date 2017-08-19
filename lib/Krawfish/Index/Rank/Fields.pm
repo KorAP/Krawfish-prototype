@@ -10,6 +10,11 @@ use warnings;
 #
 # This is defined per Segment.
 
+
+# TODO:
+#   This may be in Krawfish::Index::Fields::Rank
+
+
 # TODO:
 #   There are two possible rank value types:
 # 1 VALUE IS >= 1 && <= MAX_RANK:

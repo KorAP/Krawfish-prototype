@@ -193,7 +193,8 @@ sub new {
     # fieldvalues, fieldkeys, terms, subterms ... etc.
 
     # TODO: Collation needs to be defined!
-    collation => undef
+    text_collation => undef,
+    field_collation => {}
   }, $class;
 };
 
@@ -223,12 +224,38 @@ sub add_term {
 };
 
 
-sub init_field {
-  my ($self, $field, $collation) = @_;
+# Add a field to the index
+sub add_field {
+  my ($self, $term, $collation) = @_;
+
+  # Check if term exists
+  my $term_id = $self->term_id_by_term('!' . $term);
+
+  return $term_id if $term_id && !$collation;
+
+  # The term is meant to be sortable
+  if ($term_id && defined $collation) {
+
+    # But the collations are not compatible
+    if ($collation != $self->collation($term_id)) {
+      return;
+    };
+
+    # Check, if it is sortable!
+    # otherwise return failure
+  };
+
+  return $self->add_term('!' . $term);
 };
 
-sub add_field {
-  ...
+
+# Get the collation of the base or the field id or undef, if not sortable
+sub collation {
+  my ($self, $field_id) = @_;
+  unless ($field_id) {
+    return $self->{text_collation};
+  };
+  return $self->{field_collation}->{$field_id};
 };
 
 

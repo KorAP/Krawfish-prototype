@@ -1,78 +1,34 @@
 package Krawfish::Koral::Document::FieldInt;
 use Krawfish::Util::String qw/squote/;
-# TODO:
-#   Probably use Krawfish::Koral::Meta::Type::KeyID and
-#   Krawfish::Koral::Meta::Type::Key.
+use Role::Tiny::With;
+with 'Krawfish::Koral::Document::FieldBase';
 use warnings;
 use strict;
 
-sub new {
-  my $class = shift;
-  # key, value, key_id, key_value_id
-  bless { @_ }, $class;
-};
+# Class for integer fields
+
 
 sub type {
   'int';
-};
-
-# Get key_value combination
-sub term_id {
-  $_[0]->{key_value_id};
-};
-
-
-# Get key identifier
-sub key_id {
-  $_[0]->{key_id};
-};
-
-
-sub value {
-  $_[0]->{value};
 };
 
 
 sub identify {
   my ($self, $dict) = @_;
 
-  return if $self->{key_id};
+  return if $self->{key_id} && $self->{key_value_id};
 
+  # Get or introduce new key term_id
   my $key  = '!' . $self->{key};
+  $self->{key_id} = $dict->add_term($key);
+
+  # Get or introduce new key term_id
   my $term = '+' . $self->{key} . ':' . $self->{value};
+  $self->{key_value_id} = $dict->add_term($term);
 
-  # Get key term_id
-  my $term_id = $dict->term_id_by_term($key);
-
-  # Not given yet
-  if (defined $term_id) {
-
-    $self->{key_id} = $term_id;
-
-    # Get term identifier
-    $term_id = $dict->term_id_by_term($term);
-
-    # Term identifier does not exist
-    if (defined $term_id) {
-      $self->{key_value_id} = $term_id;
-    }
-
-    else {
-      $self->{key_value_id} = $dict->add_term($term);
-    };
-  }
-
-  else {
-    $self->{key_id} = $dict->add_term($key);
-    $self->{key_value_id} = $dict->add_term($term);
-  };
   return $self;
 };
 
-
-sub inflate {
-  ...
-};
 
 sub to_string {
   my $self = shift;

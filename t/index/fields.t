@@ -31,7 +31,6 @@ ok(my @fields = $pointer->fields, 'Get fields');
 
 is($fields[0]->term_id, 2, 'Field id');
 
-
 is($index->dict->term_by_term_id(2), '+docID:doc-3', 'Term');
 is($fields[1]->term_id, 4, 'Field id');
 is($index->dict->term_by_term_id(4), '+license:closed', 'Term');
