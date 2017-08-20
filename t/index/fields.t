@@ -58,6 +58,8 @@ ok(!$fields[2], 'Field id');
 
 ok($index = Krawfish::Index->new, 'Create new index');
 
+ok($index->introduce_field('size', 1), 'Introduce field as sortable');
+
 ok_index($index, {
   id => 7,
   integer_size => 2,

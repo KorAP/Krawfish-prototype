@@ -61,7 +61,9 @@ sub new {
     $self->{file}
   );
 
-  # $self->{field_ranks} = ...
+  # $self->{field_ranks} = Krawfish::Index::Fields::Ranks->new(
+  #  $self->{file}
+  #);
 
   # Create a list of docid -> uuid mappers
   # This may be problematic as uuids may need to be uint64,
@@ -163,6 +165,7 @@ sub add {
 
   # TODO:
   #   Rank fields!
+  # $self->field_ranks();
 
   # TODO:
   #   Deal with sortables!

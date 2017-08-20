@@ -231,21 +231,35 @@ sub add_field {
   # Check if term exists
   my $term_id = $self->term_id_by_term('!' . $term);
 
-  return $term_id if $term_id && !$collation;
+  # The term already exists
+  if ($term_id) {
 
-  # The term is meant to be sortable
-  if ($term_id && defined $collation) {
+    # Check which collation was stored
+    my $stored_collation = $self->collation($term_id);
 
-    # But the collations are not compatible
-    if ($collation != $self->collation($term_id)) {
-      return;
+    # The field was not meant to be sortable
+    if (!defined $collation && !defined $stored_collation) {
+
+      # Everything is fine
+      return $term_id;
+    }
+
+    # The field was meant to be sortable
+    elsif (defined $collation && defined $stored_collation &&
+          $collation eq $stored_collation) {
+
+      # The collations are compatible
+      return $term_id;
     };
 
-    # Check, if it is sortable!
-    # otherwise return failure
+    # Collations are not compatible
+    return;
   };
 
-  return $self->add_term('!' . $term);
+  # The term does not exist yet
+  $term_id = $self->add_term('!' . $term);
+  $self->{field_collation}->{$term_id} = 1;
+  return $term_id;
 };
 
 
@@ -304,6 +318,7 @@ sub term_by_term_id {
 
 
 sub subterm_by_subterm_id {
+  warn 'DEPRECATED';
   my ($self, $subterm_id) = @_;
   print_log('dict', 'Try to retrieve subterm id ' . $subterm_id) if DEBUG;
   return $self->{subterm_array}->[$subterm_id];
@@ -324,12 +339,18 @@ sub suffix_rank_by_subterm_id {
   $self->{suffix_rank}->[$subterm_id];
 };
 
-
 # Returns the term id by a term
 sub term_id_by_term {
   my ($self, $term) = @_;
   print_log('dict', 'Try to retrieve term ' . $term) if DEBUG;
   return $self->{hash}->{$term};
+};
+
+# Return the last charachters of a term
+# - beneficial for substring sorting
+sub suffix_by_term_id {
+  my ($self, $term_id, $length) = @_;
+  ...
 };
 
 

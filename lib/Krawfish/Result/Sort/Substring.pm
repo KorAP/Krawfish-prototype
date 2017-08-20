@@ -13,8 +13,8 @@ use warnings;
 #   match1: D[er] al[te] Ma[nn]
 #   match2: D[er] gu[te] Schäf[er]
 #
-# This requires that all terms are fetched from the dictionary.
-# (or at least X characters).
+# This requires that all terms of a class are fetched from
+# the dictionary (or at least X characters).
 # Equal sequences will receive the same rank and can then be
 # sorted alphabetically in the next run.
 # Equal may mean that this is case insensitive.

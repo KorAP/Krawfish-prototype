@@ -56,9 +56,6 @@ use constant DEBUG => 0;
 #   Create Importer class
 #
 # TODO:
-#   This should be a base class for K::I::Static and K::I::Dynamic
-#
-# TODO:
 #   Support multiple tokenized texts for parallel corpora
 #
 # TODO:
@@ -75,6 +72,14 @@ use constant DEBUG => 0;
 # TODO:
 #   Commits need to be logged and per commit, information
 #   regarding newly added documents need to be accessible.
+
+# TODO:
+#   Currently ranking is not collation based. It should be possible
+#   to define a collation per field and
+#   use one collation for prefix and suffix sorting.
+#   It may be beneficial to make a different sorting possible (though it's
+#   probably acceptable to make it slow)
+#   Use http://userguide.icu-project.org/collation
 
 # Construct a new index object
 sub new {
@@ -117,6 +122,7 @@ sub dict {
 };
 
 
+# Introduce a new field, possibly for sorting
 sub introduce_field {
   my ($self, $field_term, $collation) = @_;
 
@@ -128,18 +134,26 @@ sub introduce_field {
     return 1;
   };
 
+  # Field can't be added, because the collations are
+  # incompatible
+
   # Get term id (again)
   my $term_id = $dict->term_id_by_term('!' . $field_term);
 
-  # The field already consists and it differs regarding the
-  # collation
-  return if $dict->collation($term_id);
+  # Get the collation that is currently used
+  my $stored_collation = $dict->collation($term_id);
 
-  # No collation defined yet
+  # The field already consists and it differs regarding the
+  # collation - no upgrade possible
+  return;
+
   # TODO:
-  #  Iterate over all fields for all documents and
-  #  create sorted lists for the field
-  #  This may take quite a while.
+  #  1. No introduced collation
+  #     Remove all rank files from all segments
+  #  2. Incompatible collation
+  #     Iterate over all fields for all documents and
+  #     create sorted lists for the field.
+  #     This may take quite a while.
 };
 
 1;

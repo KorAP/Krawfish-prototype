@@ -22,6 +22,11 @@ sub identify {
   my $key  = '!' . $self->{key};
   $self->{key_id} = $dict->add_term($key);
 
+  # Set sortable
+  if (my $collation = $dict->collation($self->{key_id})) {
+    $self->{sortable} = 1;
+  };
+
   # Get or introduce new key term_id
   my $term = '+' . $self->{key} . ':' . $self->{value};
   $self->{key_value_id} = $dict->add_term($term);

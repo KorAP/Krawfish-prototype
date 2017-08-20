@@ -29,11 +29,6 @@ use constant DEBUG => 0;
 #  It should also be able to sort groups or sort texts/documents/corpora
 #
 # TODO:
-#   This may even help filtering: Whenever a document is matched with a rank
-#   that can be ignored (i.e. below the buckets of interest), skip the whole document.
-#   This could in fact be done manipulating the external virtual corpus filter!
-#
-# TODO:
 #   Whenever top X is requested, and there are matches > X with a max_rank Y,
 #   ignore all matches > Y. This also means, these matches do not need to be
 #   fine-sorted using secondary fields.
