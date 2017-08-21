@@ -1,5 +1,5 @@
-package Krawfish::Koral::Meta::Enrich::TermIDs;
-use Krawfish::Koral::Meta::Node::Enrich::TermIDs;
+package Krawfish::Koral::Meta::Enrich::Terms;
+use Krawfish::Koral::Meta::Node::Enrich::Terms;
 use List::MoreUtils qw/uniq/;
 use strict;
 use warnings;
@@ -12,7 +12,7 @@ sub new {
 };
 
 sub type {
-  'termids';
+  'terms';
 };
 
 
@@ -39,7 +39,7 @@ sub normalize {
 # Create single query tree
 sub wrap {
   my ($self, $query) = @_;
-  return Krawfish::Koral::Meta::Node::Enrich::TermIDs->new(
+  return Krawfish::Koral::Meta::Node::Enrich::Terms->new(
     $query,
     [$self->operations]
   );
@@ -48,7 +48,7 @@ sub wrap {
 
 sub to_string {
   my $self = shift;
-  return 'termids:['.join(',', @$self).']';
+  return 'terms:['.join(',', @$self).']';
 };
 
 1;

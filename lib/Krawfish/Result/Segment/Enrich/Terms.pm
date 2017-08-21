@@ -1,4 +1,4 @@
-package Krawfish::Result::Segment::Enrich::TermIDs;
+package Krawfish::Result::Segment::Enrich::Terms;
 use Krawfish::Posting::Match::Terms;
 use parent 'Krawfish::Result';
 use Krawfish::Log;
@@ -48,7 +48,7 @@ sub new {
 
 sub to_string {
   my $self = shift;
-  'termids(' . join(',', @{$self->{nrs}}) . ':'
+  'terms(' . join(',', @{$self->{nrs}}) . ':'
     . $self->{query}->to_string . ')'
 };
 
@@ -60,7 +60,7 @@ sub _init {
 
   if (DEBUG) {
     print_log(
-      'r_termids',
+      'r_terms',
       'Initiate pointer to forward index'
     );
   };
@@ -103,7 +103,7 @@ sub current_match {
 
   if (DEBUG) {
     print_log(
-      'r_termids',
+      'r_terms',
       'Get match from query'
     );
   };
@@ -127,7 +127,7 @@ sub current_match {
 
   if (DEBUG) {
     print_log(
-      'r_termids',
+      'r_terms',
       "Retrieve subtokens for class position $start-$end"
     );
   };
@@ -147,13 +147,13 @@ sub current_match {
         $pointer->skip_pos($start)) {
 
     if (DEBUG) {
-      print_log('r_termids', "Pointer is repositioned");
+      print_log('r_terms', "Pointer is repositioned");
     };
 
 
     # Collect all relevant subtoken term ids
     for (my $i = $start; $i < $end; $i++) {
-      # Add termids to list
+      # Add terms to list
       my $current = $pointer->current or return $match;
       push @term_ids, $current->term_id;
 
@@ -170,8 +170,8 @@ sub current_match {
 
   if (DEBUG) {
     print_log(
-      'r_termids',
-      'Retrieved termids are ' . join(',', @term_ids)
+      'r_terms',
+      'Retrieved terms are ' . join(',', @term_ids)
     );
   };
 
@@ -188,7 +188,7 @@ sub current_match {
 
     if (DEBUG) {
       print_log(
-        'r_termids',
+        'r_terms',
         'Add term ids for class ' . $class->[NR] .
           ' with theoretical start at ' . $start
       );

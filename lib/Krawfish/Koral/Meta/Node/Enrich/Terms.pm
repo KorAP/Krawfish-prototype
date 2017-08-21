@@ -1,5 +1,5 @@
-package Krawfish::Koral::Meta::Node::Enrich::TermIDs;
-use Krawfish::Result::Segment::Enrich::TermIDs;
+package Krawfish::Koral::Meta::Node::Enrich::Terms;
+use Krawfish::Result::Segment::Enrich::Terms;
 use strict;
 use warnings;
 
@@ -13,12 +13,12 @@ sub new {
 
 sub to_string {
   my $self = shift;
-  return 'termids(' . join(',', @{$self->{nrs}}) .
+  return 'terms(' . join(',', @{$self->{nrs}}) .
     ':'. $self->{query}->to_string . ')';
 };
 
 
-# This will identify the query and create a list of sorted fields ids
+# This will identify the query
 sub identify {
   my ($self, $dict) = @_;
 
@@ -39,7 +39,7 @@ sub optimize {
     return Krawfish::Query::Nothing->new;
   };
 
-  return Krawfish::Result::Segment::Enrich::TermIDs->new(
+  return Krawfish::Result::Segment::Enrich::Terms->new(
     $segment->forward,
     $query,
     $self->{nrs}

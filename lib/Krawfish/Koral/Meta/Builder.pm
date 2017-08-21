@@ -17,7 +17,7 @@ use Krawfish::Koral::Meta::Group;
 use Krawfish::Koral::Meta::Group::Fields;
 
 use Krawfish::Koral::Meta::Enrich;
-use Krawfish::Koral::Meta::Enrich::TermIDs;
+use Krawfish::Koral::Meta::Enrich::Terms;
 use Krawfish::Koral::Meta::Enrich::Fields;
 use Krawfish::Koral::Meta::Enrich::Snippet;
 
@@ -107,10 +107,10 @@ sub e_snippet {
   return Krawfish::Koral::Meta::Enrich::Snippet->new(@_);
 };
 
-# Enrich with TermIDs per class
-sub e_term_ids {
+# Enrich with Terms per class
+sub e_terms {
   shift;
-  return Krawfish::Koral::Meta::Enrich::TermIDs->new(@_);
+  return Krawfish::Koral::Meta::Enrich::Terms->new(@_);
 };
 
 

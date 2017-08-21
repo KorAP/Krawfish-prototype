@@ -26,19 +26,19 @@ $koral->query(
 
 $koral->meta(
   $mb->enrich(
-    $mb->e_term_ids(2,4)
+    $mb->e_terms(2,4)
   )
 );
 
 is($koral->to_string,
-   "meta=[enrich=[termids:[2,4]]],query=[({2:aa})|({4:bb})]",
+   "meta=[enrich=[terms:[2,4]]],query=[({2:aa})|({4:bb})]",
    'Stringification');
 
 ok(my $koral_query = $koral->to_query, 'Normalization');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "termids(2,4:filter(({2:aa})|({4:bb}),[1]))",
+   "terms(2,4:filter(({2:aa})|({4:bb}),[1]))",
    'Stringification');
 
 # This is a query that is fine to be send to segments:
@@ -46,11 +46,11 @@ ok($koral_query = $koral_query->identify($index->dict), 'Identify');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "termids(2,4:filter(({2:#8})|({4:#10}),[1]))",
+   "terms(2,4:filter(({2:#8})|({4:#10}),[1]))",
    'Stringification');
 
 ok(my $query = $koral_query->optimize($index->segment), 'Optimize');
-is ($query->to_string, 'termids(2,4:or(class(2:filter(#8,[1])),class(4:filter(#10,[1]))))', 'Stringification');
+is ($query->to_string, 'terms(2,4:or(class(2:filter(#8,[1])),class(4:filter(#10,[1]))))', 'Stringification');
 
 ok($query->next, 'Next match');
 is($query->current_match->to_string, '[0:0-1$0,2,0,1|terms:[2:7]]', 'Current match');
