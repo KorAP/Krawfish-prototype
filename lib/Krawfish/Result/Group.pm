@@ -9,13 +9,13 @@ use constant DEBUG => 0;
 
 # Group matches based on certain criteria, for example:
 # - for record matches
-#   - metadata!
+#   - fields
 #   - This is useful to group document matches for corpus browsing!
 #   - BUT: This would probably need a witness mechanism, so for a match,
 #     some fields can be loaded, e.g. a matching document sigle will return
 #     the document title.
 # - for span matches
-#   - metdata
+#   - fields
 #     - this is an extension to facets, where snippet frequencies are grouped
 #       based on a certain facet.
 #     - having facets in a first step may improve the distributed aggregation

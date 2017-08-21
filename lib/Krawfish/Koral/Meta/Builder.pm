@@ -1,4 +1,7 @@
 package Krawfish::Koral::Meta::Builder;
+use strict;
+use warnings;
+
 use Krawfish::Koral::Meta::Aggregate;
 
 # TODO:
@@ -13,21 +16,13 @@ use Krawfish::Koral::Meta::Aggregate::Values;
 use Krawfish::Koral::Meta::Group;
 use Krawfish::Koral::Meta::Group::Fields;
 
-# TODO:
-#   Add an enrich-object to meta!
-
 use Krawfish::Koral::Meta::Enrich;
+use Krawfish::Koral::Meta::Enrich::TermIDs;
 use Krawfish::Koral::Meta::Enrich::Fields;
 use Krawfish::Koral::Meta::Enrich::Snippet;
 
-# TODO:
-#   Add enrich for term_ids (necessary for sorting
-#   by surface forms)
-
 use Krawfish::Koral::Meta::Type::Key;
 use Scalar::Util qw/blessed/;
-use strict;
-use warnings;
 
 sub new {
   my $class = shift;
@@ -110,6 +105,12 @@ sub e_fields {
 sub e_snippet {
   shift;
   return Krawfish::Koral::Meta::Enrich::Snippet->new(@_);
+};
+
+# Enrich with TermIDs per class
+sub e_term_ids {
+  shift;
+  return Krawfish::Koral::Meta::Enrich::TermIDs->new(@_);
 };
 
 

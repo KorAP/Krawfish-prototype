@@ -7,7 +7,7 @@ use warnings;
 # Base class for boolean group queries.
 # Used by Koral::Corpus::FieldGroup, Koral::Query::TermGroup, and Koral::Query::Or
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # TODO:
 #   To simplify this, it may be useful to use Negation instead of is_negative().

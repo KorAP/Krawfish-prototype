@@ -89,7 +89,7 @@ sub to_string {
   my $self = shift;
   my ($offset, $length) = @_;
   $offset //= 0;
-  $length //= 10;
+  $length //= $offset+10;
   return join(',', map {
     '[' . (defined $_ ? $_ : '?') . ']'
   } @{$self}[$offset .. $length]);

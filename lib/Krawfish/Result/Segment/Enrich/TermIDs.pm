@@ -1,26 +1,26 @@
 package Krawfish::Result::Segment::Enrich::TermIDs;
+use Krawfish::Posting::Match::Terms;
 use parent 'Krawfish::Result';
 use Krawfish::Log;
 use strict;
 use warnings;
 
+# TODO:
+#   Potentially rename to ::Terms!
+
 # Enrich each match with all term ids for a specific region and
 # for a specific class
 
 # TODO:
-#   Move Fields, Snippet, TermIDs to
-#   Krawfish::Result::Segment::Enrich::*
-#   Because they enrich matches.
-#   Or create K::R::S::Match::* because
-#   they change each match
-
-# TODO:
 #   Make this usable for Krawfish::Result::Group::Classes
+#   and Krawfish::Result::Sort::Classes
 #   by supporting $nrs instead of $nr
 #
 # TODO:
-#   Classes may overlap, so subtokens should be cached
+#   Classes may overlap, so subtokens should be cached/buffered
 #   or rather memoized!
+#   This also means it's necessary to retrieve term-ids without gaps
+#   so the next match can retrieve the term ids overlapping
 #
 # TODO:
 #   For a class there may be more than one start+end values.
@@ -29,27 +29,67 @@ use warnings;
 #   For sorting it's important to remember that!
 
 use constant {
-  DEBUG => 0,
-    NR => 0,
-    START_POS => 1,
-    END_POS => 2,
+  DEBUG => 1,
+  NR => 0,
+  START_POS => 1,
+  END_POS => 2,
 };
 
 
 sub new {
   my $class = shift;
   bless {
-    index => shift,
+    forward_obj => shift,
     query => shift,
-    nr => shift // 0,
+    nrs   => shift // [0],
     match => undef
   }, $class;
+};
+
+sub to_string {
+  my $self = shift;
+  'termids(' . join(',', @{$self->{nrs}}) . ':'
+    . $self->{query}->to_string . ')'
+};
+
+
+sub _init {
+  my $self = shift;
+
+  return if $self->{init}++;
+
+  if (DEBUG) {
+    print_log(
+      'r_termids',
+      'Initiate pointer to forward index'
+    );
+  };
+
+  # TODO:
+  #   Buffer this pointer!
+  $self->{pointer} = $self->{forward_obj}->pointer;
+};
+
+
+sub pointer {
+  $_[0]->{pointer};
+};
+
+
+
+# Next match
+sub next {
+  my $self = shift;
+  $self->{match} = undef;
+  return $self->{query}->next;
 };
 
 
 # Get the current match
 sub current_match {
   my $self = shift;
+
+  $self->_init;
 
   # Current match is already defined
   if ($self->{match}) {
@@ -61,41 +101,133 @@ sub current_match {
   # Get match based on current query position
   my $match = $self->match_from_query;
 
-  # Get tzhe subtokens object to retrieve term ids
-  my $subtokens = $self->{index}->subtokens;
-
-  my ($start, $end) = ();
-
-  # Class has match scope
-  unless ($self->{nr}) {
-    $start = $match->start;
-    $end = $match->end;
-  }
-
-  # Specific class scope
-  else {
-    my ($class) = $match->get_classes([$self->{nr}]);
-    $start = $class->[1];
-    $end   = $class->[2];
+  if (DEBUG) {
+    print_log(
+      'r_termids',
+      'Get match from query'
+    );
   };
 
-  # Get term ids for the specific match positions
-  my $term_ids = $subtokens->get_term_ids($match->doc_id, $start, $end);
+  # Get classes of the match
+  my @classes = $match->get_classes($self->{nrs});
 
-  # Set term ids for specific class
-  $match->term_ids($self->{nr} => $term_ids);
+  # No classes found in match
+  return $match unless @classes;
+
+  # This only contains classes requested,
+  # but potentially multiple times
+
+  # First retrieve term ids
+  my $start = $classes[0]->[START_POS];
+  my $end   = $classes[0]->[END_POS];
+  foreach (@classes[1 .. $#classes]) {
+    $start = $_->[START_POS] if $_->[START_POS] < $start;
+    $end = $_->[END_POS] if $_->[END_POS] > $end;
+  };
+
+  if (DEBUG) {
+    print_log(
+      'r_termids',
+      "Retrieve subtokens for class position $start-$end"
+    );
+  };
+
+  # TODO:
+  #   Instead of using pointer directly,
+  #   this should use a forward buffer
+  #   with a yet to be defined API
+
+  my $pointer = $self->pointer;
+
+  # Skip to current document
+  my @term_ids = ();
+  if ($pointer->skip_doc($match->doc_id) &&
+
+        # Skip to current position
+        $pointer->skip_pos($start)) {
+
+    if (DEBUG) {
+      print_log('r_termids', "Pointer is repositioned");
+    };
+
+
+    # Collect all relevant subtoken term ids
+    for (my $i = $start; $i < $end; $i++) {
+      # Add termids to list
+      my $current = $pointer->current or return $match;
+      push @term_ids, $current->term_id;
+
+      # Move to next subtoken
+      $pointer->next;
+    };
+  }
+
+  # Document not available
+  else {
+    # Nothing to add
+    return $match;
+  };
+
+  if (DEBUG) {
+    print_log(
+      'r_termids',
+      'Retrieved termids are ' . join(',', @term_ids)
+    );
+  };
+
+  # Add lists of term_ids
+  # Structure is
+  # {
+  #   class1 => [id,id,0,id,id],
+  #   class2 => [...]
+  # }
+  # WARNING:
+  #   Gaps in classes are marked with 0!
+  my %term_id_per_class;
+  foreach my $class (@classes) {
+
+    if (DEBUG) {
+      print_log(
+        'r_termids',
+        'Add term ids for class ' . $class->[NR] .
+          ' with theoretical start at ' . $start
+      );
+    };
+
+    # Get the term vector of the class
+    my $term_ids = ($term_id_per_class{$class->[NR]} //= []);
+
+    # Foreach position, set the term_id
+    foreach my $pos ($class->[START_POS] .. ($class->[END_POS] - 1)) {
+
+      # Get the position without offset
+      $pos = $start - $pos;
+
+      # Copy the term id from the retrieved list
+      $term_ids->[$pos] = $term_ids[$pos];
+    };
+  };
+
+  # Because this may introduce zeros at the beginning,
+  # all classes need to be trimmed again
+  foreach my $class_nr (keys %term_id_per_class) {
+    while (defined $term_id_per_class{$class_nr}->[0] &&
+             $term_id_per_class{$class_nr}->[0] == 0) {
+      shift @{$term_id_per_class{$class_nr}};
+    };
+  };
+
+  # Add term id information per class
+  $match->add(
+    Krawfish::Posting::Match::Terms->new(
+      \%term_id_per_class
+    )
+  );
 
   # Set match
   $self->{match} = $match;
 };
 
-
-# Next match
-sub next {
-  my $self = shift;
-  $self->{match} = undef;
-  return $self->{query}->next;
-};
 
 
 1;

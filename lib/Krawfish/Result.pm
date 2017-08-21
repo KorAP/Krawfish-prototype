@@ -31,10 +31,12 @@ sub current {
 # Based on the current query this returns either
 # a predefined match (when nesting) or creates a match
 # based on the query
+# May simply be the method
+# current_match() in Krawfish::Query!
 sub match_from_query {
   my $self = shift;
 
-  print_log('c_collect', 'Get match from query') if DEBUG;
+  print_log('result', 'Get match from query') if DEBUG;
 
   # Get current match from query
   my $match = $self->{query}->current_match;
@@ -42,12 +44,12 @@ sub match_from_query {
   # Not yet defined
   unless ($match) {
 
-    print_log('c_collect', 'No match found yet') if DEBUG;
+    print_log('result', 'No match found yet') if DEBUG;
 
     # Get current object
     my $current = $self->current;
 
-    print_log('c_collect', 'Current posting is '. $self->{query}->to_string) if DEBUG;
+    print_log('result', 'Current posting is '. $self->{query}->to_string) if DEBUG;
 
     # Create new match
     $match = Krawfish::Posting::Match->new(

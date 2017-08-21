@@ -81,6 +81,11 @@ sub skip_doc {
   };
 
   if ($self->{doc_id} == $doc_id) {
+
+    if (DEBUG) {
+      print_log('fwd_point', 'Document already in position');
+    };
+
     return 1;
   }
   elsif ($self->{doc_id} < $doc_id && $doc_id < $self->freq) {
@@ -90,8 +95,7 @@ sub skip_doc {
     };
 
     $self->{doc_id} = $doc_id;
-    my $doc = $self->{list}->doc($doc_id);
-    $self->{doc} = $doc;
+    $self->{doc} = $self->{list}->doc($doc_id);
     $self->{cur} = 0;
     $self->{pos} = -1;
 
@@ -110,9 +114,13 @@ sub skip_pos {
 
   return 0 if $pos < $self->{pos};
 
+  if (DEBUG) {
+    print_log('fwd_point', "Skip position to $pos");
+  };
+
   # TODO:
   #   This should use skip lists!
-  while($pos > $self->{pos}) {
+  while ($pos > $self->{pos}) {
     $self->next or return 0;
   };
 
@@ -122,6 +130,10 @@ sub skip_pos {
 
 sub current {
   my $self = shift;
+
+  if (DEBUG) {
+    print_log('fwd_point', "Get current forward posting");
+  };
 
   # Return current
   return $self->{current} if $self->{current};
@@ -135,7 +147,8 @@ sub current {
   };
 
   if (DEBUG) {
-    print_log('fwd_point', 'Doc is ' . $self->{doc}->to_string($self->{cur}));
+    print_log('fwd_point', 'Doc is ' .
+                $doc->to_string($cur));
   };
 
   # Establish subtoken
