@@ -13,7 +13,7 @@ ok_index($index, {
   id => 2,
   author => 'Peter',
   genre => 'novel',
-  age => 4
+  age => 3
 } => [qw/aa bb/], 'Add complex document');
 ok_index($index, {
   id => 3,
@@ -38,6 +38,7 @@ ok_index($index, {
 my $koral = Krawfish::Koral->new;
 my $cb = $koral->corpus_builder;
 my $mb = $koral->meta_builder;
+my $qb = $koral->query_builder;
 
 # Corpus object
 $koral->corpus(
@@ -67,7 +68,7 @@ ok(my $koral_query = $koral->to_query, 'Normalization');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "group(fields:['author']:[1]&(age=7|author=Peter))",
+   "gFields('author':[1]&(age=7|author=Peter))",
    'Stringification');
 
 
@@ -76,11 +77,64 @@ ok($koral_query = $koral_query->identify($index->dict),
    'Identify');
 
 # This is a query that is fine to be send to nodes
-#is($koral_query->to_string,
-#   "group(fields:[#3]:(#17|#4)&[1])",
-#   'Stringification');
+is($koral_query->to_string,
+   "gFields(#3:(#17|#4)&[1])",
+   'Stringification');
 
-diag 'check group fields!';
+ok(my $query = $koral_query->optimize($index->segment), 'optimize query');
+
+is($query->to_string, 'gFields(#3:and(or(#17,#4),[1]))', 'Stringification');
+
+ok($query->next, 'Go to next');
+ok($query->finalize, 'Go to next');
+
+# TODO:
+#   This API is only temporarily implemented
+is($query->collection->to_string, 'gFields:[#3:[18=1,1;4=3,3]',
+   'Stringification');
+
+is($query->collection->inflate($index->dict)->to_string,
+   'gFields:[author:[Michael:1,1;Peter:3,3]',
+   'Stringification inflated');
+
+
+
+
+# Corpus object
+$koral->corpus(
+  $cb->bool_or(
+    $cb->string('age')->eq('3'),
+    $cb->string('age')->eq('7')
+  )
+);
+
+# Meta object
+$koral->meta(
+  $mb->group_by(
+    $mb->g_fields('author', 'genre')
+  )
+);
+
+$koral->query(
+  $qb->bool_or($qb->term('aa'), $qb->term('bb'))
+);
+
+is($koral->to_string,
+   "meta=[group=[fields:['author','genre']]],corpus=[age=3|age=7],query=[aa|bb]",
+   'Stringification');
+
+ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment), 'Optimize');
+
+is($query->to_string,
+   'gFields(#3,#5:or(filter(#10,or(#17,#2)),filter(#12,or(#17,#2))))',
+   'Stringification');
+
+ok(my $coll = $query->finalize->collection->inflate($index->dict), 'Search');
+
+is($coll->to_string, 'gFields:[author,genre:[Michael|newsletter:1,2;Peter|novel:2,4]',
+   'Stringification');
+
+# TODO: Group on multiple fields!
 
 
 done_testing;
@@ -88,28 +142,7 @@ __END__
 
 
 
-# Create class criterion
-my $criterion = Krawfish::Result::Group::Fields->new(
-  $index,
-  ['author']
-);
 
-is($criterion->to_string, 'fields[author]', 'Stringification');
-
-
-
-
-
-# Create group
-my $group = Krawfish::Result::Group->new(
-  $query->normalize->optimize($index),
-  $criterion
-);
-
-
-is($group->to_string, "groupBy(fields[author]:or('age:7','author:Peter'))", 'Stringification');
-
-ok($group->next, 'Go to next');
 
 is_deeply($group->current_group, {
   'author' => 'Peter',

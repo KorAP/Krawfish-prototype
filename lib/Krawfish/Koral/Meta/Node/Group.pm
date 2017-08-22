@@ -5,6 +5,9 @@ use warnings;
 
 use constant DEBUG => 1;
 
+warn 'DEPRECATED';
+
+
 sub new {
   my $class = shift;
 

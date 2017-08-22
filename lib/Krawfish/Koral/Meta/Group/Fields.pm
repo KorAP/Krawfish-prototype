@@ -1,4 +1,5 @@
 package Krawfish::Koral::Meta::Group::Fields;
+use Krawfish::Koral::Meta::Node::Group::Fields;
 use strict;
 use warnings;
 
@@ -44,12 +45,12 @@ sub normalize {
 };
 
 
-# TODO:
-#   Create one facet wrapping each other!
-#   OR as fields are sorted in order, fetching multiple
-#   fields for a document at once may be beneficial
 sub wrap {
-  ...
+  my ($self, $query) = @_;
+  return Krawfish::Koral::Meta::Node::Group::Fields->new(
+    $query,
+    [$self->operations]
+  )
 };
 
 
@@ -77,6 +78,10 @@ sub identify {
 sub to_string {
   my $self = shift;
   return 'fields:[' . join(',', map { $_->to_string } @$self) . ']';
+};
+
+sub optimize {
+  ...
 };
 
 1;

@@ -8,7 +8,8 @@ use constant DEBUG => 1;
 our %ENRICH_ORDER = (
   'fields'   => 1,
   'snippet'  => 2,
-  'termfreq' => 3
+  'terms'    => 3,
+  'termfreq' => 4
 );
 
 

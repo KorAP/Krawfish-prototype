@@ -1,5 +1,63 @@
 use Test::More;
 use Test::Krawfish;
+use strict;
+use warnings;
+
+use_ok('Krawfish::Index');
+use_ok('Krawfish::Koral');
+
+my $index = Krawfish::Index->new;
+ok_index($index, {
+  id => 'doc-1',
+  license => 'free',
+  corpus => 'corpus-2'
+} => [qw/aa bb/], 'Add new document');
+
+ok_index($index, {
+  id => 'doc-2',
+  license => 'closed',
+  corpus => 'corpus-3'
+} => [qw/aa bb/], 'Add new document');
+ok_index($index, {
+  id => 'doc-3',
+  license => 'free',
+  corpus => 'corpus-1',
+  store_uri => 'My URL'
+} => [qw/bb cc/], 'Add new document');
+
+
+my $koral = Krawfish::Koral->new;
+my $qb = $koral->query_builder;
+my $mb = $koral->meta_builder;
+
+$koral->query($qb->token('aa'));
+
+$koral->meta(
+  $mb->group_by(
+    $mb->g_fields('license','corpus')
+  )
+);
+
+is($koral->to_string,
+   "meta=[group=[fields:['license','corpus']]],query=[[aa]]",
+   'Stringification');
+
+ok(my $koral_query = $koral->to_query, 'Normalization');
+
+# This is a query that is fine to be send to segments:
+ok($koral_query = $koral_query->identify($index->dict), 'Identify');
+
+# This is a query that is fine to be send to nodes
+is($koral_query->to_string,
+   "gFields(#1,#5:filter(#8,[1]))",
+   'Stringification');
+
+
+done_testing;
+__END__
+
+use Test::More;
+use Test::Krawfish;
 use Data::Dumper;
 use strict;
 use warnings;
@@ -21,7 +79,11 @@ my $query = $kq->token('akron=Bau-Leiter');
 is($query->to_string, '[akron=Bau-Leiter]', 'Stringification');
 
 
+
+
 diag 'Check groups without subtoken index';
+
+
 
 done_testing;
 __END__

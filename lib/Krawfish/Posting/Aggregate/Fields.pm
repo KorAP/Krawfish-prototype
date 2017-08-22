@@ -18,6 +18,9 @@ use warnings;
 #   It may be beneficial to deal with Koral::Type here,
 #   so inflate() would be an action directly done in Koral::Type
 
+# TODO:
+#   Rename stringifications to aFields!
+
 use constant DEBUG => 1;
 
 sub new {
@@ -41,6 +44,7 @@ sub incr_doc {
   my $field_freq = ($field_key_freq->{$field_id} //= [0,0]);
 
   # Increase doc frequency for the key
+  # Maybe that's not necessary and can be done in flush
   $field_freq->[0]++;
 
   if (DEBUG) {

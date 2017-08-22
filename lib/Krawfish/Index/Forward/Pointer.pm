@@ -7,7 +7,7 @@ use strict;
 # WARNING:
 #   This currently is not combined with live documents per default
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # API:
 # ->next_doc

@@ -3,14 +3,23 @@ use Krawfish::Log;
 use warnings;
 use strict;
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
+
+
+# TODO:
+#   The forward index may need to contain casefolded terms as well,
+#   so grouping on terms can support casefolding.
+
+
 
 sub new {
   my $class = shift;
   my $doc = shift;
 
   my @data;
-  push @data, 0;           # Point to previous subtoken (should be xor)
+
+  # Point to previous subtoken (should be xor)
+  push @data, 0;
 
   my $start_marker;
 
@@ -18,7 +27,8 @@ sub new {
   my $stream = $doc->stream;
   foreach my $subtoken (@$stream) {
 
-    push @data, '?';           # Point to next subtoken (should be xor)
+    # Point to next subtoken (should be xor)
+    push @data, '?';
     $start_marker = $#data;
 
     push @data, $subtoken->term_id;

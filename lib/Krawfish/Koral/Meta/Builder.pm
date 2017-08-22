@@ -84,6 +84,7 @@ sub a_values {
 };
 
 
+# Enrich matched with additional information
 sub enrich {
   shift;
   return Krawfish::Koral::Meta::Enrich->new(@_);
@@ -101,13 +102,14 @@ sub e_fields {
 };
 
 
-# Enrich with snippet
+# Enrich with snippets
 sub e_snippet {
   shift;
   return Krawfish::Koral::Meta::Enrich::Snippet->new(@_);
 };
 
-# Enrich with Terms per class
+
+# Enrich with Term lists per class
 sub e_terms {
   shift;
   return Krawfish::Koral::Meta::Enrich::Terms->new(@_);

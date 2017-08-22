@@ -74,6 +74,7 @@ sub startup {
 
 
   # Get information on commits
+  # Possibly rename to /index
   $r->get('/commit')->to('Index#commit_info')
   $r->get('/commit/:commit_id')->to('Index#commit_info');
 

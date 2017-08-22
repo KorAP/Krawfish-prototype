@@ -1,12 +1,13 @@
 package Krawfish::Util::PatternList;
 use Krawfish::Log;
+use Data::Dumper;
 use parent 'Exporter';
 use strict;
 use warnings;
 
 our @EXPORT = qw/pattern_list/;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # Expect a list of structure
 #   [[0,1],[3,5,8],[2]]
@@ -21,6 +22,10 @@ use constant DEBUG => 0;
 
 sub pattern_list {
   my @list = @_;
+
+  if (DEBUG) {
+    print_log('util_plist', 'Pattern is ' . Dumper(\@list));
+  };
 
   # Branch is initialized with
   # pointing at the final character

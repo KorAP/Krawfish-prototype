@@ -67,6 +67,7 @@ sub collect {
   return $result;
 };
 
+
 # Iterate to the next result
 sub next {
   my $self = shift;

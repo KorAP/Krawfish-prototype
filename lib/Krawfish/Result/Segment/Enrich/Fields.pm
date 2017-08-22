@@ -16,6 +16,8 @@ sub new {
   bless {
     field_obj => shift,
     query     => shift,
+
+    # Could be treated like in Aggregate/Fields or Group/Fields!
     fields    => shift, # Expects to be numerical sorted field identifier
     match     => undef,
     pointer   => undef,

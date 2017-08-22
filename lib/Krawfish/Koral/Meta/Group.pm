@@ -1,5 +1,4 @@
 package Krawfish::Koral::Meta::Group;
-use Krawfish::Koral::Meta::Node::Group;
 use strict;
 use warnings;
 
@@ -27,12 +26,8 @@ sub type {
 sub wrap {
   my ($self, $query) = @_;
 
-  # TODO:
-  #   Fields should be reordered
-  return Krawfish::Koral::Meta::Node::Group->new(
-    $query,
-    $self->criterion
-  );
+  # Group by
+  return $self->criterion->wrap($query);
 };
 
 

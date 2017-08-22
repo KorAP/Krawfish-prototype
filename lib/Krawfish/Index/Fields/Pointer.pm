@@ -6,7 +6,7 @@ use Krawfish::Log;
 use warnings;
 use strict;
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # API:
 # ->next_doc
