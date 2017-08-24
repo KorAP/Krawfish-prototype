@@ -11,6 +11,10 @@ sub new {
   }, $class;
 };
 
+sub type {
+  'field';
+};
+
 sub field {
   return $_[0]->{field};
 };

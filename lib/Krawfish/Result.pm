@@ -9,12 +9,13 @@ use constant DEBUG => 0;
 
 sub current_match {
   my $self = shift;
-  return unless defined $self->{doc_id};
+  my $current = $self->current;
+  return unless $current;
   return Krawfish::Posting::Match->new(
-    doc_id  => $self->{doc_id},
-    start   => $self->{start},
-    end     => $self->{end},
-    payload => $self->{payload}
+    doc_id  => $current->doc_id,
+    start   => $current->start,
+    end     => $current->end,
+    payload => $current->payload
   );
 };
 

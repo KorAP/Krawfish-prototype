@@ -10,6 +10,11 @@ use constant DEBUG => 1;
 # TODO:
 #   Support top_k setting from limit!
 
+# TODO:
+#   Not all sortings are compatible,
+#   e.g. sample cannot be mixed with
+#   another sorting!
+
 sub new {
   my $class = shift;
 
@@ -88,7 +93,17 @@ sub normalize {
   my $self = shift;
   my @unique;
   my %unique;
+  my $sampling = 0;
   foreach (@{$self->{sort}}) {
+
+    # Sampling can't be combined with other sorting
+    # mechanisms - and it can't be filtered,
+    # so return directly
+    if ($_->type eq 'sample') {
+      $_->top_k($self->top_k);
+      return $_;
+    };
+
     unless (exists $unique{$_->to_string}) {
       push @unique, $_;
       $unique{$_->to_string} = 1;

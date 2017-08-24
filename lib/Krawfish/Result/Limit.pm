@@ -1,4 +1,5 @@
 package Krawfish::Result::Limit;
+use parent 'Krawfish::Result';
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -45,12 +46,6 @@ sub next {
 sub current {
   $_[0]->{query}->current;
 };
-
-# May return a hash reference with information
-sub current_match {
-  ...
-};
-
 
 # May return a hash reference with information
 sub current_group {

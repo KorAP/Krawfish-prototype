@@ -6,6 +6,10 @@ use warnings;
 
 use constant DEBUG => 1;
 
+# TODO:
+#   In addition to the group name
+#   create a signature that is universal for each group
+
 sub new {
   my $class = shift;
   bless {
@@ -132,5 +136,22 @@ sub to_string {
   return $str .']';
 };
 
+
+sub to_koral_query {
+  # Create groups like
+  # {
+  #   "@type":"koral:collection",
+  #   "groupedBy":"groupedBy:fields",   # or "aggregatedBy, "sortedBy"
+  #   "labels":[...],
+  #   "items":[
+  #     {
+  #       "@type":"koral:item",
+  #       // "signature":"ab47mhjhjgfjuizgtzurzt",
+  #       "cols":[...]
+  #     }
+  #   ]
+  # }
+  ...
+};
 
 1;

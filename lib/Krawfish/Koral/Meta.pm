@@ -6,12 +6,18 @@ use warnings;
 
 # WARNING! / TODO!
 #   An enrichment for fields or snippets (better any enrichments)
-#   can never wrap around a sort query, because the relevant
+#   can never wrap around a presort query, because the relevant
 #   data structures and algorithms require the results to be in doc_id order!
 
 # WARNING!
 #   It's important to remember that sortFilter can't be shared in parallel
 #   processing - especially for fields, as segment rankings can differ!
+
+# TODO:
+#   There are presort and postsort queries.
+#   Presortqueries don't respect current_query,
+#   while postsortqueries do!
+#   Postsortqueries only work on the clusterlevel.
 
 # TODO:
 #   When a group filter is added,
@@ -22,10 +28,11 @@ use warnings;
 our %META_ORDER = (
   limit     => 1,
   sort      => 2,
-  enrich    => 3,
-  aggregate => 4,
-  group     => 5,
-  filter    => 6
+  sample    => 3,
+  enrich    => 4,
+  aggregate => 5,
+  group     => 6,
+  filter    => 7
 );
 
 use constant {
@@ -194,6 +201,12 @@ sub normalize {
         # Activate sort_filter option
         $_->filter(1) if $sort_filtering;
 
+        # Set top_k option!
+        $_->top_k($top_k) if $top_k;
+        last;
+      }
+
+      elsif ($_->type eq 'sample') {
         # Set top_k option!
         $_->top_k($top_k) if $top_k;
         last;

@@ -9,6 +9,7 @@ use Krawfish::Koral::Meta::Aggregate;
 use Krawfish::Koral::Meta::Limit;
 use Krawfish::Koral::Meta::Sort;
 use Krawfish::Koral::Meta::Sort::Field;
+use Krawfish::Koral::Meta::Sort::Sample;
 use Krawfish::Koral::Meta::Aggregate::Frequencies;
 use Krawfish::Koral::Meta::Aggregate::Fields;
 use Krawfish::Koral::Meta::Aggregate::Length;
@@ -148,6 +149,13 @@ sub s_field {
     blessed $_[0] ? $_[0] : Krawfish::Koral::Meta::Type::Key->new($_[0]),
     $_[1]
   );
+};
+
+
+# Get a sample of size X
+sub s_sample {
+  shift;
+  return Krawfish::Koral::Meta::Sort::Sample->new(shift);
 };
 
 # TODO:

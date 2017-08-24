@@ -32,6 +32,12 @@ sub type {
 sub wrap {
   my ($self, $query) = @_;
 
+  # For sampling, limiting has no effect
+  if ($query->type eq 'sort') {
+    $query->top_k($self->items_per_type);
+    return $query;
+  };
+
   return Krawfish::Koral::Meta::Node::Limit->new(
     $query,
     $self->start_index,

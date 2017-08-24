@@ -1,4 +1,8 @@
 package Krawfish::Koral::Meta::Node::Limit;
+
+# TODO:
+#   Move this to segment
+use Krawfish::Result::Limit;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -37,5 +41,21 @@ sub to_string {
     ')';
 };
 
+
+sub optimize {
+  my ($self, $segment) = @_;
+
+  my $query = $self->{query}->optimize($segment);
+
+  if ($query->max_freq == 0) {
+    return Krawfish::Query::Nothing->new;
+  };
+
+  return Krawfish::Result::Limit->new(
+    $query,
+    $self->{start_index},
+    $self->{items_per_page}
+  )
+};
 
 1;
