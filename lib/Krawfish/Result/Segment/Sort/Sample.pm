@@ -42,13 +42,25 @@ sub _init {
 
   return if $self->{k};
 
-  if ($self->{query}->next) {
+  if (DEBUG) {
+    print_log('r_s_sample', 'Initialize sampling, meaning iterate over all items');
+  };
+
+  while ($self->{query}->next) {
 
     # Seen next item
     $self->{k}++;
 
+    if (DEBUG) {
+      print_log('r_s_sample', 'Found item ' . $self->{k});
+    };
+
     # The reservoir is not filled up yet
     if ($self->{k} <= $self->{n}) {
+
+      if (DEBUG) {
+        print_log('r_s_sample', 'Add item ' . $self->{k} . ' to reservoir');
+      };
 
       # Add current match to reservoir
       my $current = $self->{query}->current;
@@ -58,13 +70,24 @@ sub _init {
     # Check if the item should replace another item in the reservoir
     elsif (rand(1) <= ($self->{n}/$self->{k})) {
 
+      my $item = int(rand($self->{n}));
+
+      if (DEBUG) {
+        print_log('r_s_sample', $self->{n} . ' == ' . scalar @{$self->{reservoir}});
+        print_log('r_s_sample', "Overwrite item $item with item " . $self->{k});
+      };
+
       # Replace random match in reservoir
       my $current = $self->{query}->current;
 
       # TODO:
       #   Check if $self->{n} is here equivalent to scalar @{$self->{reservoir}}
-      $self->{reservoir}->[rand($self->{n})] = $current;
+      $self->{reservoir}->[$item] = $current;
     }
+
+    elsif (DEBUG) {
+      print_log('r_s_sample', 'Ignore item ' . $self->{k});
+    };
   };
 
   return;

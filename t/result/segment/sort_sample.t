@@ -7,6 +7,10 @@ use warnings;
 use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral');
 
+# TODO:
+#   - limit is irrelevant on segment level,
+#     but relevant to node and cluster
+
 # Create some documents
 my $index = Krawfish::Index->new;
 ok_index($index, {
@@ -60,7 +64,6 @@ is($query->to_string, 'limit(0-2:sample(2:filter(aa,[1])))', 'Stringification');
 
 ok($query = $query->identify($index->dict), 'Identify');
 
-# Sortfilter is irrelevant here ...
 is($query->to_string, 'limit(0-2:sample(2:filter(#10,[1])))', 'Stringification');
 
 ok($query = $query->optimize($index->segment), 'Optimize');
@@ -68,14 +71,12 @@ ok($query = $query->optimize($index->segment), 'Optimize');
 is($query->to_string, 'resultLimit([0-2]:sample(2:filter(#10,[1])))',
    'Stringification');
 
-#ok($query->next, 'Next');
-#diag $query->current_match->to_string;
-#ok($query->next, 'Next');
-#ok($query->next, 'Next');
-#diag $query->current_match->to_string;
-#ok(!$query->next, 'no more matches');
-
-diag 'Test sampling';
+# The order of results is random
+ok($query->next, 'Next');
+ok($query->current_match, 'Match found');
+ok($query->next, 'Next');
+ok($query->current_match, 'Match found');
+ok(!$query->next, 'Next');
 
 done_testing;
 __END__
