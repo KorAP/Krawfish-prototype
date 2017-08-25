@@ -16,10 +16,13 @@ sub type {
 sub identify {
   my ($self, $dict) = @_;
 
+  # This will check, if the field is
+  # sortable
   return if $self->{key_id} && $self->{key_value_id};
 
   # Get or introduce new key term_id
   my $key  = '!' . $self->{key};
+
   $self->{key_id} = $dict->add_term($key);
 
   # Set sortable

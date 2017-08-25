@@ -3,16 +3,21 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-# https://en.wikipedia.org/wiki/Reservoir_sampling
-# https://webkist.wordpress.com/2008/10/01/reservoir-sampling-in-perl/
-# https://blogs.msdn.microsoft.com/spt/2008/02/05/reservoir-sampling/
-
-# A. Anagnostopoulos, A. Z. Broder, and D. Carmel. Sampling search-engine results. In Proc. of the Fourteenth International World Wide Web Conference, Chiba, Japan, 2005. ACM Press.
-
+# Sort all matches in random order and only return the top_k
+# results. This is implemented using reservoir sampling.
+# Difference to random sorting is, this won't randomly sort all
+# results, making paging possible.
 
 # WARNING:
-#   Sorting does not respect current_match of any nested query, that's why
-#   sorting is always separated from enriching!
+#   Sorting does not respect current_match of any nested query,
+#   that's why sorting is always separated from enriching!
+
+# See
+#   https://en.wikipedia.org/wiki/Reservoir_sampling
+#   https://webkist.wordpress.com/2008/10/01/reservoir-sampling-in-perl/
+#   https://blogs.msdn.microsoft.com/spt/2008/02/05/reservoir-sampling/
+#   A. Anagnostopoulos, A. Z. Broder, and D. Carmel. Sampling search-engine results. In Proc. of the Fourteenth International World Wide Web Conference, Chiba, Japan, 2005. ACM Press.
+
 
 use constant DEBUG => 1;
 

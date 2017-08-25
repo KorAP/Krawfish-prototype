@@ -1,4 +1,5 @@
 package Krawfish::Koral::Meta::Sort::Field;
+use Krawfish::Result::Segment::Sort::Field;
 use Krawfish::Util::String qw/squote/;
 use strict;
 use warnings;
@@ -6,7 +7,7 @@ use warnings;
 sub new {
   my $class = shift;
   bless {
-    field => shift,
+    field => shift, # Is a Koral::Meta::Type::Key
     desc => shift
   }, $class;
 };
@@ -17,6 +18,20 @@ sub type {
 
 sub field {
   return $_[0]->{field};
+};
+
+sub desc {
+  return $_[0]->{desc};
+};
+
+sub optimize {
+  my ($self, $segment) = @_;
+
+  return Krawfish::Result::Segment::Sort::Field->new(
+    $segment,
+    $_[0]->{field}, # Should probably be a field_id!
+    $_[0]->{desc}
+  );
 };
 
 sub identify {

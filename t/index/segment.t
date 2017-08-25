@@ -83,7 +83,6 @@ is_deeply(_postings('akron=Der')->{list}->{array}, [[3,0,1]], 'PostingsList');
 is_deeply(_postings('akron=trug')->{list}->{array}, [[3,3,4]], 'PostingsList');
 is_deeply(_postings('opennlp/p=V')->{list}->{array}, [[3,3,4]], 'PostingsList');
 
-
 done_testing;
 
 __END__

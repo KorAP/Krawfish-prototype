@@ -3,6 +3,8 @@ use Krawfish::Result::Segment::Aggregate;
 use strict;
 use warnings;
 
+# TODO:
+#   Identify() should probably first return a Segment::Aggregate object
 
 sub new {
   my $class = shift;

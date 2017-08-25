@@ -1,5 +1,6 @@
 package Krawfish::Index::Segment;
 use Krawfish::Index::Fields;
+use Krawfish::Index::Fields::Ranks;
 use Krawfish::Index::PostingsLive;
 use Krawfish::Index::PostingsList;
 use Krawfish::Index::Forward;
@@ -61,9 +62,9 @@ sub new {
     $self->{file}
   );
 
-  # $self->{field_ranks} = Krawfish::Index::Fields::Ranks->new(
-  #  $self->{file}
-  #);
+  $self->{field_ranks} = Krawfish::Index::Fields::Ranks->new(
+    $self->{file}
+  );
 
   # Create a list of docid -> uuid mappers
   # This may be problematic as uuids may need to be uint64,
@@ -96,9 +97,9 @@ sub last_doc {
 
 
 # Alias for last doc
-sub max_rank {
-  $_[0]->{live}->next_doc_id - 1;
-};
+#sub max_rank {
+#  $_[0]->{live}->next_doc_id - 1;
+#};
 
 
 # Get subtokens
@@ -125,6 +126,11 @@ sub forward {
 };
 
 
+sub field_ranks {
+  $_[0]->{field_ranks};
+};
+
+
 # Return a postings list based on a term_id
 sub postings {
   my ($self, $term_id) = @_;
@@ -139,6 +145,7 @@ sub postings {
 
   return $self->{$term_id};
 };
+
 
 
 # Add a prepared document to the index
@@ -167,19 +174,26 @@ sub add {
   #   Rank fields!
   # $self->field_ranks();
 
-  # TODO:
-  #   Deal with sortables!
-
   # $self->invert->add()
 
   # Create term index for fields
   my $fields = $doc->fields;
+  my $ranks  = $self->field_ranks;
   foreach (@$fields) {
     next if $_->type eq 'store';
     if (DEBUG) {
       print_log('seg', 'Added field #' . $_->term_id . ' for doc_id=' . $doc_id);
     };
     $self->postings($_->term_id)->append($doc_id);
+
+    # The field is sortable
+    if ($_->sortable) {
+
+      # Add field value to ranking
+      my $ranked_by = $ranks->by($_->key_id);
+
+      $ranked_by->add($_->value, $doc_id) if $ranked_by;
+    };
   };
 
 

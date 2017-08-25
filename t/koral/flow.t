@@ -52,7 +52,7 @@ is($koral->to_string, "meta=[aggr=[fields:['size','age'],freq,length],enrich=[fi
 # Get the query
 ok(my $query = $koral->to_query, 'Create complex query construct');
 
-is($query->to_string, "sort(field='author'<:fields('age':aggr(length,freq,fields:['size','age']:filter(/b./|aa[]cc,1880&author=Goethe))))", 'Stringification');
+is($query->to_string, "sort(field='author'<,field='id'<:fields('age':aggr(length,freq,fields:['size','age']:filter(/b./|aa[]cc,1880&author=Goethe))))", 'Stringification');
 
 # Identify
 # ok($query = $query->identify($index->dict), 'Create complex query construct');

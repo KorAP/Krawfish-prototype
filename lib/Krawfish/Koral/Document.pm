@@ -63,11 +63,6 @@ sub fields {
 };
 
 
-sub sortable {
-  $_[0]->{sortable};
-};
-
-
 # Translate all terms into term_ids and
 # add unknown terms to the dictionary
 sub identify {

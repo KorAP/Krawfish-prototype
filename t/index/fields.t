@@ -58,6 +58,7 @@ ok(!$fields[2], 'Field id');
 
 ok($index = Krawfish::Index->new, 'Create new index');
 
+# Make this field sortable
 ok($index->introduce_field('size', 1), 'Introduce field as sortable');
 
 ok_index($index, {
@@ -81,7 +82,6 @@ ok($pointer = $index->segment->fields->pointer, 'Get pointer');
 is($pointer->skip_doc(0), 0, 'Skip');
 
 
-
 # Get the +size value
 ok(my @values = $pointer->values($index->dict->term_id_by_term('!size')),
    'Get field value');
@@ -101,6 +101,9 @@ is($pointer->skip_doc(0), 0, 'Skip');
 
 ok(@fields = $pointer->fields($index->dict->term_id_by_term('!uri')), 'Get fields');
 is($fields[0]->value, 'https://korap.ids-mannheim.de/instance/example7', 'Field id');
+
+
+ok(my $rank = $index->segment->field_ranks, 'Get ranks');
 
 
 diag 'Checked for multivalued fields';

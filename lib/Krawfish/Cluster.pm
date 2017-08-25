@@ -21,7 +21,7 @@ sub new {
 sub search_for {
   my ($self, $query, $cb) = @_;
 
-  # This should probably open multiple websockets/unx-sockets in parallel
+  # This should probably open multiple websockets/unix-sockets in parallel
   # https://stackoverflow.com/questions/13417000/synchronous-request-with-websockets
   Mojo::IOLoop->delay(
     sub {

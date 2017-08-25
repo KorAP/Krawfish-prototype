@@ -9,6 +9,10 @@ use warnings;
 
 use constant DEBUG => 0;
 
+# TODO:
+#   May need to be renamed to Krawfish::Node
+
+
 # This is the central object for index handling on node level.
 # A new document will be added by adding the following information:
 # - To the dynamic DICTIONARY
@@ -129,7 +133,19 @@ sub introduce_field {
   my $dict = $self->dict;
 
   # Add field
-  if ($dict->add_field($field_term, $collation)) {
+  if (my $term_id = $dict->add_field($field_term, $collation)) {
+
+    # Field is meant to be sortable
+    if ($collation) {
+
+      # Propagate the field to all segments
+      foreach (@{$self->segments}) {
+
+        # Introduce ranking file
+        $_->field_ranks->introduce_rank($term_id, $collation)
+      };
+    };
+
     # Field is added to the dictionary
     return 1;
   };

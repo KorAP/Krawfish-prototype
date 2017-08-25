@@ -7,13 +7,25 @@ sub new {
   my $class = shift;
   bless {
     query => shift,
-    n => shift
+    top_k => shift
   }, $class;
 };
 
 sub type {
   'sample'
 };
+
+# Set or get the top_k limitation!
+sub top_k {
+  my $self = shift;
+  if (defined $_[0]) {
+    $self->{top_k} = shift;
+    return $self;
+  };
+  return $self->{top_k};
+};
+
+
 
 sub identify {
   my ($self, $dict) = @_;
@@ -35,13 +47,13 @@ sub optimize {
 
   return Krawfish::Result::Segment::Sort::Sample->new(
     $query,
-    $self->{n}
+    $self->{top_k}
   )
 };
 
 
 sub to_string {
-  return 'sample(' . $_[0]->{n} . ':' . $_[0]->{query}->to_string . ')';
+  return 'sample(' . $_[0]->{top_k} . ':' . $_[0]->{query}->to_string . ')';
 };
 
 1;

@@ -35,7 +35,6 @@ sub new {
     };
   } @$fields;
 
-
   # Add field data
   my @data = ();
   foreach (@sorted_fields) {
@@ -48,6 +47,7 @@ sub new {
     push @data, $_->term_id unless $_->type eq 'store';
     push @data, $_->value if $_->type eq 'int' || $_->type eq 'store';
   };
+
 
   push @data, 'EOF';
 

@@ -33,8 +33,13 @@ sub wrap {
   my ($self, $query) = @_;
 
   # For sampling, limiting has no effect
-  if ($query->type eq 'sort') {
-    $query->top_k($self->items_per_type);
+  if ($query->type eq 'sample') {
+
+    # WARNING:
+    #   This only holds true for the segment level,
+    #   on the cluster and node levels,
+    #   the limit (at least the top-k) is important.
+    $query->top_k($self->items_per_page);
     return $query;
   };
 

@@ -1,6 +1,8 @@
-package Krawfish::Result::Segment::Sort::Field;
+package Krawfish::Result::Segment::Sort::SubTerm;
 use strict;
 use warnings;
+
+# This will sort based on a pre-ranked subterm
 
 sub new {
   my $class = shift;

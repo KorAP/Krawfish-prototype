@@ -91,7 +91,7 @@ ok($meta = $meta->normalize, 'Normalize meta object');
 
 is(
   $meta->to_string,
-  "sort=[field='author'>,field='age'<,field='length'<;sortFilter],enrich=[fields:['author','title','id','subTitle']]",
+  "sort=[field='author'>,field='age'<,field='length'<,field='id'<;sortFilter],enrich=[fields:['author','title','id','subTitle']]",
   'Stringification'
 );
 
@@ -100,7 +100,7 @@ ok(my $query = $koral->to_query->identify($index->dict), 'Translate to identifie
 
 is(
   $query->to_string,
-  "sort(field=#3>,field=#1<;sortFilter:fields(#3,#7,#17:[0]))",
+  "sort(field=#3>,field=#1<,field=#7<;sortFilter:fields(#3,#7,#17:[0]))",
   'Stringification'
 );
 

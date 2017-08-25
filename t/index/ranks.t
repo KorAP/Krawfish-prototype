@@ -20,4 +20,6 @@ is_deeply($ranked, [3, 5, 3, 1, 4, 3, 2], 'Rank');
 is($max_rank, 10, 'Rank');
 is_deeply($ranked, [3, 10, 2, 8, 4, 6, 7, 1, 5, 9], 'Rank');
 
+diag 'DEPRECATED';
+
 done_testing;

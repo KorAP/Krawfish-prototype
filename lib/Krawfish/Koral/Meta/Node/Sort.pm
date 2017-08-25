@@ -3,13 +3,19 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 1;
+use constant (
+  DEBUG => 1,
+  UNIQUE => 'id'
+);
 
 sub new {
   my $class = shift;
 
   if (DEBUG) {
-    print_log('kq_n_sort', 'Create sort query with ' . join(', ', map {$_ ? $_ : '?'} @_));
+    print_log(
+      'kq_n_sort', 'Create sort query with ' .
+        join(', ', map {$_ ? $_ : '?'} @_)
+      );
   };
 
   my $self = bless {
@@ -21,6 +27,11 @@ sub new {
 };
 
 
+sub type {
+  'sort';
+};
+
+
 # Get identifiers
 sub identify {
   my ($self, $dict) = @_;
@@ -28,10 +39,10 @@ sub identify {
   my @identifier;
   foreach (@{$self->{sort}}) {
 
-    # Field may not exist in dictionary
-    my $field = $_->identify($dict);
-    if ($field) {
-      push @identifier, $field;
+    # Criterion may not exist in dictionary
+    my $criterion = $_->identify($dict);
+    if ($criterion) {
+      push @identifier, $criterion;
     };
   };
 
@@ -48,6 +59,7 @@ sub identify {
 };
 
 
+# Stringification
 sub to_string {
   my $self = shift;
   my $str = join(',', map { $_->to_string } @{$self->{sort}});
@@ -67,9 +79,13 @@ sub to_string {
 sub optimize {
   my ($self, $segment) = @_;
 
-  warn 'Sorting not yet implemented';
+  my $query = $self->{query}->optimize($segment);
 
-  return $self->{query}->optimize($segment);
+  if ($query->max_freq == 0) {
+    return Krawfish::Query::Nothing->new;
+  };
+
+  return $self;
 };
 
 1;

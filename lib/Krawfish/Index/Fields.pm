@@ -1,7 +1,8 @@
 package Krawfish::Index::Fields;
 use Krawfish::Index::Fields::Doc;
+use Krawfish::Index::Fields::Ranks;
 use Krawfish::Index::Fields::Pointer;
-use Krawfish::Index::Rank::Fields;
+# use Krawfish::Index::Rank::Fields;
 use Krawfish::Log;
 use warnings;
 use strict;
@@ -43,7 +44,8 @@ sub new {
   my $class = shift;
   bless {
     docs => [],
-    last_doc_id => -1
+    last_doc_id => -1,
+    ranks => {}
   }, $class;
 };
 
@@ -62,7 +64,6 @@ sub add {
   # TODO:
   #   use Krawfish::Index::Store::V1::Fields->new;
   $self->{docs}->[$self->last_doc_id] = Krawfish::Index::Fields::Doc->new($doc);
-
   return $doc_id;
 };
 

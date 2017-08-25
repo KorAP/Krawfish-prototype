@@ -1,11 +1,15 @@
 package Krawfish::Koral::Meta::Sort;
-use Krawfish::Result::Node::Sort;
 use Krawfish::Koral::Meta::Node::Sort;
+use Krawfish::Koral::Meta::Sort::Field;
+use Krawfish::Koral::Meta::Type::Key;
 use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 1;
+use constant {
+  DEBUG => 1,
+  UNIQUE_ID => 'id'
+};
 
 # TODO:
 #   Support top_k setting from limit!
@@ -27,8 +31,14 @@ sub new {
   bless {
     sort => [@_],
     top_k => undef,
-    filter => undef
+    filter => undef,
+    unique => UNIQUE_ID
   }, $class;
+};
+
+
+sub type {
+  'sort';
 };
 
 
@@ -43,6 +53,8 @@ sub top_k {
 };
 
 
+# Use sort filter (only possible, in case no aggregation
+# or grouping is applied)
 sub filter {
   my $self = shift;
   if (defined $_[0]) {
@@ -83,10 +95,6 @@ sub operations {
 };
 
 
-sub type {
-  'sort';
-};
-
 
 # Remove duplicates
 sub normalize {
@@ -94,6 +102,13 @@ sub normalize {
   my @unique;
   my %unique;
   my $sampling = 0;
+
+  # Add unique sorting to sort array
+  push @{$self->{sort}}, Krawfish::Koral::Meta::Sort::Field->new(
+    Krawfish::Koral::Meta::Type::Key->new($self->{unique})
+  );
+
+  # Normalize sorting
   foreach (@{$self->{sort}}) {
 
     # Sampling can't be combined with other sorting
@@ -104,16 +119,21 @@ sub normalize {
       return $_;
     };
 
+    # Push unique sorting criteria to sorting array
     unless (exists $unique{$_->to_string}) {
       push @unique, $_;
       $unique{$_->to_string} = 1;
     };
   };
+
+  # Create unique sort
   @{$self->{sort}} = @unique;
+
   return $self;
 };
 
 
+# Wrap query object
 sub wrap {
   my ($self, $query) = @_;
   return Krawfish::Koral::Meta::Node::Sort->new(

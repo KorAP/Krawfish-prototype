@@ -11,7 +11,7 @@ use strict;
 
 sub new {
   my $class = shift;
-  # key, value, key_id, key_value_id
+  # key, value, key_id, key_value_id, sortable
   bless { @_ }, $class;
 };
 

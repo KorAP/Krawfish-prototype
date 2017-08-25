@@ -12,16 +12,16 @@ sub new {
   my $class = shift;
 
   my $self = bless {
-    index => shift,
-    field => shift,
+    segment    => shift,
+    field      => shift,
     descending => shift // 0
   }, $class;
 
   # Get ranking
-  $self->{ranks} = $self->{index}->fields->ranked_by($field) or return;
+  # $self->{ranks} = $self->{index}->fields->ranked_by($field) or return;
 
   # Get maximum rank if descending order
-  $self->{max} = $self->{ranks}->max if $self->{descending};
+  # $self->{max} = $self->{ranks}->max if $self->{descending};
 
   return $self;
 };
@@ -29,13 +29,13 @@ sub new {
 
 sub get {
   my $self = shift;
-  my $max = $ranking->max if $desc;
+#  my $max = $ranking->max if $desc;
 
   # Get stored rank
-  $rank = $ranking->get(shift);
+#  $rank = $ranking->get(shift);
 
   # Revert if maximum rank is set
-  return $max ? $max - $rank : $rank;
+#  return $max ? $max - $rank : $rank;
 };
 
 

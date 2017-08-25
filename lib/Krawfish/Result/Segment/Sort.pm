@@ -50,6 +50,8 @@ use constant {
 # TODO:
 #   It should be possible to add the sorting criteria.
 
+
+# Constructor
 sub new {
   my $class = shift;
   my %param = @_;
