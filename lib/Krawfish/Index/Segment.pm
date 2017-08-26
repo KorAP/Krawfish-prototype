@@ -228,4 +228,22 @@ sub add {
 };
 
 
+# Commiting is only relevant for the dynamic segment,
+# TODO:
+#   Per default merge with a static segment
+sub commit {
+  my $self = shift;
+
+  # Commit ranks
+  $self->field_ranks->commit;
+
+  # $self->fields->commit;
+
+  # Return the list of newly added doc ids
+  # my @docs = $self->forward->commit;
+
+  # return @docs;
+  return 1;
+};
+
 1;

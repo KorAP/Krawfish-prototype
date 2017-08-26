@@ -141,7 +141,7 @@ sub introduce_field {
       # Propagate the field to all segments
       foreach (@{$self->segments}) {
 
-        # Introduce ranking file
+        # Introduce ranking file on all segments
         $_->field_ranks->introduce_rank($term_id, $collation)
       };
     };
@@ -171,6 +171,29 @@ sub introduce_field {
   #     create sorted lists for the field.
   #     This may take quite a while.
 };
+
+
+# Commit all pending data
+sub commit {
+  my $self = shift;
+
+  # Commit changes to the dictionary
+  # my $changes = $self->dict->commit;
+
+  # The commit returns the IDs of newly added documents
+  my $changed = $self->segment->commit;
+
+  # Deletes are not part of the commit,
+  # although they are reported as commits
+
+  # TODO:
+  #   Commits need to be logged and per commit, information
+  #   regarding newly added documents need to be accessible
+  #   on the cluster level
+
+  return 1;
+};
+
 
 1;
 
