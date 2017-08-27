@@ -3,6 +3,8 @@ use parent 'Krawfish::Index::Rank';
 use strict;
 use warnings;
 
+warn 'DEPRECATED';
+
 # While FieldsRank is defined per Segment,
 # TermRank is defined per Dictionary.
 # That means per node there are two Term-Ranks

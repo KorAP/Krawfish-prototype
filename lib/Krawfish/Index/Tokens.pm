@@ -18,20 +18,20 @@ use warnings;
 #   API: ->extend_to_right($doc_id, $pos, $min, $max)
 #
 # * Get the number of tokens per doc_id
-#   API: ->count($doc_id)
-#        or ->freq_in_doc($doc_id)
+#   API: ->freq_in_doc($doc_id)
 #   (Necessary for Result::Aggregate::TokenFreq)
 #
 # * Get the maximum number of subtokens a token
-#   of this foundry can have (necessary for Constraint::InBetween)
+#   of this foundry can have
+#   (necessary for Constraint::InBetween)
 #   ->max_subtokens;
 
 # TODO:
 #   A possible structure would be (without including skip data)
-#   ([doc-id]([pos-delta][length-varint])*)
+#   ([doc-id][freq-varint]([pos-delta][length-varint])*)
 #   where only start positions are stored for lengths > 1.
 #   Skip data should be included only for every ~128 entries
-#   and each skipblock should have a previous pointer
+#   and each skip-block should have a previous pointer
 #   to make skipping back possible.
 
 
@@ -64,12 +64,17 @@ sub count {
   ...
 };
 
+# Returns the number of tokens per foundry
 sub freq_in_doc {
   ...
 };
 
 sub max_subtokens {
   ...
+};
+
+sub skip_doc {
+
 };
 
 1;

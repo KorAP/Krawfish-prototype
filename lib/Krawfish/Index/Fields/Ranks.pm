@@ -9,14 +9,24 @@ use constant DEBUG => 1;
 # TODO:
 #   Instead of 'by()', implement
 #   'ascending()' and 'descending()!'
+#   And store the information, if a field
+#   has multiple values in the ranks overfiew
+
 
 
 sub new {
   my $class = shift;
+
+  # Should have the structure:
+  # { field_id => [asc_rank, desc_rank?] }
+  # If desc_rank is undefined, get the
+  # asc_rank for descending values and calculate
+  # using max_rank
   bless {}, $class;
 };
 
 # Get the rank by
+# TODO: DEPRECATED
 sub by {
   my ($self, $field_id) = @_;
 
@@ -24,6 +34,19 @@ sub by {
   return $self->{$field_id};
 };
 
+
+# Get ascending rank
+sub ascending {
+  my ($self, $field_id) = @_;
+  ...
+};
+
+
+# Get descending rank
+sub descending {
+  my ($self, $field_id) = @_;
+  ...
+};
 
 # Introduce rank for a certain field
 sub introduce_rank {

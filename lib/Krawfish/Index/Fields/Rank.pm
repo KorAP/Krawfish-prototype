@@ -21,6 +21,12 @@ sub new {
   my $class = shift;
   bless {
     collation => shift,
+
+    # If calc_desc is activated,
+    # the rank is ascending, but desc can be calculated
+    # based on max_rank.
+    # This is only possible for single-valued fields
+    calc_desc => shift,
     asc       => [],
     desc      => [],
     sorted    => [],
@@ -59,7 +65,10 @@ sub commit {
   #    [collocation]([field-term-with-front-coding|value-as-delta][doc_id]*)*
 
   # Sort the list
-  my @presort = sort { $a->[0] cmp $b->[0] } @{$self->{plain}};
+  my @presort = _sort_fields(
+    $self->{collation},
+    $self->{plain}
+  );
 
   # Remove duplicates
   my @sort;
@@ -73,6 +82,7 @@ sub commit {
       $last_value = $next->[1];
     };
   };
+
 
   # This list keeps existing, even
   # when the segment becomes static -
@@ -127,18 +137,45 @@ sub commit {
 };
 
 
-# TODO:
-#   Rename to asc_rank and desc_rank
+# Get ascending rank
+# 0 means: Not available for this document
 sub asc_rank {
   my ($self, $doc_id) = @_;
-  $self->{asc}->[$doc_id];
+  $self->{asc}->[$doc_id] // 0;
 };
 
+
+# Get rank if the value is littler than
+# a given value, otherwise return 0.
+# This may be beneficially implemented.
+sub asc_lt {
+  my ($self, $doc_id, $value) = @_;
+  my $rank = $self->{asc}->[$doc_id];
+  return 0 unless $rank;
+  return $rank < $value ? $rank : 0;
+};
+
+
+# Get descending rank
+# 0 means: Not available for this document
 sub desc_rank {
   my ($self, $doc_id) = @_;
-  $self->{desc}->[$doc_id];
+  $self->{desc}->[$doc_id] // 0;
 };
 
+
+# Get rank if the value is greater than
+# a given value, otherwise return 0.
+# This may be beneficially implemented.
+sub desc_gt {
+  my ($self, $doc_id, $value) = @_;
+  my $rank = $self->{desc}->[$doc_id];
+  return 0 unless $rank;
+  return $rank > $value ? $rank : 0;
+};
+
+
+# Stringification
 sub to_string {
   my $self = shift;
   if ($self->{sorted}) {
@@ -149,5 +186,13 @@ sub to_string {
   };
 };
 
+
+# This should depend on collation
+sub _sort_fields {
+  my ($collation, $plain) = @_;
+
+  # Or sort numerically
+  return sort { $a->[0] cmp $b->[0] } @$plain;
+};
 
 1;
