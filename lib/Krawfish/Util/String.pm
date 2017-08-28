@@ -17,6 +17,7 @@ sub fold_case {
   fc $_[0];
 };
 
+
 # Remove diacritics from characters
 # http://archives.miloush.net/michkap/archive/2007/05/14/2629747.html
 # http://stackoverflow.com/questions/249087/how-do-i-remove-diacritics-accents-from-a-string-in-net#249126
@@ -32,6 +33,7 @@ sub remove_diacritics {
   return normalize('C', $norm);
 };
 
+
 sub _list_props {
   my $string = shift;
   use Unicode::Properties 'uniprops';
@@ -40,10 +42,12 @@ sub _list_props {
   };
 };
 
+
 # Normalize to KC form
 sub normalize_nfkc {
   return normalize('KC',$_[0]);
 };
+
 
 # From Mojo::Util
 sub squote {

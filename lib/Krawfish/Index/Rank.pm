@@ -14,11 +14,24 @@ use warnings;
 #   (See the store variant of the static dictionary).
 #   Every new term in the dynamic dictionary is added to a list of
 #   terms with attached term ids.
+#   Identical surface terms may have different sorting keys (following
+#   UTS #10) - in that case, before the ranking transition, another transition
+#   is added to branch on multiple sorting keys, e.g.
+#   bank-[COLL-DE]-[RANKS1]-#term-id-1
+#      \-[COLL-EN]-[RANKS2]-#term-id-2
+#   (Or the collations are appended to the ranking level)
+#   In the forward index, the different term-ids result in different rankings,
+#   though they result in identical surface terms.
+#   That way, different languages can be sorted at the same time solely based
+#   on their sorting key.
+#   BE AWARE: For checking, if a term is identical to another term,
+#   the collation must be stored in a byte at the rank transition.
+#   Because this may introduce quie a lot of problems, it's up to changes.
 #
 #   On MERGE
 #     1 The dictionaries are merged
 #     2 The list of new terms is sorted both in prefix and
-#       suffix order (respect collations)
+#       suffix order according to their UTS #10 sorting keys
 #     3 The sorted new term list in prefix order is merged with the
 #       sorted list in prefix order of the static dictionary
 #     4 When a new term is first found to be merged in,
@@ -29,10 +42,10 @@ use warnings;
 #       fast in memory)
 #     6 Do 2-5 for the suffix ordered list
 #
-#   The static sorted lists have the following structure:
-#     [collocation]([term-with-front-coding][term_id])*
 #   The dynamic new term list (unsorted) has the following structure:
-#     ([term][term_id])*  # though, this may be redundant
+#     ([sorting-key][term_id])*  # though, this may be redundant
+#   The static sorted lists have the following structure:
+#     ([sorting-key-with-front-coding][term_id])*
 #   Ranks are stored at the pre-terminal level in the dictionary.
 #
 #   Ranking information is stored on the node level
@@ -45,11 +58,11 @@ use warnings;
 #   =============
 #   Each segment contains all ranking information for sortable fields.
 #   When a document is added to the dynamic segment, all sortable fields
-#   are recognized with their surface forms and the attached doc id.
+#   are recognized with their sorting keys and the attached doc id.
 #   Each static segment has a rank file per field with the length of
 #   the segment's doc vector including a forward rank and a backward rank.
 #   To make reranking possible on merging, each static segment also has a
-#   sorted list of field terms with all documents the field is attached to.
+#   sorted list of sorting keys with all documents the field is attached to.
 #   To deal with multivalued fields (e.g. keywords), the ranking file has
 #   two fields: One for forward sorting, one for backwards sorting.
 #
@@ -70,7 +83,7 @@ use warnings;
 #       The number of unset documents may also be taken into account for encoding.
 #
 #   The sorted lists have the following structure:
-#     [collocation]([field-term-with-front-coding|value-as-delta][doc_id]*)*
+#     [collocation]([sort-key-with-front-coding|value-as-delta][doc_id]*)*
 #   The dynamic field list (unsorted) has the following structure:
 #     ([field-term][doc_id])*
 #   The static ranking lists have the following structure:

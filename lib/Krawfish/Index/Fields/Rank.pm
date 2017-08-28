@@ -45,7 +45,15 @@ sub add {
     print_log('f_rank', qq!Add value "$value" associated to ! . $doc_id)
   };
 
-  push @{$self->{plain}}, [$value, $doc_id];
+  # Collation is numerical
+  unless ($self->{collation}) {
+    push @{$self->{plain}}, [$value, $doc_id];
+  }
+
+  # Use collation
+  else {
+    push @{$self->{plain}}, [$self->{collation}->sort_key($value), $doc_id];
+  };
 };
 
 
@@ -65,10 +73,8 @@ sub commit {
   #    [collocation]([field-term-with-front-coding|value-as-delta][doc_id]*)*
 
   # Sort the list
-  my @presort = _sort_fields(
-    $self->{collation},
-    $self->{plain}
-  );
+  my @presort = $self->{collation} ? _alphasort_fields($self->{plain}) :
+    _numsort_fields($self->{plain});
 
   # Remove duplicates
   my @sort;
@@ -188,11 +194,18 @@ sub to_string {
 
 
 # This should depend on collation
-sub _sort_fields {
-  my ($collation, $plain) = @_;
+sub _alphasort_fields {
+  my $plain = shift;
 
   # Or sort numerically
   return sort { $a->[0] cmp $b->[0] } @$plain;
+};
+
+sub _numsort_fields {
+  my $plain = shift;
+
+  # Or sort numerically
+  return sort { $a->[0] <=> $b->[0] } @$plain;
 };
 
 1;

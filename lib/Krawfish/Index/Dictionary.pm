@@ -1,4 +1,6 @@
 package Krawfish::Index::Dictionary;
+use Krawfish::Index::Dictionary::Collations;
+use Krawfish::Util::String qw/normalize_nfkc/;
 use strict;
 use warnings;
 use Krawfish::Log;
@@ -94,7 +96,7 @@ use Krawfish::Log;
 #   This will also merge the ranks.
 #
 # rank_subterm_prefix:
-#   Returns the numerical rank of a subterm in alphabetic order.
+#   Returns the numerical rank of a subterm in collated order.
 #   The static dictionary will return a simple even numerical rank
 #   (calculated on merge). The dynamic dictionary will
 #   return a simple odd numerical rank. Because odd ranks are not
@@ -103,7 +105,6 @@ use Krawfish::Log;
 #
 # rank_subterm_suffix
 #   see rank_subterm, but uses the reverse list.
-
 
 # TODO:
 #   Create a fieldrange index
@@ -192,15 +193,19 @@ sub new {
     # There may be different IDs for
     # fieldvalues, fieldkeys, terms, subterms ... etc.
 
-    # TODO: Collation needs to be defined!
+    # Collations store the collation id or the field => collation association
     text_collation => undef,
-    field_collation => {}
+    field_collation => {},
+    collations => Krawfish::Index::Dictionary::Collations->new
   }, $class;
 };
 
 
 sub add_term {
   my ($self, $term) = @_;
+
+  # Normalize term to nfkc
+  $term = normalize_nfkc($term);
 
   print_log('dict', "Added term $term") if DEBUG;
 
@@ -224,9 +229,17 @@ sub add_term {
 };
 
 
+sub collations {
+  $_[0]->{collations};
+};
+
 # Add a field to the index
+# TODO:
+#   Currently the collation only accepts a locale
+#   but it should - in the future - probably accept a more
+#   parametric definition
 sub add_field {
-  my ($self, $term, $collation) = @_;
+  my ($self, $term, $locale) = @_;
 
   # Check if term exists
   my $term_id = $self->term_id_by_term('!' . $term);
@@ -235,18 +248,18 @@ sub add_field {
   if ($term_id) {
 
     # Check which collation was stored
-    my $stored_collation = $self->collation($term_id);
+    my $stored_locale = $self->collation($term_id);
 
     # The field was not meant to be sortable
-    if (!defined $collation && !defined $stored_collation) {
+    if (!defined $locale && !defined $stored_locale) {
 
       # Everything is fine
       return $term_id;
     }
 
     # The field was meant to be sortable
-    elsif (defined $collation && defined $stored_collation &&
-          $collation eq $stored_collation) {
+    elsif (defined $locale && defined $stored_locale &&
+          $locale eq $stored_locale) {
 
       # The collations are compatible
       return $term_id;
@@ -258,19 +271,27 @@ sub add_field {
 
   # The term does not exist yet
   $term_id = $self->add_term('!' . $term);
-  $self->{field_collation}->{$term_id} = 1;
+  $self->{field_collation}->{$term_id} = $locale;
   return $term_id;
 };
+
 
 
 # Get the collation of the base or the field id or undef, if not sortable
 sub collation {
   my ($self, $field_id) = @_;
+  my $locale = undef;
   unless ($field_id) {
-    return $self->{text_collation};
+    $locale = $self->{text_collation};
+  }
+  else {
+    $locale = $self->{field_collation}->{$field_id};
   };
-  return $self->{field_collation}->{$field_id};
+
+  # Return the collation object
+  return $self->{collations}->get($locale) if $locale && $locale ne 'NUM';
 };
+
 
 
 # Add subterm to dictionary
@@ -279,6 +300,8 @@ sub collation {
 # There may be a better data structure for this, though.
 sub add_subterm {
   my ($self, $subterm) = @_;
+
+  warn 'DEPRECATED';
 
   print_log('dict', "Added subterm $subterm") if DEBUG;
 
@@ -325,7 +348,8 @@ sub subterm_by_subterm_id {
 
 };
 
-# Returns a rank value by a certain subterm_id
+
+# Returns a rank value by a certain subterm id
 sub prefix_rank_by_subterm_id {
   my ($self, $subterm_id) = @_;
   $self->process_subterm_ranks;
@@ -333,18 +357,27 @@ sub prefix_rank_by_subterm_id {
 };
 
 
+# Returns a rank value by a certain subterm id
 sub suffix_rank_by_subterm_id {
   my ($self, $subterm_id) = @_;
   $self->process_subterm_ranks;
   $self->{suffix_rank}->[$subterm_id];
 };
 
+
 # Returns the term id by a term
 sub term_id_by_term {
   my ($self, $term) = @_;
+
+  # Normalize term to nfkc
+  $term = normalize_nfkc($term);
+
   print_log('dict', 'Try to retrieve term ' . $term) if DEBUG;
   return $self->{hash}->{$term};
 };
+
+
+
 
 # Return the last charachters of a term
 # - beneficial for substring sorting
@@ -368,6 +401,7 @@ sub term_ids {
 };
 
 
+# Returns the terms based on the internal sorting
 sub terms {
   my $self = shift;
   return sort keys %{$self->{hash}};

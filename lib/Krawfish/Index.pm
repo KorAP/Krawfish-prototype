@@ -128,21 +128,27 @@ sub dict {
 
 # Introduce a new field, possibly for sorting
 sub introduce_field {
-  my ($self, $field_term, $collation) = @_;
+  my ($self, $field_term, $locale) = @_;
 
   my $dict = $self->dict;
 
   # Add field
-  if (my $term_id = $dict->add_field($field_term, $collation)) {
+  if (my $term_id = $dict->add_field($field_term, $locale)) {
 
     # Field is meant to be sortable
-    if ($collation) {
+    if ($locale) {
+
+      # Get collation object
+      # TODO:
+      #   Better only forward the locale and get the collation
+      #   object when necessary
+      my $coll = $self->dict->collations->get($locale);
 
       # Propagate the field to all segments
       foreach (@{$self->segments}) {
 
         # Introduce ranking file on all segments
-        $_->field_ranks->introduce_rank($term_id, $collation)
+        $_->field_ranks->introduce_rank($term_id, $coll);
       };
     };
 
@@ -157,7 +163,7 @@ sub introduce_field {
   my $term_id = $dict->term_id_by_term('!' . $field_term);
 
   # Get the collation that is currently used
-  my $stored_collation = $dict->collation($term_id);
+  my $stored_locale = $dict->collation($term_id);
 
   # The field already consists and it differs regarding the
   # collation - no upgrade possible

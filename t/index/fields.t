@@ -59,7 +59,7 @@ ok(!$fields[2], 'Field id');
 ok($index = Krawfish::Index->new, 'Create new index');
 
 # Make this field sortable
-ok($index->introduce_field('author', 1), 'Introduce field as sortable');
+ok($index->introduce_field('author', 'DE'), 'Introduce field as sortable');
 
 ok_index($index, {
   id => 7,
