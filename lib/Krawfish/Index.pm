@@ -136,8 +136,16 @@ sub introduce_field {
   if (my $term_id = $dict->add_field($field_term, $locale)) {
 
     # Field is meant to be sortable
-    if ($locale) {
+    if ($locale eq 'NUM') {
 
+      # Propagate the field to all segments
+      foreach (@{$self->segments}) {
+
+        # Introduce ranking file on all segments
+        $_->field_ranks->introduce_rank($term_id);
+      };
+    }
+    else {
       # Get collation object
       # TODO:
       #   Better only forward the locale and get the collation

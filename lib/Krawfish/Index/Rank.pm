@@ -83,7 +83,7 @@ use warnings;
 #       The number of unset documents may also be taken into account for encoding.
 #
 #   The sorted lists have the following structure:
-#     [collocation]([sort-key-with-front-coding|value-as-delta][doc_id]*)*
+#     [collation]([sort-key-with-front-coding|value-as-delta][num-doc-ids-varint][doc_id]*)*
 #   The dynamic field list (unsorted) has the following structure:
 #     ([field-term][doc_id])*
 #   The static ranking lists have the following structure:

@@ -76,6 +76,14 @@ sub commit {
   my @presort = $self->{collation} ? _alphasort_fields($self->{plain}) :
     _numsort_fields($self->{plain});
 
+  if (DEBUG) {
+    print_log(
+      'f_rank',
+      'Presorted list is ' .
+        join('', map { '[' . join(',',@$_) . ']' } @presort)
+      );
+  };
+
   # Remove duplicates
   my @sort;
   my $last_value;

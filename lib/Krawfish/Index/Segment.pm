@@ -36,7 +36,7 @@ use warnings;
 # TODO:
 #   Which fields are sortable can be retrieved from the dictionary.
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 sub new {
   my $class = shift;
@@ -193,6 +193,10 @@ sub add {
       my $ranked_by = $ranks->by($_->key_id);
 
       $ranked_by->add($_->value, $doc_id) if $ranked_by;
+    }
+
+    elsif (DEBUG) {
+      print_log('seg', 'Field ' . $_->key . ' is not sortable');
     };
   };
 

@@ -60,6 +60,7 @@ ok($index = Krawfish::Index->new, 'Create new index');
 
 # Make this field sortable
 ok($index->introduce_field('author', 'DE'), 'Introduce field as sortable');
+ok($index->introduce_field('size', 'NUM'), 'Introduce field as sortable');
 
 ok_index($index, {
   id => 7,
@@ -105,6 +106,10 @@ is($pointer->skip_doc(0), 0, 'Skip');
 ok(@fields = $pointer->fields($index->dict->term_id_by_term('!uri')), 'Get fields');
 is($fields[0]->value, 'https://korap.ids-mannheim.de/instance/example7', 'Field id');
 
+
+
+# Ranks for author
+
 # This will commit rank data
 ok($index->commit, 'Commit data');
 
@@ -122,7 +127,63 @@ is($ranks->desc_rank(1), 3, 'Get descending rank');
 is($ranks->desc_rank(2), 2, 'Get descending rank');
 
 
-diag 'Checked for multivalued fields';
+
+
+# New index with multivalued fields
+ok($index = Krawfish::Index->new, 'Create new index');
+
+# Make this field sortable
+ok($index->introduce_field('author', 'DE'), 'Introduce field as sortable');
+
+ok_index($index, {
+  author => 'Carol',
+} => [qw/aa bb/], 'Add complex document');
+
+ok_index($index, {
+  author => ['Amy', 'Mike'],
+} => [qw/aa cc cc/], 'Add complex document');
+
+ok_index($index, {
+  author => 'Bob',
+} => [qw/aa bb/], 'Add complex document');
+
+# Ranks for author
+ok($index->commit, 'Commit data');
+ok($term_id = $index->dict->term_id_by_term('!author'), 'Get term id');
+ok($ranks = $index->segment->field_ranks->by($term_id), 'Get ranks');
+
+# This lists the sorted keys (therefore 4)
+# with associated docs (therefore 1 is listed twice)
+is($ranks->to_string, '[1][2][0][1]', 'Get rank file');
+
+
+# The ascending rank takes Amy
+is($ranks->asc_rank(0), 3, 'Get ascending rank');
+is($ranks->asc_rank(1), 1, 'Get ascending rank');
+is($ranks->asc_rank(2), 2, 'Get ascending rank');
+
+# The descending rank takes 'Mike'
+is($ranks->desc_rank(0), 2, 'Get descending rank');
+is($ranks->desc_rank(1), 1, 'Get descending rank');
+is($ranks->desc_rank(2), 3, 'Get descending rank');
+
+
+diag 'Check for numerical values fields';
 
 done_testing;
 __END__
+
+# Numerical ranks for size
+ok($term_id = $index->dict->term_id_by_term('!size'), 'Get term id');
+ok($ranks = $index->segment->field_ranks->by($term_id), 'Get ranks');
+
+is($ranks->to_string, '[1][2][0]', 'Get rank file');
+
+#is($ranks->asc_rank(0), 3, 'Get ascending rank');
+#is($ranks->asc_rank(1), 1, 'Get ascending rank');
+#is($ranks->asc_rank(2), 2, 'Get ascending rank');
+
+#is($ranks->desc_rank(0), 1, 'Get descending rank');
+#is($ranks->desc_rank(1), 3, 'Get descending rank');
+#is($ranks->desc_rank(2), 2, 'Get descending rank');
+

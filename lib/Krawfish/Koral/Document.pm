@@ -33,7 +33,7 @@ sub new {
   my $class = shift;
 
   my $self = bless {
-    sortable => {},
+    # sortable => {},
     stream => Krawfish::Koral::Document::Stream->new,
     fields => Krawfish::Koral::Document::Fields->new
   }, $class;
@@ -100,7 +100,7 @@ sub _parse {
 
   # Add metadata fields
   my $pos = 0;
-  my %sortable;
+  # my %sortable;
   foreach my $field (@{$doc->{fields}}) {
 
     # TODO:
@@ -110,16 +110,31 @@ sub _parse {
 
 
     # Prepare field for sorting
-    if ($field->{sortable}) {
+    #if ($field->{sortable}) {
 
       # Which entries need to be sorted?
-      $sortable{$field->{key}}++;
-    };
+    #  $sortable{$field->{key}}++;
+    #};
 
 
     # Prepare for summarization
     if (!$field->{type} || $field->{type} eq 'type:string') {
-      $fields->add_string($field->{key}, $field->{value});
+      if (ref $field->{value} && ref $field->{value} eq 'ARRAY') {
+
+        if (DEBUG) {
+          print_log('doc', 'Field ' . $field->{key} . ' is multivalued');
+        };
+
+        my $key = $field->{key};
+
+        # Iterate over all field values and add the value
+        foreach my $value (@{$field->{value}}) {
+          $fields->add_string($key, $value);
+        };
+      }
+      else {
+        $fields->add_string($field->{key}, $field->{value});
+      };
     }
     elsif ($field->{type} eq 'type:integer') {
       $fields->add_int($field->{key}, $field->{value});
@@ -136,7 +151,7 @@ sub _parse {
   };
 
   # Check that the unique field is given, as this is required
-  $self->{sortable} = \%sortable;
+  # $self->{sortable} = \%sortable;
 
   my $primary_index = 0;
 

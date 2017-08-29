@@ -54,7 +54,7 @@ sub introduce_rank {
 
   if (DEBUG) {
     print_log('f_ranks', 'Introduce rank for field ' . $field_id .
-                ' with collation ' . $collation);
+                ' with collation ' . ($collation ? $collation : 'numerical'));
   };
 
   $self->{$field_id} = Krawfish::Index::Fields::Rank->new($collation);
@@ -74,6 +74,8 @@ sub commit {
 
   return 1;
 };
+
+
 
 sub to_string {
   my $self = shift;
