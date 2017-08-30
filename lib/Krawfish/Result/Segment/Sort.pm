@@ -18,14 +18,11 @@ use constant {
   MATCHES => 3
 };
 
-# TODO:
-#   my $offset = $param{offset};
-#   This may however not work in a multi-segment
-#   or cluster scenario - so let's forget about it
 
 # TODO:
 #   It's possible that fields return a rank of 0, indicating that
-#   the field is not yet ranked.
+#   the field does not exist for the document.
+#
 #   In that case these fields have to be looked up, in case they are
 #   potentially in the result set (meaning they are ranked before/after
 #   the last accepted rank field). If so, they need to be remembered.

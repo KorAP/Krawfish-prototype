@@ -127,6 +127,20 @@ is($ranks->desc_rank(1), 3, 'Get descending rank');
 is($ranks->desc_rank(2), 2, 'Get descending rank');
 
 
+# Numerical ranks for size
+ok($term_id = $index->dict->term_id_by_term('!size'), 'Get term id');
+ok($ranks = $index->segment->field_ranks->by($term_id), 'Get ranks');
+
+is($ranks->to_string, '[0][1][2]', 'Get rank file');
+
+is($ranks->asc_rank(0), 1, 'Get ascending rank');
+is($ranks->asc_rank(1), 2, 'Get ascending rank');
+is($ranks->asc_rank(2), 3, 'Get ascending rank');
+
+is($ranks->desc_rank(0), 3, 'Get descending rank');
+is($ranks->desc_rank(1), 2, 'Get descending rank');
+is($ranks->desc_rank(2), 1, 'Get descending rank');
+
 
 
 # New index with multivalued fields
@@ -168,22 +182,7 @@ is($ranks->desc_rank(1), 1, 'Get descending rank');
 is($ranks->desc_rank(2), 3, 'Get descending rank');
 
 
-diag 'Check for numerical values fields';
 
 done_testing;
 __END__
-
-# Numerical ranks for size
-ok($term_id = $index->dict->term_id_by_term('!size'), 'Get term id');
-ok($ranks = $index->segment->field_ranks->by($term_id), 'Get ranks');
-
-is($ranks->to_string, '[1][2][0]', 'Get rank file');
-
-#is($ranks->asc_rank(0), 3, 'Get ascending rank');
-#is($ranks->asc_rank(1), 1, 'Get ascending rank');
-#is($ranks->asc_rank(2), 2, 'Get ascending rank');
-
-#is($ranks->desc_rank(0), 1, 'Get descending rank');
-#is($ranks->desc_rank(1), 3, 'Get descending rank');
-#is($ranks->desc_rank(2), 2, 'Get descending rank');
 

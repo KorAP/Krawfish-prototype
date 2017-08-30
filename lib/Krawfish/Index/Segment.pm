@@ -192,11 +192,15 @@ sub add {
       # Add field value to ranking
       my $ranked_by = $ranks->by($_->key_id);
 
+      if (DEBUG) {
+        print_log('seg', 'Field ' . $_->key . ' is sortable');
+      };
+
       $ranked_by->add($_->value, $doc_id) if $ranked_by;
     }
 
     elsif (DEBUG) {
-      print_log('seg', 'Field ' . $_->key . ' is not sortable');
+      print_log('seg', 'Field ' . $_->key . ' is NOT sortable');
     };
   };
 

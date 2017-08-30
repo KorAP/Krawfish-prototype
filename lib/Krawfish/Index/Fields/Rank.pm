@@ -46,7 +46,7 @@ sub add {
   };
 
   # Collation is numerical
-  unless ($self->{collation}) {
+  if ($self->{collation} eq 'NUM') {
     push @{$self->{plain}}, [$value, $doc_id];
   }
 
@@ -73,8 +73,9 @@ sub commit {
   #    [collocation]([field-term-with-front-coding|value-as-delta][doc_id]*)*
 
   # Sort the list
-  my @presort = $self->{collation} ? _alphasort_fields($self->{plain}) :
-    _numsort_fields($self->{plain});
+  my @presort = $self->{collation} eq 'NUM' ?
+    _numsort_fields($self->{plain}) :
+    _alphasort_fields($self->{plain});
 
   if (DEBUG) {
     print_log(

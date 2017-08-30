@@ -241,6 +241,10 @@ sub collations {
 sub add_field {
   my ($self, $term, $locale) = @_;
 
+  if (DEBUG) {
+    print_log('dict', "Add field $term" . ($locale ? " with $locale" : ''));
+  };
+
   # Check if term exists
   my $term_id = $self->term_id_by_term('!' . $term);
 
@@ -271,6 +275,10 @@ sub add_field {
 
   # The term does not exist yet
   $term_id = $self->add_term('!' . $term);
+
+  if (DEBUG) {
+    print_log('dict', "Add new collation $locale to field $term_id");
+  };
   $self->{field_collation}->{$term_id} = $locale;
   return $term_id;
 };
@@ -289,7 +297,9 @@ sub collation {
   };
 
   # Return the collation object
-  return $self->{collations}->get($locale) if $locale && $locale ne 'NUM';
+  return unless $locale;
+  return 'NUM' if $locale ne 'NUM';
+  return $self->{collations}->get($locale);
 };
 
 

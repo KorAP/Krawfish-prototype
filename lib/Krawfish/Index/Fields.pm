@@ -2,7 +2,6 @@ package Krawfish::Index::Fields;
 use Krawfish::Index::Fields::Doc;
 use Krawfish::Index::Fields::Ranks;
 use Krawfish::Index::Fields::Pointer;
-# use Krawfish::Index::Rank::Fields;
 use Krawfish::Log;
 use warnings;
 use strict;

@@ -1,9 +1,12 @@
 package Krawfish::Koral::Document::FieldInt;
 use Krawfish::Util::String qw/squote/;
+use Krawfish::Log;
 use Role::Tiny::With;
 with 'Krawfish::Koral::Document::FieldBase';
 use warnings;
 use strict;
+
+use constant DEBUG => 1;
 
 # Class for integer fields
 
@@ -22,8 +25,16 @@ sub identify {
   my $key  = '!' . $self->{key};
   $self->{key_id} = $dict->add_term($key);
 
+  if (DEBUG) {
+    print_log('k_doc_fint', 'Check for sortability for ' . $self->{key_id});
+  };
+
   # Set sortable
   if (my $collation = $dict->collation($self->{key_id})) {
+    if (DEBUG) {
+      print_log('k_doc_fint', 'Field ' . $self->{key_id} . ' is sortable');
+    };
+
     $self->{sortable} = 1;
   };
 

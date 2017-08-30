@@ -1,8 +1,10 @@
 package Krawfish::Koral::Document::FieldBase;
+use Krawfish::Log;
 use Role::Tiny;
 use warnings;
 use strict;
 
+use constant DEBUG => 1;
 
 # TODO:
 #   Probably use Krawfish::Koral::Meta::Type::KeyID and
@@ -12,7 +14,10 @@ use strict;
 sub new {
   my $class = shift;
   # key, value, key_id, key_value_id, sortable
-  bless { @_ }, $class;
+
+  my $self = bless { @_ }, $class;
+
+  return $self;
 };
 
 sub key_id {

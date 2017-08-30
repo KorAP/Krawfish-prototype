@@ -7,7 +7,7 @@ use Mojo::File;
 use strict;
 use warnings;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # TODO:
 #   May need to be renamed to Krawfish::Node
@@ -138,11 +138,15 @@ sub introduce_field {
     # Field is meant to be sortable
     if ($locale eq 'NUM') {
 
+      if (DEBUG) {
+        print_log('index', 'Introduce field ' . $field_term . ' as sortable');
+      }
+
       # Propagate the field to all segments
       foreach (@{$self->segments}) {
 
         # Introduce ranking file on all segments
-        $_->field_ranks->introduce_rank($term_id);
+        $_->field_ranks->introduce_rank($term_id, 'NUM');
       };
     }
     else {
