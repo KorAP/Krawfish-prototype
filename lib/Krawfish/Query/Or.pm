@@ -114,29 +114,64 @@ sub next {
 };
 
 
+# Stringification
 sub to_string {
   my $self = shift;
   return 'or(' . $self->{first}->to_string . ',' . $self->{second}->to_string . ')';
 };
 
 
+# Maximum frequency
 sub max_freq {
   my $self = shift;
 
+  # Frequencies are unknown
   if ($self->{first}->max_freq == -1 || $self->{second}->max_freq == -1) {
     return -1;
   }
+
+  # Combine frequencies
   else {
     return $self->{first}->max_freq + $self->{second}->max_freq;
   };
 };
 
 
+# Return the complexity of the operation
+# This is required to optimize filtering
+sub complex {
+  my $self = shift;
+
+  # Operation is complex
+  return 1 if $self->{first}->complex || $self->{second}->complex;
+
+  # Operation is simple
+  return 0;
+};
+
+
+# Filter the query
 sub filter_by {
   my ($self, $corpus) = @_;
-  $self->{first} = $self->{first}->filter_by($corpus);
-  $self->{second} = $self->{second}->filter_by($corpus);
-  $self;
+
+  # If both operands are simple
+  # (e.g. term queries, or-queries on terms)
+  # it's beneficial to let the filter stop here
+  # and not check on each of the operands
+  #   Example:
+  #     filter(corpus,or(a,b))
+  #       vs.
+  #     or(filter(corpus,a),filter(corpus,b))
+  #
+  if ($self->complex) {
+    $self->{first} = $self->{first}->filter_by($corpus);
+    $self->{second} = $self->{second}->filter_by($corpus);
+    return $self;
+  };
+
+  return Krawfish::Query::Filter->new(
+    $self, $corpus->clone
+  );
 };
 
 

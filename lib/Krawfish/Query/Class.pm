@@ -22,6 +22,7 @@ sub clone {
   );
 };
 
+
 sub next {
   my $self = shift;
 

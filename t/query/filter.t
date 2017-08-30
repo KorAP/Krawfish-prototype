@@ -46,8 +46,26 @@ ok($term = $qb->bool_or(
 ok($query = $qb->filter_by($term, $corpus), 'Filter by corpus');
 
 ok($query_plan = $query->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Create query plan');
-is($query_plan->to_string, "or(filter(#10,#2),filter(#6,#2))", 'Stringification');
+is($query_plan->to_string, "filter(or(#10,#6),#2)", 'Stringification');
 
 matches($query_plan, [qw/[0:0-1] [0:2-3] [0:4-5] [2:0-1] [2:1-2]/], '5 matches');
+
+
+# Check filter optimization
+ok($term = $qb->bool_or(
+  $qb->term('aa'),
+  $qb->term('bb'),
+  $qb->bool_or(
+    $qb->term('cc'),
+    $qb->term('bb')
+  )
+), 'Create new term query');
+ok($query = $qb->filter_by($term, $corpus), 'Filter by corpus');
+is($query->to_string, "filter(aa|bb|(bb|cc),genre=novel)", 'Stringification');
+ok($query_plan = $query->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Create query plan');
+is($query_plan->to_string, "filter(or(or(#10,#8),#6),#2)", 'Stringification');
+
+
+
 
 done_testing;

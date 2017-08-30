@@ -34,6 +34,12 @@ sub clone {
 };
 
 
+# Per default every operation is complex
+sub complex {
+  return 1;
+};
+
+
 # TODO:
 #   This is a value that should probably be stored
 #   at span-beginnings and can help to jump through very long

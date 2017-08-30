@@ -25,6 +25,7 @@ sub new {
 };
 
 
+# Clone the query
 sub clone {
   my $self = shift;
   __PACKAGE__->new(
@@ -32,6 +33,7 @@ sub clone {
     $self->{term_id}
   );
 };
+
 
 # Skip to next position
 # This will initialize the posting list
@@ -66,22 +68,34 @@ sub term_id {
 };
 
 
+# Get the frequency of the term
 sub max_freq {
   $_[0]->{postings}->freq;
 };
 
+
+# Get the frequency of the term in the current document
 sub freq_in_doc {
   $_[0]->{postings}->freq_in_doc;
 };
 
+
+# Stringification
 sub to_string {
   '#' . $_[0]->term_id;
 };
 
+
+# Skip to a certain document
 sub skip_doc {
   $_[0]->{postings}->skip_doc($_[1]);
 };
 
+
+# The value is simple
+sub complex {
+  0;
+};
 
 # Filter this query by a corpus
 sub filter_by {

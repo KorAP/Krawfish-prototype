@@ -45,7 +45,7 @@ is($koral_query->to_string,
    'Stringification');
 
 ok(my $query = $koral_query->optimize($index->segment), 'Optimize');
-is ($query->to_string, 'snippet(or(filter(#10,[1]),filter(#8,[1])))', 'Stringification');
+is ($query->to_string, 'snippet(filter(or(#10,#8),[1]))', 'Stringification');
 
 ok($query->next, 'Next match');
 is($query->current_match->to_string, "[0:0-1|snippet:#7]", 'Current match');

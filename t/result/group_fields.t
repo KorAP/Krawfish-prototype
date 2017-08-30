@@ -126,7 +126,7 @@ is($koral->to_string,
 ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment), 'Optimize');
 
 is($query->to_string,
-   'gFields(#3,#5:or(filter(#10,or(#17,#2)),filter(#12,or(#17,#2))))',
+   'gFields(#3,#5:filter(or(#10,#12),or(#17,#2)))',
    'Stringification');
 
 ok(my $coll = $query->finalize->collection->inflate($index->dict), 'Search');

@@ -10,6 +10,11 @@ use warnings;
 use constant DEBUG => 0;
 
 # TODO:
+#   Introduce a ->complex attribute to all queries,
+#   to guarantee that simple operands are grouped together
+#   to make filtering more efficient!
+
+# TODO:
 #   To simplify this, it may be useful to use Negation instead of is_negative().
 #   This means, fields with "ne" won't be "ne"-fields, but become not(term).
 #   It's also easier to detect double negation.
@@ -754,6 +759,11 @@ sub optimize {
     if (@freq == 0) {
       return Krawfish::Query::Nothing->new;
     };
+
+    # TODO:
+    #   Introduce a ->complex attribute to all queries,
+    #   to guarantee that simple operands are grouped together
+    #   to make filtering more efficient!
 
     # Get the first operand
     $query = shift(@freq)->[0];
