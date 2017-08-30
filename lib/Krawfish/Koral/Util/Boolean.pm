@@ -716,6 +716,7 @@ sub _replace_negative {
 
 
 # Optimize boolean queries based on their frequencies
+# and there complexity
 sub optimize {
   my ($self, $segment) = @_;
 
@@ -739,16 +740,26 @@ sub optimize {
   };
 
   # Sort operands based on ascending frequency
+  # This is - however - rather irrelevant for or-queries,
+  # but it may help caching by introducing deterministic ordering
   @freq = sort {
     ($a->[1] < $b->[1]) ? -1 :
       (($a->[1] > $b->[1]) ? 1 :
        ($a->[0]->to_string cmp $b->[0]->to_string))
-  } @freq;
-
+    } @freq;
 
   # Operation is 'or'
   if ($self->operation eq 'or') {
     print_log('kq_bool', 'Prepare or-group') if DEBUG;
+
+    # Move simple queries to the front, so when filtering, leaf groups
+    # will be filtered in groups
+    @freq = sort {
+      $a->[0]->complex == $b->[0]->complex ? 0 :
+        (
+          $a->[0]->complex && !$b->[0]->complex ? 1 : -1
+        )
+    } @freq;
 
     # Ignore non-existing terms
     while (@freq && $freq[0]->[1] == 0) {
@@ -759,11 +770,6 @@ sub optimize {
     if (@freq == 0) {
       return Krawfish::Query::Nothing->new;
     };
-
-    # TODO:
-    #   Introduce a ->complex attribute to all queries,
-    #   to guarantee that simple operands are grouped together
-    #   to make filtering more efficient!
 
     # Get the first operand
     $query = shift(@freq)->[0];
@@ -782,7 +788,9 @@ sub optimize {
 
   # Operation is 'and'
   elsif ($self->operation eq 'and') {
+
     print_log('kq_bool', 'Prepare and-group') if DEBUG;
+
 
     # If the least frequent operand does not exist,
     # the whole group can't exist

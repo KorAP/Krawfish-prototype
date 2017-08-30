@@ -155,9 +155,10 @@ sub filter_by {
   my ($self, $corpus) = @_;
 
   # If both operands are simple
-  # (e.g. term queries, or-queries on terms)
+  # (e.g. leafs, or-queries on leafs)
   # it's beneficial to let the filter stop here
-  # and not check on each of the operands
+  # and not check on each of the branches.
+  #
   #   Example:
   #     filter(corpus,or(a,b))
   #       vs.

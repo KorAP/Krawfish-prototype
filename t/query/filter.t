@@ -52,6 +52,7 @@ matches($query_plan, [qw/[0:0-1] [0:2-3] [0:4-5] [2:0-1] [2:1-2]/], '5 matches')
 
 
 # Check filter optimization
+# On filtering level
 ok($term = $qb->bool_or(
   $qb->term('aa'),
   $qb->term('bb'),
@@ -63,7 +64,36 @@ ok($term = $qb->bool_or(
 ok($query = $qb->filter_by($term, $corpus), 'Filter by corpus');
 is($query->to_string, "filter(aa|bb|(bb|cc),genre=novel)", 'Stringification');
 ok($query_plan = $query->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Create query plan');
+
+# Non-complex queries are filtered only once
 is($query_plan->to_string, "filter(or(or(#10,#8),#6),#2)", 'Stringification');
+
+
+# Check filter optimization
+# On optimization level
+ok($term = $qb->bool_or(
+  $qb->term('cc'),
+  $qb->seq(
+    $qb->term('aa'),
+    $qb->term('aa'),
+  ),
+  $qb->term('bb'),
+  $qb->seq(
+    $qb->term('aa'),
+    $qb->term('bb'),
+  ),
+  $qb->term('aa'),
+), 'Create new term query');
+ok($query = $qb->filter_by($term, $corpus), 'Filter by corpus');
+
+# Order here is just alphabetical
+is($query->to_string, "filter((aa)|(aaaa)|(aabb)|(bb)|(cc),genre=novel)", 'Stringification');
+ok($query_plan = $query->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Create query plan');
+
+# Non-complex queries are grouped, so filtering is done only once
+is($query_plan->to_string,
+   "or(or(filter(or(or(#10,#8),#6),#2),constr(pos=2:#6,filter(#8,#2))),constr(pos=2:#6,filter(#6,#2)))",
+   'Stringification');
 
 
 
