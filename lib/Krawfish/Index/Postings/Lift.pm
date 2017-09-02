@@ -12,7 +12,8 @@ use constant {
   START   => 1,
   LENGTH  => 2,
   FREQ    => 3,
-  LIST  => 4
+  PTI     => 4,
+  LIST    => 5
 };
 
 
@@ -25,6 +26,10 @@ sub new {
     lists => []
   }, $class;
 
+  # Mmap offsets - could be used
+  my $start = shift;
+  my $length = shift;
+
   $self->{mmap} = _mmap($self->{file});
   return $self;
 };
@@ -34,7 +39,7 @@ sub new {
 sub add {
   my ($self, $info) = @_;
 
-  # $term_id, $start, $length, $freq
+  # $term_id, $start, $length, $freq, $pti
   # LIST is initially undefined
   push @{$self->{lists}}, [@$info, undef];
 };
@@ -54,9 +59,11 @@ sub get {
 
       return $entry->[LIST] if $entry->[LIST];
 
-      # Initialize the postings list
+      # Initialize the postings list based on the PTI!
       # TODO:
       #   Use a store version
+      # TODO:
+      #   If the offsets for mmap are set, these need to be resprected
       $entry->[LIST] = Krawfish::Index::PostingsList->new(
         $term_id,
         $entry->[START],
