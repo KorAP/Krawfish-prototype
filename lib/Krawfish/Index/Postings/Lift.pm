@@ -1,6 +1,8 @@
 package Krawfish::Index::Postings::Lift;
 use Krawfish::Index::Postings::Empty;
-# use Krawfish::Index::Postings::Buffer;
+# TODO:
+#   Use store postings lists
+use Krawfish::Index::PostingsList;
 use strict;
 use warnings;
 
@@ -10,18 +12,21 @@ use constant {
   START   => 1,
   LENGTH  => 2,
   FREQ    => 3,
-  BUFFER  => 4
+  LIST  => 4
 };
 
 
 # Construct a new lifter
 sub new {
   my $class = shift;
-  bless {
-    buffer_size => shift,
+
+  my $self = bless {
     file => shift,
     lists => []
   }, $class;
+
+  $self->{mmap} = _mmap($self->{file});
+  return $self;
 };
 
 
@@ -30,13 +35,12 @@ sub add {
   my ($self, $info) = @_;
 
   # $term_id, $start, $length, $freq
-  # buffer is initially undefined
+  # LIST is initially undefined
   push @{$self->{lists}}, [@$info, undef];
 };
 
 
 # Get the postingslist based on the term id
-# This will initialize the buffers to lift
 sub get {
   my ($self, $term_id) = @_;
 
@@ -48,18 +52,19 @@ sub get {
   foreach my $entry (@$list) {
     if ($entry->[TERM_ID] == $term_id) {
 
-      return $entry->[BUFFER] if $entry->[BUFFER];
+      return $entry->[LIST] if $entry->[LIST];
 
-      # Initialize the buffer for the postings list
-      $entry->[BUFFER] = Krawfish::Index::Postings::Buffer->new(
+      # Initialize the postings list
+      # TODO:
+      #   Use a store version
+      $entry->[LIST] = Krawfish::Index::PostingsList->new(
         $term_id,
         $entry->[START],
         $entry->[LENGTH],
-        $entry->[FREQ],
-        $self->{buffer_size}
+        $entry->[FREQ]
       );
 
-      return $entry->[BUFFER];
+      return $entry->[LIST];
     }
 
     # There is no entry for this term id
