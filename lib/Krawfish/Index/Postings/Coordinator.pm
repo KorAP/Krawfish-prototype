@@ -9,14 +9,28 @@ use strict;
 sub new {
   my ($class, $file, $size) = @_;
 
-  # Load 'postings.toc'
+  # Load 'postings.toc' - potentially using mmap
   $file = _slurp($file);
+
   # The index has the structure:
-  # ([term_id-int][start-offset-int][length-int][freq-int][pti-byte])+
+  #
+  #   ([term_id-int][start-offset-int][length-int][freq-int][pti-byte])+
+  #   ([int32]      [int32]           [int32]     [int32]   [int8])*
+  #
+  # int32 limits the node index to 4.294.967.296 different terms
+  #  -> 200bit=25byte -> 6mio terms ~ 102 MegaByte
+  #
   # see https://github.com/KorAP/Krill/blob/master/misc/payloads.md
   # It probably also has a header info of
   # [fragment-size]
-
+  #
+  # If the index also refers to the postings list (instead of using mmap)
+  # There may need to be a second data structure to point to
+  # the lifted postingslist. As there will only be a few hundred plists
+  # lifted, the structure can be a) simple and b) in memory only.
+  #
+  # [term_id] => [cache]
+  #
   bless {
     file => $file,
     size => $size

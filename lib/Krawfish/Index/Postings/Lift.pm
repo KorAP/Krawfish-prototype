@@ -1,10 +1,27 @@
 package Krawfish::Index::Postings::Lift;
 use Krawfish::Index::Postings::Empty;
 # TODO:
-#   Use store postings lists
+#   Use store postings lists with PTI
 use Krawfish::Index::PostingsList;
 use strict;
 use warnings;
+
+# Lift the postingslist file using
+#
+# - mmap
+#
+#   or
+#
+# - (possibly better suited for our use case)
+#   Load the postings lists completely and store them
+#   in the coordinator for multiple requests. Use a
+#   mtf list structure to make the list remember the latest
+#   structures. Once a given ratio is exceeded, or the size
+#   of newly to fetch structures exceed the ratio, forget the latest
+#   remembered structures.
+#   Always add newly requested structures to the top of the list.
+#   The reference to the cached postings list is added
+#   to the coordination list.
 
 use constant {
   DEBUG   => 0,
@@ -15,6 +32,12 @@ use constant {
   PTI     => 4,
   LIST    => 5
 };
+
+# See
+#   https://stackoverflow.com/questions/9817233/why-mmap-is-faster-than-sequential-io
+#   http://lkml.iu.edu/hypermail/linux/kernel/0802.0/1496.html
+#   http://lkml.iu.edu/hypermail/linux/kernel/0802.0/1496.html
+#   https://marc.info/?l=linux-kernel&m=95496636207616&w=2
 
 
 # Construct a new lifter
