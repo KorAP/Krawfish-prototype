@@ -8,20 +8,24 @@ use warnings;
 
 # Lift the postingslist file using
 #
-# - mmap
+# - mmap and some madvises
 #
 #   or
 #
-# - (possibly better suited for our use case)
-#   Load the postings lists completely and store them
+# - Load the postings lists completely and store them
 #   in the coordinator for multiple requests. Use a
-#   mtf list structure to make the list remember the latest
+#   lru (mtf) structure to make the list remember the latest
 #   structures. Once a given ratio is exceeded, or the size
 #   of newly to fetch structures exceed the ratio, forget the latest
 #   remembered structures.
 #   Always add newly requested structures to the top of the list.
 #   The reference to the cached postings list is added
 #   to the coordination list.
+#
+# See
+#   https://sqlite.org/mmap.html for a comparison
+#   http://useless-factor.blogspot.de/2011/05/why-not-mmap.html
+#   https://dzone.com/articles/use-lucene%E2%80%99s-mmapdirectory
 
 use constant {
   DEBUG   => 0,
