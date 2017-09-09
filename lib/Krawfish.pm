@@ -109,7 +109,7 @@ sub startup {
   #   Delete by search
 
   # Web sockets only make sense for the central node
-  $r->get('/suggest')->to('Dictionary#suggest');
+  $r->get('/terms')->to('Dictionary#terms');
 
   # Send a Virtual corpus and return an id vector
   # This is necessary for archiving and migration.
@@ -141,4 +141,5 @@ __END__
 Furter Requirements:
 - For KorapSRU it is necessary to provide the sum of all foundries
   of a virtual corpus. This can be done by using a facet aggregation mechanism
-  for multivalued fields.
+  for multivalued fields - but it does not necessarily "count" - it's enough
+  to just collect all existing items in a multivalued field like "annotations".

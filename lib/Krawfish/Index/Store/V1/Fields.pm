@@ -5,19 +5,37 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
+# All keys are stored in sequential order augmented by a skip list.
+# The index structure is
+#
+#   (
+#     [skip-data:skip-data]?
+#     [doc_id:int]
+#     [doc_length:varint]
+#     (
+#       [field_key_id:delta-varint]
+#       [type:b]
+#       (
+#         [term_id:varint] |
+#         [value-length:varint][value:bytes] |  # As a p-string
+#         [value:varint]
+#       )
+#     )*
+#   )*
+#
+# The fields are stored in ascending field_id order,
+# so its fast to find the correct value.
+# The type byte can have multiple values:
+#     0: It's a string
+#     1: It's an integer
+#     2: It's a stored string value
+#
+# Stored string values are short-word-compressed.
+#
+# Per key a field value can occur multiple times.
+
 # TODO:
-#   field names should have term_ids
-#   all values should be stored in a sequential order
-#   augmented by a skip list.
-#
-#   [i:doc_id][i:doc_field_length]([i:field_id][i:value_length][str:value])*
-#
-#   The fields are stored in ascending field_id order,
-#   so its fast to find the correct value.
-#   The first bit of the field length may indicate,
-#   if the field is a string or a numerical value.
-#
-#   This may also have a next() and skip_doc() API
+#   This also requires a next_doc() and skip_doc() API
 #   to move to the expected document in a sequential way,
 #   which may be the case for Aggregate::Values. (Although,
 #   this may be better to be stored in a different mechanism.)

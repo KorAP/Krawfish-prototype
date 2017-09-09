@@ -5,12 +5,19 @@ use warnings;
 
 # This is a compact array based trie representation.
 # On each letter node, binary search and linear search can be done over
-# an aplphabetically sorted list.
+# an alphabetically sorted list.
 # The pointers are doubled to make reverse retrieval
 # on term_ids simple.
-# The dictionary can be loaded with minimal footprint on memory.
+# The dictionary can be loaded with minimal footprint using mmap
+#
+# IDEAS:
+#   To improve footprint:
+#   nodes with more than 128 childs may need a structure like
+#   [char:int32]
 
 # The term_id array points to the '00' terminal nodes of the tree structure.
+
+
 
 # TODO:
 #   It may be useful to check for big file limitations
@@ -19,6 +26,9 @@ use warnings;
 # TODO:
 #   In Lucy the dictionary is stored in a list
 #   using incremental encoding / front coding.
+#   In Atire (http://atire.org/index.php?title=Index_Structure) the
+#   dictionary is split into a top part (first 4 characters) and a
+#   second part.
 #
 # TODO:
 #   Ranks for terms should be added at a prefinal level for surface

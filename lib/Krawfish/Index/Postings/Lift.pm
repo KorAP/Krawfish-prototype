@@ -26,6 +26,9 @@ use warnings;
 #   https://sqlite.org/mmap.html for a comparison
 #   http://useless-factor.blogspot.de/2011/05/why-not-mmap.html
 #   https://dzone.com/articles/use-lucene%E2%80%99s-mmapdirectory
+#
+# Regarding the overall structure, see
+#   http://www.atire.org/index.php?title=Index_Structure
 
 use constant {
   DEBUG   => 0,

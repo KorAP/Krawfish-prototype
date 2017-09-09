@@ -1,22 +1,40 @@
-package Krawfish::Controller::Corpus;
+package Krawfish::Controller::Dictionary;
 use Mojo::Base 'Mojolicious::Controller';
 use Krawfish::Koral::Query::Term;
 
 use strict;
 use warnings;
 
-sub suggest {
+# TODO:
+#   While suggest will only return a limited number of results,
+#   it's beneficial to support returning all results, e.g.
+#   to request all possible values to a field - e.g. all annotations
+#   (foundry/layer) in the index to synchronize this information with Kustvakt
+
+# TODO:
+#   There should be a similar mechanism available that respects VC
+
+sub terms {
   my $c = shift;
 
+  # Define either field or foundry/layer+termType
   my $field = $c->param('field') // '';
-  my $prefix = $c->param('prefix');
-  my $term_type = $c->param('termType') // 'token';
   my $foundry = $c->param('foundry');
   my $layer = $c->param('layer');
-  my $key = $c->param('key');
-  my $value = $c->param('value');
-  my $count = $c->param('count');
+  my $term_type = $c->param('termType') // 'token';
 
+  # Key is either the field name or the annotation tag
+  my $key = $c->param('key');
+
+  # Accept optional value
+  my $value = $c->param('value');
+
+  # Support either no further value, or a prefix, or a regex
+  my $prefix = $c->param('prefix');
+  my $regex = $c->param('regex');
+
+  # Set optional value for count
+  my $count = $c->param('count');
 
   # TODO: Probably use Krawfish::Util::Koral::Term
   my $term = Krawfish::Koral::Query::Term->new;

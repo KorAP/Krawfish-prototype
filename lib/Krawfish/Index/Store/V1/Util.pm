@@ -28,25 +28,50 @@ our @EXPORT_OK = qw/enc_varint
 # TODO: Add text compression with random access
 # e.g. based on http://www.unicode.org/notes/tn31/
 
-sub enc_string ($$) {
+
+# Encode a short string
+sub enc_string ($) {
   warn 'Short string encoding not implemented yet';
   return $_[0];
 };
 
-sub dec_string ($$) {
+
+# Decode a short string
+sub dec_string ($) {
   warn 'Short string encoding not implemented yet';
   return $_[0];
 };
 
-# See e.g. https://github.com/pascaldekloe/flit
+
+# Encode short whitespace string
+sub enc_ws ($) {
+  warn 'Whitespace encoding not implemented yet';
+  return $_[0];
+};
+
+
+# Decode short whitespace string
+sub dec_ws {
+  warn 'Whitespace encoding not implemented yet';
+  return $_[0];
+};
+
+
+# See e.g.
+#   https://github.com/pascaldekloe/flit
+#   https://golang.org/pkg/encoding/binary/#PutUvarint
+# Encode a variable length integer
 sub enc_varint ($) {
   warn 'varint encoding not implemented yet';
   return $_[0];
 };
 
+
+# Decode a variable length integer
 sub dec_varint ($) {
   warn 'varint encoding not implemented yet';
   return $_[0];
 };
+
 
 1;
