@@ -1,7 +1,7 @@
 package Krawfish::Corpus::Any;
 use Krawfish::Index::PostingsLive;
 use Krawfish::Posting::Doc;
-use Krawfish::Query::Nothing;
+use Krawfish::Query::Nowhere;
 use Scalar::Util qw/refaddr/;
 use Krawfish::Log;
 use strict;
@@ -18,7 +18,7 @@ sub new {
   my $live = $segment->live->pointer;
 
   # Index is empty
-  return Krawfish::Query::Nothing->new
+  return Krawfish::Query::Nowhere->new
     if $live->freq == 0;
 
   bless {

@@ -69,7 +69,7 @@ sub refer {
 
 
 # TODO:
-#   If "nothing" returns, optimize away
+#   If "nowhere" returns, optimize away
 #   before ->optimize().
 sub identify {
   my ($self, $dict) = @_;
@@ -122,8 +122,8 @@ sub finalize {
 
 
   # The query matches nowhere
-  if ($query->is_nothing) {
-    return $query->builder->nothing;
+  if ($query->is_nowhere) {
+    return $query->builder->nowhere;
   };
 
   if ($query->is_negative) {
@@ -264,12 +264,12 @@ sub is_null {
 
 # Nothing matches nowhere - e.g. in
 # Der [alte & !alte] Mann
-sub is_nothing {
+sub is_nowhere {
   my $self = shift;
   if (defined $_[0]) {
-    $self->{nothing} = shift;
+    $self->{nowhere} = shift;
   };
-  return $self->{nothing} // 0;
+  return $self->{nowhere} // 0;
 };
 
 

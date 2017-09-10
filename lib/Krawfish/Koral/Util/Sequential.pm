@@ -1,6 +1,6 @@
 package Krawfish::Koral::Util::Sequential;
 use Krawfish::Log;
-use Krawfish::Query::Nothing;
+use Krawfish::Query::Nowhere;
 use Krawfish::Query::Constraint::Position;
 use Krawfish::Query::Constraint::InBetween;
 use Krawfish::Query::Constraints;
@@ -66,8 +66,8 @@ sub normalize {
     }
 
     # One operand can't match
-    elsif ($op->is_nothing) {
-      return $self->builder->nothing;
+    elsif ($op->is_nowhere) {
+      return $self->builder->nowhere;
     };
 
     # Normalize operands
@@ -279,7 +279,7 @@ sub optimize {
         };
 
         # One element matches nowhere - the whole sequence matches nowhere
-        return Krawfish::Query::Nothing->new if $freq == 0;
+        return Krawfish::Query::Nowhere->new if $freq == 0;
 
         # Current query is less common
         # if (!defined $filterable_query || $freq < $queries[$filterable_query]->max_freq) {

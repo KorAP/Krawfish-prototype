@@ -56,7 +56,7 @@ sub optimize {
   );
 
   if ($query->max_freq == 0) {
-    return Krawfish::Query::Nothing->new;
+    return Krawfish::Query::Nowhere->new;
   };
 
   return $query;
@@ -67,7 +67,7 @@ sub to_koral_fragment {
   ...
 };
 
-sub is_nothing {
+sub is_nowhere {
   0;
 };
 

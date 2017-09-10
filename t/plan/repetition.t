@@ -269,13 +269,13 @@ ok($rep = $rep->identify($index->dict)->optimize($index->segment), 'Normalizatio
 is($rep->to_string, "rep(2-3:#3)", 'Stringification');
 
 # [0]{,3} -> null
-$rep = $qb->repeat($qb->nothing, 0, 3);
+$rep = $qb->repeat($qb->nowhere, 0, 3);
 is($rep->to_string, '[0]{0,3}', 'Stringification');
 
 ok(!$rep->is_any, 'Is not any');
 ok($rep->is_optional, 'Is not optional');
 ok(!$rep->is_null, 'Is not null');
-ok(!$rep->is_nothing, 'Is not null');
+ok(!$rep->is_nowhere, 'Is not null');
 ok(!$rep->is_negative, 'Is not negative');
 ok(!$rep->is_extended, 'Is not extended');
 ok(!$rep->is_extended_right, 'Is not extended to the right');
@@ -286,7 +286,7 @@ ok(!$rep->has_error, 'Error not set');
 ok(!$rep->has_warning, 'Warning set');
 ok($rep->is_null, 'Is null');
 ok(!$rep->is_optional, 'Is not optional');
-ok(!$rep->is_nothing, 'Is not null');
+ok(!$rep->is_nowhere, 'Is not null');
 ok(!$rep->is_negative, 'Is not negative');
 ok(!$rep->is_extended, 'Is not extended');
 ok(!$rep->is_extended_right, 'Is not extended to the right');

@@ -1,9 +1,9 @@
-package Krawfish::Query::Nothing;
+package Krawfish::Query::Nowhere;
 use parent 'Krawfish::Query';
 use strict;
 use warnings;
 
-# This is a query that returns nothing
+# This is a query that returns nowhere
 sub new {
   my $class = shift;
   my $var;

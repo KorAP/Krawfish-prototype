@@ -1,6 +1,5 @@
 package Krawfish::Koral::Meta::Aggregate::Length;
 use Krawfish::Result::Segment::Aggregate::Length;
-use Krawfish::Query::Nothing;
 use strict;
 use warnings;
 

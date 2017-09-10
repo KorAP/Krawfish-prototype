@@ -1,5 +1,6 @@
 package Krawfish::Koral::Meta::Node::Aggregate;
 use Krawfish::Result::Segment::Aggregate;
+use Krawfish::Query::Nowhere;
 use strict;
 use warnings;
 
@@ -48,7 +49,7 @@ sub optimize {
 
 
   if ($query->max_freq == 0) {
-    return Krawfish::Query::Nothing->new;
+    return Krawfish::Query::Nowhere->new;
   };
 
   my $aggr = $self->{aggregates};

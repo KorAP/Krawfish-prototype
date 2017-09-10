@@ -167,12 +167,12 @@ sub is_null {
 };
 
 
-sub is_nothing {
+sub is_nowhere {
   my $self = shift;
   if (defined $_[0]) {
-    $self->{nothing} = shift;
+    $self->{nowhere} = shift;
   };
-  return $self->{nothing} // 0;
+  return $self->{nowhere} // 0;
 };
 
 

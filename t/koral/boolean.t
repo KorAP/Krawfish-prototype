@@ -110,7 +110,7 @@ is($tree->to_string, 'a!=1&a=1', 'Plain groups');
 $tree->normalize;
 is($tree->to_string, '', 'Remove empty');
 
-ok($tree->is_nothing, 'Matches nowhere');
+ok($tree->is_nowhere, 'Matches nowhere');
 ok(!$tree->is_any, 'Matches everywhere');
 
 
@@ -137,7 +137,7 @@ $tree = $cb->bool_or(
 is($tree->to_string, 'a!=1|a=1', 'Plain groups');
 $tree->normalize;
 ok($tree->is_any, 'Matches everywhere');
-ok(!$tree->is_nothing, 'Matches nowhere');
+ok(!$tree->is_nowhere, 'Matches nowhere');
 is($tree->to_string, '', 'Remove empty');
 
 
@@ -156,32 +156,32 @@ $tree->normalize;
 is($tree->to_string, 'x=1|z=1', 'Remove empty');
 
 
-# Check flattening with NOTHING
+# Check flattening with NOWHERE
 # ([0] | a) -> a
 $tree = $cb->bool_or(
   $cb->string('x')->eq('1'),
-  $cb->nothing,
+  $cb->nowhere,
   $cb->string('z')->eq('1'),
 );
 
 
 is($tree->to_string, '[0]|x=1|z=1', 'Plain groups');
 $tree->normalize;
-ok(!$tree->is_nothing, 'No Nothing');
+ok(!$tree->is_nowhere, 'No Nowhere');
 is($tree->to_string, 'x=1|z=1', 'Remove empty');
 
 
 # ([0] & a) -> [0]
 $tree = $cb->bool_and(
   $cb->string('x')->eq('1'),
-  $cb->nothing,
+  $cb->nowhere,
   $cb->string('z')->eq('1'),
 );
 
 is($tree->to_string, '[0]&x=1&z=1', 'Plain groups');
 $tree->normalize;
-ok($tree->is_nothing, 'Nothing');
-is($tree->to_string, '', 'Nothing');
+ok($tree->is_nowhere, 'Nowhere');
+is($tree->to_string, '', 'Nowhere');
 
 
 # Check flattening with ANY
@@ -194,7 +194,7 @@ $tree = $cb->bool_or(
 
 is($tree->to_string, '[1]|x=1|z=1', 'Plain groups');
 $tree->normalize;
-ok(!$tree->is_nothing, 'No Nothing');
+ok(!$tree->is_nowhere, 'No Nowhere');
 ok($tree->is_any, 'Anything');
 is($tree->to_string, '', 'no string');
 
@@ -209,7 +209,7 @@ $tree = $cb->bool_and(
 
 is($tree->to_string, '[1]&x=1&z=1', 'Plain groups');
 $tree->normalize;
-ok(!$tree->is_nothing, 'No Nothing');
+ok(!$tree->is_nowhere, 'No Nowhere');
 ok(!$tree->is_any, 'No Anything');
 is($tree->to_string, 'x=1&z=1', 'no string');
 

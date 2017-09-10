@@ -109,7 +109,7 @@ sub optimize {
 
   # Span has no match
   if ($span->max_freq == 0) {
-    return $self->builder->nothing;
+    return $self->builder->nowhere;
   };
 
   return Krawfish::Query::Class->new(

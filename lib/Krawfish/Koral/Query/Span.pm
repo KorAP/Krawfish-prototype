@@ -67,7 +67,7 @@ sub identify {
 
     my $term_id = $dict->term_id_by_term('<>' . $term);
 
-    return $self->builder->nothing unless defined $term_id;
+    return $self->builder->nowhere unless defined $term_id;
 
     return Krawfish::Koral::Query::TermID->new($term_id);
   };

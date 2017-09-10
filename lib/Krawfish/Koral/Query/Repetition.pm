@@ -177,7 +177,7 @@ sub normalize {
 
   # If something does not match, but is optional at the same time,
   # Make it ignorable
-  if ($span->is_nothing && $self->is_optional) {
+  if ($span->is_nowhere && $self->is_optional) {
     return $self->builder->null;
   };
 
@@ -288,7 +288,7 @@ sub to_string {
   my $type = $self->operand->type;
 
   # Wrap complex queries in parentheses
-  if ($type !~ /class|token|term|span|nothing/) {
+  if ($type !~ /class|token|term|span|nowhere/) {
     $str = '(' . $str . ')';
   };
 

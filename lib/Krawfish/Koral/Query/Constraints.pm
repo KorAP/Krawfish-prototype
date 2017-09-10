@@ -76,10 +76,10 @@ sub normalize {
   print_log('kq_constr', 'Second operand is ' . $second->to_string) if DEBUG;
 
   # One operand is not existing
-  if ($first->is_nothing || $second->is_nothing) {
+  if ($first->is_nowhere || $second->is_nowhere) {
 
-    # Return new nothing operand
-    return Krawfish::Koral::Query::Nothing->new;
+    # Return new nowhere operand
+    return Krawfish::Koral::Query::Nowhere->new;
   };
 
   $self->operands([$first, $second]);
@@ -169,7 +169,7 @@ sub normalize {
 
         # New distance contradicts itself
         if (defined $first->min && defined $first->max && $first->min > $first->max) {
-          return $self->builder->nothing;
+          return $self->builder->nowhere;
         };
 
         # Remove not used distance constraint
@@ -214,7 +214,7 @@ sub normalize {
   #
   #   can never match!
   if ($self->max_span != -1 && $self->min_span > $self->max_span) {
-    return $self->builder->nothing;
+    return $self->builder->nowhere;
   };
 
   return $self;
@@ -279,12 +279,12 @@ sub optimize {
   # Optimize operands
   my $first = $self->{operands}->[0]->optimize($segment);
   if ($first->max_freq == 0) {
-    return Krawfish::Query::Nothing->new;
+    return Krawfish::Query::Nowhere->new;
   };
 
   my $second = $self->{operands}->[1]->optimize($segment);
   if ($second->max_freq == 0) {
-    return Krawfish::Query::Nothing->new;
+    return Krawfish::Query::Nowhere->new;
   };
 
   # Optimize constraints
@@ -314,9 +314,9 @@ sub identify {
   for (; $i < @$ops; $i++) {
     $ops->[$i] = $ops->[$i]->identify($dict);
 
-    if ($ops->[$i]->is_nothing) {
-      # Return new nothing operand
-      return Krawfish::Koral::Query::Nothing->new;
+    if ($ops->[$i]->is_nowhere) {
+      # Return new nowhere operand
+      return Krawfish::Koral::Query::Nowhere->new;
     };
   };
 

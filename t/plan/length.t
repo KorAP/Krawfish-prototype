@@ -43,15 +43,15 @@ ok($q->is_null, 'Matches nowhere');
 
 
 
-# query is nothing
-$q = $qb->length($qb->nothing,3,5);
+# query is nowhere
+$q = $qb->length($qb->nowhere,3,5);
 is($q->to_string, "length(3-5:[0])", 'Query is valid');
 is($q->min_span, -1, 'Minimum length');
 is($q->max_span, -1, 'Minimum length');
 ok($q = $q->normalize, 'Normalization');
 is($q->to_string, "[0]", 'Query is valid');
 ok($q = $q->finalize, 'Normalization');
-ok($q->is_nothing, 'Matches nowhere');
+ok($q->is_nowhere, 'Matches nowhere');
 is($q->min_span, -1, 'Minimum length');
 is($q->max_span, -1, 'Minimum length');
 

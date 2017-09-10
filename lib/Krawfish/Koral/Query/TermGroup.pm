@@ -125,7 +125,7 @@ sub maybe_unsorted { 0 };
 
 #sub is_any {
 #  my $self = shift;
-  # return 0 if $self->is_nothing;
+  # return 0 if $self->is_nowhere;
   # return 1 if @{$self->operands} == 0;
 #  return $self->{any};
 #};
@@ -152,7 +152,7 @@ sub to_string {
 
   if ($self->is_negative) {
 
-    if ($self->is_nothing) {
+    if ($self->is_nowhere) {
       return '1';
     }
     elsif ($self->is_any) {
@@ -164,7 +164,7 @@ sub to_string {
   }
 
   # matches
-  elsif ($self->is_nothing) {
+  elsif ($self->is_nowhere) {
     return '0';
   }
 

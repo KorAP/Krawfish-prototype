@@ -2,7 +2,7 @@ package Krawfish::Koral::Corpus::Builder;
 use Krawfish::Koral::Corpus::Field;
 use Krawfish::Koral::Corpus::FieldGroup;
 use Krawfish::Koral::Corpus::Class;
-use Krawfish::Koral::Corpus::Nothing;
+use Krawfish::Koral::Corpus::Nowhere;
 use Krawfish::Koral::Corpus::Cache;
 use Krawfish::Koral::Corpus::AndNot;
 use strict;
@@ -50,9 +50,9 @@ sub null {
 };
 
 
-# Create 'nothing' query
-sub nothing {
-  Krawfish::Koral::Corpus::Nothing->new;
+# Create 'nowhere' query
+sub nowhere {
+  Krawfish::Koral::Corpus::Nowhere->new;
 };
 
 

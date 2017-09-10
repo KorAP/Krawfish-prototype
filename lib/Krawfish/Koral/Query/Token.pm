@@ -54,7 +54,7 @@ sub remove_classes {
 
 # Overwrite is any
 sub is_any {
-  return if $_[0]->is_nothing;
+  return if $_[0]->is_nowhere;
   return 1 unless $_[0]->operand;
   return;
 };
@@ -84,9 +84,9 @@ sub normalize {
   # There is an operand defined
   if ($self->operand) {
     my $op = $self->operand->normalize;
-    if ($op->is_nothing) {
+    if ($op->is_nowhere) {
       $self->operands([]);
-      $self->is_nothing(1);
+      $self->is_nowhere(1);
     }
     elsif ($op->is_any) {
       $self->operands([]);
@@ -155,7 +155,7 @@ sub to_string {
 
   my $string = '[';
 
-  if ($self->is_nothing) {
+  if ($self->is_nowhere) {
     $string .= '0';
   }
   elsif ($self->is_any) {

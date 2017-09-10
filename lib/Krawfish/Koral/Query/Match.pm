@@ -67,12 +67,12 @@ sub normalize {
 
     # TODO:
     #   Warn about out of scope
-    return $self->builder->nothing;
+    return $self->builder->nowhere;
   }
 
   # Defined span is negative
   elsif ($self->start > $self->end) {
-    return $self->builder->nothing;
+    return $self->builder->nowhere;
   };
 
   return $self;
@@ -85,7 +85,7 @@ sub finalize {
 
   # If there can't be a valid match
   if ($self->start == $self->end) {
-    return $self->builder->nothing;
+    return $self->builder->nowhere;
   };
 
   return $self;
@@ -99,7 +99,7 @@ sub optimize {
   # Get document optimized
   my $doc = $self->operand->optimize($segment);
 
-  # Return nothing if document is not found
+  # Return nowhere if document is not found
   return $doc if $doc->max_freq == 0;
 
   return Krawfish::Query::Match->new(

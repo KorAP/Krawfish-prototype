@@ -1,4 +1,5 @@
 package Krawfish::Koral::Meta::Node::Sort;
+use Krawfish::Query::Nowhere;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -82,7 +83,7 @@ sub optimize {
   my $query = $self->{query}->optimize($segment);
 
   if ($query->max_freq == 0) {
-    return Krawfish::Query::Nothing->new;
+    return Krawfish::Query::Nowhere->new;
   };
 
   return $self;

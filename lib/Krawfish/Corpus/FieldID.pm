@@ -1,7 +1,7 @@
 package Krawfish::Corpus::FieldID;
 use parent 'Krawfish::Corpus';
 use Krawfish::Posting::Doc;
-use Krawfish::Query::Nothing;
+use Krawfish::Query::Nowhere;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -11,7 +11,7 @@ use constant DEBUG => 0;
 sub new {
   my ($class, $segment, $term_id) = @_;
   my $postings = $segment->postings($term_id)
-    or return Krawfish::Query::Nothing->new;
+    or return Krawfish::Query::Nowhere->new;
 
   bless {
     segment => $segment,

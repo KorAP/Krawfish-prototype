@@ -72,7 +72,7 @@ sub bool_or_query {
 
 #sub is_any {
 #  my $self = shift;
-#  return 0 if $self->is_nothing;
+#  return 0 if $self->is_nowhere;
 #  return 1 if @{$self->operands} == 0;
 #  return 0;
 #};

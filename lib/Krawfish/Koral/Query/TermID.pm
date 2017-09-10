@@ -19,7 +19,7 @@ sub is_leaf {
   1;
 };
 
-sub is_nothing {
+sub is_nowhere {
   0;
 };
 
