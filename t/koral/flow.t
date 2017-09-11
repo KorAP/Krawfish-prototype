@@ -34,7 +34,7 @@ $koral->query(
         $qb->term_re('b.')
       )
     ),
-    $qb->any,
+    $qb->anywhere,
     $qb->term('cc')
   )
 );

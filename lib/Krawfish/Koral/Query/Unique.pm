@@ -58,8 +58,8 @@ sub to_string {
 
 # TODO: Identical to class
 
-sub is_any {
-  $_[0]->operand->is_any;
+sub is_anywhere {
+  $_[0]->operand->is_anywhere;
 };
 
 sub is_optional {

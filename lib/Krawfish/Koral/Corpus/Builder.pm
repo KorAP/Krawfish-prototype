@@ -34,10 +34,10 @@ sub bool_and_not {
 };
 
 
-# Create 'any' aka matchall query
-sub any {
+# Create 'anywhere' aka matchall query
+sub anywhere {
   shift;
-  Krawfish::Koral::Corpus::Any->new;
+  Krawfish::Koral::Corpus::Anywhere->new;
 };
 
 

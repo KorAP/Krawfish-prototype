@@ -91,7 +91,7 @@ sub normalize {
 
       # Operand matches somehow anywhere
       # This can be the case with something like {1:[]{2:[]}}
-      if ($op->is_any) {
+      if ($op->is_anywhere) {
 
         if (DEBUG) {
           print_log('kq_sequtil', 'Query matches anywhere ' . $op->to_string);
@@ -99,9 +99,9 @@ sub normalize {
 
         my $qb = $self->builder;
 
-        # Create any span
+        # Create anywhere span
         $new_op = $qb->repeat(
-          $qb->any,
+          $qb->anywhere,
           $op->min_span,
           $op->max_span
         );
@@ -245,14 +245,14 @@ sub optimize {
   #   POS: positive operand (directly queriable)
   #   OPT: optional operand
   #   NEG: negative operand
-  #   ANY: any query
+  #   ANY: anywhere query
   my $ops = $self->operands;
   for (my $i = 0; $i < $self->size; $i++) {
 
     my $op = $ops->[$i];
 
     # Query matches anywhere
-    if ($op->is_any) {
+    if ($op->is_anywhere) {
       $queries[$i] = [ANY, -1, undef, $op];
     }
 
@@ -379,7 +379,7 @@ sub optimize {
 
       # The inbetween is ANY
       if ($queries->[$index_between]->[TYPE] == ANY) {
-        _combine_any($queries, $index_a, $index_b, $index_between);
+        _combine_anywhere($queries, $index_a, $index_b, $index_between);
         next;
       }
 
@@ -556,8 +556,8 @@ sub _combine_pos {
 };
 
 
-# Combine operands with any inbetween
-sub _combine_any {
+# Combine operands with anywhere inbetween
+sub _combine_anywhere {
   my ($queries, $index_a, $index_b, $index_between) = @_;
 
   if (DEBUG) {
@@ -566,31 +566,31 @@ sub _combine_any {
   };
 
   my $new_query;
-  my $any = $queries->[$index_between]->[KQUERY];
+  my $anywhere = $queries->[$index_between]->[KQUERY];
   my $constraint = {};
 
-  if ($any->is_optional) {
+  if ($anywhere->is_optional) {
     $constraint->{optional} = 1;
   };
 
   # Type is classed
   # This requires, that the operand is normalized so classes always nest
   # repetitions and not the other way around
-  while ($any->type eq 'class') {
+  while ($anywhere->type eq 'class') {
     $constraint->{classes} //= [];
-    push @{$constraint->{classes}}, $any->number;
+    push @{$constraint->{classes}}, $anywhere->number;
 
-    print_log('kq_sequtil', "Unpack classed query " . $any->to_string) if DEBUG;
+    print_log('kq_sequtil', "Unpack classed query " . $anywhere->to_string) if DEBUG;
 
     # Return inner-query
-    $any = $any->operand;
+    $anywhere = $anywhere->operand;
   };
 
   # Type is repetition
-  if ($any->type eq 'repetition') {
-    $constraint->{min} = $any->min;
-    $constraint->{max} = $any->max;
-    $any = $any->operand;
+  if ($anywhere->type eq 'repetition') {
+    $constraint->{min} = $anywhere->min;
+    $constraint->{max} = $anywhere->max;
+    $anywhere = $anywhere->operand;
   }
 
   else {
@@ -598,9 +598,9 @@ sub _combine_any {
     $constraint->{max} = 1;
   };
 
-  # Any now should be a simple term
-  if ($any->type ne 'token') {
-    die 'Any token is not term but ' . $any->type;
+  # Anywhere now should be a simple term
+  if ($anywhere->type ne 'token') {
+    die 'Any token is not term but ' . $anywhere->type;
   };
 
   # Respect sorting order
@@ -674,7 +674,7 @@ sub _combine_neg {
 
   my $neg = $query->optimize($index);
 
-  # Negative operand can't occur - rewrite to any query, but
+  # Negative operand can't occur - rewrite to anywhere query, but
   # keep quantities intact (i.e. <!s> can have different length than [!a])
   if ($neg->max_freq == 0) {
     if (DEBUG) {
@@ -684,7 +684,7 @@ sub _combine_neg {
     # Treat non-existing negative operand as an ANY query
     # TODO:
     #   This doesn't work now properly
-    _combine_any($queries, $index_a, $index_b, $index_between);
+    _combine_anywhere($queries, $index_a, $index_b, $index_between);
     return;
   };
 

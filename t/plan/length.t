@@ -56,8 +56,8 @@ is($q->min_span, -1, 'Minimum length');
 is($q->max_span, -1, 'Minimum length');
 
 
-# query is any
-$q = $qb->length($qb->any,3,5);
+# query is anywhere
+$q = $qb->length($qb->anywhere,3,5);
 is($q->min_span, 1, 'Minimum length');
 is($q->max_span, 1, 'Minimum length');
 is($q->to_string, "length(3-5:[])", 'Query is valid');
@@ -68,7 +68,7 @@ is($q->max_span, 1, 'Minimum length');
 
 TODO: {
   local $TODO = 'Optimize repetitions';
-  $q = $qb->length($qb->repeat($qb->any,0,undef),3,5);
+  $q = $qb->length($qb->repeat($qb->anywhere,0,undef),3,5);
   is($q->to_string, "length(3-5:[]*)", 'Query is valid');
   is($q->min_span, 1, 'Minimum length');
   is($q->max_span, 1, 'Minimum length');
@@ -77,22 +77,22 @@ TODO: {
   is($q->max_span, 1, 'Minimum length');
   is($q->to_string, "[]{3,5}", 'Query is valid');
   ok(!$q->finalize, 'Normalization');
-  ok($q->is_any, 'Matches everywhere');
+  ok($q->is_anywhere, 'Matches everywhere');
   ok(!$q->is_optional, 'Optional');
-  is($q->error->[0]->[1], 'Unable to search for any tokens', 'Warning');
+  is($q->error->[0]->[1], 'Unable to search for anywhere tokens', 'Warning');
 
-  # query is any and optional
-  $q = $qb->length($qb->repeat($qb->any,0, undef),0,5);
+  # query is anywhere and optional
+  $q = $qb->length($qb->repeat($qb->anywhere,0, undef),0,5);
   is($q->to_string, "length(0-5:[]*)", 'Query is valid');
   ok($q = $q->normalize, 'Normalization');
   is($q->to_string, "[]{0,5}", 'Query is valid');
-  ok($q->is_any, 'Matches everywhere');
+  ok($q->is_anywhere, 'Matches everywhere');
   ok($q->is_optional, 'Optional');
   ok(!$q->finalize, 'Normalization');
-  ok($q->is_any, 'Matches everywhere');
+  ok($q->is_anywhere, 'Matches everywhere');
   ok(!$q->is_optional, 'Optional');
 #  is($q->warning->[0]->[1], 'Optionality of query is ignored', 'Warning');
-#  is($q->error->[0]->[1], 'Unable to search for any tokens', 'Warning');
+#  is($q->error->[0]->[1], 'Unable to search for anywhere tokens', 'Warning');
 };
 
 

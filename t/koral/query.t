@@ -12,7 +12,7 @@ my $qb = $koral->query_builder;
 $koral->query(
   $qb->seq(
     $qb->term('x'),
-    $qb->repeat($qb->any, 2,3),
+    $qb->repeat($qb->anywhere, 2,3),
     $qb->token(
       $qb->bool_and(
         'a',

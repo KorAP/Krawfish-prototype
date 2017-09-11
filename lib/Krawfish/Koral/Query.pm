@@ -10,8 +10,6 @@ use warnings;
 use strict;
 
 # TODO:
-#   - rename 'nothing' to 'nowhere'
-#   - rename 'any' to 'anywhere'
 #   - extended_* may be queried
 #     automatically without parameter
 #   - rename all sorts of single ops to operand
@@ -27,7 +25,7 @@ use constant {
 sub new {
   my $class = shift;
   my $self = bless {
-    any => 0,
+    anywhere => 0,
     optional => 0,
     null => 0,
     negative => 0,
@@ -115,7 +113,7 @@ sub finalize {
   my $query = $self;
 
   # The query matches everywhere
-  if ($query->is_any || $query->is_null) {
+  if ($query->is_anywhere || $query->is_null) {
     $self->error(780, "This query matches everywhere");
     return;
   };
@@ -148,7 +146,7 @@ sub finalize {
   #   This needs to be in the finalize stage
   #   on the segment level!
 
-  # There is a possible 'any' extension,
+  # There is a possible 'anywhere' extension,
   # that may exceed the text boundary
   if ($query->is_extended_right) {
     return $self->builder->in_text($query);
@@ -235,12 +233,12 @@ sub operand {
 
 
 # Matches everything
-sub is_any {
+sub is_anywhere {
   my $self = shift;
   if (defined $_[0]) {
-    $self->{any} = shift;
+    $self->{anywhere} = shift;
   };
-  return $self->{any} // 0;
+  return $self->{anywhere} // 0;
 };
 
 
@@ -321,7 +319,7 @@ sub maybe_anchor      {
   my $self = shift;
   return if $self->is_negative;
   return if $self->is_optional;
-  return if $self->is_any;
+  return if $self->is_anywhere;
   return 1;
 };
 

@@ -22,7 +22,7 @@ my $query = $qb->exclusion(
 );
 is($query->min_span, 0, 'Span length');
 is($query->max_span, -1, 'Span length');
-ok(!$query->is_any, 'Is any');
+ok(!$query->is_anywhere, 'Is anywhere');
 ok(!$query->is_optional, 'Isn\'t optional');
 ok(!$query->is_null, 'Isn\'t null');
 ok(!$query->is_negative, 'Isn\'t negative');
@@ -42,7 +42,7 @@ $query = $qb->exclusion(
 );
 is($query->min_span, 0, 'Span length');
 is($query->max_span, -1, 'Span length');
-ok(!$query->is_any, 'Is any');
+ok(!$query->is_anywhere, 'Is anywhere');
 ok(!$query->is_optional, 'Isn\'t optional');
 ok(!$query->is_null, 'Isn\'t null');
 ok(!$query->is_negative, 'Isn\'t negative');
@@ -72,7 +72,7 @@ TODO: {
   local $TODO = 'Test further'
 };
 
-# Think about optional, any, negative etc.
+# Think about optional, anywhere, negative etc.
 
 done_testing;
 __END__

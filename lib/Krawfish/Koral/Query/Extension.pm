@@ -44,7 +44,7 @@ sub normalize {
     #   ...
     # }
 
-    if ($ext->is_any) {
+    if ($ext->is_anywhere) {
       ...
     };
     ...
@@ -58,7 +58,7 @@ sub normalize {
   #   ...
   # };
 
-  if ($ext->is_any) {
+  if ($ext->is_anywhere) {
     ...
   };
 };

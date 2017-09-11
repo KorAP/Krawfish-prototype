@@ -1,6 +1,6 @@
-package Krawfish::Koral::Corpus::Any;
+package Krawfish::Koral::Corpus::Anywhere;
 use parent 'Krawfish::Koral::Corpus';
-use Krawfish::Corpus::Any;
+use Krawfish::Corpus::Anywhere;
 use strict;
 use warnings;
 
@@ -9,11 +9,11 @@ use warnings;
 sub new {
   my $class = shift;
   bless {
-    any => 1
+    anywhere => 1
   }, $class;
 };
 
-sub is_any {
+sub is_anywhere {
   1;
 };
 
@@ -22,7 +22,7 @@ sub is_nowhere {
 };
 
 sub type {
-  'any';
+  'anywhere';
 };
 
 sub is_leaf {
@@ -39,7 +39,7 @@ sub operands {
 
 sub optimize {
   shift;
-  return Krawfish::Corpus::Any->new(shift());
+  return Krawfish::Corpus::Anywhere->new(shift());
 };
 
 

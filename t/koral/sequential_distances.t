@@ -120,7 +120,7 @@ matches($seq, ['[0:0-2]','[0:0-4$0,1,1,2]','[0:1-4$0,1,2,2]','[0:2-4]'], 'Matche
 # [a]{3:{4:[]*}}[b]
 $seq = $qb->seq(
   $qb->token('a'),
-  $qb->class($qb->class($qb->repeat($qb->any,0,undef),3),4),
+  $qb->class($qb->class($qb->repeat($qb->anywhere,0,undef),3),4),
   $qb->token('b')
 );
 is($seq->to_string, '[a]{4:{3:[]*}}[b]', 'Stringification');
@@ -137,7 +137,7 @@ is($seq->to_string, "constr(pos=6144,between=0-100,class=4,class=3:#3,#2)",
 # [a]{3:{4:[]*}}[b]
 $seq = $qb->seq(
   $qb->token('a'),
-  $qb->repeat($qb->class($qb->class($qb->any,3),4),0,undef),
+  $qb->repeat($qb->class($qb->class($qb->anywhere,3),4),0,undef),
   $qb->token('b')
 );
 is($seq->to_string, '[a]{4:{3:[]}}*[b]', 'Stringification');
@@ -150,14 +150,14 @@ is($seq->to_string, "constr(pos=6144,between=0-100,class=4,class=3:#3,#2)",
    'Stringification');
 
 
-# Deal with classed any sequences
+# Deal with classed anywhere sequences
 # [a]{1:[][]}[b]
 $seq = $qb->seq(
   $qb->token('a'),
   $qb->class(
     $qb->seq(
-      $qb->any,
-      $qb->any
+      $qb->anywhere,
+      $qb->anywhere
     ),
     1
   ),
@@ -179,9 +179,9 @@ $seq = $qb->seq(
   $qb->token('a'),
   $qb->class(
     $qb->seq(
-      $qb->any,
+      $qb->anywhere,
       $qb->class(
-        $qb->repeat($qb->any,0,undef),
+        $qb->repeat($qb->anywhere,0,undef),
         2
       ),
     ),

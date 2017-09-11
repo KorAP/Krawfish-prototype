@@ -21,7 +21,7 @@ my $query = $qb->token(
 );
 is($query->min_span, 1, 'Span length');
 is($query->max_span, 1, 'Span length');
-ok(!$query->is_any, 'Isn\'t any');
+ok(!$query->is_anywhere, 'Isn\'t anywhere');
 ok(!$query->is_optional, 'Isn\'t optional');
 ok(!$query->is_null, 'Isn\'t null');
 ok(!$query->is_negative, 'Isn\'t negative');
@@ -64,7 +64,7 @@ $query = $qb->token(
 );
 is($query->min_span, 1, 'Span length');
 is($query->max_span, 1, 'Span length');
-ok(!$query->is_any, 'Isn\'t any');
+ok(!$query->is_anywhere, 'Isn\'t anywhere');
 ok(!$query->is_optional, 'Isn\'t optional');
 ok(!$query->is_null, 'Isn\'t null');
 ok(!$query->is_negative, 'Isn\'t negative');
@@ -85,7 +85,7 @@ $query = $qb->token(
   )
 );
 
-ok(!$query->is_any, 'Isn\'t any');
+ok(!$query->is_anywhere, 'Isn\'t anywhere');
 ok(!$query->is_optional, 'Isn\'t optional');
 ok(!$query->is_null, 'Isn\'t null');
 ok(!$query->is_negative, 'Isn\'t negative');
@@ -113,7 +113,7 @@ $query = $qb->token(
 );
 
 
-ok(!$query->is_any, 'Isn\'t any');
+ok(!$query->is_anywhere, 'Isn\'t anywhere');
 ok(!$query->is_optional, 'Isn\'t optional');
 ok(!$query->is_null, 'Isn\'t null');
 ok(!$query->is_negative, 'Isn\'t negative');

@@ -167,13 +167,13 @@ sub normalize {
   };
 
   # Matches anywhere
-  #  if ($span->is_any) {
+  #  if ($span->is_anywhere) {
 
   # TODO: Check for repetition!!!
     # if ($self->type)
     #
     #return $self->builder->repeat(
-    #  $self->builder->any,
+    #  $self->builder->anywhere,
     #  $self->min,
     #  $self->max
     #)->normalize;
@@ -250,7 +250,7 @@ sub to_string {
   return $str . ')';
 };
 
-sub is_any { $_[0]->operand->is_any };
+sub is_anywhere { $_[0]->operand->is_anywhere };
 
 
 sub is_optional {

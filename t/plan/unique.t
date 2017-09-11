@@ -19,7 +19,7 @@ my $builder = $koral->query_builder;
 my $query = $builder->unique($builder->term('Der'));
 is($query->min_span, 1, 'span length');
 is($query->max_span, 1, 'span length');
-ok(!$query->is_any, 'Is any');
+ok(!$query->is_anywhere, 'Is anywhere');
 ok(!$query->is_optional, 'Isn\'t optional');
 ok(!$query->is_null, 'Isn\'t null');
 ok(!$query->is_negative, 'Isn\'t negative');

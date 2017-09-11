@@ -147,8 +147,8 @@ sub number {
 };
 
 
-sub is_any {
-  $_[0]->operand->is_any;
+sub is_anywhere {
+  $_[0]->operand->is_anywhere;
 };
 
 

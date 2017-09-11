@@ -60,7 +60,7 @@ sub optimize {
   return Krawfish::Query::TermID->new($segment, $self->term_id);
 };
 
-sub is_any {
+sub is_anywhere {
   0;
 };
 

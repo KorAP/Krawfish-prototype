@@ -127,11 +127,11 @@ matches($fin, [qw/[0] [2]/]);
 ok($query = $cb->bool_or(
   $cb->bool_and(
     $cb->string('genre')->eq('newsletter'),
-    $cb->any
+    $cb->anywhere
   ),
   $cb->bool_and(
     $cb->string('age')->eq('4'),
-    $cb->any
+    $cb->anywhere
   )
 ), 'Create corpus query');
 
@@ -147,15 +147,15 @@ matches($plan, [qw/[0] [2] [3]/], 'Test matches');
 ok($query = $cb->bool_or(
   $cb->bool_and(
     $cb->string('author')->eq('Michael'),
-    $cb->any
+    $cb->anywhere
   ),
   $cb->bool_and(
     $cb->string('genre')->eq('newsletter'),
-    $cb->any
+    $cb->anywhere
   ),
   $cb->bool_and(
     $cb->string('age')->eq('4'),
-    $cb->any
+    $cb->anywhere
   )
 ), 'Create corpus query');
 

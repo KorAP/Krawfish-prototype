@@ -123,11 +123,11 @@ sub bool_or_query {
 
 sub maybe_unsorted { 0 };
 
-#sub is_any {
+#sub is_anywhere {
 #  my $self = shift;
   # return 0 if $self->is_nowhere;
   # return 1 if @{$self->operands} == 0;
-#  return $self->{any};
+#  return $self->{anywhere};
 #};
 
 
@@ -155,7 +155,7 @@ sub to_string {
     if ($self->is_nowhere) {
       return '1';
     }
-    elsif ($self->is_any) {
+    elsif ($self->is_anywhere) {
       return '0';
     }
     else {
@@ -169,7 +169,7 @@ sub to_string {
   }
 
   # Matches everywhere
-  elsif ($self->is_any) {
+  elsif ($self->is_anywhere) {
     return '1';
   };
 

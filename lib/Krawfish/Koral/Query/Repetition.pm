@@ -102,8 +102,8 @@ sub to_koral_fragment {
 # Query Planning methods and attributes #
 #########################################
 
-sub is_any {
-  $_[0]->operand->is_any;
+sub is_anywhere {
+  $_[0]->operand->is_anywhere;
 };
 
 
@@ -136,8 +136,8 @@ sub is_negative {
 sub is_extended {
   return 0 if $_[0]->is_null;
 
-  # Is extended, in case the repetition is any
-  $_[0]->is_any;
+  # Is extended, in case the repetition is anywhere
+  $_[0]->is_anywhere;
 };
 
 sub is_extended_right {

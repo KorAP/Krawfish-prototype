@@ -11,12 +11,6 @@ use constant DEBUG => 0;
 
 # Creation of virtual corpus
 
-# TODO:
-#  Probably rename
-#    is_nothing -> is_nowhere
-#  and
-#    is_any     -> is_everywhere
-
 sub new {
   my $class = shift;
   bless {}, $class;
@@ -82,18 +76,18 @@ sub finalize {
     # Toggle negativity
     $self->is_negative(0);
 
-    print_log('kq_corpus', 'Do an "andNot" on any') if DEBUG;
+    print_log('kq_corpus', 'Do an "andNot" on anywhere') if DEBUG;
 
     return $self->builder->bool_and_not(
-      $self->builder->any,
+      $self->builder->anywhere,
       $self
     );
   }
 
-  print_log('kq_corpus', 'Do an "and" on any') if DEBUG;
+  print_log('kq_corpus', 'Do an "and" on anywhere') if DEBUG;
 
   return $self->builder->bool_and(
-    $self->builder->any,
+    $self->builder->anywhere,
     $self
   );
 };
@@ -151,12 +145,12 @@ sub toggle_negative {
 
 
 # Matches everything
-sub is_any {
+sub is_anywhere {
   my $self = shift;
   if (defined $_[0]) {
-    $self->{any} = shift;
+    $self->{anywhere} = shift;
   };
-  return $self->{any} // 0;
+  return $self->{anywhere} // 0;
 };
 
 

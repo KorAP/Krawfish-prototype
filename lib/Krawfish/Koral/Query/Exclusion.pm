@@ -72,7 +72,7 @@ sub normalize {
 
 
   my ($first_norm, $second_norm);
-  if ($first->is_any) {
+  if ($first->is_anywhere) {
 
     # Negation with [] may occur with boolean operations
     $second->warning(
@@ -195,8 +195,8 @@ sub to_string {
 };
 
 
-sub is_any {
-  $_[0]->operands->[0]->is_any;
+sub is_anywhere {
+  $_[0]->operands->[0]->is_anywhere;
 };
 
 
@@ -217,13 +217,13 @@ sub maybe_unsorted {
 };
 
 
-# Return if the query may result in an 'any' left extension
+# Return if the query may result in an 'anywhere' left extension
 sub is_extended_left {
   return $_[0]->operands->[0]->is_extended_left;
 };
 
 
-# Return if the query may result in an 'any' right extension
+# Return if the query may result in an 'anywhere' right extension
 sub is_extended_right {
   return $_[0]->operands->[0]->is_extended_right;
 };

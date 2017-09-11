@@ -2,7 +2,7 @@ package Krawfish::Koral::Corpus::FieldGroup;
 use parent ('Krawfish::Koral::Util::Boolean', 'Krawfish::Koral::Corpus');
 use Krawfish::Log;
 use Krawfish::Koral::Corpus::AndNot;
-use Krawfish::Koral::Corpus::Any;
+use Krawfish::Koral::Corpus::Anywhere;
 
 use Krawfish::Corpus::Or;
 # use Krawfish::Corpus::OrWithFlags;
@@ -70,7 +70,7 @@ sub bool_or_query {
   );
 };
 
-#sub is_any {
+#sub is_anywhere {
 #  my $self = shift;
 #  return 0 if $self->is_nowhere;
 #  return 1 if @{$self->operands} == 0;
@@ -112,7 +112,7 @@ sub to_string {
     $_ ? (
       $_->type eq 'fieldGroup' ?
        (
-         $_->is_any ?
+         $_->is_anywhere ?
            '[1]' :
            '(' . $_->to_string . ')'
          )

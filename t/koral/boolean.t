@@ -111,7 +111,7 @@ $tree->normalize;
 is($tree->to_string, '', 'Remove empty');
 
 ok($tree->is_nowhere, 'Matches nowhere');
-ok(!$tree->is_any, 'Matches everywhere');
+ok(!$tree->is_anywhere, 'Matches everywhere');
 
 
 $tree = $cb->bool_or(
@@ -136,7 +136,7 @@ $tree = $cb->bool_or(
 
 is($tree->to_string, 'a!=1|a=1', 'Plain groups');
 $tree->normalize;
-ok($tree->is_any, 'Matches everywhere');
+ok($tree->is_anywhere, 'Matches everywhere');
 ok(!$tree->is_nowhere, 'Matches nowhere');
 is($tree->to_string, '', 'Remove empty');
 
@@ -188,14 +188,14 @@ is($tree->to_string, '', 'Nowhere');
 # ([1] | a) -> [1]
 $tree = $cb->bool_or(
   $cb->string('x')->eq('1'),
-  $cb->any,
+  $cb->anywhere,
   $cb->string('z')->eq('1'),
 );
 
 is($tree->to_string, '[1]|x=1|z=1', 'Plain groups');
 $tree->normalize;
 ok(!$tree->is_nowhere, 'No Nowhere');
-ok($tree->is_any, 'Anything');
+ok($tree->is_anywhere, 'Anything');
 is($tree->to_string, '', 'no string');
 
 
@@ -203,14 +203,14 @@ is($tree->to_string, '', 'no string');
 # ([1] & a) -> a
 $tree = $cb->bool_and(
   $cb->string('x')->eq('1'),
-  $cb->any,
+  $cb->anywhere,
   $cb->string('z')->eq('1'),
 );
 
 is($tree->to_string, '[1]&x=1&z=1', 'Plain groups');
 $tree->normalize;
 ok(!$tree->is_nowhere, 'No Nowhere');
-ok(!$tree->is_any, 'No Anything');
+ok(!$tree->is_anywhere, 'No Anything');
 is($tree->to_string, 'x=1&z=1', 'no string');
 
 

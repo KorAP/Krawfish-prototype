@@ -183,7 +183,7 @@ sub to_nodes {
     # Add corpus filter for live documents
     $query = $self->query_builder->filter_by(
       $self->query,
-      $self->corpus_builder->any
+      $self->corpus_builder->anywhere
     );
   }
 
@@ -264,7 +264,7 @@ sub to_query {
     # Add corpus filter for live documents
     $query = $self->query_builder->filter_by(
       $self->query,
-      $self->corpus_builder->any
+      $self->corpus_builder->anywhere
     );
   }
 

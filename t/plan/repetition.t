@@ -17,7 +17,7 @@ my $qb = $koral->query_builder;
 # [hey]{0,3}
 my $rep = $qb->repeat($qb->token('hey'), 0, 3);
 is($rep->to_string, '[hey]{0,3}', 'Stringification');
-ok(!$rep->is_any, 'Is not any');
+ok(!$rep->is_anywhere, 'Is not anywhere');
 ok($rep->is_optional, 'Is optional');
 ok(!$rep->is_null, 'Is not null');
 ok(!$rep->is_negative, 'Is not negative');
@@ -46,7 +46,7 @@ is($rep->to_string, "rep(1-3:#2)", 'Normalization');
 # [hey]{1,3}
 $rep = $qb->repeat($qb->token('hey'), 1, 3);
 is($rep->to_string, '[hey]{1,3}', 'Stringification');
-ok(!$rep->is_any, 'Is not any');
+ok(!$rep->is_anywhere, 'Is not anywhere');
 ok(!$rep->is_optional, 'Is not optional');
 ok(!$rep->is_null, 'Is not null');
 ok(!$rep->is_negative, 'Is not negative');
@@ -70,7 +70,7 @@ $rep = $qb->repeat($qb->token('hey'), 2, undef);
 is($rep->to_string, '[hey]{2,}', 'Stringification');
 is($rep->min_span, 2, 'Span length');
 is($rep->max_span, -1, 'Span length');
-ok(!$rep->is_any, 'Is not any');
+ok(!$rep->is_anywhere, 'Is not anywhere');
 ok(!$rep->is_optional, 'Is not optional');
 ok(!$rep->is_null, 'Is not null');
 ok(!$rep->is_negative, 'Is not negative');
@@ -95,7 +95,7 @@ is($rep->to_string, "rep(2-100:#2)", 'Normalization');
 # [hey]*
 $rep = $qb->repeat($qb->token('hey'), undef, undef);
 is($rep->to_string, '[hey]*', 'Stringification');
-ok(!$rep->is_any, 'Is not any');
+ok(!$rep->is_anywhere, 'Is not anywhere');
 ok($rep->is_optional, 'Is not optional');
 ok(!$rep->is_null, 'Is not null');
 ok(!$rep->is_negative, 'Is not negative');
@@ -119,7 +119,7 @@ is($rep->to_string, "rep(1-100:#2)", 'Normalization');
 # [hey]{0,2}
 $rep = $qb->repeat($qb->token('hey'), undef, 2);
 is($rep->to_string, '[hey]{,2}', 'Stringification');
-ok(!$rep->is_any, 'Is not any');
+ok(!$rep->is_anywhere, 'Is not anywhere');
 ok($rep->is_optional, 'Is optional');
 ok(!$rep->is_null, 'Is not null');
 ok(!$rep->is_negative, 'Is not negative');
@@ -142,7 +142,7 @@ is($rep->to_string, "rep(1-2:#2)", 'Normalization');
 # [hey]{3}
 $rep = $qb->repeat($qb->token('hey'), 3, 3);
 is($rep->to_string, '[hey]{3}', 'Stringification');
-ok(!$rep->is_any, 'Is not any');
+ok(!$rep->is_anywhere, 'Is not anywhere');
 ok(!$rep->is_optional, 'Is not optional');
 ok(!$rep->is_null, 'Is not null');
 ok(!$rep->is_negative, 'Is not negative');
@@ -165,7 +165,7 @@ is($rep->to_string, "rep(3-3:#2)", 'Normalization');
 # []{2,4}
 $rep = $qb->repeat($qb->token, 2, 4);
 is($rep->to_string, '[]{2,4}', 'Stringification');
-ok($rep->is_any, 'Is any');
+ok($rep->is_anywhere, 'Is anywhere');
 ok(!$rep->is_optional, 'Is not optional');
 ok(!$rep->is_null, 'Is not null');
 ok(!$rep->is_negative, 'Is not negative');
@@ -180,13 +180,13 @@ is($rep->to_string, '[]{2,4}', 'Stringification');
 ok(!$rep->finalize, 'Normalization');
 ok(!$rep->has_warning, 'Error not set');
 ok($rep->has_error, 'Error not set');
-is($rep->error->[0]->[1], 'Unable to search for any tokens', 'Error');
+is($rep->error->[0]->[1], 'Unable to search for anywhere tokens', 'Error');
 
 
 # []{,4}
 $rep = $qb->repeat($qb->token, 0, 4);
 is($rep->to_string, '[]{0,4}', 'Stringification');
-ok($rep->is_any, 'Is any');
+ok($rep->is_anywhere, 'Is anywhere');
 ok($rep->is_optional, 'Is optional');
 ok(!$rep->is_null, 'Is not null');
 ok(!$rep->is_negative, 'Is not negative');
@@ -201,13 +201,13 @@ ok(!$rep->finalize, 'Normalization');
 ok($rep->has_warning, 'Error not set');
 is($rep->warning->[0]->[1], 'Optionality of query is ignored', 'Error');
 ok($rep->has_error, 'Error not set');
-is($rep->error->[0]->[1], 'Unable to search for any tokens', 'Error');
+is($rep->error->[0]->[1], 'Unable to search for anywhere tokens', 'Error');
 
 
 # []{4,}
 $rep = $qb->repeat($qb->token, 4, undef);
 is($rep->to_string, '[]{4,}', 'Stringification');
-ok($rep->is_any, 'Is any');
+ok($rep->is_anywhere, 'Is anywhere');
 ok(!$rep->is_optional, 'Is not optional');
 ok(!$rep->is_null, 'Is not null');
 ok(!$rep->is_negative, 'Is not negative');
@@ -223,13 +223,13 @@ is($rep->to_string, '[]{4,100}', 'Stringification');
 ok(!$rep->finalize, 'Normalization');
 ok($rep->has_warning, 'Error not set');
 ok($rep->has_error, 'Error not set');
-is($rep->error->[0]->[1], 'Unable to search for any tokens', 'Error');
+is($rep->error->[0]->[1], 'Unable to search for anywhere tokens', 'Error');
 
 
 # []{8}
 $rep = $qb->repeat($qb->token, 8);
 is($rep->to_string, '[]{8}', 'Stringification');
-ok($rep->is_any, 'Is any');
+ok($rep->is_anywhere, 'Is anywhere');
 ok(!$rep->is_optional, 'Is not optional');
 ok(!$rep->is_null, 'Is not null');
 ok(!$rep->is_negative, 'Is not negative');
@@ -244,14 +244,14 @@ is($rep->to_string, '[]{8}', 'Stringification');
 ok(!$rep->finalize, 'Normalization');
 ok(!$rep->has_warning, 'Error not set');
 ok($rep->has_error, 'Error not set');
-is($rep->error->[0]->[1], 'Unable to search for any tokens', 'Error');
+is($rep->error->[0]->[1], 'Unable to search for anywhere tokens', 'Error');
 
 # <x>{2,3}
 $rep = $qb->repeat($qb->span('aaa'), 2,3);
 is($rep->min_span, 0, 'Span length');
 is($rep->max_span, -1, 'Span length');
 is($rep->to_string, '<aaa>{2,3}', 'Stringification');
-ok(!$rep->is_any, 'Is not any');
+ok(!$rep->is_anywhere, 'Is not anywhere');
 ok(!$rep->is_optional, 'Is not optional');
 ok(!$rep->is_null, 'Is not null');
 ok(!$rep->is_negative, 'Is not negative');
@@ -272,7 +272,7 @@ is($rep->to_string, "rep(2-3:#3)", 'Stringification');
 $rep = $qb->repeat($qb->nowhere, 0, 3);
 is($rep->to_string, '[0]{0,3}', 'Stringification');
 
-ok(!$rep->is_any, 'Is not any');
+ok(!$rep->is_anywhere, 'Is not anywhere');
 ok($rep->is_optional, 'Is not optional');
 ok(!$rep->is_null, 'Is not null');
 ok(!$rep->is_nowhere, 'Is not null');
@@ -296,7 +296,7 @@ ok(!$rep->is_extended_left, 'Is not extended to the left');
 # [!hey]{0,3}
 $rep = $qb->repeat($qb->token('hey')->is_negative(1), 0, 3);
 is($rep->to_string, '[!hey]{0,3}', 'Stringification');
-ok(!$rep->is_any, 'Is not any');
+ok(!$rep->is_anywhere, 'Is not anywhere');
 ok($rep->is_optional, 'Is optional');
 ok(!$rep->is_null, 'Is not null');
 ok($rep->is_negative, 'Is negative');
@@ -308,7 +308,7 @@ ok(!$rep->is_extended_left, 'Is not extended to the left');
 # [hey]{1,1}
 $rep = $qb->repeat($qb->token('hey'), 1, 1);
 is($rep->to_string, '[hey]{1}', 'Stringification');
-ok(!$rep->is_any, 'Is not any');
+ok(!$rep->is_anywhere, 'Is not anywhere');
 ok(!$rep->is_optional, 'Is not optional');
 ok(!$rep->is_null, 'Is not null');
 ok(!$rep->is_negative, 'Is not negative');
@@ -327,7 +327,7 @@ is($rep->to_string, "#2", 'Normalization');
 # [hey]{0,1}
 $rep = $qb->repeat($qb->token('hey'), 0, 1);
 is($rep->to_string, '[hey]?', 'Stringification');
-ok(!$rep->is_any, 'Is not any');
+ok(!$rep->is_anywhere, 'Is not anywhere');
 ok($rep->is_optional, 'Is optional');
 ok(!$rep->is_null, 'Is not null');
 ok(!$rep->is_negative, 'Is not negative');

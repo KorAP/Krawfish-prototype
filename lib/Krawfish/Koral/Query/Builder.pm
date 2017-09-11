@@ -203,7 +203,7 @@ sub ext_right {
 
 
 # Matches anywhere
-sub any {
+sub anywhere {
   Krawfish::Koral::Query::Token->new;
 };
 

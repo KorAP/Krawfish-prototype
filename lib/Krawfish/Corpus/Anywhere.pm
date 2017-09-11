@@ -1,4 +1,4 @@
-package Krawfish::Corpus::Any;
+package Krawfish::Corpus::Anywhere;
 use Krawfish::Index::PostingsLive;
 use Krawfish::Posting::Doc;
 use Krawfish::Query::Nowhere;

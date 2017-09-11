@@ -389,7 +389,7 @@ sub optimize {
 };
 
 
-sub is_any {
+sub is_anywhere {
   0;
 };
 
