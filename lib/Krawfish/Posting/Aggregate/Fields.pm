@@ -48,7 +48,7 @@ sub incr_doc {
   $field_freq->[0]++;
 
   if (DEBUG) {
-    print_log('p_a_fields', 'Increment doc frequency for ' . $key_id . ':' . $field_id);
+    print_log('p_a_fields', 'Increment doc frequency for #' . $key_id . '=#' . $field_id);
   };
 
 

@@ -166,6 +166,21 @@ ok($index->commit, 'Commit data');
 ok($term_id = $index->dict->term_id_by_term('!author'), 'Get term id');
 ok($ranks = $index->segment->field_ranks->by($term_id), 'Get ranks');
 
+ok($pointer = $index->segment->fields->pointer, 'Get pointer');
+ok(!$pointer->fields($index->dict->term_id_by_term('!author')), 'Not fine');
+is($pointer->skip_doc(0), 0, 'Skip');
+ok(@fields = $pointer->fields($index->dict->term_id_by_term('!author')), 'Fields');
+is($fields[0]->term_id, 2, 'Field id');
+ok(!$fields[1], 'Field id');
+
+is($pointer->skip_doc(1), 1, 'Skip');
+ok(@fields = $pointer->fields($index->dict->term_id_by_term('!author')), 'Fields');
+is($fields[0]->term_id, 7, 'Field id');
+is($fields[1]->term_id, 8, 'Field id');
+ok(!$fields[2], 'Field id');
+
+diag 'Fix fields() for multivalued fields';
+
 # This lists the sorted keys (therefore 4)
 # with associated docs (therefore 1 is listed twice)
 is($ranks->to_string, '[1][2][0][1]', 'Get rank file');

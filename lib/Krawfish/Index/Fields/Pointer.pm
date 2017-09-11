@@ -6,7 +6,7 @@ use Krawfish::Log;
 use warnings;
 use strict;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # API:
 # ->next_doc
@@ -65,7 +65,7 @@ sub skip_doc {
   if ($self->{doc_id} <= $doc_id && $doc_id < $self->freq) {
 
     if (DEBUG) {
-      print_log('f_point', 'Get document for id ' . $doc_id);
+      print_log('f_point', 'Get field list for doc_id ' . $doc_id);
     };
 
     $self->{doc_id} = $doc_id;
@@ -82,9 +82,13 @@ sub skip_doc {
 # This returns only int-values - so it may need to be renamed
 sub values {
   my $self = shift;
+
   my @key_ids = @_;  # Need to be sorted in order!
 
   my $doc = $self->{doc};
+
+  return if $doc == -1;
+
   my ($key_id, $type);
   my $key_pos = 0;
 
@@ -96,7 +100,8 @@ sub values {
 
     unless (defined $key_ids[$key_pos]) {
       if (DEBUG) {
-        print_log('f_point', "There are no more fields to fetch at " . $key_pos);
+        print_log('f_point', 'There are no more fields to fetch ' .
+                    'at keypos ' . $key_pos . ' in doc_id ' . $self->{doc_id});
       };
       last;
     };
@@ -121,7 +126,7 @@ sub values {
         );
       };
 
-      $key_pos++;
+      # $key_pos++;
     }
 
     # The requested key does not exist
@@ -149,15 +154,20 @@ sub values {
 
 # Get all field term ids.
 # If key ids are passed, they need to be in numerical order!
+# WRONG! This does not work with multivalued fields!
 sub fields {
   my $self = shift;
 
   my @fields = ();
   my $doc = $self->{doc};
+
+  return if $doc == -1;
+
   my ($type, $key_id);
 
   my $current = $doc->[$self->{pos}];
 
+  # There are no key ids defined
   unless (@_ > 0) {
     while ($current && $current ne 'EOF') {
 
@@ -175,18 +185,30 @@ sub fields {
     #   Check treatment of wrongly sorted fields.
 
     if (DEBUG) {
-      print_log('f_point', 'Get fields ' . join(',', @key_ids));
+      print_log(
+        'f_point',
+        'Get fields for key ids ' . join(',', map { '#' . $_ } @key_ids)
+      );
     };
 
-
+    # There is a current field defined
     while ($current && $current ne 'EOF') {
 
       unless (defined $key_ids[$key_pos]) {
         if (DEBUG) {
-          print_log('f_point', "There are no more fields to fetch at " . $key_pos);
+          print_log('f_point', 'There are no more fields to fetch ' .
+                      'at keypos ' . $key_pos . ' in doc_id ' . $self->{doc_id});
         };
         last;
       };
+
+      # The requested key does not exist
+      if ($current > $key_ids[$key_pos]) {
+        # Ignore the key id
+        $key_pos++;
+        next;
+      };
+
 
       # The key id matches the first id
       if ($current == $key_ids[$key_pos]) {
@@ -195,18 +217,10 @@ sub fields {
         if (DEBUG) {
           print_log('f_point', 'Found field ' .
                       $fields[-1]->to_string .
-                      ' for ' . $key_ids[$key_pos]);
+                      ' for key #' . $key_ids[$key_pos]);
         };
-
-        $key_pos++;
       }
 
-      # The requested key does not exist
-      elsif ($current > $key_ids[$key_pos]) {
-        # Ignore the key id
-        $key_pos++;
-        next;
-      }
 
       # Ignore the field
       else {
@@ -219,6 +233,10 @@ sub fields {
 
       # Remember the current field
       $current = $doc->[$self->{pos}];
+
+      if (DEBUG) {
+        print_log('f_point', 'New current key id is #' . $current);
+      };
     };
 
   };
