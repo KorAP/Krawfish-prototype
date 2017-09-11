@@ -97,7 +97,7 @@ sub each_doc {
 
     if (DEBUG) {
       print_log('aggr_fields', 'Look for frequencies for key ids ' .
-                  join(',', @{$self->{field_keys}}) . " in $doc_id");
+                  join(', ', map { '#' . $_ } @{$self->{field_keys}}) . " in doc $doc_id");
     };
 
     # Iterate over all fields

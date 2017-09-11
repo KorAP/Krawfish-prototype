@@ -10,8 +10,6 @@ use warnings;
 use strict;
 
 # TODO:
-#   - rename 'nothing' to 'nowhere'
-#   - rename 'any' to 'anywhere'
 #   - extended_* may be queried
 #     automatically without parameter
 #   - rename all sorts of single ops to operand

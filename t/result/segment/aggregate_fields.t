@@ -23,7 +23,7 @@ ok_index($index, {
 } => [qw/aa bb/], 'Add complex document');
 ok_index($index, {
   id => 5,
-  author => 'Peter',
+  author => ['Peter', 'Fritz'],
   genre => 'newsletter',
   title => 'Your way to success!',
   age => 4
@@ -48,6 +48,7 @@ my $mb = $koral->meta_builder;
 
 $koral->query($qb->token('aa'));
 
+# Create meta query to aggregate on 'genre' and 'age'
 $koral->meta(
   $mb->aggregate(
     $mb->a_fields('genre'),
@@ -66,7 +67,7 @@ is($koral_query->to_string,
    "aggr(fields:['genre','age']:filter(aa,[1]))",
    'Stringification');
 
-# This is a query that is fine to be send to segments:
+# This is a query that is fine to be send to segments
 ok($koral_query = $koral_query->identify($index->dict), 'Identify');
 
 
@@ -92,7 +93,23 @@ ok(!$query->next, 'No more nexts');
 ok(my $coll = $query->collection->{fields}->inflate($index->dict), 'To terms');
 is($coll->to_string, 'fields=age:3[1,1],4[2,3],7[1,1];genre:newsletter[2,3],novel[2,2]');
 
-diag 'check for multivalued fields';
+
+# Create meta query to aggregate on 'author'
+$koral->meta(
+  $mb->aggregate(
+    $mb->a_fields('author')
+  )
+);
+
+# Check with multivalued fields
+ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment), 'Translate');
+
+is($query->to_string, 'aggr([fields:#3]:filter(#10,[1]))', 'Stringification');
+ok($query->finalize, 'Finalize');
+
+ok($coll = $query->collection->{fields}->inflate($index->dict), 'To terms');
+is($coll->to_string, 'fields=author:Fritz[1,2],Michael[1,1],Peter[3,4]');
+
 
 done_testing;
 __END__
