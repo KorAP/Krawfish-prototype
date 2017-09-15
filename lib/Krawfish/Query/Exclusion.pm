@@ -11,31 +11,13 @@ use bytes;
 # This query validates positional constraints
 # that are exclusive returns a valid forwarding mechanism
 
-# TODO:
-# Exclude means e.g.
-# "X is not in that positional relation with any Y",
-# while the current solution only checks for
-# "X is not in that positional relation with Y".
-#
-# The solution may be an exclusivity constraint,
-# that may buffer valid X spans and release them once
-# it's clear there is no Y in existence to be in the
-# requested configuration.
-# It's probably more like:
-# excludeDouble(focus1:pos(![..], class(1:X), Y)
-#
-# Better: Use another query that also uses
-# the check and is asymmetric, only returning the first
-#
-# Todo:
-# span_a <- a is a candidate
-# check, if a does not match.
-# If a matches, go to next_a.
-# If normal next_a is called,
-# a is truely exclusive.
+# It checks for an operand X that there is no operand Y
+# in the given positional relation
 
 use constant DEBUG => 0;
 
+
+# Constructor
 sub new {
   my $class = shift;
   bless {
@@ -44,10 +26,10 @@ sub new {
     second  => shift,
     buffer  => Krawfish::Util::Buffer->new,
   }, $class;
-
-  # TODO: Return 'first', if second->max_freq == 0
 };
 
+
+# Clone query
 sub clone {
   my $self = shift;
   __PACKAGE__->new(
@@ -57,6 +39,8 @@ sub clone {
   );
 };
 
+
+# Check for configuration
 sub check {
   my $self = shift;
   my ($first, $second) = @_;
@@ -108,7 +92,8 @@ sub check {
 
     # TODO:
     #   Forget all entries span_b in this frame, that have an spanb->end < spana->start
-    # Hmmm ...
+    #   by returning a value that triggers skip_pos()
+
     return NEXTA | MATCH;
   }
 
@@ -136,6 +121,7 @@ sub check {
 };
 
 
+# Stringification
 sub to_string {
   my $self = shift;
   my $string = 'excl(' . (0 + $self->{frames}) . ':';
@@ -144,6 +130,7 @@ sub to_string {
 };
 
 
+# Return the maximum frequency of the first operand
 sub max_freq {
   $_[0]->{first}->max_freq;
 };
@@ -157,7 +144,6 @@ sub filter_by {
   $self->{first} = $self->{first}->filter_by($corpus);
   return $self;
 };
-
 
 
 1;
