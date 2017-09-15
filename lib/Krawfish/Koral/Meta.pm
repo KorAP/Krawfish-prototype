@@ -194,12 +194,12 @@ sub normalize {
   #    No aggregation or group queries =>
   #      add a sort filter to sort
   #    If a limit is given, add top_k to sort
-  if ($sort_filtering || $top_k) {
+  if ($sort_filtering && $top_k) {
     foreach (@meta) {
       if ($_->type eq 'sort') {
 
         # Activate sort_filter option
-        $_->filter(1) if $sort_filtering;
+        $_->filter(1); # if $sort_filtering;
 
         # Set top_k option!
         $_->top_k($top_k) if $top_k;
