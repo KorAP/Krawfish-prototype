@@ -63,7 +63,7 @@ sub each_doc {
   if ($pointer->skip_doc($doc_id) == $doc_id) {
 
     # collect values
-    my @values = $pointer->values(@{$self->{field_ids}}) or return;
+    my @values = $pointer->int_fields(@{$self->{field_ids}}) or return;
 
     # Aggregate all values
     foreach my $field (@values) {

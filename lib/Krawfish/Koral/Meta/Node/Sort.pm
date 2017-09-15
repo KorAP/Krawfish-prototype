@@ -77,6 +77,7 @@ sub to_string {
 };
 
 
+# Optimize query for postingslist
 sub optimize {
   my ($self, $segment) = @_;
 

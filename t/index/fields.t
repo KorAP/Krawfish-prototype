@@ -88,13 +88,13 @@ is($pointer->skip_doc(0), 0, 'Skip');
 
 
 # Get the +size value
-ok(my @values = $pointer->values($index->dict->term_id_by_term('!size')),
+ok(my @values = $pointer->int_fields($index->dict->term_id_by_term('!size')),
    'Get field value');
 is($values[0]->value, 2, 'Size');
 
 # Get +size of doc_id 2
 is($pointer->skip_doc(2), 2, 'Skip');
-ok(@values = $pointer->values($index->dict->term_id_by_term('!size')),
+ok(@values = $pointer->int_fields($index->dict->term_id_by_term('!size')),
    'Get field value');
 
 is($values[0]->value, 17, 'Size');
@@ -151,14 +151,17 @@ ok($index->introduce_field('author', 'DE'), 'Introduce field as sortable');
 
 ok_index($index, {
   author => 'Carol',
+  title => 'My thesis'
 } => [qw/aa bb/], 'Add complex document');
 
 ok_index($index, {
   author => ['Amy', 'Mike'],
+  title => 'A first attempt'
 } => [qw/aa cc cc/], 'Add complex document');
 
 ok_index($index, {
   author => 'Bob',
+  title => 'To make it short ...'
 } => [qw/aa bb/], 'Add complex document');
 
 # Ranks for author
@@ -173,18 +176,31 @@ ok(@fields = $pointer->fields($index->dict->term_id_by_term('!author')), 'Fields
 is($fields[0]->term_id, 2, 'Field id');
 ok(!$fields[1], 'Field id');
 
-is($pointer->skip_doc(1), 1, 'Skip');
-ok(@fields = $pointer->fields($index->dict->term_id_by_term('!author')), 'Fields');
-is($fields[0]->term_id, 7, 'Field id');
-is($fields[1]->term_id, 8, 'Field id');
-ok(!$fields[2], 'Field id');
+my $dict = $index->dict;
 
-diag 'Fix fields() for multivalued fields';
+is($pointer->skip_doc(1), 1, 'Skip');
+ok(@fields = $pointer->fields(
+  $dict->term_id_by_term('!author'),
+  $dict->term_id_by_term('!title')
+), 'Fields');
+
+is($fields[0]->key_id, 1, 'Key id');
+is($fields[0]->term_id, 9, 'Field id');
+is($dict->term_by_term_id(9), '+author:Amy', 'Key');
+
+is($fields[1]->key_id, 1, 'Key id');
+is($fields[1]->term_id, 10, 'Field id');
+is($dict->term_by_term_id(10), '+author:Mike', 'Key');
+
+is($fields[2]->key_id, 3, 'Key id');
+is($fields[2]->term_id, 11, 'Field id');
+is($dict->term_by_term_id(11), '+title:A first attempt', 'Key');
+
+ok(!$fields[3], 'Field id');
 
 # This lists the sorted keys (therefore 4)
 # with associated docs (therefore 1 is listed twice)
 is($ranks->to_string, '[1][2][0][1]', 'Get rank file');
-
 
 # The ascending rank takes Amy
 is($ranks->asc_rank(0), 3, 'Get ascending rank');

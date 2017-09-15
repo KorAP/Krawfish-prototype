@@ -35,13 +35,16 @@ sub new {
   }, $class;
 };
 
+
 sub freq {
   $_[0]->{list}->last_doc_id + 1;
 };
 
+
 sub doc_id {
   $_[0]->{doc_id};
 };
+
 
 sub pos {
   $_[0]->{pos};
@@ -49,8 +52,9 @@ sub pos {
 
 
 sub next_doc {
-  ...
+  warn 'Not supported';
 };
+
 
 sub close {
   ...
@@ -80,7 +84,7 @@ sub skip_doc {
 
 
 # This returns only int-values - so it may need to be renamed
-sub values {
+sub int_fields {
   my $self = shift;
 
   my @key_ids = @_;  # Need to be sorted in order!
@@ -125,8 +129,6 @@ sub values {
           value => $doc->[$self->{pos}++]
         );
       };
-
-      # $key_pos++;
     }
 
     # The requested key does not exist
@@ -154,7 +156,6 @@ sub values {
 
 # Get all field term ids.
 # If key ids are passed, they need to be in numerical order!
-# WRONG! This does not work with multivalued fields!
 sub fields {
   my $self = shift;
 

@@ -63,7 +63,7 @@ ok($meta_koral = $meta_koral->normalize, 'Normalize meta object');
 
 is(
   $meta_koral->to_string,
-  "sort=[field='author'>,field='age'<,field='length'<,field='id'<;sortFilter],enrich=[fields:['author','title','id','subTitle']]",
+  "sort=[field='author'>,field='age'<,field='length'<,field='id'<],enrich=[fields:['author','title','id','subTitle']]",
   'Stringification'
 );
 

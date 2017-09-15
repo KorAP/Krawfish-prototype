@@ -9,6 +9,11 @@ use Krawfish::Log;
 # homogeneous interface to K::I::Dictionary::Dynamic and
 # K::I::Dictionary::Static (versioned).
 #
+# All terms need to be searched and retrieved using
+# NFD normalization. NFD will leave all terms intact for
+# recreation (term_by_term_id) while making it possible to
+# ignore diacritica during search.
+#
 #   Dynamic:
 #   - A dynamic TST (either balancing or self-optimizing)
 #   Static:
@@ -71,7 +76,7 @@ use Krawfish::Log;
 #     - without_diacritics
 #     - regular expression
 #     - approximate matching
-#     - wildcards
+#     - (wildcards)
 #   Both dictionaries are searched (maybe in parallel).
 #
 # term_id_to_term:

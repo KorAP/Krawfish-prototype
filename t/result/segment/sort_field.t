@@ -7,9 +7,12 @@ use warnings;
 use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral');
 
-
 # Create some documents
 my $index = Krawfish::Index->new;
+
+ok($index->introduce_field('id', 'NUM'), 'Introduce field as sortable');
+ok($index->introduce_field('author', 'DE'), 'Introduce field as sortable');
+
 ok_index($index, {
   id => 2,
   author => 'Peter',
@@ -56,6 +59,39 @@ $koral->query(
 $koral->meta(
   $mb->sort_by(
     $mb->s_field('author')
+  )
+);
+
+ok(my $query = $koral->to_query, 'Normalize');
+
+is($query->to_string, "sort(field='author'<,field='id'<:filter(aabb,[1]))", 'Stringification');
+
+ok($query = $query->identify($index->dict), 'Identify');
+
+is($query->to_string,
+   'sort(field=#2<,field=#1<:filter(#10#12,[1]))',
+   'Stringification');
+
+ok($query = $query->optimize($index->segment), 'Optimize');
+
+is($query->to_string,
+   'sort(field=#2<,field=#1<:filter(#10#12,[1]))',
+   'Stringification');
+
+
+
+done_testing;
+
+__END__
+
+
+
+
+# TODO: Introduce sortfilter
+
+$koral->meta(
+  $mb->sort_by(
+    $mb->s_field('author')
   ),
   $mb->limit(1,3)
 );
@@ -67,18 +103,15 @@ is($query->to_string, "limit(1-4:sort(field='author'<,field='id'<;k=4;sortFilter
 ok($query = $query->identify($index->dict), 'Identify');
 
 is($query->to_string,
-   'limit(1-4:sort(field=#3<,field=#7<;k=4;sortFilter:filter(#10#12,[1])))',
+   'limit(1-4:sort(field=#2<,field=#1<;k=4;sortFilter:filter(#10#12,[1])))',
    'Stringification');
+
+ok($query = $query->optimize($index->segment), 'Optimize');
 
 diag 'Reimplement field sorting';
 
 done_testing;
 __END__
-
-
-
-ok($query = $query->optimize($index->segment), 'Optimize');
-
 
 
 
