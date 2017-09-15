@@ -6,7 +6,8 @@ use warnings;
 use_ok('Krawfish::Koral::Query::Builder');
 use_ok('Krawfish::Index');
 
-# TODO: Clone queries!
+# TODO:
+#   Clone queries!
 
 my $index = Krawfish::Index->new;
 my $qb = Krawfish::Koral::Query::Builder->new;
@@ -66,6 +67,7 @@ ok_index($index, '<1:aa>[dd]</1><2:aa>[dd][bb]</2><3:aa>[dd]</3>', 'Add complex 
 ok($wrap = $query->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Planning');
 matches($wrap, [qw/[0:2-3] [1:0-1] [1:3-4]/], 'Matches');
 
+
 ###
 # Query only excludes startsWith
 # Means: Find a <aa> that does not start with [bb]
@@ -102,7 +104,7 @@ matches($wrap, [qw/[0:2-3] [1:0-1] [1:3-4]/]);
 
 ###
 # Query only excludes precedesDirectly
-# Means: Find a [bb] that is not preceded directly by a [bb]
+# Means: Find a [bb] that does not preceed another [bb] directly
 $query = $qb->exclusion(
   [qw/precedesDirectly/],
   $qb->token('bb'),
@@ -125,7 +127,7 @@ matches($wrap, [qw/[0:1-2] [0:3-4] [1:2-3]/]);
 
 ###
 # Query only excludes succeedsDirectly
-# Means: Find a [bb] that is not succeeded directly by a [bb]
+# Means: Find a [bb] that does not succeed another [bb] directly
 $query = $qb->exclusion(
   [qw/succeedsDirectly/],
   $qb->token('bb'),
@@ -158,23 +160,18 @@ matches($wrap, [qw/[0:3-4] [1:2-3]/]);
 # Query only excludes precedesDirectly
 # Means: Find a [bb] that is not preceded directly by a [aa]
 # The important part here is - match in a doc where B does not occur!
-$query = $qb->exclusion(
-  [qw/precedesDirectly/],
-  $qb->token('aa'),
-  $qb->token('bb')
-);
 $index = Krawfish::Index->new;
 ok_index($index, '[aa|bb][bb]', 'Add complex document');
 ok_index($index, '[aa]', 'Add complex document');
 ok_index($index, '[aa]', 'Add complex document');
-is($query->to_string, 'excl(2:[aa],[bb])', 'Stringification');
-
 
 $query = $qb->exclusion(
   [qw/precedesDirectly/],
   $qb->token('aa'),
   $qb->token('bb')
 );
+is($query->to_string, 'excl(2:[aa],[bb])', 'Stringification');
+
 ok($wrap = $query->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Planning');
 is($wrap->to_string, "excl(2:#2,#3)",
    'Planned Stringification');
