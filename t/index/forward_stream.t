@@ -38,15 +38,12 @@ ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment),
 is($query->to_string, 'filter(#11,[1])', 'Stringification');
 matches($query, [qw/[0:0-3] [0:4-8]/], 'Search');
 
-
-
 # Search for akron=Bau-Leiter
 $koral->query($qb->token('akron=Bau-Leiter'));
 ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment),
    'Materialize');
 is($query->to_string, 'filter(#14,[1])', 'Stringification');
 matches($query, [qw/[0:1-3]/], 'Search');
-
 
 # Search for position(startsWith|endsWith:<akron/c=NP>,akron=Bau-Leiter)
 $koral->query(
@@ -62,6 +59,9 @@ is($query->to_string, 'constr(pos=272:#11,filter(#14,[1]))', 'Stringification');
 matches($query, [qw/[0:0-3]/], 'Search');
 
 
+###
+# Create forward pointer
+###
 ok(my $fwd = $index->segment->forward->pointer, 'Get pointer');
 
 ok(defined $fwd->skip_doc(0), 'Skip to first document');
