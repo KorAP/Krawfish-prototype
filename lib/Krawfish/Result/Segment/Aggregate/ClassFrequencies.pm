@@ -1,12 +1,23 @@
+package Krawfish::Result::Segment::Aggregate::ClassFrequencies;
+use parent 'Krawfish::Result::Segment::Aggregate::Base';
+use Krawfish::Posting::Aggregate::ClassFrequencies;
+use Krawfish::Log;
+use strict;
+use warnings;
+
+use constant DEBUG => 1;
+
 # Aggregate by content information, for example,
 # based on a certain class
 #
-# Aggregate on rank or term_ids
+# TODO:
+#   Currently this only works for surface term_ids, but it may very well collect
+#   arbitrary annotations! In that case, multiple annotations and different
+#   annotation lengths have to be taken into account.
 #
-# Rename to class or join with Frequencies!
-#
-# Currently this only correct surface term_ids, but it may very well collect
-# arbitrary annotations!
+# TODO:
+#   The special case of class 0 needs to be treated.
+
 
 sub new {
   my $class = shift;
@@ -14,7 +25,8 @@ sub new {
     forward_obj => shift,
     classes => [@_],
     class_freq => {},
-    term_cache => {}
+    term_cache => {},
+    aggregation => Krawfish::Posting::Aggregate::ClassFrequencies->new
   }, $class;
 };
 
@@ -137,7 +149,10 @@ sub each_match {
     };
 
     push @sig, 0;
-  }
+  };
+
+  # Increment per match
+  $self->{aggregation}->incr_match(join('-',@sig));
 };
 
 
