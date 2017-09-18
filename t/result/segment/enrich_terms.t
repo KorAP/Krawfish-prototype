@@ -54,6 +54,7 @@ is ($query->to_string, 'terms(2,4:or(class(2:filter(#8,[1])),class(4:filter(#10,
 
 ok($query->next, 'Next match');
 is($query->current_match->to_string, '[0:0-1$0,2,0,1|terms:[2:7]]', 'Current match');
+
 is($index->dict->term_by_term_id(7), '*aa', 'Get term');
 is($query->current_match->inflate($index->dict)->to_string,
    '[0:0-1$0,2,0,1|terms:[2:*aa]]',

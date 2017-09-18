@@ -22,7 +22,7 @@ $koral->query($qb->bool_or('aa', 'bb'));
 $koral->meta(
   $mb->enrich(
     $mb->e_snippet
-      )
+  )
 );
 
 is($koral->to_string,

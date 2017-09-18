@@ -133,7 +133,7 @@ sub to_string {
     };
   };
   chop $str;
-  return $str .']';
+  return $str . ']';
 };
 
 
