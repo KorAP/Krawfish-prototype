@@ -1,6 +1,6 @@
-package Krawfish::Result::Segment::Aggregate::ClassFrequencies;
-use parent 'Krawfish::Result::Segment::Aggregate::Base';
-use Krawfish::Posting::Aggregate::ClassFrequencies;
+package Krawfish::Result::Segment::Group::ClassFrequencies;
+use parent 'Krawfish::Result';
+use Krawfish::Posting::Group::ClassFrequencies;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -17,17 +17,24 @@ use constant DEBUG => 1;
 #
 # TODO:
 #   The special case of class 0 needs to be treated.
-
+#
+# TODO:
+#   Support virtual corpus classes
 
 sub new {
   my $class = shift;
-  bless {
+  my $self = bless {
     forward_obj => shift,
-    classes => [@_],
-    class_freq => {},
-    term_cache => {},
-    aggregation => Krawfish::Posting::Aggregate::ClassFrequencies->new
+    query       => shift,
+    classes     => shift,
+    class_freq  => {},
+    term_cache  => {},
+    last_doc_id => -1
   }, $class;
+
+  $self->{groups} = Krawfish::Posting::Group::ClassFrequencies->new($self->{classes});
+
+  return $self;
 };
 
 
@@ -37,42 +44,56 @@ sub _init {
 
   my $self = shift;
 
-  print_log('aggr_class', 'Create forward pointer') if DEBUG;
+  print_log('g_class_freq', 'Create forward pointer') if DEBUG;
 
   # Load the ranked list - may be too large for memory!
   $self->{forward_pointer} = $self->{forward_obj}->pointer;
 };
 
 
-# Move to next matching document
-sub each_doc {
-  my ($self, $current) = @_;
+# Shorthand for "search through"
+sub finalize {
+  while ($_[0]->next) {};
+  return $_[0];
+};
+
+
+# Move to next match
+sub next {
+  my $self = shift;
+
+  $self->_init;
+
+  # No more matches
+  return unless $self->{query}->next;
+
+  # Get the current posting
+  my $current = $self->{query}->current;
+
+  my $groups = $self->{groups};
+  my $pointer = $self->{forward_pointer};
 
   # Get the current doc_id and move to it
   my $doc_id = $current->doc_id;
 
-  my $pointer = $self->{forward_pointer};
+  # Current doc_id differ - move forward
+  if ($doc_id != $self->{last_doc_id}) {
 
-  # Clear term cache
-  %{$self->{term_cache}} = ();
+    # Skip to doc
+    if ($pointer->skip_doc($doc_id) != $doc_id) {
 
-  # Skip to doc
-  if ($pointer->skip_doc($doc_id) != $doc_id) {
+      # This should never happen, as for all docs there is a
+      # forward index!
+      return;
+    };
 
-    # This should never happen, as for all docs there is a
-    # forward index!
-    return;
+    if (DEBUG) {
+      print_log('g_class_freq', "Moved forward index to $doc_id");
+    };
+
+    # Remember the last document
+    $self->{last_doc_id} = $doc_id;
   };
-
-  return 1;
-};
-
-
-# Collect all matching classes in the doc
-sub each_match {
-  my ($self, $current) = @_;
-
-  my $pointer = $self->{forward_pointer};
 
   # Remember terms (for overlap)
   # with the structure pos -> term_id
@@ -97,8 +118,11 @@ sub each_match {
   #   Or instead of skip_pos, the forward pointer can
   #   reposition automatically.
 
+  # Get class payloads
+  my @class_infos = $current->get_classes($self->{classes});
+
   # Retrieve the requested classes for the current posting
-  foreach my $class_info ($current->get_classes($self->{classes})) {
+  foreach my $class_info (@class_infos) {
 
     # Check class info
     my ($nr, $start, $end) = @{$class_info};
@@ -129,12 +153,22 @@ sub each_match {
           # Add term id to class in correct order
           my $term_id = $pointer->current->term_id;
 
+          if (DEBUG) {
+            print_log(
+              'g_class_freq',
+              "Term id at position $i is #" . $term_id);
+          };
+
+
           # Set term_id at relative position in term_cache
           $term_cache[$rel_pos] = $classes[$nr]->[$rel_pos] = $term_id;
         };
       }
-
     };
+  };
+
+  if (DEBUG) {
+    print_log('g_class_freq', 'term cache is ' . join(',', @term_cache));
   };
 
   # The signature has the structure [class, term_id*]+
@@ -144,16 +178,36 @@ sub each_match {
   foreach my $nr (@{$self->{classes}}) {
     push @sig, $nr;
 
-    foreach ($classes) {
-      push @sig, $_ if $_; # Add all set term_ids
+    foreach (@{$classes[$nr]}) {
+      push @sig, $_ if defined $_; # Add all set term_ids
     };
 
     push @sig, 0;
   };
 
   # Increment per match
-  $self->{aggregation}->incr_match(join('-',@sig));
+  $self->{groups}->incr_match(\@sig);
+
+  return 1;
 };
 
+
+sub current {
+  return $_[0]->{query}->current;
+};
+
+
+# Get collection
+sub collection {
+  $_[0]->{groups};
+};
+
+
+sub to_string {
+  my $self = shift;
+  my $str = 'gClassFreq(' . join(',', @{$self->{classes}}) .
+    ':' . $self->{query}->to_string . ')';
+  return $str;
+};
 
 1;

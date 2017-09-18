@@ -8,9 +8,6 @@ use warnings;
 # per doc and per match
 
 # TODO:
-#   Support query classes!
-
-# TODO:
 #   Support virtual corpus classes
 
 # Add to totalResources immediately

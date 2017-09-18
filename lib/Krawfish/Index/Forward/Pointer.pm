@@ -7,7 +7,10 @@ use strict;
 # WARNING:
 #   This currently is not combined with live documents per default
 
-use constant DEBUG => 0;
+use constant {
+  DEBUG => 0,
+  NOMORE => -1
+};
 
 # API:
 # ->next_doc
@@ -80,14 +83,17 @@ sub skip_doc {
     print_log('fwd_point', "Skip from " . $self->{doc_id} . " to $doc_id");
   };
 
+  # Pointer already in requested document
   if ($self->{doc_id} == $doc_id) {
 
     if (DEBUG) {
       print_log('fwd_point', 'Document already in position');
     };
 
-    return 1;
+    return $doc_id;
   }
+
+  # Pointer needs to skip
   elsif ($self->{doc_id} < $doc_id && $doc_id < $self->freq) {
 
     if (DEBUG) {
@@ -103,9 +109,9 @@ sub skip_doc {
     delete $self->{prev};
     delete $self->{next};
 
-    return 1;
+    return $doc_id;
   };
-  return 0;
+  return NOMORE;
 };
 
 

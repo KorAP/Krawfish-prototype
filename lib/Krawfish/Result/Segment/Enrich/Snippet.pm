@@ -75,7 +75,8 @@ sub current_match {
   # This only fetches the match
   # TODO:
   #   fetch annotations as well
-  if ($forward->skip_doc($match->doc_id)) {
+  my $doc_id = $match->doc_id;
+  if ($forward->skip_doc($doc_id) == $doc_id) {
 
     if (DEBUG) {
       print_log('c_snippet', 'Move to match doc position');

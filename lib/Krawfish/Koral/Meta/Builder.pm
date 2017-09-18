@@ -16,6 +16,7 @@ use Krawfish::Koral::Meta::Aggregate::Length;
 use Krawfish::Koral::Meta::Aggregate::Values;
 use Krawfish::Koral::Meta::Group;
 use Krawfish::Koral::Meta::Group::Fields;
+use Krawfish::Koral::Meta::Group::ClassFrequencies;
 
 use Krawfish::Koral::Meta::Enrich;
 use Krawfish::Koral::Meta::Enrich::Terms;
@@ -132,6 +133,13 @@ sub g_fields {
       blessed $_ ? $_ : Krawfish::Koral::Meta::Type::Key->new($_)
     } @_
   );
+};
+
+
+# Group by class frequencies
+sub g_class_freq {
+  shift;
+  return Krawfish::Koral::Meta::Group::ClassFrequencies->new(@_);
 };
 
 

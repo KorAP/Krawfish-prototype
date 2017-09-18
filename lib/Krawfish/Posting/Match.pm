@@ -29,9 +29,10 @@ sub add {
 };
 
 
+# Inflate enrichments
 sub inflate {
   my ($self, $dict) = @_;
-  my $enrichments = $self->{enrichments};
+  my $enrichments = $self->{enrichments} // [];
   for (my $i = 0; $i < @$enrichments; $i++) {
     $enrichments->[$i] = $enrichments->[$i]->inflate($dict);
   };

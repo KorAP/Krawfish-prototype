@@ -29,10 +29,10 @@ use warnings;
 #   For sorting it's important to remember that!
 
 use constant {
-  DEBUG => 1,
-  NR => 0,
+  DEBUG     => 1,
+  NR        => 0,
   START_POS => 1,
-  END_POS => 2,
+  END_POS   => 2,
 };
 
 
@@ -65,8 +65,7 @@ sub _init {
     );
   };
 
-  # TODO:
-  #   Buffer this pointer!
+  # The pointer can move backwards if necessary
   $self->{pointer} = $self->{forward_obj}->pointer;
 };
 
@@ -141,7 +140,9 @@ sub current_match {
 
   # Skip to current document
   my @term_ids = ();
-  if ($pointer->skip_doc($match->doc_id) &&
+
+  my $doc_id = $match->doc_id;
+  if ($pointer->skip_doc($doc_id) == $doc_id &&
 
         # Skip to current position
         $pointer->skip_pos($start)) {

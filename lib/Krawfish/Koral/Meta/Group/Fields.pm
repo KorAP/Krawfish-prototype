@@ -54,25 +54,25 @@ sub wrap {
 };
 
 
-sub identify {
-  my ($self, $dict) = @_;
-
-  my @identifier;
-  foreach (@$self) {
-
-    # Field may not exist in dictionary
-    my $field = $_->identify($dict);
-    if ($field) {
-      push @identifier, $field;
-    };
-  };
-
-  return unless @identifier;
-
-  @{$self} = @identifier;
-
-  return $self;
-};
+#sub identify {
+#  my ($self, $dict) = @_;
+#
+#  my @identifier;
+#  foreach (@$self) {
+#
+#    # Field may not exist in dictionary
+#    my $field = $_->identify($dict);
+#    if ($field) {
+#      push @identifier, $field;
+#    };
+#  };
+#
+#  return unless @identifier;
+#
+#  @{$self} = @identifier;
+#
+#  return $self;
+#};
 
 
 sub to_string {
