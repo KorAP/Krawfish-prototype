@@ -26,7 +26,7 @@ use Krawfish::Log;
 #   (casefolded) '
 #   subterms:    ~
 #   foundry:     ^
-#   layer:       °
+#   layer:       &
 #   annotations
 #     token      #   (not yet supported)
 #     span       <>

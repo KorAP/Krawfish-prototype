@@ -106,7 +106,36 @@ is($fwd->doc_id, 0, 'Skip to first document');
 is($fwd->pos, 2, 'Third subtoken');
 is($fwd->current->term_id, 15, 'Get term id');
 is($fwd->current->preceding_data, '-', 'Get term id');
-is($index->dict->term_by_term_id(15), '*Leiter', 'Get term by term id');
+my $dict = $index->dict;
+is($dict->term_by_term_id(15), '*Leiter', 'Get term by term id');
+
+ok($fwd->next, 'Skip to next token');
+
+my $foundry_id = $dict->term_id_by_term('^opennlp');
+my $layer_id = $dict->term_id_by_term('&p');
+my $anno_id = $dict->term_id_by_term('opennlp/p=V');
+
+is_deeply($fwd->current->annotation(
+  $foundry_id,
+  $layer_id,
+  $anno_id
+), [[4]], 'Get data for annotation');
+
+ok($fwd->prev, 'Move to previous item');
+
+is_deeply($fwd->current->annotation(
+  $foundry_id,
+  $layer_id,
+  $anno_id
+),[], 'Get data for non-existing annotation');
+
+ok($fwd->next, 'Move to previous item');
+
+is_deeply($fwd->current->annotation(
+  $foundry_id,
+  $layer_id,
+  $anno_id
+), [[4]], 'Get data for annotation');
 
 
 done_testing;

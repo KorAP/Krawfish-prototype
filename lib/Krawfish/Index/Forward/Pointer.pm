@@ -51,6 +51,8 @@ sub freq {
   return $freq;
 };
 
+
+# Get current document id
 sub doc_id {
   $_[0]->{doc_id};
 };
@@ -62,20 +64,24 @@ sub pos {
 };
 
 
+# The cursor position
 sub cur {
   $_[0]->{cur};
 };
 
+# Move to next document
 sub next_doc {
   ...
 };
 
 
+# Close stream
 sub close {
   ...
 };
 
 
+# Skip to relevant document
 sub skip_doc {
   my ($self, $doc_id) = @_;
 
@@ -115,9 +121,14 @@ sub skip_doc {
 };
 
 
+# Skip to relevant position
 sub skip_pos {
   my ($self, $pos) = @_;
 
+  # TODO:
+  #   There need to be a way to skip back in a document,
+  #   though it's probably sufficient to
+  #   go ->prev() without skipping
   return 0 if $pos < $self->{pos};
 
   if (DEBUG) {
@@ -134,6 +145,7 @@ sub skip_pos {
 };
 
 
+# Get the current token
 sub current {
   my $self = shift;
 
@@ -171,6 +183,7 @@ sub current {
 };
 
 
+# Get the next token
 sub next {
   my $self = shift;
 
@@ -208,6 +221,7 @@ sub next {
 };
 
 
+# Get the previous token
 sub prev {
   my $self = shift;
 
