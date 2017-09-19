@@ -31,7 +31,7 @@ use constant DEBUG => 1;
 sub new {
   my $class = shift;
 
-  # Contains term_id, preceding_data, cur and stream
+  # Contains term_id, preceding_data, cur, pos and stream
   bless {@_}, $class;
 };
 
@@ -57,6 +57,12 @@ sub preceding_data {
 # Get stream (if available)
 sub stream {
   $_[0]->{stream};
+};
+
+
+# Get the token position
+sub pos {
+  $_[0]->{pos}
 };
 
 
