@@ -26,7 +26,7 @@ $koral->meta(
 );
 
 is($koral->to_string,
-   "meta=[enrich=[snippet]],query=[aa|bb]",
+   "meta=[enrich=[snippet=[match]]],query=[aa|bb]",
    'Stringification');
 
 ok(my $koral_query = $koral->to_query, 'Normalization');

@@ -30,6 +30,19 @@ sub new {
   return $self;
 };
 
+# Get or set rank reference value
+# This is useful for sorting coordination between processes
+sub max_rank_reference {
+  my $self = shift;
+
+  if (@_) {
+    $self->{max_rank_ref} = shift;
+    return $self;
+  };
+
+  return $self->{max_rank_ref};
+};
+
 
 # Overwrite process_head and pass to deeper query
 sub process_head {

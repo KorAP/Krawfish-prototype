@@ -22,6 +22,7 @@ use Krawfish::Koral::Meta::Enrich;
 use Krawfish::Koral::Meta::Enrich::Terms;
 use Krawfish::Koral::Meta::Enrich::Fields;
 use Krawfish::Koral::Meta::Enrich::Snippet;
+use Krawfish::Koral::Meta::Enrich::Snippet::Context::Span;
 
 use Krawfish::Koral::Meta::Type::Key;
 use Scalar::Util qw/blessed/;
@@ -107,9 +108,34 @@ sub e_fields {
 # Enrich with snippets
 sub e_snippet {
   shift;
+  # Accepts: left_context => $mb->e_char_context(5)
   return Krawfish::Koral::Meta::Enrich::Snippet->new(@_);
 };
 
+
+# Set char context
+sub e_char_context {
+  shift;
+  my $count = shift;
+  ...
+  # return Krawfish::Koral::Meta::Enrich::Snippet::Context::Char->new($count);
+};
+
+
+# Set token context
+sub e_token_context {
+  shift;
+  my ($count, $foundry) = @_;
+  ...
+  # return Krawfish::Koral::Meta::Enrich::Snippet::Context::Token->new($count, $foundry);
+};
+
+
+sub e_span_context {
+  shift;
+  my ($count, $term) = @_;
+  return Krawfish::Koral::Meta::Enrich::Snippet::Context::Span->new($count, $term);
+};
 
 # Enrich with Term lists per class
 sub e_terms {

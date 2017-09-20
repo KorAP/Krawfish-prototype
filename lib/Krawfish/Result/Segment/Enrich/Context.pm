@@ -43,6 +43,7 @@ sub _init {
   $self->{forward_pointer} = $self->{forward_obj}->pointer;
 };
 
+
 sub current_match {
   my $self = shift;
 

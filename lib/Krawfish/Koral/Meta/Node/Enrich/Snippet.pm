@@ -13,20 +13,21 @@ use warnings;
 
 sub new {
   my $class = shift;
-  bless {
-    query => shift,
-    options => shift
-  }, $class;
+  bless { @_ }, $class;
 };
 
-
-sub options {
-  $_[0]->{options};
-};
 
 sub to_string {
   my $self = shift;
-  return 'snippet(?:' . $self->{query}->to_string . ')';
+  my $str = 'snippet(';
+  if ($self->{left}) {
+    $str .= 'left=' . $self->{left}->to_string . ',';
+  };
+  if ($self->{right}) {
+    $str .= 'right=' . $self->{right}->to_string . ',';
+  };
+  $str .= '?';
+  $str .= ':' . $self->{query}->to_string . ')';
 };
 
 
@@ -34,6 +35,15 @@ sub to_string {
 #   This needs to convert annotations etc.
 sub identify {
   my ($self, $dict) = @_;
+
+  # Identify contexts
+  if ($self->{left}) {
+    $self->{left} = $self->{left}->identify($dict);
+  };
+  if ($self->{right}) {
+    $self->{right} = $self->{right}->identify($dict);
+  };
+
   $self->{query} = $self->{query}->identify($dict);
   return $self;
 };
@@ -51,7 +61,7 @@ sub optimize {
   return Krawfish::Result::Segment::Enrich::Snippet->new(
     $query,
     $segment->forward,
-    $self->options,
+    {},
   );
 };
 

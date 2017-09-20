@@ -105,6 +105,27 @@ is(
 );
 
 
+# Introduce redundant operations and new sorts
+$koral->meta(
+  $mb->enrich(
+    $mb->e_snippet(
+      context => $mb->e_span_context('<>opennlp/s=s', 0)
+    )
+  )
+);
+
+is($koral->meta->to_string,
+   'enrich=[snippet=[left:span(opennlp/s=s,0),right:span(opennlp/s=s,0),match]]',
+   'stringification'
+ );
+
+is($koral->to_string,
+   'meta=[enrich=[snippet=[left:span(opennlp/s=s,0),right:span(opennlp/s=s,0),match]]],query=[[a]]',
+   'stringification');
+
+$query = $koral->to_query;
+is($query->to_string, 'snippet(left=span(opennlp/s=s,0),right=span(opennlp/s=s,0),?:filter(a,[1]))', 'Stringification');
+
 done_testing;
 __END__
 
