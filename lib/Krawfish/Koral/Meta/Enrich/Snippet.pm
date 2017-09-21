@@ -1,4 +1,5 @@
 package Krawfish::Koral::Meta::Enrich::Snippet;
+use Krawfish::Koral::Meta::Enrich::Snippet::Match;
 use Krawfish::Koral::Meta::Node::Enrich::Snippet;
 use strict;
 use warnings;
@@ -25,6 +26,8 @@ sub type {
   'snippet'
 };
 
+
+# Get left context object
 sub left_context {
   my $self = shift;
   if (ref $self->{context} eq 'ARRAY') {
@@ -34,6 +37,7 @@ sub left_context {
 };
 
 
+# Get right context object
 sub right_context {
   my $self = shift;
   if (ref $self->{context} eq 'ARRAY') {
@@ -42,11 +46,28 @@ sub right_context {
   return $self->{context};
 };
 
+
+# Get match object
+sub match {
+  my $self = shift;
+  if ($self->{match}) {
+    return $self->{match};
+  };
+
+  # Create empty match object
+  $self->{match} = Krawfish::Koral::Meta::Enrich::Snippet::Match->new;
+  return $self->{match};
+};
+
+
+# TODO:
+#   Normalize contexts here!
 sub normalize {
   $_[0];
 };
 
 
+# Stringification
 sub to_string {
   my $self = shift;
   my $str = 'snippet=[';
@@ -57,7 +78,7 @@ sub to_string {
   if ($self->right_context) {
     $str .= 'right:' . $self->right_context->to_string . ',';
   };
-  $str .= 'match';
+  $str .= $self->match->to_string;
 
   return $str . ']';
 };
@@ -68,9 +89,11 @@ sub wrap {
   my ($self, $query) = @_;
     return Krawfish::Koral::Meta::Node::Enrich::Snippet->new(
     query => $query,
-    left => $self->left_context,
-    right => $self->right_context
+    left  => $self->left_context,
+    right => $self->right_context,
+    match => $self->match
   );
 };
+
 
 1;

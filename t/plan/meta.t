@@ -105,7 +105,7 @@ is(
 );
 
 
-# Introduce redundant operations and new sorts
+# Introduce snippet
 $koral->meta(
   $mb->enrich(
     $mb->e_snippet(
@@ -124,7 +124,37 @@ is($koral->to_string,
    'stringification');
 
 $query = $koral->to_query;
-is($query->to_string, 'snippet(left=span(opennlp/s=s,0),right=span(opennlp/s=s,0),?:filter(a,[1]))', 'Stringification');
+is($query->to_string, 'snippet(left=span(opennlp/s=s,0),right=span(opennlp/s=s,0),match:filter(a,[1]))', 'Stringification');
+
+# The element doesn't exist, so the context is ignored
+$query = $query->identify($index->dict);
+is($query->to_string, 'snippet(match:[0])', 'Stringification');
+
+
+# Add new document
+ok_index($index, {
+  id => 7,
+  author => 'Stefan',
+  genre => 'novel',
+  age => 19
+} => '<1:xy>[aa]<2:opennlp/s=s>[aa]</1>[corenlp/c=cc|dd][aa]</2>', 'Add complex document');
+
+
+# Introduce snippet
+$koral->meta(
+  $mb->enrich(
+    $mb->e_snippet(
+      context => $mb->e_span_context('<>opennlp/s=s', 0)
+    )
+  )
+);
+
+ok($query = $koral->to_query->identify($index->dict), 'Create query');
+
+# Better not check term ids ...
+is($query->to_string, 'snippet(left=span(#27/#28=#26,0),right=span(#27/#28=#26,0),match:[0])', 'Stringification');
+
+
 
 done_testing;
 __END__

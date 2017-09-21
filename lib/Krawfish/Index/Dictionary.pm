@@ -5,6 +5,9 @@ use strict;
 use warnings;
 use Krawfish::Log;
 
+# TODO:
+#   Create a central prefix constant class!
+
 # This class is the basic dictionary class. It provides a
 # homogeneous interface to K::I::Dictionary::Dynamic and
 # K::I::Dictionary::Static (versioned).

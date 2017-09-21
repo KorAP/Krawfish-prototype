@@ -26,7 +26,7 @@ sub to_string {
   if ($self->{right}) {
     $str .= 'right=' . $self->{right}->to_string . ',';
   };
-  $str .= '?';
+  $str .= $self->{match}->to_string;
   $str .= ':' . $self->{query}->to_string . ')';
 };
 
@@ -37,6 +37,8 @@ sub identify {
   my ($self, $dict) = @_;
 
   # Identify contexts
+  # This may result in undef (no context) in case
+  # the requested span or token foundry does not exist
   if ($self->{left}) {
     $self->{left} = $self->{left}->identify($dict);
   };
@@ -44,7 +46,14 @@ sub identify {
     $self->{right} = $self->{right}->identify($dict);
   };
 
+  # Identify match
+  # This will at least define a "surface only" match object,
+  # even if requested annotations do not exist
+  $self->{match} = $self->{match}->identify($dict);
+
+  # Identify query
   $self->{query} = $self->{query}->identify($dict);
+
   return $self;
 };
 

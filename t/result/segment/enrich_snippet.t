@@ -33,7 +33,7 @@ ok(my $koral_query = $koral->to_query, 'Normalization');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "snippet(?:filter(aa|bb,[1]))",
+   "snippet(match:filter(aa|bb,[1]))",
    'Stringification');
 
 # This is a query that is fine to be send to segments:
@@ -41,7 +41,7 @@ ok($koral_query = $koral_query->identify($index->dict), 'Identify');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "snippet(?:filter(#10|#8,[1]))",
+   "snippet(match:filter(#10|#8,[1]))",
    'Stringification');
 
 ok(my $query = $koral_query->optimize($index->segment), 'Optimize');
