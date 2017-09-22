@@ -78,8 +78,6 @@ is($query->to_string,
    'sort(field=#2<,field=#1<:filter(#10#12,[1]))',
    'Stringification');
 
-
-
 done_testing;
 
 __END__

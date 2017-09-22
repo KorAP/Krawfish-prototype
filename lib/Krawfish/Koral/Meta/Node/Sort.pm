@@ -1,4 +1,5 @@
 package Krawfish::Koral::Meta::Node::Sort;
+use Krawfish::Result::Segment::Sort;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -85,6 +86,15 @@ sub optimize {
   if ($query->max_freq == 0) {
     return Krawfish::Query::Nothing->new;
   };
+
+  # Krawfish::Result::Segment::Sort->new(
+  #   query => $query,
+  #   index => $segment,
+  #   top_k => $top_k,
+  #   ranks =>
+  #   unique =>
+  #   max_rank_ref =>
+  # )
 
   return $self;
 };

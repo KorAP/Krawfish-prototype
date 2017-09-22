@@ -95,7 +95,7 @@ sub new {
 
   # Construct
   return bless {
-    fields       => $fields,
+    # fields       => $fields,
     index        => $index,
     top_k        => $top_k,
     query        => $query,
