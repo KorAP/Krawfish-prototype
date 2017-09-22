@@ -23,7 +23,7 @@ ok(my $doc = Krawfish::Koral::Document->new(
 # );
 
 is(substr($doc->stream->to_string, 0, 40),
-   q!(0)['Der';'Der'$1](1) ['alte';'alte'$2](!,
+   q!(0)<>['Der';'Der'$1](1)< >['alte';'alte'!,
    'Get stream');
 
 is($doc->fields->to_string,
@@ -42,7 +42,7 @@ ok($doc = Krawfish::Koral::Document->new(
 # );
 
 is(substr($doc->stream->to_string, 0, 100),
-   q!(0)['Der';'akron=Der'$1;'<>akron/c=NP'$3](1) ['Bau';'akron=Bau-Leiter'$3](2)-['Leiter'](3) ['trug';'!,
+   q!(0)<>['Der';'akron=Der'$1;'<>akron/c=NP'$3](1)< >['Bau';'akron=Bau-Leiter'$3](2)<->['Leiter'](3)< >[!,
    'Get stream');
 
 
@@ -55,9 +55,9 @@ ok($doc = $doc->identify($index->dict), 'Turn terms into term_ids');
 
 is($doc->fields->to_string, "#1=#2;#3=#4;#5=#6(8);#7='http://korap.ids-mannheim.de/instance/example'", 'Fields');
 
-is($doc->stream->to_string, q!(0)[8;9$1;11$3](1) [13;14$3](2)-[15](3) [16;17$4;18$4](4) [21;22$5;11$8](5) [23;24$6](6) [13;25$8](7)-[26](8).['']!, 'Stream');
+is($doc->stream->to_string, q!(0)<>[#8;9$1;11$3](1)< >[#13;14$3](2)<->[#15](3)< >[#16;17$4;18$4](4)< >[#21;22$5;11$8](5)< >[#23;24$6](6)< >[#13;25$8](7)<->[#26](8)<.>['']!, 'Stream');
 
-is($doc->to_string, q![#1=#2;#3=#4;#5=#6(8);#7='http://korap.ids-mannheim.de/instance/example'](0)[8;9$1;11$3](1) [13;14$3](2)-[15](3) [16;17$4;18$4](4) [21;22$5;11$8](5) [23;24$6](6) [13;25$8](7)-[26](8).['']!, 'Stringification');
+is($doc->to_string, q![#1=#2;#3=#4;#5=#6(8);#7='http://korap.ids-mannheim.de/instance/example'](0)<>[#8;9$1;11$3](1)< >[#13;14$3](2)<->[#15](3)< >[#16;17$4;18$4](4)< >[#21;22$5;11$8](5)< >[#23;24$6](6)< >[#13;25$8](7)<->[#26](8)<.>['']!, 'Stringification');
 
 done_testing;
 __END__

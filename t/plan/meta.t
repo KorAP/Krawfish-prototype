@@ -115,20 +115,20 @@ $koral->meta(
 );
 
 is($koral->meta->to_string,
-   'enrich=[snippet=[left:span(opennlp/s=s,0),right:span(opennlp/s=s,0),match]]',
+   'enrich=[snippet=[left:span(opennlp/s=s,0),right:span(opennlp/s=s,0),hit]]',
    'stringification'
  );
 
 is($koral->to_string,
-   'meta=[enrich=[snippet=[left:span(opennlp/s=s,0),right:span(opennlp/s=s,0),match]]],query=[[a]]',
+   'meta=[enrich=[snippet=[left:span(opennlp/s=s,0),right:span(opennlp/s=s,0),hit]]],query=[[a]]',
    'stringification');
 
 $query = $koral->to_query;
-is($query->to_string, 'snippet(left=span(opennlp/s=s,0),right=span(opennlp/s=s,0),match:filter(a,[1]))', 'Stringification');
+is($query->to_string, 'snippet(left=span(opennlp/s=s,0),right=span(opennlp/s=s,0),hit:filter(a,[1]))', 'Stringification');
 
 # The element doesn't exist, so the context is ignored
 $query = $query->identify($index->dict);
-is($query->to_string, 'snippet(match:[0])', 'Stringification');
+is($query->to_string, 'snippet(hit:[0])', 'Stringification');
 
 
 # Add new document
@@ -152,7 +152,7 @@ $koral->meta(
 ok($query = $koral->to_query->identify($index->dict), 'Create query');
 
 # Better not check term ids ...
-is($query->to_string, 'snippet(left=span(#27/#28=#26,0),right=span(#27/#28=#26,0),match:[0])', 'Stringification');
+is($query->to_string, 'snippet(left=span(#27/#28=#26,0),right=span(#27/#28=#26,0),hit:[0])', 'Stringification');
 
 
 

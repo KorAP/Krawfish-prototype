@@ -4,14 +4,15 @@ use Krawfish::Util::String qw/squote/;
 use warnings;
 use strict;
 
+# TODO:
+#   Move Posting::Match, Posting::Aggregate, Posting::Group,
+#   Posting etc. to Koral::Result
+
+# TODO:
+#   Rename Koral::Result::Match::* to Koral::Result::Enrich::*
 
 # Matches are returned from searches and can be enriched
 # with various information
-
-# TODO:
-#   there should only be one additional parameter called "enrichments"
-#   that would contain an array of enrichments, that can be "to_koral_query"ied,
-#   stringified, inflated etc.
 
 # Enrichments can include
 #   snippet
@@ -60,6 +61,26 @@ sub to_string {
   return $str . ']';
 };
 
+
+sub to_term_string {
+  my $self = shift;
+  my $str = '[';
+
+  # Identical to Posting
+  $str .= $self->doc_id . ':' .
+    $self->start . '-' .
+    $self->end;
+
+  if ($self->payload->length) {
+    $str .= '$' . $self->payload->to_string;
+  };
+
+  foreach (@{$self->{enrichments}}) {
+    $str .= '|' . $_->to_term_string;
+  };
+
+  return $str . ']';
+};
 
 # serialize to koralquery
 sub to_koral_query {

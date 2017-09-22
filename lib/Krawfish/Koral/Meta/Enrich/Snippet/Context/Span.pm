@@ -1,13 +1,19 @@
 package Krawfish::Koral::Meta::Enrich::Snippet::Context::Span;
+use Krawfish::Result::Segment::Enrich::Snippet::Context::Span;
 use Krawfish::Koral::Query::Term;
 use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 1;
+use constant {
+  DEBUG      => 1,
+  MAX_TOKENS => 4096
+};
 
+
+# Constructor
 sub new {
-  my ($class, $term_str, $count) = @_;
+  my ($class, $term_str, $count, $max) = @_;
 
   # Parse term
   my $term = Krawfish::Koral::Query::Term->new($term_str);
@@ -24,7 +30,8 @@ sub new {
 
   bless {
     count => $count,
-    term => $term
+    term  => $term,
+    max   => $max // MAX_TOKENS
   }, $class;
 };
 
@@ -32,15 +39,14 @@ sub type {
   'context_span'
 };
 
-sub operations {
 
-};
-
+# Normalize span
 sub normalize {
   $_[0];
 };
 
 
+# Identify context
 sub identify {
   my ($self, $dict) = @_;
 
@@ -71,14 +77,54 @@ sub identify {
   return $self;
 };
 
+
+# Get the term value
 sub term {
   $_[0]->{term};
 };
 
+
+# Get the count
 sub count {
-  $_[0]->{count};
+  $_[0]->{count} // 0;
 };
 
+
+# Get the maximum value
+sub max {
+  $_[0]->{max};
+};
+
+
+sub anno_id {
+  $_[0]->{anno_id};
+};
+
+
+sub layer_id {
+  $_[0]->{layer_id};
+};
+
+
+sub foundry_id {
+  $_[0]->{foundry_id};
+};
+
+
+# Adapt element to segment
+sub optimize {
+  my ($self, $segment) = @_;
+  return Krawfish::Result::Segment::Enrich::Snippet::Context::Span->new(
+    foundry_id => $self->foundry_id,
+    layer_id   => $self->layer_id,
+    anno_id    => $self->anno_id,
+    count      => $self->count,
+    max        => $self->max
+  );
+};
+
+
+# Stringify
 sub to_string {
   my $self = shift;
   my $str = 'span(';

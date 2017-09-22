@@ -7,6 +7,7 @@ Krawfish focusses on
 - Patterns for distribution
   (aggregation, sorting ...)
 - Implementation of a forward index
+- Normalization and optimization of complex queries
 - Implementation of experimental queries
 
 Copyright (C) 2017, [IDS Mannheim](http://www.ids-mannheim.de/)<br>

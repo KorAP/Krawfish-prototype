@@ -139,26 +139,3 @@ is($coll->to_string, 'gFields:[author,genre:[Michael|newsletter:1,2;Peter|novel:
 
 done_testing;
 __END__
-
-
-
-
-
-is_deeply($group->current_group, {
-  'author' => 'Peter',
-  freq => 3,
-  doc_freq => 3
-}, 'Correct classes');
-
-ok($group->next, 'Go to next');
-
-is_deeply($group->current_group, {
-  'author' => 'Michael',
-  freq => 1,
-  doc_freq => 1
-}, 'Correct classes');
-
-ok(!$group->next, 'No more next');
-
-done_testing;
-__END__

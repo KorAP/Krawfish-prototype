@@ -1,5 +1,9 @@
 package Krawfish::Result;
 use parent 'Krawfish::Query';
+
+# TODO:
+#   Rename Krawfish::Result to Krawfish::Meta
+
 use Krawfish::Posting::Match;
 use Krawfish::Log;
 use strict;

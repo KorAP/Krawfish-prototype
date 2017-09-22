@@ -24,7 +24,7 @@ sub subtoken {
 
 sub to_string {
   my $i = 0;
-  return join '', map { '(' . ($i++) . ')' .  $_->to_string } @{$_[0]}
+  return join '', map { '(' . ($i++) . ')' .  ($_->to_string // '') } @{$_[0]}
 };
 
 sub length {

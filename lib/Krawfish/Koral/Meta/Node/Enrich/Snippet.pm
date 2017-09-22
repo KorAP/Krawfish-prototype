@@ -26,7 +26,7 @@ sub to_string {
   if ($self->{right}) {
     $str .= 'right=' . $self->{right}->to_string . ',';
   };
-  $str .= $self->{match}->to_string;
+  $str .= $self->{hit}->to_string;
   $str .= ':' . $self->{query}->to_string . ')';
 };
 
@@ -46,10 +46,10 @@ sub identify {
     $self->{right} = $self->{right}->identify($dict);
   };
 
-  # Identify match
-  # This will at least define a "surface only" match object,
+  # Identify hit
+  # This will at least define a "surface only" hit object,
   # even if requested annotations do not exist
-  $self->{match} = $self->{match}->identify($dict);
+  $self->{hit} = $self->{hit}->identify($dict);
 
   # Identify query
   $self->{query} = $self->{query}->identify($dict);
@@ -67,10 +67,28 @@ sub optimize {
     return Krawfish::Query::Nothing->new;
   };
 
+  # Create left context object
+  my $left = $self->{left};
+  if ($left) {
+    $left = $left->optimize($segment);
+  };
+
+  # Create left context object
+  my $right = $self->{right};
+  if ($right) {
+    $right = $right->optimize($segment);
+  };
+
+  # Optimize hit
+  $self->{hit} = $self->{hit}->optimize($segment);
+
+  # Return snippet object
   return Krawfish::Result::Segment::Enrich::Snippet->new(
-    $query,
-    $segment->forward,
-    {},
+    query   => $query,
+    fwd_obj => $segment->forward,
+    hit     => $self->{hit},
+    left    => $left,
+    right   => $right
   );
 };
 

@@ -9,25 +9,20 @@ use warnings;
 use constant DEBUG => 1;
 
 # TODO:
-#  - ExpandToSpan
-#  - Context with chars and tokens
+#   It may be more efficient to first collect all required
+#   annotations (for decoration, context, hit etc.) and
+#   then iterate over left context, hit, right context
+#   and get all annotations per token at a time
+
 
 sub new {
   my $class = shift;
-  # my %param = @_;
-
-  # TODO:
-  #   Because the forward pointer needs to move
-  #   strictly forward, it needs to cache annotations and term_ids
-  #   using a forward buffer!
-
-  my $self = bless {
-    query => shift,   # $param{query},
-    forward => shift, # $param{forward}
-    options => shift
-  }, $class;
-
-  return $self;
+  # query
+  # fwd_obj
+  # left
+  # right
+  # hit
+  return bless { @_ }, $class;
 };
 
 
@@ -36,18 +31,15 @@ sub _init {
   return if $_[0]->{_init}++;
 
   my $self = shift;
-  $self->{fwd_pointer} = $self->{forward}->pointer;
+  $self->{fwd_pointer} = $self->{fwd_obj}->pointer;
 };
 
 
-# Iterated through the ordered linked list
+# Iterated through the ordered matches
 sub next {
   my $self = shift;
-
   $self->_init;
-
   $self->{match} = undef;
-  # $self->{highlights}->clear;
   return $self->{query}->next;
 };
 
@@ -72,67 +64,43 @@ sub current_match {
   # TODO:
   #   Fetch preceding context
 
-  # This only fetches the match
-  # TODO:
-  #   fetch annotations as well
   my $doc_id = $match->doc_id;
-  if ($forward->skip_doc($doc_id) == $doc_id) {
+  unless ($forward->skip_doc($doc_id) == $doc_id) {
 
-    if (DEBUG) {
-      print_log('c_snippet', 'Move to match doc position');
-    };
-
-    if ($forward->skip_pos($match->start)) {
-
-      if (DEBUG) {
-        print_log('c_snippet', 'Move to match position');
-      };
-
-      my @data;
-      my $length = $match->end - $match->start;
-      while ($length > 0) {
-        my $current = $forward->current;
-
-        # Match is already initiated
-        if (@data) {
-
-          # Get the preceding data
-          my $pre = $current->preceding_data;
-
-          # Mark as reference (for simplicity)
-          push @data, $pre ? \$pre : \'';
-        };
-
-        # Get the surface data
-        push @data, $current->term_id;
-        $length--;
-        $forward->next or last;
-      };
-
-      if (DEBUG) {
-        print_log('c_snippet', 'Add snippet match data: ' . join(',', @data));
-      };
-
-      my $snippet = Krawfish::Posting::Match::Snippet->new(
-        match_ids => \@data
-      );
-
-      # Add snippet to match
-      $match->add($snippet);
-    };
+    # TODO: This should never happen!
+    return;
   };
 
-  # TODO:
-  #   Fetch following context
+  if (DEBUG) {
+    print_log('c_snippet', 'Move to match doc position');
+  };
 
-  #  my $pd = $self->{index}->primary->get(
-  #    $match->doc_id,
-  #    0,
-  #    500
-  #  ) // '';
 
-  # TODO:
-  #   Add highlights
+  # Move pointer to start position of match
+  unless ($forward->skip_pos($match->start)) {
+
+    # This should never happen!
+    return;
+  };
+
+  # Get data from hit
+  my $hit_data = $self->{hit}->content($match, $forward);
+
+  if (DEBUG) {
+    print_log('c_snippet', 'Move to match position');
+  };
+
+  # Create snippet posting
+  my $snippet = Krawfish::Posting::Match::Snippet->new(
+    hit_ids => $hit_data
+  );
+
+  # Add snippet to match
+  $match->add($snippet);
+
+  # Deal with left
+  # Deal with hit
+  # Deal with right
 
   $self->{match} = $match;
   return $match;
@@ -143,6 +111,13 @@ sub current_match {
 sub to_string {
   my $self = shift;
   my $str = 'snippet(';
+  if ($self->{left}) {
+    $str .= $self->{left}->to_string . ',';
+  };
+  if ($self->{right}) {
+    $str .= $self->{right}->to_string . ',';
+  };
+  $str .= $self->{hit}->to_string . ':';
   $str .= $self->{query}->to_string;
   return $str . ')';
 };

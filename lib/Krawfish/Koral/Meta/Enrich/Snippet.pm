@@ -1,5 +1,5 @@
 package Krawfish::Koral::Meta::Enrich::Snippet;
-use Krawfish::Koral::Meta::Enrich::Snippet::Match;
+use Krawfish::Koral::Meta::Enrich::Snippet::Hit;
 use Krawfish::Koral::Meta::Node::Enrich::Snippet;
 use strict;
 use warnings;
@@ -47,16 +47,16 @@ sub right_context {
 };
 
 
-# Get match object
-sub match {
+# Get hit object
+sub hit {
   my $self = shift;
-  if ($self->{match}) {
-    return $self->{match};
+  if ($self->{hit}) {
+    return $self->{hit};
   };
 
-  # Create empty match object
-  $self->{match} = Krawfish::Koral::Meta::Enrich::Snippet::Match->new;
-  return $self->{match};
+  # Create empty hit object
+  $self->{hit} = Krawfish::Koral::Meta::Enrich::Snippet::Hit->new;
+  return $self->{hit};
 };
 
 
@@ -78,7 +78,7 @@ sub to_string {
   if ($self->right_context) {
     $str .= 'right:' . $self->right_context->to_string . ',';
   };
-  $str .= $self->match->to_string;
+  $str .= $self->hit->to_string;
 
   return $str . ']';
 };
@@ -91,7 +91,7 @@ sub wrap {
     query => $query,
     left  => $self->left_context,
     right => $self->right_context,
-    match => $self->match
+    hit => $self->hit
   );
 };
 

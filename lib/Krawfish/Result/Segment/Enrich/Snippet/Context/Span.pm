@@ -1,29 +1,25 @@
-package Krawfish::Result::Segment::Enrich::Context::Span;
+package Krawfish::Result::Segment::Enrich::Snippet::Context::Span;
 use Krawfish::Posting::Forward;
 use strict;
 use warnings;
 
 sub new {
   my $class = shift;
-  bless {
-    foundry_id  => shift,
-    layer_id    => shift,
-    anno_id     => shift,
+  # foundry_id, layer_id, anno_id, count
+  #
+  # The number of elements left or right
+  # to the match. Defaults to 0
+  # (so: only expand to the element)
+  #   count
 
-    # The number of elements left and right
-    # to the match. Defaults to 0
-    # (so: only expand to the element)
-    count_left  => shift // 0,
-    count_right => shift // 0,
-
-    max_left    => shift // 500, # Maximum number of tokens
-    max_right   => shift // 500 # Maximum number of tokens
-  }, $class;
+  # Maximum number of tokens
+  #   max
+  bless { @_ }, $class;
 };
 
 
 # Get left context
-sub left_context {
+sub left {
   my ($self, $match, $pointer) = @_;
 
   # The context as an array of preceeding strings and term_ids
@@ -134,12 +130,15 @@ sub left_context {
   #   Revert array
 };
 
-sub right_context {
+sub right {
   ...
 };
 
 sub to_string {
-  ...
+  my $self = shift;
+  my $str = 'span(';
+  $str .= '#' . $self->{foundry_id} . '/#' . $self->{layer_id} . '=#' . $self->{anno_id} . ',';
+  return $str . $self->{count} . ',' . $self->{max} . ')';
 };
 
 

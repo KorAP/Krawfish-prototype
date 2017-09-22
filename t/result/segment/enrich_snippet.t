@@ -26,14 +26,14 @@ $koral->meta(
 );
 
 is($koral->to_string,
-   "meta=[enrich=[snippet=[match]]],query=[aa|bb]",
+   "meta=[enrich=[snippet=[hit]]],query=[aa|bb]",
    'Stringification');
 
 ok(my $koral_query = $koral->to_query, 'Normalization');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "snippet(match:filter(aa|bb,[1]))",
+   "snippet(hit:filter(aa|bb,[1]))",
    'Stringification');
 
 # This is a query that is fine to be send to segments:
@@ -41,27 +41,27 @@ ok($koral_query = $koral_query->identify($index->dict), 'Identify');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "snippet(match:filter(#10|#8,[1]))",
+   "snippet(hit:filter(#10|#8,[1]))",
    'Stringification');
 
 ok(my $query = $koral_query->optimize($index->segment), 'Optimize');
-is ($query->to_string, 'snippet(filter(or(#10,#8),[1]))', 'Stringification');
+is ($query->to_string, 'snippet(hit:filter(or(#10,#8),[1]))', 'Stringification');
 
 ok($query->next, 'Next match');
-is($query->current_match->to_string, "[0:0-1|snippet:#7]", 'Current match');
+is($query->current_match->to_string, "[0:0-1|snippet:<>[#7]]", 'Current match');
 ok($query->next, 'Next match');
 is($index->dict->term_by_term_id(7), '*aa', 'Get term');
-is($query->current_match->to_string, "[0:1-2|snippet:#9]", 'Current match');
+is($query->current_match->to_string, "[0:1-2|snippet:< >[#9]]", 'Current match');
 ok($query->next, 'Next match');
 is($index->dict->term_by_term_id(9), '*bb', 'Get term');
-is($query->current_match->to_string, "[0:2-3|snippet:#7]", 'Current match');
+is($query->current_match->to_string, "[0:2-3|snippet:< >[#7]]", 'Current match');
 ok($query->next, 'Next match');
-is($query->current_match->to_string, "[0:3-4|snippet:#9]", 'Current match');
+is($query->current_match->to_string, "[0:3-4|snippet:< >[#9]]", 'Current match');
 ok(!$query->next, 'No more match');
 
 
 TODO: {
-  local $TODO = 'Test further - with matches'
+  local $TODO = 'Fix snippets to start at hit start (without preceding bytes)'
 };
 
 

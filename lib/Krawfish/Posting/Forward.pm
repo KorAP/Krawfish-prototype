@@ -161,7 +161,7 @@ sub annotation {
 # Stringification
 sub to_string {
   my $str = '[' . ($_[0]->doc_id // '?') . ':#' . $_[0]->term_id;
-  $str .= '$' . $_[0]->preceeding_data if $_[0]->preceeding_data;
+  $str .= '$' . $_[0]->preceding_data if $_[0]->preceding_data;
   return $str .']';
 };
 

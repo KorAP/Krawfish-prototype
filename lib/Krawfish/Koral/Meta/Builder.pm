@@ -133,8 +133,8 @@ sub e_token_context {
 
 sub e_span_context {
   shift;
-  my ($count, $term) = @_;
-  return Krawfish::Koral::Meta::Enrich::Snippet::Context::Span->new($count, $term);
+  my ($term, $count) = @_;
+  return Krawfish::Koral::Meta::Enrich::Snippet::Context::Span->new($term, $count);
 };
 
 # Enrich with Term lists per class
