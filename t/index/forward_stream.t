@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use utf8;
+use Krawfish::Util::Constants qw/:PREFIX/;
 use Test::More;
 use Test::Krawfish;
 use Data::Dumper;
@@ -73,27 +74,27 @@ is($fwd->current->term_id, 8, 'Get term id');
 is($fwd->current->term_id, 8, 'Get term id');
 
 is($fwd->current->preceding_data, '', 'Get term id');
-is($index->dict->term_by_term_id(8), '*Der', 'Get term by term id');
+is($index->dict->term_by_term_id(8), SUBTERM_PREF . 'Der', 'Get term by term id');
 
 ok($fwd->next, 'Go to first subtoken');
 is($fwd->pos, 1, 'Second subtoken');
 is($fwd->current->term_id, 13, 'Get term id');
 is($fwd->current->term_id, 13, 'Get term id');
 is($fwd->current->preceding_data, ' ', 'Get term id');
-is($index->dict->term_by_term_id(13), '*Bau', 'Get term by term id');
+is($index->dict->term_by_term_id(13), SUBTERM_PREF . 'Bau', 'Get term by term id');
 
 ok($fwd->next, 'Go to first subtoken');
 is($fwd->pos, 2, 'Third subtoken');
 is($fwd->current->term_id, 15, 'Get term id');
 is($fwd->current->preceding_data, '-', 'Get term id');
-is($index->dict->term_by_term_id(15), '*Leiter', 'Get term by term id');
+is($index->dict->term_by_term_id(15), SUBTERM_PREF . 'Leiter', 'Get term by term id');
 
 ok($fwd->prev, 'Go to first subtoken');
 is($fwd->pos, 1, 'Second subtoken');
 is($fwd->current->term_id, 13, 'Get term id');
 is($fwd->current->term_id, 13, 'Get term id');
 is($fwd->current->preceding_data, ' ', 'Get term id');
-is($index->dict->term_by_term_id(13), '*Bau', 'Get term by term id');
+is($index->dict->term_by_term_id(13), SUBTERM_PREF . 'Bau', 'Get term by term id');
 
 ok(my @anno = $fwd->current->annotations, 'Get annotations');
 is($anno[0]->[0], 14, 'Annotation');
@@ -107,12 +108,12 @@ is($fwd->pos, 2, 'Third subtoken');
 is($fwd->current->term_id, 15, 'Get term id');
 is($fwd->current->preceding_data, '-', 'Get term id');
 my $dict = $index->dict;
-is($dict->term_by_term_id(15), '*Leiter', 'Get term by term id');
+is($dict->term_by_term_id(15), SUBTERM_PREF . 'Leiter', 'Get term by term id');
 
 ok($fwd->next, 'Skip to next token');
 
-my $foundry_id = $dict->term_id_by_term('^opennlp');
-my $layer_id = $dict->term_id_by_term('&p');
+my $foundry_id = $dict->term_id_by_term(FOUNDRY_PREF . 'opennlp');
+my $layer_id = $dict->term_id_by_term(LAYER_PREF . 'p');
 my $anno_id = $dict->term_id_by_term('opennlp/p=V');
 
 is_deeply($fwd->current->annotation(

@@ -1,5 +1,6 @@
 package Krawfish::Koral::Document::Annotation;
 use Krawfish::Util::String qw/squote/;
+use Krawfish::Util::Constants qw/:PREFIX/;
 use warnings;
 use strict;
 use Krawfish::Koral::Query::Term;
@@ -55,8 +56,8 @@ sub identify {
   # Term id is already known!
   if ($term_id) {
     $self->{term_id} = $term_id;
-    $self->{foundry_id} = $dict->term_id_by_term('^' . $term->foundry) if $term->foundry;
-    $self->{layer_id} = $dict->term_id_by_term('&' . $term->layer) if $term->layer;
+    $self->{foundry_id} = $dict->term_id_by_term(FOUNDRY_PREF . $term->foundry) if $term->foundry;
+    $self->{layer_id} = $dict->term_id_by_term(LAYER_PREF . $term->layer) if $term->layer;
     return $self;
   }
 
@@ -67,16 +68,16 @@ sub identify {
 
   # Get term_id for foundry
   if ($term->foundry) {
-    $term_id = $dict->term_id_by_term('^' . $term->foundry);
+    $term_id = $dict->term_id_by_term(FOUNDRY_PREF . $term->foundry);
     $self->{foundry_id} = $term_id ? $term_id :
-      $dict->add_term('^' . $term->foundry);
+      $dict->add_term(FOUNDRY_PREF . $term->foundry);
   };
 
   # Get term_id for layer
   if ($term->layer) {
-    $term_id = $dict->term_id_by_term('&' . $term->layer);
+    $term_id = $dict->term_id_by_term(LAYER_PREF . $term->layer);
     $self->{layer_id} = $term_id ? $term_id :
-      $dict->add_term('&' . $term->layer);
+      $dict->add_term(LAYER_PREF . $term->layer);
   };
 
   return $self;

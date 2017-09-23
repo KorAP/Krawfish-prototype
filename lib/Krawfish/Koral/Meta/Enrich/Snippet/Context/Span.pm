@@ -1,5 +1,6 @@
 package Krawfish::Koral::Meta::Enrich::Snippet::Context::Span;
 use Krawfish::Result::Segment::Enrich::Snippet::Context::Span;
+use Krawfish::Util::Constants qw/:PREFIX/;
 use Krawfish::Koral::Query::Term;
 use Krawfish::Log;
 use strict;
@@ -62,16 +63,16 @@ sub identify {
   return unless $self->{anno_id};
 
   # Translate all other elements
-  $self->{foundry_id}  = $dict->term_id_by_term('^' . $term->foundry);
+  $self->{foundry_id}  = $dict->term_id_by_term(FOUNDRY_PREF . $term->foundry);
 
   if (DEBUG) {
-    print_log('k_context_span', 'Identify layer for ^' . $term->foundry);
+    print_log('k_context_span', 'Identify layer for ' . $term->foundry);
   };
 
-  $self->{layer_id} = $dict->term_id_by_term('&' . $term->layer);
+  $self->{layer_id} = $dict->term_id_by_term(LAYER_PREF . $term->layer);
 
   if (DEBUG) {
-    print_log('k_context_span', 'Identify layer for &' . $term->layer);
+    print_log('k_context_span', 'Identify layer for ' . $term->layer);
   };
 
   return $self;

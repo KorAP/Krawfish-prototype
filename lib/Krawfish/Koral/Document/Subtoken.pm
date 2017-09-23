@@ -1,5 +1,6 @@
 package Krawfish::Koral::Document::Subtoken;
 use Krawfish::Util::String qw/squote/;
+use Krawfish::Util::Constants qw/:PREFIX/;
 use Krawfish::Koral::Document::Annotation;
 use warnings;
 use strict;
@@ -76,7 +77,7 @@ sub identify {
 
   $self->{preceding_enc} = $self->{preceding};
 
-  my $term = '*' . $self->{subterm};
+  my $term = SUBTERM_PREF . $self->{subterm};
   $self->{subterm_id} = $dict->add_term($term);
 
   foreach (@{$self->{anno}}) {
