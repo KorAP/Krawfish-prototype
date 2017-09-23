@@ -80,7 +80,10 @@ sub inflate {
   foreach my $field_id (@{$field_keys}) {
     my $field_term = $dict->term_by_term_id($field_id);
 
-    $field_term =~ s/^!//;
+    # $field_term =~ s/^!//;
+    # TODO:
+    #   This may be a direct feature of the dictionary
+    $field_term = substr($field_term, 1);
 
     push @{$self->{field_terms}}, $field_term;
   };
@@ -97,7 +100,10 @@ sub inflate {
         # Retrieve term
         my $term = $dict->term_by_term_id($term_id);
         my $field_term = $self->{field_terms}->[$i];
-        $term =~ s/^\+$field_term://;
+
+        # TODO:
+        #   This may be a direct feature of the dictionary
+        $term =~ s/^.$field_term://;
 
         push @group, $term;
       }

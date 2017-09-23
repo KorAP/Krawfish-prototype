@@ -1,5 +1,6 @@
 package Krawfish::Index::Dictionary;
 use Krawfish::Index::Dictionary::Collations;
+use Krawfish::Util::Constants qw/:PREFIX/;
 use Krawfish::Util::String qw/normalize_nfkc/;
 use strict;
 use warnings;
@@ -254,7 +255,7 @@ sub add_field {
   };
 
   # Check if term exists
-  my $term_id = $self->term_id_by_term('!' . $term);
+  my $term_id = $self->term_id_by_term(KEY_PREF . $term);
 
   # The term already exists
   if ($term_id) {
@@ -282,7 +283,7 @@ sub add_field {
   };
 
   # The term does not exist yet
-  $term_id = $self->add_term('!' . $term);
+  $term_id = $self->add_term(KEY_PREF . $term);
 
   if (DEBUG) {
     print_log('dict', "Add new collation $locale to field $term_id");

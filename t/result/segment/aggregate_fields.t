@@ -1,6 +1,7 @@
 use Test::More;
 use Test::Krawfish;
 use Data::Dumper;
+use Krawfish::Util::Constants qw/:PREFIX/;
 use strict;
 use warnings;
 

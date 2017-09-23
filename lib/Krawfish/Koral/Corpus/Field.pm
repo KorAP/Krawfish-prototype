@@ -1,6 +1,7 @@
 package Krawfish::Koral::Corpus::Field;
 use parent 'Krawfish::Koral::Corpus';
 use Krawfish::Koral::Corpus::FieldID;
+use Krawfish::Util::Constants ':PREFIX';
 use strict;
 use warnings;
 
@@ -124,7 +125,7 @@ sub identify {
 
     print_log('kq_term', "Translate term $term to term_id") if DEBUG;
 
-    my $term_id = $dict->term_id_by_term('+' . $term);
+    my $term_id = $dict->term_id_by_term(FIELD_PREF . $term);
 
     return $self->builder->nothing unless defined $term_id;
 
@@ -236,7 +237,7 @@ sub to_string {
 
   unless ($self->{value}) {
     return $str unless $op eq 'excludes';
-    return '!' . $str;
+    return KEY_PREF . $str;
   };
 
   if ($op eq 'eq') {

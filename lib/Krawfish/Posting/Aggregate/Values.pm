@@ -64,7 +64,8 @@ sub inflate {
     # Remove the term marker
     # TODO:
     #   this may be a direct feature of the dictionary instead
-    $field_term =~ s/^!//;
+    # $field_term =~ s/^!//;
+    $field_term = substr($field_term, 1); # ~ s/^!//;
     $fields{$field_term} = $fields->{$field_id};
   };
 

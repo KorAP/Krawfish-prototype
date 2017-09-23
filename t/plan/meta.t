@@ -64,7 +64,6 @@ ok($meta = $koral->to_query->identify($index->dict), 'Identification');
 is($meta->to_string, "fields(#3,#7,#17:[0])",
    'Stringification');
 
-
 # Introduce redundant operations and new sorts
 $koral->meta(
   $mb->sort_by($mb->s_field('author', 1), $mb->s_field('age')),

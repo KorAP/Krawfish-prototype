@@ -1,5 +1,6 @@
 package Krawfish::Posting::Aggregate::Fields;
 use Krawfish::Log;
+use Krawfish::Util::Constants qw/:PREFIX/;
 use strict;
 use warnings;
 
@@ -105,16 +106,20 @@ sub inflate {
     # Remove the term marker
     # TODO:
     #   this may be a direct feature of the dictionary instead
-    $field_term =~ s/^!//;
+    $field_term = substr($field_term,1); # ~ s/^!//;
     my $aggr = ($fields{$field_term} //= {});
 
     # Get facets for field
     my $values = $fields->{$field_id};
     foreach my $value (keys %$values) {
 
-      # Get the 
+      # Get the field term
       my $field = $dict->term_by_term_id($value);
-      $field =~ s/^\+$field_term://;
+
+      # Remove the first character
+      # TODO:
+      #   This may be a direct feature of the dictionary instead
+      $field =~ s/^.$field_term://;
 
       $aggr->{$field} = $values->{$value};
     };

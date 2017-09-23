@@ -3,6 +3,7 @@ use warnings;
 use utf8;
 use Test::More;
 use Test::Krawfish;
+use Krawfish::Util::Constants ':PREFIX';
 use Data::Dumper;
 
 use_ok('Krawfish::Koral::Document');
@@ -31,11 +32,11 @@ ok(my @fields = $pointer->fields, 'Get fields');
 
 is($fields[0]->term_id, 2, 'Field id');
 
-is($index->dict->term_by_term_id(2), '+docID:doc-3', 'Term');
+is($index->dict->term_by_term_id(2), FIELD_PREF . 'docID:doc-3', 'Term');
 is($fields[1]->term_id, 4, 'Field id');
-is($index->dict->term_by_term_id(4), '+license:closed', 'Term');
+is($index->dict->term_by_term_id(4), FIELD_PREF . 'license:closed', 'Term');
 is($fields[2]->term_id, 6, 'Field id');
-is($index->dict->term_by_term_id(6), '+textLength:8', 'Term');
+is($index->dict->term_by_term_id(6), FIELD_PREF . 'textLength:8', 'Term');
 ok($fields[3], 'Field id');
 ok(!$fields[3]->term_id, 'No field id');
 is($fields[3]->value, 'http://korap.ids-mannheim.de/instance/example', 'No field id');
@@ -48,9 +49,9 @@ is($pointer->skip_doc(0), 0, 'Skip');
 ok(@fields = $pointer->fields(3, 5, 17), 'Get fields');
 
 is($fields[0]->term_id, 4, 'Field id');
-is($index->dict->term_by_term_id(4), '+license:closed', 'Term');
+is($index->dict->term_by_term_id(4), FIELD_PREF . 'license:closed', 'Term');
 is($fields[1]->term_id, 6, 'Field id');
-is($index->dict->term_by_term_id(6), '+textLength:8', 'Term');
+is($index->dict->term_by_term_id(6), FIELD_PREF . 'textLength:8', 'Term');
 ok(!$fields[2], 'Field id');
 
 
@@ -88,13 +89,13 @@ is($pointer->skip_doc(0), 0, 'Skip');
 
 
 # Get the +size value
-ok(my @values = $pointer->int_fields($index->dict->term_id_by_term('!size')),
+ok(my @values = $pointer->int_fields($index->dict->term_id_by_term(KEY_PREF . 'size')),
    'Get field value');
 is($values[0]->value, 2, 'Size');
 
 # Get +size of doc_id 2
 is($pointer->skip_doc(2), 2, 'Skip');
-ok(@values = $pointer->int_fields($index->dict->term_id_by_term('!size')),
+ok(@values = $pointer->int_fields($index->dict->term_id_by_term(KEY_PREF . 'size')),
    'Get field value');
 
 is($values[0]->value, 17, 'Size');
@@ -103,7 +104,7 @@ is($values[0]->value, 17, 'Size');
 ok($pointer = $index->segment->fields->pointer, 'Get pointer');
 is($pointer->skip_doc(0), 0, 'Skip');
 
-ok(@fields = $pointer->fields($index->dict->term_id_by_term('!uri')), 'Get fields');
+ok(@fields = $pointer->fields($index->dict->term_id_by_term(KEY_PREF . 'uri')), 'Get fields');
 is($fields[0]->value, 'https://korap.ids-mannheim.de/instance/example7', 'Field id');
 
 
@@ -113,7 +114,7 @@ is($fields[0]->value, 'https://korap.ids-mannheim.de/instance/example7', 'Field 
 # This will commit rank data
 ok($index->commit, 'Commit data');
 
-ok(my $term_id = $index->dict->term_id_by_term('!author'), 'Get term id');
+ok(my $term_id = $index->dict->term_id_by_term(KEY_PREF . 'author'), 'Get term id');
 ok(my $ranks = $index->segment->field_ranks->by($term_id), 'Get ranks');
 
 is($ranks->to_string, '[1][2][0]', 'Get rank file');
@@ -128,7 +129,7 @@ is($ranks->desc_rank(2), 2, 'Get descending rank');
 
 
 # Numerical ranks for size
-ok($term_id = $index->dict->term_id_by_term('!size'), 'Get term id');
+ok($term_id = $index->dict->term_id_by_term(KEY_PREF . 'size'), 'Get term id');
 ok($ranks = $index->segment->field_ranks->by($term_id), 'Get ranks');
 
 is($ranks->to_string, '[0][1][2]', 'Get rank file');
@@ -166,13 +167,13 @@ ok_index($index, {
 
 # Ranks for author
 ok($index->commit, 'Commit data');
-ok($term_id = $index->dict->term_id_by_term('!author'), 'Get term id');
+ok($term_id = $index->dict->term_id_by_term(KEY_PREF . 'author'), 'Get term id');
 ok($ranks = $index->segment->field_ranks->by($term_id), 'Get ranks');
 
 ok($pointer = $index->segment->fields->pointer, 'Get pointer');
-ok(!$pointer->fields($index->dict->term_id_by_term('!author')), 'Not fine');
+ok(!$pointer->fields($index->dict->term_id_by_term(KEY_PREF . 'author')), 'Not fine');
 is($pointer->skip_doc(0), 0, 'Skip');
-ok(@fields = $pointer->fields($index->dict->term_id_by_term('!author')), 'Fields');
+ok(@fields = $pointer->fields($index->dict->term_id_by_term(KEY_PREF . 'author')), 'Fields');
 is($fields[0]->term_id, 2, 'Field id');
 ok(!$fields[1], 'Field id');
 
@@ -180,21 +181,21 @@ my $dict = $index->dict;
 
 is($pointer->skip_doc(1), 1, 'Skip');
 ok(@fields = $pointer->fields(
-  $dict->term_id_by_term('!author'),
-  $dict->term_id_by_term('!title')
+  $dict->term_id_by_term(KEY_PREF . 'author'),
+  $dict->term_id_by_term(KEY_PREF . 'title')
 ), 'Fields');
 
 is($fields[0]->key_id, 1, 'Key id');
 is($fields[0]->term_id, 9, 'Field id');
-is($dict->term_by_term_id(9), '+author:Amy', 'Key');
+is($dict->term_by_term_id(9), FIELD_PREF . 'author:Amy', 'Key');
 
 is($fields[1]->key_id, 1, 'Key id');
 is($fields[1]->term_id, 10, 'Field id');
-is($dict->term_by_term_id(10), '+author:Mike', 'Key');
+is($dict->term_by_term_id(10), FIELD_PREF . 'author:Mike', 'Key');
 
 is($fields[2]->key_id, 3, 'Key id');
 is($fields[2]->term_id, 11, 'Field id');
-is($dict->term_by_term_id(11), '+title:A first attempt', 'Key');
+is($dict->term_by_term_id(11), FIELD_PREF . 'title:A first attempt', 'Key');
 
 ok(!$fields[3], 'Field id');
 

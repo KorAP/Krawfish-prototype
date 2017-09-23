@@ -1,5 +1,6 @@
 package Krawfish::Koral::Document::FieldInt;
 use Krawfish::Util::String qw/squote/;
+use Krawfish::Util::Constants qw/:PREFIX/;
 use Krawfish::Log;
 use Role::Tiny::With;
 with 'Krawfish::Koral::Document::FieldBase';
@@ -22,7 +23,7 @@ sub identify {
   return if $self->{key_id} && $self->{key_value_id};
 
   # Get or introduce new key term_id
-  my $key  = '!' . $self->{key};
+  my $key  = KEY_PREF . $self->{key};
   $self->{key_id} = $dict->add_term($key);
 
   if (DEBUG) {
@@ -39,7 +40,7 @@ sub identify {
   };
 
   # Get or introduce new key term_id
-  my $term = '+' . $self->{key} . ':' . $self->{value};
+  my $term = FIELD_PREF . $self->{key} . ':' . $self->{value};
   $self->{key_value_id} = $dict->add_term($term);
 
   return $self;

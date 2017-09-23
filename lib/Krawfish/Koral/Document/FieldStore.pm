@@ -1,5 +1,6 @@
 package Krawfish::Koral::Document::FieldStore;
 use Krawfish::Util::String qw/squote/;
+use Krawfish::Util::Constants ':PREFIX';
 use Role::Tiny::With;
 with 'Krawfish::Koral::Document::FieldBase';
 use warnings;
@@ -19,7 +20,7 @@ sub term_id { undef };
 sub identify {
   my ($self, $dict) = @_;
 
-  my $key  = '!' . $self->{key};
+  my $key  = KEY_PREF . $self->{key};
 
   # Get or introduce new key term_id
   $self->{key_id} = $dict->add_term($key);
