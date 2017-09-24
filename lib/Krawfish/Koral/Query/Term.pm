@@ -1,5 +1,6 @@
 package Krawfish::Koral::Query::Term;
 use parent 'Krawfish::Koral::Query';
+use Krawfish::Util::Constants qw/:PREFIX/;
 use Krawfish::Koral::Query::TermID;
 use Krawfish::Query::Nothing;
 use Krawfish::Log;
@@ -29,7 +30,7 @@ sub new {
 
   if ($term) {
     if ($term =~ m!^(?:([^:\/]+?):)?   # 1 Field
-                   (<>|[\<\>\@])?      # 2 Prefix
+                   ($ANNO_PREFIX_RE)?  # 2 Prefix
                    ([^\/]+?)           # 3 Foundry or Key
                    (?:
                      (?:/([^\=\!]+?))? # 4 Layer
@@ -120,23 +121,23 @@ sub term_type {
   my $self = shift;
   if ($_[0]) {
     if ($_[0] eq 'span') {
-      $self->prefix('<>');
+      $self->prefix(SPAN_PREF);
     }
     elsif ($_[0] eq 'attribute') {
-      $self->prefix('@');
+      $self->prefix(ATTR_PREF);
     }
     elsif ($_[0] eq 'relation') {
 
       # Todo: This doesn't respect
       # direction
-      $self->prefix('>');
+      $self->prefix(REL_L_PREF);
     };
     return $self;
   }
   else {
-    return 'token'     unless $self->prefix;
-    return 'span'      if $self->prefix eq '<>';
-    return 'attribute' if $self->prefix eq '@';
+    return 'token'     unless $self->prefix; # if $self->prefix eq TOKEN_PREF;
+    return 'span'      if $self->prefix eq SPAN_PREF;
+    return 'attribute' if $self->prefix eq ATTR_PREF;
     return 'relation';
   };
 };

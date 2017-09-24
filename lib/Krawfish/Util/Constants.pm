@@ -4,25 +4,44 @@ use warnings;
 use Exporter 'import';
 
 use constant {
-  KEY_PREF     => '=', # ! Field keys
-  FIELD_PREF   => '/', # + Field values
-  FOUNDRY_PREF => '§', # ^
-  LAYER_PREF   => '%', # &
-  SUBTERM_PREF => '*', # *
+  KEY_PREF     => '!',  # ! Field keys
+  FIELD_PREF   => '+',  # + Field values
+  FOUNDRY_PREF => '^',  # ^
+  LAYER_PREF   => '&',  # &
+  SUBTERM_PREF => '.',  # *
+  TOKEN_PREF    => '',  # TODO!
+  SPAN_PREF    => '-',  # <> Spans
+  ATTR_PREF    => '@',
+  REL_L_PREF   => '>',
+  REL_R_PREF   => '<'
 };
+
+our $ANNO_PREFIX_RE = qr/(?:\-|\@|\>|\<)/;
 
 our @EXPORT_OK = (qw/KEY_PREF
                      FIELD_PREF
                      FOUNDRY_PREF
                      LAYER_PREF
-                     SUBTERM_PREF/);
+                     SUBTERM_PREF
+                     TOKEN_PREF
+                     SPAN_PREF
+                     ATTR_PREF
+                     REL_L_PREF
+                     REL_R_PREF
+                     $ANNO_PREFIX_RE/);
 
 our %EXPORT_TAGS = (
   PREFIX => [qw/KEY_PREF
                 FIELD_PREF
                 FOUNDRY_PREF
                 LAYER_PREF
-                SUBTERM_PREF/]
+                SUBTERM_PREF
+                TOKEN_PREF
+                SPAN_PREF
+                ATTR_PREF
+                REL_L_PREF
+                REL_R_PREF
+                $ANNO_PREFIX_RE/]
 );
 
 1;

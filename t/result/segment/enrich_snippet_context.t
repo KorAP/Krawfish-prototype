@@ -1,5 +1,6 @@
 use Test::More;
 use Test::Krawfish;
+use Krawfish::Util::Constants qw/:PREFIX/;
 use strict;
 use warnings;
 
@@ -22,7 +23,7 @@ $koral->query($qb->term('aa'));
 $koral->meta(
   $mb->enrich(
     $mb->e_snippet(
-      context => $mb->e_span_context('<>a/b=c')
+      context => $mb->e_span_context(SPAN_PREF . 'a/b=c')
     )
   )
 );
@@ -55,7 +56,7 @@ is ($query->to_string,
 ok($query->next, 'Next match');
 my $match = $query->current_match;
 is($match->to_string, "[0:0-1|snippet:<>[#7]]", 'Current match');
-is($match->inflate($index->dict)->to_term_string, '[0:0-1|snippet:<>[\'*aa\']]', 'Stringification');
+is($match->inflate($index->dict)->to_term_string, '[0:0-1|snippet:<>[\''.SUBTERM_PREF.'aa\']]', 'Stringification');
 
 TODO: {
   local $TODO = 'Check contexts'

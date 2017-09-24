@@ -1,5 +1,6 @@
 package Krawfish::Koral::Query::Span;
 use parent 'Krawfish::Koral::Query';
+use Krawfish::Util::Constants ':PREFIX';
 use Krawfish::Koral::Query::TermID;
 use Krawfish::Koral::Query::Term;
 use Krawfish::Log;
@@ -16,7 +17,7 @@ sub new {
   # Span is a string
   unless (blessed $span) {
     return bless {
-      operands => [Krawfish::Koral::Query::Term->new('<>' . $span)]
+      operands => [Krawfish::Koral::Query::Term->new(SPAN_PREF . $span)]
     }, $class;
   };
 
@@ -65,7 +66,7 @@ sub identify {
 
     print_log('kq_span', "Translate span $term to term_id") if DEBUG;
 
-    my $term_id = $dict->term_id_by_term('<>' . $term);
+    my $term_id = $dict->term_id_by_term(SPAN_PREF . $term);
 
     return $self->builder->nothing unless defined $term_id;
 

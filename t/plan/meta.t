@@ -1,5 +1,6 @@
 use Test::More;
 use Test::Krawfish;
+use Krawfish::Util::Constants qw/:PREFIX/;
 use strict;
 use warnings;
 
@@ -108,7 +109,7 @@ is(
 $koral->meta(
   $mb->enrich(
     $mb->e_snippet(
-      context => $mb->e_span_context('<>opennlp/s=s', 0)
+      context => $mb->e_span_context(SPAN_PREF . 'opennlp/s=s', 0)
     )
   )
 );
@@ -143,7 +144,7 @@ ok_index($index, {
 $koral->meta(
   $mb->enrich(
     $mb->e_snippet(
-      context => $mb->e_span_context('<>opennlp/s=s', 0)
+      context => $mb->e_span_context(SPAN_PREF . 'opennlp/s=s', 0)
     )
   )
 );

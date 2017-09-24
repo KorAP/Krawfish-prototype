@@ -2,6 +2,7 @@ use strict;
 use warnings;
 use utf8;
 use Test::More;
+use Krawfish::Util::Constants qw/:PREFIX/;
 use Test::Krawfish;
 use Data::Dumper;
 
@@ -42,7 +43,7 @@ ok($doc = Krawfish::Koral::Document->new(
 # );
 
 is(substr($doc->stream->to_string, 0, 100),
-   q!(0)<>['Der';'akron=Der'$1;'<>akron/c=NP'$3](1)< >['Bau';'akron=Bau-Leiter'$3](2)<->['Leiter'](3)< >[!,
+   q!(0)<>['Der';'akron=Der'$1;'! .SPAN_PREF. q!akron/c=NP'$3](1)< >['Bau';'akron=Bau-Leiter'$3](2)<->['Leiter'](3)< >['!,
    'Get stream');
 
 

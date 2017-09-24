@@ -1,5 +1,6 @@
 use Test::More;
 use Test::Krawfish;
+use Krawfish::Util::Constants qw/:PREFIX/;
 use strict;
 use warnings;
 
@@ -69,7 +70,7 @@ ok($coll = $coll->inflate($index->dict), 'Collection');
 
 is(
   $coll->to_string,
-  "gClassFreq:[<2,'*aa',3,'*bb'>=2;<2,'*bb',3,'*cc'>=1]",
+  "gClassFreq:[<2,'" . SUBTERM_PREF . "aa',3,'" . SUBTERM_PREF . "bb'>=2;<2,'" . SUBTERM_PREF . "bb',3,'" . SUBTERM_PREF . "cc'>=1]",
   'Stringification'
 );
 

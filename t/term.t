@@ -1,4 +1,5 @@
 use Test::More;
+use Krawfish::Util::Constants qw/:PREFIX/;
 use strict;
 use warnings;
 use Data::Dumper;
@@ -13,9 +14,9 @@ ok(!$term->layer,   'No layer');
 is($term->key, 'baum', 'Key');
 ok(!$term->value,   'No value');
 
-$term = Krawfish::Koral::Query::Term->new('<>baum');
+$term = Krawfish::Koral::Query::Term->new(SPAN_PREF . 'baum');
 ok(!$term->field,   'No field');
-is($term->prefix, '<>', 'Prefix');
+is($term->prefix, SPAN_PREF, 'Prefix');
 ok(!$term->foundry, 'No foundry');
 ok(!$term->layer,   'No layer');
 is($term->key, 'baum', 'Key');
