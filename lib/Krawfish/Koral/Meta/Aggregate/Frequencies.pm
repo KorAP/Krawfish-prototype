@@ -1,5 +1,5 @@
 package Krawfish::Koral::Meta::Aggregate::Frequencies;
-use Krawfish::Result::Segment::Aggregate::Frequencies;
+use Krawfish::Meta::Segment::Aggregate::Frequencies;
 use strict;
 use warnings;
 
@@ -35,7 +35,7 @@ sub to_string {
 sub optimize {
   my ($self, $segment) = @_;
 
-  return Krawfish::Result::Segment::Aggregate::Frequencies->new;
+  return Krawfish::Meta::Segment::Aggregate::Frequencies->new;
 };
 
 

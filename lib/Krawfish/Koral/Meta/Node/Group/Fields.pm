@@ -1,5 +1,5 @@
 package Krawfish::Koral::Meta::Node::Group::Fields;
-use Krawfish::Result::Segment::Group::Fields;
+use Krawfish::Meta::Segment::Group::Fields;
 use Krawfish::Util::String qw/squote/;
 use Krawfish::Query::Nowhere;
 use strict;
@@ -66,7 +66,7 @@ sub optimize {
     return Krawfish::Query::Nowhere->new;
   };
 
-  return Krawfish::Result::Segment::Group::Fields->new(
+  return Krawfish::Meta::Segment::Group::Fields->new(
     $segment->fields,
     $query,
     $self->term_ids

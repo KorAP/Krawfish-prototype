@@ -1,5 +1,5 @@
 package Krawfish::Koral::Meta::Node::Enrich::Snippet;
-use Krawfish::Result::Segment::Enrich::Snippet;
+use Krawfish::Meta::Segment::Enrich::Snippet;
 use Krawfish::Util::String qw/squote/;
 use Krawfish::Query::Nowhere;
 use strict;
@@ -83,7 +83,7 @@ sub optimize {
   $self->{hit} = $self->{hit}->optimize($segment);
 
   # Return snippet object
-  return Krawfish::Result::Segment::Enrich::Snippet->new(
+  return Krawfish::Meta::Segment::Enrich::Snippet->new(
     query   => $query,
     fwd_obj => $segment->forward,
     hit     => $self->{hit},

@@ -1,5 +1,5 @@
 package Krawfish::Koral::Meta::Aggregate::Length;
-use Krawfish::Result::Segment::Aggregate::Length;
+use Krawfish::Meta::Segment::Aggregate::Length;
 use strict;
 use warnings;
 
@@ -33,7 +33,7 @@ sub to_string {
 sub optimize {
   my ($self, $segment) = @_;
 
-  return Krawfish::Result::Segment::Aggregate::Length->new;
+  return Krawfish::Meta::Segment::Aggregate::Length->new;
 };
 
 

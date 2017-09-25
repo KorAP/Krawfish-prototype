@@ -2,7 +2,7 @@ package Krawfish::Koral::Meta::Node::Limit;
 
 # TODO:
 #   Move this to segment
-use Krawfish::Result::Limit;
+use Krawfish::Meta::Limit;
 use Krawfish::Query::Nowhere;
 use Krawfish::Log;
 use strict;
@@ -52,7 +52,7 @@ sub optimize {
     return Krawfish::Query::Nowhere->new;
   };
 
-  return Krawfish::Result::Limit->new(
+  return Krawfish::Meta::Limit->new(
     $query,
     $self->{start_index},
     $self->{items_per_page}

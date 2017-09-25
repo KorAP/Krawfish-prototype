@@ -1,5 +1,5 @@
 package Krawfish::Koral::Meta::Node::Sort;
-use Krawfish::Result::Segment::Sort;
+use Krawfish::Meta::Segment::Sort;
 use Krawfish::Query::Nowhere;
 use Krawfish::Log;
 use strict;
@@ -88,7 +88,7 @@ sub optimize {
     return Krawfish::Query::Nowhere->new;
   };
 
-  # Krawfish::Result::Segment::Sort->new(
+  # Krawfish::Meta::Segment::Sort->new(
   #   query => $query,
   #   index => $segment,
   #   top_k => $top_k,

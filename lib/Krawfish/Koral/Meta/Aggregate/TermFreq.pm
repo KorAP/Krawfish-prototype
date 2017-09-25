@@ -5,7 +5,7 @@ use warnings;
 # TODO:
 #   This is rather a group query than an aggregation query.
 
-# This calls Krawfish::Result::Segment::Aggregate::TermFreq.
+# This calls Krawfish::Meta::Segment::Aggregate::TermFreq.
 # It is used (among other things) for Co-Occurrence Search.
 #
 # It will return, for a list of terms, the frequency of the terms

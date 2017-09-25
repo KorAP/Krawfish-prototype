@@ -1,5 +1,5 @@
 package Krawfish::Koral::Meta::Node::Aggregate;
-use Krawfish::Result::Segment::Aggregate;
+use Krawfish::Meta::Segment::Aggregate;
 use Krawfish::Query::Nowhere;
 use strict;
 use warnings;
@@ -59,7 +59,7 @@ sub optimize {
     $aggr->[$i] = $aggr->[$i]->optimize($segment);
   };
 
-  return Krawfish::Result::Segment::Aggregate->new(
+  return Krawfish::Meta::Segment::Aggregate->new(
     $query,
     $aggr
   );

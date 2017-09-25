@@ -1,5 +1,5 @@
 package Krawfish::Koral::Meta::Node::Enrich::Fields;
-use Krawfish::Result::Segment::Enrich::Fields;
+use Krawfish::Meta::Segment::Enrich::Fields;
 use Krawfish::Util::String qw/squote/;
 use Krawfish::Query::Nowhere;
 use strict;
@@ -66,7 +66,7 @@ sub optimize {
     return Krawfish::Query::Nowhere->new;
   };
 
-  return Krawfish::Result::Segment::Enrich::Fields->new(
+  return Krawfish::Meta::Segment::Enrich::Fields->new(
     $segment->fields,
     $query,
     $self->term_ids

@@ -1,5 +1,5 @@
 package Krawfish::Koral::Meta::Enrich::Snippet::Context::Span;
-use Krawfish::Result::Segment::Enrich::Snippet::Context::Span;
+use Krawfish::Meta::Segment::Enrich::Snippet::Context::Span;
 use Krawfish::Util::Constants qw/:PREFIX/;
 use Krawfish::Koral::Query::Term;
 use Krawfish::Log;
@@ -115,7 +115,7 @@ sub foundry_id {
 # Adapt element to segment
 sub optimize {
   my ($self, $segment) = @_;
-  return Krawfish::Result::Segment::Enrich::Snippet::Context::Span->new(
+  return Krawfish::Meta::Segment::Enrich::Snippet::Context::Span->new(
     foundry_id => $self->foundry_id,
     layer_id   => $self->layer_id,
     anno_id    => $self->anno_id,

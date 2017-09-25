@@ -1,5 +1,5 @@
 package Krawfish::Koral::Meta::Node::Enrich::Terms;
-use Krawfish::Result::Segment::Enrich::Terms;
+use Krawfish::Meta::Segment::Enrich::Terms;
 use Krawfish::Query::Nowhere;
 use strict;
 use warnings;
@@ -40,7 +40,7 @@ sub optimize {
     return Krawfish::Query::Nowhere->new;
   };
 
-  return Krawfish::Result::Segment::Enrich::Terms->new(
+  return Krawfish::Meta::Segment::Enrich::Terms->new(
     $segment->forward,
     $query,
     $self->{nrs}

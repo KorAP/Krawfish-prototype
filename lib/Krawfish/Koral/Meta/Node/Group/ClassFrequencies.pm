@@ -1,5 +1,5 @@
 package Krawfish::Koral::Meta::Node::Group::ClassFrequencies;
-use Krawfish::Result::Segment::Group::ClassFrequencies;
+use Krawfish::Meta::Segment::Group::ClassFrequencies;
 use Krawfish::Util::String qw/squote/;
 use Krawfish::Query::Nowhere;
 use strict;
@@ -41,7 +41,7 @@ sub optimize {
     return Krawfish::Query::Nowhere->new;
   };
 
-  return Krawfish::Result::Segment::Group::ClassFrequencies->new(
+  return Krawfish::Meta::Segment::Group::ClassFrequencies->new(
     $segment->forward,
     $query,
     $self->{classes}

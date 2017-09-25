@@ -1,5 +1,5 @@
 package Krawfish::Koral::Meta::Enrich::Snippet::Hit;
-use Krawfish::Result::Segment::Enrich::Snippet::Hit;
+use Krawfish::Meta::Segment::Enrich::Snippet::Hit;
 use strict;
 use warnings;
 
@@ -17,7 +17,7 @@ sub identify {
 
 sub optimize {
   my $self = shift;
-  Krawfish::Result::Segment::Enrich::Snippet::Hit->new(
+  Krawfish::Meta::Segment::Enrich::Snippet::Hit->new(
     %$self
   );
 };

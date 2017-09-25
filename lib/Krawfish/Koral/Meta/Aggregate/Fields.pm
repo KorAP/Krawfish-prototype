@@ -1,5 +1,5 @@
 package Krawfish::Koral::Meta::Aggregate::Fields;
-use Krawfish::Result::Segment::Aggregate::Fields;
+use Krawfish::Meta::Segment::Aggregate::Fields;
 use strict;
 use warnings;
 
@@ -72,7 +72,7 @@ sub to_string {
 sub optimize {
   my ($self, $segment) = @_;
 
-  return Krawfish::Result::Segment::Aggregate::Fields->new(
+  return Krawfish::Meta::Segment::Aggregate::Fields->new(
     $segment->fields,
     [$self->operations]
   );
