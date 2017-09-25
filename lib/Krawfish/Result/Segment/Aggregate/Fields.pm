@@ -1,6 +1,6 @@
 package Krawfish::Result::Segment::Aggregate::Fields;
 use parent 'Krawfish::Result::Segment::Aggregate::Base';
-use Krawfish::Posting::Aggregate::Fields;
+use Krawfish::Koral::Result::Aggregate::Fields;
 use Krawfish::Util::String qw/squote/;
 use Krawfish::Log;
 use strict;
@@ -46,7 +46,7 @@ sub new {
     #   This needs to be an object, so it can be inflated again!
     # collection => {}, # The buckets in memory
 
-    aggregation => Krawfish::Posting::Aggregate::Fields->new,
+    aggregation => Krawfish::Koral::Result::Aggregate::Fields->new,
 
     freq    => 0,
     field_freqs => {}

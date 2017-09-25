@@ -1,4 +1,4 @@
-package Krawfish::Posting::Aggregate::Values;
+package Krawfish::Koral::Result::Aggregate::Values;
 use strict;
 use warnings;
 

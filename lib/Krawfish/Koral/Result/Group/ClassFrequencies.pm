@@ -1,4 +1,4 @@
-package Krawfish::Posting::Group::ClassFrequencies;
+package Krawfish::Koral::Result::Group::ClassFrequencies;
 use Krawfish::Util::String qw/squote/;
 use Krawfish::Log;
 use strict;

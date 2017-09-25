@@ -1,6 +1,6 @@
 package Krawfish::Result::Segment::Aggregate::Values;
 use parent 'Krawfish::Result::Segment::Aggregate::Base';
-use Krawfish::Posting::Aggregate::Values;
+use Krawfish::Koral::Result::Aggregate::Values;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -25,7 +25,9 @@ sub new {
   }, $class;
 
   # Initialize aggregator
-  $self->{aggregation} = Krawfish::Posting::Aggregate::Values->new($self->{field_ids});
+  $self->{aggregation} = Krawfish::Koral::Result::Aggregate::Values->new(
+    $self->{field_ids}
+  );
 
   return $self;
 };

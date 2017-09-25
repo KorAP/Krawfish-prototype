@@ -1,6 +1,6 @@
 package Krawfish::Result::Segment::Group::Fields;
 use parent 'Krawfish::Result';
-use Krawfish::Posting::Group::Fields;
+use Krawfish::Koral::Result::Group::Fields;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -28,7 +28,7 @@ sub new {
   }, $class;
 
   # Initialize group object
-  $self->{groups} = Krawfish::Posting::Group::Fields->new($self->{field_keys});
+  $self->{groups} = Krawfish::Koral::Result::Group::Fields->new($self->{field_keys});
 
   return $self;
 };

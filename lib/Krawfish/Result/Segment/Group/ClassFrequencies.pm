@@ -1,6 +1,6 @@
 package Krawfish::Result::Segment::Group::ClassFrequencies;
 use parent 'Krawfish::Result';
-use Krawfish::Posting::Group::ClassFrequencies;
+use Krawfish::Koral::Result::Group::ClassFrequencies;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -32,7 +32,9 @@ sub new {
     last_doc_id => -1
   }, $class;
 
-  $self->{groups} = Krawfish::Posting::Group::ClassFrequencies->new($self->{classes});
+  $self->{groups} = Krawfish::Koral::Result::Group::ClassFrequencies->new(
+    $self->{classes}
+  );
 
   return $self;
 };

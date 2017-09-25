@@ -1,4 +1,4 @@
-package Krawfish::Posting::Group::Fields;
+package Krawfish::Koral::Result::Group::Fields;
 use Krawfish::Util::PatternList qw/pattern_list/;
 use Krawfish::Log;
 use strict;

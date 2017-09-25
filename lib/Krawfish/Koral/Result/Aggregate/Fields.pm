@@ -1,4 +1,4 @@
-package Krawfish::Posting::Aggregate::Fields;
+package Krawfish::Koral::Result::Aggregate::Fields;
 use Krawfish::Log;
 use Krawfish::Util::Constants qw/:PREFIX/;
 use strict;
