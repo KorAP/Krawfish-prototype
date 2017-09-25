@@ -4,19 +4,19 @@ use warnings;
 use Exporter 'import';
 
 use constant {
-  KEY_PREF     => '!',  # ! Field keys
-  FIELD_PREF   => '+',  # + Field values
-  FOUNDRY_PREF => '^',  # ^
-  LAYER_PREF   => '&',  # &
-  SUBTERM_PREF => '.',  # *
-  TOKEN_PREF    => '',  # TODO!
-  SPAN_PREF    => '-',  # <> Spans
+  KEY_PREF     => '!',  # Field keys
+  FIELD_PREF   => '+',  # Field values
+  FOUNDRY_PREF => '^',  # Foundry
+  LAYER_PREF   => '&',  # Layer
+  SUBTERM_PREF => '.',  # * before
+  TOKEN_PREF   => ':',  # Empty before
+  SPAN_PREF    => '-',  # <> Spans before
   ATTR_PREF    => '@',
   REL_L_PREF   => '>',
   REL_R_PREF   => '<'
 };
 
-our $ANNO_PREFIX_RE = qr/(?:\-|\@|\>|\<)/;
+our $ANNO_PREFIX_RE = qr/(?:\:|\-|\@|\>|\<)/;
 
 our @EXPORT_OK = (qw/KEY_PREF
                      FIELD_PREF

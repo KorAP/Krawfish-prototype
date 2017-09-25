@@ -13,13 +13,13 @@ ok_index($index, [qw/aa bb aa bc ac bb cc ca/], 'Add complex document');
 ok(my $qb = Krawfish::Koral::Query::Builder->new, 'Create Builder');
 ok(my $q = $qb->term_re('[ac].'), 'Regex');
 ok($q = $q->normalize->finalize, 'Prepare query');
+
 is($q->to_string, "/[ac]./", 'Stringification');
 ok($q = $q->identify($index->dict), 'Prepare query');
 is($q->to_string, '(#10)|(#12)|(#2)|(#8)', 'Stringification');
 
 ok($q = $q->optimize($index->segment), 'Prepare query');
 is($q->to_string, "or(or(or(#10,#12),#8),#2)", 'Stringification');
-
 
 # Class
 ok($q = $qb->class(
@@ -50,9 +50,15 @@ ok($q = $qb->constraints(
   $qb->term('aa'),
   $qb->term('bb')
 ), 'Regex in constraint');
-ok($q = $q->normalize->finalize->identify($index->dict), 'Prepare query');
+
+ok($q = $q->normalize->finalize, 'Prepare query');
+is($q->to_string, "constr(pos=precedes,between=1-1,notBetween=/[ac]./:aa,bb)",
+   'Stringification');
+
+ok($q = $q->identify($index->dict), 'Prepare query');
 is($q->to_string, "constr(pos=precedes,between=1-1,notBetween=(#10)|(#12)|(#2)|(#8):#2,#4)",
    'Stringification');
+
 ok($q = $q->optimize($index->segment), 'Prepare query');
 is($q->to_string, "constr(pos=1,between=1-1,notBetween=or(or(or(#10,#12),#8),#2):#2,#4)",
    'Stringification');

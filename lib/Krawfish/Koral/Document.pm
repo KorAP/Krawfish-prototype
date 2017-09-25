@@ -316,6 +316,9 @@ sub _term {
     $term->value($item->{value});
   };
 
+  # Make token default term type
+  $term->term_type('token');
+
   return $term;
 
   #my $key = '';

@@ -13,6 +13,10 @@ ok_index($index, {
   genre => 'novel',
   integer_age => 4
 } => [qw/aa bb/], 'Add complex document');
+
+
+done_testing;
+__END__
 ok_index($index, {
   integer_id => 3,
   author => 'Peter',
@@ -41,6 +45,7 @@ ok(my $query = $cb->bool_and(
 
 is($query->to_string, 'age=4&author=Peter', 'Stringification');
 ok(!$query->is_negative, 'Check negativity');
+
 
 ok(my $plan = $query->normalize->identify($index->dict)->optimize($index->segment), 'Planning');
 

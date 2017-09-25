@@ -30,7 +30,6 @@ my $koral = Krawfish::Koral->new;
 my $qb = $koral->query_builder;
 my $query;
 
-
 # Check data by query retrieval
 # Search for <akron/c=NP>
 $koral->query($qb->span('akron/c=NP'));
@@ -38,6 +37,7 @@ ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment),
    'Materialize');
 is($query->to_string, 'filter(#11,[1])', 'Stringification');
 matches($query, [qw/[0:0-3] [0:4-8]/], 'Search');
+
 
 # Search for akron=Bau-Leiter
 $koral->query($qb->token('akron=Bau-Leiter'));
@@ -98,7 +98,8 @@ is($index->dict->term_by_term_id(13), SUBTERM_PREF . 'Bau', 'Get term by term id
 
 ok(my @anno = $fwd->current->annotations, 'Get annotations');
 is($anno[0]->[0], 14, 'Annotation');
-is($index->dict->term_by_term_id($anno[0]->[0]), 'akron=Bau-Leiter', 'Annotation');
+is($index->dict->term_by_term_id($anno[0]->[0]),
+   TOKEN_PREF . 'akron=Bau-Leiter', 'Annotation');
 
 ok($fwd = $index->segment->forward->pointer, 'Get pointer');
 ok(defined $fwd->skip_doc(0), 'Skip to first document');
@@ -114,7 +115,7 @@ ok($fwd->next, 'Skip to next token');
 
 my $foundry_id = $dict->term_id_by_term(FOUNDRY_PREF . 'opennlp');
 my $layer_id = $dict->term_id_by_term(LAYER_PREF . 'p');
-my $anno_id = $dict->term_id_by_term('opennlp/p=V');
+my $anno_id = $dict->term_id_by_term(TOKEN_PREF . 'opennlp/p=V');
 
 is_deeply($fwd->current->annotation(
   $foundry_id,

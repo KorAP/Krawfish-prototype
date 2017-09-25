@@ -18,6 +18,9 @@ use warnings;
 #   a utility class Krawfish::Util::Koral::Term or so
 
 # TODO:
+#   Field is probably useless
+
+# TODO:
 #   Rename to_term to to_neutral!
 
 use constant DEBUG => 1;
@@ -113,7 +116,7 @@ sub prefix {
     $_[0]->{prefix} = $_[1];
     return $_[0];
   };
-  $_[0]->{prefix};
+  $_[0]->{prefix} // TOKEN_PREF;
 };
 
 
@@ -131,11 +134,17 @@ sub term_type {
       # Todo: This doesn't respect
       # direction
       $self->prefix(REL_L_PREF);
+    }
+    elsif ($_[0] eq 'token') {
+
+      # Todo: This doesn't respect
+      # direction
+      $self->prefix(TOKEN_PREF);
     };
     return $self;
   }
   else {
-    return 'token'     unless $self->prefix; # if $self->prefix eq TOKEN_PREF;
+    return 'token'     if $self->prefix eq TOKEN_PREF;
     return 'span'      if $self->prefix eq SPAN_PREF;
     return 'attribute' if $self->prefix eq ATTR_PREF;
     return 'relation';
@@ -308,7 +317,7 @@ sub to_term {
   if ($str) {
     $str .= ':';
   };
-  $str .= $self->prefix if $self->prefix;
+  $str .= $self->prefix;
   my $term = $self->to_string;
   if ($self->operator ne '=') {
     $term =~ s/!?[=~]/=/;
@@ -325,7 +334,8 @@ sub to_term {
 sub to_term_escaped {
   my $self = shift;
   my $term = $self->to_term;
-  if ($term =~ m!^((?:[^:]+?\:)?(?:[^/]+?\/)?(?:[^=]+?)\=)(.+?)$!) {
+  # (?:[^:]+?\:)?
+  if ($term =~ m!^(.(?:[^/]+?\/)?(?:[^=]+?)\=)(.+?)$!) {
     return quotemeta($1). $2;
   };
   return $term;
