@@ -1,6 +1,7 @@
 package Krawfish::Koral::Query::Token;
 use parent 'Krawfish::Koral::Query';
 # use Krawfish::Koral::Query::Token;
+use Krawfish::Util::Constants qw/:PREFIX/;
 use Krawfish::Koral::Query::Term;
 # use Krawfish::Query::Term;
 use Krawfish::Log;
@@ -28,7 +29,7 @@ sub new {
   # Token is a string
   unless (blessed $token) {
     return bless {
-      operands => [Krawfish::Koral::Query::Term->new($token)]
+      operands => [Krawfish::Koral::Query::Term->new(TOKEN_PREF . $token)]
     }, $class;
   };
 

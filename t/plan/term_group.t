@@ -98,8 +98,8 @@ is($query->to_string,
    "or(constr(pos=32:#4,#2),constr(pos=32:#8,#6))",
    'Stringification');
 
-is($index->dict->term_by_term_id(6), 'third', 'Check mapping');
-is($index->dict->term_by_term_id(8), 'fourth', 'Check mapping');
+is($index->dict->term_by_term_id(6), ':third', 'Check mapping');
+is($index->dict->term_by_term_id(8), ':fourth', 'Check mapping');
 
 $query = $qb->token(
   $qb->bool_or(

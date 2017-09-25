@@ -1,5 +1,6 @@
 use Test::More;
 use Test::Krawfish;
+use Krawfish::Util::Constants qw/:PREFIX/;
 use strict;
 use warnings;
 
@@ -11,13 +12,13 @@ ok_index_file($index,'doc1.jsonld', 'Add new document');
 
 sub _postings {
   my $term = shift;
-  my $term_id = $index->dict->term_id_by_term($term) or return;
+  my $term_id = $index->dict->term_id_by_term(TOKEN_PREF . $term) or return;
   return $index->segment->postings($term_id)->pointer;
 };
 
 # Get terms from the term dictionary
 my $term_id;
-ok($term_id = $index->dict->term_id_by_term('Der'), 'Get term id');
+ok($term_id = $index->dict->term_id_by_term(TOKEN_PREF . 'Der'), 'Get term id');
 is($term_id, 10, 'Term id valid');
 
 ok(!$index->dict->term_id_by_term('Haus'), 'Get term id');

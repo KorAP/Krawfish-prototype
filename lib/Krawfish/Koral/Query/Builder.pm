@@ -1,4 +1,9 @@
 package Krawfish::Koral::Query::Builder;
+use strict;
+use warnings;
+
+use Krawfish::Util::Constants qw/:PREFIX/;
+
 use Krawfish::Koral::Query::Term;
 use Krawfish::Koral::Query::Token;
 use Krawfish::Koral::Query::Span;
@@ -62,7 +67,8 @@ sub token {
 
 sub term {
   shift;
-  Krawfish::Koral::Query::Term->new(@_);
+  my $term = shift;
+  return Krawfish::Koral::Query::Term->new(TOKEN_PREF . $term);
 };
 
 sub term_neg {
