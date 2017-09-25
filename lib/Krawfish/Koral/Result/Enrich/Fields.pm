@@ -1,4 +1,4 @@
-package Krawfish::Posting::Match::Fields;
+package Krawfish::Koral::Result::Enrich::Fields;
 use strict;
 use warnings;
 

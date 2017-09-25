@@ -1,4 +1,5 @@
 package Krawfish::Result::Segment::Sort::Sample;
+use Krawfish::Koral::Result::Match;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -134,7 +135,7 @@ sub match_from_query {
 sub current_match {
   my $self = shift;
   my $current = $self->current or return;
-  my $match = Krawfish::Posting::Match->new(
+  my $match = Krawfish::Koral::Result::Match->new(
     doc_id  => $current->doc_id,
     start   => $current->start,
     end     => $current->end,

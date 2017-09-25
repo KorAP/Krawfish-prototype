@@ -1,6 +1,6 @@
 package Krawfish::Result::Segment::Enrich::Fields;
 use parent 'Krawfish::Result';
-use Krawfish::Posting::Match::Fields;
+use Krawfish::Koral::Result::Enrich::Fields;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -74,7 +74,7 @@ sub current_match {
 
     # Create an enrichment
     $match->add(
-      Krawfish::Posting::Match::Fields->new(@{$self->{last_fields}})
+      Krawfish::Koral::Result::Enrich::Fields->new(@{$self->{last_fields}})
       );
 
     # The document has no associated fields
@@ -107,7 +107,7 @@ sub current_match {
 
   # Create an enrichment
   $match->add(
-    Krawfish::Posting::Match::Fields->new(@fields)
+    Krawfish::Koral::Result::Enrich::Fields->new(@fields)
     );
 
   $self->{match} = $match;

@@ -1,4 +1,4 @@
-package Krawfish::Posting::Match::Terms;
+package Krawfish::Koral::Result::Enrich::Terms;
 use strict;
 use warnings;
 

@@ -1,6 +1,6 @@
 package Krawfish::Result::Segment::Enrich::Snippet;
 use parent 'Krawfish::Result';
-use Krawfish::Posting::Match::Snippet;
+use Krawfish::Koral::Result::Enrich::Snippet;
 # use Krawfish::Result::Segment::Enrich::Snippet::Highlights;
 use Krawfish::Log;
 use strict;
@@ -91,7 +91,7 @@ sub current_match {
   };
 
   # Create snippet posting
-  my $snippet = Krawfish::Posting::Match::Snippet->new(
+  my $snippet = Krawfish::Koral::Result::Enrich::Snippet->new(
     hit_ids => $hit_data
   );
 

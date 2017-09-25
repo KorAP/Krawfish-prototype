@@ -1,7 +1,6 @@
 package Krawfish::Result::Group::Spans;
 use parent 'Krawfish::Result';
 use Krawfish::Log;
-use Krawfish::Posting::Match;
 use strict;
 use warnings;
 

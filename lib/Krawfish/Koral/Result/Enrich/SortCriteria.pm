@@ -1,4 +1,4 @@
-package Krawfish::Posting::Match::SortCriteria;
+package Krawfish::Koral::Result::Enrich::SortCriteria;
 use strict;
 use warnings;
 

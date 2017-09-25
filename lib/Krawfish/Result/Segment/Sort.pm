@@ -2,6 +2,7 @@ package Krawfish::Result::Segment::Sort;
 use parent 'Krawfish::Result';
 use Krawfish::Util::String qw/squote/;
 use Krawfish::Util::PriorityQueue::PerDoc;
+use Krawfish::Koral::Result::Match;
 use Krawfish::Posting::Bundle;
 use Krawfish::Log;
 use Data::Dumper;
@@ -440,7 +441,7 @@ sub current {
 sub current_match {
   my $self = shift;
   my $current = $self->current or return;
-  my $match = Krawfish::Posting::Match->new(
+  my $match = Krawfish::Koral::Result::Match->new(
     doc_id  => $current->doc_id,
     start   => $current->start,
     end     => $current->end,

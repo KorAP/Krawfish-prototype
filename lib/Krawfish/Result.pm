@@ -4,7 +4,7 @@ use parent 'Krawfish::Query';
 # TODO:
 #   Rename Krawfish::Result to Krawfish::Meta
 
-use Krawfish::Posting::Match;
+use Krawfish::Koral::Result::Match;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -15,7 +15,7 @@ sub current_match {
   my $self = shift;
   my $current = $self->current;
   return unless $current;
-  return Krawfish::Posting::Match->new(
+  return Krawfish::Koral::Result::Match->new(
     doc_id  => $current->doc_id,
     start   => $current->start,
     end     => $current->end,
@@ -57,7 +57,7 @@ sub match_from_query {
     print_log('result', 'Current posting is '. $self->{query}->to_string) if DEBUG;
 
     # Create new match
-    $match = Krawfish::Posting::Match->new(
+    $match = Krawfish::Koral::Result::Match->new(
       doc_id  => $current->doc_id,
       start   => $current->start,
       end     => $current->end,

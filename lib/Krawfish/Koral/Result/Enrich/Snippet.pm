@@ -1,4 +1,4 @@
-package Krawfish::Posting::Match::Snippet;
+package Krawfish::Koral::Result::Enrich::Snippet;
 use strict;
 use warnings;
 

@@ -1,5 +1,5 @@
 package Krawfish::Result::Segment::Enrich::Terms;
-use Krawfish::Posting::Match::Terms;
+use Krawfish::Koral::Result::Enrich::Terms;
 use parent 'Krawfish::Result';
 use Krawfish::Log;
 use strict;
@@ -220,7 +220,7 @@ sub current_match {
 
   # Add term id information per class
   $match->add(
-    Krawfish::Posting::Match::Terms->new(
+    Krawfish::Koral::Result::Enrich::Terms->new(
       \%term_id_per_class
     )
   );
