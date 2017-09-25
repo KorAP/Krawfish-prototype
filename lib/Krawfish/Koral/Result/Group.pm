@@ -1,4 +1,4 @@
-package Krawfish::Posting::Group;
+package Krawfish::Koral::Result::Group;
 use strict;
 use warnings;
 
