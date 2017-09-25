@@ -20,7 +20,7 @@ my $query = $builder->position(
   $builder->span('opennlp/c=NP'),
   $builder->token('Der')
 );
-ok(!$query->is_any, 'Is any');
+ok(!$query->is_anywhere, 'Is anywhere');
 ok(!$query->is_optional, 'Isn\'t optional');
 ok(!$query->is_null, 'Isn\'t null');
 ok(!$query->is_negative, 'Isn\'t negative');
@@ -45,7 +45,7 @@ $query = $builder->position(
   $builder->span('opennlp/c=NP'),
   $builder->null
 );
-ok(!$query->is_any, 'Is any');
+ok(!$query->is_anywhere, 'Is anywhere');
 ok(!$query->is_optional, 'Isn\'t optional');
 ok(!$query->is_null, 'Isn\'t null');
 ok(!$query->is_negative, 'Isn\'t negative');
@@ -68,7 +68,7 @@ $query = $builder->position(
   $builder->null
 );
 
-ok(!$query->is_any, 'Is any');
+ok(!$query->is_anywhere, 'Is anywhere');
 ok(!$query->is_optional, 'Isn\'t optional');
 ok(!$query->is_null, 'Isn\'t null');
 ok(!$query->is_negative, 'Isn\'t negative');
@@ -96,7 +96,7 @@ is($query->to_string, '[0]', 'Stringification');
 
 TODO: {
   local $TODO = "Test further";
-  # extendedLeft, extendedRight, negative, any, optional ...
+  # extendedLeft, extendedRight, negative, anywhere, optional ...
 };
 
 

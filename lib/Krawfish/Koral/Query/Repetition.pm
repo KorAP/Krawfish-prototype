@@ -102,8 +102,8 @@ sub to_koral_fragment {
 # Query Planning methods and attributes #
 #########################################
 
-sub is_any {
-  $_[0]->operand->is_any;
+sub is_anywhere {
+  $_[0]->operand->is_anywhere;
 };
 
 
@@ -136,8 +136,8 @@ sub is_negative {
 sub is_extended {
   return 0 if $_[0]->is_null;
 
-  # Is extended, in case the repetition is any
-  $_[0]->is_any;
+  # Is extended, in case the repetition is anywhere
+  $_[0]->is_anywhere;
 };
 
 sub is_extended_right {
@@ -177,7 +177,7 @@ sub normalize {
 
   # If something does not match, but is optional at the same time,
   # Make it ignorable
-  if ($span->is_nothing && $self->is_optional) {
+  if ($span->is_nowhere && $self->is_optional) {
     return $self->builder->null;
   };
 
@@ -288,7 +288,7 @@ sub to_string {
   my $type = $self->operand->type;
 
   # Wrap complex queries in parentheses
-  if ($type !~ /class|token|term|span|nothing/) {
+  if ($type !~ /class|token|term|span|nowhere/) {
     $str = '(' . $str . ')';
   };
 

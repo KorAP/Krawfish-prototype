@@ -127,7 +127,7 @@ sub identify {
 
     my $term_id = $dict->term_id_by_term(FIELD_PREF . $term);
 
-    return $self->builder->nothing unless defined $term_id;
+    return $self->builder->nowhere unless defined $term_id;
 
     return Krawfish::Koral::Corpus::FieldID->new($term_id);
   };
@@ -168,7 +168,7 @@ sub optimize {
   );
 
   if ($query->max_freq == 0) {
-    return Krawfish::Query::Nothing->new;
+    return Krawfish::Query::Nowhere->new;
   };
 
   return $query;

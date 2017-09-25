@@ -215,7 +215,7 @@ sub next {
             next;
           }
 
-          # No, nothing
+          # No, nowhere
           else {
             print_log('dual', 'There is no next B') if DEBUG;
 

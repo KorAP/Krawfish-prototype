@@ -1,7 +1,7 @@
 package Krawfish::Koral::Query::Filter;
 use parent 'Krawfish::Koral::Query';
 use Krawfish::Log;
-use Krawfish::Query::Nothing;
+use Krawfish::Query::Nowhere;
 use strict;
 use warnings;
 use Memoize;
@@ -68,14 +68,14 @@ sub identify {
 
   $ops->[0] = $ops->[0]->identify($dict);
 
-  if ($ops->[0]->is_nothing) {
+  if ($ops->[0]->is_nowhere) {
     return $ops->[0];
   };
 
   $self->{corpus} = $self->{corpus}->identify($dict);
 
   # Matches nowhere
-  if ($self->{corpus}->is_nothing) {
+  if ($self->{corpus}->is_nowhere) {
     return $self->{corpus};
   };
 
@@ -111,7 +111,7 @@ sub optimize {
     if (DEBUG) {
       print_log('kq_filter', 'Corpus ' . $self->corpus->to_string . ' is empty');
     };
-    return Krawfish::Query::Nothing->new;
+    return Krawfish::Query::Nowhere->new;
   };
 
   # Optimize span
@@ -119,7 +119,7 @@ sub optimize {
 
   # Filter would rule out everything
   if ($span->max_freq == 0) {
-    return Krawfish::Query::Nothing->new;
+    return Krawfish::Query::Nowhere->new;
   };
 
   # Filter the span with the corpus

@@ -169,7 +169,7 @@ sub _resolve_idempotence {
   # TODO:
   #   copy warning messages everywhere, when operations are changed!
 
-  return $self if $self->is_nothing || $self->is_any;
+  return $self if $self->is_nowhere || $self->is_anywhere;
 
   # Get operands in order to identify identical subcorpora
   my $ops = $self->operands_in_order;
@@ -209,8 +209,8 @@ sub _resolve_idempotence {
 # Remove matching idempotence
 # (A & (A | B)) -> A
 # (A | (A & B)) -> A
-# (A | !A) -> (any)
-# (A & !A) -> (nothing)
+# (A | !A) -> (anywhere)
+# (A & !A) -> (nowhere)
 #
 # TODO:
 #   (A | B) & !(A | B)
@@ -219,7 +219,7 @@ sub _remove_nested_idempotence {
 
   print_log('kq_bool', 'Remove nested idempotence for ' . $self->to_string) if DEBUG;
 
-  return $self if $self->is_nothing || $self->is_any;
+  return $self if $self->is_nowhere || $self->is_anywhere;
 
   my $ops = $self->operands;
 
@@ -272,9 +272,9 @@ sub _remove_nested_idempotence {
     );
   };
 
-  # Check for any or nothing
-  # (A | !A) -> (any)
-  # (A & !A) -> (nothing)
+  # Check for anywhere or nowhere
+  # (A | !A) -> (anywhere)
+  # (A & !A) -> (nowhere)
   foreach my $neg_i (@neg, @neg_group) {
     foreach my $pos_i (@pos, @pos_group) {
 
@@ -301,14 +301,14 @@ sub _remove_nested_idempotence {
         if ($self->operation eq 'or') {
 
           # Matches everything
-          $self->is_any(1);
+          $self->is_anywhere(1);
         }
 
         elsif ($self->operation eq 'and') {
 
-          # Matches nothing
+          # Matches nowhere
 
-          $self->is_nothing(1);
+          $self->is_nowhere(1);
         };
 
         # Remove all operands
@@ -372,7 +372,7 @@ sub _remove_nested_idempotence {
 # ((a & b) & c) -> (a & b & c)
 # ((a | b) | c) -> (a | b | c)
 #
-# Respect any and nothing
+# Respect anywhere and nowhere
 # a & b & [1] -> a & b
 # a & b & [0] -> [0]
 # a | b | [1] -> [1]
@@ -380,7 +380,7 @@ sub _remove_nested_idempotence {
 sub _clean_and_flatten {
   my $self = shift;
 
-  return $self if $self->is_nothing || $self->is_any;
+  return $self if $self->is_nowhere || $self->is_anywhere;
 
   # Get operands
   my $ops = $self->operands;
@@ -400,8 +400,8 @@ sub _clean_and_flatten {
       splice @$ops, $i, 1;
     }
 
-    # If nothing can be matched
-    elsif ($op->is_nothing) {
+    # If nowhere can be matched
+    elsif ($op->is_nowhere) {
 
       # A & B & [0] -> [0]
       if ($self->operation eq 'and') {
@@ -410,7 +410,7 @@ sub _clean_and_flatten {
 
         # Matches nowhere!
         @$ops = ();
-        $self->is_nothing(1);
+        $self->is_nowhere(1);
         last;
       }
 
@@ -422,7 +422,7 @@ sub _clean_and_flatten {
     }
 
     # If everything can be matched
-    elsif ($op->is_any) {
+    elsif ($op->is_anywhere) {
 
       # A & B & [1] -> A & B
       if ($self->operation eq 'and') {
@@ -437,7 +437,7 @@ sub _clean_and_flatten {
 
         # Matches everywhere
         @$ops = ();
-        $self->is_any(1);
+        $self->is_anywhere(1);
         last;
       }
     }
@@ -490,7 +490,7 @@ sub _resolve_demorgan {
 
   print_log('kq_bool', 'Resolve DeMorgan in ' . $self->to_string) if DEBUG;
 
-  return $self if $self->is_nothing || $self->is_any;
+  return $self if $self->is_nowhere || $self->is_anywhere;
 
   # Split negative and operands
   my (@neg, @pos) = ();
@@ -617,26 +617,26 @@ sub _replace_negative {
 
   print_log('kq_bool', 'Replace Negations in ' . $self->to_string) if DEBUG;
 
-  # Check for negativity in groups to toggle all or nothing
+  # Check for negativity in groups to toggle all or nowhere
   if ($self->is_negative) {
 
     # ![1] -> [0]
-    if ($self->is_any) {
-      $self->is_any(0);
-      $self->is_nothing(1);
+    if ($self->is_anywhere) {
+      $self->is_anywhere(0);
+      $self->is_nowhere(1);
       $self->is_negative(0);
     }
 
     # ![0] -> [1]
-    elsif ($self->is_nothing) {
-      $self->is_any(1);
-      $self->is_nothing(0);
+    elsif ($self->is_nowhere) {
+      $self->is_anywhere(1);
+      $self->is_nowhere(0);
       $self->is_negative(0);
     };
   };
 
-  # Return if any or nothing
-  return $self if $self->is_any || $self->is_nothing;
+  # Return if anywhere or nowhere
+  return $self if $self->is_anywhere || $self->is_nowhere;
 
   my $ops = $self->operands;
 
@@ -644,11 +644,11 @@ sub _replace_negative {
   if (@$ops == 1) {
 
     # Only operand is negative
-    # return !a -> andNot(any,a)
+    # return !a -> andNot(anywhere,a)
     if ($self->is_negative) {
       $self->is_negative(0);
       return $self->builder->bool_and_not(
-        $self->builder->any,
+        $self->builder->anywhere,
         $self
       )->normalize;
     };
@@ -705,7 +705,7 @@ sub _replace_negative {
     print_log('kq_bool', 'Operation is "or"') if DEBUG;
 
     push @$ops, $self->builder->bool_and_not(
-      $self->builder->any,
+      $self->builder->anywhere,
       $neg
     )->normalize;
     return $self;
@@ -768,7 +768,7 @@ sub optimize {
 
     # No valid operands exist
     if (@freq == 0) {
-      return Krawfish::Query::Nothing->new;
+      return Krawfish::Query::Nowhere->new;
     };
 
     # Get the first operand
@@ -797,7 +797,7 @@ sub optimize {
     if ($freq[0]->[1] == 0) {
 
       # One operand is not existing
-      return Krawfish::Query::Nothing->new;
+      return Krawfish::Query::Nowhere->new;
     };
 
     # Get the first operand
@@ -817,9 +817,9 @@ sub optimize {
     warn 'Should never happen!';
   };
 
-  # Return nothing if nothing matches!
+  # Return nowhere if nowhere matches!
   if ($query->max_freq == 0) {
-    return Krawfish::Query::Nothing->new;
+    return Krawfish::Query::Nowhere->new;
   };
 
   return $query;

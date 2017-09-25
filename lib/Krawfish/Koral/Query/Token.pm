@@ -52,9 +52,9 @@ sub remove_classes {
 };
 
 
-# Overwrite is any
-sub is_any {
-  return if $_[0]->is_nothing;
+# Overwrite is anywhere
+sub is_anywhere {
+  return if $_[0]->is_nowhere;
   return 1 unless $_[0]->operand;
   return;
 };
@@ -84,13 +84,13 @@ sub normalize {
   # There is an operand defined
   if ($self->operand) {
     my $op = $self->operand->normalize;
-    if ($op->is_nothing) {
+    if ($op->is_nowhere) {
       $self->operands([]);
-      $self->is_nothing(1);
+      $self->is_nowhere(1);
     }
-    elsif ($op->is_any) {
+    elsif ($op->is_anywhere) {
       $self->operands([]);
-      $self->is_any(1);
+      $self->is_anywhere(1);
     }
     elsif (!$self->is_optional && !$self->is_negative) {
       return $op;
@@ -100,7 +100,7 @@ sub normalize {
     };
   };
 
-  # No operand defined - ANY query
+  # No operand defined - ANYWHERE query
   return $self;
 };
 
@@ -116,7 +116,7 @@ sub finalize {
 
   # No term defined
   unless ($self->operand) {
-    $self->error(000, 'Unable to search for any tokens');
+    $self->error(000, 'Unable to search for anywhere tokens');
     return;
   };
 
@@ -129,7 +129,7 @@ sub optimize {
 
   # Create token query
   unless ($self->operand) {
-    warn "It's not possible to optimize an any query";
+    warn "It's not possible to optimize an anywhere query";
     return;
   };
 
@@ -155,10 +155,10 @@ sub to_string {
 
   my $string = '[';
 
-  if ($self->is_nothing) {
+  if ($self->is_nowhere) {
     $string .= '0';
   }
-  elsif ($self->is_any) {
+  elsif ($self->is_anywhere) {
     $string .= '';
   }
   elsif ($self->operand) {

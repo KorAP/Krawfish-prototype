@@ -3,6 +3,7 @@ package Krawfish::Koral::Meta::Node::Limit;
 # TODO:
 #   Move this to segment
 use Krawfish::Result::Limit;
+use Krawfish::Query::Nowhere;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -48,7 +49,7 @@ sub optimize {
   my $query = $self->{query}->optimize($segment);
 
   if ($query->max_freq == 0) {
-    return Krawfish::Query::Nothing->new;
+    return Krawfish::Query::Nowhere->new;
   };
 
   return Krawfish::Result::Limit->new(

@@ -15,7 +15,7 @@ sub new {
 
   # Get postings pointer
   my $postings = $segment->postings($term_id)
-    or return Krawfish::Query::Nothing->new;
+    or return Krawfish::Query::Nowhere->new;
 
   bless {
     segment => $segment,

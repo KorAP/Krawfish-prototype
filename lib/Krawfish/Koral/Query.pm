@@ -25,7 +25,7 @@ use constant {
 sub new {
   my $class = shift;
   my $self = bless {
-    any => 0,
+    anywhere => 0,
     optional => 0,
     null => 0,
     negative => 0,
@@ -67,7 +67,7 @@ sub refer {
 
 
 # TODO:
-#   If "nothing" returns, optimize away
+#   If "nowhere" returns, optimize away
 #   before ->optimize().
 sub identify {
   my ($self, $dict) = @_;
@@ -113,15 +113,15 @@ sub finalize {
   my $query = $self;
 
   # The query matches everywhere
-  if ($query->is_any || $query->is_null) {
+  if ($query->is_anywhere || $query->is_null) {
     $self->error(780, "This query matches everywhere");
     return;
   };
 
 
   # The query matches nowhere
-  if ($query->is_nothing) {
-    return $query->builder->nothing;
+  if ($query->is_nowhere) {
+    return $query->builder->nowhere;
   };
 
   if ($query->is_negative) {
@@ -146,7 +146,7 @@ sub finalize {
   #   This needs to be in the finalize stage
   #   on the segment level!
 
-  # There is a possible 'any' extension,
+  # There is a possible 'anywhere' extension,
   # that may exceed the text boundary
   if ($query->is_extended_right) {
     return $self->builder->in_text($query);
@@ -233,12 +233,12 @@ sub operand {
 
 
 # Matches everything
-sub is_any {
+sub is_anywhere {
   my $self = shift;
   if (defined $_[0]) {
-    $self->{any} = shift;
+    $self->{anywhere} = shift;
   };
-  return $self->{any} // 0;
+  return $self->{anywhere} // 0;
 };
 
 
@@ -262,12 +262,12 @@ sub is_null {
 
 # Nothing matches nowhere - e.g. in
 # Der [alte & !alte] Mann
-sub is_nothing {
+sub is_nowhere {
   my $self = shift;
   if (defined $_[0]) {
-    $self->{nothing} = shift;
+    $self->{nowhere} = shift;
   };
-  return $self->{nothing} // 0;
+  return $self->{nowhere} // 0;
 };
 
 
@@ -319,7 +319,7 @@ sub maybe_anchor      {
   my $self = shift;
   return if $self->is_negative;
   return if $self->is_optional;
-  return if $self->is_any;
+  return if $self->is_anywhere;
   return 1;
 };
 

@@ -11,7 +11,7 @@ use Krawfish::Koral::Query::Unique;
 use Krawfish::Koral::Query::Class;
 use Krawfish::Koral::Query::Constraints;
 use Krawfish::Koral::Query::Length;
-use Krawfish::Koral::Query::Nothing;
+use Krawfish::Koral::Query::Nowhere;
 use Krawfish::Koral::Query::Or;
 use Krawfish::Koral::Query::Filter;
 use Krawfish::Koral::Query::Match;
@@ -203,7 +203,7 @@ sub ext_right {
 
 
 # Matches anywhere
-sub any {
+sub anywhere {
   Krawfish::Koral::Query::Token->new;
 };
 
@@ -215,8 +215,8 @@ sub null {
 
 
 # No match
-sub nothing {
-  Krawfish::Koral::Query::Nothing->new;
+sub nowhere {
+  Krawfish::Koral::Query::Nowhere->new;
 };
 
 

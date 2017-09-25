@@ -1,18 +1,18 @@
-package Krawfish::Koral::Query::Nothing;
+package Krawfish::Koral::Query::Nowhere;
 use parent 'Krawfish::Koral::Query';
-use Krawfish::Query::Nothing;
+use Krawfish::Query::Nowhere;
 use strict;
 use warnings;
 
 sub new {
   my $class = shift;
   bless {
-    nothing => 1
+    nowhere => 1
   }, $class;
 };
 
 sub type {
-  'nothing';
+  'nowhere';
 };
 
 sub is_leaf {
@@ -36,7 +36,7 @@ sub identify {
 };
 
 sub optimize {
-  Krawfish::Query::Nothing->new;
+  Krawfish::Query::Nowhere->new;
 };
 
 sub operand {

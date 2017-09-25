@@ -44,7 +44,7 @@ $koral->query(
         ),
         3
       ),
-      $qb->any,
+      $qb->anywhere,
       $qb->repeat(
         $qb->term('a'),
         1,

@@ -1,5 +1,6 @@
 package Krawfish::Koral::Meta::Node::Enrich::Terms;
 use Krawfish::Result::Segment::Enrich::Terms;
+use Krawfish::Query::Nowhere;
 use strict;
 use warnings;
 
@@ -36,7 +37,7 @@ sub optimize {
   my $query = $self->{query}->optimize($segment);
 
   if ($query->max_freq == 0) {
-    return Krawfish::Query::Nothing->new;
+    return Krawfish::Query::Nowhere->new;
   };
 
   return Krawfish::Result::Segment::Enrich::Terms->new(

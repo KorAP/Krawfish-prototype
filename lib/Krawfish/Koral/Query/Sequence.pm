@@ -32,7 +32,7 @@ sub new {
   $self->{operands} = [@_];
   $self->{info} = undef;
   $self->{_checked} = 0;
-  $self->{any} = 1;
+  $self->{anywhere} = 1;
   $self->{null} = 1;
   $self->{maybe_unsorted} = 0;
   return $self;
@@ -70,8 +70,8 @@ sub _check {
       $self->{null} = 0;
     };
 
-    unless ($_->is_any) {
-      $self->{any} = 0;
+    unless ($_->is_anywhere) {
+      $self->{anywhere} = 0;
     };
 
     if ($_->maybe_unsorted) {
@@ -87,11 +87,11 @@ sub _check {
 };
 
 
-sub is_any {
+sub is_anywhere {
   my $self = shift;
   $self->_check;
-  print_log('kq_seq', 'Check for any: ' . $self->to_string . ' is ' . $self->{any}) if DEBUG;
-  return $self->{any};
+  print_log('kq_seq', 'Check for anywhere: ' . $self->to_string . ' is ' . $self->{anywhere}) if DEBUG;
+  return $self->{anywhere};
 };
 
 

@@ -19,7 +19,7 @@ sub is_leaf {
   1;
 };
 
-sub is_nothing {
+sub is_nowhere {
   0;
 };
 
@@ -60,7 +60,7 @@ sub optimize {
   return Krawfish::Query::TermID->new($segment, $self->term_id);
 };
 
-sub is_any {
+sub is_anywhere {
   0;
 };
 

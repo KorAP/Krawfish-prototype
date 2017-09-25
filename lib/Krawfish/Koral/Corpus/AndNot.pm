@@ -55,7 +55,7 @@ sub optimize {
   my $pos_query = $pos->optimize($segment);
 
   if ($pos_query->max_freq == 0) {
-    return Krawfish::Query::Nothing->new;
+    return Krawfish::Query::Nowhere->new;
   };
 
   # Get the negative query
@@ -96,7 +96,7 @@ sub to_string {
   return '(' . join($op, map {
     $_->type eq 'fieldGroup' ?
       (
-        $_->is_any ?
+        $_->is_anywhere ?
           '[1]' :
           (
             @{$_->operands} > 1 ?

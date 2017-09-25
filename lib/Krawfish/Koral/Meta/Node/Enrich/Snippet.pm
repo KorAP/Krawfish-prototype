@@ -1,7 +1,7 @@
 package Krawfish::Koral::Meta::Node::Enrich::Snippet;
 use Krawfish::Result::Segment::Enrich::Snippet;
 use Krawfish::Util::String qw/squote/;
-use Krawfish::Query::Nothing;
+use Krawfish::Query::Nowhere;
 use strict;
 use warnings;
 
@@ -64,7 +64,7 @@ sub optimize {
   my $query = $self->{query}->optimize($segment);
 
   if ($query->max_freq == 0) {
-    return Krawfish::Query::Nothing->new;
+    return Krawfish::Query::Nowhere->new;
   };
 
   # Create left context object

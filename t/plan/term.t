@@ -10,7 +10,7 @@ my $koral = Krawfish::Koral->new;
 my $builder = $koral->query_builder;
 
 my $query = $builder->term('Der');
-ok(!$query->is_any, 'Isn\'t any');
+ok(!$query->is_anywhere, 'Isn\'t anywhere');
 ok(!$query->is_optional, 'Isn\'t optional');
 ok(!$query->is_null, 'Isn\'t null');
 ok(!$query->is_negative, 'Isn\'t negative');
@@ -20,7 +20,7 @@ is($query->min_span, 1, 'Span length');
 is($query->max_span, 1, 'Span length');
 
 $query = $builder->term('opennlp/c!=NN');
-ok(!$query->is_any, 'Isn\'t any');
+ok(!$query->is_anywhere, 'Isn\'t anywhere');
 ok(!$query->is_optional, 'Isn\'t optional');
 ok(!$query->is_null, 'Isn\'t null');
 ok($query->is_negative, 'Isn\'t negative');
@@ -31,7 +31,7 @@ is($query->max_span, 1, 'Span length');
 
 
 $query = $builder->null;
-ok(!$query->is_any, 'Is not any');
+ok(!$query->is_anywhere, 'Is not anywhere');
 ok(!$query->is_optional, 'Isn\'t optional');
 ok($query->is_null, 'Isn\'t null');
 ok(!$query->is_negative, 'Isn\'t negative');

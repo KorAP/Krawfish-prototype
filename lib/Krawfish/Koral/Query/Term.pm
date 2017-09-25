@@ -2,7 +2,7 @@ package Krawfish::Koral::Query::Term;
 use parent 'Krawfish::Koral::Query';
 use Krawfish::Util::Constants qw/:PREFIX/;
 use Krawfish::Koral::Query::TermID;
-use Krawfish::Query::Nothing;
+use Krawfish::Query::Nowhere;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -73,7 +73,7 @@ sub type { 'term' };
 
 sub is_leaf { 1 };
 
-sub is_nothing { 0 };
+sub is_nowhere { 0 };
 
 sub operands {
   [];
@@ -353,7 +353,7 @@ sub identify {
 
     my $term_id = $dict->term_id_by_term($term);
 
-    return $self->builder->nothing unless defined $term_id;
+    return $self->builder->nowhere unless defined $term_id;
 
     return Krawfish::Koral::Query::TermID->new($term_id);
   };
@@ -371,8 +371,8 @@ sub identify {
     print_log('kq_term', 'to ' . (@term_ids > 0 ? substr(join(',', @term_ids), 0, 50) : '[0]'));
   };
 
-  # Build empty term instead of nothing
-  return $self->builder->nothing unless @term_ids;
+  # Build empty term instead of nowhere
+  return $self->builder->nowhere unless @term_ids;
 
   # TODO:
   #   Use refer?
@@ -390,7 +390,7 @@ sub optimize {
 };
 
 
-sub is_any {
+sub is_anywhere {
   0;
 };
 

@@ -157,23 +157,23 @@ sub normalize {
     return;
   };
 
-  # Span is null or nothing
+  # Span is null or nowhere
   if ($span->is_null) {
     return $self->builder->null;
   };
 
-  if ($span->is_nothing) {
-    return $self->builder->nothing;
+  if ($span->is_nowhere) {
+    return $self->builder->nowhere;
   };
 
   # Matches anywhere
-  #  if ($span->is_any) {
+  #  if ($span->is_anywhere) {
 
   # TODO: Check for repetition!!!
     # if ($self->type)
     #
     #return $self->builder->repeat(
-    #  $self->builder->any,
+    #  $self->builder->anywhere,
     #  $self->min,
     #  $self->max
     #)->normalize;
@@ -197,7 +197,7 @@ sub normalize {
   if (defined $min && defined $max && ($min > $max)) {
 
     # Cannot match
-    return $self->builder->nothing;
+    return $self->builder->nowhere;
   };
 
   $self->operands([$span]);
@@ -214,9 +214,9 @@ sub optimize {
 
   my $span = $self->operand->optimize($segment);
 
-  # Nothing set
+  # Nowhere set
   if ($span->max_freq == 0) {
-    return Krawfish::Query::Nothing->new;
+    return Krawfish::Query::Nowhere->new;
   };
 
   return Krawfish::Query::Length->new(
@@ -250,7 +250,7 @@ sub to_string {
   return $str . ')';
 };
 
-sub is_any { $_[0]->operand->is_any };
+sub is_anywhere { $_[0]->operand->is_anywhere };
 
 
 sub is_optional {

@@ -59,8 +59,8 @@ sub normalize {
   my $first = $self->operands->[0];
   my $second = $self->operands->[1];
 
-  # There is nothing to exclude
-  if ($second->is_nothing) {
+  # There is nowhere to exclude
+  if ($second->is_nowhere) {
 
     if (DEBUG) {
       print_log('kq_excl', 'Second operand matches nowhere: ' . $second->to_string);
@@ -72,7 +72,7 @@ sub normalize {
 
 
   my ($first_norm, $second_norm);
-  if ($first->is_any) {
+  if ($first->is_anywhere) {
 
     # Negation with [] may occur with boolean operations
     $second->warning(
@@ -110,7 +110,7 @@ sub normalize {
       print_log('kq_excl', 'First and second operand are equal');
     };
 
-    return $self->builder->nothing->normalize;
+    return $self->builder->nowhere->normalize;
   };
 
   $self->operands([
@@ -145,13 +145,13 @@ sub identify {
   my $ops = $self->operands;
   $ops->[0] = $ops->[0]->identify($dict);
 
-  if ($ops->[0]->is_nothing) {
-    return $self->builder->nothing;
+  if ($ops->[0]->is_nowhere) {
+    return $self->builder->nowhere;
   };
 
   $ops->[1] = $ops->[1]->identify($dict);
 
-  if ($ops->[1]->is_nothing) {
+  if ($ops->[1]->is_nowhere) {
     return $ops->[0];
   };
 
@@ -195,8 +195,8 @@ sub to_string {
 };
 
 
-sub is_any {
-  $_[0]->operands->[0]->is_any;
+sub is_anywhere {
+  $_[0]->operands->[0]->is_anywhere;
 };
 
 
@@ -217,13 +217,13 @@ sub maybe_unsorted {
 };
 
 
-# Return if the query may result in an 'any' left extension
+# Return if the query may result in an 'anywhere' left extension
 sub is_extended_left {
   return $_[0]->operands->[0]->is_extended_left;
 };
 
 
-# Return if the query may result in an 'any' right extension
+# Return if the query may result in an 'anywhere' right extension
 sub is_extended_right {
   return $_[0]->operands->[0]->is_extended_right;
 };

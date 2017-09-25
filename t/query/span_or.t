@@ -33,9 +33,9 @@ ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimize
 matches($query, [qw/[0:0-1] [0:0-1] [0:1-2] [0:1-2] [0:1-2] [0:2-3] [0:3-4] [0:3-4] [1:0-1] [1:1-2] [1:1-2] [1:2-3]/]);
 
 
-# Remove nulls and nothing
+# Remove nulls and nowhere
 $query = $qb->bool_or(
-  $qb->nothing, $qb->bool_or($qb->token('b'), $qb->token('c')), $qb->null
+  $qb->nowhere, $qb->bool_or($qb->token('b'), $qb->token('c')), $qb->null
 );
 is($query->to_string, '(([b])|([c]))|(-)|([0])', 'span or');
 ok($query = $query->normalize->finalize, 'Normalize');
