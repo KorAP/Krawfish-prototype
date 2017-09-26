@@ -8,6 +8,8 @@ use warnings;
 
 use constant DEBUG => 0;
 
+warn 'DEPRECATED';
+
 
 # TODO: Rename to Krawfish::Meta::Segment::Sort
 #

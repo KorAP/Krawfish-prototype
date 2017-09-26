@@ -46,7 +46,7 @@ use constant {
 #   says its irrelevant
 
 # TODO:
-#   It should be possible to add the sorting criteria.
+#   It is necessary to add the sorting criteria.
 
 
 # Constructor
@@ -69,9 +69,9 @@ sub new {
   my $ranks = $param{ranks};
 
   # For final field distinction, use unique field
-  push @$ranks, Krawfish::Meta::Segment::Sort::Field->new(
-    $param{unique}
-  );
+  #push @$ranks, Krawfish::Meta::Segment::Sort::Field->new(
+  #  $param{unique}
+  #);
 
   # The maximum ranking value may be used
   # by outside filters to know in advance,

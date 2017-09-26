@@ -100,7 +100,7 @@ ok(my $query = $koral->to_query->identify($index->dict), 'Translate to identifie
 
 is(
   $query->to_string,
-  "sort(field=#3>,field=#1<,field=#7<:fields(#3,#7,#17:[0]))",
+  'sort(field=#7<:sort(field=#1<:sort(field=#3>:fields(#3,#7,#17:[0]))))',
   'Stringification'
 );
 

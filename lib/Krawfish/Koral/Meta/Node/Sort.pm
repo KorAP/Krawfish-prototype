@@ -20,11 +20,12 @@ sub new {
       );
   };
 
-  my $self = bless {
-    query  => shift,
-    sort   => shift,
-    top_k  => shift,
-    filter => shift
+  return bless {
+    query     => shift,
+    sort      => shift, # Single sort criterium
+    top_k     => shift,
+    filter    => shift,
+    follow_up => shift  # The query nests a presorted query
   }, $class;
 };
 
@@ -38,33 +39,24 @@ sub type {
 sub identify {
   my ($self, $dict) = @_;
 
-  my @identifier;
-  foreach (@{$self->{sort}}) {
-
-    # Criterion may not exist in dictionary
-    my $criterion = $_->identify($dict);
-    if ($criterion) {
-      push @identifier, $criterion;
-    };
-  };
-
   $self->{query} = $self->{query}->identify($dict);
 
-  # Do not sort
-  if (@identifier == 0) {
-    warn 'There is currently no sorting defined';
-    return $self->{query};
+  # Criterion may not exist in dictionary
+  if (my $criterion = $self->{sort}->identify($dict)) {
+    $self->{sort} = $criterion;
+    return $self;
   };
 
-  $self->{sort} = \@identifier;
-  return $self;
+  # Do not sort
+  warn 'There is currently no sorting defined';
+  return $self->{query};
 };
 
 
 # Stringification
 sub to_string {
   my $self = shift;
-  my $str = join(',', map { $_->to_string } @{$self->{sort}});
+  my $str = $self->{sort}->to_string;
 
   if ($self->{top_k}) {
     $str .= ';k=' . $self->{top_k};
@@ -88,16 +80,39 @@ sub optimize {
     return Krawfish::Query::Nowhere->new;
   };
 
-  # Krawfish::Meta::Segment::Sort->new(
-  #   query => $query,
-  #   index => $segment,
-  #   top_k => $top_k,
-  #   ranks =>
-  #   unique =>
-  #   max_rank_ref =>
-  # )
+  # TODO:
+  #   Implement ascending and descending stuff
+  return $query;
 
-  return $self;
+
+  # TODO:
+  #   unless ($self->{follow_up} && $self->{filter}) {
+  #     Apply a dynamic filter if necessary!
+  #     $max_rank_ref = ...
+  #   }
+
+  # TODO:
+  #   This currently only works for fields
+  my $ranks;
+
+  my $sort = $self->{sort};
+  my $field_ranks = $segment->field_ranks;
+  if ($sort->desc) {
+    $ranks = $field_ranks->descendig($sort->field->term_id);
+  }
+  else {
+    $ranks = $field_ranks->ascending($sort->field->term_id);
+  };
+
+  # Return sort object
+  return Krawfish::Meta::Segment::Sort->new(
+    query     => $query,
+    index     => $segment,
+    top_k     => $self->{top_k},
+    ranks     => $ranks,
+    follow_up => $self->{follow_up}
+    # max_rank_ref => $max_rank_ref
+  );
 };
 
 1;

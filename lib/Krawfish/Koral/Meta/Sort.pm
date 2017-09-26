@@ -37,6 +37,7 @@ sub new {
 };
 
 
+
 sub type {
   'sort';
 };
@@ -136,12 +137,22 @@ sub normalize {
 # Wrap query object
 sub wrap {
   my ($self, $query) = @_;
-  return Krawfish::Koral::Meta::Node::Sort->new(
-    $query,
-    [$self->operations],
-    $self->top_k,
-    $self->filter
-  );
+
+  # TODO:
+  #   Only the first operation should be a FullSort -
+  #   the others should be follow up sorts
+  my $follow_up = 0;
+  foreach my $op ($self->operations) {
+    $query = Krawfish::Koral::Meta::Node::Sort->new(
+      $query,
+      $op,
+      $self->top_k,
+      $self->filter,
+      $follow_up
+    );
+    $follow_up = 1;
+  };
+  return $query;
 };
 
 

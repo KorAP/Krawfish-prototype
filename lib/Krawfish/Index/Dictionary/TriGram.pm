@@ -3,6 +3,10 @@
 # regex (e.g. suffix and infix search), pointing to a list
 # of term ids that contain the trigram.
 #
+# This is also beneficial for out of order, typeahead queries:
+# e.g. https://engineering.linkedin.com/open-source/cleo-open-source-technology-behind-linkedins-typeahead-search
+# https://github.com/jamra/gocleo
+#
 # e.g. te dictionary contains
 #   baum    -> 1
 #   bar     -> 2

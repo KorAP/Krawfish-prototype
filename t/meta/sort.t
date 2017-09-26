@@ -54,11 +54,18 @@ ok($koral_query = $koral_query->identify($index->dict), 'Identify');
 
 
 # This is a query that is fine to be send to nodes
+is($koral_query->to_string,
+   "sort(field=#3<:filter(#6|#8,[1]))",
+   'Stringification');
+
+ok($koral_query = $koral_query->optimize($index->segment), 'Optimize');
+
 #is($koral_query->to_string,
-#   "sort(field=#3<;sortFilter:filter(#6|#8,[1]))",
+#   '',
 #   'Stringification');
 
-diag 'check sorting!';
+
+diag 'check sorting';
 
 
 done_testing;

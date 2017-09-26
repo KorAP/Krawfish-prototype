@@ -7,7 +7,7 @@ use warnings;
 sub new {
   my $class = shift;
   bless {
-    field => shift, # Is a Koral::Meta::Type::Key
+    field => shift, # Is a Koral::Meta::Type::Key / KeyID
     desc => shift
   }, $class;
 };
@@ -29,7 +29,7 @@ sub optimize {
 
   return Krawfish::Meta::Segment::Sort::Field->new(
     $segment,
-    $_[0]->{field}, # Should probably be a field_id!
+    $_[0]->{field},
     $_[0]->{desc}
   );
 };
