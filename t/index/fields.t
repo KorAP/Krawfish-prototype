@@ -55,8 +55,6 @@ is($index->dict->term_by_term_id(6), FIELD_PREF . 'textLength:8', 'Term');
 ok(!$fields[2], 'Field id');
 
 
-
-
 ok($index = Krawfish::Index->new, 'Create new index');
 
 # Make this field sortable
@@ -116,21 +114,20 @@ ok($index->commit, 'Commit data');
 
 ok(my $term_id = $index->dict->term_id_by_term(KEY_PREF . 'author'), 'Get term id');
 
-done_testing;
-__END__
-
 ok(my $ranks = $index->segment->field_ranks->by($term_id), 'Get ranks');
 
 is($ranks->to_string, '[1][2][0]', 'Get rank file');
 
-is($ranks->asc_rank(0), 3, 'Get ascending rank');
-is($ranks->asc_rank(1), 1, 'Get ascending rank');
-is($ranks->asc_rank(2), 2, 'Get ascending rank');
 
-is($ranks->desc_rank(0), 1, 'Get descending rank');
-is($ranks->desc_rank(1), 3, 'Get descending rank');
-is($ranks->desc_rank(2), 2, 'Get descending rank');
+my $dir = $ranks->ascending;
+is($dir->rank_for(0), 3, 'Get ascending rank');
+is($dir->rank_for(1), 1, 'Get ascending rank');
+is($dir->rank_for(2), 2, 'Get ascending rank');
 
+$dir = $ranks->descending;
+is($dir->rank_for(0), 1, 'Get descending rank');
+is($dir->rank_for(1), 3, 'Get descending rank');
+is($dir->rank_for(2), 2, 'Get descending rank');
 
 # Numerical ranks for size
 ok($term_id = $index->dict->term_id_by_term(KEY_PREF . 'size'), 'Get term id');
@@ -138,14 +135,15 @@ ok($ranks = $index->segment->field_ranks->by($term_id), 'Get ranks');
 
 is($ranks->to_string, '[0][1][2]', 'Get rank file');
 
-is($ranks->asc_rank(0), 1, 'Get ascending rank');
-is($ranks->asc_rank(1), 2, 'Get ascending rank');
-is($ranks->asc_rank(2), 3, 'Get ascending rank');
+$dir = $ranks->ascending;
+is($dir->rank_for(0), 1, 'Get ascending rank');
+is($dir->rank_for(1), 2, 'Get ascending rank');
+is($dir->rank_for(2), 3, 'Get ascending rank');
 
-is($ranks->desc_rank(0), 3, 'Get descending rank');
-is($ranks->desc_rank(1), 2, 'Get descending rank');
-is($ranks->desc_rank(2), 1, 'Get descending rank');
-
+$dir = $ranks->descending;
+is($dir->rank_for(0), 3, 'Get descending rank');
+is($dir->rank_for(1), 2, 'Get descending rank');
+is($dir->rank_for(2), 1, 'Get descending rank');
 
 
 # New index with multivalued fields
@@ -208,14 +206,16 @@ ok(!$fields[3], 'Field id');
 is($ranks->to_string, '[1][2][0][1]', 'Get rank file');
 
 # The ascending rank takes Amy
-is($ranks->asc_rank(0), 3, 'Get ascending rank');
-is($ranks->asc_rank(1), 1, 'Get ascending rank');
-is($ranks->asc_rank(2), 2, 'Get ascending rank');
+$dir = $ranks->ascending;
+is($dir->rank_for(0), 3, 'Get ascending rank');
+is($dir->rank_for(1), 1, 'Get ascending rank');
+is($dir->rank_for(2), 2, 'Get ascending rank');
 
 # The descending rank takes 'Mike'
-is($ranks->desc_rank(0), 2, 'Get descending rank');
-is($ranks->desc_rank(1), 1, 'Get descending rank');
-is($ranks->desc_rank(2), 3, 'Get descending rank');
+$dir = $ranks->descending;
+is($dir->rank_for(0), 2, 'Get descending rank');
+is($dir->rank_for(1), 1, 'Get descending rank');
+is($dir->rank_for(2), 3, 'Get descending rank');
 
 
 

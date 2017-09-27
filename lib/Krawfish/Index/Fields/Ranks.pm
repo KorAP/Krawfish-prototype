@@ -25,8 +25,7 @@ sub new {
   bless {}, $class;
 };
 
-# Get the rank by
-# TODO: DEPRECATED
+# Get the rank by field
 sub by {
   my ($self, $field_id) = @_;
 
@@ -34,19 +33,6 @@ sub by {
   return $self->{$field_id};
 };
 
-
-# Get ascending rank
-sub ascending {
-  my ($self, $field_id) = @_;
-  ...
-};
-
-
-# Get descending rank
-sub descending {
-  my ($self, $field_id) = @_;
-  ...
-};
 
 # Introduce rank for a certain field
 sub introduce_rank {

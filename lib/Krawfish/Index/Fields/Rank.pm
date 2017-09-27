@@ -1,4 +1,5 @@
 package Krawfish::Index::Fields::Rank;
+use Krawfish::Index::Fields::Direction;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -15,7 +16,7 @@ use constant DEBUG => 1;
 #   listed twice for at least one document
 #   If not, the descending ranks can be calculated
 #   using the max_rank rather than storing
-#   the data redundantly
+#   the inverse data redundantly
 
 sub new {
   my $class = shift;
@@ -27,8 +28,8 @@ sub new {
     # based on max_rank.
     # This is only possible for single-valued fields
     calc_desc => shift,
-    asc       => [],
-    desc      => [],
+    asc       => undef,
+    desc      => undef,
     sorted    => [],
     plain     => [],
     max_rank  => undef
@@ -122,7 +123,7 @@ sub commit {
     $rank++;
   };
 
-  $self->{asc} = \@asc;
+  $self->{asc} = Krawfish::Index::Fields::Direction->new(\@asc);
 
   # Max rank is relevant for efficient encoding
   $self->{max_rank} = --$rank;
@@ -140,7 +141,7 @@ sub commit {
     $rank--;
   };
 
-  $self->{desc} = \@desc;
+  $self->{desc} = Krawfish::Index::Fields::Direction->new(\@desc);
   $self->{plain} = [];
 
   return $self;
@@ -152,43 +153,14 @@ sub commit {
 };
 
 
-# Get ascending rank
-# 0 means: Not available for this document
-sub asc_rank {
-  my ($self, $doc_id) = @_;
-  $self->{asc}->[$doc_id] // 0;
+sub ascending {
+  $_[0]->{asc};
 };
 
 
-# Get rank if the value is littler than
-# a given value, otherwise return 0.
-# This may be beneficially implemented.
-sub asc_lt {
-  my ($self, $doc_id, $value) = @_;
-  my $rank = $self->{asc}->[$doc_id];
-  return 0 unless $rank;
-  return $rank < $value ? $rank : 0;
-};
-
-
-# Get descending rank
-# 0 means: Not available for this document
-sub desc_rank {
-  my ($self, $doc_id) = @_;
-  $self->{desc}->[$doc_id] // 0;
-};
-
-
-# Get rank if the value is greater than
-# a given value, otherwise return 0.
-# This may be beneficially implemented.
-sub desc_gt {
-  my ($self, $doc_id, $value) = @_;
-  my $rank = $self->{desc}->[$doc_id];
-  return 0 unless $rank;
-  return $rank > $value ? $rank : 0;
-};
-
+sub descending {
+  $_[0]->{desc};
+}
 
 # Stringification
 sub to_string {

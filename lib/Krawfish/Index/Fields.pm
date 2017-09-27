@@ -93,6 +93,8 @@ sub pointer {
 sub ranked_by {
   my ($self, $field) = @_;
 
+  warn 'DEPRECATED';
+
   print_log(
     'fields',
     'Get rank vector for ' . $field
