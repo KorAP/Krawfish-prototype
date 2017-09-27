@@ -141,6 +141,10 @@ sub wrap {
   # TODO:
   #   Only the first operation should be a FullSort -
   #   the others should be follow up sorts
+  #
+  # TODO:
+  #   However - the decision for followup/notfollowup has to be decided
+  #   later by checking the nesting of the queries.
   my $follow_up = 0;
   foreach my $op ($self->operations) {
     $query = Krawfish::Koral::Meta::Node::Sort->new(

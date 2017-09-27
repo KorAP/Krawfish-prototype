@@ -44,13 +44,85 @@ sub identify {
   # Criterion may not exist in dictionary
   if (my $criterion = $self->{sort}->identify($dict)) {
     $self->{sort} = $criterion;
-    return $self;
+  }
+  else {
+
+    # TODO:
+    #   This requires a NonSort criterion to add the criterion
+    #   plainly. Although the criterion is not available on this node,
+    #   it may very well be available in another
+    $self->{sort} = undef;
   };
 
-  # Do not sort
-  warn 'There is currently no sorting defined';
-  return $self->{query};
+
+  return $self;
 };
+
+
+# Optimize query for postingslist
+sub optimize {
+  my ($self, $segment) = @_;
+
+  my $query = $self->{query}->optimize($segment);
+
+  if ($query->max_freq == 0) {
+    return Krawfish::Query::Nowhere->new;
+  };
+
+  # TODO:
+  #   Implement ascending and descending stuff
+
+  # TODO:
+  #   unless ($self->{follow_up} && $self->{filter}) {
+  #     Apply a dynamic filter if necessary!
+  #     $max_rank_ref = ...
+  #   }
+
+  # TODO:
+  #   This currently only works for fields
+
+  # TODO:
+  #   Optimize the sort criterion and don't pass ranks!
+  #   The sort criterion should provide an API to the ranking
+  #   with ->rank_for()
+
+  my $sort = $self->{sort}->optimize($segment);
+
+  unless ($sort) {
+
+    # TODO:
+    #   This needs to be checked in identify!
+    warn 'The chosen sort criterion is not a sortable field';
+    return $self->{query} unless $self->{follow_up};
+
+    # TODO:
+    #   !!!!
+    #   This is wrong! the query then needs to be nested in
+    #   a non-follow up query - so it might be better to check
+    #   based on the nested query if the current query is a follow up or not!
+    #
+    #   It's also important to remember that although in this segment/node
+    #   this sorting criterion is irrelevant, in another segment/node
+    #   the sorting criterion may very well be important, so a NoSort-query
+    #   also needs to add the query criterion!
+    return $self->{query};
+  };
+
+  # TODO:
+  #   Return Krawfish::Meta::Segment::Sort::Fine->new;
+  #   in case it is a follow up!
+  # follow_up => $self->{follow_up}
+
+  # Return sort object
+  return Krawfish::Meta::Segment::Sort->new(
+    query     => $query,
+    segment   => $segment,
+    sort      => $sort,
+    top_k     => $self->{top_k},
+    # max_rank_ref => $max_rank_ref
+  );
+};
+
 
 
 # Stringification
@@ -69,54 +141,5 @@ sub to_string {
   return 'sort(' . $str . ':' . $self->{query}->to_string . ')';
 };
 
-
-# Optimize query for postingslist
-sub optimize {
-  my ($self, $segment) = @_;
-
-  my $query = $self->{query}->optimize($segment);
-
-  if ($query->max_freq == 0) {
-    return Krawfish::Query::Nowhere->new;
-  };
-
-  # TODO:
-  #   Implement ascending and descending stuff
-  return $query;
-
-
-  # TODO:
-  #   unless ($self->{follow_up} && $self->{filter}) {
-  #     Apply a dynamic filter if necessary!
-  #     $max_rank_ref = ...
-  #   }
-
-  # TODO:
-  #   This currently only works for fields
-  my $ranks;
-
-  my $sort = $self->{sort};
-  my $field_ranks = $segment->field_ranks;
-  if ($sort->desc) {
-    $ranks = $field_ranks->descendig($sort->field->term_id);
-  }
-  else {
-    $ranks = $field_ranks->ascending($sort->field->term_id);
-  };
-
-  # TODO:
-  #   Return Krawfish::Meta::Segment::Sort::Fine->new;
-  #   in case it is a follow up!
-
-  # Return sort object
-  return Krawfish::Meta::Segment::Sort->new(
-    query     => $query,
-    index     => $segment,
-    top_k     => $self->{top_k},
-    ranks     => $ranks,
-    follow_up => $self->{follow_up}
-    # max_rank_ref => $max_rank_ref
-  );
-};
 
 1;

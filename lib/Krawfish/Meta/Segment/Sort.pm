@@ -44,6 +44,10 @@ use constant {
 #   It is necessary to add the sorting criteria.
 
 
+sub max_freq {
+  $_[0]->{query}->max_freq;
+};
+
 # Constructor
 sub new {
   my $class = shift;
@@ -51,22 +55,12 @@ sub new {
 
   # TODO:
   #   Check for mandatory parameters
-  my $query = $param{query};
+  my $query    = $param{query};
+  my $segment  = $param{segment};
+  my $top_k    = $param{top_k};
 
-  # This is the index element
-  my $index = $param{index};
-  my $top_k = $param{top_k};
-
-  # This is the criterion element
-  # It has the structure [rank-criterion]*
-  # where the second value is the descending marker,
-  # that reverses the rank.
-  my $ranks = $param{ranks};
-
-  # For final field distinction, use unique field
-  #push @$ranks, Krawfish::Meta::Segment::Sort::Field->new(
-  #  $param{unique}
-  #);
+  # This is the sort criterion
+  my $sort     = $param{sort};
 
   # The maximum ranking value may be used
   # by outside filters to know in advance,
@@ -80,7 +74,7 @@ sub new {
   else {
 
     # Create a new reference
-    $max_rank_ref = \(my $max_rank = $index->max_rank);
+    $max_rank_ref = \(my $max_rank = $segment->last_doc);
   };
 
   # Create initial priority queue
@@ -91,15 +85,17 @@ sub new {
 
   # Construct
   return bless {
-    # fields       => $fields,
-    index        => $index,
+    segment        => $segment,
     top_k        => $top_k,
     query        => $query,
     queue        => $queue,
     max_rank_ref => $max_rank_ref,
-    ranks        => $ranks,
 
-    
+    # TODO:
+    #   Rename to criterion
+    sort         => $sort,
+
+    # Default starts
     stack        => [],  # All lists on a stack
     sorted       => [],
     pos          => 0
@@ -470,9 +466,8 @@ sub duplicate_rank {
 
 sub to_string {
   my $self = shift;
-  my $str = 'resultSorted([';
-  $str .= join(',', map { squote($_->[0]) . ($_->[1] ? '>' : '<') } @{$self->{fields}});
-  $str .= ']';
+  my $str = 'sort(';
+  $str .= $self->{sort}->to_string;
   $str .= ',0-' . $self->{top_k} if $self->{top_k};
   $str .= ':' . $self->{query}->to_string;
   return $str . ')';

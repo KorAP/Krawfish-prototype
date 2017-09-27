@@ -74,9 +74,9 @@ is($query->to_string,
 
 ok($query = $query->optimize($index->segment), 'Optimize');
 
-#is($query->to_string,
-#   'sort(field=#2<,field=#1<:filter(#10#12,[1]))',
-#   'Stringification');
+is($query->to_string,
+   'sort(field=#1<:sort(field=#2<:constr(pos=2:#10,filter(#12,[1]))))',
+   'Stringification');
 
 diag 'check sorting';
 

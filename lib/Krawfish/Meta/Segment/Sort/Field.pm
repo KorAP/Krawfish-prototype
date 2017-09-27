@@ -1,6 +1,13 @@
 package Krawfish::Meta::Segment::Sort::Field;
+use Krawfish::Log;
 use strict;
 use warnings;
+
+use constant DEBUG => 1;
+
+# TODO:
+#   Use this an instantiate it directly with
+#   a ranking!
 
 # Sorting criterion for field ranks.
 
@@ -13,50 +20,43 @@ sub new {
 
   my ($segment, $field_id, $descending) = @_;
 
+  # Get ranking
+  my $rank = $segment->field_ranks->by($field_id);
+
+  return unless $rank;
+
   my $self = bless {
-    field_id   => $field_id
+    field_id   => $field_id,
+    desc       => $descending
   }, $class;
 
-  # Get ranking
-  my $rank = $segment->field_ranks;
-
   # Get fields in descending order
-  if ($self->{descending}) {
+  if ($descending) {
 
     # This may be a real descending order file
     # or a reversed single-valued ascending order file
-    $self->{rank} = $rank->descending($field_id);
+    $self->{rank} = $rank->descending;
   }
 
   # Get fields in ascending order
   else {
-    $self->{rank} = $rank->ascending($field_id);
+    $self->{rank} = $rank->ascending;
   };
-
-  # $self->{ranks} = $self->{index}->fields->ranked_by($field) or return;
-  # Get maximum rank if descending order
-  # $self->{max} = $self->{ranks}->max if $self->{descending};
 
   return $self;
 };
 
 
-sub get {
-  my ($self, $doc_id, $value) = @_;
+# Get the rank for this criterion
+sub rank_for {
+  my ($self, $doc_id) = @_;
 
-  if ($value) {
-    return $self->{rank}->rank_doc($doc_id);
-  };
+  return $self->{rank}->rank_for($doc_id);
 
   # Get rank if rank is littler than value
-  return $self->{rank}->rank_doc_lt($doc_id, $value);
+  # my $value = shift;
+  # return $self->{rank}->rank_doc_lt($doc_id, $value);
   #  my $max = $ranking->max if $desc;
-
-  # Get stored rank
-  #  $rank = $ranking->get(shift);
-
-  # Revert if maximum rank is set
-  #  return $max ? $max - $rank : $rank;
 };
 
 
@@ -64,5 +64,12 @@ sub criterion {
   $_[0]->{field_id};
 };
 
+
+# TODO:
+#   This may need to be an inflatable
+sub to_string {
+  my $self = shift;
+  return 'field=#' . $self->{field_id} . ($_->{desc} ? '>' : '<')
+};
 
 1;

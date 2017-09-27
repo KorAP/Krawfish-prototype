@@ -96,12 +96,6 @@ sub last_doc {
 };
 
 
-# Alias for last doc
-#sub max_rank {
-#  $_[0]->{live}->next_doc_id - 1;
-#};
-
-
 # Get subtokens
 sub subtokens {
   $_[0]->{subtokens};

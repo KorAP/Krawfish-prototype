@@ -31,6 +31,10 @@ sub identify {
   );
 };
 
+sub term {
+  ${$_[0]};
+};
+
 sub to_string {
   squote(${$_[0]});
 };

@@ -29,6 +29,10 @@ sub new {
 sub by {
   my ($self, $field_id) = @_;
 
+  if (DEBUG) {
+    print_log('f_ranks', 'Retrieve ranks for #' . $field_id);
+  };
+
   # Field may be ranked or not
   return $self->{$field_id};
 };
@@ -39,7 +43,7 @@ sub introduce_rank {
   my ($self, $field_id, $collation) = @_;
 
   if (DEBUG) {
-    print_log('f_ranks', 'Introduce rank for field ' . $field_id .
+    print_log('f_ranks', 'Introduce rank for field #' . $field_id .
                 ' with collation ' . ($collation ? $collation : 'numerical'));
   };
 

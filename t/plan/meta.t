@@ -10,6 +10,11 @@ use_ok('Krawfish::Index');
 
 # Create some documents
 my $index = Krawfish::Index->new;
+
+ok($index->introduce_field('id', 'NUM'), 'Introduce field as sortable');
+ok($index->introduce_field('age', 'NUM'), 'Introduce field as sortable');
+ok($index->introduce_field('author', 'DE'), 'Introduce field as sortable');
+
 ok_index($index, {
   id => 2,
   author => 'Peter',
@@ -36,6 +41,7 @@ ok_index($index, {
   age => 7
 } => [qw/aa bb/], 'Add complex document');
 
+$index->commit;
 
 my $koral = Krawfish::Koral->new;
 my $mb = $koral->meta_builder;
@@ -62,7 +68,7 @@ is($meta->to_string, "enrich=[fields:['author','title','id']]",
 
 ok($meta = $koral->to_query->identify($index->dict), 'Identification');
 
-is($meta->to_string, "fields(#3,#7,#17:[0])",
+is($meta->to_string, "fields(#1,#3,#17:[0])",
    'Stringification');
 
 # Introduce redundant operations and new sorts
@@ -85,7 +91,6 @@ is(
   'Stringification'
 );
 
-
 # This will introduce a sort filter and reorder and simplify the operations
 ok($meta = $meta->normalize, 'Normalize meta object');
 
@@ -100,10 +105,9 @@ ok(my $query = $koral->to_query->identify($index->dict), 'Translate to identifie
 
 is(
   $query->to_string,
-  'sort(field=#7<:sort(field=#1<:sort(field=#3>:fields(#3,#7,#17:[0]))))',
+  'sort(field=#1<:sort(no=\'length\'<:sort(field=#2<:sort(field=#3>:fields(#1,#3,#17:[0])))))',
   'Stringification'
 );
-
 
 # Introduce snippet
 $koral->meta(
