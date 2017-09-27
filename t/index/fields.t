@@ -115,6 +115,10 @@ is($fields[0]->value, 'https://korap.ids-mannheim.de/instance/example7', 'Field 
 ok($index->commit, 'Commit data');
 
 ok(my $term_id = $index->dict->term_id_by_term(KEY_PREF . 'author'), 'Get term id');
+
+done_testing;
+__END__
+
 ok(my $ranks = $index->segment->field_ranks->by($term_id), 'Get ranks');
 
 is($ranks->to_string, '[1][2][0]', 'Get rank file');

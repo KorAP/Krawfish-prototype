@@ -23,17 +23,12 @@ use constant {
 # TODO:
 #   It's possible that fields return a rank of 0, indicating that
 #   the field does not exist for the document.
-#
-#   In that case these fields have to be looked up, in case they are
-#   potentially in the result set (meaning they are ranked before/after
-#   the last accepted rank field). If so, they need to be remembered.
-#   After a sort turn, the non-ranked fields are sorted in the ranked
-#   fields. The field can be reranked any time.
+#   They will always be sorted at the end.
 
 # TODO:
 #   Ranks should respect the ranking mechanism of FieldsRank and
 #   TermRank, where only even values are fine and odd values need
-#   to be sorted in a separate step.
+#   to be sorted in a separate step (this is still open for discussion).
 
 # TODO:
 #   It may be beneficial to have the binary heap space limited
@@ -102,6 +97,9 @@ sub new {
     query        => $query,
     queue        => $queue,
     max_rank_ref => $max_rank_ref,
+    ranks        => $ranks,
+
+    
     stack        => [],  # All lists on a stack
     sorted       => [],
     pos          => 0
@@ -122,10 +120,13 @@ sub _init {
   my ($field, $desc) = @{$self->{fields}->[0]};
 
   # Get ranking
-  my $ranking = $self->{index}->fields->ranked_by($field);
+  # This is already either desc or asc (for fields)
+  # TODO:
+  #   Make this work for terms as well!
+  my $ranking = $self->{ranks};
 
   # Get maximum rank if descending order
-  my $max = $ranking->max if $desc;
+  # my $max = $ranking->max if $desc;
 
   # Get maximum accepted rank from queue
   my $max_rank_ref = $self->{max_rank_ref};
@@ -155,7 +156,7 @@ sub _init {
     # TODO:
     #   That should be done in the
     #   Krawfish::Meta::Segment::Sort::*-Object!
-    $rank = $max - $rank if $max;
+    # $rank = $max - $rank if $max;
 
     if (DEBUG) {
       print_log('p_sort', 'Rank for doc id ' . $match->doc_id . " is $rank");

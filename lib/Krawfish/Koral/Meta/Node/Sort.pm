@@ -104,6 +104,10 @@ sub optimize {
     $ranks = $field_ranks->ascending($sort->field->term_id);
   };
 
+  # TODO:
+  #   Return Krawfish::Meta::Segment::Sort::Fine->new;
+  #   in case it is a follow up!
+
   # Return sort object
   return Krawfish::Meta::Segment::Sort->new(
     query     => $query,
