@@ -38,7 +38,7 @@ use POSIX qw/floor/;
 # with the same rank. For example, multiple matches in a document.
 #
 use constant {
-  DEBUG => 0,
+  DEBUG => 1,
   RANK  => 0,
   SAME  => 1, # 0 means: not checked yet!
   VALUE => 2

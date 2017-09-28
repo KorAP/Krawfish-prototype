@@ -15,6 +15,9 @@ use constant DEBUG => 1;
 #   Probably not only support ranks but all kinds of sorting
 #   by having a get_lt() API that also works for strings!
 
+# TODO:
+#   Return max rank for unknown fields!
+
 sub new {
   my $class = shift;
 
@@ -26,8 +29,9 @@ sub new {
   return unless $rank;
 
   my $self = bless {
-    field_id   => $field_id,
-    desc       => $descending
+    field_id => $field_id,
+    desc     => $descending,
+    max_rank => $rank->max_rank
   }, $class;
 
   # Get fields in descending order
@@ -35,12 +39,12 @@ sub new {
 
     # This may be a real descending order file
     # or a reversed single-valued ascending order file
-    $self->{rank} = $rank->descending;
+    $self->{rank} = $rank->descending or return;
   }
 
   # Get fields in ascending order
   else {
-    $self->{rank} = $rank->ascending;
+    $self->{rank} = $rank->ascending or return;
   };
 
   return $self;
@@ -64,6 +68,13 @@ sub criterion {
   $_[0]->{field_id};
 };
 
+sub max_rank {
+  $_[0]->{max_rank}
+}
+
+sub term_id {
+  $_[0]->{field_id};
+};
 
 # TODO:
 #   This may need to be an inflatable

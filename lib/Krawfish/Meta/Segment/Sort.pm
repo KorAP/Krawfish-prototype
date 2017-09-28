@@ -12,7 +12,7 @@ use warnings;
 # This is the general sorting implementation based on ranks.
 
 use constant {
-  DEBUG   => 0,
+  DEBUG   => 1,
   RANK    => 0,
   SAME    => 1,
   VALUE   => 2,
@@ -48,6 +48,7 @@ sub max_freq {
   $_[0]->{query}->max_freq;
 };
 
+
 # Constructor
 sub new {
   my $class = shift;
@@ -61,6 +62,11 @@ sub new {
 
   # This is the sort criterion
   my $sort     = $param{sort};
+
+  # Set top_k if not yet set
+  # - to be honest, heap sort is probably not the
+  # best approach for a full search
+  $top_k //= $segment->last_doc;
 
   # The maximum ranking value may be used
   # by outside filters to know in advance,
@@ -85,7 +91,7 @@ sub new {
 
   # Construct
   return bless {
-    segment        => $segment,
+    segment      => $segment,
     top_k        => $top_k,
     query        => $query,
     queue        => $queue,
@@ -112,31 +118,31 @@ sub _init {
 
   my $query = $self->{query};
 
-  # Get first sorting criterion
-  my ($field, $desc) = @{$self->{fields}->[0]};
-
-  # Get ranking
-  # This is already either desc or asc (for fields)
   # TODO:
   #   Make this work for terms as well!
-  my $ranking = $self->{ranks};
 
-  # Get maximum rank if descending order
-  # my $max = $ranking->max if $desc;
+  # TODO:
+  #   This currently only works for fields,
+  #   because it bundles document ids.
+  #   The prebundling of documents may be
+  #   done in a separated step.
 
   # Get maximum accepted rank from queue
   my $max_rank_ref = $self->{max_rank_ref};
 
   my $last_doc_id = -1;
-  my $rank;
   my $queue = $self->{queue};
+
+  my $sort = $self->{sort};
 
   # Store the last match buffered
   my $match;
 
   if (DEBUG) {
-    print_log('p_sort', qq!Next Rank on field "$field"!);
+    print_log('p_sort', qq!Next Rank on field #! . $sort->term_id);
   };
+
+  my $rank;
 
   # Pass through all queries
   while ($match || ($query->next && ($match = $query->current))) {
@@ -146,55 +152,48 @@ sub _init {
     };
 
     # Get stored rank
-    $rank = $ranking->get($match->doc_id);
-
-    # Revert if maximum rank is set
-    # TODO:
-    #   That should be done in the
-    #   Krawfish::Meta::Segment::Sort::*-Object!
-    # $rank = $max - $rank if $max;
+    $rank = $sort->rank_for($match->doc_id);
 
     if (DEBUG) {
       print_log('p_sort', 'Rank for doc id ' . $match->doc_id . " is $rank");
     };
 
     # Precheck if the match is relevant
-    if ($rank <= $$max_rank_ref) {
+    if ($rank > $$max_rank_ref) {
 
-      # Create new bundle of matches
-      my $bundle = Krawfish::Posting::Bundle->new($match->clone);
-
-      # Remember doc_id
-      $last_doc_id = $match->doc_id;
+      # Document is irrelevant
       $match = undef;
-
-      # Iterate over next queries
-      while ($query->next) {
-
-        # New match should join the bundle
-        if ($query->current->doc_id == $last_doc_id) {
-
-          # Add match to bundle
-          $bundle->add($query->current);
-        }
-
-        # New match is new
-        else {
-
-          # Remember match for the next tome
-          $match = $query->current;
-          last;
-        };
-      };
-
-      # Insert into priority queue
-      $queue->insert([$rank, 0, $bundle, $bundle->length]) if $bundle;
-    }
-
-    # Document is irrelevant
-    else {
-      $match = undef;
+      next;
     };
+
+    # Create new bundle of matches
+    my $bundle = Krawfish::Posting::Bundle->new($match->clone);
+
+    # Remember doc_id
+    $last_doc_id = $match->doc_id;
+    $match = undef;
+
+    # Iterate over next queries
+    while ($query->next) {
+
+      # New match should join the bundle
+      if ($query->current->doc_id == $last_doc_id) {
+
+        # Add match to bundle
+        $bundle->add($query->current);
+      }
+
+      # New match is new
+      else {
+
+        # Remember match for the next tome
+        $match = $query->current;
+        last;
+      };
+    };
+
+    # Insert into priority queue
+    $queue->insert([$rank, 0, $bundle, $bundle->length]) if $bundle;
   };
 
   print_log('p_sort', 'Get list ranking') if DEBUG;
@@ -204,11 +203,12 @@ sub _init {
 };
 
 
+
 # Move to the next item in the sorted list
 sub next {
   my $self = shift;
 
-  if ($self->{pos}++ >= $self->{top_k}) {
+  if ($self->{top_k} && $self->{pos}++ >= $self->{top_k}) {
 
     if (DEBUG) {
       print_log(
@@ -220,6 +220,7 @@ sub next {
     $self->{current} = undef;
     return;
   };
+
 
   # Initialize query - this will do a full run on the first field level!
   $self->_init;
@@ -248,10 +249,6 @@ sub next {
   # Get the list values
   my $stack = $self->{stack};
 
-  # The result list is empty - sort next items
-  #  if ($self->{presorted}) {
-  #  };
-
   # This will get the level from the stack
   my $level = $#{$stack};
 
@@ -268,9 +265,9 @@ sub next {
     pop @$stack;
     $level--;
 
-    if (DEBUG) {
-      print_log('p_sort', "Stack is reduced to level $level with " . Dumper($stack));
-    };
+    #if (DEBUG) {
+    #  print_log('p_sort', "Stack is reduced to level $level with " . Dumper($stack));
+    #};
   };
 
   # There is nothing to sort further
@@ -291,7 +288,6 @@ sub next {
   #   here the next strategy should be chosen.
   #   Either sort in place, or sort using heapsort again.
 
-
   # The first item in the current list has multiple identical ranks
   # As long as the first item in the list has duplicates,
   # order by the next level
@@ -309,30 +305,33 @@ sub next {
     my @presort = splice(@{$stack->[$level]}, 0, $same - 1);
 
     print_log('p_sort', 'Presort array is ' . _string_array(\@presort)) if DEBUG;
-    # TODO: Push presort on the stack!
+
+    # TODO:
+    #   Push presort on the stack!
 
     # This is the new top_k!
-    # TODO: Check if this is really correct!
+    # TODO:
+    #   Check if this is really correct!
     my $top_k = $self->{top_k} - ($self->{pos} - 1);
 
     # Get next field to rank on level
     # level 0 is preinitialized, so it is one off
-    my ($field, $desc) = @{$self->{fields}->[$level + 1]};
+    #my ($field, $desc) = @{$self->{fields}->[$level + 1]};
 
-    if (DEBUG) {
-      print_log('p_sort', qq!Next Rank on field "$field"!);
-    };
+    #if (DEBUG) {
+    #  print_log('p_sort', qq!Next Rank on field "$field"!);
+    #};
 
-    $level++;
+    #$level++;
 
-    # TODO:
-    #   If the same count is smaller than X (at least top_k - pos)
-    #   do quicksort or something similar
-    # if ($same < $top_k || $same < 128) {
-    # }
-    # else
-    $stack->[$level] = $self->heap_sort($top_k, \@presort, $field, $desc);
-    # };
+    ## TODO:
+    ##   If the same count is smaller than X (at least top_k - pos)
+    ##   do quicksort or something similar
+    ## if ($same < $top_k || $same < 128) {
+    ## }
+    ## else
+    #$stack->[$level] = $self->heap_sort($top_k, \@presort, $field, $desc);
+    ## };
 
     if (DEBUG) {
       print_log(
@@ -364,6 +363,59 @@ sub next {
 };
 
 
+
+# Return the current match
+sub current {
+
+  if (DEBUG) {
+    print_log('p_sort', 'Current posting is ' . $_[0]->{current}->to_string);
+  };
+
+  $_[0]->{current};
+};
+
+
+# Get the current match object
+sub current_match {
+  my $self = shift;
+  my $current = $self->current or return;
+  my $match = Krawfish::Koral::Result::Match->new(
+    doc_id  => $current->doc_id,
+    start   => $current->start,
+    end     => $current->end,
+    payload => $current->payload,
+  );
+
+  if (DEBUG) {
+    print_log('p_sort', 'Current match is ' . $match->to_string);
+  };
+
+  return $match;
+};
+
+
+# Return the number of duplicates of the current match
+sub duplicate_rank {
+  my $self = shift;
+
+  if (DEBUG) {
+    print_log('p_sort', 'Check for duplicates from index ' . $self->{pos});
+  };
+
+  return $self->{list}->[$self->{pos}]->[1] || 1;
+};
+
+
+sub to_string {
+  my $self = shift;
+  my $str = 'sort(';
+  $str .= $self->{sort}->to_string;
+  $str .= ',0-' . $self->{top_k} if $self->{top_k};
+  $str .= ':' . $self->{query}->to_string;
+  return $str . ')';
+};
+
+
 sub _string_array {
   my $array = shift;
   my $str = '';
@@ -378,10 +430,16 @@ sub _string_array {
 };
 
 
+
+
+
+
 # Todo:
 #   Accept an iterator, a ranking, and return an iterator
 sub heap_sort {
   my ($self, $top_k, $sub_list, $field, $desc) = @_;
+
+  warn 'DEPRECATED';
 
   if (DEBUG) {
     print_log('p_sort', 'Heapsort list of length ' . scalar(@$sub_list) .
@@ -425,53 +483,6 @@ sub heap_sort {
 };
 
 
-# Return the current match
-sub current {
-
-  if (DEBUG) {
-    print_log('p_sort', 'Current posting is ' . $_[0]->{current}->to_string);
-  };
-
-  $_[0]->{current};
-};
-
-sub current_match {
-  my $self = shift;
-  my $current = $self->current or return;
-  my $match = Krawfish::Koral::Result::Match->new(
-    doc_id  => $current->doc_id,
-    start   => $current->start,
-    end     => $current->end,
-    payload => $current->payload,
-  );
-
-  if (DEBUG) {
-    print_log('p_sort', 'Current match is ' . $match->to_string);
-  };
-
-  return $match;
-};
-
-# Return the number of duplicates of the current match
-sub duplicate_rank {
-  my $self = shift;
-
-  if (DEBUG) {
-    print_log('p_sort', 'Check for duplicates from index ' . $self->{pos});
-  };
-
-  return $self->{list}->[$self->{pos}]->[1] || 1;
-};
-
-
-sub to_string {
-  my $self = shift;
-  my $str = 'sort(';
-  $str .= $self->{sort}->to_string;
-  $str .= ',0-' . $self->{top_k} if $self->{top_k};
-  $str .= ':' . $self->{query}->to_string;
-  return $str . ')';
-};
 
 
 1;

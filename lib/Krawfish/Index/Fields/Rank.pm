@@ -58,6 +58,10 @@ sub add {
 };
 
 
+sub max_rank {
+  $_[0]->{max_rank};
+};
+
 
 # Prepare the plain list for merging
 # or - for the moment - to become
