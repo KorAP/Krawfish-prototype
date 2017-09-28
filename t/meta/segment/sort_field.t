@@ -73,7 +73,7 @@ is($query->to_string, 'sort(field=#1<,0-4:constr(pos=2:#10,filter(#12,[1])))', '
 
 ok($query->next, 'Move to next match');
 
-
+diag 'Check sorting with bundle!';
 
 done_testing;
 __END__
