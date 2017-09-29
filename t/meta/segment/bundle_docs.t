@@ -65,5 +65,47 @@ ok($bundle = $query->current_bundle, 'Get first bundle');
 is($bundle->to_string, '[[2:0-1]|[2:1-2]|[2:2-3]]', 'Stringification');
 ok(!$query->next, 'Move forward');
 
+
+# Create new document
+$index = Krawfish::Index->new;
+ok_index($index, {
+  id => 2,
+} => [qw/aa bb/], 'Add complex document');
+ok_index($index, {
+  id => 3,
+} => [qw/aa bb/], 'Add complex document');
+ok_index($index, {
+  id => 1,
+} => [qw/aa bb aa/], 'Add complex document');
+ok_index($index, {
+  id => 6,
+} => [qw/bb/], 'Add complex document');
+ok_index($index, {
+  id => 5,
+} => [qw/aa bb/], 'Add complex document');
+
+$koral->query(
+  $qb->seq(
+    $qb->token('aa'),
+    $qb->token('bb')
+  )
+);
+
+ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment),
+   'Transform');
+
+ok($query = Krawfish::Meta::Segment::BundleDocs->new($query),
+   'Bundle all matches in the same doc');
+
+ok($query->next, 'Move forward');
+is($query->current_bundle->to_string, '[[0:0-2]]', 'Current match');
+ok($query->next, 'Move forward');
+is($query->current_bundle->to_string, '[[1:0-2]]', 'Current match');
+ok($query->next, 'Move forward');
+is($query->current_bundle->to_string, '[[2:0-2]]', 'Current match');
+ok($query->next, 'Move forward');
+is($query->current_bundle->to_string, '[[4:0-2]]', 'Current match');
+ok(!$query->next, 'Move forward');
+
 done_testing;
 __END__

@@ -27,7 +27,7 @@ sub new {
 
 # Return document id of the bundle
 sub doc_id {
-  return unless $_[0]->length;
+  return unless $_[0]->[0];
   $_[0]->[0]->doc_id;
 };
 
@@ -61,7 +61,19 @@ sub payload {
 
 # Return length
 sub length {
+  warn 'DEPRECATED';
   scalar @{$_[0]};
+};
+
+
+# Get the number of matches in the bundle
+sub matches {
+  my $self = shift;
+  my $matches = 0;
+  foreach (@$self) {
+    $matches += $_->matches;
+  };
+  return $matches;
 };
 
 
