@@ -3,6 +3,8 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
+use constant DEBUG => 1;
+
 sub new {
   my $class = shift;
   my $list = shift;
@@ -11,6 +13,14 @@ sub new {
 
 sub rank_for {
   my ($self, $doc_id) = @_;
+
+  if (DEBUG) {
+    print_log(
+      'f_rank_dir',
+      'Get rank for doc ' . $doc_id . ' which is ' . $self->[$doc_id]
+    );
+  };
+
   return $self->[$doc_id] // 0;
 };
 

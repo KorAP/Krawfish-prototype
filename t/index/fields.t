@@ -219,6 +219,37 @@ is($dir->rank_for(2), 3, 'Get descending rank');
 
 
 
+# Create new document
+$index = Krawfish::Index->new;
+ok($index->introduce_field('id', 'NUM'), 'Introduce field as sortable');
+ok_index($index, {
+  id => 2,
+} => [qw/aa bb/], 'Add complex document');
+ok_index($index, {
+  id => 3,
+} => [qw/aa bb/], 'Add complex document');
+ok_index($index, {
+  id => 1,
+} => [qw/aa bb aa/], 'Add complex document');
+ok_index($index, {
+  id => 6,
+} => [qw/bb/], 'Add complex document');
+ok_index($index, {
+  id => 5,
+} => [qw/aa bb/], 'Add complex document');
+ok($index->commit, 'Commit data');
+
+# The numerical ascending ranks of 'id'
+ok($term_id = $index->dict->term_id_by_term(KEY_PREF . 'id'), 'Get term id');
+ok($ranks = $index->segment->field_ranks->by($term_id), 'Get ranks');
+$dir = $ranks->ascending;
+is($dir->rank_for(2), 1, 'Get ascending rank');
+is($dir->rank_for(0), 2, 'Get ascending rank');
+is($dir->rank_for(1), 3, 'Get ascending rank');
+is($dir->rank_for(4), 4, 'Get ascending rank');
+is($dir->rank_for(3), 5, 'Get ascending rank');
+
+
 done_testing;
 __END__
 

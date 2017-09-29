@@ -43,7 +43,7 @@ sub add {
   my ($value, $doc_id) = @_;
 
   if (DEBUG) {
-    print_log('f_rank', qq!Add value "$value" associated to ! . $doc_id)
+    print_log('f_rank', qq!Add value "$value" associated to $doc_id!)
   };
 
   # Collation is numerical
@@ -85,29 +85,46 @@ sub commit {
   if (DEBUG) {
     print_log(
       'f_rank',
-      'Presorted list is ' .
+      'Presorted list [VALUE,DOC] is ' .
         join('', map { '[' . join(',',@$_) . ']' } @presort)
       );
   };
-
-  # Remove duplicates
-  my @sort;
-  my $last_value;
-  foreach my $next (@presort) {
-    if ($last_value && $next->[0] eq $last_value) {
-      push @{$sort[-1]}, $next->[1]
-    }
-    else {
-      push @sort, [$next->[1]];
-      $last_value = $next->[1];
-    };
-  };
-
 
   # This list keeps existing, even
   # when the segment becomes static -
   # to make merging possible without the
   # need to reconsult the dictionary
+
+  # Remove duplicates
+  my @sort;
+  my $last_value;
+
+  # Iterate over presort list
+  foreach my $next (@presort) {
+
+    # The last value is given and it's equal to the next value
+    if (defined $last_value && ($next->[0] eq $last_value)) {
+
+      # Add to the last added list
+      push @{$sort[-1]}, $next->[1]
+    }
+    else {
+
+      # Create new item
+      push @sort, [$next->[1]];
+      $last_value = $next->[0];
+    };
+  };
+
+  if (DEBUG) {
+    print_log(
+      'f_rank',
+      'Sorted list on ranks [DOC*] is ' .
+        join('', map { '[' . join(',',@$_) . ']' } @sort)
+      );
+  };
+
+
   $self->{sorted} = \@sort;
 
   # Create the ascending rank
@@ -125,6 +142,14 @@ sub commit {
     };
 
     $rank++;
+  };
+
+  if (DEBUG) {
+    print_log(
+      'f_rank',
+      'Ascending ranks per doc are ' .
+        join('', map { "[${_}]" } @asc)
+      );
   };
 
   $self->{asc} = Krawfish::Index::Fields::Direction->new(\@asc);
