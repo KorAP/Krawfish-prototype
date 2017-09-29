@@ -11,6 +11,10 @@ use warnings;
 # TODO:
 #   Support corpus classes
 
+# TODO:
+#   This is rather a group query or better:
+#   An aggregation on groups!
+
 use constant {
   DEBUG          => 1
 };

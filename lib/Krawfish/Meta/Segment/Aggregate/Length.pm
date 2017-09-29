@@ -4,7 +4,7 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-# This will check the segments length -
+# This will check the hits length in subtokens -
 # currently other word lengths are not supported
 
 # See https://en.wikipedia.org/wiki/Selection_algorithm

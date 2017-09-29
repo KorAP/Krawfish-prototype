@@ -1,10 +1,10 @@
-package Krawfish::Meta::Group::Spans;
+package Krawfish::Meta::Segment::Group::Spans;
 use parent 'Krawfish::Meta';
 use Krawfish::Log;
 use strict;
 use warnings;
 
-# This may be genralizable, but for the moment
+# This may be generalizable, but for the moment
 # It should make it possible to group the span positions
 # of a query based on a nesting query.
 #
@@ -18,14 +18,14 @@ use warnings;
 #   100: 2
 #
 # can be returned, where each class 1 is sliced in
-# 100 pieces and for each pieces there is a dot, in case
+# 100 pieces and for each piece there is a dot, in case
 # class 2 occurs in that slice.
 #
 # By doing that it's easy to visualize the position of expressions
 # in sentences or documents etc.
 #
-# For example to answer questions like (where in documents does
-# the phrase "Herzlichen Dank" occur.
+# For example to answer questions like 'where in documents does
+# the phrase "Herzlichen Dank" occur?'
 #
 # If the span spans more than 1 slice, the result can be
 #

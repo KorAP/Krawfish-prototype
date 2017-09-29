@@ -6,7 +6,7 @@ use strict;
 use warnings;
 
 # TODO:
-#   Potentially rename to ::Terms!
+#   Potentially rename to ::Terms! or ::Classes!
 
 # Enrich each match with all term ids for a specific region and
 # for a specific class

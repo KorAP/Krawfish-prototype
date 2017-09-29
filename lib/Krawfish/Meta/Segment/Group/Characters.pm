@@ -1,7 +1,15 @@
-package Krawfish::Meta::Group::Character;
+package Krawfish::Meta::Segment::Group::Character;
 use Krawfish::Log;
 use strict;
 use warnings;
+
+
+# This groups on prefix or suffixes of subterms.
+# Necessary to support "Ansicht nach Wortendungen" for example.
+# It's possible to first group on terms and then - per term,
+# request the term surface in the dictionary and group by
+# the result.
+
 
 use constant DEBUG => 0;
 

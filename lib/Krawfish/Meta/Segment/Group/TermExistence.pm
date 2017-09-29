@@ -1,5 +1,5 @@
-package Krawfish::Meta::Group::Segment::TermExistence;
-use parent 'Krawfish::Query';
+package Krawfish::Meta::Segment::Group::TermExistence;
+use parent 'Krawfish::Meta';
 use strict;
 use warnings;
 

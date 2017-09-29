@@ -3,4 +3,6 @@
 # This probably requires a single list of term queries, that can be
 # closed, once a match occurs.
 
+# Probably better suited in Group
+
 __END__
