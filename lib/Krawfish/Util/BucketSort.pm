@@ -204,7 +204,7 @@ sub to_histogram {
   my $self = shift;
   my $str = '';
   foreach (0..255) {
-    my $hist = $self->{buckets}->[$_]->to_histogram or next;
+    my $hist = $self->{buckets}->[$_]->to_histogram or CORE::next;
     $str .= sprintf("%3d", $_) . ': ' . $hist  . "\n";
   };
   $str;

@@ -212,7 +212,7 @@ sub next {
             };
 
             # TODO: Next should be default here
-            next;
+            CORE::next;
           }
 
           # No, nowhere
@@ -323,7 +323,7 @@ sub next {
         $self->{buffer}->rewind;
 
         # Check if there is an element on the buffer
-        next if $self->{buffer}->current;
+        CORE::next if $self->{buffer}->current;
 
         # Go on!
       };

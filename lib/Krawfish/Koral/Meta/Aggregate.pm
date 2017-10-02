@@ -90,7 +90,7 @@ sub normalize {
         splice(@ops, $i, 1);
       };
 
-      next;
+      CORE::next;
     };
 
     # Normalize when no longer consecutive operations

@@ -135,7 +135,7 @@ sub int_fields {
     elsif ($current > $key_ids[$key_pos]) {
       # Ignore the key id
       $key_pos++;
-      next;
+      CORE::next;
     }
 
     # Ignore the field
@@ -207,7 +207,7 @@ sub fields {
       if ($current > $key_ids[$key_pos]) {
         # Ignore the key id
         $key_pos++;
-        next;
+        CORE::next;
       };
 
 

@@ -62,7 +62,7 @@ sub normalize {
     if ($op->is_null) {
       splice @$ops, $i, 1;
       $i--;
-      next;
+      CORE::next;
     }
 
     # One operand can't match
@@ -364,7 +364,7 @@ sub optimize {
       _combine_pos($queries, $index_a, $index_b);
 
       # Go to next combination
-      next;
+      CORE::next;
     }
 
     # Check distance between two operands
@@ -380,7 +380,7 @@ sub optimize {
       # The inbetween is ANY
       if ($queries->[$index_between]->[TYPE] == ANY) {
         _combine_anywhere($queries, $index_a, $index_b, $index_between);
-        next;
+        CORE::next;
       }
 
       # b) If there is an optional, variable, classed NEG operand
@@ -389,7 +389,7 @@ sub optimize {
       # The inbetween is NEGATIVE
       elsif ($queries->[$index_between]->[TYPE] == NEG) {
         _combine_neg($queries, $index_a, $index_b, $index_between, $segment);
-        next;
+        CORE::next;
       };
 
       print_log('kq_sequtil', 'Can\'t combine ANY or NEG operands') if DEBUG;
@@ -412,7 +412,7 @@ sub optimize {
     if (($surr_l_query && $surr_l_query->[TYPE] == OPT) ||
           ($surr_r_query && $surr_r_query->[TYPE] == OPT)) {
       _extend_opt($queries, $index_a, $index_b, $segment);
-      next;
+      CORE::next;
     }
 
     # d) If there is a varying non-optional size POS element surrounding,
@@ -470,7 +470,7 @@ sub optimize {
         # Remove old query
         splice(@$queries, $surr_i, 1);
 
-        next;
+        CORE::next;
       };
     };
 
@@ -992,7 +992,7 @@ sub _get_best_pair {
   for (my $i = 0; $i < $length; $i++) {
 
     # Operand is not pos
-    next unless $queries->[$i]->[TYPE] == POS;
+    CORE::next unless $queries->[$i]->[TYPE] == POS;
 
     # The pair is not saturated yet
     if (@best < 2) {
@@ -1012,13 +1012,13 @@ sub _get_best_pair {
         };
       };
 
-      next;
+      CORE::next;
     };
 
     my $freq = $queries->[$i]->[FREQ];
 
     # Next query is not among the best
-    next if $freq > $queries->[$best[1]]->[FREQ];
+    CORE::next if $freq > $queries->[$best[1]]->[FREQ];
 
     # Is better than first
     if (_compare($queries, $i, $best[0]) == -1) {
@@ -1184,7 +1184,7 @@ __END__
     # Initialize last type
     unless (defined $last_type) {
       $last_type = $query_types[$i]->[0];
-      next;
+      CORE::next;
     };
 
     if (($i >= 0) && ($query_types[$i]->[0] == $last_type)) {

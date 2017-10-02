@@ -106,7 +106,7 @@ sub next {
       $first = $self->{first}->current;
       $second = $self->{second}->current;
 
-      next;
+      CORE::next;
     };
 
     $self->{doc_id} = $curr_post->doc_id;

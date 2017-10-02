@@ -71,7 +71,7 @@ sub next {
         unless ($last) {
           $buffer->clear;
           $buffer->backward;
-          next;
+          CORE::next;
         };
 
         # Set current

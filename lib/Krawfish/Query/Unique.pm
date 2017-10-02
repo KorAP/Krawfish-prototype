@@ -47,7 +47,7 @@ sub next {
       print_log('unique', 'Span is not unique');
     };
 
-    next;
+    CORE::next;
   };
   return;
 };

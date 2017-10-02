@@ -136,7 +136,7 @@ sub clone {
     doc_id => $self->doc_id,
     start => $self->start,
     end => $self->end,
-    payload => $self->payload->clone
+    payload => defined $self->{payload} ? $self->payload->clone : undef
   );
 }
 

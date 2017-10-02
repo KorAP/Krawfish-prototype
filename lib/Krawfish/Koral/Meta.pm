@@ -179,7 +179,7 @@ sub normalize {
       };
 
       # Don't normalize nonmerged data
-      next;
+      CORE::next;
     };
 
     # Normalize when no longer consecutive operations

@@ -64,7 +64,7 @@ sub open {
   my $self = shift;
   foreach my $index (@{$self->{indexes}}) {
 
-    next if $index->is_closed;
+    CORE::next if $index->is_closed;
 
     # Send query to all channels in parallel
     # Note if one index is not available
@@ -114,7 +114,7 @@ sub _next_current {
   #
   foreach my $index (@{$self->{indexes}}) {
 
-    next if $index->is_closed;
+    CORE::next if $index->is_closed;
 
     # remember index to get current_match
     # TODO:
@@ -126,7 +126,7 @@ sub _next_current {
 
       # Close the index
       $index->close;
-      next;
+      CORE::next;
     };
 
     $self->buffer->push($index, $current);
@@ -145,7 +145,7 @@ sub close_all {
   foreach my $index (@{$self->{indexes}}) {
 
     # Index already closed
-    next if $index->is_closed;
+    CORE::next if $index->is_closed;
 
     # Close index
     $index->close();

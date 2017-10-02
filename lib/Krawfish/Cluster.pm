@@ -37,7 +37,7 @@ sub search_for {
       foreach (@_) {
 
         if ($_->error) {
-          next;
+          CORE::next;
           # retry! to_nodes($_->node_id);
         };
 

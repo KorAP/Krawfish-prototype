@@ -208,7 +208,7 @@ sub _parse {
 
       unless ($item->{wrap}) {
         warn 'No wrap defined in KoralQuery';
-        next;
+        CORE::next;
       };
 
       # Create key string

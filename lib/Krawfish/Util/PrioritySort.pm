@@ -18,11 +18,6 @@ use POSIX qw/floor/;
 # The priority queue is based on a simple binary max heap.
 #
 # TODO:
-#   Create a variant, that keeps a separated count for
-#   "matches_in_doc", so matches in the same document only
-#   have one node and need to be ranked only once.
-#
-# TODO:
 #   For grouping it may be beneficial to allow witness storing as well,
 #   having a method add() that fails, in case the rank is already there.
 #
@@ -49,6 +44,11 @@ use constant {
 sub new {
   my $class = shift;
   my ($top_k, $max_rank_ref) = @_;
+
+  if (DEBUG) {
+    print_log('prio', 'Initialize new prio');
+  };
+
   bless {
     top_k        => $top_k,
     max_rank_ref => $max_rank_ref,
@@ -140,7 +140,7 @@ sub enqueue {
 
     print_log('prio', "Rank is duplicate at top") if DEBUG;
 
-    # SAME is not yet be initialized
+    # SAME is not yet initialized
     if ($array->[0]->[SAME] == 0) {
 
       # In that case mark all top duplicates

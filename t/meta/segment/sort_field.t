@@ -24,9 +24,9 @@ ok_index($index, {
   author => 'Julian',
   genre => 'novel',
   age => 3
-} => [qw/aa bb/], 'Add complex document');
+} => [qw/bb/], 'Add complex document');
 ok_index($index, {
-  id => 5,
+  id => 1,
   author => 'Abraham',
   genre => 'newsletter',
   title => 'Your way to success!',
@@ -37,9 +37,9 @@ ok_index($index, {
   author => 'Fritz',
   genre => 'newsletter',
   age => 3
-} => [qw/bb/], 'Add complex document');
+} => [qw/aa bb/], 'Add complex document');
 ok_index($index, {
-  id => 7,
+  id => 5,
   author => 'Michael',
   genre => 'newsletter',
   age => 7
@@ -58,33 +58,58 @@ $koral->query(
   )
 );
 
-# For simplicity
+my $query;
+ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment), 'optimize');
+
+is($query->to_string, 'constr(pos=2:#10,filter(#12,[1]))', 'Stringification');
+
+# Check normal search
+matches($query, ['[0:0-2]','[2:0-2]','[3:0-2]','[4:0-2]'], 'Query');
+
+# Sort by id
 $koral->meta(
   $mb->sort_by(
     $mb->s_field('id')
   )
 );
 
-ok(my $query = $koral->to_query, 'Normalize');
+ok($query = $koral->to_query, 'Normalize');
 
 ok($query = $query->identify($index->dict)->optimize($index->segment), 'optimize');
 
-is($query->to_string, 'sort(field=#1<,0-4:constr(pos=2:#10,filter(#12,[1])))', 'Stringification');
+is($query->to_string,
+   'sort(field=#1<,0-5:bundleDocs(constr(pos=2:#10,filter(#12,[1]))))',
+   'Stringification');
 
-ok($query->next, 'Move to next match');
+# '[2:0-2]','[0:0-2]','[4:0-2]','[3:0-2]'
+ok($query->next, 'Move to next bundle');
+is($query->current_bundle->to_string, '[[[2:0-2]]]', 'Stringification');
+ok($query->next, 'Move to next bundle');
+is($query->current_bundle->to_string, '[[[0:0-2]]]', 'Stringification');
+ok($query->next, 'Move to next bundle');
+is($query->current_bundle->to_string, '[[[4:0-2]]]', 'Stringification');
+ok($query->next, 'Move to next bundle');
+is($query->current_bundle->to_string, '[[[3:0-2]]]', 'Stringification');
+ok(!$query->next, 'No more next bundle');
 
-diag 'Check sorting with bundle!';
 
-done_testing;
-__END__
+# New query
+$koral = Krawfish::Koral->new;
+$qb = $koral->query_builder;
+$mb = $koral->meta_builder;
 
+$koral->query(
+  $qb->seq(
+    $qb->token('aa'),
+    $qb->token('bb')
+  )
+);
 
 $koral->meta(
   $mb->sort_by(
     $mb->s_field('author')
   )
 );
-
 
 # Check for multiple fields in order
 ok($query = $koral->to_query, 'Normalize');
@@ -99,16 +124,18 @@ is($query->to_string,
 
 ok($query = $query->optimize($index->segment), 'Optimize');
 
-is($query->to_string,
-   'sort(field=#1<:sort(field=#2<:constr(pos=2:#10,filter(#12,[1]))))',
-   'Stringification');
 
-
-diag 'check sorting';
+diag 'check with multiple levels';
 
 done_testing;
-
 __END__
+
+is($query->to_string,
+   'sort(field=#1<,0-5:sort(field=#2<,0-5:bundleDocs(constr(pos=2:#10,filter(#12,[1])))))',
+   'Stringification');
+
+ok($query->next, 'Move to next');
+
 
 
 

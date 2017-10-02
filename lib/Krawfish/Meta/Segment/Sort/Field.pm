@@ -50,6 +50,10 @@ sub new {
   return $self;
 };
 
+sub type {
+  'field';
+};
+
 
 # Get the rank for this criterion
 sub rank_for {

@@ -104,7 +104,7 @@ sub normalize {
 
     # Ignore idempotence
     my $c = $_->to_string;
-    next if $last eq $c;
+    CORE::next if $last eq $c;
     $last = $c;
 
     # Plan may result in a null-query
@@ -113,7 +113,7 @@ sub normalize {
     #   Return undef, if the query is null
     # TODO:
     #   Make this normalize_c and return an array!
-    my @norm = $_->normalize or next;
+    my @norm = $_->normalize or CORE::next;
 
     push @constraints, @norm;
   };
@@ -148,7 +148,7 @@ sub normalize {
 
         # Remove not used positional constraint
         splice(@constraints, $i+1, 1);
-        next;
+        CORE::next;
       }
 
       # Join distances
@@ -174,7 +174,7 @@ sub normalize {
 
         # Remove not used distance constraint
         splice(@constraints, $i+1, 1);
-        next;
+        CORE::next;
       };
     };
 
@@ -290,7 +290,7 @@ sub optimize {
   # Optimize constraints
   my @constraints = ();
   foreach (@{$self->constraints}) {
-    my $opt = $_->optimize($segment) or next;
+    my $opt = $_->optimize($segment) or CORE::next;
     push @constraints, $opt;
   };
 
@@ -400,7 +400,7 @@ sub max_span {
       my $c_max = $_->max_span($first_span, $second_span);
 
       # ignore -1
-      next if $c_max == -1;
+      CORE::next if $c_max == -1;
 
       # If the new maximum is smaller, adopt the value
       if ($c_max < $max || $max == -1) {

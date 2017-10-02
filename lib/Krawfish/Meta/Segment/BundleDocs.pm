@@ -1,7 +1,7 @@
 package Krawfish::Meta::Segment::BundleDocs;
 use parent 'Krawfish::Meta';
 use Krawfish::Log;
-use Krawfish::Posting::Bundle;
+use Krawfish::Posting::DocBundle;
 use strict;
 use warnings;
 
@@ -13,7 +13,8 @@ sub new {
   my $class = shift;
   bless {
     query => shift,
-    next_item => undef
+    next_item => undef,
+    buffer => undef
   }, $class;
 };
 
@@ -23,7 +24,7 @@ sub current_bundle {
   my $self = shift;
 
   if (DEBUG) {
-    print_log('bundle', 'Get bundle');
+    print_log('d_bundle', 'Get bundle');
   };
 
   return $self->{current_bundle} if $self->{current_bundle};
@@ -33,17 +34,18 @@ sub current_bundle {
   # Need a next() first
   return unless $first;
 
-  my $bundle = Krawfish::Posting::Bundle->new($first);
+  my $bundle = Krawfish::Posting::DocBundle->new($first);
   my $query = $self->{query};
 
   if (DEBUG) {
-    print_log('bundle', 'Start bundle with ' . $first->to_string);
+    print_log('d_bundle', 'Start bundle with ' . $first->to_string);
   };
 
 
   # There is a next entry
+  my $next;
   while ($query->next) {
-    my $next = $query->current;
+    $next = $query->current;
 
     # Documents are identical - bundle
     if ($next->doc_id == $first->doc_id) {
@@ -52,7 +54,7 @@ sub current_bundle {
 
     # Remember the next bundle
     else {
-      $self->{first} = $next;
+      $self->{buffer} = $next;
       last;
     };
   };
@@ -63,20 +65,37 @@ sub current_bundle {
 };
 
 
+sub max_freq {
+  $_[0]->{query}->max_freq;
+};
+
 sub current {
   return $_[0]->{query}->current;
 };
 
 
+# Move to next bundle
 sub next {
   my $self = shift;
   $self->{current_bundle} = undef;
-  if ($self->{query}->next) {
+
+  if ($self->{buffer}) {
+    $self->{next_item} = $self->{buffer};
+    $self->{buffer} = undef;
+  }
+
+  # Move forward
+  elsif ($self->{query}->next) {
     $self->{next_item} = $self->{query}->current;
-    return 1;
+  }
+
+  # Can't move forward
+  else {
+    $self->{next_item} = undef;
+    return;
   };
-  $self->{next_item} = undef;
-  return;
+
+  return 1;
 };
 
 

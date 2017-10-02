@@ -96,6 +96,12 @@ sub last_doc {
 };
 
 
+# Get the maximum possible rank
+sub max_rank {
+  $_[0]->{live}->next_doc_id;
+};
+
+
 # Get subtokens
 sub subtokens {
   $_[0]->{subtokens};

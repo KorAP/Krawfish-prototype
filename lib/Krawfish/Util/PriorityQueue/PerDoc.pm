@@ -14,7 +14,7 @@ use Krawfish::Log;
 # TODO: Turn reverse_array into an iterator
 
 use constant {
-  DEBUG       => 0,
+  DEBUG       => 1,
   RANK        => 0,
   SAME        => 1,
   VALUE       => 2,
@@ -22,10 +22,16 @@ use constant {
   MATCHES_ALL => 4
 };
 
+
 # Construct new HEAP structure
 sub new {
   my $class = shift;
   my ($top_k, $max_rank_ref) = @_;
+
+  if (DEBUG) {
+    print_log('prio_doc', 'Initialize new prio');
+  };
+
   my $self = bless {
     top_k        => $top_k,
     max_rank_ref => $max_rank_ref,
@@ -40,6 +46,7 @@ sub length {
   # This is pretty much the sum of all matches per doc of all nodes
   $_[0]->{match_count};
 };
+
 
 # TODO: May accept rank, matches, value instead of nodes
 # sub insert;
@@ -70,7 +77,7 @@ sub incr_top_duplicate {
 # Return tree stringification
 sub to_tree {
   my $self = shift;
-  return
+  return '(RANK:SAMExMATCHES) ' .
     join('', map {
     '[' . $_->[RANK] .
       ($_->[SAME] ? ':' . $_->[SAME] : '') .
@@ -119,10 +126,10 @@ sub mark_top_duplicates {
     $array->[0]->[MATCHES_ALL] = $count_matches;
     if (DEBUG) {
       print_log(
-        'prio',
+        'prio_doc',
         "Mark top element with count $count_same and all $count_matches"
       );
-    }
+    };
   };
 };
 
