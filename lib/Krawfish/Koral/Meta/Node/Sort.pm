@@ -115,7 +115,7 @@ sub optimize {
   # follow_up => $self->{follow_up}
 
   # Bundle documents
-  if ($sort->type eq 'field') {
+  if ($sort->type eq 'field' && !$self->{follow_up}) {
     $query = Krawfish::Meta::Segment::BundleDocs->new($query);
   };
 

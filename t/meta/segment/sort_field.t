@@ -124,15 +124,16 @@ is($query->to_string,
 
 ok($query = $query->optimize($index->segment), 'Optimize');
 
+is($query->to_string,
+   'sort(field=#1<,0-5:sort(field=#2<,0-5:bundleDocs(constr(pos=2:#10,filter(#12,[1])))))',
+   'Stringification');
+
 
 diag 'check with multiple levels';
 
 done_testing;
 __END__
 
-is($query->to_string,
-   'sort(field=#1<,0-5:sort(field=#2<,0-5:bundleDocs(constr(pos=2:#10,filter(#12,[1])))))',
-   'Stringification');
 
 ok($query->next, 'Move to next');
 
