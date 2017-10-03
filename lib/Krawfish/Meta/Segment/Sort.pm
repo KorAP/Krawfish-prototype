@@ -44,11 +44,6 @@ use constant {
 #   It is necessary to add the sorting criteria.
 
 
-sub max_freq {
-  $_[0]->{query}->max_freq;
-};
-
-
 # Constructor
 sub new {
   my $class = shift;
@@ -113,6 +108,10 @@ sub new {
     sorted       => [],
     pos          => 0
   }, $class;
+};
+
+sub max_freq {
+  $_[0]->{query}->max_freq;
 };
 
 
@@ -303,10 +302,73 @@ sub next {
 };
 
 
+sub next_bundle {
+  ...
+};
+
 sub current_bundle {
   my $self = shift;
   return $self->{current_bundle};
 };
+
+
+# Return the current match
+sub current {
+
+  if (DEBUG) {
+    print_log('p_sort', 'Current posting is ' . $_[0]->{current}->to_string);
+  };
+
+  $_[0]->{current};
+};
+
+
+# Get the current match object
+sub current_match {
+  my $self = shift;
+  my $current = $self->current or return;
+  my $match = Krawfish::Koral::Result::Match->new(
+    doc_id  => $current->doc_id,
+    start   => $current->start,
+    end     => $current->end,
+    payload => $current->payload,
+  );
+
+  if (DEBUG) {
+    print_log('p_sort', 'Current match is ' . $match->to_string);
+  };
+
+  return $match;
+};
+
+sub to_string {
+  my $self = shift;
+  my $str = 'sort(';
+  $str .= $self->{sort}->to_string;
+  $str .= ',0-' . $self->{top_k} if $self->{top_k};
+  $str .= ':' . $self->{query}->to_string;
+  return $str . ')';
+};
+
+
+sub _string_array {
+  my $array = shift;
+  my $str = '';
+  foreach (@$array) {
+    $str .= '[';
+    $str .= 'R:' . $_->[RANK] . ';';
+    $str .= ($_->[SAME] ? 'S:' . $_->[SAME] . ';' : '');
+    $str .= ($_->[MATCHES] ? 'M:' . $_->[MATCHES] : '');
+    $str .= ']';
+  };
+  return $str;
+};
+
+
+1;
+__END__
+
+
 
 
 
@@ -471,34 +533,6 @@ sub next_old {
 
 
 
-# Return the current match
-sub current {
-
-  if (DEBUG) {
-    print_log('p_sort', 'Current posting is ' . $_[0]->{current}->to_string);
-  };
-
-  $_[0]->{current};
-};
-
-
-# Get the current match object
-sub current_match {
-  my $self = shift;
-  my $current = $self->current or return;
-  my $match = Krawfish::Koral::Result::Match->new(
-    doc_id  => $current->doc_id,
-    start   => $current->start,
-    end     => $current->end,
-    payload => $current->payload,
-  );
-
-  if (DEBUG) {
-    print_log('p_sort', 'Current match is ' . $match->to_string);
-  };
-
-  return $match;
-};
 
 
 # Return the number of duplicates of the current match
@@ -513,28 +547,6 @@ sub duplicate_rank {
 };
 
 
-sub to_string {
-  my $self = shift;
-  my $str = 'sort(';
-  $str .= $self->{sort}->to_string;
-  $str .= ',0-' . $self->{top_k} if $self->{top_k};
-  $str .= ':' . $self->{query}->to_string;
-  return $str . ')';
-};
-
-
-sub _string_array {
-  my $array = shift;
-  my $str = '';
-  foreach (@$array) {
-    $str .= '[';
-    $str .= 'R:' . $_->[RANK] . ';';
-    $str .= ($_->[SAME] ? 'S:' . $_->[SAME] . ';' : '');
-    $str .= ($_->[MATCHES] ? 'M:' . $_->[MATCHES] : '');
-    $str .= ']';
-  };
-  return $str;
-};
 
 
 

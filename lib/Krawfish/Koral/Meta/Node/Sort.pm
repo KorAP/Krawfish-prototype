@@ -1,5 +1,6 @@
 package Krawfish::Koral::Meta::Node::Sort;
 use Krawfish::Meta::Segment::Sort;
+use Krawfish::Meta::Segment::SortAfter;
 use Krawfish::Meta::Segment::BundleDocs;
 use Krawfish::Query::Nowhere;
 use Krawfish::Log;
@@ -117,15 +118,22 @@ sub optimize {
   # Bundle documents
   if ($sort->type eq 'field' && !$self->{follow_up}) {
     $query = Krawfish::Meta::Segment::BundleDocs->new($query);
+
+    # Return sort object
+    return Krawfish::Meta::Segment::Sort->new(
+      query     => $query,
+      segment   => $segment,
+      sort      => $sort,
+      top_k     => $self->{top_k},
+      # max_rank_ref => $max_rank_ref
+    );
   };
 
-  # Return sort object
-  return Krawfish::Meta::Segment::Sort->new(
+  return Krawfish::Meta::Segment::SortAfter->new(
     query     => $query,
     segment   => $segment,
     sort      => $sort,
     top_k     => $self->{top_k},
-    # max_rank_ref => $max_rank_ref
   );
 };
 

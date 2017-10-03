@@ -1,4 +1,5 @@
 package Krawfish::Meta::Segment::SortAfter;
+use parent 'Krawfish::Meta';
 use strict;
 use warnings;
 
@@ -14,9 +15,33 @@ use warnings;
 
 sub new {
   my $class = shift;
+  my %param = @_;
+
+  my $query    = $param{query};
+  my $segment  = $param{segment};
+  my $top_k    = $param{top_k};
+
+  # This is the sort criterion
+  my $sort     = $param{sort};
+
+  $top_k //= $segment->max_rank;
+
+  my $max_rank_ref = \(my $max_rank = $segment->max_rank);
+
+  # Create initial priority queue
+  # The priority queue may better be a bundle-based queue,
+  # so each element has a size() attribute to tell how many matches are in there
+  my $queue = Krawfish::Util::PriorityQueue::PerDoc->new(
+    $top_k,
+    $max_rank_ref
+  );
 
   bless {
-    count => 0 # number of (bundled) matches already served
+    query   => $query,
+    segment => $segment,
+    top_k   => $top_k,
+    sort    => $sort,
+    count   => 0 # number of (bundled) matches already served
   }, $class;
 };
 
@@ -38,7 +63,7 @@ sub next {
     $self->{current_bundle} = shift @{$self->{buffer}};
 
     # Move forward by the length of the bundle
-    $self->{count} += $self->{current_bundle}->length;
+    $self->{count} += $self->{current_bundle}->size;
 
     # Fine
     return 1;
@@ -55,6 +80,7 @@ sub next {
   };
 };
 
+
 sub current_bundle {
   return $_[0]->{current_bundle};
 };
@@ -62,4 +88,17 @@ sub current_bundle {
 
 # point to matches in the current bundle!
 sub current_match {
+  ...
 };
+
+
+sub to_string {
+  my $self = shift;
+  my $str = 'sort(';
+  $str .= $self->{sort}->to_string;
+  $str .= ',0-' . $self->{top_k} if $self->{top_k};
+  $str .= ':' . $self->{query}->to_string;
+  return $str . ')';
+};
+
+1;
