@@ -7,9 +7,25 @@ use constant DEBUG => 1;
 
 sub new {
   my $class = shift;
+  my $self = bless [], $class;
   my $list = shift;
-  bless $list, $class;
+
+  if ($list) {
+    $self->load($list);
+  };
+
+  return $self;
 };
+
+sub load {
+  my ($self, $list) = @_;
+  @$self = @$list;
+};
+
+sub reset {
+  @{$_[0]} = ();
+};
+
 
 sub rank_for {
   my ($self, $doc_id) = @_;
@@ -33,5 +49,6 @@ sub rank_if_lt_for {
   return 0 unless $rank;
   return $rank < $value ? $rank : 0;
 };
+
 
 1;

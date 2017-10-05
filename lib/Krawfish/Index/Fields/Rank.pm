@@ -20,6 +20,11 @@ use constant DEBUG => 1;
 
 sub new {
   my $class = shift;
+
+  if (DEBUG) {
+    print_log('f_rank', 'Initiate rank object');
+  };
+
   bless {
     collation => shift,
 
@@ -28,8 +33,8 @@ sub new {
     # based on max_rank.
     # This is only possible for single-valued fields
     calc_desc => shift,
-    asc       => undef,
-    desc      => undef,
+    asc       => Krawfish::Index::Fields::Direction->new,
+    desc      => Krawfish::Index::Fields::Direction->new,
     sorted    => [],
     plain     => [],
     max_rank  => undef
@@ -43,7 +48,7 @@ sub add {
   my ($value, $doc_id) = @_;
 
   if (DEBUG) {
-    print_log('f_rank', qq!Add value "$value" associated to $doc_id!)
+    print_log('f_rank', qq!Add value "$value" associated to $doc_id!);
   };
 
   # Collation is numerical
@@ -55,6 +60,19 @@ sub add {
   else {
     push @{$self->{plain}}, [$self->{collation}->sort_key($value), $doc_id];
   };
+
+  if (DEBUG) {
+    print_log(
+      'f_rank',
+      qq!Plain ranks are [VALUE,DOC_ID] ! .
+        join('', map { '[' . join(',',@$_) . ']' } @{$self->{plain}})
+      );
+  };
+
+  $self->{max_rank} = undef;
+#  $self->{asc}->reset;
+#  $self->{desc}->reset;
+  $self->{sorted}   = [];
 };
 
 
@@ -152,7 +170,7 @@ sub commit {
       );
   };
 
-  $self->{asc} = Krawfish::Index::Fields::Direction->new(\@asc);
+  $self->{asc}->load(\@asc);
 
   # Max rank is relevant for efficient encoding
   $self->{max_rank} = --$rank;
@@ -170,8 +188,7 @@ sub commit {
     $rank--;
   };
 
-  $self->{desc} = Krawfish::Index::Fields::Direction->new(\@desc);
-  $self->{plain} = [];
+  $self->{desc}->load(\@desc);
 
   return $self;
 
@@ -207,7 +224,6 @@ sub to_string {
 sub _alphasort_fields {
   my $plain = shift;
 
-  # Or sort numerically
   return sort { $a->[0] cmp $b->[0] } @$plain;
 };
 

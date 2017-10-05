@@ -250,6 +250,22 @@ is($dir->rank_for(4), 4, 'Get ascending rank');
 is($dir->rank_for(3), 5, 'Get ascending rank');
 
 
+# Add another document
+print "-------------------\n\n";
+ok_index($index, {
+  id => 2,
+} => [qw/aa bb/], 'Add complex document');
+$index->commit;
+
+is($dir->rank_for(2), 1, 'Get ascending rank');
+is($dir->rank_for(0), 2, 'Get ascending rank');
+is($dir->rank_for(1), 3, 'Get ascending rank');
+is($dir->rank_for(4), 4, 'Get ascending rank');
+is($dir->rank_for(3), 5, 'Get ascending rank');
+is($dir->rank_for(5), 2, 'Get ascending rank');
+
+
+
 done_testing;
 __END__
 
