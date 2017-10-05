@@ -50,6 +50,8 @@ ok($index->commit, 'Commit data');
 my $koral = Krawfish::Koral->new;
 my $qb = $koral->query_builder;
 my $mb = $koral->meta_builder;
+my $query;
+
 
 $koral->query(
   $qb->seq(
@@ -58,7 +60,6 @@ $koral->query(
   )
 );
 
-my $query;
 ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment), 'optimize');
 
 is($query->to_string, 'constr(pos=2:#10,filter(#12,[1]))', 'Stringification');
@@ -81,19 +82,20 @@ is($query->to_string,
    'sort(field=#1<,0-5:bundleDocs(constr(pos=2:#10,filter(#12,[1]))))',
    'Stringification');
 
+
 # '[2:0-2]','[0:0-2]','[4:0-2]','[3:0-2]'
-ok($query->next, 'Move to next bundle');
+ok($query->next_bundle, 'Move to next bundle');
 is($query->current_bundle->to_string, '[[[2:0-2]]]', 'Stringification');
-ok($query->next, 'Move to next bundle');
+ok($query->next_bundle, 'Move to next bundle');
 is($query->current_bundle->to_string, '[[[0:0-2]]]', 'Stringification');
-ok($query->next, 'Move to next bundle');
+ok($query->next_bundle, 'Move to next bundle');
 is($query->current_bundle->to_string, '[[[4:0-2]]]', 'Stringification');
-ok($query->next, 'Move to next bundle');
+ok($query->next_bundle, 'Move to next bundle');
 is($query->current_bundle->to_string, '[[[3:0-2]]]', 'Stringification');
-ok(!$query->next, 'No more next bundle');
+ok(!$query->next_bundle, 'No more next bundle');
 
 
-# New query
+# New query - sort by author
 $koral = Krawfish::Koral->new;
 $qb = $koral->query_builder;
 $mb = $koral->meta_builder;
@@ -114,7 +116,9 @@ $koral->meta(
 # Check for multiple fields in order
 ok($query = $koral->to_query, 'Normalize');
 
-is($query->to_string, "sort(field='id'<:sort(field='author'<:filter(aabb,[1])))", 'Stringification');
+is($query->to_string,
+   "sort(field='id'<:sort(field='author'<:filter(aabb,[1])))",
+   'Stringification');
 
 ok($query = $query->identify($index->dict), 'Identify');
 
@@ -128,57 +132,81 @@ is($query->to_string,
    'sort(field=#1<,0-5:sort(field=#2<,0-5:bundleDocs(constr(pos=2:#10,filter(#12,[1])))))',
    'Stringification');
 
-
-diag 'check with multiple levels';
-
-done_testing;
-__END__
-
-
-ok($query->next, 'Move to next');
-
-
-
-
-
+# 0:Peter, 1:Julian!, 2:Abraham, 3:Fritz, 4:Michael
+# 2, 3, 4, 0
+ok($query->next_bundle, 'Move to next bundle');
+is($query->current_bundle->to_string, '[[2:0-2]]', 'Stringification');
+ok($query->next_bundle, 'Move to next bundle');
+is($query->current_bundle->to_string, '[[3:0-2]]', 'Stringification');
+ok($query->next_bundle, 'Move to next bundle');
+is($query->current_bundle->to_string, '[[4:0-2]]', 'Stringification');
+ok($query->next_bundle, 'Move to next bundle');
+is($query->current_bundle->to_string, '[[0:0-2]]', 'Stringification');
+ok(!$query->next_bundle, 'No more next bundle');
 
 
+# Add to more documents
+ok_index($index, {
+  id => 8,
+  author => 'Fritz'
+} => [qw/aa bb/], 'Add complex document');
+ok_index($index, {
+  id => 9,
+  author => 'Michael'
+} => [qw/aa bb/], 'Add complex document');
+ok_index($index, {
+  id => 7,
+  author => 'Michael'
+} => [qw/aa bb/], 'Add complex document');
 
-# TODO: Introduce sortfilter
+ok($index->commit, 'Commit data');
+
+
+# New query - sort by author
+$koral = Krawfish::Koral->new;
+$qb = $koral->query_builder;
+$mb = $koral->meta_builder;
+
+$koral->query(
+  $qb->seq(
+    $qb->token('aa'),
+    $qb->token('bb')
+  )
+);
 
 $koral->meta(
   $mb->sort_by(
     $mb->s_field('author')
-  ),
-  $mb->limit(1,3)
+  )
 );
 
-ok(my $query = $koral->to_query, 'Normalize');
-
-is($query->to_string, "limit(1-4:sort(field='author'<,field='id'<;k=4;sortFilter:filter(aabb,[1])))", 'Stringification');
-
-ok($query = $query->identify($index->dict), 'Identify');
+# Check for multiple fields in order
+ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment), 'Optimize');
 
 is($query->to_string,
-   'limit(1-4:sort(field=#2<,field=#1<;k=4;sortFilter:filter(#10#12,[1])))',
+   'sort(field=#1<,0-8:sort(field=#2<,0-8:bundleDocs(constr(pos=2:#10,filter(#12,[1])))))',
    'Stringification');
 
-ok($query = $query->optimize($index->segment), 'Optimize');
+# 0:Peter, 1:Julian!, 2:Abraham, 3:Fritz, 4:Michael, 5:Fritz, 6:Michael, 7:Michael
+# 2, [3, 5], [4,7,6], 0
+ok($query->next_bundle, 'Move to next bundle');
+is($query->current_bundle->to_string, '[[2:0-2]]', 'Stringification');
+ok($query->next_bundle, 'Move to next bundle');
+is($query->current_bundle->to_string, '[[3:0-2]]', 'Stringification');
+ok($query->next_bundle, 'Move to next bundle');
+is($query->current_bundle->to_string, '[[5:0-2]]', 'Stringification');
+ok($query->next_bundle, 'Move to next bundle');
+is($query->current_bundle->to_string, '[[4:0-2]]', 'Stringification');
+ok($query->next_bundle, 'Move to next bundle');
+is($query->current_bundle->to_string, '[[7:0-2]]', 'Stringification');
+ok($query->next_bundle, 'Move to next bundle');
+is($query->current_bundle->to_string, '[[6:0-2]]', 'Stringification');
+ok($query->next_bundle, 'Move to next bundle');
+is($query->current_bundle->to_string, '[[0:0-2]]', 'Stringification');
+ok(!$query->next_bundle, 'No more next bundles');
 
-diag 'Reimplement field sorting';
+diag 'Unbundle bundles!';
+
 
 done_testing;
 __END__
-
-
-
-is($query->to_string, 'resultLimit([0-2]:sample(2:filter(#10,[1])))',
-   'Stringification');
-
-# The order of results is random
-ok($query->next, 'Next');
-ok($query->current_match, 'Match found');
-ok($query->next, 'Next');
-ok($query->current_match, 'Match found');
-ok(!$query->next, 'Next');
-

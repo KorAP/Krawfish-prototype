@@ -4,6 +4,11 @@ use strict;
 use warnings;
 use Krawfish::Log;
 
+# TODO: Simplify to not require max_rank_ref!
+
+# TODO: Add reset method, so the PQ can be reused
+#       in SortAfter!
+
 # TODO: This currently only works with ranks,
 #       it may be more beneficial to work with criteria.
 #       So instead to compare ranks, a Criterion object will

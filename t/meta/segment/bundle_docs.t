@@ -53,17 +53,26 @@ ok($query = Krawfish::Meta::Segment::BundleDocs->new($query),
 
 is($query->to_string, 'bundleDocs(filter(or(#12,#10),[1]))', 'Stringification');
 
-ok($query->next, 'Move forward');
-is($query->current_match->doc_id, 0, 'Current match');
-ok(my $bundle = $query->current_bundle, 'Get first bundle');
-is($bundle->to_string, '[[0:0-1]|[0:1-2]|[0:2-3]|[0:3-4]]', 'Stringification');
-is($query->current_match->doc_id, 1, 'Current match');
+ok($query->next_bundle, 'Move forward');
 
-ok($query->next_doc, 'Move to next document');
-is($query->current_match->doc_id, 2, 'Current match');
+# is($query->current_match->doc_id, 0, 'Current match');
+ok(my $bundle = $query->current_bundle, 'Get first bundle');
+
+is($bundle->to_string, '[[0:0-1]|[0:1-2]|[0:2-3]|[0:3-4]]', 'Stringification');
+ok($query->next_bundle, 'Move to next bundle');
+# ok($query->next_bundle, 'Move to next bundle');
+
+# TODO:
+#   Respect next_doc!
+
+ok($query->next_bundle, 'Move to next bundle');
+
+#is($query->current_match->doc_id, 1, 'Current match');
+#ok($query->preview_doc_id, 'Move to next document');
+#is($query->current_match->doc_id, 2, 'Current match');
 ok($bundle = $query->current_bundle, 'Get first bundle');
 is($bundle->to_string, '[[2:0-1]|[2:1-2]|[2:2-3]]', 'Stringification');
-ok(!$query->next, 'Move forward');
+ok(!$query->next_bundle, 'Move forward');
 
 
 # Create new document
@@ -97,15 +106,14 @@ ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment),
 ok($query = Krawfish::Meta::Segment::BundleDocs->new($query),
    'Bundle all matches in the same doc');
 
-ok($query->next, 'Move forward');
+ok($query->next_bundle, 'Move forward');
 is($query->current_bundle->to_string, '[[0:0-2]]', 'Current match');
-ok($query->next, 'Move forward');
+ok($query->next_bundle, 'Move forward');
 is($query->current_bundle->to_string, '[[1:0-2]]', 'Current match');
-ok($query->next, 'Move forward');
+ok($query->next_bundle, 'Move forward');
 is($query->current_bundle->to_string, '[[2:0-2]]', 'Current match');
-ok($query->next, 'Move forward');
+ok($query->next_bundle, 'Move forward');
 is($query->current_bundle->to_string, '[[4:0-2]]', 'Current match');
-ok(!$query->next, 'Move forward');
+ok(!$query->next_bundle, 'Move forward');
 
 done_testing;
-__END__

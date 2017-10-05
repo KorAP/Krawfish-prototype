@@ -50,7 +50,7 @@ sub new {
   my %param = @_;
 
   if (DEBUG) {
-    print_log('p_sort', 'Initiate sort object');
+    print_log('sort', 'Initiate sort object');
   };
 
   # TODO:
@@ -125,7 +125,7 @@ sub _init {
   my $query = $self->{query};
 
   if (DEBUG) {
-    print_log('p_sort', 'Initialize sort object');
+    print_log('sort', 'Initialize sort object');
   };
 
   # TODO:
@@ -139,35 +139,32 @@ sub _init {
 
   # Get maximum accepted rank from queue
   my $max_rank_ref = $self->{max_rank_ref};
-
-  my $last_doc_id = -1;
   my $queue = $self->{queue};
-
   my $sort = $self->{sort};
 
   if (DEBUG) {
-    print_log('p_sort', qq!Next Rank on field #! . $sort->term_id);
+    print_log('sort', qq!Next Rank on field #! . $sort->term_id);
   };
 
   # Store the last match buffered
   my ($match, $rank);
 
   # Init
-  $query->next;
+  $query->next_bundle;
 
   # Pass through all queries
-  while ($match = $query->current) {
+  while ($match = $query->current_bundle) {
 
     if (DEBUG) {
-      print_log('p_sort', 'Get next posting from ' . $query->to_string);
+      print_log('sort', 'Get next posting from ' . $query->to_string);
     };
 
     # Get stored rank
     $rank = $sort->rank_for($match->doc_id);
 
     if (DEBUG) {
-      print_log('p_sort', 'Rank for doc id ' . $match->doc_id . " is $rank");
-      print_log('p_sort', "Check rank $rank against max rank " . $$max_rank_ref);
+      print_log('sort', 'Rank for doc id ' . $match->doc_id . " is $rank");
+      print_log('sort', "Check rank $rank against max rank " . $$max_rank_ref);
     };
 
 
@@ -178,7 +175,7 @@ sub _init {
       $match = undef;
 
       if (DEBUG) {
-        print_log('p_sort', 'Move to next doc');
+        print_log('sort', 'Move to next doc');
       };
 
       # Skip to next document
@@ -193,21 +190,15 @@ sub _init {
     $queue->insert([$rank, 0, $bundle, $bundle->matches]) if $bundle;
 
     if (DEBUG) {
-      print_log('p_sort', 'Move to next position');
+      print_log('sort', 'Move to next position');
     };
 
-    # Move to next match
-    $query->next;
+    # Move to next bundle
+    $query->next_bundle;
   };
 
-
   my $array = $queue->reverse_array;
-  print_log('p_sort', 'Get list ranking of ' . Dumper($array)) if DEBUG;
-
-  # Get the rank reference (old)
-  # TODO:
-  #   Remove!
-  $self->{stack} = [$array];
+  print_log('sort', 'Get list ranking of ' . Dumper($array)) if DEBUG;
 
   # Get the rank reference (new);
   $self->{new_sorted} = $array;
@@ -217,7 +208,7 @@ sub _init {
 
 # Move to the next item in the bundled document list
 # and create the next bundle
-sub next {
+sub next_bundle {
   my $self = shift;
 
   # Initialize query - this will do a full run on the first field level!
@@ -229,7 +220,7 @@ sub next {
   #
   #    if (DEBUG) {
   #      print_log(
-  #        'p_sort',
+  #        'sort',
   #        'top_k ' . $self->{top_k} . ' is reached at position ' . $self->{pos}
   #      );
   #    };
@@ -240,7 +231,7 @@ sub next {
 
   if ($self->{pos_in_sort} >= @{$self->{new_sorted}}) {
     if (DEBUG) {
-      print_log('p_sort', 'No more elements in the priority array');
+      print_log('sort', 'No more elements in the priority array');
     };
 
     $self->{current_bundle} = undef;
@@ -254,31 +245,35 @@ sub next {
   my $top_bundle = $self->{new_sorted}->[$pos];
 
   if (DEBUG) {
-    print_log('p_sort', "Move to next bundle at $pos, which is " . $top_bundle->[VALUE]);
+    print_log('sort', "Move to next bundle at $pos, which is " . $top_bundle->[VALUE]);
   };
 
   my $rank = $top_bundle->[RANK];
 
+  if (DEBUG) {
+    print_log('sort', "Create new bundle from prio at $pos starting with " .
+                $top_bundle->[VALUE]->to_string);
+  };
+
   # TODO:
   #   Add criterion to bundle
   my $new_bundle = Krawfish::Posting::Bundle->new($top_bundle->[VALUE]);
-
-
-  if (DEBUG) {
-    print_log('p_sort', "Get first bundle at $pos from prio " .
-                $top_bundle->[VALUE]->to_string);
-  };
 
   $pos++;
   for (; $pos < @{$self->{new_sorted}}; $pos++) {
     $top_bundle = $self->{new_sorted}->[$pos];
 
     if (DEBUG) {
-      print_log('p_sort', 'Check follow up from prio: ' . $top_bundle->[VALUE]->to_string);
+      print_log('sort', 'Check follow up from prio: ' . $top_bundle->[VALUE]->to_string);
     };
 
     # Add element to bundle
     if ($rank == $top_bundle->[RANK]) {
+
+      if (DEBUG) {
+        print_log('sort', "Both items have the same rank $rank");
+      };
+
       unless ($new_bundle->add($top_bundle->[VALUE])) {
         warn 'Unable to add bundle to new bundle';
       };
@@ -293,6 +288,10 @@ sub next {
   # Get position
   $self->{pos_in_sort} = $pos;
 
+  if (DEBUG) {
+    print_log('sort', 'Current bundle is now ' . $new_bundle->to_string);
+  };
+
   # Set current bundle
   $self->{current_bundle} = $new_bundle;
 
@@ -302,44 +301,42 @@ sub next {
 };
 
 
-sub next_bundle {
-  ...
-};
-
 sub current_bundle {
-  my $self = shift;
-  return $self->{current_bundle};
+  $_[0]->{current_bundle};
 };
 
 
 # Return the current match
 sub current {
-
-  if (DEBUG) {
-    print_log('p_sort', 'Current posting is ' . $_[0]->{current}->to_string);
-  };
-
-  $_[0]->{current};
+  #  if (DEBUG) {
+  #    print_log('sort', 'Current posting is ' . $_[0]->{current}->to_string);
+  #  };
+  #
+  #  $_[0]->{current};
+  ...
 };
 
 
 # Get the current match object
 sub current_match {
-  my $self = shift;
-  my $current = $self->current or return;
-  my $match = Krawfish::Koral::Result::Match->new(
-    doc_id  => $current->doc_id,
-    start   => $current->start,
-    end     => $current->end,
-    payload => $current->payload,
-  );
-
-  if (DEBUG) {
-    print_log('p_sort', 'Current match is ' . $match->to_string);
-  };
-
-  return $match;
+  #  my $self = shift;
+  #  my $current = $self->current or return;
+  #  my $match = Krawfish::Koral::Result::Match->new(
+  #    doc_id  => $current->doc_id,
+  #    start   => $current->start,
+  #    end     => $current->end,
+  #    payload => $current->payload,
+  #  );
+  #
+  #  if (DEBUG) {
+  #    print_log('sort', 'Current match is ' . $match->to_string);
+  #  };
+  #
+  #  return $match;
+  ...
 };
+
+
 
 sub to_string {
   my $self = shift;
@@ -381,7 +378,7 @@ sub next_old {
 
     if (DEBUG) {
       print_log(
-        'p_sort',
+        'sort',
         'top_k ' . $self->{top_k} . ' is reached at position ' . $self->{pos}
       );
     };
@@ -402,7 +399,7 @@ sub next_old {
 
     if (DEBUG) {
       print_log(
-        'p_sort',
+        'sort',
         'There is already a match in [sorted]: ' . $self->{current}->to_string,
       );
     };
@@ -412,7 +409,7 @@ sub next_old {
 
   # Nothing presorted
   elsif (DEBUG) {
-    print_log('p_sort', 'There is no match in [sorted]');
+    print_log('sort', 'There is no match in [sorted]');
   };
 
   # Get the list values
@@ -421,7 +418,7 @@ sub next_old {
   # This will get the level from the stack
   my $level = $#{$stack};
 
-  print_log('p_sort', "Check stack on current level $level") if DEBUG;
+  print_log('sort', "Check stack on current level $level") if DEBUG;
 
   # If the current list is empty, remove from stack
   while (scalar @$stack && (
@@ -429,20 +426,20 @@ sub next_old {
       !scalar(@{$stack->[$level]->[0]})
     )) {
 
-    print_log('p_sort', "Stack is empty at least on level $level") if DEBUG;
+    print_log('sort', "Stack is empty at least on level $level") if DEBUG;
 
     pop @$stack;
     $level--;
 
     #if (DEBUG) {
-    #  print_log('p_sort', "Stack is reduced to level $level with " . Dumper($stack));
+    #  print_log('sort', "Stack is reduced to level $level with " . Dumper($stack));
     #};
   };
 
   # There is nothing to sort further
   unless (scalar @$stack) {
 
-    print_log('p_sort', 'There is nothing to sort further') if DEBUG;
+    print_log('sort', 'There is nothing to sort further') if DEBUG;
 
     $self->{current} = undef;
     return;
@@ -464,7 +461,7 @@ sub next_old {
 
     if (DEBUG) {
       print_log(
-        'p_sort',
+        'sort',
         "Found $same matches at first node",
         "  on level $level in " . _string_array($stack->[$level])
       );
@@ -473,7 +470,7 @@ sub next_old {
     # Get the identical elements from the list
     my @presort = splice(@{$stack->[$level]}, 0, $same - 1);
 
-    print_log('p_sort', 'Presort array is ' . _string_array(\@presort)) if DEBUG;
+    print_log('sort', 'Presort array is ' . _string_array(\@presort)) if DEBUG;
 
     # TODO:
     #   Push presort on the stack!
@@ -488,7 +485,7 @@ sub next_old {
     #my ($field, $desc) = @{$self->{fields}->[$level + 1]};
 
     #if (DEBUG) {
-    #  print_log('p_sort', qq!Next Rank on field "$field"!);
+    #  print_log('sort', qq!Next Rank on field "$field"!);
     #};
 
     #$level++;
@@ -504,7 +501,7 @@ sub next_old {
 
     if (DEBUG) {
       print_log(
-        'p_sort',
+        'sort',
         "Sorted array",
         "  on new level $level is " . _string_array($stack->[$level])
       );
@@ -514,13 +511,13 @@ sub next_old {
   # There are matches on the list without identical ranks
 
 #  if (DEBUG) {
-#    print_log('p_sort', "Stack with level $level is " . Dumper($stack));
+#    print_log('sort', "Stack with level $level is " . Dumper($stack));
 #  };
 
   # Get the top list entry
   my $top = shift @{$stack->[$level]};
 
-  print_log('p_sort', 'Push value ' . $top->[VALUE]) if DEBUG;
+  print_log('sort', 'Push value ' . $top->[VALUE]) if DEBUG;
 
   # Push matches to result list
   push @{$self->{sorted}}, $top->[VALUE]->unbundle;
@@ -540,7 +537,7 @@ sub duplicate_rank {
   my $self = shift;
 
   if (DEBUG) {
-    print_log('p_sort', 'Check for duplicates from index ' . $self->{pos});
+    print_log('sort', 'Check for duplicates from index ' . $self->{pos});
   };
 
   return $self->{list}->[$self->{pos}]->[1] || 1;
@@ -561,7 +558,7 @@ sub heap_sort {
   warn 'DEPRECATED';
 
   if (DEBUG) {
-    print_log('p_sort', 'Heapsort list of length ' . scalar(@$sub_list) .
+    print_log('sort', 'Heapsort list of length ' . scalar(@$sub_list) .
                 qq! by field "$field" for top_k = $top_k!);
   };
 

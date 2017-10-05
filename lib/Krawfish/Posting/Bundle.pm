@@ -7,6 +7,9 @@ use strict;
 # TODO:
 #   This is quite similar to K::P::Group
 
+# TODO:
+#   Make unbundle() an iterator!
+
 # This is a container class for multiple Krawfish::Posting objects,
 # used for (among others) sorting.
 
@@ -56,6 +59,11 @@ sub clone {
 # Payload not really available
 sub payload {
   Krawfish::Posting::Payload->new;
+};
+
+
+sub size {
+  scalar @{$_[0]};
 };
 
 

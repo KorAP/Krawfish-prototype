@@ -9,6 +9,9 @@ use warnings;
 # Difference to random sorting is, this won't randomly sort all
 # results, making paging possible.
 
+# When the number of matches is known in advance, another
+# approach may be valid.
+
 # WARNING:
 #   Sorting does not respect current_match of any nested query,
 #   that's why sorting is always separated from enriching!
