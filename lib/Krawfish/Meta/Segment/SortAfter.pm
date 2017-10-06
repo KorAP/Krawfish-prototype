@@ -1,15 +1,15 @@
 package Krawfish::Meta::Segment::SortAfter;
-use parent 'Krawfish::Meta::Segment::Bundle';
+use parent 'Krawfish::Meta::Segment::Sort';
 use Data::Dumper;
 use Krawfish::Log;
 use strict;
 use warnings;
 
-# This Sorter is similar to
+# This sorting query is similar to
 # Krawfish::Meta::Segment::Sort,
 # But it already expects sorted, bundled postings,
 # does not support $max_rank_ref
-# (because all matches are already retrieved)
+# (because all matches are already retrieved),
 # and immediately stops, when top_k is reached.
 #
 # That also means, this does all the work in next_bundle()
@@ -39,27 +39,18 @@ sub new {
 
   $top_k //= $segment->max_rank;
 
-  my $max_rank_ref = \(my $max_rank = $segment->max_rank);
-
-  # Create initial priority queue
-  # The priority queue may better be a bundle-based queue,
-  # so each element has a size() attribute to tell how many matches are in there
-  my $queue = Krawfish::Util::PriorityQueue::PerDoc->new(
-    $top_k,
-    $max_rank_ref
-  );
-
   if (DEBUG) {
     print_log('sort_after', 'Initiate follow up sort');
   };
 
   bless {
-    query    => $query,
-    segment  => $segment,
-    top_k    => $top_k,
-    sort     => $sort,
-    max_rank => $segment->max_rank,
-    count    => 0 # number of (bundled) matches already served
+    query       => $query,
+    segment     => $segment,
+    top_k       => $top_k,
+    sort        => $sort,
+    max_rank    => $segment->max_rank,
+    pos_in_sort => 0, # Current position in sorted heap
+    pos         => 0  # Number of (bundled) matches already served
   }, $class;
 };
 
@@ -68,6 +59,9 @@ sub new {
 sub next_bundle {
   my $self = shift;
 
+  # TODO:
+  #   This is close to Sort::_init();
+
   if (DEBUG) {
     print_log('sort_after', 'Move to next bundle');
   };
@@ -75,21 +69,28 @@ sub next_bundle {
   $_[0]->{current_bundle} = undef;
 
   # Already served enough
-  if ($self->{count} > $self->{top_k}) {
+  if ($self->{pos} > $self->{top_k}) {
     return;
   }
 
   # There are sorted bundles on the buffer
-  if ($self->{buffer} && @{$self->{buffer}}) {
+  if ($self->{buffer}) {
 
-    # This is also a bundle
-    $self->{current_bundle} = shift(@{$self->{buffer}})->[VALUE];
+    # The buffer is not exceeded yet
+    if ($self->{pos_in_sort} < @{$self->{buffer}}) {
 
-    # Move forward by the length of the bundle
-    $self->{count} += $self->{current_bundle}->size;
+      $self->{current_bundle} = $self->get_bundle_from_buffer;
 
-    # Fine
-    return 1;
+      # Get the number of matches in the bundle
+      $self->{pos} += $self->{current_bundle}->matches;
+
+      # Fine
+      return 1;
+    };
+
+    # Buffer is exceeded - reset
+    $self->{buffer} = undef;
+    $self->{pos_in_sort} = 0;
   };
 
   # Get a new bundle from the nested query
@@ -105,7 +106,9 @@ sub next_bundle {
 
   # Next bundle is already sorted
   if ($next_bundle->size == 1) {
-    ($self->{current_bundle}) = $next_bundle->unbundle;
+
+    # Do nothing
+    $self->{current_bundle} = $next_bundle;
     return 1;
   };
 
@@ -123,7 +126,7 @@ sub next_bundle {
 
   # Create initial priority queue
   my $queue = Krawfish::Util::PriorityQueue::PerDoc->new(
-    $self->{top_k} - $self->{count},
+    $self->{top_k} - $self->{pos},
     $max_rank_ref
   );
 
@@ -139,36 +142,34 @@ sub next_bundle {
     # Get stored rank
     $rank = $sort->rank_for($posting->doc_id);
 
-    # TODO:
-    #   Support next_doc() and preview_doc_id()
-    #
-    #        if ($rank > $$max_rank_ref) {
-    #          # Document is irrelevant
-    #          $match = undef;
-    #
-    #          if (DEBUG) {
-    #            print_log('sort', 'Move to next doc');
-    #          };
-    #
-    #          # Skip to next document
-    #          $query->next_doc;
-    #          CORE::next;
-    #        };
+    # Checking for $$max_rank_ref is not useful here,
+    # as the bundles are already bundled and skipping bundles
+    # using next_doc() and preview_doc_id() is not beneficial.
 
     $queue->insert([$rank, 0, $posting, $posting->matches]);
-    # 4. Push to buffer
   };
 
+  # Get the sorted array (which has still the ranking structure etc.)
   my $array = $queue->reverse_array;
 
   print_log('sort_after', 'Get list ranking of ' . Dumper($array)) if DEBUG;
 
-  # This is also a bundle
-  $self->{current_bundle} = shift(@{$array})->[VALUE];
+  if (DEBUG) {
+    print_log(
+      'sort_after',
+      'New current bundle is ' . $self->{current_bundle}->to_string
+    );
+  };
 
-  print_log('sort_after', 'New current bundle is ' . $self->{current_bundle}->to_string) if DEBUG;
-
+  # Store the sorted bundle in the buffer
   $self->{buffer} = $array;
+
+  # Set current bundle
+  $self->{current_bundle} = $self->get_bundle_from_buffer;
+
+  # Remember the number of entries
+  $self->{pos} += $self->{current_bundle}->matches;
+  return 1;
 };
 
 

@@ -1,5 +1,5 @@
 package Krawfish::Meta::Segment::Sort;
-use parent 'Krawfish::Meta';
+use parent 'Krawfish::Meta::Segment::Bundle';
 use Krawfish::Util::String qw/squote/;
 use Krawfish::Util::PriorityQueue::PerDoc;
 use Krawfish::Koral::Result::Match;
@@ -10,6 +10,10 @@ use strict;
 use warnings;
 
 # This is the general sorting implementation based on ranks.
+#
+# It establishes a top-k HeapSort approach and expects bundles
+# of matches to sort by a rank. It returns bundles.
+
 
 use constant {
   DEBUG   => 1,
@@ -19,6 +23,8 @@ use constant {
   MATCHES => 3
 };
 
+# TODO:
+#   Check if the query is a bundle type!
 
 # TODO:
 #   It's possible that fields return a rank of 0, indicating that
@@ -40,9 +46,6 @@ use constant {
 #   http://lemire.me/blog/2017/06/21/top-speed-for-top-k-queries/
 #   says its irrelevant
 
-# TODO:
-#   It is necessary to add the sorting criteria.
-
 
 # Constructor
 sub new {
@@ -55,6 +58,9 @@ sub new {
 
   # TODO:
   #   Check for mandatory parameters
+  #
+  # TODO:
+  #   Check if query is a bundled query!
   my $query    = $param{query};
   my $segment  = $param{segment};
   my $top_k    = $param{top_k};
@@ -100,13 +106,13 @@ sub new {
     #   Rename to criterion
     sort         => $sort,
 
-    new_sorted   => undef,
+    buffer       => undef,
     pos_in_sort  => 0,
 
     # Default starts
     stack        => [],  # All lists on a stack
     sorted       => [],
-    pos          => 0
+    pos          => 0 # Number of matches already served
   }, $class;
 };
 
@@ -201,7 +207,7 @@ sub _init {
   print_log('sort', 'Get list ranking of ' . Dumper($array)) if DEBUG;
 
   # Get the rank reference (new);
-  $self->{new_sorted} = $array;
+  $self->{buffer} = $array;
 };
 
 
@@ -214,22 +220,7 @@ sub next_bundle {
   # Initialize query - this will do a full run on the first field level!
   $self->_init;
 
-  # No more relevant doc bundles
-  # This is probably irrelevant
-  #  if ($self->{top_k} && ($self->{pos} >= $self->{top_k})) {
-  #
-  #    if (DEBUG) {
-  #      print_log(
-  #        'sort',
-  #        'top_k ' . $self->{top_k} . ' is reached at position ' . $self->{pos}
-  #      );
-  #    };
-  #
-  #    $self->{current_bundle} = undef;
-  #    return;
-  #  }
-
-  if ($self->{pos_in_sort} >= @{$self->{new_sorted}}) {
+  if ($self->{pos_in_sort} >= @{$self->{buffer}}) {
     if (DEBUG) {
       print_log('sort', 'No more elements in the priority array');
     };
@@ -238,30 +229,42 @@ sub next_bundle {
     return;
   };
 
+  # Set current bundle
+  $self->{current_bundle} = $self->get_bundle_from_buffer;
+
+  # Remember the number of entries
+  $self->{pos} += $self->{current_bundle}->matches;
+  return 1;
+};
+
+
+# Get the top bundle from buffer
+sub get_bundle_from_buffer {
+  my $self = shift;
+
   # Iterate over the next elements with identical ranks
   my $pos = $self->{pos_in_sort};
 
   # Get the top entry
-  my $top_bundle = $self->{new_sorted}->[$pos];
+  my $top_bundle = $self->{buffer}->[$pos];
 
   if (DEBUG) {
-    print_log('sort', "Move to next bundle at $pos, which is " . $top_bundle->[VALUE]);
+    print_log('sort_after', "Move to next bundle at $pos, which is " . $top_bundle->[VALUE]);
   };
 
   my $rank = $top_bundle->[RANK];
 
   if (DEBUG) {
-    print_log('sort', "Create new bundle from prio at $pos starting with " .
+    print_log('sort_after', "Create new bundle from prio at $pos starting with " .
                 $top_bundle->[VALUE]->to_string);
   };
 
-  # TODO:
-  #   Add criterion to bundle
+  # Initiate new bundle
   my $new_bundle = Krawfish::Posting::Bundle->new($top_bundle->[VALUE]);
 
   $pos++;
-  for (; $pos < @{$self->{new_sorted}}; $pos++) {
-    $top_bundle = $self->{new_sorted}->[$pos];
+  for (; $pos < @{$self->{buffer}}; $pos++) {
+    $top_bundle = $self->{buffer}->[$pos];
 
     if (DEBUG) {
       print_log('sort', 'Check follow up from prio: ' . $top_bundle->[VALUE]->to_string);
@@ -292,13 +295,9 @@ sub next_bundle {
     print_log('sort', 'Current bundle is now ' . $new_bundle->to_string);
   };
 
-  # Set current bundle
-  $self->{current_bundle} = $new_bundle;
-
-  # Remember the number of entries
-  $self->{pos} += $new_bundle->matches;
-  return 1;
+  return $new_bundle;
 };
+
 
 
 sub current_bundle {

@@ -1,5 +1,7 @@
 package Krawfish::Meta::Segment::Bundle;
 use parent 'Krawfish::Meta';
+use strict;
+use warnings;
 
 sub current_bundle {
   $_[0]->{current_bundle};

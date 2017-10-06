@@ -85,6 +85,8 @@ is($query->to_string,
 
 # '[2:0-2]','[0:0-2]','[4:0-2]','[3:0-2]'
 ok($query->next_bundle, 'Move to next bundle');
+
+# The bundle is: fieldBundle(docBundle(match()))
 is($query->current_bundle->to_string, '[[[2:0-2]]]', 'Stringification');
 ok($query->next_bundle, 'Move to next bundle');
 is($query->current_bundle->to_string, '[[[0:0-2]]]', 'Stringification');
@@ -93,7 +95,6 @@ is($query->current_bundle->to_string, '[[[4:0-2]]]', 'Stringification');
 ok($query->next_bundle, 'Move to next bundle');
 is($query->current_bundle->to_string, '[[[3:0-2]]]', 'Stringification');
 ok(!$query->next_bundle, 'No more next bundle');
-
 
 # New query - sort by author
 $koral = Krawfish::Koral->new;
@@ -134,14 +135,15 @@ is($query->to_string,
 
 # 0:Peter, 1:Julian!, 2:Abraham, 3:Fritz, 4:Michael
 # 2, 3, 4, 0
+# The bundle is: fieldBundle(docBundle(match()))
 ok($query->next_bundle, 'Move to next bundle');
-is($query->current_bundle->to_string, '[[2:0-2]]', 'Stringification');
+is($query->current_bundle->to_string, '[[[2:0-2]]]', 'Stringification');
 ok($query->next_bundle, 'Move to next bundle');
-is($query->current_bundle->to_string, '[[3:0-2]]', 'Stringification');
+is($query->current_bundle->to_string, '[[[3:0-2]]]', 'Stringification');
 ok($query->next_bundle, 'Move to next bundle');
-is($query->current_bundle->to_string, '[[4:0-2]]', 'Stringification');
+is($query->current_bundle->to_string, '[[[4:0-2]]]', 'Stringification');
 ok($query->next_bundle, 'Move to next bundle');
-is($query->current_bundle->to_string, '[[0:0-2]]', 'Stringification');
+is($query->current_bundle->to_string, '[[[0:0-2]]]', 'Stringification');
 ok(!$query->next_bundle, 'No more next bundle');
 
 
@@ -190,23 +192,24 @@ is($query->to_string,
 # 0:Peter, 1:Julian!, 2:Abraham, 3:Fritz, 4:Michael, 5:Fritz, 6:Michael, 7:Michael
 # 2, [3, 5], [4,7,6], 0
 ok($query->next_bundle, 'Move to next bundle');
-is($query->current_bundle->to_string, '[[2:0-2]]', 'Stringification');
+is($query->current_bundle->to_string, '[[[2:0-2]]]', 'Stringification');
 ok($query->next_bundle, 'Move to next bundle');
-is($query->current_bundle->to_string, '[[3:0-2]]', 'Stringification');
+is($query->current_bundle->to_string, '[[[3:0-2]]]', 'Stringification');
 ok($query->next_bundle, 'Move to next bundle');
-is($query->current_bundle->to_string, '[[5:0-2]]', 'Stringification');
+is($query->current_bundle->to_string, '[[[5:0-2]]]', 'Stringification');
 ok($query->next_bundle, 'Move to next bundle');
-is($query->current_bundle->to_string, '[[4:0-2]]', 'Stringification');
+is($query->current_bundle->to_string, '[[[4:0-2]]]', 'Stringification');
 ok($query->next_bundle, 'Move to next bundle');
-is($query->current_bundle->to_string, '[[7:0-2]]', 'Stringification');
+is($query->current_bundle->to_string, '[[[7:0-2]]]', 'Stringification');
 ok($query->next_bundle, 'Move to next bundle');
-is($query->current_bundle->to_string, '[[6:0-2]]', 'Stringification');
+is($query->current_bundle->to_string, '[[[6:0-2]]]', 'Stringification');
 ok($query->next_bundle, 'Move to next bundle');
-is($query->current_bundle->to_string, '[[0:0-2]]', 'Stringification');
+is($query->current_bundle->to_string, '[[[0:0-2]]]', 'Stringification');
 ok(!$query->next_bundle, 'No more next bundles');
 
 diag 'Unbundle bundles!';
-
+diag 'Deal with non-ranked fields';
+diag 'Add sorting criteria in unbundling phase';
 
 done_testing;
 __END__
