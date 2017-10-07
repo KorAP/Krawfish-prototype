@@ -116,4 +116,23 @@ ok($query->next_bundle, 'Move forward');
 is($query->current_bundle->to_string, '[[4:0-2]]', 'Current match');
 ok(!$query->next_bundle, 'Move forward');
 
+
+# Again with unbundling
+ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment),
+   'Transform');
+
+ok($query = Krawfish::Meta::Segment::BundleDocs->new($query),
+   'Bundle all matches in the same doc');
+
+ok($query->next, 'Move forward');
+is($query->current->to_string, '[0:0-2]', 'Current match');
+ok($query->next, 'Move forward');
+is($query->current->to_string, '[1:0-2]', 'Current match');
+ok($query->next, 'Move forward');
+is($query->current->to_string, '[2:0-2]', 'Current match');
+ok($query->next, 'Move forward');
+is($query->current->to_string, '[4:0-2]', 'Current match');
+ok(!$query->next, 'Move forward');
+
+
 done_testing;

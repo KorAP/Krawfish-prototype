@@ -1,23 +1,33 @@
 package Krawfish::Posting::Bundle;
 use parent 'Krawfish::Posting';
+use Krawfish::Log;
 use overload '""' => sub { $_[0]->to_string }, fallback => 1;
 use warnings;
 use strict;
 
+# This is a container class for multiple Krawfish::Posting objects,
+# used for (among others) sorting.
+
+# This implements a posting as well as an iterator with next() and current().
+
 # TODO:
-#   This is quite similar to K::P::Group
+#   Make this rather a buffer bundle instead of a posting.
 
 # TODO:
 #   Make unbundle() an iterator!
 
-# This is a container class for multiple Krawfish::Posting objects,
-# used for (among others) sorting.
+use constant DEBUG => 1;
 
 # Constructor
 sub new {
 
   # Bless an array
-  my $self = bless [], shift;
+  my $self = bless {
+    list => [],
+    pos => -1,
+    current => undef
+  }, shift;
+
   foreach (@_) {
     unless ($self->add($_)) {
       warn "$_ is not a valid match object";
@@ -30,8 +40,8 @@ sub new {
 
 # Return document id of the bundle
 sub doc_id {
-  return unless $_[0]->[0];
-  $_[0]->[0]->doc_id;
+  return unless $_[0]->size;
+  $_[0]->{list}->[0]->doc_id;
 };
 
 
@@ -62,15 +72,9 @@ sub payload {
 };
 
 
+# The number of items in the bundle
 sub size {
-  scalar @{$_[0]};
-};
-
-
-# Return length
-sub length {
-  warn 'DEPRECATED';
-  scalar @{$_[0]};
+  scalar @{$_[0]->{list}};
 };
 
 
@@ -78,7 +82,7 @@ sub length {
 sub matches {
   my $self = shift;
   my $matches = 0;
-  foreach (@$self) {
+  foreach (@{$self->{list}}) {
     $matches += $_->matches;
   };
   return $matches;
@@ -89,12 +93,18 @@ sub matches {
 sub add {
   my ($self, $obj) = @_;
 
+  if (DEBUG) {
+    print_log('p_bundle', 'Add ' . $obj->to_string . ' to bundle');
+  };
+
   # Not an object
   return unless $obj;
 
+  my $list = $self->{list};
+
   # Push object to list
   if ($obj->isa('Krawfish::Posting')) {
-    push @$self, $obj;
+    push @$list, $obj;
     return 1;
   };
   return;
@@ -104,14 +114,104 @@ sub add {
 # Stringify bundle
 sub to_string {
   my $self = shift;
-  return '[' . join ('|', map { $_->to_string } @$self) . ']';
+  return '[' . join ('|', map { $_->to_string } @{$self->{list}}) . ']';
 };
 
 
-# Unbundle bundle
-sub unbundle {
-  return @{$_[0]};
+# The bundle may contain multiple items and these
+# items may contain bundles.
+# Current will contain a single posting that may become a match.
+sub current {
+  return $_[0]->{current};
 };
 
+
+# Get next item from bundle,
+# or bundled bundle, or a bundled-bundled bundle ...
+sub next {
+  my $self = shift;
+
+  my $init = 0;
+
+  # Bundle is not yet initialized!
+  if ($self->{pos} < 0) {
+
+    if (DEBUG) {
+      print_log('p_bundle', 'Bundle is not yet initialized');
+    };
+
+    # This is the current item
+    $self->{pos}++;
+    $init = 1;
+  };
+
+  my $current = $self->{list}->[$self->{pos}];
+
+  if (DEBUG && $current) {
+    print_log('p_bundle', 'Current item is ' . $current->to_string);
+  };
+
+  # The bundle bundles bundles
+  if ($current && $current->isa('Krawfish::Posting::Bundle')) {
+
+    if (DEBUG) {
+      print_log('p_bundle', 'Move to next item in bundled bundle');
+    };
+
+    unless ($current->next) {
+      $self->{pos}++;
+
+      # End of list is exceeded
+      if ($self->{pos} >= $self->size) {
+        $self->{current} = undef;
+        return;
+      };
+
+      $current = $self->{list}->[$self->{pos}];
+    };
+
+    $self->{current} = $current->current;
+    return 1;
+  }
+
+  elsif (!$init) {
+
+    if (DEBUG) {
+      print_log('p_bundle', 'Move to next item in simple bundle');
+      print_log('p_bundle', 'The bundle has the size of ' . $self->size);
+    };
+
+    $self->{pos}++;
+  };
+
+  # This does not bundle bundles
+
+  # End of list is exceeded
+  if ($self->{pos} >= $self->size) {
+    $self->{current} = undef;
+    return;
+  };
+
+  if (DEBUG) {
+    print_log('p_bundle', 'Move to next item in bundle at pos ' . $self->{pos});
+  };
+
+  $self->{current} = $self->{list}->[$self->{pos}];
+
+  if (DEBUG) {
+    print_log('p_bundle', 'New current is ' . $self->{current}->to_string);
+  };
+
+  return 1;
+};
+
+sub reset {
+  $_[0]->{pos} = -1;
+};
+
+sub item {
+  my ($self, $item) = @_;
+  $self->{list}->[$item];
+};
 
 1;
