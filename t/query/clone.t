@@ -101,6 +101,7 @@ ok($clone->next, 'Next match found');
 is($clone->current->to_string, '[2:0-3$0,3,0,1]', 'Current match');
 ok(!$clone->next, 'Next match found');
 
+diag 'Test cloning (and running) of compile queries';
 
 done_testing;
 __END__

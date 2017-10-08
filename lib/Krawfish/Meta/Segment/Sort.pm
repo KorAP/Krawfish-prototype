@@ -116,8 +116,15 @@ sub new {
   }, $class;
 };
 
-sub max_freq {
-  $_[0]->{query}->max_freq;
+sub clone {
+  my $self = shift;
+  __PACKAGE__->new(
+    query   => $self->{query}->clone,
+    segment => $self->{segment},
+    top_k   => $self->{top_k},
+    sort    => $self->{sort},
+    max_rank_ref => $self->{max_rank_ref}
+  );
 };
 
 
@@ -196,7 +203,7 @@ sub _init {
     $queue->insert([$rank, 0, $bundle, $bundle->matches]) if $bundle;
 
     if (DEBUG) {
-      print_log('sort', 'Move to next position');
+      print_log('sort', 'Move to next bundle');
     };
 
     # Move to next bundle
@@ -204,7 +211,9 @@ sub _init {
   };
 
   my $array = $queue->reverse_array;
-  print_log('sort', 'Get list ranking of ' . Dumper($array)) if DEBUG;
+  if (DEBUG && 0) {
+    print_log('sort', 'Get list ranking of ' . Dumper($array));
+  };
 
   # Get the rank reference (new);
   $self->{buffer} = $array;
@@ -249,7 +258,8 @@ sub get_bundle_from_buffer {
   my $top_bundle = $self->{buffer}->[$pos];
 
   if (DEBUG) {
-    print_log('sort_after', "Move to next bundle at $pos, which is " . $top_bundle->[VALUE]);
+    print_log('sort_after', "Move to next bundle at $pos, which is " .
+                $top_bundle->[VALUE]);
   };
 
   my $rank = $top_bundle->[RANK];
@@ -299,20 +309,9 @@ sub get_bundle_from_buffer {
 };
 
 
-
+# Get current bundle
 sub current_bundle {
   $_[0]->{current_bundle};
-};
-
-
-# Return the current match
-sub current {
-  #  if (DEBUG) {
-  #    print_log('sort', 'Current posting is ' . $_[0]->{current}->to_string);
-  #  };
-  #
-  #  $_[0]->{current};
-  ...
 };
 
 
@@ -333,6 +332,76 @@ sub current_match {
   #
   #  return $match;
   ...
+};
+
+
+# Return the current match
+sub current {
+  my $self = shift;
+  if (DEBUG) {
+    print_log('sort', 'Current posting is ' . $self->{current}->to_string);
+  };
+
+  $self->{current};
+};
+
+
+# These calls methods in Posting::Bundle!
+# Point to the match in the current bundle!
+# TODO:
+#   This is similar to K::P::Bundle resp. K::M::BundleDocs::next()!
+sub next {
+  my $self = shift;
+
+  if (DEBUG) {
+    print_log('sort', 'Move to next posting');
+  };
+
+  # Get current bundle
+  my $bundle = $self->current_bundle;
+
+  # Check next in bundle
+  while (!$bundle || !$bundle->next) {
+
+    if (DEBUG) {
+      if (!$bundle) {
+        print_log('sort', 'Current bundle does not exist yet or there is none');
+      }
+      else {
+        print_log('sort', 'There is no more entry in current bundle');
+      };
+
+      print_log('sort', 'Move to next bundle');
+    };
+
+
+    # There are more bundles
+    if ($self->next_bundle) {
+      $bundle = $self->current_bundle;
+      if (DEBUG) {
+        print_log('sort', 'Current bundle to check is ' . $bundle->to_string);
+      };
+    }
+
+    # There are no more bundles
+    else {
+
+      if (DEBUG) {
+        print_log('sort', 'No more bundles');
+      };
+
+      $self->{current} = undef;
+      return 0;
+    };
+  };
+
+  $self->{current} = $bundle->current;
+
+  if (DEBUG) {
+    print_log('sort', 'Set current posting to ' . $self->{current}->to_string);
+  };
+
+  return 1;
 };
 
 

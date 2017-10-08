@@ -166,10 +166,6 @@ sub next {
   # Get current bundle
   my $bundle = $self->current_bundle;
 
-  if (DEBUG && !$bundle) {
-    print_log('d_bundle', 'There is no current bundle');
-  };
-
   # Check next in bundle
   while (!$bundle || !$bundle->next) {
 
@@ -204,8 +200,12 @@ sub next {
 
 
   $self->{current} = $bundle->current;
-  return 1;
 
+  if (DEBUG) {
+    print_log('d_bundle', 'Set current posting to ' . $self->{current}->to_string);
+  };
+
+  return 1;
 };
 
 sub to_string {

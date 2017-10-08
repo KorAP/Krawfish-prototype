@@ -159,7 +159,7 @@ ok_index($index, {
 ok_index($index, {
   id => 7,
   author => 'Michael'
-} => [qw/aa bb/], 'Add complex document');
+} => [qw/aa bb aa bb aa/], 'Add complex document');
 
 ok($index->commit, 'Commit data');
 
@@ -189,6 +189,7 @@ is($query->to_string,
    'sort(field=#1<,0-8:sort(field=#2<,0-8:bundleDocs(constr(pos=2:#10,filter(#12,[1])))))',
    'Stringification');
 
+
 # 0:Peter, 1:Julian!, 2:Abraham, 3:Fritz, 4:Michael, 5:Fritz, 6:Michael, 7:Michael
 # 2, [3, 5], [4,7,6], 0
 ok($query->next_bundle, 'Move to next bundle');
@@ -200,14 +201,39 @@ is($query->current_bundle->to_string, '[[[5:0-2]]]', 'Stringification');
 ok($query->next_bundle, 'Move to next bundle');
 is($query->current_bundle->to_string, '[[[4:0-2]]]', 'Stringification');
 ok($query->next_bundle, 'Move to next bundle');
-is($query->current_bundle->to_string, '[[[7:0-2]]]', 'Stringification');
+is($query->current_bundle->to_string, '[[[7:0-2]|[7:2-4]]]', 'Stringification');
 ok($query->next_bundle, 'Move to next bundle');
 is($query->current_bundle->to_string, '[[[6:0-2]]]', 'Stringification');
 ok($query->next_bundle, 'Move to next bundle');
 is($query->current_bundle->to_string, '[[[0:0-2]]]', 'Stringification');
 ok(!$query->next_bundle, 'No more next bundles');
 
-diag 'Unbundle bundles!';
+$koral->query($qb->seq($qb->token('aa'),$qb->token('bb')));
+$koral->meta($mb->sort_by($mb->s_field('author')));
+ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment), 'Optimize');
+
+# 2, [3, 5], [4,7,6], 0
+print "\n-----------------------------------------\n\n";
+ok($query->next, 'Move to next bundle');
+is($query->current->to_string, '[2:0-2]', 'Stringification');
+ok($query->next, 'Move to next bundle');
+is($query->current->to_string, '[3:0-2]', 'Stringification');
+ok($query->next, 'Move to next bundle');
+is($query->current->to_string, '[5:0-2]', 'Stringification');
+ok($query->next, 'Move to next bundle');
+is($query->current->to_string, '[4:0-2]', 'Stringification');
+ok($query->next, 'Move to next bundle');
+is($query->current->to_string, '[7:0-2]', 'Stringification');
+ok($query->next, 'Move to next bundle');
+is($query->current->to_string, '[7:2-4]', 'Stringification');
+ok($query->next, 'Move to next bundle');
+is($query->current->to_string, '[6:0-2]', 'Stringification');
+ok($query->next, 'Move to next bundle');
+is($query->current->to_string, '[0:0-2]', 'Stringification');
+ok(!$query->next, 'No more next bundles');
+
+
+diag 'Test cloning';
 diag 'Deal with non-ranked fields';
 diag 'Add sorting criteria in unbundling phase';
 

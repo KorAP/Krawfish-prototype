@@ -29,7 +29,9 @@ sub next {
 };
 
 
+# Clone query
 sub clone {
+  warn $_[0];
   ...
 };
 

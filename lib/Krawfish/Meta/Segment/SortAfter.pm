@@ -59,9 +59,6 @@ sub new {
 sub next_bundle {
   my $self = shift;
 
-  # TODO:
-  #   This is close to Sort::_init();
-
   if (DEBUG) {
     print_log('sort_after', 'Move to next bundle');
   };
@@ -131,9 +128,10 @@ sub next_bundle {
   );
 
   # Unbundle bundle and go through matches
-  # TODO:
-  #   This should be an iterator
-  foreach my $posting ($next_bundle->unbundle) {
+  for (my $i = 0; $i < $next_bundle->size; $i++) {
+
+    # Get item from list
+    my $posting = $next_bundle->item($i);
 
     if (DEBUG) {
       print_log('sort_after', 'Get next posting from ' . $self->{query}->to_string);
@@ -172,15 +170,18 @@ sub next_bundle {
   return 1;
 };
 
+sub clone {
+  my $self = shift;
+  __PACKAGE__->new(
+    query   => $self->{query}->clone,
+    segment => $self->{segment},
+    top_k   => $self->{top_k},
+    sort    => $self->{sort}
+  );
+};
 
 sub current_bundle {
   return $_[0]->{current_bundle};
-};
-
-
-# point to matches in the current bundle!
-sub current_match {
-  ...
 };
 
 
