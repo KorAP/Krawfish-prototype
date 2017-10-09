@@ -27,8 +27,8 @@ use warnings;
 #   They will always be sorted at the end.
 
 # TODO:
-#   Ranks should respect the ranking mechanism of FieldsRank and
-#   TermRank, where only even values are fine and odd values need
+#   Ranks should respect the ranking mechanism of FieldsRan,
+#   where only even values are fine and odd values need
 #   to be sorted in a separate step (this is still open for discussion).
 
 # TODO:
@@ -63,8 +63,6 @@ sub new {
   # TODO:
   #   Check for mandatory parameters
   #
-  # TODO:
-  #   Check if query is a bundled query!
   my $query    = $param{query};
 
   unless ($query->isa('Krawfish::Meta::Segment::Bundle')) {
