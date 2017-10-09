@@ -23,23 +23,12 @@ sub new {
 };
 
 
+# Clone query
 sub clone {
   my $self = shift;
   __PACKAGE__->new(
     $self->{query}->clone
   );
-};
-
-
-# Bundle the current match
-sub current_bundle {
-  my $self = shift;
-
-  if (DEBUG) {
-    print_log('d_bundle', 'Get bundle');
-  };
-
-  return $self->{current_bundle};
 };
 
 
@@ -141,73 +130,7 @@ sub next_bundle {
 };
 
 
-
-# Return the current match
-sub current {
-  my $self = shift;
-  if (DEBUG) {
-    print_log('d_bundle', 'Current posting is ' . $self->{current}->to_string);
-  };
-
-  $self->{current};
-};
-
-
-# TODO:
-#   This is similar to Segment::Sort
-# Move to next posting in the current bundle
-sub next {
-  my $self = shift;
-
-  if (DEBUG) {
-    print_log('d_bundle', 'Move to next posting');
-  };
-
-  # Get current bundle
-  my $bundle = $self->current_bundle;
-
-  # Check next in bundle
-  while (!$bundle || !$bundle->next) {
-
-    if (DEBUG) {
-      if (!$bundle) {
-        print_log('d_bundle', 'Current bundle does not exist yet or there is none');
-      }
-      else {
-        print_log('d_bundle', 'There is no more entry in current bundle');
-      };
-
-      print_log('d_bundle', 'Move to next bundle');
-    };
-
-    # There are more bundles
-    if ($self->next_bundle) {
-      $bundle = $self->current_bundle;
-      print_log('d_bundle', 'Current bundle to check is ' . $bundle->to_string);
-    }
-
-    # There are no more bundles
-    else {
-
-      if (DEBUG) {
-        print_log('d_bundle', 'No more bundles');
-      };
-
-      $self->{current} = undef;
-      return 0;
-    };
-  };
-
-
-  $self->{current} = $bundle->current;
-
-  if (DEBUG) {
-    print_log('d_bundle', 'Set current posting to ' . $self->{current}->to_string);
-  };
-
-  return 1;
-};
-
+# Stringification
 sub to_string {
   'bundleDocs(' . $_[0]->{query}->to_string . ')';
 };

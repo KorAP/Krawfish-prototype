@@ -13,18 +13,13 @@ use warnings;
 #
 # It establishes a top-k HeapSort approach and expects bundles
 # of matches to sort by a rank. It returns bundles.
-
-
-use constant {
-  DEBUG   => 1,
-  RANK    => 0,
-  SAME    => 1,
-  VALUE   => 2,
-  MATCHES => 3
-};
+#
+# A given segment-wide $max_rank_ref can be used to ignore documents
+# during search in a sort filter.
 
 # TODO:
-#   Check if the query is a bundle type!
+#   Currently this is limited to fields and works different to subterms.
+#   So this may need to be renamed to Sort/ByField and Sort/ByFieldAfter.
 
 # TODO:
 #   It's possible that fields return a rank of 0, indicating that
@@ -47,6 +42,15 @@ use constant {
 #   says its irrelevant
 
 
+use constant {
+  DEBUG   => 1,
+  RANK    => 0,
+  SAME    => 1,
+  VALUE   => 2,
+  MATCHES => 3
+};
+
+
 # Constructor
 sub new {
   my $class = shift;
@@ -62,6 +66,12 @@ sub new {
   # TODO:
   #   Check if query is a bundled query!
   my $query    = $param{query};
+
+  unless ($query->isa('Krawfish::Meta::Segment::Bundle')) {
+    warn 'The query is no bundled query';
+    return;
+  };
+
   my $segment  = $param{segment};
   my $top_k    = $param{top_k};
 
@@ -309,12 +319,6 @@ sub get_bundle_from_buffer {
 };
 
 
-# Get current bundle
-sub current_bundle {
-  $_[0]->{current_bundle};
-};
-
-
 # Get the current match object
 sub current_match {
   #  my $self = shift;
@@ -335,7 +339,7 @@ sub current_match {
 };
 
 
-# Return the current match
+# Return the current posting
 sub current {
   my $self = shift;
   if (DEBUG) {
@@ -344,66 +348,6 @@ sub current {
 
   $self->{current};
 };
-
-
-# These calls methods in Posting::Bundle!
-# Point to the match in the current bundle!
-# TODO:
-#   This is similar to K::P::Bundle resp. K::M::BundleDocs::next()!
-sub next {
-  my $self = shift;
-
-  if (DEBUG) {
-    print_log('sort', 'Move to next posting');
-  };
-
-  # Get current bundle
-  my $bundle = $self->current_bundle;
-
-  # Check next in bundle
-  while (!$bundle || !$bundle->next) {
-
-    if (DEBUG) {
-      if (!$bundle) {
-        print_log('sort', 'Current bundle does not exist yet or there is none');
-      }
-      else {
-        print_log('sort', 'There is no more entry in current bundle');
-      };
-
-      print_log('sort', 'Move to next bundle');
-    };
-
-
-    # There are more bundles
-    if ($self->next_bundle) {
-      $bundle = $self->current_bundle;
-      if (DEBUG) {
-        print_log('sort', 'Current bundle to check is ' . $bundle->to_string);
-      };
-    }
-
-    # There are no more bundles
-    else {
-
-      if (DEBUG) {
-        print_log('sort', 'No more bundles');
-      };
-
-      $self->{current} = undef;
-      return 0;
-    };
-  };
-
-  $self->{current} = $bundle->current;
-
-  if (DEBUG) {
-    print_log('sort', 'Set current posting to ' . $self->{current}->to_string);
-  };
-
-  return 1;
-};
-
 
 
 sub to_string {
@@ -431,245 +375,5 @@ sub _string_array {
 
 
 1;
-__END__
-
-
-
-
-
-
-# Move to the next item in the sorted list
-sub next_old {
-  my $self = shift;
-
-  if ($self->{top_k} && ($self->{pos}++ >= $self->{top_k})) {
-
-    if (DEBUG) {
-      print_log(
-        'sort',
-        'top_k ' . $self->{top_k} . ' is reached at position ' . $self->{pos}
-      );
-    };
-
-    $self->{current} = undef;
-    return;
-  };
-
-
-  # Initialize query - this will do a full run on the first field level!
-  $self->_init;
-
-  # There are sorted results in the result list
-  if (scalar @{$self->{sorted}}) {
-
-    # Make this current
-    $self->{current} = shift @{$self->{sorted}};
-
-    if (DEBUG) {
-      print_log(
-        'sort',
-        'There is already a match in [sorted]: ' . $self->{current}->to_string,
-      );
-    };
-
-    return 1;
-  }
-
-  # Nothing presorted
-  elsif (DEBUG) {
-    print_log('sort', 'There is no match in [sorted]');
-  };
-
-  # Get the list values
-  my $stack = $self->{stack};
-
-  # This will get the level from the stack
-  my $level = $#{$stack};
-
-  print_log('sort', "Check stack on current level $level") if DEBUG;
-
-  # If the current list is empty, remove from stack
-  while (scalar @$stack && (
-    !scalar(@{$stack->[$level]}) ||
-      !scalar(@{$stack->[$level]->[0]})
-    )) {
-
-    print_log('sort', "Stack is empty at least on level $level") if DEBUG;
-
-    pop @$stack;
-    $level--;
-
-    #if (DEBUG) {
-    #  print_log('sort', "Stack is reduced to level $level with " . Dumper($stack));
-    #};
-  };
-
-  # There is nothing to sort further
-  unless (scalar @$stack) {
-
-    print_log('sort', 'There is nothing to sort further') if DEBUG;
-
-    $self->{current} = undef;
-    return;
-  };
-
-  # while (my $same = $list->[0]->[SAME]) {
-  #   $list = $self->heap_sort();
-  # };
-
-  # TODO:
-  #   Depending on how many identical ranks exist,
-  #   here the next strategy should be chosen.
-  #   Either sort in place, or sort using heapsort again.
-
-  # The first item in the current list has multiple identical ranks
-  # As long as the first item in the list has duplicates,
-  # order by the next level
-  while ((my $same = ($stack->[$level]->[0]->[SAME] // 1)) > 1) {
-
-    if (DEBUG) {
-      print_log(
-        'sort',
-        "Found $same matches at first node",
-        "  on level $level in " . _string_array($stack->[$level])
-      );
-    };
-
-    # Get the identical elements from the list
-    my @presort = splice(@{$stack->[$level]}, 0, $same - 1);
-
-    print_log('sort', 'Presort array is ' . _string_array(\@presort)) if DEBUG;
-
-    # TODO:
-    #   Push presort on the stack!
-
-    # This is the new top_k!
-    # TODO:
-    #   Check if this is really correct!
-    my $top_k = $self->{top_k} - ($self->{pos} - 1);
-
-    # Get next field to rank on level
-    # level 0 is preinitialized, so it is one off
-    #my ($field, $desc) = @{$self->{fields}->[$level + 1]};
-
-    #if (DEBUG) {
-    #  print_log('sort', qq!Next Rank on field "$field"!);
-    #};
-
-    #$level++;
-
-    ## TODO:
-    ##   If the same count is smaller than X (at least top_k - pos)
-    ##   do quicksort or something similar
-    ## if ($same < $top_k || $same < 128) {
-    ## }
-    ## else
-    #$stack->[$level] = $self->heap_sort($top_k, \@presort, $field, $desc);
-    ## };
-
-    if (DEBUG) {
-      print_log(
-        'sort',
-        "Sorted array",
-        "  on new level $level is " . _string_array($stack->[$level])
-      );
-    };
-  };
-
-  # There are matches on the list without identical ranks
-
-#  if (DEBUG) {
-#    print_log('sort', "Stack with level $level is " . Dumper($stack));
-#  };
-
-  # Get the top list entry
-  my $top = shift @{$stack->[$level]};
-
-  print_log('sort', 'Push value ' . $top->[VALUE]) if DEBUG;
-
-  # Push matches to result list
-  push @{$self->{sorted}}, $top->[VALUE]->unbundle;
-
-  # Make the first match the current
-  # TODO: Be aware! This is a BUNDLE!
-  $self->{current} = shift @{$self->{sorted}};
-  return 1;
-};
-
-
-
-
-
-# Return the number of duplicates of the current match
-sub duplicate_rank {
-  my $self = shift;
-
-  if (DEBUG) {
-    print_log('sort', 'Check for duplicates from index ' . $self->{pos});
-  };
-
-  return $self->{list}->[$self->{pos}]->[1] || 1;
-};
-
-
-
-
-
-
-
-
-# Todo:
-#   Accept an iterator, a ranking, and return an iterator
-sub heap_sort {
-  my ($self, $top_k, $sub_list, $field, $desc) = @_;
-
-  warn 'DEPRECATED';
-
-  if (DEBUG) {
-    print_log('sort', 'Heapsort list of length ' . scalar(@$sub_list) .
-                qq! by field "$field" for top_k = $top_k!);
-  };
-
-  my $index = $self->{index};
-  my $ranking = $index->fields->ranked_by($field);
-
-  # Get maximum rank if descending order
-  my $max = $ranking->max if $desc;
-
-  # Get maximum rank
-  my $max_rank = $index->max_rank;
-  my $max_rank_ref = \$max_rank;
-
-  # Create new priority queue
-  my $queue = Krawfish::Util::PriorityQueue::PerDoc->new(
-    $top_k,
-    $max_rank_ref
-  );
-
-  my $rank;
-
-  # Iterate over list
-  foreach (@$sub_list) {
-    my $bundle = $_->[VALUE];
-
-    # Get stored rank
-    $rank = $ranking->get($bundle->doc_id);
-
-    # Revert if maximum rank is set
-    $rank = $max - $rank if $max;
-
-    # Insert into queue
-    $queue->insert([$rank, 0, $bundle, $bundle->length]);
-  };
-
-  # Return reverse list
-  return $queue->reverse_array;
-};
-
-
-
-
-1;
 
 __END__
-

@@ -170,6 +170,8 @@ sub next_bundle {
   return 1;
 };
 
+
+# Clone query
 sub clone {
   my $self = shift;
   __PACKAGE__->new(
@@ -180,11 +182,8 @@ sub clone {
   );
 };
 
-sub current_bundle {
-  return $_[0]->{current_bundle};
-};
 
-
+# Stringification
 sub to_string {
   my $self = shift;
   my $str = 'sort(';
