@@ -4,12 +4,12 @@ use warnings;
 use Test::More;
 use Data::Dumper;
 
-use_ok('Krawfish::Util::PrioritySort');
+use_ok('Krawfish::Util::PriorityQueue');
 
 my $max_rank = 800_000;
 my $max_rank_ref = \$max_rank;
 
-ok(my $sorter = Krawfish::Util::PrioritySort->new(5, $max_rank_ref), 'Create priority sorter');
+ok(my $sorter = Krawfish::Util::PriorityQueue->new(5, $max_rank_ref), 'Create priority sorter');
 
 sub node {
   return [$_[0], 0, $_[1]]
@@ -112,7 +112,7 @@ is_deeply($sorter->reverse_array, [
 # Check with bug
 $max_rank = 800_000;
 $max_rank_ref = \$max_rank;
-ok($sorter = Krawfish::Util::PrioritySort->new(3, $max_rank_ref), 'Create priority sorter');
+ok($sorter = Krawfish::Util::PriorityQueue->new(3, $max_rank_ref), 'Create priority sorter');
 
 ok($sorter->insert(node(1,'Baum 1')), 'Added rank 0 (1)');
 ok($sorter->insert(node(1,'Baum 2')), 'Added rank 0 (2)');

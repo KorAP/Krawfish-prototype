@@ -1,5 +1,5 @@
 package Krawfish::Util::PriorityQueue::PerDoc;
-use parent 'Krawfish::Util::PrioritySort';
+use parent 'Krawfish::Util::PriorityQueue';
 use strict;
 use warnings;
 use Krawfish::Log;

@@ -1,5 +1,5 @@
 package Krawfish::Meta::Segment::Sort::Priority;
-use Krawfish::Util::PrioritySort;
+use Krawfish::Util::PriorityQueue;
 use Krawfish::Log;
 use Data::Dumper;
 use strict;

@@ -1,4 +1,4 @@
-package Krawfish::Util::PrioritySort;
+package Krawfish::Util::PriorityQueue;
 use strict;
 use warnings;
 use Data::Dumper;
