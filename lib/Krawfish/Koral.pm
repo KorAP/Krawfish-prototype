@@ -7,10 +7,10 @@ use Krawfish::Log;
 use Krawfish::Koral::Document;
 use Krawfish::Koral::Query::Builder;
 use Krawfish::Koral::Corpus::Builder;
-use Krawfish::Koral::Meta::Builder;
-use Krawfish::Koral::Meta;
+use Krawfish::Koral::Compile::Builder;
+use Krawfish::Koral::Compile;
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 
 
@@ -30,8 +30,8 @@ use constant DEBUG => 1;
 #   $koral = Koral->new;
 #   my $qb = $koral->query_builder;
 #   my $cb = $koral->corpus_builder;
-#   my $mb = $koral->meta_builder;
-#   $koral->meta(
+#   my $mb = $koral->compile_builder;
+#   $koral->compile(
 #     $mb->aggregate(
 #       $mb->a_frequencies,
 #       $mb->a_fields('license'),
@@ -73,7 +73,7 @@ sub new {
     query    => undef,  # The query definition
     corpus   => undef,  # The vc definition
     matches  => undef,  # List of match IDs
-    meta     => undef,  # The meta definitions
+    compile  => undef,  # The compile definitions
     document => undef,  # Document data to import
     response => undef   # Response object
   }, $class;
@@ -126,20 +126,20 @@ sub corpus_builder {
 };
 
 
-# Meta part of the Koral object
-sub meta {
+# Compile part of the Koral object
+sub compile {
   my $self = shift;
   if ($_[0]) {
-    $self->{meta} = Krawfish::Koral::Meta->new(@_);
+    $self->{compile} = Krawfish::Koral::Compile->new(@_);
     return $self;
   };
-  return $self->{meta};
+  return $self->{compile};
 };
 
 
-# Get the meta builder
-sub meta_builder {
-  Krawfish::Koral::Meta::Builder->new;
+# Get the compile builder
+sub compile_builder {
+  Krawfish::Koral::Compile::Builder->new;
 };
 
 
@@ -191,7 +191,7 @@ sub to_nodes {
   else {
 
     # TODO:
-    #   This may have influence on the possible meta object!
+    #   This may have influence on the possible compile object!
     $query = $self->corpus;
   };
 
@@ -226,17 +226,17 @@ sub to_nodes {
   };
 
   # This is just for testing
-  return $query_final unless $self->meta;
+  return $query_final unless $self->compile;
 
-  # Normalize the meta
-  my $meta;
-  unless ($meta = $self->meta->normalize) {
-    $self->copy_info_from($self->meta);
+  # Normalize the compile
+  my $compile;
+  unless ($compile = $self->compile->normalize) {
+    $self->copy_info_from($self->compile);
     return;
   };
 
-  # Serialize from meta
-  return $self->meta->to_nodes($query_final);
+  # Serialize from compile
+  return $self->compile->to_nodes($query_final);
 };
 
 
@@ -307,23 +307,23 @@ sub to_query {
   };
 
   # This is just for testing
-  return $query_final unless $self->meta;
+  return $query_final unless $self->compile;
 
   if ($corpus_only) {
     # TODO:
     #   There is only a corpus query involved,
-    #   this may make some meta queries neglectable!
+    #   this may make some compile queries neglectable!
   };
 
-  # Normalize the meta
-  my $meta;
-  unless ($meta = $self->meta->normalize) {
-    $self->copy_info_from($self->meta);
+  # Normalize the compile
+  my $compile;
+  unless ($compile = $self->compile->normalize) {
+    $self->copy_info_from($self->compile);
     return;
   };
 
-  # Serialize from meta
-  return $self->meta->wrap($query_final);
+  # Serialize from compile
+  return $self->compile->wrap($query_final);
 };
 
 
@@ -417,8 +417,8 @@ sub to_string {
 
   my @list = ();
 
-  if ($self->meta) {
-    push @list, 'meta=[' . $self->meta->to_string . ']';
+  if ($self->compile) {
+    push @list, 'compile=[' . $self->compile->to_string . ']';
   };
   if ($self->corpus) {
     push @list, 'corpus=[' . $self->corpus->to_string . ']';

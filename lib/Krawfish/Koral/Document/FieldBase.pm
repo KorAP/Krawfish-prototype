@@ -7,8 +7,8 @@ use strict;
 use constant DEBUG => 1;
 
 # TODO:
-#   Probably use Krawfish::Koral::Meta::Type::KeyID and
-#   Krawfish::Koral::Meta::Type::Key.
+#   Probably use Krawfish::Koral::Compile::Type::KeyID and
+#   Krawfish::Koral::Compile::Type::Key.
 
 
 sub new {

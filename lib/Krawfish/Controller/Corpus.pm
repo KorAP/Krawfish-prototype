@@ -3,7 +3,7 @@ use Mojo::Base 'Mojolicious::Controller';
 use Mojo::ByteStream 'b';
 
 use Krawfish::Koral::Corpus::Builder;
-use Krawfish::Koral::Meta;
+use Krawfish::Koral::Compile;
 
 use strict;
 use warnings;
@@ -25,21 +25,21 @@ sub corpus {
     $koral->corpus_builder->string('corpus_id' => $corpus_id)
   );
 
-  my $meta = $koral->meta_builder;
-  $meta->items_per_page($v->param('count'));
-  $meta->start_index($v->param('page')); # TODO!
+  my $compile = $koral->compile_builder;
+  $compile->items_per_page($v->param('count'));
+  $compile->start_index($v->param('page')); # TODO!
   #  if ($v->param('sortBy')) {
-  #    $meta->field_sort()
+  #    $compile->field_sort()
   #  };
   # etc.
 
   my $fields = b($v->param('fields'))->split(',')->uniq->to_array;
   if ($fields->[0]) {
-    $meta->fields($fields);
+    $compile->fields($fields);
   };
 
-  # Set meta
-  $koral->meta($meta);
+  # Set compile
+  $koral->compile($compile);
 
   # Get segment index
   my $index = $c->index->segment;
@@ -54,7 +54,7 @@ sub text {
   my $self = shift;
 
   my $koral = Krawfish::Koral->new;
-  my $meta = $koral->meta_builder;
+  my $compile = $koral->compile_builder;
 
   my $v = $c->validation;
   $v->optional('fields');
@@ -75,14 +75,14 @@ sub text {
   # Get the field information
   my $fields = b($v->param('fields'))->split(',')->uniq->to_array;
   if ($fields->[0]) {
-    $meta->fields($fields);
+    $compile->fields($fields);
   };
 
   # Limit to a single match
-  $meta->limit(1);
+  $compile->limit(1);
 
-  # Set meta
-  $koral->meta($meta);
+  # Set compile
+  $koral->compile($compile);
 
   # Get segment index
   my $index = $c->index->segment;

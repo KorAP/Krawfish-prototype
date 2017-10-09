@@ -1,0 +1,42 @@
+package Krawfish::Koral::Compile::Type::Key;
+use Krawfish::Koral::Compile::Type::KeyID;
+use Krawfish::Util::Constants qw':PREFIX';
+use strict;
+use warnings;
+use Krawfish::Util::String qw/squote/;
+
+# TODO:
+#   Merge this with KeyID and use the inflatable interface
+
+sub new {
+  my $class = shift;
+  my $term = shift;
+  bless \$term, $class;
+};
+
+
+# Identify key ids
+sub identify {
+  my ($self, $dict) = @_;
+
+  # Get term from dictionary
+  my $term_id = $dict->term_id_by_term(KEY_PREF . $$self);
+
+  # Term does not exist!
+  return unless $term_id;
+
+  # Return identifier
+  Krawfish::Koral::Compile::Type::KeyID->new(
+    $term_id
+  );
+};
+
+sub term {
+  ${$_[0]};
+};
+
+sub to_string {
+  squote(${$_[0]});
+};
+
+1;

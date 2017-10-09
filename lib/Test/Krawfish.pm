@@ -42,7 +42,6 @@ sub test_doc {
 sub ok_index {
   my $index = shift;
 
-  my $meta;
   my $kq = test_doc(@_);
 
   # Get Koral document
@@ -98,9 +97,6 @@ sub ok_index_file {
   };
 
   $file = catfile(@caller_dir, 'data', $file);
-
-  # This is in fact deprecated!
-  my $meta;
 
   # Get Koral document
   my $kq = Krawfish::Koral::Document->new($file);
