@@ -3,6 +3,8 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
+warn 'DEPRECATED';
+
 # TODO:
 #   The position should be stored in BucketSort, not in the bucket
 

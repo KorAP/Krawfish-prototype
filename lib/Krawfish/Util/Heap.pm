@@ -7,6 +7,9 @@ use warnings;
 # TODO:
 #   Use this as the base for PrioritySort
 
+# TODO:
+#   Potentially use a faster heap variant
+
 
 sub new {
   my $class = shift;

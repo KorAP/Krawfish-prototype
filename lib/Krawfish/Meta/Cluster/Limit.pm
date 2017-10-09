@@ -1,4 +1,4 @@
-package Krawfish::Meta::Limit;
+package Krawfish::Meta::Cluster::Limit;
 use parent 'Krawfish::Meta';
 use Krawfish::Log;
 use strict;

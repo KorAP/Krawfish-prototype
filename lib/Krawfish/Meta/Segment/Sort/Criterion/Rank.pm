@@ -2,6 +2,8 @@ package Krawfish::Meta::Sort::Criterion::Field;
 use strict;
 use warnings;
 
+warn 'NOT USED YET';
+
 # TODO:
 #   The same criterion for K::Result::Node::Field
 #   will introduce field fetching etc.

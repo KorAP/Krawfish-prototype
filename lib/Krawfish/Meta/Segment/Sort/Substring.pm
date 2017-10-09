@@ -1,7 +1,9 @@
-package Krawfish::Meta::Sort::Alphabet;
+package Krawfish::Meta::Segment::Sort::Substring;
 use Krawfish::Log;
 use strict;
 use warnings;
+
+warn 'NOT USED YET';
 
 # To support C2-Wort-Type sorting based on word endings,
 # It's necessary to support sorting based on substrings.

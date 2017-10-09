@@ -21,15 +21,9 @@ warn 'DEPRECATED';
 
 # See Krawfish::Util::Buckets
 
-
 # TODO:
 #   Replace with Krawfish::Meta::Sort::PriorityCascade
 
-
-# TODO:
-#  Sort is currently limited to sorting for searching.
-#  It should also be able to sort groups or sort texts/documents/corpora
-#
 # TODO:
 #   Whenever top X is requested, and there are matches > X with a max_rank Y,
 #   ignore all matches > Y. This also means, these matches do not need to be

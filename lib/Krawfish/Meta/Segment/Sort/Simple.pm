@@ -1,7 +1,9 @@
-package Krawfish::Meta::Sort::Simple;
+package Krawfish::Meta::Segment::Sort::Simple;
 use Krawfish::Log;
 use strict;
 use warnings;
+
+warn 'NOT USED YET';
 
 # This should be used fur subsequent
 # sorting following the first pass

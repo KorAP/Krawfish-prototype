@@ -5,7 +5,7 @@ use warnings;
 
 use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Query::Builder');
-use_ok('Krawfish::Meta::Sort::Priority');
+use_ok('Krawfish::Meta::Segment::Sort::Priority');
 
 my $index = Krawfish::Index->new;
 

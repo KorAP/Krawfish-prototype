@@ -1,7 +1,9 @@
-package Krawfish::Meta::Sort::Alphabet;
+package Krawfish::Meta::Segment::Sort::Alphabet;
 use Krawfish::Log;
 use strict;
 use warnings;
+
+warn 'NOT USED YET';
 
 use constant DEBUG => 0;
 

@@ -1,4 +1,4 @@
-package Krawfish::Meta::Group::Classes;
+package Krawfish::Meta::Segment::Group::Classes;
 use Krawfish::Log;
 use strict;
 use warnings;

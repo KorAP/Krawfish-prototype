@@ -5,11 +5,6 @@ use Data::Dumper;
 use Krawfish::Log;
 use POSIX qw/floor/;
 
-# See http://lemire.me/blog/2017/06/06/quickly-returning-the-top-k-elements-computer-science-vs-the-real-world/
-
-
-# TODO: use enqueue and dequeue
-
 # This establishes a priority queue for ranked elements that
 # supports equal ranks that can later be sorted based on other criteria.
 # This can be used as a first pass sorting - probably simpler than bucket sort:
@@ -17,12 +12,18 @@ use POSIX qw/floor/;
 #
 # The priority queue is based on a simple binary max heap.
 #
+
+# TODO:
+#   Use Krawfish::Util::Heap as the base heap.
+
+
+# TODO:
+#   See http://lemire.me/blog/2017/06/06/
+#     quickly-returning-the-top-k-elements-computer-science-vs-the-real-world/
+
 # TODO:
 #   For grouping it may be beneficial to allow witness storing as well,
 #   having a method add() that fails, in case the rank is already there.
-#
-# TODO:
-#   Potentially use a faster heap variant
 #
 # TODO:
 #   Check

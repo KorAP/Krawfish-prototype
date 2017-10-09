@@ -1,4 +1,4 @@
-package Krawfish::Meta::Sort::PriorityCascade;
+package Krawfish::Meta::Segment::Sort::PriorityCascade;
 use parent 'Krawfish::Meta';
 use Krawfish::Util::String qw/squote/;
 use Krawfish::Util::PriorityQueue::PerDoc;
@@ -9,11 +9,8 @@ use Data::Dumper;
 use strict;
 use warnings;
 
-# warn 'DEPRECATED';
-
-# This is deprecated in favor of K::R::S::Sort::Ranks
-
-
+# WARNING!
+# THIS IS DEPRECATED IN FAVOR OF Segment::Sort and Segment::SortAfter
 
 # This is only based on criteria that return ranks
 

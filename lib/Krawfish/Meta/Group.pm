@@ -5,6 +5,8 @@ use warnings;
 
 use constant DEBUG => 0;
 
+warn 'DEPRECATED';
+
 # TODO: Use Krawfish::Posting::Group;
 
 # Group matches based on certain criteria, for example:

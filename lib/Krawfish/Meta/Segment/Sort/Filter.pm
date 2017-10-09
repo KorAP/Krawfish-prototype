@@ -1,8 +1,10 @@
-package Krawfish::Meta::Sort::Filter;
+package Krawfish::Meta::Segment::Sort::Filter;
 use parent 'Krawfish::Corpus';
 use Krawfish::Log;
 use strict;
 use warnings;
+
+warn 'NOT USED YET';
 
 use constant DEBUG => 0;
 

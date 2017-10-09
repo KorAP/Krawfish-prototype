@@ -5,10 +5,8 @@ use parent 'Exporter';
 use strict;
 use warnings;
 
-our @EXPORT = qw/pattern_list/;
-
-use constant DEBUG => 1;
-
+# Based on a pattern, this creates a list.
+#
 # Expect a list of structure
 #   [[0,1],[3,5,8],[2]]
 #
@@ -19,6 +17,14 @@ use constant DEBUG => 1;
 #   1,3,2
 #   1,5,2
 #   1,8,2
+
+# This is used by
+# Krawfish::Koral::Result::Group::Fields
+
+our @EXPORT = qw/pattern_list/;
+
+use constant DEBUG => 1;
+
 
 sub pattern_list {
   my @list = @_;

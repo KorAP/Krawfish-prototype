@@ -1,8 +1,9 @@
 package Krawfish::Koral::Meta::Node::Limit;
 
 # TODO:
-#   Move this to segment
-use Krawfish::Meta::Limit;
+#   Limiting can only be done on the cluster level!
+
+use Krawfish::Meta::Cluster::Limit;
 use Krawfish::Query::Nowhere;
 use Krawfish::Log;
 use strict;

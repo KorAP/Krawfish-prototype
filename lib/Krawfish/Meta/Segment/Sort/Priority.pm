@@ -1,9 +1,13 @@
-package Krawfish::Meta::Sort::Priority;
+package Krawfish::Meta::Segment::Sort::Priority;
 use Krawfish::Util::PrioritySort;
 use Krawfish::Log;
 use Data::Dumper;
 use strict;
 use warnings;
+
+# WARNING!
+# THIS IS DEPRECATED IN FAVOR OF Segment::Sort and Segment::SortAfter
+
 
 use constant DEBUG => 0;
 

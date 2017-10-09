@@ -8,6 +8,9 @@ use bytes;
 
 use constant DEBUG => 0;
 
+warn 'DEPRECATED';
+
+
 # This implements the datastructure for all bucket sorts algorithms.
 #
 # BucketSorting will be used for complete sorting, e.g. for using

@@ -2,6 +2,8 @@ package Krawfish::Util::BucketSort::List;
 use strict;
 use warnings;
 
+warn 'DEPRECATED';
+
 # Implement as a linked list - initially unsorted
 # (because it may not be necessary to sort)!
 # Entries have the structure [rank|value]
