@@ -7,7 +7,7 @@ use Mojo::File;
 use strict;
 use warnings;
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # TODO:
 #   May need to be renamed to Krawfish::Node

@@ -23,7 +23,7 @@ use warnings;
 #   A. Anagnostopoulos, A. Z. Broder, and D. Carmel. Sampling search-engine results. In Proc. of the Fourteenth International World Wide Web Conference, Chiba, Japan, 2005. ACM Press.
 
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # Create a sample sort of k elements in the list
 sub new {

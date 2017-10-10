@@ -26,7 +26,7 @@ use List::MoreUtils qw/uniq/;
 # foundry and layer may need separated term_ids so they are exceptional small.
 
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # Parse the document and create an inverted index file
 sub new {

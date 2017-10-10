@@ -6,7 +6,7 @@ use List::MoreUtils qw/uniq/;
 use strict;
 use warnings;
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # TODO:
 #   Check that only valid aggregate objects are passed

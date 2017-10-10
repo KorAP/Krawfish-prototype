@@ -7,7 +7,7 @@ use strict;
 use warnings;
 
 use constant {
-  DEBUG      => 1,
+  DEBUG => 0,
   MAX_TOKENS => 4096
 };
 
@@ -22,7 +22,7 @@ sub new {
   if ($term->term_type ne 'span') {
     if (DEBUG) {
       print_log(
-        'k_context_span',
+        'k_ctx_span',
         qq!Term "$term_str" is no span, but a ! . $term->term_type . '!'
       );
     };
@@ -56,7 +56,7 @@ sub identify {
   $self->{anno_id} = $dict->term_id_by_term($term->to_term);
 
   if (DEBUG) {
-    print_log('k_context_span', 'Identify annotation for ' . $term->to_term);
+    print_log('k_ctx_span', 'Identify annotation for ' . $term->to_term);
   };
 
   # Term not found
@@ -66,13 +66,13 @@ sub identify {
   $self->{foundry_id}  = $dict->term_id_by_term(FOUNDRY_PREF . $term->foundry);
 
   if (DEBUG) {
-    print_log('k_context_span', 'Identify layer for ' . $term->foundry);
+    print_log('k_ctx_span', 'Identify layer for ' . $term->foundry);
   };
 
   $self->{layer_id} = $dict->term_id_by_term(LAYER_PREF . $term->layer);
 
   if (DEBUG) {
-    print_log('k_context_span', 'Identify layer for ' . $term->layer);
+    print_log('k_ctx_span', 'Identify layer for ' . $term->layer);
   };
 
   return $self;

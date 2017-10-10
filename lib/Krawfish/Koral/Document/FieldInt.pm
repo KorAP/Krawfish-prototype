@@ -7,7 +7,7 @@ with 'Krawfish::Koral::Document::FieldBase';
 use warnings;
 use strict;
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # Class for integer fields
 

@@ -4,7 +4,7 @@ use Role::Tiny;
 use warnings;
 use strict;
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # TODO:
 #   Probably use Krawfish::Koral::Compile::Type::KeyID and

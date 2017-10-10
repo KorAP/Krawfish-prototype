@@ -5,9 +5,9 @@ use warnings;
 use Krawfish::Log;
 
 # TODO:
-#   Probably move to Krawfish::Koral::Info
+#   Probably rename to Krawfish::Koral::Report
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # Add error
 sub error {

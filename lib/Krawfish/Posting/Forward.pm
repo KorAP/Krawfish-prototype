@@ -25,7 +25,7 @@ use warnings;
 #   forward stream can correctly be interpreted.
 #   Or use Krawfish::Koral::Document::Annotation
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # Constructor
 sub new {

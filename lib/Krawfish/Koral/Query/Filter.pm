@@ -22,7 +22,7 @@ memoize('max_span');
 #
 # next([Der],previous(filter(author=goethe,[Mann]),[alte&ADJ]))
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 sub new {
   my $class = shift;

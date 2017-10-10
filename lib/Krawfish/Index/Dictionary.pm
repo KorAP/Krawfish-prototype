@@ -172,7 +172,7 @@ use Krawfish::Log;
 #   That's why all subterms need to be stored as well.
 
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 sub new {
   my $class = shift;

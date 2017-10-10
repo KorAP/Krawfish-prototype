@@ -23,7 +23,7 @@ use warnings;
 
 our @EXPORT = qw/pattern_list/;
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 
 sub pattern_list {

@@ -5,7 +5,7 @@ use Krawfish::Log;
 use warnings;
 use strict;
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # This represents a forward index of the data,
 # accessible by document ID and subtoken offset.
