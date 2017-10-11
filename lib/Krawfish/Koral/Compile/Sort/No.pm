@@ -46,4 +46,12 @@ sub to_string {
   $str;
 };
 
+
+# This is identical to to_string!
+sub to_id_string {
+  my $str = 'no=' . $_[0]->{field}->to_string;
+  $str .= ($_[0]->{desc} ? '>' : '<');
+  $str;
+};
+
 1;

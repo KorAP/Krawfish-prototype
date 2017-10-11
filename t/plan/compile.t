@@ -68,7 +68,7 @@ is($compile->to_string, "enrich=[fields:['author','title','id']]",
 
 ok($compile = $koral->to_query->identify($index->dict), 'Identification');
 
-is($compile->to_string, "fields(#1,#3,#17:[0])",
+is($compile->to_id_string, "fields(#1,#3,#17:[0])",
    'Stringification');
 
 # Introduce redundant operations and new sorts
@@ -104,7 +104,7 @@ is(
 ok(my $query = $koral->to_query->identify($index->dict), 'Translate to identifier');
 
 is(
-  $query->to_string,
+  $query->to_id_string,
   'sort(field=#1<:sort(no=\'length\'<:sort(field=#2<:sort(field=#3>:fields(#1,#3,#17:[0])))))',
   'Stringification'
 );

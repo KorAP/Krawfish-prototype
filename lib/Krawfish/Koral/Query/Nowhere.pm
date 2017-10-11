@@ -23,6 +23,10 @@ sub to_string {
   '[0]';
 };
 
+sub to_id_string {
+  '[0]';
+};
+
 sub normalize {
   $_[0];
 };

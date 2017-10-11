@@ -152,8 +152,22 @@ sub to_koral_fragment {
 
 # Stringification
 sub to_string {
+  # warn 'DEPRECATED'
   my $self = shift;
   return join '', map { $_->to_string } @{$self->operands};
+};
+
+
+# Stringification
+sub to_id_string {
+  my $self = shift;
+  return join '', map { $_->to_id_string } @{$self->operands};
+};
+
+# Stringification
+sub to_term_string {
+  my $self = shift;
+  return join '', map { $_->to_term_string } @{$self->operands};
 };
 
 

@@ -109,7 +109,20 @@ sub normalize {
 
 sub to_string {
   my $self = shift;
+  # warn 'DEPRECATED'
   return 'aggr=[' . join(',', map { $_->to_string } @$self) . ']';
 };
+
+
+sub to_term_string {
+  my $self = shift;
+  return 'aggr=[' . join(',', map { $_->to_term_string } @$self) . ']';
+};
+
+sub to_id_string {
+  my $self = shift;
+  return 'aggr=[' . join(',', map { $_->to_id_string } @$self) . ']';
+};
+
 
 1;

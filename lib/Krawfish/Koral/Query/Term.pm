@@ -7,6 +7,9 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
+# TODO:
+#   Probably join this with TermID
+#   and make it inflatable
 
 # TODO:
 #  Probably introduce '#' as a prefix for
@@ -302,6 +305,10 @@ sub to_string {
   $str;
 };
 
+
+sub to_term_string {
+  $_[0]->to_string;
+};
 
 sub to_neutral {
   return $_[0]->to_term;

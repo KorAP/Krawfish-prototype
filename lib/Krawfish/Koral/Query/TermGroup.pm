@@ -185,6 +185,49 @@ sub to_string {
 };
 
 
+
+sub to_id_string {
+  my $self = shift;
+
+  my $str = '';
+
+  if ($self->is_negative) {
+
+    if ($self->is_nowhere) {
+      return '1';
+    }
+    elsif ($self->is_anywhere) {
+      return '0';
+    }
+    else {
+      $str .= '!';
+    };
+  }
+
+  # matches
+  elsif ($self->is_nowhere) {
+    return '0';
+  }
+
+  # Matches everywhere
+  elsif ($self->is_anywhere) {
+    return '1';
+  };
+
+
+  my $op = $self->operation eq 'and' ? '&' : '|';
+  my $inner = join $op, map {
+    $_->type eq 'termGroup' ? '(' . $_->to_id_string . ')' : $_->to_id_string
+  } @{$self->operands_in_order};
+  if ($str) {
+    return "$str($inner)";
+  };
+  return $inner;
+};
+
+
+
+
 sub to_neutral {
   my $self = shift;
   my $string = $self->to_string;

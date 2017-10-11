@@ -57,14 +57,14 @@ $koral->compile(
   )
 );
 
-is($koral->to_string,
+is($koral->to_term_string,
    "compile=[aggr=[fields:['genre'],fields:['age']]],query=[[aa]]",
    'Stringification');
 
 ok(my $koral_query = $koral->to_query, 'Normalization');
 
 # This is a query that is fine to be send to nodes
-is($koral_query->to_string,
+is($koral_query->to_term_string,
    "aggr(fields:['genre','age']:filter(aa,[1]))",
    'Stringification');
 
@@ -73,7 +73,7 @@ ok($koral_query = $koral_query->identify($index->dict), 'Identify');
 
 
 # This is a query that is fine to be send to nodes
-is($koral_query->to_string,
+is($koral_query->to_id_string,
    "aggr(fields:[#1,#5]:filter(#10,[1]))",
    'Stringification');
 

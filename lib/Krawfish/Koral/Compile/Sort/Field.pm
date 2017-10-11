@@ -60,7 +60,21 @@ sub identify {
 
 
 sub to_string {
+  # warn 'DEPRECATED'
   my $str = 'field=' . $_[0]->{field}->to_string;
+  $str .= ($_[0]->{desc} ? '>' : '<');
+  $str;
+};
+
+
+sub to_id_string {
+  my $str = 'field=' . $_[0]->{field}->to_id_string;
+  $str .= ($_[0]->{desc} ? '>' : '<');
+  $str;
+};
+
+sub to_term_string {
+  my $str = 'field=' . $_[0]->{field}->to_term_string;
   $str .= ($_[0]->{desc} ? '>' : '<');
   $str;
 };

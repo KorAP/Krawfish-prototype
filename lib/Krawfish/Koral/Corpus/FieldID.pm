@@ -7,6 +7,9 @@ use warnings;
 use constant DEBUG => 0;
 
 # TODO:
+#   Join Field and FieldID as an inflatable!
+
+# TODO:
 #   - Check for valid parameters
 #   - Only support positive terms
 #   - Wrap in negative field!
@@ -72,6 +75,10 @@ sub is_nowhere {
 };
 
 sub to_string {
+  return '#' . $_[0]->{term_id};
+};
+
+sub to_id_string {
   return '#' . $_[0]->{term_id};
 };
 

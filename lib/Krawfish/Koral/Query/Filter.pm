@@ -133,11 +133,31 @@ sub corpus {
 
 
 sub to_string {
+  # warn 'DEPRECATED'
   my $self = shift;
   my $str = 'filter(';
   $str .= $self->operand->to_string;
   $str .= ',';
   $str .= $self->corpus->to_string;
+  return $str . ')';
+};
+
+sub to_id_string {
+  my $self = shift;
+  my $str = 'filter(';
+  $str .= $self->operand->to_id_string;
+  $str .= ',';
+  $str .= $self->corpus->to_id_string;
+  return $str . ')';
+};
+
+
+sub to_term_string {
+  my $self = shift;
+  my $str = 'filter(';
+  $str .= $self->operand->to_term_string;
+  $str .= ',';
+  $str .= $self->corpus->to_term_string;
   return $str . ')';
 };
 

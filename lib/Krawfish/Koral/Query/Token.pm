@@ -184,6 +184,11 @@ sub to_string {
 };
 
 
+# Stringify
+sub to_term_string {
+  $_[0]->to_string;
+};
+
 sub maybe_unsorted { 0 };
 
 sub from_koral {

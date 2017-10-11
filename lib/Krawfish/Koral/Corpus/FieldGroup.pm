@@ -126,6 +126,30 @@ sub to_string {
 };
 
 
+sub to_id_string {
+  my $self = shift;
+  my $op = $self->operation eq 'and' ? '&' : '|';
+
+  my $str = $self->is_negative ? '!(' : '';
+
+  $str .= join($op, map {
+    $_ ? (
+      $_->type eq 'fieldGroup' ?
+       (
+         $_->is_anywhere ?
+           '[1]' :
+           '(' . $_->to_id_string . ')'
+         )
+       :
+       $_->to_id_string
+     ) : '()'
+    } @{$self->operands_in_order});
+
+  $str .= $self->is_negative ? ')' : '';
+  $str;
+};
+
+
 1;
 
 
