@@ -74,9 +74,8 @@ sub optimize {
 
 
 sub to_string {
-  # warn 'DEPRECATED';
-  my $self = shift;
-  return 'fields:[' . join(',', map { defined $_ ? $_->to_string : '?' } @$self) . ']';
+  my ($self, $id) = @_;
+  return 'fields:[' . join(',', map { defined $_ ? $_->to_string($id) : '?' } @$self) . ']';
 };
 
 
@@ -84,14 +83,6 @@ sub to_id_string {
   my $self = shift;
   return 'fields:[' . join(',', map { defined $_ ? $_->to_id_string : '?' } @$self) . ']';
 };
-
-
-sub to_term_string {
-  my $self = shift;
-  return 'fields:[' . join(',', map { defined $_ ? $_->to_term_string : '?' } @$self) . ']';
-};
-
-
 
 
 1;

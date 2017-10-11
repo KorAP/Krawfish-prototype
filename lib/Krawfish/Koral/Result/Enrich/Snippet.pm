@@ -24,16 +24,17 @@ sub inflate {
 
 # Stringification
 sub to_string {
-  my $self = shift;
-  return 'snippet:' . join(',', map { $_->to_string } @{$self->{hit_ids}});
+  my ($self, $id) = @_;
+  return 'snippet:' . join(',', map { $_->to_string($id) } @{$self->{hit_ids}});
 };
 
 
 # Stringification
-sub to_term_string {
+sub to_id_string {
   my $self = shift;
-  return 'snippet:' . join(',', map { $_->to_term_string } @{$self->{hit_ids}});
+  return 'snippet:' . join(',', map { $_->to_id_string } @{$self->{hit_ids}});
 };
+
 
 
 1;

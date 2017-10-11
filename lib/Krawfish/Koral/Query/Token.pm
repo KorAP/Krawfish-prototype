@@ -152,7 +152,7 @@ sub optimize {
 
 # Stringify
 sub to_string {
-  my $self = shift;
+  my ($self, $id) = @_;
 
   my $string = '[';
 
@@ -183,11 +183,6 @@ sub to_string {
   return $string;
 };
 
-
-# Stringify
-sub to_term_string {
-  $_[0]->to_string;
-};
 
 sub maybe_unsorted { 0 };
 

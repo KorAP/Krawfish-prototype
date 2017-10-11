@@ -37,9 +37,6 @@ sub to_id_string {
   $_[0]->to_string;
 };
 
-sub to_term_string {
-  $_[0]->to_string;
-};
 
 sub operands {
   return;

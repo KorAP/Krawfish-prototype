@@ -75,8 +75,14 @@ sub identify {
 
 # Stringification
 sub to_string {
+  my ($self, $id) = @_;
+  return '[' . $self->fields->to_string($id) . ']' . $self->stream->to_string($id);
+};
+
+# Stringification
+sub to_id_string {
   my $self = shift;
-  return '[' . $self->fields->to_string . ']' . $self->stream->to_string;
+  return '[' . $self->fields->to_string . ']' . $self->stream->to_id_string;
 };
 
 

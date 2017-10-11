@@ -73,9 +73,10 @@ sub identify {
   my ($self, $dict) = @_;
 
   # This is the final subtoken that's only required for preceding bytes
-  return $self unless $self->{subterm};
 
   $self->{preceding_enc} = $self->{preceding};
+
+  return $self unless $self->{subterm};
 
   my $term = SUBTERM_PREF . $self->{subterm};
   $self->{subterm_id} = $dict->add_term($term);
@@ -88,21 +89,13 @@ sub identify {
 };
 
 
-# Stringification
-sub to_string {
-  my $self = shift;
-  return $self->to_id_string // $self->to_term_string;
-};
-
-
 sub to_id_string {
   my $self = shift;
-  return unless defined $self->{subterm_id};
 
   my $str = '<' . $self->preceding_enc . '>';
   $str .= '[';
 
-  $str .= '#' . $self->{subterm_id};
+  $str .= $self->{subterm_id} ? '#' . $self->{subterm_id} : '##';
 
   if (@{$self->{anno}}) {
     $str .= ';' . join(';', map { $_->to_string } (@{$self->{anno}}));
@@ -111,18 +104,31 @@ sub to_id_string {
   return "$str]";
 };
 
-# TODO:
-#   Differ between to_term_string and to_id_string
-sub to_term_string {
-  my $self = shift;
-  return unless defined $self->{subterm};
 
-  my $str = '<' . $self->preceding . '>';
+# Stringification
+sub to_string {
+  my ($self, $id) = @_;
+
+#  if ($id) {
+#    return unless defined $self->{subterm_id};
+#  }
+#  else {
+#    return unless defined $self->{subterm};
+#  };
+
+  my $str = '<' . ($id ? $self->preceding_enc : $self->preceding) . '>';
   $str .= '[';
-  $str .= squote($self->{subterm});
+
+  if ($id) {
+    $str .= $self->{subterm_id} ? '#' . $self->{subterm_id} : '##';
+  }
+
+  else {
+    $str .= $self->{subterm} ? squote($self->{subterm}) : "''";
+  };
 
   if (@{$self->{anno}}) {
-    $str .= ';' . join(';', map { $_->to_string } (@{$self->{anno}}));
+    $str .= ';' . join(';', map { $_->to_string($id) } (@{$self->{anno}}));
   };
 
   return "$str]";

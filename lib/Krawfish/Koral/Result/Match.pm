@@ -43,7 +43,7 @@ sub inflate {
 
 # Stringification
 sub to_string {
-  my $self = shift;
+  my ($self, $id) = @_;
   my $str = '[';
 
   # Identical to Posting
@@ -56,14 +56,14 @@ sub to_string {
   };
 
   foreach (@{$self->{enrichments}}) {
-    $str .= '|' . $_->to_string;
+    $str .= '|' . $_->to_string($id);
   };
 
   return $str . ']';
 };
 
 
-sub to_term_string {
+sub to_id_string {
   my $self = shift;
   my $str = '[';
 
@@ -77,7 +77,7 @@ sub to_term_string {
   };
 
   foreach (@{$self->{enrichments}}) {
-    $str .= '|' . $_->to_term_string;
+    $str .= '|' . $_->to_id_string;
   };
 
   return $str . ']';

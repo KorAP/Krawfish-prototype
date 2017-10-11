@@ -46,14 +46,8 @@ sub new {
 };
 
 sub to_string {
-  my $self = shift;
-  # warn 'DEPRECATED'
-  return join(',', map { $_->to_string } $self->operations);
-};
-
-sub to_term_string {
-  my $self = shift;
-  return join(',', map { $_->to_term_string } $self->operations);
+  my ($self, $id) = @_;
+  return join(',', map { $_->to_string($id) } $self->operations);
 };
 
 sub to_id_string {

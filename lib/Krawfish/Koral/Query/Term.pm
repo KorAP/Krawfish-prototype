@@ -268,7 +268,7 @@ sub to_koral_fragment {
 
 # stringify term
 sub to_string {
-  my ($self, $fragment) = @_;
+  my ($self, $id, $fragment) = @_;
 
   return '-' if $self->is_null;
 
@@ -305,10 +305,6 @@ sub to_string {
   $str;
 };
 
-
-sub to_term_string {
-  $_[0]->to_string;
-};
 
 sub to_neutral {
   return $_[0]->to_term;

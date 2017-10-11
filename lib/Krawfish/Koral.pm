@@ -412,40 +412,19 @@ sub replace_subqueries {
 
 
 sub to_string {
-  my $self = shift;
+  my ($self, $id) = @_;
   my $str = '';
 
   my @list = ();
 
   if ($self->compile) {
-    push @list, 'compile=[' . $self->compile->to_string . ']';
+    push @list, 'compile=[' . $self->compile->to_string($id) . ']';
   };
   if ($self->corpus) {
-    push @list, 'corpus=[' . $self->corpus->to_string . ']';
+    push @list, 'corpus=[' . $self->corpus->to_string($id) . ']';
   };
   if ($self->query) {
-    push @list, 'query=[' . $self->query->to_string . ']';
-  };
-
-  return join(',', @list);
-};
-
-
-
-sub to_term_string {
-  my $self = shift;
-  my $str = '';
-
-  my @list = ();
-
-  if ($self->compile) {
-    push @list, 'compile=[' . $self->compile->to_term_string . ']';
-  };
-  if ($self->corpus) {
-    push @list, 'corpus=[' . $self->corpus->to_term_string . ']';
-  };
-  if ($self->query) {
-    push @list, 'query=[' . $self->query->to_term_string . ']';
+    push @list, 'query=[' . $self->query->to_string($id) . ']';
   };
 
   return join(',', @list);

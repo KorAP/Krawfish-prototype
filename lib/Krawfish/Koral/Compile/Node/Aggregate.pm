@@ -68,11 +68,10 @@ sub optimize {
 
 # Stringification
 sub to_string {
-#  warn 'DEPRECATED';
-  my $self = shift;
+  my ($self, $id) = @_;
   return 'aggr(' .
-    join(',', map { $_->to_string } @{$self->{aggregates}}) .
-    ':' . $self->{query}->to_string . ')';
+    join(',', map { $_->to_string($id) } @{$self->{aggregates}}) .
+    ':' . $self->{query}->to_string($id) . ')';
 };
 
 
@@ -83,12 +82,5 @@ sub to_id_string {
     ':' . $self->{query}->to_id_string . ')';
 };
 
-
-sub to_term_string {
-  my $self = shift;
-  return 'aggr(' .
-    join(',', map { $_->to_term_string } @{$self->{aggregates}}) .
-    ':' . $self->{query}->to_term_string . ')';
-};
 
 1;

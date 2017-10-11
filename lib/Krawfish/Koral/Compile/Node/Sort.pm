@@ -141,9 +141,8 @@ sub optimize {
 
 # Stringification
 sub to_string {
-  my $self = shift;
-  # warn 'DEPRECATED';
-  my $str = $self->{sort}->to_string;
+  my ($self, $id) = @_;
+  my $str = $self->{sort}->to_string($id);
 
   if ($self->{top_k}) {
     $str .= ';k=' . $self->{top_k};
@@ -153,7 +152,7 @@ sub to_string {
     $str .= ';sortFilter'
   };
 
-  return 'sort(' . $str . ':' . $self->{query}->to_string . ')';
+  return 'sort(' . $str . ':' . $self->{query}->to_string($id) . ')';
 };
 
 
@@ -171,22 +170,6 @@ sub to_id_string {
   };
 
   return 'sort(' . $str . ':' . $self->{query}->to_id_string . ')';
-};
-
-# Stringification
-sub to_term_string {
-  my $self = shift;
-  my $str = $self->{sort}->to_term_string;
-
-  if ($self->{top_k}) {
-    $str .= ';k=' . $self->{top_k};
-  };
-
-  if ($self->{filter}) {
-    $str .= ';sortFilter'
-  };
-
-  return 'sort(' . $str . ':' . $self->{query}->to_term_string . ')';
 };
 
 

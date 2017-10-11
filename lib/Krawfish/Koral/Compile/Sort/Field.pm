@@ -60,9 +60,9 @@ sub identify {
 
 
 sub to_string {
-  # warn 'DEPRECATED'
-  my $str = 'field=' . $_[0]->{field}->to_string;
-  $str .= ($_[0]->{desc} ? '>' : '<');
+  my ($self, $id) = @_;
+  my $str = 'field=' . $self->{field}->to_string($id);
+  $str .= ($self->{desc} ? '>' : '<');
   $str;
 };
 
@@ -73,10 +73,5 @@ sub to_id_string {
   $str;
 };
 
-sub to_term_string {
-  my $str = 'field=' . $_[0]->{field}->to_term_string;
-  $str .= ($_[0]->{desc} ? '>' : '<');
-  $str;
-};
 
 1;

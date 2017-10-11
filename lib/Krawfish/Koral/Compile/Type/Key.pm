@@ -47,12 +47,10 @@ sub term_id {
 
 
 sub to_string {
-  my $self = shift;
-#  warn 'DEPRECATED';
-  if ($self->{term}) {
-    return squote($self->{term});
-  };
-  return '#' . $self->{term_id};
+  my ($self, $id) = @_;
+  return '#' . $self->{term_id} if $id;
+
+  return squote($self->{term});
 };
 
 
@@ -61,13 +59,6 @@ sub to_id_string {
   return '#' . $self->{term_id} if $self->{term_id};
 };
 
-
-sub to_term_string {
-  my $self = shift;
-  if ($self->{term}) {
-    return squote($self->{term});
-  };
-};
 
 
 1;

@@ -17,10 +17,9 @@ sub new {
 
 
 sub to_string {
-  # warn 'DEPRECATED';
-  my $self = shift;
-  return 'gFields(' . join(',', map { $_->to_string } @{$self->{fields}}) .
-    ':' . $self->{query}->to_string . ')';
+  my ($self, $id) = @_;
+  return 'gFields(' . join(',', map { $_->to_string($id) } @{$self->{fields}}) .
+    ':' . $self->{query}->to_string($id) . ')';
 };
 
 
@@ -30,12 +29,6 @@ sub to_id_string {
     ':' . $self->{query}->to_id_string . ')';
 };
 
-
-sub to_term_string {
-  my $self = shift;
-  return 'gFields(' . join(',', map { $_->to_term_string } @{$self->{fields}}) .
-    ':' . $self->{query}->to_term_string . ')';
-};
 
 
 # This will identify the query and create a list of sorted fields ids
