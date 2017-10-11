@@ -89,32 +89,10 @@ sub identify {
 };
 
 
-sub to_id_string {
-  my $self = shift;
-
-  my $str = '<' . $self->preceding_enc . '>';
-  $str .= '[';
-
-  $str .= $self->{subterm_id} ? '#' . $self->{subterm_id} : '##';
-
-  if (@{$self->{anno}}) {
-    $str .= ';' . join(';', map { $_->to_string } (@{$self->{anno}}));
-  };
-
-  return "$str]";
-};
-
 
 # Stringification
 sub to_string {
   my ($self, $id) = @_;
-
-#  if ($id) {
-#    return unless defined $self->{subterm_id};
-#  }
-#  else {
-#    return unless defined $self->{subterm};
-#  };
 
   my $str = '<' . ($id ? $self->preceding_enc : $self->preceding) . '>';
   $str .= '[';

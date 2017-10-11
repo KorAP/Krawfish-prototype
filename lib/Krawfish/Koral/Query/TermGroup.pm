@@ -146,7 +146,7 @@ sub max_span {
 
 
 sub to_string {
-  my $self = shift;
+  my ($self, $id) = @_;
 
   my $str = '';
 
@@ -176,56 +176,13 @@ sub to_string {
 
   my $op = $self->operation eq 'and' ? '&' : '|';
   my $inner = join $op, map {
-    $_->type eq 'termGroup' ? '(' . $_->to_string . ')' : $_->to_string
+    $_->type eq 'termGroup' ? '(' . $_->to_string($id) . ')' : $_->to_string($id)
   } @{$self->operands_in_order};
   if ($str) {
     return "$str($inner)";
   };
   return $inner;
 };
-
-
-
-sub to_id_string {
-  my $self = shift;
-
-  my $str = '';
-
-  if ($self->is_negative) {
-
-    if ($self->is_nowhere) {
-      return '1';
-    }
-    elsif ($self->is_anywhere) {
-      return '0';
-    }
-    else {
-      $str .= '!';
-    };
-  }
-
-  # matches
-  elsif ($self->is_nowhere) {
-    return '0';
-  }
-
-  # Matches everywhere
-  elsif ($self->is_anywhere) {
-    return '1';
-  };
-
-
-  my $op = $self->operation eq 'and' ? '&' : '|';
-  my $inner = join $op, map {
-    $_->type eq 'termGroup' ? '(' . $_->to_id_string . ')' : $_->to_id_string
-  } @{$self->operands_in_order};
-  if ($str) {
-    return "$str($inner)";
-  };
-  return $inner;
-};
-
-
 
 
 sub to_neutral {

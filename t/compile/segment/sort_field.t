@@ -123,7 +123,7 @@ is($query->to_string,
 
 ok($query = $query->identify($index->dict), 'Identify');
 
-is($query->to_id_string,
+is($query->to_string(1),
    'sort(field=#1<:sort(field=#2<:filter(#10#12,[1])))',
    'Stringification');
 

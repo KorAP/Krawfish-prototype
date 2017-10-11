@@ -33,10 +33,6 @@ sub to_string {
   '[1]';
 };
 
-sub to_id_string {
-  $_[0]->to_string;
-};
-
 
 sub operands {
   return;

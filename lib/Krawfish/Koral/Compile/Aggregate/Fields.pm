@@ -79,10 +79,4 @@ sub to_string {
 };
 
 
-sub to_id_string {
-  my $self = shift;
-  return 'fields:[' . join(',', map { defined $_ ? $_->to_id_string : '?' } @$self) . ']';
-};
-
-
 1;

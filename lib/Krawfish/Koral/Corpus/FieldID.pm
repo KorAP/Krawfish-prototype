@@ -78,9 +78,6 @@ sub to_string {
   return '#' . $_[0]->{term_id};
 };
 
-sub to_id_string {
-  return '#' . $_[0]->{term_id};
-};
 
 1;
 

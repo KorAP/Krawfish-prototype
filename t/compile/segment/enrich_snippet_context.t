@@ -55,7 +55,7 @@ is ($query->to_string,
 
 ok($query->next, 'Next match');
 my $match = $query->current_match;
-is($match->to_id_string, "[0:0-1|snippet:<>[#7]]", 'Current match');
+is($match->to_string(1), "[0:0-1|snippet:<>[#7]]", 'Current match');
 is($match->inflate($index->dict)->to_string, '[0:0-1|snippet:<>[\''.SUBTERM_PREF.'aa\']]', 'Stringification');
 
 TODO: {

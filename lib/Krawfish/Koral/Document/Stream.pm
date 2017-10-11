@@ -43,9 +43,5 @@ sub to_string {
   return join '', map { '(' . ($i++) . ')' .  ($_->to_string($id) // '') } @$self
 };
 
-sub to_id_string {
-  my $i = 0;
-  return join '', map { '(' . ($i++) . ')' .  ($_->to_id_string // '') } @{$_[0]}
-};
 
 1;

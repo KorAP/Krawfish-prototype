@@ -53,7 +53,7 @@ is($koral_query->to_string,
 ok($koral_query = $koral_query->identify($index->dict), 'Identify');
 
 # This is a query that is fine to be send to nodes
-is($koral_query->to_id_string,
+is($koral_query->to_string(1),
    "fields(#1,#5:filter(#8,[1]))",
    'Stringification');
 

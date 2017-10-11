@@ -29,12 +29,4 @@ sub to_string {
 };
 
 
-# Stringification
-sub to_id_string {
-  my $self = shift;
-  return 'snippet:' . join(',', map { $_->to_id_string } @{$self->{hit_ids}});
-};
-
-
-
 1;

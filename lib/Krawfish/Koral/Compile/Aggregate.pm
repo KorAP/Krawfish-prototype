@@ -113,10 +113,4 @@ sub to_string {
 };
 
 
-sub to_id_string {
-  my $self = shift;
-  return 'aggr=[' . join(',', map { $_->to_id_string } @$self) . ']';
-};
-
-
 1;

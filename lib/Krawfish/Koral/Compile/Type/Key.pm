@@ -48,15 +48,11 @@ sub term_id {
 
 sub to_string {
   my ($self, $id) = @_;
-  return '#' . $self->{term_id} if $id;
-
+  if ($id) {
+    return '#' . $self->{term_id} if $self->{term_id};
+    return '!' . squote($self->{term});
+  };
   return squote($self->{term});
-};
-
-
-sub to_id_string {
-  my $self = shift;
-  return '#' . $self->{term_id} if $self->{term_id};
 };
 
 

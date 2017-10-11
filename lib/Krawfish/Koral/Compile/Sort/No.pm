@@ -40,18 +40,13 @@ sub identify {
 };
 
 
+# Stringification
 sub to_string {
-  my $str = 'no=' . $_[0]->{field}->to_string;
+  my ($self, $id) = @_;
+  my $str = 'no=' . $_[0]->{field}->to_string($id);
   $str .= ($_[0]->{desc} ? '>' : '<');
   $str;
 };
 
-
-# This is identical to to_string!
-sub to_id_string {
-  my $str = 'no=' . $_[0]->{field}->to_string;
-  $str .= ($_[0]->{desc} ? '>' : '<');
-  $str;
-};
 
 1;

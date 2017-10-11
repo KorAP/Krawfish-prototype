@@ -411,6 +411,7 @@ sub replace_subqueries {
 };
 
 
+# Stringification
 sub to_string {
   my ($self, $id) = @_;
   my $str = '';
@@ -429,27 +430,6 @@ sub to_string {
 
   return join(',', @list);
 };
-
-
-sub to_id_string {
-  my $self = shift;
-  my $str = '';
-
-  my @list = ();
-
-  if ($self->compile) {
-    push @list, 'compile=[' . $self->compile->to_id_string . ']';
-  };
-  if ($self->corpus) {
-    push @list, 'corpus=[' . $self->corpus->to_id_string . ']';
-  };
-  if ($self->query) {
-    push @list, 'query=[' . $self->query->to_id_string . ']';
-  };
-
-  return join(',', @list);
-};
-
 
 
 1;

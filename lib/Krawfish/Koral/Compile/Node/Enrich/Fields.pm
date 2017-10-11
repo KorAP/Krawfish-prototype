@@ -23,14 +23,6 @@ sub to_string {
 };
 
 
-sub to_id_string {
-  my $self = shift;
-  return 'fields(' . join(',', map { $_->to_id_string } @{$self->{fields}}) .
-    ':' . $self->{query}->to_id_string . ')';
-};
-
-
-
 # This will identify the query and create a list of sorted fields ids
 sub identify {
   my ($self, $dict) = @_;

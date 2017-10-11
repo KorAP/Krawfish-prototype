@@ -65,15 +65,10 @@ sub identify {
 };
 
 
+# Stringification
 sub to_string {
   my ($self, $id) = @_;
   return 'values:[' . join(',', map { $_->to_string($id) } @$self) . ']';
-};
-
-
-sub to_id_string {
-  my $self = shift;
-  return 'values:[' . join(',', map { $_->to_id_string } @$self) . ']';
 };
 
 

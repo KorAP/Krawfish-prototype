@@ -44,15 +44,8 @@ sub to_koral_fragment {
 };
 
 sub to_string {
-  # warn 'DEPRECATED'
   return '#' . $_[0]->{term_id};
 };
-
-
-sub to_id_string {
-  return '#' . $_[0]->{term_id};
-};
-
 
 sub term_id {
   $_[0]->{term_id};

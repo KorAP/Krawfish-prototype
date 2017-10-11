@@ -157,13 +157,6 @@ sub to_string {
 };
 
 
-# Stringification
-sub to_id_string {
-  my $self = shift;
-  return join '', map { $_->to_id_string } @{$self->operands};
-};
-
-
 sub from_koral {
   my $class = shift;
   my $kq = shift;

@@ -103,7 +103,7 @@ sub to_koral_fragment {
 
 
 sub to_string {
-  my $self = shift;
+  my ($self, $id) = @_;
   my $op = $self->operation eq 'and' ? '&' : '|';
 
   my $str = $self->is_negative ? '!(' : '';
@@ -114,34 +114,10 @@ sub to_string {
        (
          $_->is_anywhere ?
            '[1]' :
-           '(' . $_->to_string . ')'
+           '(' . $_->to_string($id) . ')'
          )
        :
        $_->to_string
-     ) : '()'
-    } @{$self->operands_in_order});
-
-  $str .= $self->is_negative ? ')' : '';
-  $str;
-};
-
-
-sub to_id_string {
-  my $self = shift;
-  my $op = $self->operation eq 'and' ? '&' : '|';
-
-  my $str = $self->is_negative ? '!(' : '';
-
-  $str .= join($op, map {
-    $_ ? (
-      $_->type eq 'fieldGroup' ?
-       (
-         $_->is_anywhere ?
-           '[1]' :
-           '(' . $_->to_id_string . ')'
-         )
-       :
-       $_->to_id_string
      ) : '()'
     } @{$self->operands_in_order});
 

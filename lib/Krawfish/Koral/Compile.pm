@@ -50,11 +50,6 @@ sub to_string {
   return join(',', map { $_->to_string($id) } $self->operations);
 };
 
-sub to_id_string {
-  my $self = shift;
-  return join(',', map { $_->to_id_string } $self->operations);
-};
-
 
 sub builder {
   return Krawfish::Koral::Compile::Builder->new;

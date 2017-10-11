@@ -141,15 +141,6 @@ sub to_string {
   return $str . ')';
 };
 
-sub to_id_string {
-  my $self = shift;
-  my $str = 'filter(';
-  $str .= $self->operand->to_id_string;
-  $str .= ',';
-  $str .= $self->corpus->to_id_string;
-  return $str . ')';
-};
-
 
 sub to_koral_fragment {
   my $self = shift;

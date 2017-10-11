@@ -63,27 +63,6 @@ sub to_string {
 };
 
 
-sub to_id_string {
-  my $self = shift;
-  my $str = '[';
-
-  # Identical to Posting
-  $str .= $self->doc_id . ':' .
-    $self->start . '-' .
-    $self->end;
-
-  if ($self->payload->length) {
-    $str .= '$' . $self->payload->to_string;
-  };
-
-  foreach (@{$self->{enrichments}}) {
-    $str .= '|' . $_->to_id_string;
-  };
-
-  return $str . ']';
-};
-
-
 # serialize to koralquery
 sub to_koral_query {
   ...

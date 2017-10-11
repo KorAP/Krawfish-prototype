@@ -156,22 +156,4 @@ sub to_string {
 };
 
 
-# Stringification
-sub to_id_string {
-  my $self = shift;
-  my $str = $self->{sort}->to_id_string;
-
-  if ($self->{top_k}) {
-    $str .= ';k=' . $self->{top_k};
-  };
-
-  if ($self->{filter}) {
-    $str .= ';sortFilter'
-  };
-
-  return 'sort(' . $str . ':' . $self->{query}->to_id_string . ')';
-};
-
-
-
 1;

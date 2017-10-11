@@ -67,11 +67,4 @@ sub to_string {
 };
 
 
-sub to_id_string {
-  my $str = 'field=' . $_[0]->{field}->to_id_string;
-  $str .= ($_[0]->{desc} ? '>' : '<');
-  $str;
-};
-
-
 1;

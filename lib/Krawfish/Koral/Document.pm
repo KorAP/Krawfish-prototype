@@ -79,12 +79,6 @@ sub to_string {
   return '[' . $self->fields->to_string($id) . ']' . $self->stream->to_string($id);
 };
 
-# Stringification
-sub to_id_string {
-  my $self = shift;
-  return '[' . $self->fields->to_string . ']' . $self->stream->to_id_string;
-};
-
 
 # Parse the file and create a token-ordered document
 sub _parse {
