@@ -59,15 +59,27 @@ sub identify {
   return unless @identifier;
 
   # Sort field ids in ascending order!
-  @{$self} = reverse sort @identifier;
+  @{$self} = sort { $a->term_id <=> $b->term_id } @identifier;
 
   return $self;
 };
 
 
 sub to_string {
+  # warn 'DEPRECATED'
   my $self = shift;
   return 'values:[' . join(',', map { $_->to_string } @$self) . ']';
+};
+
+
+sub to_id_string {
+  my $self = shift;
+  return 'values:[' . join(',', map { $_->to_id_string } @$self) . ']';
+};
+
+sub to_term_string {
+  my $self = shift;
+  return 'values:[' . join(',', map { $_->to_term_string } @$self) . ']';
 };
 
 
