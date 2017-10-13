@@ -9,10 +9,6 @@ use warnings;
 
 use constant DEBUG => 0;
 
-# TODO:
-#   May need to be renamed to Krawfish::Node
-
-
 # This is the central object for index handling on node level.
 # A new document will be added by adding the following information:
 # - To the dynamic DICTIONARY
@@ -55,6 +51,9 @@ use constant DEBUG => 0;
 # document with a certain node_id.
 # Dynamic Segments can be merged with static indices once in a while.
 # Dynamic dictionaries can be merged with static indices once in a while.
+
+# TODO:
+#   May need to be renamed to Krawfish::Node
 
 # TODO:
 #   Create Importer class

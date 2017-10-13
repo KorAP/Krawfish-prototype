@@ -4,6 +4,8 @@ use Krawfish::Log;
 use warnings;
 use strict;
 
+# Pointer in the list of documents.
+
 # WARNING:
 #   This currently is not combined with live documents per default
 
@@ -24,7 +26,7 @@ use constant {
 #
 # ->current               # The current subtoken object
 
-
+# Constructor
 sub new {
   my $class = shift;
   bless {
@@ -41,6 +43,9 @@ sub new {
   }, $class;
 };
 
+
+# Get the number of documents in the index.
+# Maybe passed in initialization phase
 sub freq {
   my $freq = $_[0]->{list}->last_doc_id + 1;
 
@@ -69,13 +74,14 @@ sub cur {
   $_[0]->{cur};
 };
 
+
 # Move to next document
 sub next_doc {
   ...
 };
 
 
-# Close stream
+# Potentially close stream
 sub close {
   ...
 };
@@ -83,31 +89,31 @@ sub close {
 
 # Skip to relevant document
 sub skip_doc {
-  my ($self, $doc_id) = @_;
+  my ($self, $target_doc_id) = @_;
 
   if (DEBUG) {
-    print_log('fwd_point', "Skip from " . $self->{doc_id} . " to $doc_id");
+    print_log('fwd_point', "Skip from " . $self->{doc_id} . " to $target_doc_id");
   };
 
   # Pointer already in requested document
-  if ($self->{doc_id} == $doc_id) {
+  if ($self->{doc_id} == $target_doc_id) {
 
     if (DEBUG) {
       print_log('fwd_point', 'Document already in position');
     };
 
-    return $doc_id;
+    return $target_doc_id;
   }
 
   # Pointer needs to skip
-  elsif ($self->{doc_id} < $doc_id && $doc_id < $self->freq) {
+  elsif ($self->{doc_id} < $target_doc_id && $target_doc_id < $self->freq) {
 
     if (DEBUG) {
-      print_log('fwd_point', 'Get document for id ' . $doc_id);
+      print_log('fwd_point', 'Get document for id ' . $target_doc_id);
     };
 
-    $self->{doc_id} = $doc_id;
-    $self->{doc} = $self->{list}->doc($doc_id);
+    $self->{doc_id} = $target_doc_id;
+    $self->{doc} = $self->{list}->doc($target_doc_id);
     $self->{cur} = 0;
     $self->{pos} = -1;
 
@@ -115,7 +121,7 @@ sub skip_doc {
     delete $self->{prev};
     delete $self->{next};
 
-    return $doc_id;
+    return $target_doc_id;
   };
   return NOMORE;
 };
@@ -123,21 +129,21 @@ sub skip_doc {
 
 # Skip to relevant position
 sub skip_pos {
-  my ($self, $pos) = @_;
+  my ($self, $target_pos) = @_;
 
   # TODO:
   #   There need to be a way to skip back in a document,
   #   though it's probably sufficient to
   #   go ->prev() without skipping
-  return 0 if $pos < $self->{pos};
+  return 0 if $target_pos < $self->{pos};
 
   if (DEBUG) {
-    print_log('fwd_point', "Skip position to $pos");
+    print_log('fwd_point', "Skip position to $target_pos");
   };
 
   # TODO:
   #   This should use skip lists!
-  while ($pos > $self->{pos}) {
+  while ($target_pos > $self->{pos}) {
     $self->next or return 0;
   };
 
@@ -146,6 +152,7 @@ sub skip_pos {
 
 
 # Get the current token
+# As this does not return a posting, this may be renamed!
 sub current {
   my $self = shift;
 
@@ -183,7 +190,7 @@ sub current {
 };
 
 
-# Get the next token
+# Move to the next posting
 sub next {
   my $self = shift;
 
@@ -221,7 +228,7 @@ sub next {
 };
 
 
-# Get the previous token
+# Move to the previous token
 sub prev {
   my $self = shift;
 
@@ -246,7 +253,6 @@ sub prev {
   $self->{current} = undef;
   return 1;
 };
-
 
 
 1;

@@ -47,6 +47,7 @@ sub current {
   $_[0]->{query}->current;
 };
 
+
 # May return a hash reference with information
 sub current_group {
   ...

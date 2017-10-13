@@ -4,6 +4,8 @@ use Krawfish::Posting::Token;
 use strict;
 use warnings;
 
+# THIS IS CURRENTLY UNUSED!
+
 # This is a PostingsList-Example for Spans
 
 # Add entry to bitstream
@@ -83,6 +85,7 @@ sub get {
 };
 
 
+# Get token posting
 sub posting {
   shift;
   return Krawfish::Posting::Token->new(@_);

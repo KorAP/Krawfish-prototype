@@ -3,15 +3,15 @@ use Krawfish::Log;
 use warnings;
 use strict;
 
-use constant DEBUG => 0;
+# Represent a document in the forward index
 
+use constant DEBUG => 0;
 
 # TODO:
 #   The forward index may need to contain casefolded terms as well,
 #   so grouping on terms can support casefolding.
 
-
-
+# Constructor
 sub new {
   my $class = shift;
   my $doc = shift;
@@ -95,6 +95,7 @@ sub new {
 };
 
 
+# Stringification
 sub to_string {
   my $self = shift;
   my ($offset, $length) = @_;

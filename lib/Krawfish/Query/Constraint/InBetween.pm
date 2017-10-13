@@ -12,16 +12,17 @@ use warnings;
 # the inbetweens.
 #
 # Example:
-# [orth=Der][opennlp]{2,3}[orth=Mann]
-# To not allow gaps, use
-# [orth=Der][opennlp]{!2,3}[orth=Mann]
+#   [orth=Der][opennlp]{2,3}[orth=Mann]
+#   To not allow gaps, use
+#   [orth=Der][opennlp]{!2,3}[orth=Mann]
 
-
-# TODO: Order may not be defined!
 
 # TODO:
-#   If min=0, a shortcircuit result is returned and following
-#   constraints are ignored
+#   Order may not be defined!
+
+# TODO:
+#   If min=0, a shortcircuit result is returned
+#   and following constraints are ignored
 
 use constant {
   NEXTA => 1,
@@ -44,6 +45,8 @@ sub new {
   }, $class;
 };
 
+
+# Clone query
 sub clone {
   my $self = shift;
   __PACKAGE__->new(
@@ -54,8 +57,9 @@ sub clone {
   );
 };
 
+
 # Initialize foundry
-sub init {
+sub _init {
   # If foundry is set, load token class and receive
   # max_subtokens
   ...
@@ -115,6 +119,3 @@ sub to_string {
 
 
 1;
-
-
-__END__

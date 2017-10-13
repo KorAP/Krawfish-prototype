@@ -130,13 +130,13 @@ sub to_string {
 };
 
 
-# Return the maximum frequency of the first operand
+# Get maximum frequency
 sub max_freq {
   $_[0]->{first}->max_freq;
 };
 
 
-# Filter exclusion by a corpus
+# Filter query by a VC
 sub filter_by {
   my ($self, $corpus) = @_;
 

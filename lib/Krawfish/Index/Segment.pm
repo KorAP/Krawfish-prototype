@@ -10,11 +10,10 @@ use Scalar::Util qw!blessed!;
 use strict;
 use warnings;
 
-# Return segment information for term ids
+# Return segment information.
 # This is the base for dynamic and
 # static segment stores.
 
-#
 # TERMS: The dictionary will have one value lists with data,
 #        accessible by their term_id position in the list:
 #
@@ -38,6 +37,8 @@ use warnings;
 
 use constant DEBUG => 0;
 
+
+# Constructor
 sub new {
   my $class = shift;
   my $file = shift;
@@ -84,12 +85,6 @@ sub new {
 };
 
 
-#sub add_sortable {
-#  my ($self, $field) = @_;
-#  $self->{sortable}->{$field}++;
-#};
-
-
 # Get the last document index
 sub last_doc {
   $_[0]->{live}->next_doc_id - 1;
@@ -126,6 +121,7 @@ sub forward {
 };
 
 
+# Get field ranks
 sub field_ranks {
   $_[0]->{field_ranks};
 };
@@ -253,5 +249,6 @@ sub commit {
   # return @docs;
   return 1;
 };
+
 
 1;

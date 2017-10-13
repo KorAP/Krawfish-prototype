@@ -29,6 +29,12 @@ use warnings;
 #
 # Regarding the overall structure, see
 #   http://www.atire.org/index.php?title=Index_Structure
+#
+# See
+#   https://stackoverflow.com/questions/9817233/why-mmap-is-faster-than-sequential-io
+#   http://lkml.iu.edu/hypermail/linux/kernel/0802.0/1496.html
+#   http://lkml.iu.edu/hypermail/linux/kernel/0802.0/1496.html
+#   https://marc.info/?l=linux-kernel&m=95496636207616&w=2
 
 use constant {
   DEBUG   => 0,
@@ -39,12 +45,6 @@ use constant {
   PTI     => 4,
   LIST    => 5
 };
-
-# See
-#   https://stackoverflow.com/questions/9817233/why-mmap-is-faster-than-sequential-io
-#   http://lkml.iu.edu/hypermail/linux/kernel/0802.0/1496.html
-#   http://lkml.iu.edu/hypermail/linux/kernel/0802.0/1496.html
-#   https://marc.info/?l=linux-kernel&m=95496636207616&w=2
 
 
 # Construct a new lifter
@@ -114,5 +114,6 @@ sub get {
     # Check next position
   };
 };
+
 
 1;

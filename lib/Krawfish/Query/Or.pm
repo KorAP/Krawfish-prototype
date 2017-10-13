@@ -6,6 +6,8 @@ use warnings;
 
 use constant DEBUG => 0;
 
+
+# Constructor
 sub new {
   my $class = shift;
   bless {
@@ -14,6 +16,8 @@ sub new {
   }, $class;
 };
 
+
+# Clone query
 sub clone {
   my $self = shift;
   __PACKAGE__->new(
@@ -22,7 +26,9 @@ sub clone {
   );
 };
 
-sub init  {
+
+# Initialize
+sub _init  {
   return if $_[0]->{init}++;
   if (DEBUG) {
     print_log(
@@ -35,9 +41,11 @@ sub init  {
 };
 
 
+# Move to next posting
 sub next {
   my $self = shift;
-  $self->init;
+
+  $self->_init;
 
   my $first = $self->{first}->current;
   my $second = $self->{second}->current;
@@ -121,7 +129,7 @@ sub to_string {
 };
 
 
-# Maximum frequency
+# Get maximum frequency
 sub max_freq {
   my $self = shift;
 
@@ -150,7 +158,7 @@ sub complex {
 };
 
 
-# Filter the query
+# Filter query by VC
 sub filter_by {
   my ($self, $corpus) = @_;
 

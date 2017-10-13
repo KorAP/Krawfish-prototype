@@ -15,11 +15,13 @@ sub new {
 };
 
 
-sub init  {
+# Initialize query
+sub _init  {
   return if $_[0]->{init}++;
   $_[0]->{first}->next;
   $_[0]->{second}->next;
 };
+
 
 # Clone query
 sub clone {
@@ -31,9 +33,10 @@ sub clone {
 };
 
 
+# Move to next posting
 sub next {
   my $self = shift;
-  $self->init;
+  $self->_init;
 
   my $first = $self->{first}->current;
   my $second = $self->{second}->current;
@@ -43,7 +46,9 @@ sub next {
   # No first operand
   return unless $first;
 
-  print_log('vc_andnot', 'There is a first current ' . $first->to_string) if DEBUG;
+  if (DEBUG) {
+    print_log('vc_andnot', 'There is a first current ' . $first->to_string);
+  };
 
   while ($first && $second) {
 
@@ -51,7 +56,10 @@ sub next {
     if ($first->doc_id == $second->doc_id) {
 
       if (DEBUG) {
-        print_log('vc_andnot', 'Both operands have the same doc_id: ' . $first->doc_id);
+        print_log(
+          'vc_andnot',
+          'Both operands have the same doc_id: ' . $first->doc_id
+        );
       };
 
       $self->{first}->next;
@@ -100,11 +108,14 @@ sub next {
   return 0;
 };
 
+
+# Get maximum frequency
 sub max_freq {
   $_[0]->{first}->max_freq;
 };
 
 
+# Stringification
 sub to_string {
   my $self = shift;
   return 'andNot(' . $self->{first}->to_string . ',' . $self->{second}->to_string . ')';

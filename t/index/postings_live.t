@@ -35,11 +35,11 @@ is($p1->doc_id, 5, 'Get doc_id');
 
 ok($p1->next, 'Next');
 is($p1->doc_id, 6, 'Get doc_id');
-is($p1->configuration, '0,1,2,!3,!4,5,<6>,![7],8,9', 'Configuration');
+is($p1->to_config_string, '0,1,2,!3,!4,5,<6>,![7],8,9', 'Configuration');
 
 ok($p1->next, 'Next');
 is($p1->doc_id, 8, 'Get doc_id');
-is($p1->configuration, '0,1,2,!3,!4,5,6,!7,<8>,9', 'Configuration');
+is($p1->to_config_string, '0,1,2,!3,!4,5,6,!7,<8>,9', 'Configuration');
 ok($p1->next, 'Next');
 is($p1->doc_id, 9, 'Get doc_id');
 ok(!$p1->next, 'Next');

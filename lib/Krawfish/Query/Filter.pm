@@ -9,6 +9,8 @@ use constant DEBUG => 0;
 # Filters a term to check, if it is
 # in a supported document
 
+
+# Constructor
 sub new {
   my $class = shift;
   bless {
@@ -18,6 +20,7 @@ sub new {
 };
 
 
+# Clone query
 sub clone {
   my $self = shift;
   __PACKAGE__->new(
@@ -26,8 +29,9 @@ sub clone {
   );
 };
 
+
 # Initialize spans
-sub init {
+sub _init {
   return if $_[0]->{init}++;
   print_log('filter', 'Init filter spans') if DEBUG;
   $_[0]->{span}->next;
@@ -39,7 +43,7 @@ sub init {
 sub next {
   my $self = shift;
 
-  $self->init;
+  $self->_init;
 
   print_log('filter', 'Check next valid span') if DEBUG;
 
@@ -89,6 +93,8 @@ sub next {
   return 1;
 };
 
+
+# Stringification
 sub to_string {
   my $self = shift;
   my $str = 'filter(';
@@ -100,28 +106,21 @@ sub to_string {
 
 # Get the maximum frequency of the term
 sub max_freq {
-  my $self = shift;
-  # my $freq = 0;
-
-  # $self->init;
-
-  # print_log('filter', 'Count valid spans') if DEBUG;
-
-  # Iterate over all docs and collect frequencies
-  #while ($self->{span}->same_doc($self->{docs})) {
-  #  $freq += $self->{span}->freq_in_doc;
-  #  $self->{span}->next_doc or last;
-  #};
-
-  return $self->{span}->max_freq;
+  return $_[0]->{span}->max_freq;
 };
 
 
+# Filter query by VC
 sub filter_by {
   my ($self, $corpus) = @_;
 
-  # TODO: Check always that the query isn't moved forward yet!
-  $self->{docs} = Krawfish::Corpus::And->new($self->{docs}, $corpus->clone);
+  # TODO:
+  #   Check always that the query isn't
+  #   moved forward yet!
+  $self->{docs} = Krawfish::Corpus::And->new(
+    $self->{docs},
+    $corpus->clone
+  );
   $self;
 };
 

@@ -7,7 +7,7 @@ use strict;
 use warnings;
 
 # TODO:
-#   Create a version of AndWithFlags
+#   Support class flags
 
 use constant DEBUG => 0;
 
@@ -16,12 +16,13 @@ sub new {
   bless {
     first => shift,
     second => shift,
-    doc_id => undef
+    doc_id => undef,
+    flags => 0b0000_0000_0000_0000
   }, $class;
 };
 
 
-sub init  {
+sub _init  {
   return if $_[0]->{init}++;
   $_[0]->{first}->next;
   $_[0]->{second}->next;
@@ -39,7 +40,7 @@ sub clone {
 
 sub next {
   my $self = shift;
-  $self->init;
+  $self->_init;
 
   if (DEBUG) {
     print_log(

@@ -3,6 +3,9 @@ use parent 'Krawfish::Posting';
 use strict;
 use warnings;
 
+# Posting representing a single token
+
+# Constructor
 sub new {
   my $class = shift;
   bless [@_], $class;

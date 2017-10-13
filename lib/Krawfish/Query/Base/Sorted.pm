@@ -6,6 +6,8 @@ use warnings;
 
 use constant DEBUG => 0;
 
+# Base query for queries that may be unsorted.
+
 # TODO:
 #   Implement using Krawfish::Util::Heap
 
@@ -25,6 +27,8 @@ use constant DEBUG => 0;
 # Elements have:
 # <size><data>
 
+
+# Constructor
 sub new {
   my $class = shift;
   bless {
@@ -40,7 +44,7 @@ sub new {
 };
 
 
-# Next sorted element
+# Move to next sorted posting
 sub next {
   my $self = shift;
 
@@ -86,10 +90,12 @@ sub next {
   return $self->buffer_shift;
 };
 
+
 # Return index to last added element
 sub buffer_last {
   ...
 };
+
 
 # Points to the latest freed element in the buffer
 # (normally this is -1 to first)
@@ -103,17 +109,20 @@ sub buffer_first {
   return $_[0]->{first};
 };
 
-# sub buffer_push;
+
 sub buffer_shift {
   ...
 };
+
 
 sub buffer_get {
   ...
 };
 
+
 sub buffer_insert_after {
   my ($self, $index, $element) = @_;
 };
+
 
 1;

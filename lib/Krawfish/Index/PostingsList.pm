@@ -7,14 +7,24 @@ use warnings;
 use constant DEBUG => 0;
 
 # TODO:
+#   Per segment has the information of frequency, length,
+#   and position in segment.
+
+# TODO:
+#   Check if there is a relation to Posting::List.
+
+# TODO:
 #   Use different PostingsList (or rather different PostingPointer)
 #   for different term types
-#
-# TODO: Split postinglists, so they have different sizes,
-# that may be fragmented.
 
-# TODO: Return K::P::Data for at()
+# TODO:
+#   Split postinglists, so they have different sizes,
+#   that may be fragmented.
 
+# TODO:
+#   Return K::P::Data for at()
+
+# Constructor
 sub new {
   my ($class, $index_file, $term_id) = @_;
 
@@ -49,14 +59,21 @@ sub freq {
 };
 
 
+# Get term_id associated to the term id
 sub term_id {
   return $_[0]->{term_id};
 };
 
+
+# Get item at certain position
+# TODO:
+#   maybe rename to item(), see Posting::Bundle
 sub at {
   return $_[0]->{array}->[$_[1]];
 };
 
+
+# Get new pointer
 sub pointer {
   my $self = shift;
   # TODO:
@@ -66,6 +83,8 @@ sub pointer {
   Krawfish::Index::PostingPointer->new($self);
 };
 
+
+# Stringification
 sub to_string {
   my $self = shift;
   join(',', map { '[' . $_ . ']' } @{$self->{array}});

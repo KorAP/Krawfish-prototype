@@ -2,8 +2,9 @@ package Krawfish::Posting::Doc;
 use strict;
 use warnings;
 
-# Make identical with DocWithFlags!
+# Document based posting
 
+# Constructor
 sub new {
   my $class = shift;
   my $id = shift;
@@ -15,11 +16,16 @@ sub doc_id {
   return ${$_[0]};
 };
 
+
+# Get flags
 sub flags {
 };
 
+
+# Stringification
 sub to_string {
   '[' . ${$_[0]} . ']';
 };
+
 
 1;

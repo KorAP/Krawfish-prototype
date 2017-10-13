@@ -18,6 +18,8 @@ use warnings;
 #    virtual corpus), the subquery can be wrapped in a
 #    cached query
 
+
+# Constructor
 sub new {
   my $class = shift;
   bless {
@@ -84,3 +86,6 @@ sub check_subqueries {
     }
   };
 };
+
+
+1;

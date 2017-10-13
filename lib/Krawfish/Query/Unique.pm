@@ -4,8 +4,11 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
+# Filter duplicate postings
+
 use constant DEBUG => 0;
 
+# Constructor
 sub new {
   my $class = shift;
   bless {
@@ -14,6 +17,8 @@ sub new {
   };
 };
 
+
+# Clone query
 sub clone {
   my $self = shift;
   __PACKAGE__->new(
@@ -21,6 +26,8 @@ sub clone {
   );
 };
 
+
+# Move to next posting
 sub next {
   my $self = shift;
 
@@ -52,20 +59,25 @@ sub next {
   return;
 };
 
+
+# Stringification
 sub to_string {
   return 'unique(' . $_[0]->{span}->to_string . ')';
 };
 
 
+# Get maximum frequency
 sub max_freq {
   $_[0]->{span}->max_freq;
 };
 
 
+# Filter query by VC
 sub filter_by {
   my ($self, $corpus) = @_;
   $self->{span} = $self->{span}->filter_by($corpus);
   return $self;
 };
+
 
 1;

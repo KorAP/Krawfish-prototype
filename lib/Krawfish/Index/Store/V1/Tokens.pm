@@ -16,15 +16,17 @@ use warnings;
 #   ([seg-pos:delta-int][length:uniint])*
 # )*
 #
-# The difference will only be stored, if it is > 1 (so if a token is greater
-# than one subtoken).
+# The difference will only be stored, if it is > 1
+# (so if a token is greater than one subtoken).
 
+
+# Constructor
 sub new {
   my ($class, $file, $foundry) = @_;
   bless {
-    file => $file,
+    file    => $file,
     foundry => $foundry,
-    doc_id => -1
+    doc_id  => -1
   }, $class;
 };
 
@@ -47,6 +49,7 @@ sub max_token_length {
   $_[0]->{max_token_length}
 };
 
+
 # Check if the number of tokens between end and start
 # is in the given range.
 #
@@ -62,6 +65,7 @@ sub count {
   ...
 };
 
+
 # Get an array of start positions that are in the range of min/max
 # Start with the lowest
 sub extend_to_left {
@@ -71,6 +75,7 @@ sub extend_to_left {
   # It needs to forget tokens that will, in the end, exceed $max
   ...
 };
+
 
 # Get an array of end positions that are in the range of min/max
 # Start with the lowest

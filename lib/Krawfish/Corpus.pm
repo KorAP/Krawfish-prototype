@@ -3,6 +3,8 @@ use parent 'Krawfish::Query';
 use strict;
 use warnings;
 
+# Krawfish::Corpus is the base class for all corpus queries.
+
 # Current span object
 sub current {
   my $self = shift;
@@ -10,6 +12,12 @@ sub current {
   return Krawfish::Posting::Doc->new(
     $self->{doc_id}
   );
+};
+
+
+# Overwrite query object
+sub next_doc {
+  return $_[0]->next;
 };
 
 

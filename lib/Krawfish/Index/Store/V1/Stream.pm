@@ -22,17 +22,23 @@ sub new {
   };
 };
 
+# Initialize stream
 sub _init {
   # Load first X bytes from file
 };
 
+
+# Skip to or beyond certain document
 sub skip_doc {
   ...
 };
 
+
+# Move to next posting
 sub next {
   ...
 };
+
 
 # This appends a byte sequence to a stream
 # and updates the skiplist

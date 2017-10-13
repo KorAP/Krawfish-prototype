@@ -4,6 +4,10 @@ use Krawfish::Posting::Payload;
 use strict;
 use warnings;
 
+# Krawfish::Posting is the base class for all
+# span based postings.
+# May better be named "Krawfish::Posting::Span"
+
 # Constructor
 sub new {
   my $class = shift;
@@ -64,6 +68,19 @@ sub compare {
 };
 
 
+# Check if two postings are identical
+# WARNING:
+#   This should compare payloads separately,
+#   because classes may be in different order,
+#   though resulting in identical postings
+sub same_as {
+  my ($self, $comp) = @_;
+  return unless $comp;
+  return $self->to_string eq $comp->to_string;
+};
+
+
+# Return all classes in the payload
 sub get_classes {
   my ($self, $nrs) = @_;
 
@@ -154,14 +171,6 @@ sub to_string {
   };
 
   return $str . ']';
-};
-
-
-# Check if two postings are identical
-sub same_as {
-  my ($self, $comp) = @_;
-  return unless $comp;
-  return $self->to_string eq $comp->to_string;
 };
 
 

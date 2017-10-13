@@ -10,8 +10,9 @@ use constant DEBUG => 0;
 # This represents a forward index of the data,
 # accessible by document ID and subtoken offset.
 
-# Merging the forward index is pretty simple, as it only needs to be indexed
-# on the document level and then simply be appended.
+# Merging the forward index is pretty simple, as it only
+# needs to be indexed on the document level and then
+# simply be appended.
 
 # TODO:
 #   This is great for retrieving pagebreaks, annotations, primary data,
@@ -19,7 +20,7 @@ use constant DEBUG => 0;
 #   But can this help to expand the context of a match to a certain element context?
 #   Probably by retrieving the data with a certain maximum offset (say left 100 subtokens, right 100 subtokens)
 #   and first check for the expanding element start on the left, then move to the right.
-#
+
 # TODO:
 #   In case the term IDs are retrieved for surface sorting,
 #   it may be useful to not have much data in memory.
@@ -29,11 +30,11 @@ use constant DEBUG => 0;
 #   The forward index needs fast access to documents and positions,
 #   to get term ids from contexts for use in the co-occurrence analysis.
 
-
 # TODO:
 #   This API needs to be backed up by a store version.
 #   use Krawfish::Index::Store::V1::ForwardIndex;
 
+# Constructor
 sub new {
   my $class = shift;
 
@@ -64,7 +65,8 @@ sub add {
 };
 
 
-# Get doc from list (as long as the list provides random access to docs)
+# Get doc from list
+# (as long as the list provides random access to docs)
 sub doc {
   my ($self, $doc_id) = @_;
   print_log('fwd', 'Get document for id ' . $doc_id) if DEBUG;

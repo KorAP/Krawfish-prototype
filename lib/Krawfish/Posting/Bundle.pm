@@ -28,6 +28,7 @@ sub new {
     current => undef
   }, shift;
 
+  # Add passed items
   foreach (@_) {
     unless ($self->add($_)) {
       warn "$_ is not a valid match object";
@@ -111,7 +112,7 @@ sub add {
 };
 
 
-# Stringify bundle
+# Stringification
 sub to_string {
   my $self = shift;
   return '[' . join ('|', map { $_->to_string } @{$self->{list}}) . ']';
@@ -120,7 +121,8 @@ sub to_string {
 
 # The bundle may contain multiple items and these
 # items may contain bundles.
-# Current will contain a single posting that may become a match.
+# Current will contain a single posting that may
+# become a match.
 sub current {
   return $_[0]->{current};
 };
@@ -205,13 +207,18 @@ sub next {
   return 1;
 };
 
+
+# Reset internal position in bundle
 sub reset {
   $_[0]->{pos} = -1;
 };
 
+
+# Get item in list
 sub item {
   my ($self, $item) = @_;
   $self->{list}->[$item];
 };
+
 
 1;

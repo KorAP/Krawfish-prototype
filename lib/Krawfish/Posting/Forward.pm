@@ -3,12 +3,14 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
+# Posting in the Forward index
+
 # API:
-#   ->preceding_data      # The whitespace data before the subtoken
-#   ->subterm_id          # The current subterm identifier
-#   ->annotations         # Get all annotations as terms
+#   ->preceding_data   # The whitespace data before the subtoken
+#   ->subterm_id       # The current subterm identifier
+#   ->annotations      # Get all annotations as terms
 #   ->annotations(
-#     foundry             # TODO: Think of more complex options!
+#     foundry          # TODO: Think of more complex options!
 #   )
 
 # TODO:
@@ -26,6 +28,7 @@ use warnings;
 #   Or use Krawfish::Koral::Document::Annotation
 
 use constant DEBUG => 0;
+
 
 # Constructor
 sub new {
@@ -157,6 +160,7 @@ sub annotation {
 
   return \@anno;
 };
+
 
 # Stringification
 sub to_string {

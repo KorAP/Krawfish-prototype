@@ -9,6 +9,8 @@ use bytes;
 
 our @EXPORT;
 
+# Base query for combination query with two operands
+
 # TODO:
 #   Wrap second query in a buffered query instead of
 #   dealing with buffer resizing etc. here!
@@ -32,6 +34,8 @@ use constant {
 
 @EXPORT = qw/NEXTA NEXTB MATCH/;
 
+
+# Constructor
 sub new {
   my $class = shift;
   bless {
@@ -43,7 +47,7 @@ sub new {
 
 
 # Initialize both spans
-sub init {
+sub _init {
   return if $_[0]->{init}++;
   if (DEBUG) {
     print_log('dual', 'Init dual spans: ' . $_[0]->{first}->to_string . ' and ' .
@@ -55,10 +59,10 @@ sub init {
 };
 
 
-# This will advance the two spans
+# Move to next posting
 sub next {
   my $self = shift;
-  $self->init;
+  $self->_init;
 
   my ($first, $second);
 
@@ -111,14 +115,11 @@ sub next {
       return;
     };
 
-
     # There is a first and a second operand
-
 
     # TODO:
     #   Check if second may not be at the end
     #   of the buffer
-
 
     # Both elements are in the same document
     if ($first->doc_id == $second->doc_id) {
@@ -383,5 +384,3 @@ sub next {
 
 
 1;
-
-__END__

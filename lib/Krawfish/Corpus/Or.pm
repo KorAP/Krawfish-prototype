@@ -6,15 +6,21 @@ use warnings;
 
 use constant DEBUG => 0;
 
+# TODO:
+#   Support class flags
+
 sub new {
   my $class = shift;
   bless {
     first => shift,
     second => shift,
-    doc_id => -1
+    doc_id => -1,
+    flags => 0b0000_0000_0000_0000
   }, $class;
 };
 
+
+# Clone query object
 sub clone {
   my $self = shift;
   __PACKAGE__->new(
@@ -23,15 +29,19 @@ sub clone {
   );
 };
 
-sub init  {
+
+# Initialize query
+sub _init  {
   return if $_[0]->{init}++;
   $_[0]->{first}->next;
   $_[0]->{second}->next;
 };
 
+
+# Move to next posting
 sub next {
   my $self = shift;
-  $self->init;
+  $self->_init;
 
   my $first = $self->{first}->current;
   my $second = $self->{second}->current;
@@ -101,12 +111,14 @@ sub next {
 };
 
 
+# Stringification
 sub to_string {
   my $self = shift;
   return 'or(' . $self->{first}->to_string . ',' . $self->{second}->to_string . ')';
 };
 
 
+# Get maximum frequency
 sub max_freq {
   my $self = shift;
   $self->{first}->max_freq + $self->{second}->max_freq;

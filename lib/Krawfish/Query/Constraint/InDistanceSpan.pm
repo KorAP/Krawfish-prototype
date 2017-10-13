@@ -12,6 +12,8 @@ use constant {
   MATCH => 4,
 };
 
+
+# Configuration
 sub new {
   my $class = shift;
   bless {
@@ -22,15 +24,20 @@ sub new {
   }, $class;
 };
 
+
+# Clone constraint
 sub clone {
   ...
 };
 
+
+# initialize
 sub _init {
   return if $_[0]->{init}++;
   print_log('c_dist', 'Init distance span') if DEBUG;
   $_[0]->{span}->next;
 };
+
 
 # Check the configuration
 sub check {
@@ -78,5 +85,6 @@ sub check {
   #
   # if ($first->end > $current->end)
 };
+
 
 1;

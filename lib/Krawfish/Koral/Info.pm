@@ -9,6 +9,7 @@ use Krawfish::Log;
 
 use constant DEBUG => 0;
 
+
 # Add error
 sub error {
   my $self = shift;
@@ -16,17 +17,22 @@ sub error {
   return $self->_info('error', @_);
 };
 
+
+# Add warning
 sub warning {
   my $self = shift;
   print_log('info', 'Warning: ' . join(' ', @_)) if DEBUG;
   return $self->_info('warning', @_);
 };
 
+
+# Add message
 sub message {
   my $self = shift;
   print_log('info', 'Message: ' . join(' ', @_)) if DEBUG;
   return $self->_info('message', @_);
 };
+
 
 # Is there an error?
 sub has_error {
@@ -50,6 +56,7 @@ sub has_message {
 
 
 # Copy information from another object
+# Function
 sub copy_info_from {
   my ($self, $obj) = @_;
 
@@ -76,12 +83,14 @@ sub remove_info_from {
 };
 
 
+# Merge infos with a new object
 sub merge_info {
   my ($self, $target) = @_;
   copy_info_from($target, $self);
 };
 
 
+# Information
 sub _info {
   my $self = shift;
   my ($type, $code, $msg, @param) = @_;
@@ -91,5 +100,6 @@ sub _info {
   push(@{$self->{$type} //= []}, [$code, $msg, @param]);
   return $self;
 };
+
 
 1;

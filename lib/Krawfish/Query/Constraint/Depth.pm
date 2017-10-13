@@ -4,7 +4,7 @@ use Krawfish::Query::Base::Dual;
 use strict;
 use warnings;
 
-# TODO: THIS IS CURRENTLY JUST A MOCKUP
+# THIS IS CURRENTLY JUST A MOCKUP
 
 # Check the nodes for depth
 # The relevant information is in the last added
@@ -14,6 +14,8 @@ use warnings;
 # direct parent: min==max=-1
 # ancestor: min=0, max=256
 
+
+# Constructor
 sub new {
   my $class = shift;
   bless {
@@ -23,6 +25,7 @@ sub new {
 };
 
 
+# Clone query
 sub clone {
   __PACKAGE__->new(
     $_[0]->{min},
@@ -30,7 +33,8 @@ sub clone {
   );
 };
 
-# Overwrite
+
+# Check configuration
 sub check {
   my $self = shift;
   my ($first, $second) = @_;
@@ -42,5 +46,6 @@ sub check {
   };
   return NEXTA | NEXTB;
 };
+
 
 1;

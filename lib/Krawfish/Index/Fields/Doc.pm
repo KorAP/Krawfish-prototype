@@ -7,6 +7,7 @@ use strict;
 
 use constant DEBUG => 0;
 
+# Constructor
 sub new {
   my $class = shift;
   my $doc = shift;
@@ -57,8 +58,10 @@ sub new {
 };
 
 
+# Serialize to stream
 sub to_stream {
   ...
 };
+
 
 1;

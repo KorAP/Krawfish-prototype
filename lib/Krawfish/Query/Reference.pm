@@ -18,6 +18,7 @@ use warnings;
 
 # The ring buffer query is well suited for this.
 
+# Constructor
 sub new {
   my $class = shift;
 
@@ -32,29 +33,31 @@ sub new {
 };
 
 
-sub new {
-  my $self = shift;
-};
-
-
+# Clone query
 sub clone {
   ...
 };
 
+
+# Move to next posting
 sub next {
   ...
 };
 
 
+# Stringification
 sub to_string {
   my $self = shift;
 };
 
+
+# Get maximum frequency
 sub max_freq {
   ...
 };
 
 
+# Filter query by VC
 sub filter_by {
   ...
 };

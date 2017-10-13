@@ -18,12 +18,15 @@ our %AGGR_ORDER = (
   'values' => 4
 );
 
+
+# Constructor
 sub new {
   my $class = shift;
   bless [@_], $class;
 };
 
 
+# Aggregation type
 sub type {
   'aggregate';
 };
@@ -107,6 +110,7 @@ sub normalize {
 };
 
 
+# Stringification
 sub to_string {
   my ($self, $id) = @_;
   return 'aggr=[' . join(',', map { $_->to_string($id) } @$self) . ']';

@@ -3,6 +3,8 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
+# This is a naive implementation!
+
 # This is a compact array based trie representation.
 # On each letter node, binary search and linear search can be done over
 # an alphabetically sorted list.
@@ -17,8 +19,6 @@ use warnings;
 
 # The term_id array points to the '00' terminal nodes of the tree structure.
 
-
-
 # TODO:
 #   It may be useful to check for big file limitations
 #   https://www.codeproject.com/articles/563200/indexer-index-large-collections-by-different-keys
@@ -29,7 +29,7 @@ use warnings;
 #   In Atire (http://atire.org/index.php?title=Index_Structure) the
 #   dictionary is split into a top part (first 4 characters) and a
 #   second part.
-#
+
 # TODO:
 #   Ranks for terms should be added at a prefinal level for surface
 #   terms with an epsilon character to ignore
@@ -40,10 +40,19 @@ use warnings;
 #
 #   That way a lookup for a rank based on term id is very fast
 #   and not very costly (as the term id array access is O(1))!
-#
+
 # TODO:
 #   The information if a field is sortable, should also be added
 #   to a preterminal epsilon edge to all field-ids
+
+# TODO:
+#   Use linear search for small arrays, see
+#   https://schani.wordpress.com/2010/04/30/linear-vs-binary-search/
+#   Because most arrays are small, prefer linear search over binary search
+
+# TODO: Support collations
+#   - https://msdn.microsoft.com/en-us/library/ms143726.aspx
+#   - http://userguide.icu-project.org/collation
 
 # This is necessary to deal with the dynamic structure
 use constant {
@@ -58,14 +67,6 @@ use constant {
   DEBUG      => 0
 };
 
-# TODO:
-#   Use linear search for small arrays, see
-#   https://schani.wordpress.com/2010/04/30/linear-vs-binary-search/
-#   Because most arrays are small, prefer linear search over binary search
-
-# TODO: Support collations
-#   - https://msdn.microsoft.com/en-us/library/ms143726.aspx
-#   - http://userguide.icu-project.org/collation
 
 # from_array
 sub new {
@@ -97,9 +98,10 @@ sub term_ids {
 
 
 # Search for a term and return a term id
+# Alternatively returns iterator
 sub search {
-  my $self = shift;
-  my $term = shift;
+  my ($self, $term) = @_;
+
   my @term = (split('', $term), TERM_CHAR);
   my $consumed = 0;
 
@@ -165,38 +167,54 @@ sub search {
   return;
 };
 
+
+# Search with ignoring case
+# Returns iterator
 sub search_case_insensitive {
   ...
 };
 
+
+# Search with ignoring diacritics
+# Returns iterator
 sub search_diacritic_insensitive {
   ...
 };
 
+
+# Search with k errors
+# Returns iterator
 sub search_approximative {
   ...
 };
 
+
+# Search using regular expression
+# Returns iterator
 sub search_regex {
   ...
 };
+
 
 # Merge static tree with dynamic tree
 sub merge {
   ...
 };
 
+
 # Return iterator of term ids
 # TODO:
 #   Be aware, this is only in collation
 #   order of the insertion, that may not be very helpful.
-sub in_prefix_order {
-  ...
-};
+# sub in_prefix_order {
+#   ...
+# };
 
-sub in_suffix_order {
-  ...
-};
+
+# May not be helpful
+# sub in_suffix_order {
+#   ...
+# };
 
 
 
@@ -209,7 +227,7 @@ sub from_file {
 };
 
 
-# write a header
+# Write a header
 sub to_file {
   ...
 };
@@ -230,6 +248,7 @@ sub to_string {
 };
 
 
+# Convert tree representation to array representation
 # P.S. I tried to use only one field for double linking,
 #      but this didn't work so well
 sub convert_to_array {
@@ -323,6 +342,7 @@ sub convert_to_array {
 };
 
 
+# Get term from term id
 # Move to top, character by character
 sub term_by_term_id {
   my ($self, $term_id) = @_;

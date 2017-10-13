@@ -5,7 +5,8 @@ use warnings;
 
 use constant DEBUG => 0;
 
-# TODO: This should respect different tokenizations!
+# TODO:
+#   This should respect different tokenizations!
 
 # Constructor
 sub new {
@@ -19,6 +20,8 @@ sub new {
   }, $class;
 };
 
+
+# Clone query
 sub clone {
   my $self = shift;
   __PACKAGE__->new(
@@ -29,7 +32,8 @@ sub clone {
   );
 };
 
-# Overwrite
+
+# Move to next posting
 sub next {
   my $self = shift;
 
@@ -51,7 +55,12 @@ sub next {
       # min and max are identical
       if ($self->{min} == $self->{max} && $length == $self->{min}) {
 
-        print_log('length', "! Length $length has the length " . $self->{min}) if DEBUG;
+        if (DEBUG) {
+          print_log(
+            'length',
+            "! Length $length has the length " . $self->{min}
+          );
+        };
 
         $self->{current} = $current;
         return 1;
@@ -93,11 +102,13 @@ sub current {
 };
 
 
+# Get maximum frequency
 sub max_freq {
   $_[0]->{span}->max_freq;
 };
 
 
+# Filter query by VC
 sub filter_by {
   my ($self, $corpus) = @_;
   $self->{span} = $self->{span}->filter_by($corpus);

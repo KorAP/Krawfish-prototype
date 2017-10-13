@@ -6,6 +6,14 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
+# TODO:
+#   Improve by skipping to the same document
+#
+# TODO:
+#   The check probably needs more than just the span
+#   information, e.g. to get the max_length() of
+#   a span for skip_pos() stuff.
+
 use constant {
   NEXTA => 1,
   NEXTB => 2,
@@ -14,11 +22,8 @@ use constant {
   DEBUG => 0
 };
 
-# TODO: Improve by skipping to the same document
-# TODO:
-#   The check probably needs more than just the span information,
-#   e.g. to get the max_length() of a span for skip_pos() stuff.
 
+# Constructor
 sub new {
   my $class = shift;
   bless {
@@ -27,12 +32,14 @@ sub new {
     second => shift,
 
     # TODO:
-    #   Second operand should be nested in buffer by Dual
+    #   Second operand should be nested
+    #   in buffer by Dual
     buffer  => Krawfish::Util::Buffer->new
   }, $class;
 };
 
 
+# Clone query
 sub clone {
   my $self = shift;
   __PACKAGE__->new(
@@ -41,7 +48,6 @@ sub clone {
     $self->{second}->clone
   );
 };
-
 
 
 # Check all constraints sequentially
@@ -97,7 +103,7 @@ sub check {
 };
 
 
-# The maximum frequency is the minimum of both query frequencies
+# Get maximum frequency of query
 sub max_freq {
   my $self = shift;
   min($self->{first}->max_freq, $self->{second}->max_freq);
@@ -122,6 +128,7 @@ sub filter_by {
 };
 
 
+# Stringification
 sub to_string {
   my $self = shift;
   my $str = 'constr(';

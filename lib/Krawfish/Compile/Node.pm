@@ -30,6 +30,7 @@ sub new {
   return $self;
 };
 
+
 # Get or set rank reference value
 # This is useful for sorting coordination between processes
 sub max_rank_reference {

@@ -46,6 +46,7 @@ use constant {
   WS_SCHEME          => 1 # Short string compression scheme optimized for whitespace
 };
 
+# Constructor
 sub new {
   my $class = shift;
   my $short_string_compression_scheme = shift;
@@ -59,9 +60,12 @@ sub new {
   bless \$stream, $class;
 };
 
+
+# Get current position
 sub pos {
   ...
 };
+
 
 # Add term by id
 sub add_term_id {
@@ -105,6 +109,7 @@ sub _flush {
   $self->{plain_pos} = 0;
 };
 
+
 # Add an annotation
 sub add_term {
   my ($foundry_id, $layer_id, $term) = @_;
@@ -129,6 +134,8 @@ sub add_term {
   }
 };
 
+
+# Get token
 # TODO: May return a subtoken object
 sub get {
   my ($self, $offset) = @_;
@@ -138,6 +145,7 @@ sub get {
   my $subtoken_length = substr($self->{buffer}, $offset, 1, 3);
   ...
 };
+
 
 # Add plain string
 # for example punctuation, whitespace etc.

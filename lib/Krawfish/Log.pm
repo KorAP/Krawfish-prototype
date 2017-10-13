@@ -3,6 +3,8 @@ use parent 'Exporter';
 use strict;
 use warnings;
 
+# Simple log mechanism
+
 our @EXPORT = 'print_log';
 
 sub print_log {

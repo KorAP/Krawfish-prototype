@@ -5,6 +5,8 @@ use Krawfish::Cache;
 use strict;
 use warnings;
 
+# Cache implementation for queries
+
 sub new {
   my $class = shift;
   my $self = bless {
@@ -15,18 +17,25 @@ sub new {
   return $self;
 };
 
+
+# Move to next posting
 # The doc_ids are not stored as deltas,
 # so sorting with offstes is supported
 sub next {
   ...
 };
 
+
+# Get maximum frequency
 sub max_freq {
   ...
 };
 
+
+# Clone query
 sub clone {
   ...
 };
+
 
 1;

@@ -4,19 +4,19 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
+# Points to a position in a live list
+
 # TODO:
 #   The pointer should copy the list of deletes,
 #   so a new delete during searching doesn't interfere with the list!
 
-use constant {
-  DEBUG => 0
-};
+# TODO:
+#   Use Stream::Finger instead of PostingPointer
 
-# Points to a position in a live list
-
-# TODO: Use Stream::Finger instead of PostingPointer
+use constant DEBUG => 0;
 
 
+# Constructor
 sub new {
   my $class = shift;
   my $self = bless {
@@ -51,7 +51,7 @@ sub doc_id {
 };
 
 
-# Forward position
+# Move to next live posting
 sub next {
   my $self = shift;
 
@@ -74,7 +74,9 @@ sub next {
   # meaning it hits the stop marker
   while ($doc_id >= $list->[$self->{pos}]) {
 
-    print_log('live_p', 'Current doc_id is either deleted or beyond') if DEBUG;
+    if (DEBUG) {
+      print_log('live_p', 'Current doc_id is either deleted or beyond');
+    };
 
     if ($doc_id == $list->[$self->{pos}]) {
 
@@ -107,17 +109,17 @@ sub next {
 };
 
 
+# Move to next document
 sub next_doc {
   $_[0]->next;
 };
 
 
+# Skip to target document
 sub skip_doc {
-  my $self = shift;
+  my ($self, $target_doc_id) = @_;
 
-  my $doc_id = shift;
-
-  if ($doc_id >= $self->{next_doc_id} || $doc_id < $self->{doc_id}) {
+  if ($target_doc_id >= $self->{next_doc_id} || $target_doc_id < $self->{doc_id}) {
     $self->{doc_id} = $self->{next_doc_id};
     return;
   };
@@ -125,13 +127,13 @@ sub skip_doc {
   my $list = $self->{list_copy};
 
   # Move through deletion list until doc_id is valid
-  while ($list->[$self->{pos}] <= $doc_id) {
+  while ($list->[$self->{pos}] <= $target_doc_id) {
 
     # Requested document is deleted
-    if ($list->[$self->{pos}] == $doc_id) {
+    if ($list->[$self->{pos}] == $target_doc_id) {
 
       # Goto next doc
-      $doc_id++;
+      $target_doc_id++;
     };
 
     # Move to next deletion list position
@@ -139,21 +141,28 @@ sub skip_doc {
   };
 
   # TODO: Can this happen?
-  return if $doc_id >= $self->{next_doc_id};
+  return if $target_doc_id >= $self->{next_doc_id};
 
   # Set document id
-  return $self->{doc_id} = $doc_id;
+  return $self->{doc_id} = $target_doc_id;
 };
 
+
+# Get next document identifier
+# (probably implement similar to sorted queries with previews)
 sub next_doc_id {
   $_[0]->{next_doc_id};
 };
 
+
+# Stringification
 sub to_string {
   '[1]';
 };
 
-sub configuration {
+
+# Get configuration string
+sub to_config_string {
   my $self = shift;
   my @del = @{$self->{list_copy}};
   my $pos = $del[$self->{pos}];
@@ -176,11 +185,14 @@ sub configuration {
 };
 
 
+# Get posting number in document
+# (always 1)
 sub freq_in_doc {
   1;
 };
 
 
+# Get position
 sub pos {
   return $_[0]->{pos};
 };
@@ -198,6 +210,7 @@ sub current {
 };
 
 
+# Potentially close posting list
 sub close {
   ...
 };

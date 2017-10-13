@@ -12,12 +12,9 @@ use Krawfish::Koral::Compile;
 
 use constant DEBUG => 0;
 
+# Parse a koral query object and transform to an
+# actual index query.
 
-
-
-# Parse a koral query and transform to an actual
-# index query.
-#
 # Procession order for query and corpus:
 #   a) parse                            (cluster)
 #   b) normalize and finalize           (cluster)
@@ -358,6 +355,26 @@ sub to_koral_query {
 };
 
 
+# Stringification
+sub to_string {
+  my ($self, $id) = @_;
+  my $str = '';
+
+  my @list = ();
+
+  if ($self->compile) {
+    push @list, 'compile=[' . $self->compile->to_string($id) . ']';
+  };
+  if ($self->corpus) {
+    push @list, 'corpus=[' . $self->corpus->to_string($id) . ']';
+  };
+  if ($self->query) {
+    push @list, 'query=[' . $self->query->to_string($id) . ']';
+  };
+
+  return join(',', @list);
+};
+
 
 
 
@@ -410,26 +427,6 @@ sub replace_subqueries {
   return $query;
 };
 
-
-# Stringification
-sub to_string {
-  my ($self, $id) = @_;
-  my $str = '';
-
-  my @list = ();
-
-  if ($self->compile) {
-    push @list, 'compile=[' . $self->compile->to_string($id) . ']';
-  };
-  if ($self->corpus) {
-    push @list, 'corpus=[' . $self->corpus->to_string($id) . ']';
-  };
-  if ($self->query) {
-    push @list, 'query=[' . $self->query->to_string($id) . ']';
-  };
-
-  return join(',', @list);
-};
 
 
 1;

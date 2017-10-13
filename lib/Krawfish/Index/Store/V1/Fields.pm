@@ -43,7 +43,8 @@ use warnings;
 #   Another good use-case is the fast collection of text siglen
 #   for the virtualcorpus->textsiglen-vector method.
 
-# Tie to a file
+
+# Constructor tied to a file
 sub new {
   my ($class, $file, $dict) = @_;
   bless {
@@ -84,10 +85,10 @@ sub store {
 };
 
 
+# Get fields by doc
 sub get_fields {
-  my $self = shift;
-  my $doc_id = shift;
-  my $current = $self->skip_doc($doc_id);
+  my ($self, $target_doc_id) = @_;
+  my $current = $self->skip_doc($target_doc_id);
 };
 
 1;

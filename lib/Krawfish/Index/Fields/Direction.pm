@@ -5,6 +5,8 @@ use warnings;
 
 use constant DEBUG => 0;
 
+
+# Constructor
 sub new {
   my $class = shift;
   my $self = bless [], $class;
@@ -17,16 +19,21 @@ sub new {
   return $self;
 };
 
+
+# Lift ranking
 sub load {
   my ($self, $list) = @_;
   @$self = @$list;
 };
 
+
+# Reset ranking
 sub reset {
   @{$_[0]} = ();
 };
 
 
+# Get rank for a specific document id
 sub rank_for {
   my ($self, $doc_id) = @_;
 

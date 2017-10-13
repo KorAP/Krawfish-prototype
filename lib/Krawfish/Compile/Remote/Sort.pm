@@ -17,6 +17,10 @@ use warnings;
 # After the results are returned, the results somehow should be validated
 # to defend rogue nodes.
 
+# The mechanism requires that the collation of the sorting is forwarded
+# as well. This will override rank sorting on terms and fields
+# (and is probably slow).
+
 sub new {
   my $class = shift;
   bless {
@@ -25,6 +29,8 @@ sub new {
   }, $class;
 };
 
+
+# Moive to next posting
 sub next {
   ...
 };

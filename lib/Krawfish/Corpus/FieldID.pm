@@ -20,6 +20,8 @@ sub new {
   }, $class;
 };
 
+
+# Clone query
 sub clone {
   my $self = shift;
   return __PACKAGE__->new(
@@ -28,6 +30,8 @@ sub clone {
   );
 };
 
+
+# Move to next posting
 sub next {
   my $self = shift;
 
@@ -42,11 +46,13 @@ sub next {
 };
 
 
+# Get term identifier
 sub term_id {
   $_[0]->{term_id};
 };
 
 
+# Get current posting
 sub current {
   my $postings = $_[0]->{postings};
   return if $postings->pos == -1;
@@ -56,10 +62,14 @@ sub current {
   );
 }
 
+
+# Get maximum frequency
 sub max_freq {
   $_[0]->{postings}->freq;
 };
 
+
+# stringification
 sub to_string {
   return '#' . $_[0]->term_id;
 };

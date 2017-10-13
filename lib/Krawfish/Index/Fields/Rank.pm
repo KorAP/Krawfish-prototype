@@ -18,6 +18,29 @@ use constant DEBUG => 0;
 #   using the max_rank rather than storing
 #   the inverse data redundantly
 
+# TODO:
+#   For encoding dense but not diverse field ranks use something like that:
+#   http://pempek.net/articles/2013/08/03/bit-packing-with-packedarray/
+#   https://github.com/gpakosz/PackedArray
+#   That's why max_rank is important, because it indicates
+#   how many bits per doc are necessary to encode
+#   the rank!
+
+# TODO:
+#   In case, a field is only set for a couple of documents, a different
+#   strategy may be valid.
+
+# TODO:
+#   Think about a different design, where the field lists are stored on the
+#   node level:
+#     [collation]([field-term-with-front-coding][term_id])
+#   Now, the new terms will be merged in the list and the new segment will incorporate
+#   the new ranking.
+#   When a new term is added, it is added as
+#     ([term][term_id][doc_id])*
+#   ...
+
+# Constructor
 sub new {
   my $class = shift;
 
@@ -70,12 +93,11 @@ sub add {
   };
 
   $self->{max_rank} = undef;
-#  $self->{asc}->reset;
-#  $self->{desc}->reset;
   $self->{sorted}   = [];
 };
 
 
+# Get the maximum rank
 sub max_rank {
   $_[0]->{max_rank};
 };
@@ -199,14 +221,17 @@ sub commit {
 };
 
 
+# Get ascending ranking
 sub ascending {
   $_[0]->{asc};
 };
 
 
+# Get descending ranking
 sub descending {
   $_[0]->{desc};
 }
+
 
 # Stringification
 sub to_string {
@@ -227,11 +252,14 @@ sub _alphasort_fields {
   return sort { $a->[0] cmp $b->[0] } @$plain;
 };
 
+
+# Numerical sorting
 sub _numsort_fields {
   my $plain = shift;
 
   # Or sort numerically
   return sort { $a->[0] <=> $b->[0] } @$plain;
 };
+
 
 1;

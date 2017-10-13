@@ -44,6 +44,7 @@ use constant {
 our (@EXPORT, @next_a, @next_b);
 
 
+# Constructor
 sub new {
   my $class = shift;
   bless {
@@ -51,6 +52,8 @@ sub new {
   }, $class;
 };
 
+
+# Clone constraint
 sub clone {
   __PACKAGE__->new(
     $_[0]->{frames}
@@ -452,6 +455,7 @@ sub case {
 };
 
 
+# Stringification
 sub to_string {
   'pos=' . (0 + $_[0]->{frames});
 };

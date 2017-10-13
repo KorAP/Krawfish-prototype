@@ -19,6 +19,7 @@ sub new {
   }, $class;
 };
 
+
 # The query is built by iterating through all terms
 # in the dictionary and fetching the relevant doc_ids per
 # segment. While doing that, the doc_ids are sorted and
@@ -27,18 +28,26 @@ sub _init {
   ...
 };
 
+
+# Move to next posting
 sub next {
   ...
 };
 
+
+# Get current posting
 sub current {
   ...
 };
 
+
+# Get maximum frequency
 sub max_freq {
   ...
 };
 
+
+# Stringification
 sub to_string {
   ...
 };

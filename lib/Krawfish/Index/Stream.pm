@@ -2,20 +2,25 @@ package Krawfish::Index::Stream;
 use strict;
 use warnings;
 
+# THIS IS CURRENTLY UNUSED!
+
+# This is similar to Reference Queries, so the mechanism
+# should probably be identical.
+
 # TODO:
 #   Vint should be as simple as possible
+
 # TODO:
 #   BitStream should support multiple pointers,
 #   And the stream should be closed, once no pointers
 #   point to it any longer
+
 # TODO:
 #   BitStream may be loaded from a file and may
 #   load further elements, once it exceeds the boundaries
 #   of the current element
-#
-# This is similar to Reference Queries, so the mechanism
-# should probably be identical.
-#
+
+# Constructor
 sub new {
   my $class = shift;
   bless {

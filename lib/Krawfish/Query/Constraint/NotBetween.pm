@@ -6,7 +6,8 @@ use warnings;
 # Check, if a negative token is in between.
 # Like [orth=Der][orth!=alte][orth=Mann].
 #
-# TODO: Support optional flag
+# TODO:
+#   Support optional flag
 
 use constant {
   NEXTA => 1,
@@ -18,6 +19,7 @@ use constant {
 };
 
 
+# Constructor
 sub new {
   my $class = shift;
   bless {
@@ -27,14 +29,16 @@ sub new {
 };
 
 
+# Clonme query
 sub clone {
   __PACKAGE__->new(
     $_[0]->{query}->clone
   );
 };
 
-# Initialize in-between query
-sub init {
+
+# Initialize
+sub _init {
   my $self = shift;
   return if $self->{init}++;
   print_log('notC', 'Init notBetween query') if DEBUG;
@@ -42,6 +46,7 @@ sub init {
 };
 
 
+# Check configuration
 sub check {
   my $self = shift;
   my ($first, $second, $payload) = @_;
@@ -53,7 +58,7 @@ sub check {
     $second = $temp;
   };
 
-  $self->init;
+  $self->_init;
 
   # TODO:
   #   Use buffer API here
@@ -132,6 +137,8 @@ sub check {
   return ALL_MATCH;
 };
 
+
+# Stringification
 sub to_string {
   my $self = shift;
   'notBetween=' . $self->{query}->to_string;

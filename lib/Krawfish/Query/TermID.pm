@@ -24,7 +24,7 @@ sub new {
 };
 
 
-# Clone the query
+# Clone query
 sub clone {
   my $self = shift;
   __PACKAGE__->new(
@@ -34,8 +34,7 @@ sub clone {
 };
 
 
-# Skip to next position
-# This will initialize the posting list
+# Move to next posting
 sub next {
   my $self = shift;
 
@@ -49,7 +48,7 @@ sub next {
 };
 
 
-# Return current object
+# Get current posting
 sub current {
   my $postings = $_[0]->{postings};
   return if $postings->pos == -1;
@@ -60,20 +59,23 @@ sub current {
   );
 };
 
-# This parameter is relevant, as it is requested e.g. from termFreq
-# to count all frequencies per requested term
+
+# This parameter is relevant, as it is requested
+# e.g. from termFreq to count all frequencies
+# per requested term
 sub term_id {
   $_[0]->{term_id};
 };
 
 
-# Get the frequency of the term
+# Get maximum frequency
 sub max_freq {
   $_[0]->{postings}->freq;
 };
 
 
-# Get the frequency of the term in the current document
+# Get the frequency of the term in
+# the current document
 sub freq_in_doc {
   $_[0]->{postings}->freq_in_doc;
 };
@@ -85,23 +87,25 @@ sub to_string {
 };
 
 
-# Skip to a certain document
+# Skip to target doc id
 sub skip_doc {
   $_[0]->{postings}->skip_doc($_[1]);
 };
 
 
-# The value is simple
+# Complexity of the query
 sub complex {
   0;
 };
 
-# Filter this query by a corpus
+
+# Filter query by VC
 sub filter_by {
   my ($self, $corpus) = @_;
   return Krawfish::Query::Filter->new(
     $self, $corpus->clone
   );
 };
+
 
 1;

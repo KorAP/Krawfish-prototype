@@ -9,6 +9,8 @@ use Mojo::Util qw/md5_sum/;
 use warnings;
 use strict;
 
+# Base class for span queries
+
 # TODO:
 #   - extended_* may be queried
 #     automatically without parameter
@@ -17,11 +19,14 @@ use strict;
 
 # TODO:
 #   This is now double with Krawfish::Koral!
+
 use constant {
   CONTEXT => 'http://korap.ids-mannheim.de/ns/koral/0.6/context.jsonld',
   DEBUG => 0
 };
 
+
+# Constructor
 sub new {
   my $class = shift;
   my $self = bless {
@@ -42,8 +47,9 @@ sub new {
 };
 
 
+# Override type
 sub type {
-  ...
+  warn 'override';
 };
 
 
@@ -52,10 +58,9 @@ sub type {
 #########################################
 
 
-
 # Normalize the query
 sub normalize {
-  ...
+  warn 'override';
 };
 
 
@@ -65,7 +70,7 @@ sub refer {
 };
 
 
-
+# Translate to ids
 # TODO:
 #   If "nowhere" returns, optimize away
 #   before ->optimize().
@@ -79,8 +84,6 @@ sub identify {
   };
   return $self;
 };
-
-
 
 
 # Check for cached subqueries
@@ -162,7 +165,7 @@ sub finalize {
 # Returns a list of classes used by the query,
 # e.g. in a focus() context.
 sub uses_classes {
-  ...
+  warn 'override';
 };
 
 
@@ -218,20 +221,6 @@ sub operand {
 };
 
 
-#sub replace_references {
-#  my ($self, $refs) = @_;
-#  my $sig = $self->signature;
-#
-#  # Subquery is identical to given query
-#  if ($refs->{$sig}) {
-#    ...
-#  }
-#  else {
-#    $refs->{$sig} = $self->operand;
-#  };
-#};
-
-
 # Matches everything
 sub is_anywhere {
   my $self = shift;
@@ -240,7 +229,6 @@ sub is_anywhere {
   };
   return $self->{anywhere} // 0;
 };
-
 
 
 # Is optional
@@ -339,14 +327,14 @@ sub maybe_unsorted {
 
 # Get the minimum tokens the query spans
 sub min_span {
-  ...
+  warn 'override';
 };
 
 
 # Get the maximum tokens the query spans
 # -1 means arbitrary
 sub max_span {
-  ...
+  warn 'override';
 };
 
 
@@ -386,12 +374,13 @@ sub from_koral {
 };
 
 
-# Overwritten
+# Serialize
 sub to_koral_fragment {
-  ...
+  warn 'override';
 };
 
 
+# Serialize
 sub to_koral_query {
   my $self = shift;
   my $koral = $self->to_koral_fragment;
@@ -399,9 +388,10 @@ sub to_koral_query {
   $koral;
 };
 
-# Overwritten
+
+# Stringification
 sub to_string {
-  ...
+  warn 'override';
 };
 
 
@@ -420,7 +410,7 @@ sub to_signature {
 # TODO: Returns a value of complexity of the query,
 # that can be used to decide, if a query should be cached.
 sub complexity {
-  ...
+  warn 'override';
 };
 
 
@@ -448,8 +438,18 @@ sub boundary {
 };
 
 
+# sub replace_references {
+#   my ($self, $refs) = @_;
+#   my $sig = $self->signature;
+#
+#   # Subquery is identical to given query
+#   if ($refs->{$sig}) {
+#     ...
+#   }
+#   else {
+#     $refs->{$sig} = $self->operand;
+#   };
+# };
+
+
 1;
-
-
-__END__
-

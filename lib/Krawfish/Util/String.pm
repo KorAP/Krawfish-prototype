@@ -7,10 +7,14 @@ use Unicode::Normalize qw/getCombinClass normalize/;
 use parent 'Exporter';
 use utf8;
 
-our @EXPORT = qw/fold_case remove_diacritics normalize_nfkc squote/;
-
 
 # Helper package for unicode handling
+
+our @EXPORT = qw/fold_case
+                 remove_diacritics
+                 normalize_nfkc
+                 squote/;
+
 
 # Fold case of a term
 sub fold_case {
@@ -55,5 +59,6 @@ sub squote {
   $str =~ s/(['\\])/\\$1/g;
   return qq{'$str'};
 };
+
 
 1;

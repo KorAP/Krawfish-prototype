@@ -61,10 +61,13 @@ sub new {
 };
 
 
+# Clone query
 sub clone  {
   ...
 };
 
+
+# Move to next posting
 sub next {
   my $self = shift;
 
@@ -86,6 +89,7 @@ sub next {
 };
 
 
+# Skip document
 sub skip_doc {
   my ($self, $doc_id) = @_;
 
@@ -103,13 +107,17 @@ sub skip_doc {
 };
 
 
+# Stringification
 sub to_string {
   my $self = shift;
   return 'cache(' . $self->{span}->to_string . ')';
 };
 
+
+# Get maximum frequency
 sub max_freq {
   $_[0]->{span}->max_freq;
 };
+
 
 1;

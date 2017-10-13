@@ -6,9 +6,6 @@ use strict;
 use warnings;
 use Krawfish::Log;
 
-# TODO:
-#   Create a central prefix constant class!
-
 # This class is the basic dictionary class. It provides a
 # homogeneous interface to K::I::Dictionary::Dynamic and
 # K::I::Dictionary::Static (versioned).
@@ -39,6 +36,54 @@ use Krawfish::Log;
 #   fields:      +
 #   fieldkeys:   !
 #
+
+#   SURFACE RANKING
+#   ===============
+#   The dictionary contains all ranking information for surface forms.
+#   When a surface form is added, the information on the ranking in
+#   the dynamic dictionary is stored as empty epsilon information initially.
+#   (See the store variant of the static dictionary).
+#   Every new term in the dynamic dictionary is added to a list of
+#   terms with attached term ids.
+#   Identical surface terms may have different sorting keys (following
+#   UTS #10) - in that case, before the ranking transition, another transition
+#   is added to branch on multiple sorting keys, e.g.
+#   bank-[COLL-DE]-[RANKS1]-#term-id-1
+#      \-[COLL-EN]-[RANKS2]-#term-id-2
+#   (Or the collations are appended to the ranking level)
+#   In the forward index, the different term-ids result in different rankings,
+#   though they result in identical surface terms.
+#   That way, different languages can be sorted at the same time solely based
+#   on their sorting key.
+#   BE AWARE: For checking, if a term is identical to another term,
+#   the collation must be stored in a byte at the rank transition.
+#   Because this may introduce quie a lot of problems, it's up to changes.
+#
+#   On MERGE
+#     1 The dictionaries are merged
+#     2 The list of new terms is sorted both in prefix and
+#       suffix order according to their UTS #10 sorting keys
+#     3 The sorted new term list in prefix order is merged with the
+#       sorted list in prefix order of the static dictionary
+#     4 When a new term is first found to be merged in,
+#       the term gets the prefix rank in the merged static dictionary
+#     5 All following terms are updated in the static dictionary
+#       accordingly
+#       (which is fast, because term-id lookup + one up is reasonable
+#       fast in memory)
+#     6 Do 2-5 for the suffix ordered list
+#
+#   The dynamic new term list (unsorted) has the following structure:
+#     ([sorting-key][term_id])*  # though, this may be redundant
+#   The static sorted lists have the following structure:
+#     ([sorting-key-with-front-coding][term_id])*
+#   Ranks are stored at the pre-terminal level in the dictionary.
+#
+#   Ranking information is stored on the node level
+#     [term_id] -> [RANK]
+#     ->rank_by_term_id(term_id)
+#     ->rev_rank_by_term_id(term_id)
+
 # add_term:
 #   First the static dictionary will do a look-up if the term exists,
 #   then the dynamic dictionary will do an insert_or_search, meaning
@@ -171,9 +216,21 @@ use Krawfish::Log;
 #   requested, for example, by the term_id API for co-occurrence search.
 #   That's why all subterms need to be stored as well.
 
+# TODO:
+#   There are two possible rank value types:
+# 1 VALUE IS EVEN: The global rank from
+#   the static dictionary
+# 2 VALUE IS ODD: The prerank, means,
+#   it is sorted based on the rank and takes the place
+#   between the two rank values, but it may occurr
+#   multiple types for different values.
+#   This comes from the dynamic dictionary.
+
 
 use constant DEBUG => 0;
 
+
+# Constructor
 sub new {
   my $class = shift;
   my $file = shift;
@@ -210,6 +267,7 @@ sub new {
 };
 
 
+# Add arbitrary term to dictionary
 sub add_term {
   my ($self, $term) = @_;
 
@@ -237,10 +295,6 @@ sub add_term {
   return $hash->{$term};
 };
 
-
-sub collations {
-  $_[0]->{collations};
-};
 
 # Add a field to the index
 # TODO:
@@ -292,6 +346,11 @@ sub add_field {
   return $term_id;
 };
 
+
+# Get collations object
+sub collations {
+  $_[0]->{collations};
+};
 
 
 # Get the collation of the base or the field id or undef, if not sortable

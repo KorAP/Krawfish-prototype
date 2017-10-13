@@ -7,6 +7,7 @@ use warnings;
 #   this needs fast access to documents AND positions.
 #   It needs next() and previous() methods.
 
+# Constructor
 sub new {
   my $class = shift;
   bless {
@@ -16,10 +17,14 @@ sub new {
   }, $class;
 };
 
+
+# Get current token
 sub current {
   return $_[0]->{current};
 };
 
+
+# Get posting by offset
 sub get {
   my ($self, $offset) = @_;
   if (my $subtoken = $self->{buffer}->get($offset)) {
@@ -31,12 +36,16 @@ sub get {
 };
 
 
+# Move to next token
 sub next {
   ...
 }
 
+
+# Move to previous token
 sub previous {
   ...
 };
+
 
 1;

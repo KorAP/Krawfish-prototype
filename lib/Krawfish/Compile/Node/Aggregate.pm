@@ -33,7 +33,8 @@ sub new {
 };
 
 
-# This will read all header information from the nodes and aggregate the date
+# This will read all header information from the nodes
+# and aggregate the date
 sub process_head {
   my ($self, $head) = @_;
 

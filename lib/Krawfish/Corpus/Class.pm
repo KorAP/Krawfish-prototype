@@ -43,6 +43,8 @@ sub new {
   }, $class;
 };
 
+
+# Clone query
 sub clone {
   my $self = shift;
   __PACKAGE__->new(
@@ -83,11 +85,13 @@ sub next {
 };
 
 
+# Skip to target document
 sub skip_doc {
   ...
 };
 
 
+# Stringification
 sub to_string {
   my $self = shift;
   my $str = 'class(';
@@ -96,6 +100,8 @@ sub to_string {
   return $str;
 };
 
+
+# Get maximum frequency
 sub max_freq {
   $_[0]->{corpus}->max_freq;
 };

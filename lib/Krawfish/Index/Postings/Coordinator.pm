@@ -4,8 +4,10 @@ use warnings;
 use strict;
 
 # The PostingsCoordinator loads the postings
-# index and lifts the relevant postings using mmap
+# index and lifts the relevant postings using mmap.
 
+
+# Constructor
 sub new {
   my ($class, $file, $size) = @_;
 
@@ -85,6 +87,8 @@ sub lift {
   return $lifted;
 };
 
+
+# Merge postings lists
 sub merge {
   # Merge the postingslists of two segments
   # by iterating over both coordination files and

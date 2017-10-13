@@ -1,6 +1,6 @@
 package Krawfish::Util::SortedList;
 use parent 'Krawfish::Query';
-use Krawfish::Posting::Sorted;
+use Krawfish::Posting::List;
 use strict;
 use warnings;
 
@@ -13,6 +13,7 @@ use constant {
 };
 
 
+# Constructor
 sub new {
   my $class = shift;
   bless {
@@ -21,14 +22,20 @@ sub new {
   }, $class;
 };
 
+
+# Get list lenght
 sub length {
   scalar @{$_[0]->{list}};
 };
 
+
+# Move to next item in list
 sub next {
   $_[0]->{pos}++ < $_[0]->length;
 };
 
+
+# Get current item
 sub current {
   my $self = shift;
   return $self->{list}->[$self->{pos}];

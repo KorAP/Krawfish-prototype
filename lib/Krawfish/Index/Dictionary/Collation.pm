@@ -5,6 +5,7 @@ use warnings;
 
 # This is just a convenience wrapper for Unicode::Collate::Locale
 
+# Constructor
 sub new {
   my ($class, $locale) = @_;
 
@@ -17,6 +18,8 @@ sub new {
   bless \$coll, $class;
 };
 
+
+# Get sort key for value
 sub sort_key {
   my ($self, $value) = @_;
   return $$self->getSortKey($value);

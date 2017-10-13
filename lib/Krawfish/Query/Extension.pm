@@ -9,6 +9,8 @@ use warnings;
 #
 # Support gaps like with Constraint::InBetween
 
+
+# Constructor
 sub new {
   my $class = shift;
   bless {
@@ -21,15 +23,19 @@ sub new {
 };
 
 
+# Clone query
 sub clone {
   ...
 };
+
 
 # Check the configuration
 sub check {
   ...
 };
 
+
+# Stringification
 sub to_string {
   my $self = shift;
   my $string ='ext(';
@@ -39,14 +45,13 @@ sub to_string {
 };
 
 
-
+# Get maximum frequency
 sub max_freq {
-  # TODO:
-  ...
+  $_[0]->{span}->max_freq;
 };
 
 
-# Filter extension by a corpus
+# Filter query by VC
 sub filter_by {
   ...
 };

@@ -27,11 +27,8 @@ use Krawfish::Koral::Compile::Enrich::Snippet::Context::Span;
 use Krawfish::Koral::Compile::Type::Key;
 use Scalar::Util qw/blessed/;
 
-sub new {
-  my $class = shift;
-  bless [], $class;
-};
-
+# Build compile query
+#
 #   $koral->compile(
 #     $mb->aggregate(
 #       $mb->a_frequencies,
@@ -47,10 +44,19 @@ sub new {
 #     $mb->fields('author')
 #     $mb->snippet('')
 
+# Constructor
+sub new {
+  my $class = shift;
+  bless [], $class;
+};
+
+
+# Aggregate
 sub aggregate {
   my $self = shift;
   return Krawfish::Koral::Compile::Aggregate->new(@_);
 };
+
 
 # Some aggregation types
 # Aggregate frequencies
@@ -131,11 +137,16 @@ sub e_token_context {
 };
 
 
+# Enrich with span context
 sub e_span_context {
   shift;
   my ($term, $count) = @_;
-  return Krawfish::Koral::Compile::Enrich::Snippet::Context::Span->new($term, $count);
+  return Krawfish::Koral::Compile::Enrich::Snippet::Context::Span->new(
+    $term,
+    $count
+  );
 };
+
 
 # Enrich with Term lists per class
 sub e_terms {
@@ -193,7 +204,8 @@ sub s_sample {
 };
 
 # TODO:
-#   s_class (sort by the surface form of a class, necessary for concordances)
+#   s_class
+#   (sort by the surface form of a class, necessary for concordances)
 
 
 sub limit {

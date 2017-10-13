@@ -4,19 +4,27 @@ use strict;
 use warnings;
 use Krawfish::Log;
 
-# TODO: Simplify to not require max_rank_ref!
+# TODO:
+#   Simplify to not require max_rank_ref!
 
-# TODO: Add reset method, so the PQ can be reused
-#       in SortAfter!
+# TODO:
+#   Add reset method, so the PQ can be reused
+#   in SortAfter!
 
-# TODO: This currently only works with ranks,
-#       it may be more beneficial to work with criteria.
-#       So instead to compare ranks, a Criterion object will
-#       compare arbitrary data in the "rank"-field
+# TODO:
+#   This currently only works with ranks,
+#   it may be more beneficial to work with criteria.
+#   So instead to compare ranks, a Criterion object will
+#   compare arbitrary data in the "rank"-field
 
-# TODO: Probably rename from IN_DOC to IN_COLL
-# TODO: Probably rename to PriorityQueue::Bundle
-# TODO: Turn reverse_array into an iterator
+# TODO:
+#   Probably rename from IN_DOC to IN_COLL
+
+# TODO:
+#   Probably rename to PriorityQueue::Bundle
+
+# TODO:
+#   Turn reverse_array into an iterator
 
 use constant {
   DEBUG       => 0,

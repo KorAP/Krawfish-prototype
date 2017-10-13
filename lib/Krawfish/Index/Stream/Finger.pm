@@ -2,7 +2,9 @@ package Krawfish::Index::Stream::Finger;
 use strict;
 use warnings;
 
-# New stream finger
+# THIS IS CURRENTLY UNUSED!
+
+# Constructor
 sub new {
   my $class = shift;
   bless {
@@ -12,6 +14,7 @@ sub new {
     current => []
   }, $class;
 };
+
 
 # Forward in posting stream
 sub next {
@@ -24,19 +27,24 @@ sub next {
 };
 
 
-sub skip_to {
+# Skip to certain document in stream
+sub skip_doc {
   ...
 };
 
+
+# Move to next position in stream
 sub next_pos {
   ...
 };
 
+# Move to next document in stream
 sub next_doc {
   ...
 };
 
-# Get the current posting object
+
+# Get the current posting
 sub current {
   my $self = shift;
   return $self->{stream}->posting(@{$self->{current}});
@@ -56,5 +64,6 @@ sub offset {
 sub delta {
   $_[0]->{delta};
 };
+
 
 1;

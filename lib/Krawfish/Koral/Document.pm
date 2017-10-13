@@ -19,12 +19,11 @@ use List::MoreUtils qw/uniq/;
 #   the keys will be translated to term_ids and the document
 #   can be added with all freq_in_doc information
 
+# foundry and layer may need separated term_ids
+# so they are exceptional small.
 
 # TODO:
 #   Don't forget to deal with TUIs!
-
-# foundry and layer may need separated term_ids so they are exceptional small.
-
 
 use constant DEBUG => 0;
 
@@ -108,14 +107,11 @@ sub _parse {
     #   In that way it's faster to retrieve presorted fields
     #   for enrichment!
 
-
     # Prepare field for sorting
-    #if ($field->{sortable}) {
-
-      # Which entries need to be sorted?
-    #  $sortable{$field->{key}}++;
-    #};
-
+    # if ($field->{sortable}) {
+    #   # Which entries need to be sorted?
+    #   $sortable{$field->{key}}++;
+    # };
 
     # Prepare for summarization
     if (!$field->{type} || $field->{type} eq 'type:string') {
@@ -358,28 +354,5 @@ sub _subtokens {
 
 1;
 
-
-__END__
-
-
-
-sub to_list {
-  my ($self, $doc_id, $replicant_id) = @_;
-};
-
-
-sub add {
-  # This will add the doc_id to id-field and
-  # this will add the replicant field (either __1:1 or __2:node_name).
-};
-
-
-sub to_forward_index {
-  # Only works after identification!
-  # This should, however, use a K::I::Store class!
-};
-
-
-1;
 
 __END__

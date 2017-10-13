@@ -3,6 +3,8 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
+# THIS IS CURRENTLY UNUSED!
+
 # There is one token list per tokenization
 
 # The Token list has the following jobs:
@@ -43,6 +45,7 @@ sub extend_to_left {
   ...
 };
 
+
 # Get an array of end positions that are in the range of min/max
 # Start with the lowest
 sub extend_to_right {
@@ -50,6 +53,7 @@ sub extend_to_right {
   # Returns an array of end positions
   ...
 };
+
 
 # Check if the number of tokens between end and start
 # is in the given range.
@@ -64,18 +68,24 @@ sub count {
   ...
 };
 
+
 # Returns the number of tokens per foundry
 sub freq_in_doc {
   ...
 };
 
+
+# Get the maximum number of subtokens per token
 sub max_subtokens {
   ...
 };
 
-sub skip_doc {
 
+# Skip to next document
+sub skip_doc {
+  ...
 };
+
 
 1;
 

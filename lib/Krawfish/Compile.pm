@@ -5,6 +5,9 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
+# Krawfish::Compile is the base class for all Compile queries.
+
+
 use constant DEBUG => 0;
 
 sub current_match {

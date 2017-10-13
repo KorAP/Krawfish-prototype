@@ -3,20 +3,27 @@ use strict;
 use warnings;
 
 # This is no real check,
-# it simply marks the distance between two spans using a class payload
+# it simply marks the distance between two spans
+# using a class payload
 
+
+# Constructor
 sub new {
   my $class = shift;
   my $nr = shift;
   bless \$nr, $class;
 };
 
+
+# Clone query
 sub clone {
   __PACKAGE__->new(
     ${$_[0]}
   );
 };
 
+
+# Check configuration
 sub check {
   my $self = shift;
   my ($first, $second) = @_;
@@ -44,6 +51,8 @@ sub check {
   return 0b0111;
 };
 
+
+# Stringification
 sub to_string {
   'class=' . (0 + ${$_[0]});
 };

@@ -39,6 +39,7 @@ use constant DEBUG => 0;
 #   are bad, for example!)
 
 
+# Constructor
 sub new {
   my $class = shift;
   bless {
@@ -62,7 +63,8 @@ sub add {
 
   # TODO:
   #   use Krawfish::Index::Store::V1::Fields->new;
-  $self->{docs}->[$self->last_doc_id] = Krawfish::Index::Fields::Doc->new($doc);
+  $self->{docs}->[$self->last_doc_id] =
+    Krawfish::Index::Fields::Doc->new($doc);
   return $doc_id;
 };
 
@@ -79,53 +81,6 @@ sub doc {
 sub pointer {
   my $self = shift;
   return Krawfish::Index::Fields::Pointer->new($self);
-};
-
-
-
-
-# TODO:
-#   Make this part of Krawfish::Index::Fields::Rank!
-#
-# TODO:
-#   Unused yet!
-#
-sub ranked_by {
-  my ($self, $field) = @_;
-
-  warn 'DEPRECATED';
-
-  print_log(
-    'fields',
-    'Get rank vector for ' . $field
-  ) if DEBUG;
-
-  # TODO:
-  #   Currently ranks are set absolutely - but they should be set
-  #   multiple times to make sorts for multiple fields
-  #
-  # TODO: Check if the field needs to be sorted
-  #   numerically or based on a collation
-
-  my $ranks = $self->{ranks};
-
-  # Lookup at disk
-  return $ranks->{$field} if $ranks->{$field};
-
-  # Add rank
-  $ranks->{$field} = Krawfish::Index::Rank::Fields->new(
-    [grep { defined $_ } map { $_->{$field} } @{$self->{array}}]
-  );
-
-  if (DEBUG) {
-    print_log(
-      'fields',
-      'Return rank vector for ' . $field
-    );
-  };
-
-  # Return ranked list
-  return $ranks->{$field};
 };
 
 

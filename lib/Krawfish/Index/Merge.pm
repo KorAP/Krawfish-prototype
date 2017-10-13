@@ -12,10 +12,10 @@ use warnings;
 # a) multiple static segments
 # b) One dynamic segment
 #
-# All new documents are added to the dynamic index,
-# But searches are done 
+# All new documents are added to the dynamic index.
 
 
+# Constructor
 sub new {
   my ($class, $segment_a, $segment_b) = @_;
   bless {
@@ -24,6 +24,8 @@ sub new {
   }, $class;
 };
 
+
+# Merge segments
 sub merge {
 
   # Merging will:
@@ -82,6 +84,7 @@ sub _launch {
   #       - remove segment B
 };
 
+
 sub _merge_postings_lists {
   # TODO:
   #   (ignore deleted documents)
@@ -93,6 +96,7 @@ sub _merge_postings_lists {
   #     all documents of the second index
   #   - Calculate new freq value
 };
+
 
 sub _merge_fields {
   # TODO:
@@ -107,6 +111,7 @@ sub _merge_subtoken_lists {
   #   - Take all subtoken lists and write them to a new file
   #   - The position offsets to the primary data files should stay intact
 };
+
 
 sub _merge_primary_data {
   # TODO:

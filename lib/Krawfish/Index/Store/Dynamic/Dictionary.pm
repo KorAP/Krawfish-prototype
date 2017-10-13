@@ -35,10 +35,14 @@ use constant {
 
 # Code is based on Tree::Ternary
 
+# Constructor
+# Represent dictionary as an array
 sub new {
   bless [], shift;
 };
 
+
+# Insert new term
 sub insert {
   # Iterative implementation of string insertion.
   my ($self, $term, $term_id) = @_;
@@ -86,6 +90,7 @@ sub insert {
 };
 
 
+# Search in dictionary
 sub search {
   #
   # Iterative implementation of the string search.
@@ -151,16 +156,21 @@ sub search_alias {
 };
 
 
-
+# Lookup terms by prefix
+# Returns an iterator
 sub prefix_lookup {
   my ($self, $prefix, $top_k) = @_;
   ...
 };
 
+
+# Updated dictionary structure
+# (maybe not necessary)
 sub update {
   my ($self, $prefix, $so_strategy) = @_;
   ...
 };
+
 
 # Remove least significant term
 sub remove_lst {
@@ -183,5 +193,6 @@ sub remove_lst {
   # Delete node
   ...
 };
+
 
 1;

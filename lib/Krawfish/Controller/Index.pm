@@ -15,9 +15,11 @@ sub add {
   #      replicant.
   #   2. $cluster->import($primary, $secondary);
   #      if one of them fails, choose another one.
+  #   3. Return a unique commit-ID
 };
 
 
+# Receive information regarding a specific commit
 sub commit_info {
   my $c = shift;
   my $commit_id = $c->stash('commit_id');
@@ -26,10 +28,9 @@ sub commit_info {
   unless ($commit_id) {
     ...
   };
-
-  # List information on one special commit
   ...
 };
+
 
 # The search API first searches for matches, then retrieves information
 # per match identical to the match API

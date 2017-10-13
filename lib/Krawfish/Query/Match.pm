@@ -4,8 +4,13 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
+
+# Get posting by doc id plus position and length.
+
 use constant DEBUG => 0;
 
+
+# Constructor
 sub new {
   my $class = shift;
   bless {
@@ -15,6 +20,8 @@ sub new {
   }, $class;
 };
 
+
+# Clone query
 sub clone {
   my $self = shift;
   __PACKAGE__->new(
@@ -24,7 +31,9 @@ sub clone {
   );
 };
 
-sub init {
+
+# Initialize
+sub _init {
   return if $_[0]->{init}++;
   if (DEBUG) {
     print_log('match', 'Init ' . $_[0]->{doc}->to_string);
@@ -33,11 +42,11 @@ sub init {
 };
 
 
-# Forward to next match
+# Move to next posting
 sub next {
   my $self = shift;
 
-  $self->init;
+  $self->_init;
 
   print_log('match', 'Check next valid match') if DEBUG;
 
@@ -69,34 +78,45 @@ sub next {
 };
 
 
-# Match can only occur once (although this requires a filter!)
+# Get maximum frequency
 sub max_freq {
+  # Match can only occur once
+  # (although this requires a filter!)
   1;
 };
 
 
+# Stringification
 sub to_string {
   my $self = shift;
   return '[[' . $self->{doc}->to_string . ':' . $self->start . '-' . $self->end . ']]';
 };
 
 
+# Get start position
 sub start {
   $_[0]->{start};
 };
 
 
+# Get end position
 sub end {
   $_[0]->{end};
 };
 
 
-# This is useful to, e.g., make sure the document is live
+# Filter query by VC
+# This is useful to, e.g.,
+# make sure the document is live
 sub filter_by {
   my ($self, $corpus) = @_;
 
-  # TODO: Check always that the query isn't moved forward yet!
-  $self->{doc} = Krawfish::Corpus::And->new($self->{doc}, $corpus->clone);
+  # TODO:
+  #   Check always that the query isn't moved forward yet!
+  $self->{doc} = Krawfish::Corpus::And->new(
+    $self->{doc},
+    $corpus->clone
+  );
   $self;
 };
 

@@ -8,13 +8,17 @@ use warnings;
 
 use constant DEBUG => 0;
 
-# TODO: Support next_pos, in case current start position can not succeed
-# e.g. in case of position
+# TODO:
+#   Support next_pos, in case current start
+#   position can not succeed, e.g. in case of position
 
-# TODO: Support steps:
-# []{1,30,2}
-# means valid: [][], [][][][], [][][][][], ...
+# TODO:
+#   Support steps:
+#   []{1,30,2}
+#   means valid: [][], [][][][], [][][][][], ...
 
+
+# Constructor
 sub new {
   my $class = shift;
   bless {
@@ -26,6 +30,7 @@ sub new {
 };
 
 
+# Clone query
 sub clone {
   my $self = shift;
   __PACKAGE__->new(
@@ -35,8 +40,9 @@ sub clone {
   );
 };
 
+
 # Initialize spans and buffer
-sub init {
+sub _init {
   return if $_[0]->{init}++;
   $_[0]->{span}->next;
   print_log('repeat', 'Init span') if DEBUG;
@@ -48,9 +54,11 @@ sub init {
 };
 
 
+# Move to next posting
 sub next {
   my $self = shift;
-  $self->init;
+
+  $self->_init;
 
   # Get the buffer
   my $buffer = $self->{buffer};
@@ -175,6 +183,7 @@ sub next {
 };
 
 
+# Stringification
 sub to_string {
   my $self = shift;
   my $str = 'rep(';
@@ -184,8 +193,10 @@ sub to_string {
 };
 
 
-# The maximum frequency is based on the occurrence of the span,
-# multiplied by the difference of min and max values, so
+# Get maximum frequency, based on the occurrence
+# of the span, multiplied by the difference of
+# min and max values, so
+#
 #   freq([a]{3}) == freq([a])
 #   freq([a]{1,2}) == freq([a])*2
 sub max_freq {
@@ -193,6 +204,8 @@ sub max_freq {
   $self->{span}->max_freq * ($self->{max} - $self->{min} + 1)
 };
 
+
+# Filter query by VC
 sub filter_by {
   my ($self, $corpus) = @_;
   $self->{span} = $self->{span}->filter_by($corpus);

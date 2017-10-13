@@ -7,23 +7,33 @@ use Scalar::Util qw/refaddr/;
 use strict;
 use warnings;
 
+# Moving pointer in a posting list.
+
 use constant {
   DEBUG => 0,
   DOC_ID => 0
 };
 
-# TODO: Implement skipping efficiently!!!
-# TODO: Implement next_doc efficiently!!!
-# TODO: Implement freq_in_doc efficiently!!!
-# TODO: Add direct access to doc_id!
+# TODO:
+#   Implement skipping efficiently!!!
 
-# TODO: Use Stream::Finger instead of PostingPointer
+# TODO:
+#   Implement next_doc efficiently!!!
 
-# Points to a position in a postings list
+# TODO:
+#   Implement freq_in_doc efficiently!!!
 
-# TODO: Return different posting types
-#       Using current
+# TODO:
+#   Add direct access to doc_id!
 
+# TODO:
+#   Use Stream::Finger instead of PostingPointer
+
+# TODO:
+#   Return different posting types using current
+
+
+# Constructor
 sub new {
   my $class = shift;
   bless {
@@ -32,23 +42,22 @@ sub new {
   }, $class;
 };
 
+
+# Get frequency of the list
+# (probably copy value when posting pointer is lifted)
 sub freq {
   $_[0]->{list}->freq;
 };
 
 
-# Get the term from the list
-sub term {
-  $_[0]->{list}->term;
-};
-
-
+# Get the term id
+# (probably copy value when posting pointer is lifted)
 sub term_id {
   $_[0]->{list}->term_id;
 };
 
 
-# Forward position
+# Move to next posting
 sub next {
   my $self = shift;
   my $pos = $self->{pos}++;
@@ -86,6 +95,7 @@ sub freq_in_doc {
 };
 
 
+# Get the current position in the list
 sub pos {
   return $_[0]->{pos};
 };
@@ -104,34 +114,37 @@ sub current {
 };
 
 
+# Potentially close pointer
 sub close {
   ...
 };
 
 
-#sub list {
-#  return $_[0]->{list};
-#};
-
-
-# Skip to a certain document, return the current
-# doc_id
+# Skip to a certain document,
+# return the new doc_id
 sub skip_doc {
-  my ($self, $doc_id) = @_;
+  my ($self, $target_doc_id) = @_;
+
+  # TODO:
+  #   Return NOMORE in case there are no more postings.
 
   print_log('ppointer', refaddr($self) . ': TEMP SLOW Skip to chosen document') if DEBUG;
 
-  while (!$self->current || $self->current->doc_id < $doc_id) {
+  while (!$self->current || $self->current->doc_id < $target_doc_id) {
     $self->next or return;
   };
+
   return $self->current->doc_id;
 };
 
 
+# Skip to a certain position in the list
 sub skip_pos {
-  my ($self, $pos) = @_;
-  print_log('ppointer', refaddr($self) . ': TEMP SLOW Skip to chosen position or after')
-    if DEBUG;
+  my ($self, $target_pos) = @_;
+
+  if (DEBUG) {
+    print_log('ppointer', refaddr($self) . ': TEMP SLOW Skip to chosen position or after');
+  };
 
   unless ($self->current) {
     $self->next or return;
@@ -140,12 +153,13 @@ sub skip_pos {
   my $current = $self->current;
   my $start_doc_id = $current->doc_id;
 
-  while ($start_doc_id == $current->doc_id && $current->start <= $pos) {
+  while ($start_doc_id == $current->doc_id && $current->start <= $target_pos) {
     $self->next or return;
     $current = $self->current;
   };
 
   return $current->start;
 };
+
 
 1;

@@ -9,8 +9,9 @@ use warnings;
 
 use constant DEBUG => 0;
 
-# Creation of virtual corpus
+# Base object for virtual corpus queries
 
+# Constructor
 sub new {
   my $class = shift;
   bless {}, $class;
@@ -33,6 +34,7 @@ sub refer {
 };
 
 
+# Get operands
 sub operands {
   my $self = shift;
   if (@_) {
@@ -59,7 +61,7 @@ sub cache {
 
 # Optimize for an index
 sub optimize {
-  ...
+  warn 'override';
 };
 
 
@@ -128,6 +130,7 @@ sub identify {
 };
 
 
+# Corpus is negative
 sub is_negative {
   my $self = shift;
   if (scalar @_ == 1) {
@@ -137,6 +140,7 @@ sub is_negative {
 };
 
 
+# Toggle negativity of corpus
 sub toggle_negative {
   my $self = shift;
   $self->is_negative($self->is_negative ? 0 : 1);
@@ -155,12 +159,6 @@ sub is_anywhere {
 
 
 # Matches nowhere
-# (in the sequence sense of "der >alte*< Mann")
-sub is_null {
-  0;
-};
-
-
 sub is_nowhere {
   my $self = shift;
   if (defined $_[0]) {
@@ -170,7 +168,17 @@ sub is_nowhere {
 };
 
 
-sub is_leaf { 0 };
+# Matches nowhere
+# (in the sequence sense of "der >alte*< Mann")
+sub is_null {
+  0;
+};
+
+
+# Query is leaf
+sub is_leaf {
+  0;
+};
 
 
 # Create KoralQuery builder
@@ -183,18 +191,25 @@ sub builder {
 # Query Application methods #
 #############################
 
+# Deserialize
 sub from_koral {
-  ...
+  warn 'override';
 };
 
+
+# serialize
 sub to_koral_fragment {
-  ...
+  warn 'override';
 };
 
+
+# Stringification
 sub to_string {
-  ...
+  warn 'override';
 };
 
+
+# Serialize to neutral string
 sub to_neutral {
   $_[0]->to_string;
 };

@@ -9,7 +9,8 @@ use warnings;
 # mergesort, but for the moment, it's way simpler.
 
 # TODO:
-#   May need to return Krawfish::Posting::Sorted with a 'criterion' array.
+#   May need to return Krawfish::Posting::Sorted
+#   with a 'criterion' array.
 #   Instead of next() followed by current(), this should use
 #   next_current() and - for matches - next_match()
 

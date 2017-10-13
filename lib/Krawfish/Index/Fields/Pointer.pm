@@ -23,6 +23,8 @@ use constant DEBUG => 0;
 #   Multiple aggregations (e.g. values and facets) will currently
 #   use multiple pointers, though this could be optimized.
 
+
+# Constructor
 sub new {
   my $class = shift;
   bless {
@@ -36,26 +38,32 @@ sub new {
 };
 
 
+# Get frequency of documents.
+# Maybe loaded on initilization.
 sub freq {
   $_[0]->{list}->last_doc_id + 1;
 };
 
 
+# Return current doc id
 sub doc_id {
   $_[0]->{doc_id};
 };
 
 
+# Get current position in list
 sub pos {
   $_[0]->{pos};
 };
 
 
+# Move to next document
 sub next_doc {
   warn 'Not supported';
 };
 
 
+# Potentially close pointer
 sub close {
   ...
 };
@@ -83,7 +91,7 @@ sub skip_doc {
 };
 
 
-# This returns only int-values - so it may need to be renamed
+# Get integer fields only
 sub int_fields {
   my $self = shift;
 
@@ -104,8 +112,11 @@ sub int_fields {
 
     unless (defined $key_ids[$key_pos]) {
       if (DEBUG) {
-        print_log('f_point', 'There are no more fields to fetch ' .
-                    'at keypos ' . $key_pos . ' in doc_id ' . $self->{doc_id});
+        print_log(
+          'f_point',
+          'There are no more fields to fetch ' .
+            'at keypos ' . $key_pos . ' in doc_id ' . $self->{doc_id}
+          );
       };
       last;
     };
@@ -277,14 +288,6 @@ sub _get_by_type {
     );
   };
 };
-
-
-sub field_terms {
-  my $self = shift;
-  warn 'probably wrong!';
-  return map { $_->term_id } $self->fields(@_);
-};
-
 
 
 1;

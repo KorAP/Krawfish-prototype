@@ -4,10 +4,13 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
+# Creation of compilation query
+
 # WARNING! / TODO!
 #   An enrichment for fields or snippets (better any enrichments)
 #   can never wrap around a presort query, because the relevant
-#   data structures and algorithms require the results to be in doc_id order!
+#   data structures and algorithms require the results to be in
+#   doc_id order!
 
 # WARNING!
 #   It's important to remember that sortFilter can't be shared in parallel
@@ -35,22 +38,28 @@ our %COMPILE_ORDER = (
   filter    => 7
 );
 
+
 use constant {
   DEBUG => 0,
   UNIQUE_FIELD => 'id'
 };
 
+
+# Constructor
 sub new {
   my $class = shift;
   bless [@_], $class;
 };
 
+
+# Stringification
 sub to_string {
   my ($self, $id) = @_;
   return join(',', map { $_->to_string($id) } $self->operations);
 };
 
 
+# Get builder object
 sub builder {
   return Krawfish::Koral::Compile::Builder->new;
 };
@@ -89,14 +98,14 @@ sub normalize {
   };
 
   # Add unique sorting per default - unless it's a group query
-  #unless ($group_query) {
-  #  push @compile,
-  #    $mb->sort_by($mb->s_field(UNIQUE_FIELD));
+  # unless ($group_query) {
+  #   push @compile,
+  #     $mb->sort_by($mb->s_field(UNIQUE_FIELD));
   #
-  #  if (DEBUG) {
-  #    print_log('kq_compile', 'Added unique field ' . UNIQUE_FIELD . ' to order');
-  #  };
-  #};
+  #   if (DEBUG) {
+  #     print_log('kq_compile', 'Added unique field ' . UNIQUE_FIELD . ' to order');
+  #   };
+  # };
 
 
   # 1. Introduce required information
@@ -243,11 +252,13 @@ sub wrap {
 };
 
 
+# Send to segments
 sub to_segment {
   ...
 };
 
 
+# Optimize query
 sub optimize {
   ...
 };

@@ -4,6 +4,7 @@ use Krawfish::Index::PostingLivePointer;
 use strict;
 use warnings;
 
+# Point to live documents.
 # Similar interface as Krawfish::Index::PostingsList,
 # but has a "delete" method.
 
@@ -11,7 +12,7 @@ use warnings;
 #   In addition, this will store the maximum
 #   number of documents.
 
-
+# Constructor
 sub new {
   my ($class, $index_file) = @_;
   bless {
@@ -74,6 +75,7 @@ sub freq {
 };
 
 
+# Lift new pointer to live documents
 sub pointer {
   my $self = shift;
   # This requires a list copy, so chenages in the list
@@ -84,6 +86,8 @@ sub pointer {
   );
 };
 
+
+# Stringification
 sub to_string {
   my $self = shift;
   '~' . join(',', map { '[' . $_ . ']' } @{$self->{deletes}});
