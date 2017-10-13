@@ -1,3 +1,5 @@
+![Krawfish Prototype](https://raw.githubusercontent.com/KorAP/Krawfish-Prototype/master/misc/krawfish-prototype.png)
+
 The Krawfish Prototype is a testbed search backend for KorAP,
 to implement design concepts both for Kanalito and Krill.
 
