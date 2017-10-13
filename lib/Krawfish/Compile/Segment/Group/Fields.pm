@@ -17,6 +17,10 @@ use constant DEBUG => 0;
 #   e.g. to get all keywords used in a certain virtual corpus or all
 #   used annotations.
 
+# TODO:
+#   In case the field has ranges, this will increment the group
+#   values for the whole range.
+
 sub new {
   my $class = shift;
   my ($field_obj, $query, $fields) = @_;

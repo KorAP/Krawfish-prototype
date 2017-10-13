@@ -74,9 +74,33 @@ sub add {
     print_log('f_rank', qq!Add value "$value" associated to $doc_id!);
   };
 
+  # TODO:
+  #   Request the type of a collation, to support
+  #   numerical, numerical range, date, date range,
+  #   and string collations.
+
   # Collation is numerical
   if ($self->{collation} eq 'NUM') {
     push @{$self->{plain}}, [$value, $doc_id];
+  }
+
+  # Collation is numerical with range
+  elsif ($self->{collation} eq 'NUMRANGE' || $self->{collation} eq 'DATERANGE') {
+
+    # TODO:
+    #   Not yet implemented
+    my ($min, $max) = $self->{collation}->min_max($value);
+    push @{$self->{plain}}, [$min, $max, $doc_id];
+  }
+
+  # Collation is a date
+  elsif ($self->{collation} eq 'DATE') {
+
+    # TODO:
+    #   Not yet implementated
+    my $date = $self->{collation}->date_num($value);
+    push @{$self->{plain}}, [$date, $doc_id];
+
   }
 
   # Use collation
@@ -116,6 +140,12 @@ sub commit {
   #    the collation
   #    Creates the structure
   #    [collocation]([field-term-with-front-coding|value-as-delta][doc_id]*)*
+
+  # TODO:
+  #   This requires a change for ranges!
+  #   In that case, the ascending order will use the minimum value
+  #   and the descending order will use the maximum value
+  #   (per doc in case of multiple ranges)
 
   # Sort the list
   my @presort = $self->{collation} eq 'NUM' ?

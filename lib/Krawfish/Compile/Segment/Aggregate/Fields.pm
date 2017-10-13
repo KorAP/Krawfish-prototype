@@ -8,6 +8,9 @@ use warnings;
 
 use constant DEBUG => 0;
 
+# TODO:
+#   In case the field has ranges, this will increment the aggregation
+#   values for the whole range.
 
 # TODO:
 #   Simplify the counting by mapping the requested fields to
