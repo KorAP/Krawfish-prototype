@@ -21,6 +21,8 @@ sub add_match {
 
 
 # Add collected information to the head
+# TODO:
+#   Make this a list as well
 sub add_collection {
   my ($self, $collection) = @_;
   $self->{collection} = $collection;
@@ -31,6 +33,9 @@ sub to_koral_fragment {
   my $self = shift;
   return {
     '@type' => 'koral:result',
+
+    # TODO:
+    #   Rename to 'compilation'
     'collection' => $self->{collection}->to_koral_fragment,
     'matches' => [
       map { $_->to_koral_fragment } @{$self->{matches}}

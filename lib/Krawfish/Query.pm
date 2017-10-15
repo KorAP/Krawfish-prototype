@@ -179,4 +179,17 @@ sub current_match {
 
 
 
+# Lose all information about the query
+sub close {
+
+};
+
+
+# Stop compilation of results in non-compile queries
+# TODO:
+#   Rename to compile()
+sub collect {
+  return 1;
+};
+
 1;

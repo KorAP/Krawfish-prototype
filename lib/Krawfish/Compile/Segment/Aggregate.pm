@@ -56,6 +56,8 @@ sub collection {
 
 # TODO:
 #   Add collection data to result document
+# TODO:
+#   Rename to "compilation"
 sub collect {
   my ($self, $result) = @_;
 
