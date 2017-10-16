@@ -13,7 +13,7 @@ use constant DEBUG => 0;
 
 
 sub type {
-  'int';
+  'integer';
 };
 
 
@@ -54,6 +54,7 @@ sub to_string {
   };
   return '#' . $self->{key_id} . '=' . '#' . $self->{key_value_id} . '(' . $self->{value} . ')';
 };
+
 
 
 

@@ -4,9 +4,6 @@ use warnings;
 
 # The fields are represented as Krawfish::Koral::Document::Field* objects!
 
-# TODO:
-#   All Krawfish::Posting::Match::* objects may be better suited in Koral!
-
 sub new {
   my $class = shift;
   bless {
@@ -19,8 +16,34 @@ sub to_string {
   return 'fields:' . join(',', map { $_->to_string } @{$self->{fields}});
 };
 
+
+# Inflate fields
 sub inflate {
-  my $self = shift;
+  my ($self, $dict) = @_;
+  my $fields = $self->{fields};
+  foreach (my $i = 0; $i < @$fields; $i++) {
+    $self->{fields}->[$i] = $fields->[$i]->inflate($dict);
+  };
+  return $self;
 };
+
+
+# Key for enrichment
+sub key {
+  'fields';
+};
+
+
+# Serialize to KoralQuery
+sub to_koral_fragment {
+  my $self = shift;
+  my @fields = ();
+  foreach (@{$self->{fields}}) {
+    push @fields, $_->to_koral_fragment;
+  };
+
+  return \@fields;
+};
+
 
 1;

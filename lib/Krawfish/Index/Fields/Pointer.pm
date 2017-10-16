@@ -131,7 +131,7 @@ sub int_fields {
       $self->{pos}++;
 
       # There is a value to aggregate
-      if ($type eq 'int') {
+      if ($type eq 'integer') {
         if (DEBUG) {
           print_log('f_point', "Found value for " . $key_ids[$key_pos] . ' at ' . $key_pos);
         };
@@ -154,7 +154,7 @@ sub int_fields {
       $self->{pos}++;
       $type = $doc->[$self->{pos}++];
       $self->{pos}++;
-      $self->{pos}++ if $type eq 'int' || $type eq 'store'
+      $self->{pos}++ if $type eq 'integer' || $type eq 'store'
     };
 
     # Remember the current field
@@ -239,7 +239,7 @@ sub fields {
         $self->{pos}++;
         $type = $doc->[$self->{pos}++];
         $self->{pos}++ if $type ne 'store';
-        $self->{pos}++ if $type eq 'int' || $type eq 'store';
+        $self->{pos}++ if $type eq 'integer' || $type eq 'store';
       };
 
 
@@ -264,7 +264,7 @@ sub _get_by_type {
   my $type = $doc->[$self->{pos}++];
 
   # Read integer
-  if ($type eq 'int') {
+  if ($type eq 'integer') {
     return Krawfish::Koral::Document::FieldInt->new(
       key_id => $key_id,
       key_value_id => $doc->[$self->{pos}++],

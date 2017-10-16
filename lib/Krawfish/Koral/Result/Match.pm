@@ -64,8 +64,18 @@ sub to_string {
 
 
 # serialize to koralquery
-sub to_koral_query {
-  ...
+sub to_koral_fragment {
+  my $self = shift;
+  my $match = {
+    '@type' => 'koral:match'
+  };
+
+  # Add enrichments to match
+  foreach (@{$self->{enrichments}}) {
+    $match->{$_->key} = $_->to_koral_fragment
+  };
+
+  return $match;
 };
 
 

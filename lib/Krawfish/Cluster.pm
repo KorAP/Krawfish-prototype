@@ -21,6 +21,9 @@ sub new {
 sub search_for {
   my ($self, $query, $cb) = @_;
 
+  # 1. Clone KQ
+  # 2. Add query result to cloned KQ
+
   # This should probably open multiple websockets/unix-sockets in parallel
   # https://stackoverflow.com/questions/13417000/synchronous-request-with-websockets
   Mojo::IOLoop->delay(

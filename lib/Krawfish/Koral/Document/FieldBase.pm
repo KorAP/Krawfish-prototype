@@ -48,4 +48,20 @@ sub sortable {
   $_->{sortable};
 };
 
+
+
+sub to_koral_fragment {
+  my $self = shift;
+  return {
+    '@type' => 'koral:field',
+    'type' => 'type:' . (
+      $self->type eq 'store' ? 'string' : $self->type
+    ),
+    'key' => $self->key,
+    'value' => $self->value
+  };
+};
+
+
+
 1;

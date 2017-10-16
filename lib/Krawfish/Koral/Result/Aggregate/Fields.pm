@@ -159,6 +159,11 @@ sub to_string {
 };
 
 
+sub key {
+  'fields';
+};
+
+
 1;
 
 

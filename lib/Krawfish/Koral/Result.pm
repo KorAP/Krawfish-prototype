@@ -23,6 +23,8 @@ sub add_match {
 # Add collected information to the head
 # TODO:
 #   Make this a list as well
+# TODO:
+#   Rename to compilation
 sub add_collection {
   my ($self, $collection) = @_;
   $self->{collection} = $collection;

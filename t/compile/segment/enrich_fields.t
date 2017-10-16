@@ -66,9 +66,24 @@ is($fields->current->to_string, '[0:0-1]', 'Current object');
 is($fields->current_match->to_string, "[0:0-1|fields:#1=#2,#5=#6]",
    'Current match');
 
+my $kq = $fields->current_match->inflate($index->dict)->to_koral_fragment;
+is($kq->{'@type'}, 'koral:match', 'KQ');
+is($kq->{fields}->[0]->{key}, 'corpus', 'KQ');
+is($kq->{fields}->[0]->{value}, 'corpus-2', 'KQ');
+is($kq->{fields}->[1]->{key}, 'license', 'KQ');
+is($kq->{fields}->[1]->{value}, 'free', 'KQ');
+
 ok($fields->next, 'Next');
 is($fields->current_match->to_string, "[1:0-1|fields:#1=#11,#5=#13]",
    'Current match');
+
+$kq = $fields->current_match->inflate($index->dict)->to_koral_fragment;
+is($kq->{'@type'}, 'koral:match', 'KQ');
+is($kq->{fields}->[0]->{key}, 'corpus', 'KQ');
+is($kq->{fields}->[0]->{value}, 'corpus-3', 'KQ');
+is($kq->{fields}->[1]->{key}, 'license', 'KQ');
+is($kq->{fields}->[1]->{value}, 'closed', 'KQ');
+
 ok(!$fields->next, 'No more next');
 
 

@@ -19,10 +19,10 @@ sub identify {
 
   # This will check, if the field is
   # sortable
-  return if $self->{key_id} && $self->{key_value_id};
+  return $self if $self->{key_id} && $self->{key_value_id};
 
   # Get or introduce new key term_id
-  my $key  = KEY_PREF . $self->{key};
+  my $key = KEY_PREF . $self->{key};
 
   $self->{key_id} = $dict->add_term($key);
 
@@ -39,6 +39,29 @@ sub identify {
 };
 
 
+# Inflate key
+sub inflate {
+  my ($self, $dict) = @_;
+
+  # Key id not available
+  return unless $self->{key_value_id};
+
+  # Get term from term id
+  my $field = $dict->term_by_term_id($self->{key_value_id});
+
+  my $field_pref = quotemeta(FIELD_PREF);
+  if ($field =~ /^$field_pref([^:]+):(.+)$/) {
+    $self->{key} = $1;
+    $self->{value} = $2;
+  }
+  else {
+    warn 'Field has no valid attribute';
+  };
+
+  return $self;
+};
+
+# Stringification
 sub to_string {
   my $self = shift;
   unless ($self->{key_id}) {
