@@ -23,6 +23,10 @@ sub rank_for {
 };
 
 
+sub type {
+  'no';
+};
+
 sub criterion {
   $_[0]->{field};
 };

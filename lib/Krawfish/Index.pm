@@ -190,6 +190,23 @@ sub introduce_field {
 };
 
 
+# Add to index
+sub add_doc {
+  my ($self, $file) = @_;
+
+  # Get Koral document
+  my $kq = Krawfish::Koral::Document->new($file) or return;
+
+  # Identify document
+  $kq = $kq->identify($self->dict) or return;
+
+  # Add to segment
+  $self->segment->add($kq) or return;
+
+  return $self;
+};
+
+
 # Commit all pending data
 sub commit {
   my $self = shift;

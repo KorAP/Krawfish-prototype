@@ -68,4 +68,8 @@ sub match_from_query {
 };
 
 
+sub max_freq {
+  $_[0]->{query}->max_freq;
+};
+
 1;
