@@ -20,7 +20,7 @@ sub type {
 sub identify {
   my ($self, $dict) = @_;
 
-  return if $self->{key_id} && $self->{key_value_id};
+  return $self if $self->{key_id} && $self->{key_value_id};
 
   # Get or introduce new key term_id
   my $key  = KEY_PREF . $self->{key};
@@ -47,6 +47,24 @@ sub identify {
 };
 
 
+# Inflate field
+sub inflate {
+  my ($self, $dict) = @_;
+
+  # Key id not available
+  return unless $self->{key_id};
+
+  # Get term from term id
+  $self->{key} = substr(
+    $dict->term_by_term_id($self->{key_id}),
+    1
+  );
+
+  return $self;
+};
+
+
+# Stringification
 sub to_string {
   my $self = shift;
   unless ($self->{key_id}) {

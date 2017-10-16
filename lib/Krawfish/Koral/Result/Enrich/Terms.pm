@@ -1,8 +1,12 @@
 package Krawfish::Koral::Result::Enrich::Terms;
+use Krawfish::Util::Constants qw/:PREFIX/;
 use strict;
 use warnings;
 
 # Represent all terms that are on surface per class
+
+# TODO:
+#   Probably use Term type utility
 
 sub new {
   my $class = shift;
@@ -16,20 +20,41 @@ sub new {
 # Stringification
 sub to_string {
   my $self = shift;
-  my $str = 'terms:';
+  my $str = $self->key . ':';
 
   # Check if terms or ids need to be stringified
   my $data = $self->{terms} ? $self->{terms} :
     $self->{term_ids};
 
   # Iterate over all classes
-  foreach my $class_nr (keys %{$data}) {
+  foreach my $class_nr (sort keys %{$data}) {
     $str .= '[' . $class_nr . ':';
     $str .= join(',', @{$data->{$class_nr}});
     $str .= ']';
   };
 
   return $str;
+};
+
+sub key {
+  'terms'
+};
+
+sub to_koral_fragment {
+  my $self = shift;
+  my $terms = $self->{terms};
+
+  my @terms = ();
+
+  # Iterate over all classes
+  foreach my $class_nr (sort keys %{$terms}) {
+    push @terms, {
+      classOut => $class_nr,
+      terms => [map { substr($_, 1) } @{$terms->{$class_nr}} ]
+    };
+  };
+
+  return \@terms;
 };
 
 

@@ -17,6 +17,7 @@ sub type {
 # There is no term_id, but it's required for sorting
 sub term_id { undef };
 
+
 sub identify {
   my ($self, $dict) = @_;
 
@@ -24,6 +25,23 @@ sub identify {
 
   # Get or introduce new key term_id
   $self->{key_id} = $dict->add_term($key);
+
+  return $self;
+};
+
+
+# Inflate field
+sub inflate {
+  my ($self, $dict) = @_;
+
+  # Key id not available
+  return unless $self->{key_id};
+
+  # Get term from term id
+  $self->{key} = substr(
+    $dict->term_by_term_id($self->{key_id}),
+    1
+  );
 
   return $self;
 };

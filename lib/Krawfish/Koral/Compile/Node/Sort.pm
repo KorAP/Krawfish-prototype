@@ -94,7 +94,7 @@ sub optimize {
 
     # TODO:
     #   This needs to be checked in identify!
-    warn 'The chosen sort criterion is not a sortable field';
+    # warn 'The chosen sort criterion is not a sortable field';
     return $self->{query} unless $self->{follow_up};
 
     # TODO:

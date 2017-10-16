@@ -10,19 +10,21 @@ my $index = Krawfish::Index->new;
 ok_index($index, {
   id => 'doc-1',
   license => 'free',
-  corpus => 'corpus-2'
+  corpus => 'corpus-2',
+  integer_year => 1996
 } => [qw/aa bb/], 'Add new document');
-
 ok_index($index, {
   id => 'doc-2',
   license => 'closed',
-  corpus => 'corpus-3'
+  corpus => 'corpus-3',
+  integer_year => 1998
 } => [qw/aa bb/], 'Add new document');
 ok_index($index, {
   id => 'doc-3',
   license => 'free',
   corpus => 'corpus-1',
-  store_uri => 'My URL'
+  store_uri => 'My URL',
+  integer_year => 2002
 } => [qw/bb cc/], 'Add new document');
 
 
@@ -54,7 +56,7 @@ ok($koral_query = $koral_query->identify($index->dict), 'Identify');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string(1),
-   "fields(#1,#5:filter(#8,[1]))",
+   "fields(#1,#7:filter(#10,[1]))",
    'Stringification');
 
 ok(my $fields = $koral_query->optimize($index->segment), 'optimize query');
@@ -63,7 +65,7 @@ ok(my $fields = $koral_query->optimize($index->segment), 'optimize query');
 ok($fields->next, 'Next');
 is($fields->current->to_string, '[0:0-1]', 'Current object');
 
-is($fields->current_match->to_string, "[0:0-1|fields:#1=#2,#5=#6]",
+is($fields->current_match->to_string, "[0:0-1|fields:#1=#2,#7=#8]",
    'Current match');
 
 my $kq = $fields->current_match->inflate($index->dict)->to_koral_fragment;
@@ -74,7 +76,7 @@ is($kq->{fields}->[1]->{key}, 'license', 'KQ');
 is($kq->{fields}->[1]->{value}, 'free', 'KQ');
 
 ok($fields->next, 'Next');
-is($fields->current_match->to_string, "[1:0-1|fields:#1=#11,#5=#13]",
+is($fields->current_match->to_string, "[1:0-1|fields:#1=#13,#7=#16]",
    'Current match');
 
 $kq = $fields->current_match->inflate($index->dict)->to_koral_fragment;
@@ -94,35 +96,43 @@ $koral = Krawfish::Koral->new;
 $koral->query($qb->bool_or('aa', 'bb'));
 $koral->compile(
   $mb->enrich(
-    $mb->e_fields('license','corpus', 'uri')
+    $mb->e_fields('license','corpus', 'uri', 'year')
   )
 );
 $fields = $koral->to_query->identify($index->dict)->optimize($index->segment);
 
-
 ok($fields->next, 'Next');
 is($fields->current->to_string, '[0:0-1]', 'Current object');
-is($fields->current_match->to_string, "[0:0-1|fields:#1=#2,#5=#6]",
+is($fields->current_match->to_string, "[0:0-1|fields:#1=#2,#5=#6(1996),#7=#8]",
    'Current match');
+
+$kq = $fields->current_match->inflate($index->dict)->to_koral_fragment;
+is($kq->{'@type'}, 'koral:match', 'KQ');
+is($kq->{fields}->[0]->{key}, 'corpus', 'KQ');
+is($kq->{fields}->[0]->{value}, 'corpus-2', 'KQ');
+is($kq->{fields}->[1]->{key}, 'year', 'KQ');
+is($kq->{fields}->[1]->{value}, 1996, 'KQ');
+is($kq->{fields}->[2]->{key}, 'license', 'KQ');
+is($kq->{fields}->[2]->{value}, 'free', 'KQ');
 
 ok($fields->next, 'Next');
 is($fields->current->to_string, '[0:1-2]', 'Current object');
-is($fields->current_match->to_string, "[0:1-2|fields:#1=#2,#5=#6]",
+is($fields->current_match->to_string, "[0:1-2|fields:#1=#2,#5=#6(1996),#7=#8]",
    'Current match');
 
 ok($fields->next, 'Next');
 is($fields->current->to_string, '[1:0-1]', 'Current object');
-is($fields->current_match->to_string, "[1:0-1|fields:#1=#11,#5=#13]",
+is($fields->current_match->to_string, "[1:0-1|fields:#1=#13,#5=#15(1998),#7=#16]",
    'Current match');
 
 ok($fields->next, 'Next');
 is($fields->current->to_string, '[1:1-2]', 'Current object');
-is($fields->current_match->to_string, "[1:1-2|fields:#1=#11,#5=#13]",
+is($fields->current_match->to_string, "[1:1-2|fields:#1=#13,#5=#15(1998),#7=#16]",
    'Current match');
 
 ok($fields->next, 'Next');
 is($fields->current->to_string, '[2:0-1]', 'Current object');
-is($fields->current_match->to_string, "[2:0-1|fields:#1=#14,#5=#6,#16='My URL']",
+is($fields->current_match->to_string, "[2:0-1|fields:#1=#17,#5=#19(2002),#7=#8,#20='My URL']",
    'Current match');
 
 ok(!$fields->next, 'Next');

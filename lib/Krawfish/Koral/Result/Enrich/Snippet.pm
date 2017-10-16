@@ -25,8 +25,18 @@ sub inflate {
 # Stringification
 sub to_string {
   my ($self, $id) = @_;
-  return 'snippet:' . join(',', map { $_->to_string($id) } @{$self->{hit_ids}});
+  return $self->key . ':' . join(',', map { $_->to_string($id) } @{$self->{hit_ids}});
 };
 
+
+sub key {
+  'snippet'
+};
+
+
+sub to_koral_fragment {
+  my $self = shift;
+  return join('', map { $_->to_string } @{$self->{hit_ids}});
+};
 
 1;

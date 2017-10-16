@@ -57,9 +57,16 @@ ok($query->next, 'Next match');
 is($query->current_match->to_string, '[0:0-1$0,2,0,1|terms:[2:7]]', 'Current match');
 
 is($index->dict->term_by_term_id(7), SUBTERM_PREF . 'aa', 'Get term');
-is($query->current_match->inflate($index->dict)->to_string,
+
+my $match = $query->current_match->inflate($index->dict);
+is($match->to_string,
    '[0:0-1$0,2,0,1|terms:[2:' . SUBTERM_PREF . 'aa]]',
    'Current match');
+
+$match = $match->to_koral_fragment;
+is($match->{'@type'}, 'koral:match', 'KQ');
+is($match->{'terms'}->[0]->{terms}->[0], 'aa', 'KQ');
+is($match->{'terms'}->[0]->{classOut}, 2, 'KQ');
 
 ok($query->next, 'Next match');
 is($query->current_match->to_string,

@@ -39,7 +39,7 @@ sub identify {
 };
 
 
-# Inflate key
+# Inflate field
 sub inflate {
   my ($self, $dict) = @_;
 
@@ -49,9 +49,8 @@ sub inflate {
   # Get term from term id
   my $field = $dict->term_by_term_id($self->{key_value_id});
 
-  my $field_pref = quotemeta(FIELD_PREF);
-  if ($field =~ /^$field_pref([^:]+):(.+)$/) {
-    $self->{key} = $1;
+  if ($field =~ /^([^:]+):(.+)$/) {
+    $self->{key} = substr($1, 1); # Remove prefix
     $self->{value} = $2;
   }
   else {
@@ -60,6 +59,7 @@ sub inflate {
 
   return $self;
 };
+
 
 # Stringification
 sub to_string {
