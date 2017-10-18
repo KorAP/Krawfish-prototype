@@ -9,6 +9,10 @@ use warnings;
 # mergesort, but for the moment, it's way simpler.
 
 # TODO:
+#   Instead of using a mergesort approach, this may
+#   use a concurrent priorityqueue instead.
+
+# TODO:
 #   May need to return Krawfish::Posting::Sorted
 #   with a 'criterion' array.
 #   Instead of next() followed by current(), this should use

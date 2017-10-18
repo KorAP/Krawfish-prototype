@@ -21,6 +21,12 @@ use warnings;
 #  {1:lang=de}|{2:lang!=de}
 # getting the stats.
 
+# It's also necessary to find out, how many documents
+# may be filtered out by a certain query rewrite,
+# e.g. freq(0,1: {1:author=Goethe} & license=free)
+# will count all documents that are by Goethe and
+# separately counts the filtered documents.
+
 # TODO:
 #   Alternatively there could be a Compare() query
 

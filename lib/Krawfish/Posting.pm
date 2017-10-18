@@ -41,9 +41,42 @@ sub payload {
 
 # Flags for corpus classes
 sub flags {
-  return $_[0]->{flags} //= 0b0000_0000_0000_0000;
+  # Class 0 is set per default
+  return $_[0]->{flags} //= 0b1000_0000_0000_0000;
 };
 
+
+# Return a new flags, that represents
+# the intersection of the flags with given flags
+sub flags_intersect {
+  my ($self, $flags) = @_;
+
+  # Returns a new flag
+  return $_[0]->flags & $flags;
+};
+
+
+# Returns a list of valid query classes
+sub flags_list {
+
+  # TODO:
+  #   The implementation is quite naive and
+  #   should be optimized
+  my ($self, $query_flags) = @_;
+  my $intersect = $query_flags ? $self->flags_intersect($query_flags) : $self->flags;
+  my @list = ();
+
+  # That's quite a naive approach ...
+  # Maybe use while ($intersect etc.)
+  foreach (0..15) {
+    if ($intersect & (0b1000_0000_0000_0000 >> $_)) {
+      push @list, $_;
+    };
+  };
+
+  # Return list of valid classes
+  return @list;
+};
 
 # Compare posting order
 sub compare {
