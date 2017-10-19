@@ -11,6 +11,8 @@ sub new {
   }, $class;
 };
 
+
+# Stringification
 sub to_string {
   my $self = shift;
   return 'fields:' . join(',', map { $_->to_string } @{$self->{fields}});

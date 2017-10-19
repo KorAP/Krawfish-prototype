@@ -4,6 +4,9 @@ use Krawfish::Posting::Payload;
 use strict;
 use warnings;
 
+# TODO:
+#   Ensure that flags are serialized!
+
 # Krawfish::Posting is the base class for all
 # span based postings.
 # May better be named "Krawfish::Posting::Span"
@@ -56,7 +59,7 @@ sub flags_intersect {
 };
 
 
-# Returns a list of valid query classes
+# Returns a list of matching query corpus classes
 sub flags_list {
 
   # TODO:
@@ -186,7 +189,8 @@ sub clone {
     doc_id => $self->doc_id,
     start => $self->start,
     end => $self->end,
-    payload => defined $self->{payload} ? $self->payload->clone : undef
+    payload => defined $self->{payload} ? $self->payload->clone : undef,
+    flags => $self->{flags}
   );
 }
 
