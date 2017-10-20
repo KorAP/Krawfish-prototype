@@ -55,7 +55,7 @@ sub flags_intersect {
   my ($self, $flags) = @_;
 
   # Returns a new flag
-  return $_[0]->flags & $flags;
+  return $self->flags & $flags;
 };
 
 
@@ -202,6 +202,10 @@ sub to_string {
     $self->doc_id . ':' .
     $self->start . '-' .
     $self->end;
+
+  if ($self->flags & 0b0111_1111_1111_1111) {
+    $str .= '!' . ($self->flags + 0);
+  };
 
   if ($self->payload->length) {
     $str .= '$' . $self->payload->to_string;

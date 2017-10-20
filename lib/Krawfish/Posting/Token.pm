@@ -35,4 +35,9 @@ sub payload {
 };
 
 
+# No flags defined
+sub flags {
+  0;
+};
+
 1;
