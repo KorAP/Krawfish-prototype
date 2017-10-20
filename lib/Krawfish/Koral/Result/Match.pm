@@ -1,5 +1,5 @@
 package Krawfish::Koral::Result::Match;
-use parent 'Krawfish::Posting';
+use parent 'Krawfish::Posting::Span';
 use Krawfish::Util::String qw/squote/;
 use warnings;
 use strict;

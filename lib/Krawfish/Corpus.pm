@@ -9,8 +9,8 @@ use warnings;
 sub current {
   my $self = shift;
   return unless defined $self->{doc_id};
-  return Krawfish::Posting::Doc->new(
-    $self->{doc_id}
+  return Krawfish::Posting->new(
+    doc_id => $self->{doc_id}
   );
 };
 

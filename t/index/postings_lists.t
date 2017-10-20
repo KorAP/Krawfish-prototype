@@ -3,7 +3,7 @@ use warnings;
 use Test::More;
 
 use_ok('Krawfish::Index');
-use_ok('Krawfish::Posting::Token');
+use_ok('Krawfish::Posting::Span');
 
 ok(my $index = Krawfish::Index->new, 'New index');
 

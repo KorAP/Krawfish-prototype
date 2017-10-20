@@ -1,6 +1,6 @@
 package Krawfish::Corpus::FieldID;
 use parent 'Krawfish::Corpus';
-use Krawfish::Posting::Doc;
+use Krawfish::Posting;
 use Krawfish::Query::Nowhere;
 use Krawfish::Log;
 use strict;
@@ -56,9 +56,13 @@ sub term_id {
 sub current {
   my $postings = $_[0]->{postings};
   return if $postings->pos == -1;
+
   return unless $postings->current;
-  Krawfish::Posting::Doc->new(
-    @{$postings->current}
+
+  my $current = $postings->current;
+
+  Krawfish::Posting->new(
+    doc_id => $current->doc_id
   );
 }
 

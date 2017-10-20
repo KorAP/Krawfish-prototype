@@ -1,5 +1,6 @@
 package Krawfish::Query;
 use Krawfish::Log;
+use Krawfish::Posting::Span;
 use Scalar::Util qw/blessed refaddr/;
 use strict;
 use warnings;
@@ -13,7 +14,7 @@ use constant DEBUG => 0;
 sub current {
   my $self = shift;
   return unless defined $self->{doc_id};
-  return Krawfish::Posting->new(
+  return Krawfish::Posting::Span->new(
     doc_id  => $self->{doc_id},
     start   => $self->{start},
     end     => $self->{end},

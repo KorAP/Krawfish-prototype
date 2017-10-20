@@ -1,6 +1,6 @@
 package Krawfish::Query::TermID;
 use parent 'Krawfish::Query';
-use Krawfish::Posting::Token;
+use Krawfish::Posting::Span;
 use Krawfish::Query::Filter;
 use Krawfish::Log;
 use strict;
@@ -54,8 +54,13 @@ sub current {
   return if $postings->pos == -1;
   return unless $postings->current;
 
-  Krawfish::Posting::Token->new(
-    @{$postings->current}
+  my $current = $postings->current;
+
+  Krawfish::Posting::Span->new(
+    doc_id  => $current->[0],
+    start   => $current->[1],
+    end     => $current->[2],
+    payload => $current->[3]
   );
 };
 

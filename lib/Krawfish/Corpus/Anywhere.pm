@@ -1,6 +1,6 @@
 package Krawfish::Corpus::Anywhere;
 use Krawfish::Index::PostingsLive;
-use Krawfish::Posting::Doc;
+use Krawfish::Posting;
 use Krawfish::Query::Nowhere;
 use Scalar::Util qw/refaddr/;
 use Krawfish::Log;
@@ -59,8 +59,8 @@ sub current {
 
   print_log('vc_any', 'Current doc_id is ' . $live->current) if DEBUG;
 
-  Krawfish::Posting::Doc->new(
-    $live->current
+  Krawfish::Posting->new(
+    doc_id => $live->current
   );
 };
 
