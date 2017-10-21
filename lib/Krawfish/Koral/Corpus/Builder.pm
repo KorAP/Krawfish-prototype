@@ -5,6 +5,7 @@ use Krawfish::Koral::Corpus::Class;
 use Krawfish::Koral::Corpus::Nowhere;
 use Krawfish::Koral::Corpus::Cache;
 use Krawfish::Koral::Corpus::AndNot;
+use Krawfish::Koral::Corpus::Span;
 use strict;
 use warnings;
 
@@ -12,6 +13,7 @@ sub new {
   my $class = shift;
   bless \(my $self = ''), $class;
 };
+
 
 # Create 'and' group
 sub bool_and {
@@ -70,6 +72,12 @@ sub string {
   return Krawfish::Koral::Corpus::Field->new('string', @_);
 };
 
+
+# Create span query
+sub span {
+  shift;
+  return Krawfish::Koral::Corpus::Span->new(@_);
+};
 
 # Create 'date' field
 # May be renamed to 'field_date'

@@ -8,6 +8,10 @@ use warnings;
 
 # Krawfish::Query is the base class for all span queries.
 
+# TODO:
+#   Use a boolean init value to indicate a
+#   query needs a next first
+
 use constant DEBUG => 0;
 
 # Current span object
@@ -36,7 +40,13 @@ sub next {
 # This is only relevant for term posting lists
 sub next_doc {
   my $self = shift;
-  my $current_doc_id = $self->current->doc_id;
+
+  # TODO:
+  #   There may be the need to
+  #   have an _init value
+
+  my $current = $self->current or return;
+  my $current_doc_id = $current->doc_id;
 
   if (DEBUG) {
     print_log('query', refaddr($self) . ": go to next doc following $current_doc_id");

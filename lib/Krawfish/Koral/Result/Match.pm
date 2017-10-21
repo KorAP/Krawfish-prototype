@@ -20,7 +20,7 @@ use strict;
 #   sorting_criteria
 #   segment_id
 #   match_id
-
+#   corpus flags
 
 # Add an enrichment
 sub add {

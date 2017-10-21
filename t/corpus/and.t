@@ -14,9 +14,6 @@ ok_index($index, {
   integer_age => 4
 } => [qw/aa bb/], 'Add complex document');
 
-
-done_testing;
-__END__
 ok_index($index, {
   integer_id => 3,
   author => 'Peter',

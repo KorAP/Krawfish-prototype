@@ -48,7 +48,7 @@ sub optimize {
   my ($pos, $neg) = @{$self->operands};
 
   if (DEBUG) {
-    print_log('kq_andnot', 'Plan andnot') if DEBUG;
+    print_log('kq_andnot', 'Plan andnot');
   };
 
   # Get the positive query
