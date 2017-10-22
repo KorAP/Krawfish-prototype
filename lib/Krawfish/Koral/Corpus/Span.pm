@@ -3,6 +3,7 @@ use parent 'Krawfish::Koral::Corpus';
 use Krawfish::Util::Constants ':PREFIX';
 use Krawfish::Query::Nowhere;
 use Krawfish::Corpus::Span;
+use Krawfish::Log;
 use strict;
 use warnings;
 
@@ -36,37 +37,47 @@ sub is_leaf { 0 };
 sub normalize {
   my $self = shift;
 
-
   if (DEBUG) {
-    print_log('kq_c_span', 'Normalize span query') if DEBUG;
+    print_log('kq_c_span', 'Normalize span query');
+    print_log('kq_c_span', 'Remove classes from ' . $self->operand->to_string);
   };
 
   # Remove classes from operand (the can't be used)
   my $span = $self->operand->remove_classes;
 
+  if (DEBUG) {
+    print_log('kq_c_span', 'Span without classes is ' . $span->to_string);
+  };
+
+
   # Normalize operand
-  unless ($span = $self->operand->normalize) {
-
-    $self->copy_info_from($self->operand);
-    return;
-  };
-
-  # Deal with anywhere spans
-  if ($span->is_anywhere || $span->is_optional || $span->is_null) {
-    return $self->builder->anywhere;
-  };
-
-  # Finalize span query to ensure,
-  # There is no invalid extension
-  my $final;
-  unless ($final = $span->finalize) {
+  my $norm;
+  unless ($norm = $span->normalize) {
 
     $self->copy_info_from($span);
     return;
   };
 
+  # Deal with anywhere spans
+  if ($norm->is_anywhere || $norm->is_optional || $norm->is_null) {
+    return $norm->builder->anywhere;
+  };
+
+  # Finalize span query to ensure,
+  # There is no invalid extension
+  my $final;
+  unless ($final = $norm->finalize) {
+
+    $self->copy_info_from($norm);
+    return;
+  };
+
   # Set operand
-  $self->{operand} = $final;
+  $self->operand($final);
+
+  if (DEBUG) {
+    print_log('kq_c_span', 'Normalized operand is ' . $final->to_string);
+  };
 
   return $self;
 };

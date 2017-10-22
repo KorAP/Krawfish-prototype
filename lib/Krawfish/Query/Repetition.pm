@@ -9,6 +9,9 @@ use warnings;
 use constant DEBUG => 0;
 
 # TODO:
+#   Support next_doc()!!!
+
+# TODO:
 #   Support next_pos, in case current start
 #   position can not succeed, e.g. in case of position
 

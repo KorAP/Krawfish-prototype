@@ -86,6 +86,8 @@ matches($rep, [qw/[0:0-1]
                   [0:7-8]
                   [0:9-10]/]);
 
+# TODO:
+#   Support next_doc()!
 
 done_testing;
 __END__

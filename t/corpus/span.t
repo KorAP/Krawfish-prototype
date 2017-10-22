@@ -72,7 +72,7 @@ ok(!$query->next, 'No more documents');
 
 
 
-# Search in documents containing the sequence [bb][cc]
+# Search in documents containing the sequence [aa][bb]
 ok($query = $cb->span(
   $qb->seq(
     $qb->token('aa'),
@@ -88,6 +88,90 @@ is($query->to_string, 'span(#10#12)', 'Stringification');
 ok($query = $query->optimize($index->segment), 'Optimize');
 is($query->to_string, 'span(constr(pos=2048:#12,#10))', 'Stringification');
 
+matches($query, [qw/[0] [1] [2] [3]/]);
+
+
+# Search in documents containing an optional span
+ok($query = $cb->bool_and(
+  $cb->string('author')->eq('Peter'),
+  $cb->span(
+    $qb->repeat(
+      $qb->token('aa'), 0, 100
+    )
+  )
+), 'Create corpus query');
+
+# Ignore optionality
+is($query->to_string, 'author=Peter&span([aa]{0,100})', 'Stringification');
+ok($query = $query->normalize->identify($index->dict)->optimize($index->segment), 'Optimize');
+is($query->to_string, '#17', 'Stringification');
+matches($query, [qw/[1] [2]/]);
+
+
+# Search in documents containing an non-optional span
+ok($query = $cb->bool_and(
+  $cb->string('author')->eq('Peter'),
+  $cb->span(
+    $qb->repeat(
+      $qb->token('aa'), 1, 100
+    )
+  )
+), 'Create corpus query');
+
+is($query->to_string, 'author=Peter&span([aa]{1,100})', 'Stringification');
+ok($query = $query->normalize->identify($index->dict)->optimize($index->segment), 'Optimize');
+is($query->to_string, 'and(span(rep(1-100:#10)),#17)', 'Stringification');
+matches($query, [qw/[1] [2]/]);
+
+
+# Search in documents with non-existing span
+ok($query = $cb->bool_and(
+  $cb->string('author')->eq('Peter'),
+  $cb->span(
+    $qb->token('zz')
+  )
+), 'Create corpus query');
+
+is($query->to_string, 'author=Peter&span([zz])', 'Stringification');
+ok($query = $query->normalize->identify($index->dict)->optimize($index->segment), 'Optimize');
+is($query->to_string, '[0]', 'Stringification');
+
+
+# Search in documents with an alternative span
+ok($query = $cb->bool_or(
+  $cb->string('author')->eq('Michael'),
+  $cb->span(
+    $qb->seq(
+      $qb->token('dd'), $qb->token('bb')
+    )
+  )
+), 'Create corpus query');
+
+is($query->to_string, 'author=Michael|span([dd][bb])', 'Stringification');
+ok($query = $query->normalize->identify($index->dict)->optimize($index->segment), 'Optimize');
+is($query->to_string, 'or(#2,span(constr(pos=2048:#12,#16)))', 'Stringification');
+matches($query, [qw/[0] [1] [2] [3]/]);
+
+
+# Search in documents with neglectable classes
+ok($query = $cb->bool_or(
+  $cb->string('author')->eq('Michael'),
+  $cb->span(
+    $qb->class(
+      $qb->seq(
+        $qb->class($qb->token('dd'),2),
+        $qb->class($qb->token('bb'),3)
+      ),
+      1
+    )
+  )
+), 'Create corpus query');
+
+is($query->to_string, 'author=Michael|span({1:{2:[dd]}{3:[bb]}})', 'Stringification');
+ok($query = $query->normalize, 'Normalize');
+is($query->to_string, 'author=Michael|span(ddbb)', 'Stringification');
+ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimize');
+is($query->to_string, 'or(#2,span(constr(pos=2048:#12,#16)))', 'Stringification');
 matches($query, [qw/[0] [1] [2] [3]/]);
 
 

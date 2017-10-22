@@ -1,6 +1,7 @@
 package Krawfish::Koral::Query::Class;
 use parent 'Krawfish::Koral::Query';
 use Krawfish::Query::Class;
+use Krawfish::Log;
 use strict;
 use warnings;
 use Memoize;
@@ -8,10 +9,10 @@ memoize('min_span');
 memoize('max_span');
 
 
-use constant {
-  DEBUG => 0
-};
+use constant DEBUG => 0;
 
+
+# Constructor
 sub new {
   my $class = shift;
   bless {
@@ -20,17 +21,6 @@ sub new {
   }, $class;
 };
 
-sub to_koral_fragment {
-  my $self = shift;
-  return {
-    '@type' => 'koral:group',
-    'operation' => 'operation:class',
-    'classOut' => $self->number,
-    'operands' => [
-      $self->operand->to_koral_fragment
-    ]
-  };
-};
 
 sub type { 'class' };
 
@@ -42,16 +32,25 @@ sub remove_classes {
     $keep = [];
   };
 
+  if (DEBUG) {
+    print_log('kq_q_class', 'Remove classes from ' . $self->to_string);
+  };
+
   $self->{operand}->[0] = $self->{operands}->[0]->remove_classes($keep);
 
+  # Check the keep operand
   foreach (@$keep) {
-    if ($_ eq $self->{number}) {
+    if ($_ eq $self->number) {
       return $self;
     };
   };
 
+  if (DEBUG) {
+    print_log('kq_q_class', 'Remove own class ' . $self->number);
+  };
+
   # Return the span only
-  return $self->{operands}->[0];
+  return $self->operand;
 };
 
 # A class always spans its operand span
@@ -206,6 +205,20 @@ sub from_koral {
   my $op = $importer->all($kq->{operands}->[0]);
 
   return $class->new($op, $nr);
+};
+
+
+# Serialize to KoralQuery
+sub to_koral_fragment {
+  my $self = shift;
+  return {
+    '@type' => 'koral:group',
+    'operation' => 'operation:class',
+    'classOut' => $self->number,
+    'operands' => [
+      $self->operand->to_koral_fragment
+    ]
+  };
 };
 
 
