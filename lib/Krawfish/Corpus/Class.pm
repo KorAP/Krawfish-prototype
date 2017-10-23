@@ -40,7 +40,7 @@ sub new {
   return if $number < 1 || $number > 16;
 
   # 2 bytes flag for 16 classes
-  my $flag = 0b0000_0000_0000_0000 | (1 << $number);
+  my $flag = 0b0000_0000_0000_0000 | (1 << (15 - $number));
 
   if (DEBUG) {
     print_log(
@@ -52,7 +52,7 @@ sub new {
 
   bless {
     corpus => $corpus,
-    flag => $flag,
+    flag   => $flag,
     number => $number
   }, $class;
 };
@@ -106,16 +106,17 @@ sub next {
 };
 
 
-sub current {
-  return Krawfish::Posting->new(
-    doc_id => $_[0]->{doc_id},
-    flags => $_[0]->{flags}
-  );
-};
-
 # Skip to target document
 sub skip_doc {
-  ...
+  my $self = shift;
+  if ($self->{corpus}->skip_doc(shift)) {
+    my $current = $self->{corpus}->current;
+    $self->{doc_id} = $current->doc_id;
+    $self->{flags}  = $current->corpus_flags | $self->{flag};
+    return $self->{doc_id};
+  };
+  $self->{doc_id} = undef;
+  return;
 };
 
 

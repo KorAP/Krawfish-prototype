@@ -45,8 +45,8 @@ sub current {
 
 
 # Skip to target document
-sub skip_to {
-  return $_[0]->skip_to($_[1]);
+sub skip_doc {
+  $_[0]->{query}->skip_doc($_[1]);
 };
 
 

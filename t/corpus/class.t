@@ -9,10 +9,10 @@ use_ok('Krawfish::Koral::Corpus::Builder');
 use_ok('Krawfish::Index');
 
 ok(my $class = Krawfish::Corpus::Class->new(undef, 4), 'Create class corpus');
-is($class->class_string, '0000000000010000', 'Get flag');
+is($class->class_string, '0000100000000000', 'Get flag');
 
 ok($class = Krawfish::Corpus::Class->new(undef, 11), 'Create class corpus');
-is($class->class_string, '0000100000000000', 'Get flag');
+is($class->class_string, '0000000000010000', 'Get flag');
 
 ok(!Krawfish::Corpus::Class->new(undef, -5), 'Create class corpus');
 ok(!Krawfish::Corpus::Class->new(undef, 25), 'Create class corpus');
@@ -96,16 +96,39 @@ is($query->to_string,
    'Stringification');
 
 ok($query->next, 'Next match');
-done_testing;
-__END__
+is($query->current->to_string, '[0!2]', 'First match');
+ok($query->next, 'Next match');
+is($query->current->to_string, '[1!3]', 'First match');
+ok($query->next, 'Next match');
+is($query->current->to_string, '[2!2,3]', 'First match');
+ok(!$query->next, 'Next match');
 
-is($query->current->to_string, '[0]', 'First match');
 
+
+# Query with and
+ok($query = $cb->bool_and(
+  $cb->class(2, $cb->string('author')->eq('David')),
+  $cb->class(3, $cb->string('age')->eq('24'))
+), 'Create corpus query');
+
+ok($query->has_classes, 'Contains classes');
+
+is($query->to_string, '{2:author=David}&{3:age=24}', 'Stringification');
+
+ok($query = $query->normalize->identify($index->dict)->optimize($index->segment), 'Planning');
+is($query->to_string,
+   "and(class(3:#13),class(2:#2))",
+   'Stringification');
+
+ok($query->next, 'Next match');
+is($query->current->to_string, '[2!2,3]', 'First match');
+ok(!$query->next, 'Next match');
 
 
 TODO: {
-  local $TODO = 'Test corpus class behaviour';
+  local $TODO = 'Test corpus classes in queries';
   # Test optimization with ignorable options
 };
 
 done_testing;
+__END__

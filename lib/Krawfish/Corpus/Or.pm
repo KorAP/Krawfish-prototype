@@ -1,10 +1,11 @@
 package Krawfish::Corpus::Or;
 use parent 'Krawfish::Corpus';
+use Krawfish::Util::Bits;
 use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # TODO:
 #   Support class flags
@@ -47,6 +48,7 @@ sub next {
   my $second = $self->{second}->current;
 
   my $curr = 'first';
+  my $both;
 
   while ($first || $second) {
 
@@ -73,6 +75,7 @@ sub next {
     else {
       print_log('vc_or', 'Current is first operand (4)') if DEBUG;
       $curr = 'first';
+      $both = 1;
     };
 
     # Get the current posting of the respective operand
@@ -96,6 +99,15 @@ sub next {
     };
 
     $self->{doc_id} = $curr_post->doc_id;
+    $self->{flags}  = $curr_post->corpus_flags;
+
+    # Set flags
+    if ($both) {
+      if (DEBUG) {
+        print_log('vc_or', 'Current doc is ' . $self->current->to_string);
+      };
+      $self->{flags} |= $second->corpus_flags;
+    };
 
     if (DEBUG) {
       print_log('vc_or', 'Current doc is ' . $self->current->to_string);
@@ -106,6 +118,7 @@ sub next {
     return 1;
   };
 
+  $self->{flags}  = 0b0000_0000_0000_0000;
   $self->{doc_id} = undef;
   return;
 };
