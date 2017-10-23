@@ -41,6 +41,7 @@ sub normalize {
 };
 
 
+# Optimize query
 sub optimize {
   my ($self, $segment) = @_;
 

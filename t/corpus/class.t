@@ -9,10 +9,10 @@ use_ok('Krawfish::Koral::Corpus::Builder');
 use_ok('Krawfish::Index');
 
 ok(my $class = Krawfish::Corpus::Class->new(undef, 4), 'Create class corpus');
-is($class->flag, '0001000000000000', 'Get flag');
+is($class->class_string, '0000000000010000', 'Get flag');
 
 ok($class = Krawfish::Corpus::Class->new(undef, 11), 'Create class corpus');
-is($class->flag, '0000000000100000', 'Get flag');
+is($class->class_string, '0000100000000000', 'Get flag');
 
 ok(!Krawfish::Corpus::Class->new(undef, -5), 'Create class corpus');
 ok(!Krawfish::Corpus::Class->new(undef, 25), 'Create class corpus');
@@ -25,7 +25,7 @@ ok_index($index, {
 } => [qw/aa bb/], 'Add complex document');
 ok_index($index, {
   id => 3,
-  author => 'David',
+  author => 'Michael',
   integer_age => 24
 } => [qw/aa bb/], 'Add complex document');
 ok_index($index, {
@@ -80,14 +80,32 @@ is_deeply($query->to_koral_fragment, {
   ]
 }, 'Stringification');
 
-ok(my $plan = $query->normalize->identify($index->dict)->optimize($index->segment), 'Planning');
-
-is($plan->to_string,
-   "or(class(3:#12),class(2:#2))",
+ok($query = $query->normalize, 'Normalize');
+is($query->to_string,
+   "{2:author=David}|{3:age=24}",
    'Stringification');
 
+ok($query = $query->identify($index->dict), 'Identify');
+is($query->to_string,
+   "{2:#2}|{3:#13}",
+   'Stringification');
+
+ok($query = $query->optimize($index->segment), 'Planning');
+is($query->to_string,
+   "or(class(2:#2),class(3:#13))",
+   'Stringification');
+
+ok($query->next, 'Next match');
+done_testing;
+__END__
+
+is($query->current->to_string, '[0]', 'First match');
+
+
+
 TODO: {
-  local $TODO = 'Test corpus class behaviour'
+  local $TODO = 'Test corpus class behaviour';
+  # Test optimization with ignorable options
 };
 
 done_testing;

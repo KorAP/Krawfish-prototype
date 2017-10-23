@@ -30,7 +30,7 @@ use warnings;
 # TODO:
 #   Alternatively there could be a Compare() query
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # Constructor
 sub new {
@@ -40,7 +40,15 @@ sub new {
   return if $number < 1 || $number > 16;
 
   # 2 bytes flag for 16 classes
-  my $flag = 0b0000_0000_0000_0000 | (1 << ($number - 1));
+  my $flag = 0b0000_0000_0000_0000 | (1 << $number);
+
+  if (DEBUG) {
+    print_log(
+        'c_class',
+        'Intitalized class ' . $number . ' with flag ' . reverse(bitstring($flag))
+      );
+    };
+
 
   bless {
     corpus => $corpus,
@@ -61,23 +69,30 @@ sub clone {
 
 
 # Return flag in bit stringification
-sub flag {
-  bitstring($_[0]->{flag});
+sub class_string {
+  reverse(bitstring($_[0]->{flag}));
 };
 
 
 # Iterate over corpus and add classes
 sub next {
   my $self = shift;
-  if ($self->{corpus}->next) {
-    my $current = $self->{corpus};
 
+  # Move to next match
+  if ($self->{corpus}->next) {
+
+    # Get current posting
+    my $current = $self->{corpus}->current;
+
+    # Set current doc id
     $self->{doc_id} = $current->doc_id;
-    $self->{flags} = $current->flags | $self->{flag};
+
+    # Set current flags
+    $self->{flags} = $current->corpus_flags | $self->{flag};
 
     if (DEBUG) {
       print_log(
-        'class',
+        'c_class',
         'Classed {' . $self->{number} . '} ' .
           'corpus matched: ' . $self->current->to_string
         );
@@ -90,6 +105,13 @@ sub next {
   return;
 };
 
+
+sub current {
+  return Krawfish::Posting->new(
+    doc_id => $_[0]->{doc_id},
+    flags => $_[0]->{flags}
+  );
+};
 
 # Skip to target document
 sub skip_doc {

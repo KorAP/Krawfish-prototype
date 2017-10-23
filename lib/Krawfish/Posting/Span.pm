@@ -139,8 +139,8 @@ sub to_string {
     $self->start . '-' .
     $self->end;
 
-  if ($self->flags & 0b0111_1111_1111_1111) {
-    $str .= '!' . ($self->flags + 0);
+  if ($self->corpus_flags & 0b0111_1111_1111_1111) {
+    $str .= '!' . join(',', $self->corpus_classes);
   };
 
   if ($self->payload->length) {

@@ -1,11 +1,13 @@
 package Krawfish::Posting;
 use overload '""' => sub { $_[0]->to_string }, fallback => 1;
+use Krawfish::Util::Bits;
 use Krawfish::Posting::Payload;
+use Krawfish::Log;
+use bytes;
 use strict;
 use warnings;
 
-# TODO:
-#   Ensure that flags are serialized!
+use constant DEBUG => 0;
 
 # Constructor
 sub new {
@@ -20,39 +22,67 @@ sub doc_id {
 };
 
 
-# Flags for corpus classes
-sub flags {
-  # Class 0 is set per default
-  return $_[0]->{flags} //= 0b1000_0000_0000_0000;
-};
-
-
-# Return a new flags, that represents
-# the intersection of the flags with given flags
-sub flags_intersect {
+# Corpus classes
+sub corpus_flags {
   my ($self, $flags) = @_;
 
-  # Returns a new flag
-  return $self->flags & $flags;
+
+  # Class 0 is set per default
+  $self->{flags} //= 0b1000_0000_0000_0000;
+
+  return $self->{flags} unless defined $flags;
+  return $self->{flags} & $flags;
 };
 
 
 # Returns a list of matching query corpus classes
-sub flags_list {
-
-  # TODO:
-  #   The implementation is quite naive and
-  #   should be optimized
+sub corpus_classes {
   my ($self, $query_flags) = @_;
-  my $intersect = $query_flags ? $self->flags_intersect($query_flags) : $self->flags;
+
+  # Returns all flags requested and all flags existing
+  my $intersect = $self->corpus_flags($query_flags);
+
   my @list = ();
 
-  # That's quite a naive approach ...
-  # Maybe use while ($intersect etc.)
-  foreach (0..15) {
-    if ($intersect & (0b1000_0000_0000_0000 >> $_)) {
-      push @list, $_;
+  if (DEBUG) {
+    print_log(
+      'post',
+      'Intersection between stored and queried classes is <'.
+        reverse(bitstring($intersect)) . '>'
+      );
+  };
+
+  # Remove zero class
+  $intersect &= 0b0111_1111_1111_1111;
+
+  # Initialize move variable
+  my $move = 0b0100_0000_0000_0000;
+
+  my $i = 1;
+
+  # As long as there a set bits ...
+  while ($intersect) {
+
+    if (DEBUG) {
+      print_log(
+        'post',
+        'Check move ' . reverse(bitstring($move)) . ' and intersect ' .
+          reverse(bitstring($intersect))
+      );
     };
+
+    if ($intersect & $move) {
+      if (DEBUG) {
+        print_log(
+          'post',
+          'Move ' . reverse(bitstring($move)) . ' matches ' . reverse(bitstring($intersect))
+        );
+      };
+      push @list, $i;
+      $intersect &= ~$move;
+    };
+    $move >>= 1;
+    $i++;
   };
 
   # Return list of valid classes
@@ -77,8 +107,9 @@ sub to_string {
   my $self = shift;
   my $str = '[' . $self->{doc_id};
 
-  if ($self->flags & 0b0111_1111_1111_1111) {
-    $str .= '!' . ($self->flags + 0);
+  # In case a class != 0 is set - serialize
+  if ($self->corpus_flags & 0b0111_1111_1111_1111) {
+    $str .= '!' . join(',', $self->corpus_classes);
   };
 
   $str . ']';
