@@ -130,6 +130,17 @@ sub clone {
   );
 };
 
+sub same_as {
+  my ($self, $comp) = @_;
+  return unless $comp;
+  return if $self->doc_id != $comp->doc_id;
+  return if $self->flags != $comp->flags;
+  return if $self->start != $comp->start;
+  return if $self->end != $comp->end;
+  return $self->payload->same_as($comp->payload);
+  return 1;
+};
+
 
 # Stringification
 sub to_string {

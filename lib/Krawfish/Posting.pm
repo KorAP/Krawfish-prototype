@@ -91,16 +91,12 @@ sub corpus_classes {
 
 
 # Check if two postings are identical
-# WARNING:
-#   This should compare payloads separately,
-#   because classes may be in different order,
-#   though resulting in identical postings
-# TODO:
-#   Serialization is also bad for flags!!!
 sub same_as {
   my ($self, $comp) = @_;
   return unless $comp;
-  return $self->to_string eq $comp->to_string;
+  return if $self->doc_id != $comp->doc_id;
+  return if $self->flags != $comp->flags;
+  return 1;
 };
 
 
