@@ -13,7 +13,8 @@ use constant {
   SPAN_PREF    => '-',  # <> Spans before
   ATTR_PREF    => '@',
   REL_L_PREF   => '>',
-  REL_R_PREF   => '<'
+  REL_R_PREF   => '<',
+  PTI_CLASS    => 0     # Payload identifier for classes
 };
 
 our $ANNO_PREFIX_RE = qr/(?:\:|\-|\@|\>|\<)/;
@@ -28,6 +29,7 @@ our @EXPORT_OK = (qw/KEY_PREF
                      ATTR_PREF
                      REL_L_PREF
                      REL_R_PREF
+                     PTI_CLASS
                      $ANNO_PREFIX_RE/);
 
 our %EXPORT_TAGS = (
@@ -41,7 +43,8 @@ our %EXPORT_TAGS = (
                 ATTR_PREF
                 REL_L_PREF
                 REL_R_PREF
-                $ANNO_PREFIX_RE/]
+                $ANNO_PREFIX_RE/],
+  PAYLOAD => [qw/PTI_CLASS/]
 );
 
 1;

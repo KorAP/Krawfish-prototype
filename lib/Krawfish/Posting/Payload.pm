@@ -1,20 +1,8 @@
 package Krawfish::Posting::Payload;
-use parent 'Exporter';
+use Krawfish::Util::Constants ':PAYLOAD';
 use strict;
 use warnings;
 use Scalar::Util qw/blessed/;
-
-
-# Class representing payload data
-
-
-use constant {
-  PTI_CLASS => 0
-};
-
-our (@EXPORT);
-
-@EXPORT = qw/PTI_CLASS/;
 
 
 # Constructor

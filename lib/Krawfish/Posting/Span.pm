@@ -1,5 +1,6 @@
 package Krawfish::Posting::Span;
 use parent 'Krawfish::Posting';
+use Krawfish::Util::Constants ':PAYLOAD';
 use Krawfish::Posting::Payload;
 use strict;
 use warnings;
