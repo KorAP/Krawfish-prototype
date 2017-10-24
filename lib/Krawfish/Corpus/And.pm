@@ -80,7 +80,7 @@ sub next {
       print_log('vc_and', 'Documents identical - match!') if DEBUG;
 
       $self->{doc_id} = $first->doc_id;
-      $self->{flags} = $first->corpus_flags | $second->corpus_flags;
+      $self->{flags} = $first->flags | $second->flags;
       $self->{first}->next;
       $self->{second}->next;
 

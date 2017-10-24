@@ -6,7 +6,7 @@ use Krawfish::Posting;
 use strict;
 use warnings;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # TODO:
 #   Support next_doc()!!!
@@ -70,25 +70,32 @@ sub next {
   while (1) {
 
     # Buffer is greater than minimum length
-    if ($buffer->finger + 1 >= $self->{min}) {
-      print_log('repeat', 'Buffer is greater than min ' . $self->{min}) if DEBUG;
+    if (($buffer->finger + 1) >= $self->{min}) {
+      print_log('repeat', 'Buffer is greater equal than min ' . $self->{min}) if DEBUG;
 
       # Buffer is below maximum length
-      if ($buffer->finger + 1 <= $self->{max}) {
-        print_log('repeat', 'Buffer is below than max ' . $self->{max}) if DEBUG;
+      if (($buffer->finger + 1) <= $self->{max}) {
+        if (DEBUG) {
+          print_log(
+            'repeat',
+            'Buffer is below than max ' . $self->{max} . ' at ' . $buffer->finger
+          );
+        };
 
         $last = $buffer->current;
 
-        unless ($last) {
+        if (!$last) {
           $buffer->clear;
           $buffer->backward;
           CORE::next;
         };
 
         # Set current
-        $self->{doc_id} = $buffer->first->doc_id;
-        $self->{start} = $buffer->first->start;
-        $self->{end} = $last->end;
+        my $first = $buffer->first;
+        $self->{doc_id} = $first->doc_id;
+        $self->{flags}  = $first->flags;
+        $self->{start}  = $first->start;
+        $self->{end}    = $last->end;
 
         print_log('repeat', 'There is a match - make current match: ' .
                     $self->current) if DEBUG;

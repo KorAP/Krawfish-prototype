@@ -82,9 +82,10 @@ sub next {
 
   print_log('filter', 'Current span is in docs') if DEBUG;
 
-  $self->{doc_id} = $span->doc_id;
-  $self->{start}  = $span->start;
-  $self->{end}    = $span->end;
+  $self->{doc_id}  = $span->doc_id;
+  $self->{flags}   = $doc->flags;
+  $self->{start}   = $span->start;
+  $self->{end}     = $span->end;
   $self->{payload} = $span->payload;
 
   # Forward span

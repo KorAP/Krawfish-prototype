@@ -1,5 +1,6 @@
 package Krawfish::Koral::Corpus::Class;
 use parent 'Krawfish::Koral::Corpus';
+use Krawfish::Corpus::Class;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -9,8 +10,8 @@ use constant DEBUG => 0;
 sub new {
   my $class = shift;
   bless {
-    number => shift,
-    operands => [shift]
+    operands => [shift],
+    number => shift // 1
   }, $class;
 };
 

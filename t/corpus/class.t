@@ -37,8 +37,8 @@ ok_index($index, {
 ok(my $cb = Krawfish::Koral::Corpus::Builder->new, 'Create CorpusBuilder');
 
 ok(my $query = $cb->bool_or(
-  $cb->class(2, $cb->string('author')->eq('David')),
-  $cb->class(3, $cb->string('age')->eq('24'))
+  $cb->class($cb->string('author')->eq('David'), 2),
+  $cb->class($cb->string('age')->eq('24'), 3)
 ), 'Create corpus query');
 
 ok($query->has_classes, 'Contains classes');
@@ -107,8 +107,8 @@ ok(!$query->next, 'Next match');
 
 # Query with and
 ok($query = $cb->bool_and(
-  $cb->class(2, $cb->string('author')->eq('David')),
-  $cb->class(3, $cb->string('age')->eq('24'))
+  $cb->class($cb->string('author')->eq('David'), 2),
+  $cb->class($cb->string('age')->eq('24'), 3)
 ), 'Create corpus query');
 
 ok($query->has_classes, 'Contains classes');

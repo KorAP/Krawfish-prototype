@@ -4,7 +4,7 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 
 # Constructor
@@ -109,6 +109,7 @@ sub next {
 
   my $curr_post    = $self->{$curr}->current;
   $self->{doc_id}  = $curr_post->doc_id;
+  $self->{flags}   = $curr_post->flags;
   $self->{start}   = $curr_post->start;
   $self->{end}     = $curr_post->end;
   $self->{payload} = $curr_post->payload->clone;

@@ -54,7 +54,7 @@ $koral->query(
   )
 );
 ok($query = $koral->to_query, 'Normalize');
-is($query->to_string, 'filter((b?)|(c),[1])', 'Stringification');
+is($query->to_string, 'filter((b)|(c),[1])', 'Stringification');
 
 
 

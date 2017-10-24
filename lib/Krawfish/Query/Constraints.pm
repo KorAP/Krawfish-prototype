@@ -93,6 +93,10 @@ sub check {
 
   # Match!
   $self->{doc_id}  = $first->doc_id;
+
+  # Flags need to be considered from both operands,
+  # as not both operands are filtered
+  $self->{flags}   = $first->flags | $second->flags;
   $self->{start}   = $first->start < $second->start ? $first->start : $second->start;
   $self->{end}     = $first->end > $second->end ? $first->end : $second->end;
   $self->{payload} = $first->payload->clone->copy_from($second->payload);

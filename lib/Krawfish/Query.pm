@@ -22,7 +22,8 @@ sub current {
     doc_id  => $self->{doc_id},
     start   => $self->{start},
     end     => $self->{end},
-    payload => $self->{payload}
+    payload => $self->{payload},
+    flags   => $self->{flags}
   );
 
   # TODO: May have an offset value as well

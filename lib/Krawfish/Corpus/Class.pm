@@ -88,7 +88,7 @@ sub next {
     $self->{doc_id} = $current->doc_id;
 
     # Set current flags
-    $self->{flags} = $current->corpus_flags | $self->{flag};
+    $self->{flags} = $current->flags | $self->{flag};
 
     if (DEBUG) {
       print_log(
@@ -112,7 +112,7 @@ sub skip_doc {
   if ($self->{corpus}->skip_doc(shift)) {
     my $current = $self->{corpus}->current;
     $self->{doc_id} = $current->doc_id;
-    $self->{flags}  = $current->corpus_flags | $self->{flag};
+    $self->{flags}  = $current->flags | $self->{flag};
     return $self->{doc_id};
   };
   $self->{doc_id} = undef;

@@ -36,6 +36,7 @@ sub next {
     my $current = $span->current;
 
     $self->{doc_id} = $current->doc_id;
+    $self->{flags}  = $current->flags;
     $self->{start}  = $current->start;
     $self->{end}    = $current->end;
 

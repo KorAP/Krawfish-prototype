@@ -84,9 +84,10 @@ sub check {
     print_log('excl', 'No next b valid - so match') if DEBUG;
 
     # Set current
-    $self->{doc_id} = $first->doc_id;
-    $self->{start}  = $first->start;
-    $self->{end}    = $first->end;
+    $self->{doc_id}  = $first->doc_id;
+    $self->{start}   = $first->start;
+    $self->{end}     = $first->end;
+    $self->{flags}   = $first->flags;
     $self->{payload} = $first->payload->clone;
     print_log('excl', 'Set match to ' . $self->current->to_string) if DEBUG;
 
@@ -102,9 +103,10 @@ sub check {
     print_log('excl', 'The case is null') if DEBUG;
 
     # Set current
-    $self->{doc_id} = $first->doc_id;
-    $self->{start}  = $first->start;
-    $self->{end}    = $first->end;
+    $self->{doc_id}  = $first->doc_id;
+    $self->{start}   = $first->start;
+    $self->{end}     = $first->end;
+    $self->{flags}   = $first->flags;
     $self->{payload} = $first->payload->clone;
     print_log('excl', 'Set match to ' . $self->current->to_string) if DEBUG;
     return NEXTA | MATCH;

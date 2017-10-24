@@ -99,14 +99,14 @@ sub next {
     };
 
     $self->{doc_id} = $curr_post->doc_id;
-    $self->{flags}  = $curr_post->corpus_flags;
+    $self->{flags}  = $curr_post->flags;
 
     # Set flags
     if ($both) {
       if (DEBUG) {
         print_log('vc_or', 'Current doc is ' . $self->current->to_string);
       };
-      $self->{flags} |= $second->corpus_flags;
+      $self->{flags} |= $second->flags;
     };
 
     if (DEBUG) {

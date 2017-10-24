@@ -13,13 +13,13 @@ my $posting = Krawfish::Posting->new(
 is($posting->to_string, '[4]', 'Stringification');
 
 is(
-  reverse(bitstring($posting->corpus_flags(0b0100_0000_0000_0000))),
+  reverse(bitstring($posting->flags(0b0100_0000_0000_0000))),
   '0000000000000000',
   'Bitstring'
 );
 
 is(
-  reverse(bitstring($posting->corpus_flags(0b1001_0000_0000_1000))),
+  reverse(bitstring($posting->flags(0b1001_0000_0000_1000))),
   '1000000000000000',
   'Bitstring'
 );

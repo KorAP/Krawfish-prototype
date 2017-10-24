@@ -23,7 +23,7 @@ sub doc_id {
 
 
 # Corpus classes
-sub corpus_flags {
+sub flags {
   my ($self, $flags) = @_;
 
 
@@ -40,7 +40,7 @@ sub corpus_classes {
   my ($self, $query_flags) = @_;
 
   # Returns all flags requested and all flags existing
-  my $intersect = $self->corpus_flags($query_flags);
+  my $intersect = $self->flags($query_flags);
 
   my @list = ();
 
@@ -95,6 +95,8 @@ sub corpus_classes {
 #   This should compare payloads separately,
 #   because classes may be in different order,
 #   though resulting in identical postings
+# TODO:
+#   Serialization is also bad for flags!!!
 sub same_as {
   my ($self, $comp) = @_;
   return unless $comp;
@@ -108,7 +110,7 @@ sub to_string {
   my $str = '[' . $self->{doc_id};
 
   # In case a class != 0 is set - serialize
-  if ($self->corpus_flags & 0b0111_1111_1111_1111) {
+  if ($self->flags & 0b0111_1111_1111_1111) {
     $str .= '!' . join(',', $self->corpus_classes);
   };
 

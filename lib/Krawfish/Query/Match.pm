@@ -7,6 +7,10 @@ use warnings;
 
 # Get posting by doc id plus position and length.
 
+# TODO:
+#   Support classes and corpus classes
+
+
 use constant DEBUG => 0;
 
 

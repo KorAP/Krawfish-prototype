@@ -43,10 +43,11 @@ sub next {
 
       print_log('unique', 'Span is unique') if DEBUG;
 
-      $self->{last} = $current;
-      $self->{doc_id} = $current->doc_id;
-      $self->{start}  = $current->start;
-      $self->{end}    = $current->end;
+      $self->{last}    = $current;
+      $self->{doc_id}  = $current->doc_id;
+      $self->{flags}   = $current->flags;
+      $self->{start}   = $current->start;
+      $self->{end}     = $current->end;
       $self->{payload} = $current->payload;
       return 1;
     }

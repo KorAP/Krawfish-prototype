@@ -12,7 +12,8 @@ sub new {
   my $self = bless {
     span => shift,
     cache => (shift // Krawfish::Cache->new),
-    doc_id => undef
+    doc_id => undef,
+    flags  => undef
   }, $class;
   return $self;
 };

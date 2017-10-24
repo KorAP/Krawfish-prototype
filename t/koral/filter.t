@@ -50,6 +50,7 @@ is($query->to_string, "filter(#8,#9)", 'Planned stringification');
 
 ok($query->next, 'Get next filtered match');
 is($query->current->to_string, '[1:1-2]', 'Stringification');
+ok(!$query->next, 'Get next filtered match');
 
 TODO: {
   local $TODO = 'Test further with AND-groups';
