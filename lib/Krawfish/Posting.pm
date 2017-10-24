@@ -53,40 +53,7 @@ sub corpus_classes {
   };
 
   # Remove zero class
-  $intersect &= 0b0111_1111_1111_1111;
-
-  # Initialize move variable
-  my $move = 0b0100_0000_0000_0000;
-
-  my $i = 1;
-
-  # As long as there a set bits ...
-  while ($intersect) {
-
-    if (DEBUG) {
-      print_log(
-        'post',
-        'Check move ' . reverse(bitstring($move)) . ' and intersect ' .
-          reverse(bitstring($intersect))
-      );
-    };
-
-    if ($intersect & $move) {
-      if (DEBUG) {
-        print_log(
-          'post',
-          'Move ' . reverse(bitstring($move)) . ' matches ' . reverse(bitstring($intersect))
-        );
-      };
-      push @list, $i;
-      $intersect &= ~$move;
-    };
-    $move >>= 1;
-    $i++;
-  };
-
-  # Return list of valid classes
-  return @list;
+  return flags_to_classes($intersect & 0b0111_1111_1111_1111);
 };
 
 

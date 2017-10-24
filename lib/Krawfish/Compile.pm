@@ -60,6 +60,7 @@ sub match_from_query {
       doc_id  => $current->doc_id,
       start   => $current->start,
       end     => $current->end,
+      flags   => $current->flags,
       payload => $current->payload->clone
     );
   };

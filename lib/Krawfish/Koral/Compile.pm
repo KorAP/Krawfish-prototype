@@ -27,6 +27,9 @@ use warnings;
 #   sorting does not work etc.
 #   This has to be thought through
 
+# TODO:
+#   Remove corpus classes, in case they are not used.
+#   This requires a method like ->used_classes
 
 our %COMPILE_ORDER = (
   limit     => 1,

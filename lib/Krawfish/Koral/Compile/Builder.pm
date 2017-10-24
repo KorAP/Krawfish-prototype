@@ -23,6 +23,7 @@ use Krawfish::Koral::Compile::Enrich::Terms;
 use Krawfish::Koral::Compile::Enrich::Fields;
 use Krawfish::Koral::Compile::Enrich::Snippet;
 use Krawfish::Koral::Compile::Enrich::Snippet::Context::Span;
+use Krawfish::Koral::Compile::Enrich::CorpusClasses;
 
 use Krawfish::Koral::Compile::Type::Key;
 use Scalar::Util qw/blessed/;
@@ -116,6 +117,13 @@ sub e_snippet {
   shift;
   # Accepts: left_context => $mb->e_char_context(5)
   return Krawfish::Koral::Compile::Enrich::Snippet->new(@_);
+};
+
+
+# Enrich with corpus classes
+sub e_corpus_classes {
+  shift;
+  return Krawfish::Koral::Compile::Enrich::CorpusClasses->new(@_);
 };
 
 

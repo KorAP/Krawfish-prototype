@@ -28,7 +28,7 @@ sub key {
 # Stringification
 sub to_string {
   my $self = shift;
-  return 'inCorpus:' . join(',', map { $_->to_string } @{$self->{classes}});
+  return 'inCorpus:' . join(',', @{$self->{classes}});
 };
 
 

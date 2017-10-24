@@ -1,6 +1,6 @@
 package Krawfish::Corpus::Class;
 use parent 'Krawfish::Corpus';
-use Krawfish::Util::Bits 'bitstring';
+use Krawfish::Util::Bits qw/classes_to_flags bitstring/;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -40,7 +40,7 @@ sub new {
   return if $number < 1 || $number > 16;
 
   # 2 bytes flag for 16 classes
-  my $flag = 0b0000_0000_0000_0000 | (1 << (15 - $number));
+  my $flag = classes_to_flags($number);
 
   if (DEBUG) {
     print_log(

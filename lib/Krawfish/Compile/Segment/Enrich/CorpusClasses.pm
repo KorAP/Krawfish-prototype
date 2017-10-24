@@ -1,9 +1,16 @@
 package Krawfish::Compile::Segment::Enrich::CorpusClasses;
 use parent 'Krawfish::Compile';
+use Krawfish::Koral::Result::Enrich::CorpusClasses;
 use strict;
 use warnings;
 
-# This is not in use currently
+
+# Constructor
+sub new {
+  my $class = shift;
+  return bless { @_ }, $class;
+};
+
 
 # Move to next item
 sub next {
@@ -15,15 +22,13 @@ sub next {
 sub current_match {
   my $self = shift;
 
-  my $match = $self->current_match or return;
+  my $match = $self->match_from_query or return;
 
   # Get classes - ignore first
-  my @classes = $match->flags_list(0b0111_1111_1111_1111);
+  my @classes = $match->corpus_classes(0b0111_1111_1111_1111);
 
   # Enrich match
-  $match->add(
-    Krawfish::Koral::Result::Enrich::CorpusClasses->new(@classes)
-    );
+  $match->add(Krawfish::Koral::Result::Enrich::CorpusClasses->new(@classes));
 
   return $match;
 };
@@ -31,7 +36,7 @@ sub current_match {
 
 # Stringification
 sub to_string {
-  'corpusClasses(' . join(',', $_[0]->{query}) . ')'
+  'corpusClasses(' . $_[0]->{flags} . ':' . $_[0]->{query}->to_string . ')'
 };
 
 1;

@@ -6,10 +6,11 @@ use warnings;
 use constant DEBUG => 0;
 
 our %ENRICH_ORDER = (
-  'fields'   => 1,
-  'snippet'  => 2,
-  'terms'    => 3,
-  'termfreq' => 4
+  'fields'        => 1,
+  'corpusclasses' => 2,
+  'snippet'       => 3,
+  'terms'         => 4,
+  'termfreq'      => 5
 );
 
 
