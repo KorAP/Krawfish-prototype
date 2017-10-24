@@ -18,6 +18,19 @@ is($query->to_string, '(ab)|(c)|(d)', 'or');
 is($query->min_span, 1, 'Span Length');
 is($query->max_span, 2, 'Span Length');
 
+# Deal with optional operands
+$query = $qb->bool_or(
+  $qb->token('a'),
+  $qb->repeat($qb->token('b'),0,1),
+  $qb->repeat($qb->token('d'),0,1)
+);
+is($query->to_string, '([a])|([b]?)|([d]?)', 'or');
+ok($query = $query->normalize, 'Normalize');
+is($query->to_string, '((a)|(b)|(d))?', 'or');
+ok($query = $query->finalize, 'Finalize');
+is($query->to_string, '(a)|(b)|(d)', 'or');
+
+
 TODO: {
   local $TODO = 'Test more systematically and with negative operands';
 };

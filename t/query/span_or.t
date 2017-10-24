@@ -21,6 +21,7 @@ is($query->to_string, '([a])|([b])|([c])', 'or');
 ok($query = $query->normalize->finalize, 'Normalize');
 is($query->to_string, '(a)|(b)|(c)', 'or');
 
+
 # Flatten groups
 $query = $qb->bool_or(
   $qb->token('a'), $qb->bool_or($qb->token('b'), $qb->token('c'))
@@ -43,6 +44,7 @@ is($query->to_string, '(b)|(c)', 'or');
 ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimize');
 matches($query, [qw/[0:0-1] [0:1-2] [0:1-2] [0:3-4] [0:3-4] [1:0-1] [1:1-2] [1:1-2]/]);
 
+
 # Add different length sequences
 $query = $qb->bool_or(
   $qb->bool_or($qb->token('a'), $qb->seq($qb->token('b'), $qb->token('a')))
@@ -54,6 +56,8 @@ ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimize
 # is($query->to_string, "or(#2,constr(pos=2:#3,#2))", 'or');
 
 matches($query, [qw/[0:0-1] [0:0-2] [0:1-2] [0:1-3] [0:2-3] [1:1-3] [1:2-3]/]);
+
+
 
 TODO: {
   local $TODO = 'Test with negative operands';

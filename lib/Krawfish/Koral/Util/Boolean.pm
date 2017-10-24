@@ -5,7 +5,11 @@ use strict;
 use warnings;
 
 # Base class for boolean group queries.
-# Used by Koral::Corpus::FieldGroup, Koral::Query::TermGroup, and Koral::Query::Or
+
+# Used by
+# - Koral::Corpus::FieldGroup,
+# - Koral::Query::TermGroup
+# - Koral::Query::Or
 
 use constant DEBUG => 0;
 

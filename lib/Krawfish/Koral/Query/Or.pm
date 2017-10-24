@@ -10,8 +10,13 @@ memoize('max_span');
 
 # Or-Construct on spans
 
-use constant DEBUG => 0;
+# TODO:
+#   Deal with optionality in groups!
+#   (a|b?|c?) -> (a|b|c)?
 
+use constant DEBUG => 1;
+
+# Constructor
 sub new {
   my $class = shift;
   bless {
@@ -27,6 +32,8 @@ sub operation {
   'or'
 };
 
+
+# Create span-based or-query
 sub bool_or_query {
   my $self = shift;
   Krawfish::Query::Or->new(
@@ -40,6 +47,59 @@ sub bool_or_query {
 sub bool_and_query {
   return;
 };
+
+
+# Normalize query
+# In spans, operands may be optional,
+# so this has to be resolved as well.
+sub normalize {
+  my $self = shift;
+  return $self->SUPER::normalize
+    ->_resolve_optionality;
+};
+
+
+# Resolve optionality
+# (a|b?|c?) -> (a|b|c)?
+sub _resolve_optionality {
+  my $self = shift;
+  print_log('kq_span_or', 'Resolve optionality for ' . $self->to_string) if DEBUG;
+
+  # Either matches nowhere or anywhere
+  return $self if $self->is_nowhere || $self->is_anywhere;
+
+  # Iterate over operands
+  my $opt = 0;
+  my @ops;
+  foreach my $op (@{$self->operands}) {
+
+    # The operand 
+    if ($op->is_optional) {
+
+      # Remove optionality
+      $op->is_optional(0);
+      push @ops, $op->normalize;
+      $opt = 1;
+    }
+    else {
+      push @ops, $op;
+    };
+  };
+
+
+  if ($opt) {
+    # Set operands
+    $self->operands(\@ops);
+
+    # In case this query is not yet optional
+    unless ($self->is_optional) {
+      return $self->builder->repeat($self, 0, 1)->normalize;
+    };
+  };
+
+  return $self;
+};
+
 
 # Stringification
 sub to_string {

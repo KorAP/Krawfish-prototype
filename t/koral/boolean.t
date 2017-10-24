@@ -127,6 +127,7 @@ is($tree->to_string, '(a!=1&a=1)|x=1|z=1', 'Plain groups');
 $tree->normalize;
 is($tree->to_string, 'x=1|z=1', 'Remove empty');
 
+
 # Remove negative idempotence in OR
 # (a | !a) -> [1]
 $tree = $cb->bool_or(
@@ -270,6 +271,7 @@ $tree = $tree->normalize;
 # TODO: This may require a direct andNot() serialization with the all-query
 is($tree->to_string, '((b=1&d=1&f=1)&!(a=1|c=1|e=1))', 'no string');
 
+
 # Remove double negativity
 # !(!a) -> a
 $tree = $cb->bool_and(
@@ -306,6 +308,7 @@ is($tree->to_string, '!((!((!(a!=1&b!=1)))))', 'Plain groups');
 $tree = $tree->normalize;
 is($tree->to_string, 'a=1|b=1', 'simple string');
 
+
 # Remove double negativity with nested groups (2)
 $tree = $cb->bool_or(
   $cb->string('b')->ne('1'),
@@ -320,6 +323,8 @@ $tree = $tree->normalize;
 is($tree->to_string, '!(([1]&!b=1)|c=1|d=1)', 'simple string');
 $tree = $tree->finalize;
 is($tree->to_string, '([1]&!(([1]&!b=1)|c=1|d=1))', 'simple string');
+
+
 
 TODO: {
   local $TODO = 'Check with negativity for >=, <=, exists etc.'

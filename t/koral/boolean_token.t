@@ -32,6 +32,9 @@ $koral->query(
 
 ok(my $query = $koral->to_query, 'Normalize');
 
+
+
+
 todo: {
   local $TODO = 'Moving negations out of groups is currently not supported';
 
@@ -41,6 +44,19 @@ todo: {
   is($query->to_string, '', 'Stringification');
   ok($query = $query->optimize($index->segment), 'Identify');
 };
+
+
+# Move optionality up in or-group
+$koral->query(
+  $qb->bool_or(
+    $qb->term('c'),
+    $qb->repeat($qb->term('b'),0,1)
+  )
+);
+ok($query = $koral->to_query, 'Normalize');
+is($query->to_string, 'filter((b?)|(c),[1])', 'Stringification');
+
+
 
 done_testing;
 __END__

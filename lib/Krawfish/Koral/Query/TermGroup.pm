@@ -18,7 +18,7 @@ use warnings;
 #   -> optimize(index)
 
 
-# TODO: Flatten or groups in a first pass!
+# TODO: Flatten or-groups in a first pass!
 # TODO: In case, the group is 'and' and there is at
 #       least one positive element, do for negative elements:
 #       [tt/l=Baum & tt/p=NN & cnx/p!=NN]
@@ -104,6 +104,7 @@ sub remove_classes {
 };
 
 
+# Create a token based and-query
 sub bool_and_query {
   my $self = shift;
   Krawfish::Query::Constraints->new(
@@ -113,6 +114,8 @@ sub bool_and_query {
   );
 };
 
+
+# Create a token based or-query
 sub bool_or_query {
   my $self = shift;
   Krawfish::Query::Or->new(
@@ -121,7 +124,12 @@ sub bool_or_query {
   );
 };
 
-sub maybe_unsorted { 0 };
+
+# The result can't be unsorted,
+# as no term can be unsorted
+sub maybe_unsorted {
+  0
+};
 
 #sub is_anywhere {
 #  my $self = shift;
@@ -145,6 +153,7 @@ sub max_span {
 };
 
 
+# Stringification
 sub to_string {
   my ($self, $id) = @_;
 
@@ -185,6 +194,7 @@ sub to_string {
 };
 
 
+# Stringify without negation
 sub to_neutral {
   my $self = shift;
   my $string = $self->to_string;
@@ -213,7 +223,6 @@ sub to_koral_fragment {
 
   $group;
 };
-
 
 
 1;
