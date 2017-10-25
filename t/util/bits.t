@@ -16,5 +16,8 @@ is_deeply([flags_to_classes(0b0011_0000_0000_0000)], [2,3], 'flags to classes');
 is_deeply([flags_to_classes(0b0011_0010_0000_0000)], [2,3,6], 'flags to classes');
 
 
+is(bitstring(32768), '0000000000000001', 'Bitstring');
+is_deeply([flags_to_classes(32768)], [0], 'flags to classes');
+
 done_testing;
 __END__

@@ -34,9 +34,9 @@ sub flags_to_classes ($) {
   my $flags = shift;
 
   # Initialize move variable
-  my $move = 0b0100_0000_0000_0000;
+  my $move = 0b1000_0000_0000_0000;
 
-  my $i = 1;
+  my $i = 0;
   my @list;
 
   # As long as there a set bits ...
