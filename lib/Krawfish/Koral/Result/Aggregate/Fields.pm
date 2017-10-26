@@ -1,11 +1,13 @@
 package Krawfish::Koral::Result::Aggregate::Fields;
 use Krawfish::Log;
+use Krawfish::Util::Bits;
 use Krawfish::Util::Constants qw/:PREFIX/;
 use strict;
 use warnings;
 
 # This remembers facets for multiple classes,
 # both using ids and terms
+
 
 # TODO:
 #   The first field level should be initiated
@@ -22,41 +24,68 @@ use warnings;
 # TODO:
 #   Rename stringifications to aFields!
 
+# TODO:
+#   Support flags in constructor
+
 use constant DEBUG => 0;
 
+
+# Constructor
 sub new {
   my $class = shift;
   bless {
+    flags  => shift,
     fields => {},
-    cache => [],
-    freq => 0
+    cache  => [],
+    freq   => 0
   }, $class;
 };
 
 
 # Increment the field frequency for each field in the current doc
 sub incr_doc {
-  my ($self, $key_id, $field_id) = @_;
+  my ($self, $key_id, $field_id, $flags) = @_;
 
+  # Structure is
+  # {
+  #   field1 => {
+  #     key1 => {
+  #       flag1 => [0,0],
+  #       flag2 => [0,0]
+  #     }
+  #     key2 => {
+  #       flag1 => [0,0],
+  #       flag2 => [0,0]
+  #     }
+  #   },
+  #   field2 => {
+  #     key1 => {
+  #       flag1 => [0,0],
+  #       flag2 => [0,0]
+  #     }
+  #   }
+  # }
+
+  # Get fields per flags
   my $fields = $self->{fields};
 
   # Field may already exist
   my $field_key_freq = ($fields->{$key_id} //= {});
-  my $field_freq = ($field_key_freq->{$field_id} //= [0,0]);
 
-  # Increase doc frequency for the key
-  # Maybe that's not necessary and can be done in flush
-  $field_freq->[0]++;
+  # Initialize frequency
+  my $field_freq = ($field_key_freq->{$field_id} //= {});
+
+  # Initialize frequency
+  my $field_flag_freq = ($field_freq->{$flags} //= [0,0]);
 
   if (DEBUG) {
-    print_log('p_a_fields', 'Increment doc frequency for #' . $key_id . '=#' . $field_id);
+    print_log('p_a_fields', 'Increment doc frequency for #' . $key_id . '=#' . $field_id . ' for flag ' . $flags);
   };
-
 
   # Remember the frequency
   # The problem here is, that they are only loosely coupled to the field
   # frequency of the field. This may be problematic
-  push @{$self->{cache}}, $field_freq;
+  push @{$self->{cache}}, $field_flag_freq;
 };
 
 
@@ -71,16 +100,32 @@ sub incr_match {
 
 
 # Flush all frequency information remembered
+# per document
 sub flush {
   my $self = shift;
 
   if ($self->{freq}) {
-    foreach my $field_freq (@{$self->{cache}}) {
-      $field_freq->[1] += $self->{freq};
+
+    # Iterate over cached frequency object
+    foreach my $field_flag_freq (@{$self->{cache}}) {
+
+      if (DEBUG) {
+        print_log(
+          'p_a_fields',
+          'Increase frequency on cached references '.
+            'with ' . $self->{freq}
+        );
+      };
+
+      # Increment doc freq
+      $field_flag_freq->[0]++;
+
+      # Increment match freq
+      $field_flag_freq->[1] += $self->{freq};
     };
 
-    $self->{cache} = [];
     $self->{freq} = 0;
+    $self->{cache} = [];
 
     if (DEBUG) {
       print_log('p_a_fields', 'Flush field frequency for all remembered frequencies');
@@ -90,13 +135,15 @@ sub flush {
 
 
 # On finish
+# This may do some calculations as well
 sub on_finish {
   $_[0]->flush;
   $_[0];
 };
 
 
-# Translate this to terms
+# Translate this to terms and build up
+# class structure from flags
 sub inflate {
   my ($self, $dict) = @_;
 
@@ -128,30 +175,86 @@ sub inflate {
       #   This may be a direct feature of the dictionary instead
       $field =~ s/^.$field_term://;
 
+      # These are flag sorted values!
       $aggr->{$field} = $values->{$value};
     };
   };
 
   $self->{fields_terms} = \%fields;
-
+  $self->{fields} = undef; # Cleanup!
   $self;
 };
 
 
+# Generate class ordering
+sub _to_classes {
+  my $self = shift;
+
+  # Order field terms by classes
+  # Doing this beforehand on_finish would be costly
+  my @classes;
+
+  my $fields = $self->{fields_terms};
+
+  # Iterate over fields
+  foreach my $key (keys %$fields) {
+
+    # Iterate over field values
+    foreach my $field (keys %{$fields->{$key}}) {
+
+      # Iterate over flags
+      my $freqs = $fields->{$key}->{$field};
+      foreach my $flag (keys %$freqs) {
+
+        # Iterate over classes
+        foreach my $class (flags_to_classes($flag)) {
+
+          # Store all data below class information
+          $classes[$class] //= {};
+          my $key = ($classes[$class]->{$key} //= {});
+          my $field = ($key->{$field} //= [0,0]);
+          $field->[0] += $freqs->{$flag}->[0];
+          $field->[1] += $freqs->{$flag}->[1];
+        };
+      };
+    };
+  };
+
+  return \@classes;
+};
+
+
+
 # Stringification
 sub to_string {
-  my $self = shift;
-  if ($self->{fields_terms}) {
-    my $str = 'fields=';
+  my ($self, $ids) = @_;
 
-    my $fields = $self->{fields_terms};
+  # IDs not supported
+  if ($ids) {
+    warn 'ID based stringification currently not supported';
+    return '';
+  };
 
+  # No terms yet
+  unless ($self->{fields_terms}) {
+    warn 'ID based stringification currently not supported';
+    return '';
+  };
+
+  my $str = '[fields=';
+
+  my @classes = @{$self->_to_classes};
+  my $first = 0;
+  foreach (my $i = 0; $i < @classes; $i++) {
+    $str .= $i == 0 ? 'total' : 'class' . $i;
+    $str .= ':[';
+
+    my $fields = $classes[$i];
     foreach my $field (sort keys %$fields) {
-      $str .= $field . ':';
-
+      $str .= $field . '=';
       my $values = $fields->{$field};
       foreach (sort keys %$values) {
-        $str .= $_;
+        $str .= $_ . ':';
         my $freq = $values->{$_};
         $str .= '['.$freq->[0].','.$freq->[1].'],';
       };
@@ -159,11 +262,11 @@ sub to_string {
       $str .= ';';
     };
     chop $str;
-    return $str;
+    $str .= '];';
   };
+  chop $str;
 
-  warn 'Please inflate before!';
-  return '';
+  return $str . ']';
 };
 
 

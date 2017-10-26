@@ -23,36 +23,19 @@ use constant DEBUG => 0;
 #   https://gist.github.com/badboy/6267743
 
 # TODO:
-#   Support corpus classes!
-
-# TODO:
-#   In case the field has no rank, because it is a multivalued field,
-#   a different mechanism has to be used!
-
-# TODO: It may be beneficial to store example documents in the
-#   field ranks, too - so they don't need to be collected on the way ...
-#   See Group::Fields as well.
-#   For this, add a "witness" field
-
-# TODO:
 #   Field aggregates should be sortable either <asc> or <desc>,
 #   and should have a count limitation, may be even a start_index and an items_per_page
 
 
+# Constructor
 sub new {
   my $class = shift;
+  my ($field_obj, $keys) = @_;
   bless {
-    field_obj  => shift,
-    field_keys => [map { ref($_) ? $_->term_id : $_ } @{shift()}],
-
-    # TODO:
-    #   This needs to be an object, so it can be inflated again!
-    # collection => {}, # The buckets in memory
-
-    result => Krawfish::Koral::Result::Aggregate::Fields->new,
-
-    freq    => 0,
-    field_freqs => {}
+    field_obj  => $field_obj,
+    field_keys => [map { ref($_) ? $_->term_id : $_ } @{$keys}],
+    result     => Krawfish::Koral::Result::Aggregate::Fields->new,
+    freq       => 0
   }, $class;
 };
 
@@ -83,25 +66,23 @@ sub each_doc {
   my $pointer = $self->{field_pointer};
 
   # Set match frequencies to all remembered doc frequencies
-  my $aggr = $self->{result};
+  my $result = $self->{result};
 
   # Skip to document in question
   # TODO:
   #   skip_doc should ALWAYS return either the document or NOMOREDOC!
-
   if ($pointer->skip_doc($doc_id) == $doc_id) {
 
-    $aggr->flush;
-
-    # my $coll = $self->{collection};
-
-    # Get all requested fields
-    # my @fields;
+    # Flush result
+    $result->flush;
 
     if (DEBUG) {
       print_log('aggr_fields', 'Look for frequencies for key ids ' .
                   join(', ', map { '#' . $_ } @{$self->{field_keys}}) . " in doc $doc_id");
     };
+
+    # Mix set flags with flags to aggregate on
+    my $flags = $current->flags($self->{flags});
 
     # Iterate over all fields
     foreach my $field ($pointer->fields(@{$self->{field_keys}}))  {
@@ -110,7 +91,7 @@ sub each_doc {
       next if $field->type eq 'store';
 
       # Increment occurrence
-      $aggr->incr_doc($field->key_id, $field->term_id);
+      $result->incr_doc($field->key_id, $field->term_id, $flags);
 
       if (DEBUG) {
         print_log('aggr_fields', '#' . $field->term_id . ' has frequencies');
@@ -120,7 +101,7 @@ sub each_doc {
 
   # Do not check rank
   else {
-    $aggr->flush;
+    $result->flush;
   };
 };
 
@@ -131,16 +112,7 @@ sub each_match {
 };
 
 
-# finish the results
-#sub on_finish {
-#  my ($self, $collection) = @_;
-#
-#  $self->{result}->flush;
-#
-#  $collection->{fields} = $self->{result};
-#};
-
-
+# Return result
 sub result {
   # Return fields
   # Example structure for year
@@ -153,6 +125,7 @@ sub result {
 };
 
 
+# Stringification
 sub to_string {
   return 'fields:' . join(',', map { '#' . $_ } @{$_[0]->{field_keys}});
 };

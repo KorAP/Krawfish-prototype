@@ -42,6 +42,11 @@ sub add {
 };
 
 
+sub _to_classes {
+  ...
+};
+
+
 sub inflate {
   my ($self, $dict) = @_;
 
@@ -95,6 +100,7 @@ sub to_string {
   warn 'Please inflate before!';
   return '';
 };
+
 
 
 # Finish the aggregation

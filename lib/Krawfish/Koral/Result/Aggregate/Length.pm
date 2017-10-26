@@ -37,6 +37,10 @@ sub inflate {
 };
 
 
+sub _to_classes {
+  ...
+};
+
 # Finish the calculation
 sub on_finish {
   my $self = shift;

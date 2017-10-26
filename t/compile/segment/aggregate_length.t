@@ -59,5 +59,7 @@ is($coll->to_string,
      '[matches=[0:0-2][1:0-1][2:0-1][2:1-4]]',
    'Stringification');
 
+diag 'Test with corpus classes';
+
 done_testing;
 __END__

@@ -45,6 +45,12 @@ sub inflate {
 
 # Finish the calculation
 sub on_finish {
+  $_[0]
+};
+
+
+# Get class ordering
+sub _to_classes {
   my $self = shift;
 
   my $freqs = $self->{freqs};
@@ -64,8 +70,7 @@ sub on_finish {
 
   };
 
-  $self->{classes} = \@classes;
-  return $self;
+  return \@classes;
 };
 
 
@@ -74,7 +79,7 @@ sub to_string {
   my $self = shift;
   my $str = '[freq=';
 
-  my @classes = @{$self->{classes}};
+  my @classes = @{$self->_to_classes};
 
   my $first = 0;
   foreach (my $i = 0; $i < @classes; $i++) {

@@ -45,6 +45,7 @@ ok_index($index, {
 
 my $koral = Krawfish::Koral->new;
 my $qb = $koral->query_builder;
+my $cb = $koral->corpus_builder;
 my $mb = $koral->compilation_builder;
 
 $koral->query($qb->token('aa'));
@@ -81,12 +82,16 @@ ok(my $query = $koral_query->optimize($index->segment),
 
 is($query->to_string, 'aggr([fields:#1,#5]:filter(#10,[1]))', 'Stringification');
 
-ok(my $coll = $query->compile->inflate($index->dict), 'To terms');
+ok(my $coll = $query->compile, 'Compile');
+ok($coll = $coll->inflate($index->dict), 'To terms');
 
 is($coll->to_string,
-   '[aggr=fields=age:3[1,1],4[2,3],7[1,1];genre:newsletter[2,3],novel[2,2]]' .
+   '[aggr=[fields=total:['.
+     'age=3:[1,1],4:[2,3],7:[1,1];'.
+     'genre=newsletter:[2,3],novel:[2,2]]]]'.
      '[matches=[0:0-1][1:0-1][2:0-1][2:2-3][4:0-1]]',
    'Stringification');
+
 
 # Create compile query to aggregate on 'author'
 $koral->compilation(
@@ -103,37 +108,46 @@ is($query->to_string, 'aggr([fields:#3]:filter(#10,[1]))', 'Stringification');
 ok($coll = $query->compile->inflate($index->dict), 'To terms');
 
 is($coll->to_string,
-   '[aggr=fields=author:Fritz[1,2],Michael[1,1],Peter[3,4]]' .
+   '[aggr=[fields=total:[author=Fritz:[1,2],Michael:[1,1],Peter:[3,4]]]]' .
      '[matches=[0:0-1][1:0-1][2:0-1][2:2-3][4:0-1]]',
    'Stringification'
  );
 
-diag 'Test with corpus classes';
-
-done_testing;
-__END__
 
 
-$hash = $aggr->result->{facets}->{corpus};
-is($hash->{'corpus-2'}->[0], 2, 'Document frequency');
-is($hash->{'corpus-2'}->[1], 2, 'frequency');
 
-is_deeply($aggr->result, {
-  facets => {
-    license => {
-      free => [1,1],
-      closed => [1,1]
-    },
-    corpus => {
-      'corpus-2' => [2,2]
-    }
-  }
-}, 'aggregated results');
+# Create compile query to aggregate on 'author'
+$koral->compilation(
+  $mb->aggregate(
+    $mb->a_fields('author')
+  )
+);
 
 
-TODO: {
-  local $TODO = 'Test with multivalued fields';
-};
+# Define some classes
+$koral->corpus(
+  $cb->bool_or(
+    $cb->class($cb->string('genre')->eq('newsletter'), 1),
+    $cb->class($cb->string('genre')->eq('novel'), 2)
+  )
+);
+
+# Check with multivalued fields
+ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment), 'Translate');
+
+is($query->to_string, 'aggr([fields:#3]:filter(#10,or(class(2:#6),class(1:#16))))', 'Stringification');
+
+ok($coll = $query->compile->inflate($index->dict), 'To terms');
+
+is($coll->to_string,
+   '[aggr=[fields='.
+     'total:[author=Fritz:[1,2],Michael:[1,1],Peter:[3,4]];' .
+     'class1:[author=Fritz:[1,2],Michael:[1,1],Peter:[1,2]];' .
+     'class2:[author=Peter:[2,2]]]]' .
+     '[matches=[0:0-1][1:0-1][2:0-1][2:2-3][4:0-1]]',
+   'Stringification'
+ );
+
 
 done_testing;
 __END__

@@ -15,6 +15,9 @@ use warnings;
 # TODO:
 #   Add flags list to stringification
 
+# TODO:
+#   Support flags on construction
+
 
 # Constructor
 sub new {
