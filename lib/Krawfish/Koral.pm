@@ -67,12 +67,12 @@ use constant {
 sub new {
   my $class = shift;
   my $self = bless {
-    query    => undef,  # The query definition
-    corpus   => undef,  # The vc definition
-    matches  => undef,  # List of match IDs
-    compile  => undef,  # The compile definitions
-    document => undef,  # Document data to import
-    response => undef   # Response object
+    query       => undef,  # The query definition
+    corpus      => undef,  # The vc definition
+    compilation => undef,  # The compile definitions
+    matches     => undef,  # List of match IDs
+    document    => undef,  # Document data to import
+    response    => undef   # Response object
   }, $class;
 
   return $self unless @_;
@@ -124,21 +124,18 @@ sub corpus_builder {
 
 
 # Compile part of the Koral object
-# TODO:
-#   Rename to compilation() to be in line with the
-#   other nouns
-sub compile {
+sub compilation {
   my $self = shift;
   if ($_[0]) {
-    $self->{compile} = Krawfish::Koral::Compile->new(@_);
+    $self->{compilation} = Krawfish::Koral::Compile->new(@_);
     return $self;
   };
-  return $self->{compile};
+  return $self->{compilation};
 };
 
 
 # Get the compile builder
-sub compile_builder {
+sub compilation_builder {
   Krawfish::Koral::Compile::Builder->new;
 };
 
@@ -226,17 +223,17 @@ sub to_nodes {
   };
 
   # This is just for testing
-  return $query_final unless $self->compile;
+  return $query_final unless $self->compilation;
 
   # Normalize the compile
   my $compile;
-  unless ($compile = $self->compile->normalize) {
-    $self->copy_info_from($self->compile);
+  unless ($compile = $self->compilation->normalize) {
+    $self->copy_info_from($self->compilation);
     return;
   };
 
   # Serialize from compile
-  return $self->compile->to_nodes($query_final);
+  return $self->compilation->to_nodes($query_final);
 };
 
 
@@ -307,7 +304,7 @@ sub to_query {
   };
 
   # This is just for testing
-  return $query_final unless $self->compile;
+  return $query_final unless $self->compilation;
 
   if ($corpus_only) {
     # TODO:
@@ -317,13 +314,13 @@ sub to_query {
 
   # Normalize the compile
   my $compile;
-  unless ($compile = $self->compile->normalize) {
-    $self->copy_info_from($self->compile);
+  unless ($compile = $self->compilation->normalize) {
+    $self->copy_info_from($self->compilation);
     return;
   };
 
   # Serialize from compile
-  return $self->compile->wrap($query_final);
+  return $self->compilation->wrap($query_final);
 };
 
 
@@ -365,8 +362,8 @@ sub to_string {
 
   my @list = ();
 
-  if ($self->compile) {
-    push @list, 'compile=[' . $self->compile->to_string($id) . ']';
+  if ($self->compilation) {
+    push @list, 'compilation=[' . $self->compilation->to_string($id) . ']';
   };
   if ($self->corpus) {
     push @list, 'corpus=[' . $self->corpus->to_string($id) . ']';

@@ -31,7 +31,7 @@ ok_index($index, {
 my $koral = Krawfish::Koral->new;
 my $cb = $koral->corpus_builder;
 my $qb = $koral->query_builder;
-my $mb = $koral->compile_builder;
+my $mb = $koral->compilation_builder;
 
 # Define corpus
 $koral->corpus(
@@ -49,7 +49,7 @@ $koral->query(
 );
 
 # Define compilation
-$koral->compile(
+$koral->compilation(
   $mb->enrich(
     $mb->e_corpus_classes(1,2),
     $mb->e_fields("corpus")
@@ -57,7 +57,7 @@ $koral->compile(
 );
 
 is($koral->to_string,
-   "compile=[enrich=[corpusclasses:[1,2],".
+   "compilation=[enrich=[corpusclasses:[1,2],".
      "fields:['corpus']]],".
      "corpus=[{1:license=free}|{2:span(aa)}],".
      "query=[[bb]]",
@@ -139,7 +139,7 @@ ok(!$fields->next, 'No more next');
 # Retrieve including stored data
 $koral = Krawfish::Koral->new;
 $koral->query($qb->bool_or('aa', 'bb'));
-$koral->compile(
+$koral->compilation(
   $mb->enrich(
     $mb->e_fields('license','corpus', 'uri', 'year')
   )

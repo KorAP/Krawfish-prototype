@@ -116,14 +116,6 @@ sub next {
   return 0;
 };
 
-
-# Shorthand for "search through"
-sub finalize {
-  while ($_[0]->next) {};
-  return $_[0];
-};
-
-
 # Get current posting
 sub current {
   return $_[0]->{query}->current;

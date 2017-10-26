@@ -41,8 +41,8 @@ $koral->corpus(
 );
 
 # Define a compilation target
-my $compile = $koral->compile_builder;
-$koral->compile(
+my $compile = $koral->compilation_builder;
+$koral->compilation(
   $compile->aggregate(
     $compile->a_fields('license'),
     $compile->a_frequencies

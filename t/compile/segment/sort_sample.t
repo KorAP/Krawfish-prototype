@@ -47,11 +47,11 @@ ok_index($index, {
 
 my $koral = Krawfish::Koral->new;
 my $qb = $koral->query_builder;
-my $mb = $koral->compile_builder;
+my $mb = $koral->compilation_builder;
 
 $koral->query($qb->token('aa'));
 
-$koral->compile(
+$koral->compilation(
   $mb->sort_by(
     $mb->s_sample
   ),

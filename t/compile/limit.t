@@ -24,18 +24,18 @@ ok_index($index, {
 
 my $koral = Krawfish::Koral->new;
 my $qb = $koral->query_builder;
-my $mb = $koral->compile_builder;
+my $mb = $koral->compilation_builder;
 
 $koral->query(
   $qb->bool_or('aa', 'bb')
 );
 
-$koral->compile(
+$koral->compilation(
   $mb->limit(1,2)
 );
 
 is($koral->to_string,
-   "compile=[limit=[1-3]],query=[aa|bb]",
+   "compilation=[limit=[1-3]],query=[aa|bb]",
    'Stringification');
 
 ok(my $koral_query = $koral->to_query, 'Normalization');

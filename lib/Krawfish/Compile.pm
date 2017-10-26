@@ -21,7 +21,8 @@ sub current_match {
     doc_id  => $current->doc_id,
     start   => $current->start,
     end     => $current->end,
-    payload => $current->payload
+    payload => $current->payload,
+    flags   => $current->flags
   );
 };
 

@@ -25,18 +25,18 @@ ok_index($index, {
 my $koral = Krawfish::Koral->new;
 my $cb = $koral->corpus_builder;
 my $qb = $koral->query_builder;
-my $mb = $koral->compile_builder;
+my $mb = $koral->compilation_builder;
 
 $koral->query($qb->token('bb'));
 
-$koral->compile(
+$koral->compilation(
   $mb->aggregate(
     $mb->a_frequencies
   )
 );
 
 is($koral->to_string,
-   "compile=[aggr=[freq]],query=[[bb]]",
+   "compilation=[aggr=[freq]],query=[[bb]]",
    'Stringification');
 
 ok(my $koral_query = $koral->to_query, 'Normalization');
@@ -66,7 +66,7 @@ is($query->compile->to_string,
 # Test with imbalance regarding docs and matches
 $koral = Krawfish::Koral->new;
 $koral->query($qb->token('cc'));
-$koral->compile(
+$koral->compilation(
   $mb->aggregate(
     $mb->a_frequencies
   )
@@ -103,7 +103,7 @@ $koral->query(
   )
 );
 
-$koral->compile(
+$koral->compilation(
   $mb->aggregate(
     $mb->a_frequencies
   )

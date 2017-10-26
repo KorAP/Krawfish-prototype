@@ -37,7 +37,7 @@ ok_index($index, {
 
 my $koral = Krawfish::Koral->new;
 my $cb = $koral->corpus_builder;
-my $mb = $koral->compile_builder;
+my $mb = $koral->compilation_builder;
 my $qb = $koral->query_builder;
 
 # Corpus object
@@ -49,7 +49,7 @@ $koral->corpus(
 );
 
 # Compile object
-$koral->compile(
+$koral->compilation(
   $mb->group_by(
     $mb->g_fields('author')
   )
@@ -60,7 +60,7 @@ ok(!$koral->corpus->is_negative, 'Check negativity');
 
 
 is($koral->to_string,
-   "compile=[group=[fields:['author']]],corpus=[age=7|author=Peter]",
+   "compilation=[group=[fields:['author']]],corpus=[age=7|author=Peter]",
    'Stringification');
 
 
@@ -109,7 +109,7 @@ $koral->corpus(
 );
 
 # Compile object
-$koral->compile(
+$koral->compilation(
   $mb->group_by(
     $mb->g_fields('author', 'genre')
   )
@@ -120,7 +120,7 @@ $koral->query(
 );
 
 is($koral->to_string,
-   "compile=[group=[fields:['author','genre']]],corpus=[age=3|age=7],query=[aa|bb]",
+   "compilation=[group=[fields:['author','genre']]],corpus=[age=3|age=7],query=[aa|bb]",
    'Stringification');
 
 ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment), 'Optimize');

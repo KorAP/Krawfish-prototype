@@ -29,7 +29,7 @@ ok_index($index, {
 
 my $koral = Krawfish::Koral->new;
 my $qb = $koral->query_builder;
-my $mb = $koral->compile_builder;
+my $mb = $koral->compilation_builder;
 
 $koral->query(
   $qb->seq(
@@ -38,14 +38,14 @@ $koral->query(
   )
 );
 
-$koral->compile(
+$koral->compilation(
   $mb->group_by(
     $mb->g_class_freq(2,3)
   )
 );
 
 is($koral->to_string,
-   "compile=[group=[classFreq:[2,3]]],query=[{2:[xx]}{3:[yy]}]",
+   "compilation=[group=[classFreq:[2,3]]],query=[{2:[xx]}{3:[yy]}]",
    'Stringification');
 
 ok(my $koral_query = $koral->to_query, 'Normalization');

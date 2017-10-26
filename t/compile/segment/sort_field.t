@@ -49,7 +49,7 @@ ok($index->commit, 'Commit data');
 
 my $koral = Krawfish::Koral->new;
 my $qb = $koral->query_builder;
-my $mb = $koral->compile_builder;
+my $mb = $koral->compilation_builder;
 my $query;
 
 
@@ -68,7 +68,7 @@ is($query->to_string, 'constr(pos=2:#10,filter(#12,[1]))', 'Stringification');
 matches($query, ['[0:0-2]','[2:0-2]','[3:0-2]','[4:0-2]'], 'Query');
 
 # Sort by id
-$koral->compile(
+$koral->compilation(
   $mb->sort_by(
     $mb->s_field('id')
   )
@@ -99,7 +99,7 @@ ok(!$query->next_bundle, 'No more next bundle');
 # New query - sort by author
 $koral = Krawfish::Koral->new;
 $qb = $koral->query_builder;
-$mb = $koral->compile_builder;
+$mb = $koral->compilation_builder;
 
 $koral->query(
   $qb->seq(
@@ -108,7 +108,7 @@ $koral->query(
   )
 );
 
-$koral->compile(
+$koral->compilation(
   $mb->sort_by(
     $mb->s_field('author')
   )
@@ -167,7 +167,7 @@ ok($index->commit, 'Commit data');
 # New query - sort by author
 $koral = Krawfish::Koral->new;
 $qb = $koral->query_builder;
-$mb = $koral->compile_builder;
+$mb = $koral->compilation_builder;
 
 $koral->query(
   $qb->seq(
@@ -176,7 +176,7 @@ $koral->query(
   )
 );
 
-$koral->compile(
+$koral->compilation(
   $mb->sort_by(
     $mb->s_field('author')
   )
@@ -209,7 +209,7 @@ is($query->current_bundle->to_string, '[[[0:0-2]]]', 'Stringification');
 ok(!$query->next_bundle, 'No more next bundles');
 
 $koral->query($qb->seq($qb->token('aa'),$qb->token('bb')));
-$koral->compile($mb->sort_by($mb->s_field('author')));
+$koral->compilation($mb->sort_by($mb->s_field('author')));
 ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment), 'Optimize');
 
 # 2, [3, 5], [4,7,6], 0

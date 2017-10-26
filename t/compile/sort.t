@@ -23,13 +23,13 @@ ok_index($index, {
 
 my $koral = Krawfish::Koral->new;
 my $qb = $koral->query_builder;
-my $mb = $koral->compile_builder;
+my $mb = $koral->compilation_builder;
 
 # Set query
 $koral->query($qb->bool_or('aa', 'bb'));
 
 # Set compile
-$koral->compile(
+$koral->compilation(
   $mb->sort_by(
     $mb->s_field('id')
   )
@@ -37,7 +37,7 @@ $koral->compile(
 
 
 is($koral->to_string,
-   "compile=[sort=[field='id'<]],query=[aa|bb]",
+   "compilation=[sort=[field='id'<]],query=[aa|bb]",
    'Stringification');
 
 

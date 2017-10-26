@@ -25,11 +25,11 @@ ok_index($index, {
 # Only search for documents containing 'bb'
 my $koral = Krawfish::Koral->new;
 my $qb = $koral->query_builder;
-my $mb = $koral->compile_builder;
+my $mb = $koral->compilation_builder;
 
 $koral->query($qb->token('bb'));
 
-$koral->compile(
+$koral->compilation(
   $mb->aggregate(
     $mb->a_values('size'),
     $mb->a_values('id')
@@ -38,7 +38,7 @@ $koral->compile(
 
 is(
   $koral->to_string,
-  "compile=[aggr=[values:['size'],values:['id']]],query=[[bb]]",
+  "compilation=[aggr=[values:['size'],values:['id']]],query=[[bb]]",
   'Stringification'
 );
 
@@ -76,7 +76,7 @@ is($result->to_string,
 
 $koral = Krawfish::Koral->new;
 $koral->query($qb->token($qb->bool_or('bb','cc')));
-$koral->compile($mb->aggregate($mb->a_values('size')));
+$koral->compilation($mb->aggregate($mb->a_values('size')));
 
 # The whole search flow
 ok(my $coll = $koral->to_query

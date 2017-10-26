@@ -45,12 +45,12 @@ ok_index($index, {
 
 my $koral = Krawfish::Koral->new;
 my $qb = $koral->query_builder;
-my $mb = $koral->compile_builder;
+my $mb = $koral->compilation_builder;
 
 $koral->query($qb->token('aa'));
 
 # Create compile query to aggregate on 'genre' and 'age'
-$koral->compile(
+$koral->compilation(
   $mb->aggregate(
     $mb->a_fields('genre'),
     $mb->a_fields('age')
@@ -58,7 +58,7 @@ $koral->compile(
 );
 
 is($koral->to_string,
-   "compile=[aggr=[fields:['genre'],fields:['age']]],query=[[aa]]",
+   "compilation=[aggr=[fields:['genre'],fields:['age']]],query=[[aa]]",
    'Stringification');
 
 ok(my $koral_query = $koral->to_query, 'Normalization');
@@ -89,7 +89,7 @@ is($coll->to_string,
    'Stringification');
 
 # Create compile query to aggregate on 'author'
-$koral->compile(
+$koral->compilation(
   $mb->aggregate(
     $mb->a_fields('author')
   )

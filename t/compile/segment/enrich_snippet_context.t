@@ -16,11 +16,11 @@ ok_index($index, {
 
 my $koral = Krawfish::Koral->new;
 my $qb = $koral->query_builder;
-my $mb = $koral->compile_builder;
+my $mb = $koral->compilation_builder;
 
 $koral->query($qb->term('aa'));
 
-$koral->compile(
+$koral->compilation(
   $mb->enrich(
     $mb->e_snippet(
       context => $mb->e_span_context(SPAN_PREF . 'a/b=c')
@@ -29,7 +29,7 @@ $koral->compile(
 );
 
 is($koral->to_string,
-   'compile=[enrich=[snippet=[left:span(a/b=c,0),right:span(a/b=c,0),hit]]],query=[aa]',
+   'compilation=[enrich=[snippet=[left:span(a/b=c,0),right:span(a/b=c,0),hit]]],query=[aa]',
    'Stringification');
 
 ok(my $koral_query = $koral->to_query, 'Normalization');

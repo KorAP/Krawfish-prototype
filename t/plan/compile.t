@@ -44,10 +44,10 @@ ok_index($index, {
 $index->commit;
 
 my $koral = Krawfish::Koral->new;
-my $mb = $koral->compile_builder;
+my $mb = $koral->compilation_builder;
 
 # Introduce redundant operations and new sorts
-$koral->compile(
+$koral->compilation(
   $mb->enrich(
     $mb->e_fields('author', 'title', 'id')
   )
@@ -56,7 +56,7 @@ $koral->compile(
 $koral->query($koral->query_builder->token('a'));
 
 # Get the compile object
-my $compile = $koral->compile;
+my $compile = $koral->compilation;
 
 is($compile->to_string, "enrich=[fields:['author','title','id']]", 'Stringification');
 
@@ -72,7 +72,7 @@ is($compile->to_string(1), "fields(#1,#3,#17:[0])",
    'Stringification');
 
 # Introduce redundant operations and new sorts
-$koral->compile(
+$koral->compilation(
   $mb->sort_by($mb->s_field('author', 1), $mb->s_field('age')),
   $mb->enrich($mb->e_fields('author', 'title', 'id')),
   $mb->sort_by($mb->s_field('length')),
@@ -80,7 +80,7 @@ $koral->compile(
 );
 
 # Get the compile object
-$compile = $koral->compile;
+$compile = $koral->compilation;
 
 
 # Translate to term_ids
@@ -110,7 +110,7 @@ is(
 );
 
 # Introduce snippet
-$koral->compile(
+$koral->compilation(
   $mb->enrich(
     $mb->e_snippet(
       context => $mb->e_span_context(SPAN_PREF . 'opennlp/s=s', 0)
@@ -118,13 +118,13 @@ $koral->compile(
   )
 );
 
-is($koral->compile->to_string,
+is($koral->compilation->to_string,
    'enrich=[snippet=[left:span(opennlp/s=s,0),right:span(opennlp/s=s,0),hit]]',
    'stringification'
  );
 
 is($koral->to_string,
-   'compile=[enrich=[snippet=[left:span(opennlp/s=s,0),right:span(opennlp/s=s,0),hit]]],query=[[a]]',
+   'compilation=[enrich=[snippet=[left:span(opennlp/s=s,0),right:span(opennlp/s=s,0),hit]]],query=[[a]]',
    'stringification');
 
 $query = $koral->to_query;
@@ -145,7 +145,7 @@ ok_index($index, {
 
 
 # Introduce snippet
-$koral->compile(
+$koral->compilation(
   $mb->enrich(
     $mb->e_snippet(
       context => $mb->e_span_context(SPAN_PREF . 'opennlp/s=s', 0)

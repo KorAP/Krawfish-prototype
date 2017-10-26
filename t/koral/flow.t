@@ -8,10 +8,10 @@ my $koral = Krawfish::Koral->new;
 
 my $qb = $koral->query_builder;
 my $cb = $koral->corpus_builder;
-my $mb = $koral->compile_builder;
+my $mb = $koral->compilation_builder;
 
 # Create compile
-$koral->compile(
+$koral->compilation(
   $mb->aggregate(
     $mb->a_fields('size', 'age'),
     $mb->a_frequencies,
@@ -47,7 +47,7 @@ $koral->corpus(
   )
 );
 
-is($koral->to_string, "compile=[aggr=[fields:['size','age'],freq,length],enrich=[fields:['age']],sort=[field='author'<]],corpus=[1880&author=Goethe],query=[[/b./|aa][]cc]", 'Serialization');
+is($koral->to_string, "compilation=[aggr=[fields:['size','age'],freq,length],enrich=[fields:['age']],sort=[field='author'<]],corpus=[1880&author=Goethe],query=[[/b./|aa][]cc]", 'Serialization');
 
 # Get the query
 ok(my $query = $koral->to_query, 'Create complex query construct');

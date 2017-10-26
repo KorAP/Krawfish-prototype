@@ -21,17 +21,17 @@ ok_index($index, {
 
 my $koral = Krawfish::Koral->new;
 my $qb = $koral->query_builder;
-my $mb = $koral->compile_builder;
+my $mb = $koral->compilation_builder;
 
 $koral->query($qb->span('s'));
-$koral->compile(
+$koral->compilation(
   $mb->aggregate(
     $mb->a_length
   )
 );
 
 is($koral->to_string,
-   "compile=[aggr=[length]],query=[<s>]",
+   "compilation=[aggr=[length]],query=[<s>]",
    'Stringification');
 
 ok(my $koral_query = $koral->to_query, 'Normalization');

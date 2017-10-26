@@ -30,18 +30,18 @@ ok_index($index, {
 
 my $koral = Krawfish::Koral->new;
 my $qb = $koral->query_builder;
-my $mb = $koral->compile_builder;
+my $mb = $koral->compilation_builder;
 
 $koral->query($qb->token('aa'));
 
-$koral->compile(
+$koral->compilation(
   $mb->enrich(
     $mb->e_fields('license','corpus')
   )
 );
 
 is($koral->to_string,
-   "compile=[enrich=[fields:['license','corpus']]],query=[[aa]]",
+   "compilation=[enrich=[fields:['license','corpus']]],query=[[aa]]",
    'Stringification');
 
 ok(my $koral_query = $koral->to_query, 'Normalization');
@@ -94,7 +94,7 @@ ok(!$fields->next, 'No more next');
 # Retrieve including stored data
 $koral = Krawfish::Koral->new;
 $koral->query($qb->bool_or('aa', 'bb'));
-$koral->compile(
+$koral->compilation(
   $mb->enrich(
     $mb->e_fields('license','corpus', 'uri', 'year')
   )

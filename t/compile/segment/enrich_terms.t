@@ -16,7 +16,7 @@ ok_index($index, {
 
 my $koral = Krawfish::Koral->new;
 my $qb = $koral->query_builder;
-my $mb = $koral->compile_builder;
+my $mb = $koral->compilation_builder;
 
 $koral->query(
   $qb->bool_or(
@@ -25,14 +25,14 @@ $koral->query(
   )
 );
 
-$koral->compile(
+$koral->compilation(
   $mb->enrich(
     $mb->e_terms(2,4)
   )
 );
 
 is($koral->to_string,
-   "compile=[enrich=[terms:[2,4]]],query=[({2:aa})|({4:bb})]",
+   "compilation=[enrich=[terms:[2,4]]],query=[({2:aa})|({4:bb})]",
    'Stringification');
 
 ok(my $koral_query = $koral->to_query, 'Normalization');
