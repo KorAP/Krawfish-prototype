@@ -124,6 +124,9 @@ sub corpus_builder {
 
 
 # Compile part of the Koral object
+# TODO:
+#   Rename to compilation() to be in line with the
+#   other nouns
 sub compile {
   my $self = shift;
   if ($_[0]) {

@@ -1,6 +1,7 @@
 package Krawfish::Compile;
 use parent 'Krawfish::Query';
 use Krawfish::Koral::Result::Match;
+use Krawfish::Koral::Result;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -10,6 +11,8 @@ use warnings;
 
 use constant DEBUG => 0;
 
+
+# Return match object
 sub current_match {
   my $self = shift;
   my $current = $self->current;
@@ -23,10 +26,7 @@ sub current_match {
 };
 
 
-# TODO:
-#   gibt nur den current des queries zurück.
-#   bei sort() wird zusätzlich das criterion
-#   hinzugefügt.
+# Return the current posting
 sub current {
   shift->{query}->current;
 };
@@ -69,8 +69,28 @@ sub match_from_query {
 };
 
 
+# Get maximum frequency
 sub max_freq {
   $_[0]->{query}->max_freq;
 };
+
+
+# Override to compile data
+sub compile {
+  $_[0];
+};
+
+
+# Get result object
+sub result {
+  my $self = shift;
+  if ($_[0]) {
+    $self->{result} = shift;
+    return $self;
+  };
+  $self->{result} //= Krawfish::Koral::Result->new;
+  return $self->{result};
+};
+
 
 1;

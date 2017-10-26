@@ -6,54 +6,53 @@ use strict;
 use warnings;
 
 # Count the frequencies of all matches of the query
-# per doc and per match
+# per doc and per match.
+
+# This is not a query but an aggregation object!
+# Aggregations are collected using the aggregate()
+# method at the end.
 
 # TODO:
-#   Support corpus classes!
-#   This is especially relevant for measuring the
-#   difference between a non-rewritten and a rewritten VC
-#   This requires a simple datastructure
-#   [class0-totalresources|class0-totalResults][...]
+#   Add flags list to stringification
 
+
+# Constructor
 sub new {
-  my $class = shift;
+  my ($class, $flags) = @_;
   bless {
-    flags => shift,
-    aggregation => Krawfish::Koral::Result::Aggregate::Frequencies->new
+    flags => $flags,
+    result => Krawfish::Koral::Result::Aggregate::Frequencies->new($flags)
   }, $class;
 };
 
+
 # Add to totalResources immediately
 sub each_doc {
-  $_[2]->{totalResources}++;
-
-  return;
-
-  # New: Increment for classes
   my ($self, $current) = @_;
 
-  # TODO:
-  #   Iterate over valid classes
-  foreach ($current->corpus_class_list($self->{flags})) {
-    $self->{aggregation}->incr_doc($_);
-  };
+  # Mix set flags with flags to aggregate on
+  my $flags = $current->flags($self->{flags});
+
+  # Increment on flag value
+  $self->{result}->incr_doc($flags);
 };
 
 
 # Add to totalResults immediately
 sub each_match {
-  $_[2]->{totalResults}++;
-
-  return;
-
-  # New: Increment for classes
   my ($self, $current) = @_;
 
-  # TODO:
-  #   Iterate over valid classes
-  foreach ($current->corpus_class_list($self->{flags})) {
-    $self->{aggregation}->incr_match($_);
-  };
+  # Mix set flags with flags to aggregate on
+  my $flags = $current->flags($self->{flags});
+
+  # Increment on flag value
+  $self->{result}->incr_match($flags);
+};
+
+
+# Return result blob
+sub result {
+  $_[0]->{result};
 };
 
 

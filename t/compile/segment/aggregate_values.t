@@ -61,29 +61,38 @@ is($koral_query->to_string(1),
 ok(my $query = $koral_query->optimize($index->segment), 'Optimize');
 
 # may very well be renamed to search()
-ok($query->finalize, 'Finalize the query');
 
-ok(my $coll = $query->collection->{values}->inflate($index->dict),
+ok(my $result = $query->compile->inflate($index->dict),
    'Inflate fields');
 
-is($coll->to_string, 'values=id:[sum:8,freq:2,min:1,max:7,avg:4];size:[sum:4,freq:2,min:2,max:2,avg:2]', 'Stringification');
+is($result->to_string,
+   '[aggr=[values='.
+     'id:[sum:8,freq:2,min:1,max:7,avg:4];'.
+     'size:[sum:4,freq:2,min:2,max:2,avg:2]]'.
+     ']'.
+     '[matches=[0:1-2][2:1-2]]',
+   'Stringification');
+
 
 $koral = Krawfish::Koral->new;
 $koral->query($qb->token($qb->bool_or('bb','cc')));
 $koral->compile($mb->aggregate($mb->a_values('size')));
 
 # The whole search flow
-ok($coll = $koral->to_query
+ok(my $coll = $koral->to_query
      ->identify($index->dict)
      ->optimize($index->segment)
-     ->finalize
-     ->collection
-     ->{values}
+     ->compile
      ->inflate($index->dict),
    'Query');
 
 # This may differ from system to system
-is($coll->to_string, 'values=size:[sum:7,freq:3,min:2,max:3,avg:2.33333333333333]', 'Stringification');
+is($coll->to_string,
+   '[aggr=[values=size:[sum:7,freq:3,min:2,max:3,avg:2.33333333333333]]]'.
+     '[matches=[0:1-2][1:1-2][1:2-3][2:1-2]]',
+   'Stringification');
+
+diag 'Test with corpus classes';
 
 done_testing;
 __END__

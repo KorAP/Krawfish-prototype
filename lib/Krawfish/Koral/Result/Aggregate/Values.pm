@@ -41,15 +41,6 @@ sub add {
   $aggr->{freq}++;
 };
 
-sub summarize {
-  my $self = shift;
-
-  my $fields = $self->{fields};
-  foreach (values %{$fields}) {
-    next unless $_->{freq};
-    $_->{avg} = $_->{sum} / $_->{freq};
-  };
-};
 
 sub inflate {
   my ($self, $dict) = @_;
@@ -77,7 +68,7 @@ sub inflate {
 sub to_string {
   my $self = shift;
   if ($self->{field_terms}) {
-    my $str = 'values=';
+    my $str = '[values=';
 
     my $fields = $self->{field_terms};
 
@@ -97,12 +88,24 @@ sub to_string {
     };
     chop $str;
 
-    return $str;
+    return $str . ']';
   };
 
 
   warn 'Please inflate before!';
   return '';
+};
+
+
+# Finish the aggregation
+sub on_finish {
+  my $self = shift;
+
+  my $fields = $self->{fields};
+  foreach (values %{$fields}) {
+    next unless $_->{freq};
+    $_->{avg} = $_->{sum} / $_->{freq};
+  };
 };
 
 1;

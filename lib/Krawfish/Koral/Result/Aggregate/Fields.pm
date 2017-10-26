@@ -89,6 +89,13 @@ sub flush {
 };
 
 
+# On finish
+sub on_finish {
+  $_[0]->flush;
+  $_[0];
+};
+
+
 # Translate this to terms
 sub inflate {
   my ($self, $dict) = @_;
@@ -131,6 +138,7 @@ sub inflate {
 };
 
 
+# Stringification
 sub to_string {
   my $self = shift;
   if ($self->{fields_terms}) {
@@ -159,6 +167,7 @@ sub to_string {
 };
 
 
+# Key to add to KoralQuery
 sub key {
   'fields';
 };

@@ -52,24 +52,12 @@ ok($koral_query = $koral_query->identify($index->dict),
 
 ok(my $query = $koral_query->optimize($index->segment), 'Optimization');
 
-# is($query->to_string, 'aggr([length]:filter(#5,[1]))', 'Stringification');
+ok(my $coll = $query->compile->inflate($index->segment), 'Optimization');
 
-ok($query->next, 'Next');
-ok($query->next, 'Next');
-ok($query->next, 'Next');
-ok($query->next, 'Next');
-ok(!$query->next, 'No more nexts');
-
-is_deeply($query->collection, {
-  length => {
-    avg => 1.75,
-    min => 1,
-    max => 3,
-    sum => 7
-  }
-}, 'Get aggregation results');
-
-
+is($coll->to_string,
+   '[aggr=[length=[avg:1.75;min:1;max:3;sum:7]]' .
+     '[matches=[0:0-2][1:0-1][2:0-1][2:1-4]]',
+   'Stringification');
 
 done_testing;
 __END__

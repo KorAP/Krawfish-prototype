@@ -198,10 +198,16 @@ sub close {
 
 
 # Stop compilation of results in non-compile queries
-# TODO:
-#   Rename to compile()
-sub collect {
+sub compile {
   return 1;
 };
+
+
+
+# TODO:
+#   REMOVE!
+sub collect {
+  1;
+}
 
 1;

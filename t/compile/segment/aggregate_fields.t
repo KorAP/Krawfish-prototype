@@ -71,7 +71,6 @@ is($koral_query->to_string,
 # This is a query that is fine to be send to segments
 ok($koral_query = $koral_query->identify($index->dict), 'Identify');
 
-
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string(1),
    "aggr(fields:[#1,#5]:filter(#10,[1]))",
@@ -82,18 +81,12 @@ ok(my $query = $koral_query->optimize($index->segment),
 
 is($query->to_string, 'aggr([fields:#1,#5]:filter(#10,[1]))', 'Stringification');
 
-ok($query->next, 'Next');
-ok($query->next, 'Next');
-ok($query->next, 'Next');
-ok($query->next, 'Next');
-ok($query->next, 'Next');
-ok(!$query->next, 'No more nexts');
+ok(my $coll = $query->compile->inflate($index->dict), 'To terms');
 
-# TODO:
-#   This API is only temporarily implemented
-ok(my $coll = $query->collection->{fields}->inflate($index->dict), 'To terms');
-is($coll->to_string, 'fields=age:3[1,1],4[2,3],7[1,1];genre:newsletter[2,3],novel[2,2]');
-
+is($coll->to_string,
+   '[aggr=fields=age:3[1,1],4[2,3],7[1,1];genre:newsletter[2,3],novel[2,2]]' .
+     '[matches=[0:0-1][1:0-1][2:0-1][2:2-3][4:0-1]]',
+   'Stringification');
 
 # Create compile query to aggregate on 'author'
 $koral->compile(
@@ -106,11 +99,16 @@ $koral->compile(
 ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment), 'Translate');
 
 is($query->to_string, 'aggr([fields:#3]:filter(#10,[1]))', 'Stringification');
-ok($query->finalize, 'Finalize');
 
-ok($coll = $query->collection->{fields}->inflate($index->dict), 'To terms');
-is($coll->to_string, 'fields=author:Fritz[1,2],Michael[1,1],Peter[3,4]');
+ok($coll = $query->compile->inflate($index->dict), 'To terms');
 
+is($coll->to_string,
+   '[aggr=fields=author:Fritz[1,2],Michael[1,1],Peter[3,4]]' .
+     '[matches=[0:0-1][1:0-1][2:0-1][2:2-3][4:0-1]]',
+   'Stringification'
+ );
+
+diag 'Test with corpus classes';
 
 done_testing;
 __END__

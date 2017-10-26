@@ -14,7 +14,14 @@ use warnings;
 use constant DEBUG => 0;
 
 sub new {
-  my $class = shift;
+  my ($class, $flags) = @_;
+
+  return bless {
+    flags => $flags,
+    result => Krawfish::Koral::Result::Aggregate::Length->new($flags)
+  }, $class;
+
+  # DELETE:
   bless {
     segment => shift,
     query => shift,
@@ -29,25 +36,14 @@ sub new {
 # On every match
 sub each_match {
   my ($self, $current) = @_;
-  my $length = $current->end - $current->start;
-  $self->{min} = $length < $self->{min} ? $length : $self->{min};
-  $self->{max} = $length > $self->{max} ? $length : $self->{max};
-  $self->{sum} += $length;
-  $self->{freq}++;
+  $self->{result}->incr_match(
+    $current->end - $current->start,
+    $current->flags($self->{flags})
+  );
 };
 
-
-# Finish the aggregation
-sub on_finish {
-  my ($self, $collection) = @_;
-
-  return if $self->{freq} == 0;
-  $collection->{length} = {
-    min  => $self->{min},
-    max  => $self->{max},
-    sum  => $self->{sum},
-    avg  => $self->{sum} / $self->{freq}
-  };
+sub result {
+  $_[0]->{result};
 };
 
 
@@ -55,5 +51,6 @@ sub on_finish {
 sub to_string {
   'length'
 };
+
 
 1;

@@ -49,7 +49,7 @@ sub new {
     #   This needs to be an object, so it can be inflated again!
     # collection => {}, # The buckets in memory
 
-    aggregation => Krawfish::Koral::Result::Aggregate::Fields->new,
+    result => Krawfish::Koral::Result::Aggregate::Fields->new,
 
     freq    => 0,
     field_freqs => {}
@@ -83,7 +83,7 @@ sub each_doc {
   my $pointer = $self->{field_pointer};
 
   # Set match frequencies to all remembered doc frequencies
-  my $aggr = $self->{aggregation};
+  my $aggr = $self->{result};
 
   # Skip to document in question
   # TODO:
@@ -127,21 +127,21 @@ sub each_doc {
 
 # On every match
 sub each_match {
-  $_[0]->{aggregation}->incr_match;
+  $_[0]->{result}->incr_match;
 };
 
 
 # finish the results
-sub on_finish {
-  my ($self, $collection) = @_;
+#sub on_finish {
+#  my ($self, $collection) = @_;
+#
+#  $self->{result}->flush;
+#
+#  $collection->{fields} = $self->{result};
+#};
 
-  $self->{aggregation}->flush;
 
-  $collection->{fields} = $self->{aggregation};
-};
-
-
-sub collection {
+sub result {
   # Return fields
   # Example structure for year
   # {
@@ -149,7 +149,7 @@ sub collection {
   #   1998 => [5, 89],
   #   1999 => [3, 20]
   # }
-  $_[0]->{collection};
+  $_[0]->{result};
 };
 
 

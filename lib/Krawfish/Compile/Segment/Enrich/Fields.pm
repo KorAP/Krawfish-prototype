@@ -25,6 +25,8 @@ sub new {
   }, $class;
 };
 
+
+# Initialize fields enrichment
 sub _init {
   my $self = shift;
 
@@ -118,7 +120,7 @@ sub current_match {
 };
 
 
-# Next match
+# Move to next match
 sub next {
   my $self = shift;
   $self->{match} = undef;
@@ -126,6 +128,7 @@ sub next {
 };
 
 
+# Stringification
 sub to_string {
   my $str = 'enrichFields(' . join(',', @{$_[0]->{fields}}) . ':';
   $str .= $_[0]->{query}->to_string;

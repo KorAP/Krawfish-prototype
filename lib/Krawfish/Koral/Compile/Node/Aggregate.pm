@@ -42,23 +42,30 @@ sub identify {
 };
 
 
+# Optimize aggregation query
 sub optimize {
   my ($self, $segment) = @_;
 
   my $query = $self->{query}->optimize($segment);
 
-
+  # There is nothing to query - return nothing
+  # TODO:
+  #   It may be required to have some default
+  #   null-values for aggregation that need to
+  #   be returned.
   if ($query->max_freq == 0) {
     return Krawfish::Query::Nowhere->new;
   };
 
+  # Get all aggregations
   my $aggr = $self->{aggregates};
 
+  # Optimize all aggregation objects
   for (my $i = 0; $i < @$aggr; $i++) {
-
     $aggr->[$i] = $aggr->[$i]->optimize($segment);
   };
 
+  # Create aggregation query with all aggregations
   return Krawfish::Compile::Segment::Aggregate->new(
     $query,
     $aggr

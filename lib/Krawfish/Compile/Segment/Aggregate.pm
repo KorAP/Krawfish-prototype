@@ -5,26 +5,20 @@ use warnings;
 
 use constant DEBUG => 0;
 
-# TODO:
-#   It may be better to have one aggregator per match
-#   and one aggregator per doc.
-
 # Aggregate values of matches per document and
 # per match.
 
 # TODO:
-#   See https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html
+#   See https://www.elastic.co/guide/en/
+#     elasticsearch/reference/current/
+#     search-aggregations.html
 
-# TODO: Sort all ops for each_match and each_doc support
 sub new {
   my $class = shift;
-  my $result = {};
-  my $self = bless {
-    query       => shift,
-    ops         => shift,
 
-    last_doc_id => -1,
-    collection  => $result,
+  my $self = bless {
+    query => shift,
+    ops   => shift,
     last_doc_id => -1,
     finished    => 0
   }, $class;
@@ -42,44 +36,49 @@ sub new {
     };
   };
 
-  $self->{each_doc} = \@each_doc;
+  $self->{each_doc}   = \@each_doc;
   $self->{each_match} = \@each_match;
 
   return $self;
 };
 
 
-sub collection {
-  $_[0]->{collection};
-};
+# Return the result of all ops
+sub compile {
+  my $self = shift;
 
+  # Get result object
+  my $result = $self->result;
 
-# TODO:
-#   Add collection data to result document
-# TODO:
-#   Rename to "compilation"
-sub collect {
-  my ($self, $result) = @_;
+  # Add all results
+  while ($self->next) {
+    $result->add_match($self->current_match);
+  };
 
-  # Add collect
-  $result->add_collection($self->collection);
+  # Add aggregations to result
+  foreach (@{$self->{ops}}) {
+    $result->add_aggregation($_->result);
+  };
 
-  # Collect result from nested query
-  $self->{query}->collect($result);
+  # Collect more data
+  my $query = $self->{query};
+  if ($query->isa('Krawfish::Compile')) {
+    $query->result($result)->compile;
+  };
+
   return $result;
 };
+
 
 
 # Iterate to the next result
 sub next {
   my $self = shift;
 
-  # Get container object
-  my $collection = $self->collection;
-
   # There is a next match
   # TODO:
-  #   If there is no operand per match, only use next_doc
+  #   If there is no operand per match,
+  #   only use next_doc
   if ($self->{query}->next) {
 
     # Get the current posting
@@ -89,7 +88,7 @@ sub next {
 
       # Collect data of current operation
       foreach (@{$self->{each_doc}}) {
-        $_->each_doc($current, $collection);
+        $_->each_doc($current);
       };
 
       # Set last doc to current doc
@@ -98,7 +97,7 @@ sub next {
 
     # Collect data of current operation
     foreach (@{$self->{each_match}}) {
-      $_->each_match($current, $collection);
+      $_->each_match($current);
     };
 
     return 1;
@@ -106,8 +105,10 @@ sub next {
 
   # Release on_finish event
   unless ($self->{finished}) {
+
     foreach (@{$self->{ops}}) {
-      $_->on_finish($collection);
+      $_->result->on_finish;
+      # $_->on_finish($collection);
     };
     $self->{finished} = 1;
   };
@@ -116,11 +117,20 @@ sub next {
 };
 
 
+# Shorthand for "search through"
+sub finalize {
+  while ($_[0]->next) {};
+  return $_[0];
+};
+
+
+# Get current posting
 sub current {
   return $_[0]->{query}->current;
 };
 
 
+# stringification
 sub to_string {
   my $self = shift;
   my $str = 'aggr(';
@@ -129,10 +139,5 @@ sub to_string {
   return $str . ')';
 };
 
-# Shorthand for "search through"
-sub finalize {
-  while ($_[0]->next) {};
-  return $_[0];
-};
 
 1;

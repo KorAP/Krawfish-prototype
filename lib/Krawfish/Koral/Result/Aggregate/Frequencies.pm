@@ -1,48 +1,89 @@
 package Krawfish::Koral::Result::Aggregate::Frequencies;
+use Krawfish::Koral::Result::Aggregate::Length;
+use Krawfish::Util::Bits;
 use strict;
 use warnings;
 
 # This calculates frequencies for all classes
 
 # TODO:
-#   Alternatively increment on all 16^2=65536 combinations
-#   And separate + sum them afterwards
-#   (so the array would be 2*(16^2)*size(long))
+#   Instead of keys a byte-trie may in the end
+#   be the most efficient data structure.
 
+# Constructor
 sub new {
   my $class = shift;
   bless {
-    classes => [@_],
-    freqs => []
+    flags => shift,
+    freqs => {},
+    classes => undef
   }, $class;
 };
 
+
 # Increment value per document
 sub incr_doc {
-  my ($self, $class) = @_;
-  $self->{freqs}->[$class * 2]++;
+  my ($self, $flags) = @_;
+  my $freq = ($self->{freqs}->{$flags} //= [0,0]);
+  $freq->[0]++;
 };
+
 
 # Increment value per document
 sub incr_match {
-  my ($self, $class) = @_;
-  $self->{freqs}->[$class * 2 + 1]++;
+  my ($self, $flags) = @_;
+  my $freq = ($self->{freqs}->{$flags} //= [0,0]);
+  $freq->[1]++;
 };
 
+
+# Inflate result
 sub inflate {
   $_[0];
 };
 
+
+# Finish the calculation
+sub on_finish {
+  my $self = shift;
+
+  my $freqs = $self->{freqs};
+
+  my @classes;
+  # Iterate over all frequency combinations
+  foreach my $key (keys %$freqs) {
+
+    # Iterate over all classes in this combination
+    foreach my $class (flags_to_classes($key)) {
+      $classes[$class] //= [0,0];
+      $classes[$class]->[0] += $freqs->{$key}->[0];
+      $classes[$class]->[1] += $freqs->{$key}->[1];
+
+      # Alternatively store in [$_ * 2] and [$_ * 2 + 1]
+    };
+
+  };
+
+  $self->{classes} = \@classes;
+  return $self;
+};
+
+
+# Stringification
 sub to_string {
   my $self = shift;
-  my $str = 'freq=';
-  foreach (@{$self->{classes}}) {
-    $str .= $_ == 0 ? 'total' : $_;
-    $str .= ':[' . $self->{freqs}->[$_ * 2] . ',' .  $self->{freqs}->[$_ * 2 + 1] . ']';
+  my $str = '[freq=';
+
+  my @classes = @{$self->{classes}};
+
+  my $first = 0;
+  foreach (my $i = 0; $i < @classes; $i++) {
+    $str .= $i == 0 ? 'total' : 'class' . $i;
+    $str .= ':[' . $classes[$i]->[0] . ',' .  $classes[$i]->[1] . ']';
     $str .= ';';
   };
   chop($str);
-  return $str;
+  return $str . ']';
 };
 
 

@@ -29,7 +29,7 @@ sub new {
   }, $class;
 
   # Initialize aggregator
-  $self->{aggregation} = Krawfish::Koral::Result::Aggregate::Values->new(
+  $self->{result} = Krawfish::Koral::Result::Aggregate::Values->new(
     $self->{field_ids}
   );
 
@@ -63,7 +63,7 @@ sub each_doc {
   my $pointer = $self->{field_pointer};
 
   # Get aggregation information
-  my $aggr = $self->{aggregation};
+  my $aggr = $self->{result};
 
   # Move fields pointer to current document
   if ($pointer->skip_doc($doc_id) == $doc_id) {
@@ -81,26 +81,15 @@ sub each_doc {
 };
 
 
-sub collection {
-  $_[0]->{collection};
+# Result
+sub result {
+  $_[0]->{result};
 };
 
 
 # Stringification
 sub to_string {
   return 'values:' . join(',', @{$_[0]->{field_ids}});
-};
-
-
-# Finish the aggregation
-sub on_finish {
-  my ($self, $collection) = @_;
-
-  # Summarize collection
-  $self->{aggregation}->summarize;
-
-  # Maybe push to collection instead
-  $collection->{values} = $self->{aggregation};
 };
 
 
