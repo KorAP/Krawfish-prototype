@@ -9,7 +9,23 @@ use warnings;
 # match is associated to certain classes.
 
 # Accepts the nesting query and a number of valid
-# corpus classes
+# corpus classes.
+
+# This will, by default, form an or-relation regarding
+# the given classes. To form an and-relation, multiple
+# incorpus queries need to be nested.
+
+# TODO:
+#   Improve normalization!
+#   In case the operand is an incorpus query as well,
+#   check for identical classes.
+#     incorpus(3,4:incorpus(2,3,4:...))
+#   is identical to
+#     incorpus(2,3,4:...))
+#   but
+#     incorpus(2:incorpus(3:...))
+#   is NOT identical to
+#     incorpus(2,3:...)
 
 # Constructor
 sub new {
@@ -68,7 +84,8 @@ sub optimize {
 # Stringification
 sub to_string {
   my $self = shift;
-  return 'inCorpus(' . join(',',@{$self->{corpus_classes}}) . ':' . $self->operand->to_string . ')';
+  return 'inCorpus(' . join(',',@{$self->{corpus_classes}}) . ':' .
+    $self->operand->to_string . ')';
 };
 
 
