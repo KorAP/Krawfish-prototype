@@ -38,21 +38,11 @@ sub matches {
   $_[0]->{matches};
 };
 
-# Add collected information to the head
-# TODO:
-#   Make this a list as well
-# TODO:
-#   Rename to compilation
-sub add_collection {
-  warn 'DEPRECATED';
-  my ($self, $collection) = @_;
-  $self->{collection} = $collection;
-};
-
 
 # Add aggregated information
 sub add_aggregation {
   my ($self, $aggregation) = @_;
+
   push(@{$self->{aggregation}}, $aggregation);
 };
 

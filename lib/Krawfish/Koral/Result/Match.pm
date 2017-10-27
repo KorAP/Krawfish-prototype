@@ -51,6 +51,12 @@ sub to_string {
     $self->start . '-' .
     $self->end;
 
+
+  # In case a class != 0 is set - serialize
+  if ($self->flags & 0b0111_1111_1111_1111) {
+    $str .= '!' . join(',', $self->corpus_classes);
+  };
+
   if ($self->payload->length) {
     $str .= '$' . $self->payload->to_string;
   };

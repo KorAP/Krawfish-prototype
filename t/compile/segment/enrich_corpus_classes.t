@@ -87,17 +87,17 @@ is($query->to_string(1),
 
 ok($query->next, 'Next');
 is($query->current->to_string, '[0:1-2!1,2]', 'Current object');
-is($query->current_match->to_string, "[0:1-2|fields:#1=#2|inCorpus:1,2]",
+is($query->current_match->to_string, "[0:1-2!1,2|fields:#1=#2|inCorpus:1,2]",
    'Current match');
 
 ok($query->next, 'Next');
 is($query->current->to_string, '[1:1-2!2]', 'Current object');
-is($query->current_match->to_string, "[1:1-2|fields:#1=#13|inCorpus:2]",
+is($query->current_match->to_string, "[1:1-2!2|fields:#1=#13|inCorpus:2]",
    'Current match');
 
 ok($query->next, 'Next');
 is($query->current->to_string, '[2:0-1!1]', 'Current object');
-is($query->current_match->to_string, "[2:0-1|fields:#1=#17|inCorpus:1]",
+is($query->current_match->to_string, "[2:0-1!1|fields:#1=#17|inCorpus:1]",
    'Current match');
 ok(!$query->next, 'Next');
 

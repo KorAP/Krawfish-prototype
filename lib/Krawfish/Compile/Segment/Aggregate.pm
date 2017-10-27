@@ -1,5 +1,6 @@
 package Krawfish::Compile::Segment::Aggregate;
 use parent 'Krawfish::Compile';
+use Krawfish::Log;
 use strict;
 use warnings;
 
@@ -47,16 +48,33 @@ sub new {
 sub compile {
   my $self = shift;
 
+  if (DEBUG) {
+    print_log('aggr', 'Compile aggregation');
+  };
+
   # Get result object
   my $result = $self->result;
 
   # Add all results
   while ($self->next) {
+    if (DEBUG) {
+      print_log(
+        'aggr',
+        'Add match ' . $self->current_match->to_string
+      );
+    };
+
     $result->add_match($self->current_match);
   };
 
   # Add aggregations to result
   foreach (@{$self->{ops}}) {
+    if (DEBUG) {
+      print_log(
+        'aggr',
+        'Add result to aggr ' . $_->result
+      );
+    };
     $result->add_aggregation($_->result);
   };
 
@@ -66,6 +84,12 @@ sub compile {
     $query->result($result)->compile;
   };
 
+  if (DEBUG) {
+    print_log(
+      'aggr',
+      'Result is ' . $result
+    );
+  };
   return $result;
 };
 

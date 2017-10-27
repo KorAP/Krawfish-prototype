@@ -15,9 +15,10 @@ use warnings;
 #   This is rather a group query or better:
 #   An aggregation on groups!
 
-use constant {
-  DEBUG => 0
-};
+# TODO:
+#   Support flags on construction
+
+use constant DEBUG => 0;
 
 sub new {
   my $class = shift;
@@ -26,11 +27,21 @@ sub new {
 
     # This needs to be numerical field ids!
     field_ids =>  [map { ref($_) ? $_->term_id : $_ } @{shift()}],
+    flags => shift
   }, $class;
+
+  if (DEBUG) {
+    print_log(
+      'aggr_values',
+      'Initialize field value aggregation on ' .
+        join(',', @{$self->{field_ids}})
+      );
+  };
 
   # Initialize aggregator
   $self->{result} = Krawfish::Koral::Result::Aggregate::Values->new(
-    $self->{field_ids}
+    $self->{field_ids},
+    $self->{flags}
   );
 
   return $self;
@@ -53,17 +64,23 @@ sub each_doc {
 
   $self->_init;
 
-  if (DEBUG) {
-    print_log('aggr_values', 'Aggregate on field values');
-  };
-
   # Get current document
   my $doc_id = $current->doc_id;
+
+  if (DEBUG) {
+    print_log(
+      'aggr_values',
+      "Aggregate on field values for doc_id $doc_id"
+    );
+  };
 
   my $pointer = $self->{field_pointer};
 
   # Get aggregation information
   my $aggr = $self->{result};
+
+  # Get flags from the document
+  my $flags = $current->flags($self->{flags});
 
   # Move fields pointer to current document
   if ($pointer->skip_doc($doc_id) == $doc_id) {
@@ -75,7 +92,7 @@ sub each_doc {
     foreach my $field (@values) {
 
       # Aggregate value
-      $aggr->add($field->key_id, $field->value);
+      $aggr->incr_doc($field->key_id, $field->value, $flags);
     };
   };
 };
