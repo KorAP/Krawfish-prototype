@@ -124,4 +124,11 @@ sub filter_by {
   $self;
 };
 
+
+# Requires filter
+sub requires_filter {
+  0;
+};
+
+
 1;

@@ -30,7 +30,7 @@ use warnings;
 # TODO:
 #   Alternatively there could be a Compare() query
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # Constructor
 sub new {

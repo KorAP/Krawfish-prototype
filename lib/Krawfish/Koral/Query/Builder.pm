@@ -7,6 +7,7 @@ use Krawfish::Util::Constants qw/:PREFIX/;
 use Krawfish::Koral::Query::Term;
 use Krawfish::Koral::Query::Token;
 use Krawfish::Koral::Query::Span;
+use Krawfish::Koral::Query::InCorpus;
 use Krawfish::Koral::Query::Sequence;
 use Krawfish::Koral::Query::Repetition;
 use Krawfish::Koral::Query::TermGroup;
@@ -67,8 +68,7 @@ sub token {
 
 sub term {
   shift;
-  my $term = shift;
-  return Krawfish::Koral::Query::Term->new(TOKEN_PREF . $term);
+  return Krawfish::Koral::Query::Term->new(TOKEN_PREF . shift);
 };
 
 sub term_neg {
@@ -126,6 +126,7 @@ sub in_text {
   );
 };
 
+
 # Position construct
 sub position {
   my $self = shift;
@@ -141,6 +142,13 @@ sub position {
 sub exclusion {
   shift;
   Krawfish::Koral::Query::Exclusion->new(@_);
+};
+
+
+# Search with reference to a specific supcorpus
+sub in_corpus {
+  shift;
+  Krawfish::Koral::Query::InCorpus->new(@_);
 };
 
 

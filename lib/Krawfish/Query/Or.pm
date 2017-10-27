@@ -4,7 +4,7 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 
 # Constructor
@@ -182,6 +182,19 @@ sub filter_by {
   return Krawfish::Query::Filter->new(
     $self, $corpus->clone
   );
+};
+
+
+# Requires filtering
+sub requires_filter {
+  my $self = shift;
+  if ($self->{first}->requires_filter) {
+    return 1;
+  }
+  elsif ($self->{second}->requires_filter) {
+    return 1;
+  };
+  return 0;
 };
 
 

@@ -54,8 +54,6 @@ sub next {
     elsif (DEBUG) {
       print_log('unique', 'Span is not unique');
     };
-
-    CORE::next;
   };
   return;
 };
@@ -78,6 +76,12 @@ sub filter_by {
   my ($self, $corpus) = @_;
   $self->{span} = $self->{span}->filter_by($corpus);
   return $self;
+};
+
+
+# Requires filtering
+sub requires_filter {
+  return $_[0]->{span}->requires_filter;
 };
 
 

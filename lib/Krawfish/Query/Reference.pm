@@ -63,4 +63,8 @@ sub filter_by {
 };
 
 
+sub requires_filter {
+  ...
+};
+
 1;

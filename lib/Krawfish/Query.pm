@@ -176,6 +176,15 @@ sub filter_by {
 };
 
 
+# Return a true value if a query requires a filter,
+# otherwise returns a false value.
+# This needs to be overwritten
+sub requires_filter {
+  warn 'Not implemented in ' . $_[0] . ' from ' . join(', ', caller);
+  ...
+};
+
+
 # Stringification
 # Overwrite
 sub to_string {
@@ -202,12 +211,5 @@ sub compile {
   return 1;
 };
 
-
-
-# TODO:
-#   REMOVE!
-sub collect {
-  1;
-}
 
 1;

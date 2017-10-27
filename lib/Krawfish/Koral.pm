@@ -273,6 +273,10 @@ sub to_query {
     $query = $self->corpus;
   };
 
+  # TODO:
+  #   Ignore classes in InCorpus(), that have no reference
+  #   in corpus. Or spit out a warning!
+
   # If request is focused on replication, filter to replicates
   if ($replicant_id) {
     $query = $self->query_builder->filter_by(

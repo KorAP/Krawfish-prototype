@@ -148,4 +148,10 @@ sub filter_by {
 };
 
 
+# Requires filtering
+sub requires_filter {
+  return $_[0]->{first}->requires_filter;
+};
+
+
 1;

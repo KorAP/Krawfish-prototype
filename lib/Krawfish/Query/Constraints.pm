@@ -115,20 +115,53 @@ sub max_freq {
 
 
 # Filter constraint by a corpus by only applying to
-# the least frequent operand
+# the least frequent operand, in case, there are no
+# further requirements
 sub filter_by {
   my ($self, $corpus) = @_;
 
+  my $first = $self->{first};
+  my $second = $self->{second};
+
+  # There is a need for filtering
+  if ($first->requires_filter || $second->requires_filter) {
+
+    # First operand requires a filter
+    if ($first->requires_filter) {
+      $self->{first} = $first->filter_by($corpus);
+    };
+
+    # Second operand requires a filter
+    if ($second->requires_filter) {
+      $self->{second} = $second->filter_by($corpus);
+    };
+
+    return $self;
+  };
+
   # The first operand is least frequent
-  if ($self->{first}->max_freq < $self->{second}->max_freq) {
-    $self->{first} = $self->{first}->filter_by($corpus);
+  if ($first->max_freq < $second->max_freq) {
+    $self->{first} = $first->filter_by($corpus);
   }
 
   # The second operand is least frequent (default)
   else {
-    $self->{second} = $self->{second}->filter_by($corpus);
+    $self->{second} = $second->filter_by($corpus);
   };
   return $self;
+};
+
+
+# Requires filtering
+sub requires_filter {
+  my $self = shift;
+  if ($self->{first}->requires_filter) {
+    return 1;
+  }
+  elsif ($self->{second}->requires_filter) {
+    return 1;
+  };
+  return 0;
 };
 
 

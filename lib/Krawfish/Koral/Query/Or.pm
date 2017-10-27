@@ -14,7 +14,7 @@ memoize('max_span');
 #   Deal with optionality in groups!
 #   (a|b?|c?) -> (a|b|c)?
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # Constructor
 sub new {

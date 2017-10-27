@@ -39,4 +39,9 @@ sub clone {
 };
 
 
+# Requires filtering
+sub requires_filter {
+  ...
+};
+
 1;

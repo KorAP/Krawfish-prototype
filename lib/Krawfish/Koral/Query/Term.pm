@@ -439,7 +439,9 @@ sub is_extended { 0 };
 sub is_extended_right { 0 };
 sub is_extended_left { 0 };
 sub maybe_unsorted { 0 };
-
+sub uses_classes {
+  undef;
+};
 
 sub from_koral {
   my $class = shift;

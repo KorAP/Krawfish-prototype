@@ -126,4 +126,9 @@ sub filter_by {
 };
 
 
+# Requires filter
+sub requires_filter {
+  $_[0]->{span}->requires_filter;
+};
+
 1;

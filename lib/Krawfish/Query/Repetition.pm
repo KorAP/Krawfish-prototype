@@ -6,7 +6,7 @@ use Krawfish::Posting;
 use strict;
 use warnings;
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # TODO:
 #   Support next_doc()!!!
@@ -221,5 +221,12 @@ sub filter_by {
   $self->{span} = $self->{span}->filter_by($corpus);
   return $self;
 };
+
+
+# Requires filtering
+sub requires_filter {
+  return $_[0]->{span}->requires_filter;
+};
+
 
 1;
