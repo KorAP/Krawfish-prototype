@@ -20,16 +20,6 @@ sub new {
     flags => $flags,
     result => Krawfish::Koral::Result::Aggregate::Length->new($flags)
   }, $class;
-
-  # DELETE:
-  bless {
-    segment => shift,
-    query => shift,
-    min  => 32_000,
-    max  => 0,
-    sum  => 0,
-    freq => 0
-  }, $class;
 };
 
 
@@ -42,6 +32,8 @@ sub each_match {
   );
 };
 
+
+# Return result object
 sub result {
   $_[0]->{result};
 };

@@ -53,7 +53,7 @@ sub each_match {
 };
 
 
-# Return result blob
+# Return result object
 sub result {
   $_[0]->{result};
 };

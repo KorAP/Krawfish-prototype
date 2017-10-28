@@ -1,22 +1,30 @@
 package Krawfish::Koral::Result::Aggregate::Length;
+use Krawfish::Util::Bits;
 use strict;
 use warnings;
 
-# This calculates frequencies for all classes
+# This calculates match length for all
+# corpus classes.
 
 # TODO:
-#   Instead of keys a byte-trie may in the end
-#   be the most efficient data structure.
+#   Rename "class1" etc. to "inCorpus1"
+
+# TODO:
+#   It may very vell also support query
+#   classes.
+
+
+use constant {
+  MIN_INIT_VALUE => 32_000
+};
+
 
 # Constructor
 sub new {
   my $class = shift;
   bless {
     flags => shift,
-    freq => 0,
-    min => 32_000_000,
-    max => 0,
-    sum => 0
+    length => {}
   }, $class;
 };
 
@@ -24,10 +32,18 @@ sub new {
 # Increment value per document
 sub incr_match {
   my ($self, $length, $flags) = @_;
-  $self->{min} = $length < $self->{min} ? $length : $self->{min};
-  $self->{max} = $length > $self->{max} ? $length : $self->{max};
-  $self->{sum} += $length;
-  $self->{freq}++;
+
+  my $l = ($self->{length}->{$flags} //= {
+    min  => MIN_INIT_VALUE,
+    max  => 0,
+    sum  => 0,
+    freq => 0
+  });
+
+  $l->{min} = $length < $l->{min} ? $length : $l->{min};
+  $l->{max} = $length > $l->{max} ? $length : $l->{max};
+  $l->{sum} += $length;
+  $l->{freq}++;
 };
 
 
@@ -37,16 +53,46 @@ sub inflate {
 };
 
 
+# Convert to class structure
 sub _to_classes {
-  ...
+  my $self = shift;
+
+  my $flags = $self->{length};
+  my @classes;
+
+  foreach my $flag (keys %$flags) {
+    foreach my $class (flags_to_classes($flag)) {
+      my $length = ($classes[$class] //= {
+        min  => MIN_INIT_VALUE,
+        max  => 0,
+        sum  => 0,
+        freq => 0
+      });
+
+      my $value = $flags->{$flag};
+
+      $length->{sum} += $value->{sum};
+      $length->{freq} += $value->{freq};
+      $length->{min} = (
+        $value->{min} < $length->{min} ? $value->{min} : $length->{min}
+      );
+      $length->{max} = (
+        $value->{max} > $length->{max} ? $value->{max} : $length->{max}
+      );
+
+      # Calculate average value
+      $length->{avg} = $length->{sum} / $length->{freq};
+    };
+  };
+
+  return \@classes;
 };
+
+
 
 # Finish the calculation
 sub on_finish {
-  my $self = shift;
-  return $self if $self->{freq} == 0;
-  $self->{avg} = $self->{sum} / $self->{freq};
-  return $self;
+  $_[0];
 };
 
 
@@ -54,11 +100,21 @@ sub on_finish {
 sub to_string {
   my $self = shift;
   my $str = '[length=';
-  $str .= '[';
-  $str .= 'avg:' . $self->{avg} . ';';
-  $str .= 'min:' . $self->{min} . ';';
-  $str .= 'max:' . $self->{max} . ';';
-  $str .= 'sum:' . $self->{sum};
+  my @classes = @{$self->_to_classes};
+  my $first = 0;
+  foreach (my $i = 0; $i < @classes; $i++) {
+
+    my $length = $classes[$i];
+    $str .= $i == 0 ? 'total' : 'class' . $i;
+    $str .= ':[';
+    $str .= 'avg:' .  $length->{avg} . ',';
+    $str .= 'freq:' . $length->{freq} . ',';
+    $str .= 'min:' .  $length->{min} . ',';
+    $str .= 'max:' .  $length->{max} . ',';
+    $str .= 'sum:' .  $length->{sum};
+    $str .= '];';
+  };
+  chop $str;
   return $str . ']';
 };
 
@@ -66,5 +122,6 @@ sub to_string {
 sub key {
   'length';
 };
+
 
 1;
