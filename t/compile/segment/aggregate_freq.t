@@ -119,7 +119,7 @@ ok($query = $query->identify($index->dict)->optimize($index->segment),
 
 # Search till the end
 is($query->compile->to_string,
-   '[aggr=[freq=total:[3,7];class1:[2,4];class2:[1,3]]]'.
+   '[aggr=[freq=total:[3,7];inCorpus1:[2,4];inCorpus2:[1,3]]]'.
      '[matches=[0:0-1!1][0:0-2!1][1:0-1!2][1:0-2!2][1:0-3!2][2:0-1!1][2:0-2!1]]',
    'Finish');
 

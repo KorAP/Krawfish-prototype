@@ -246,7 +246,7 @@ sub to_string {
   my @classes = @{$self->_to_classes};
   my $first = 0;
   foreach (my $i = 0; $i < @classes; $i++) {
-    $str .= $i == 0 ? 'total' : 'class' . $i;
+    $str .= $i == 0 ? 'total' : 'inCorpus' . $i;
     $str .= ':[';
 
     my $fields = $classes[$i];

@@ -142,8 +142,8 @@ ok($coll = $query->compile->inflate($index->dict), 'To terms');
 is($coll->to_string,
    '[aggr=[fields='.
      'total:[author=Fritz:[1,2],Michael:[1,1],Peter:[3,4]];'.
-     'class1:[author=Fritz:[1,2],Michael:[1,1],Peter:[1,2]];'.
-     'class2:[author=Peter:[2,2]]]]'.
+     'inCorpus1:[author=Fritz:[1,2],Michael:[1,1],Peter:[1,2]];'.
+     'inCorpus2:[author=Peter:[2,2]]]]'.
      '[matches=[0:0-1!2][1:0-1!2][2:0-1!1][2:2-3!1][4:0-1!1]]',
    'Stringification'
  );

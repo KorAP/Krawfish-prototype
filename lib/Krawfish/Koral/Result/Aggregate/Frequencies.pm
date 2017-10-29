@@ -83,7 +83,7 @@ sub to_string {
 
   my $first = 0;
   foreach (my $i = 0; $i < @classes; $i++) {
-    $str .= $i == 0 ? 'total' : 'class' . $i;
+    $str .= $i == 0 ? 'total' : 'inCorpus' . $i;
     $str .= ':[' . $classes[$i]->[0] . ',' .  $classes[$i]->[1] . ']';
     $str .= ';';
   };

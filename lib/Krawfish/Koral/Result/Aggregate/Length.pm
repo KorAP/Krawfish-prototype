@@ -7,9 +7,6 @@ use warnings;
 # corpus classes.
 
 # TODO:
-#   Rename "class1" etc. to "inCorpus1"
-
-# TODO:
 #   It may very vell also support query
 #   classes.
 
@@ -105,7 +102,7 @@ sub to_string {
   foreach (my $i = 0; $i < @classes; $i++) {
 
     my $length = $classes[$i];
-    $str .= $i == 0 ? 'total' : 'class' . $i;
+    $str .= $i == 0 ? 'total' : 'inCorpus' . $i;
     $str .= ':[';
     $str .= 'avg:' .  $length->{avg} . ',';
     $str .= 'freq:' . $length->{freq} . ',';
