@@ -1,4 +1,4 @@
-package Krawfish::Koral::Info;
+package Krawfish::Koral::Report;
 use Role::Tiny;
 use strict;
 use warnings;

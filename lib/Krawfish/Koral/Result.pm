@@ -1,6 +1,6 @@
 package Krawfish::Koral::Result;
 use Role::Tiny::With;
-with 'Krawfish::Koral::Info';
+with 'Krawfish::Koral::Report';
 use strict;
 use warnings;
 

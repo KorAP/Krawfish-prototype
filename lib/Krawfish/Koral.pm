@@ -2,7 +2,7 @@ package Krawfish::Koral;
 use Role::Tiny::With;
 use strict;
 use warnings;
-with 'Krawfish::Koral::Info';
+with 'Krawfish::Koral::Report';
 use Krawfish::Log;
 use Krawfish::Koral::Document;
 use Krawfish::Koral::Query::Builder;

@@ -1,6 +1,6 @@
 package Krawfish::Koral::Corpus;
 use Role::Tiny::With;
-with 'Krawfish::Koral::Info';
+with 'Krawfish::Koral::Report';
 # TODO: Use the same parent as Koral::Query
 use Krawfish::Koral::Corpus::Builder;
 use Krawfish::Log;
