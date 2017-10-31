@@ -1,4 +1,16 @@
 package Krawfish::Query;
+use Role::Tiny;
+requires qw/current
+            next
+            next_doc
+            skip_doc
+            skip_pos
+            same_doc
+            clone
+            max_freq
+            filter_by
+            requires_filter
+            to_string/;
 use Krawfish::Log;
 use Krawfish::Posting::Span;
 use Scalar::Util qw/blessed refaddr/;
@@ -14,7 +26,7 @@ use warnings;
 
 use constant DEBUG => 0;
 
-# Current span object
+# Current span posting object
 sub current {
   my $self = shift;
   return unless defined $self->{doc_id};
@@ -27,14 +39,6 @@ sub current {
   );
 
   # TODO: May have an offset value as well
-};
-
-
-# Move to next posting
-# Overwrite
-# Returns true if nexting works
-sub next {
-  ...
 };
 
 
@@ -164,36 +168,7 @@ sub freq_in_doc {
 };
 
 
-# Get maximum possible frequency of the query
-sub max_freq {
-  warn 'Not implemented for this query: ' . blessed $_[0];
-};
-
-
-# Filter nothing
-sub filter_by {
-  warn 'Not implemented by default';
-};
-
-
-# Return a true value if a query requires a filter,
-# otherwise returns a false value.
-# This needs to be overwritten
-sub requires_filter {
-  warn 'Not implemented in ' . $_[0] . ' from ' . join(', ', caller);
-  ...
-};
-
-
-# Stringification
-# Overwrite
-sub to_string {
-  ...
-};
-
-
 # Get current match
-# Override
 sub current_match {
   return undef;
 };
@@ -202,7 +177,7 @@ sub current_match {
 
 # Lose all information about the query
 sub close {
-
+  ...
 };
 
 

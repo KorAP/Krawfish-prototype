@@ -1,5 +1,6 @@
 package Krawfish::Query::Repetition;
-use parent 'Krawfish::Query';
+use Role::Tiny::With;
+with 'Krawfish::Query';
 use Krawfish::Util::Buffer;
 use Krawfish::Log;
 use Krawfish::Posting;

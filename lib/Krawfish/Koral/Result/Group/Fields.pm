@@ -6,6 +6,11 @@ use warnings;
 
 use constant DEBUG => 0;
 
+# Group on a sequence of field values
+
+# TODO:
+#   Support corpus classes
+
 # TODO:
 #   In addition to the group name
 #   create a signature that is universal for each group

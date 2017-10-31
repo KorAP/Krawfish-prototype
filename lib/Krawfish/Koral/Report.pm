@@ -3,9 +3,9 @@ use Role::Tiny;
 use strict;
 use warnings;
 use Krawfish::Log;
+requires qw/error warning message has_error has_warning has_message/;
 
-# TODO:
-#   Probably rename to Krawfish::Koral::Report
+# Report on errors, warnings an anything else
 
 use constant DEBUG => 0;
 

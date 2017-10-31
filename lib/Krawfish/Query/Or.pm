@@ -1,5 +1,6 @@
 package Krawfish::Query::Or;
-use parent 'Krawfish::Query';
+use Role::Tiny::With;
+with 'Krawfish::Query';
 use Krawfish::Log;
 use strict;
 use warnings;

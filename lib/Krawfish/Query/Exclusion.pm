@@ -1,5 +1,7 @@
 package Krawfish::Query::Exclusion;
-use parent 'Krawfish::Query::Base::Dual';
+use Role::Tiny::With;
+with 'Krawfish::Query::Base::Dual';
+with 'Krawfish::Query';
 use Krawfish::Query::Base::Dual;
 use Krawfish::Query::Constraint::Position; # Export constants and @next_a and @next_b
 use Krawfish::Util::Bits; # exports bitstring

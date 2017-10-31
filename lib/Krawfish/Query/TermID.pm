@@ -1,5 +1,6 @@
 package Krawfish::Query::TermID;
-use parent 'Krawfish::Query';
+use Role::Tiny::With;
+with 'Krawfish::Query';
 use Krawfish::Posting::Span;
 use Krawfish::Query::Filter;
 use Krawfish::Log;

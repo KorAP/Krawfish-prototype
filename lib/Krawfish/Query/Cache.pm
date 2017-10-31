@@ -1,5 +1,6 @@
 package Krawfish::Query::Cache;
-use parent 'Krawfish::Query';
+use Role::Tiny::With;
+with 'Krawfish::Query';
 use Krawfish::Index::Stream;
 use Krawfish::Cache;
 use strict;

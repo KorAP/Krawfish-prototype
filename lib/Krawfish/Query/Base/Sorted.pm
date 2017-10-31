@@ -1,5 +1,6 @@
 package Krawfish::Query::Base::Sorted;
-use parent 'Krawfish::Query';
+use Role::Tiny::With;
+with 'Krawfish::Query';
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -41,6 +42,27 @@ sub new {
     last     => 0,     # Pointer to the last element in the buffer
     buffer   => []     # Array holding all elements in the buffer
   }, $class;
+};
+
+
+sub max_freq {
+  $_->{span}->max_freq;
+};
+
+
+sub filter_by {
+  my $self = shift;
+  $self->{span}->filter_by(@_);
+};
+
+
+sub requires_filter {
+  shift->{span}->requires_filter;
+};
+
+sub to_string {
+  my $self = shift;
+  return 'sorted(' . $self->{span}->to_string . ')';
 };
 
 

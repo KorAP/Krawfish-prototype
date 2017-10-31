@@ -1,6 +1,7 @@
 package Krawfish::Query::Extension;
-use parent 'Krawfish::Query::Base::Dual';
-use Krawfish::Query::Base::Dual;
+use Role::Tiny::With;
+with 'Krawfish::Query::Base::Dual';
+with 'Krawfish::Query';
 use strict;
 use warnings;
 

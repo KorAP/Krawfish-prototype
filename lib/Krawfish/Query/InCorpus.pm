@@ -1,5 +1,6 @@
 package Krawfish::Query::InCorpus;
-use parent 'Krawfish::Query';
+use Role::Tiny::With;
+with 'Krawfish::Query';
 use Krawfish::Util::Bits;
 use Krawfish::Log;
 use strict;

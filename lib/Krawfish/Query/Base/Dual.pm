@@ -1,5 +1,6 @@
 package Krawfish::Query::Base::Dual;
-use parent 'Exporter', 'Krawfish::Query';
+use Role::Tiny;
+use parent 'Exporter';
 use strict;
 use warnings;
 use Krawfish::Log;

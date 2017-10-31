@@ -1,5 +1,6 @@
 package Krawfish::Query::Nowhere;
-use parent 'Krawfish::Query';
+use Role::Tiny::With;
+with 'Krawfish::Query';
 use strict;
 use warnings;
 
