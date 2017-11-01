@@ -1,5 +1,6 @@
 package Krawfish::Corpus::Span;
-use parent 'Krawfish::Corpus';
+use Role::Tiny::With;
+with 'Krawfish::Corpus';
 use strict;
 use warnings;
 
@@ -25,7 +26,6 @@ sub clone {
 
 # Move to next document
 sub next {
-
   my $self = shift;
 
   unless ($self->{_init}) {
@@ -35,6 +35,8 @@ sub next {
   return $self->{query}->next_doc;
 };
 
+
+# Get current posting
 sub current {
   my $self = shift;
   my $current = $self->{query}->current or return;
@@ -50,15 +52,16 @@ sub skip_doc {
 };
 
 
+# Return maximum frequency
+sub max_freq {
+  $_[0]->{query}->max_freq;
+};
+
+
 # stringification
 sub to_string {
   'span(' . $_[0]->{query}->to_string . ')'
 };
 
-
-# Return maximum frequency
-sub max_freq {
-  $_[0]->{query}->max_freq;
-};
 
 1;

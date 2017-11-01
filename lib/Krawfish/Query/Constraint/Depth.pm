@@ -1,5 +1,4 @@
 package Krawfish::Query::Constraint::Depth;
-use parent 'Krawfish::Query::Base::Dual';
 use Krawfish::Query::Base::Dual;
 use strict;
 use warnings;

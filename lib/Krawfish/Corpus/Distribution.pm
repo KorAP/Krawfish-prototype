@@ -1,4 +1,6 @@
 package Krawfish::Corpus::Distribution;
+use Role::Tiny;
+with 'Krawfish::Corpus';
 use strict;
 use warnings;
 

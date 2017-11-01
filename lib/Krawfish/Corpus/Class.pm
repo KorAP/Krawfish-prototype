@@ -1,5 +1,6 @@
 package Krawfish::Corpus::Class;
-use parent 'Krawfish::Corpus';
+use Role::Tiny;
+with 'Krawfish::Corpus';
 use Krawfish::Util::Bits qw/classes_to_flags bitstring/;
 use Krawfish::Log;
 use strict;

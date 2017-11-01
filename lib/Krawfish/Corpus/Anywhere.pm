@@ -1,4 +1,6 @@
 package Krawfish::Corpus::Anywhere;
+use Role::Tiny;
+with 'Krawfish::Corpus';
 use Krawfish::Index::PostingsLive;
 use Krawfish::Posting;
 use Krawfish::Query::Nowhere;
@@ -27,17 +29,19 @@ sub new {
   }, $class;
 };
 
+
+# Clone query
 sub clone {
   __PACKAGE__->new(
     $_[0]->{segment}
   );
 };
 
+
+# Move to next
 sub next {
   my $self = shift;
-
   print_log('vc_any', refaddr($self) . ': Next live doc') if DEBUG;
-
   return $self->{live}->next;
 };
 

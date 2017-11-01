@@ -1,5 +1,6 @@
 package Krawfish::Corpus::And;
-use parent 'Krawfish::Corpus';
+use Role::Tiny::With;
+with 'Krawfish::Corpus';
 use List::Util qw/min/;
 use Scalar::Util qw/refaddr/;
 use Krawfish::Log;
@@ -37,6 +38,7 @@ sub clone {
     $self->{second}->clone
   );
 };
+
 
 sub next {
   my $self = shift;

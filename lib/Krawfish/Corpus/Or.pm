@@ -1,5 +1,6 @@
 package Krawfish::Corpus::Or;
-use parent 'Krawfish::Corpus';
+use Role::Tiny::With;
+with 'Krawfish::Corpus';
 use Krawfish::Util::Bits;
 use Krawfish::Log;
 use strict;

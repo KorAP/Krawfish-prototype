@@ -1,5 +1,6 @@
 package Krawfish::Corpus::AndNot;
-use parent 'Krawfish::Corpus';
+use Role::Tiny::With;
+with 'Krawfish::Corpus';
 use Krawfish::Log;
 use strict;
 use warnings;

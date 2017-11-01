@@ -1,5 +1,6 @@
 package Krawfish::Corpus::FieldID;
-use parent 'Krawfish::Corpus';
+use Role::Tiny::With;
+with 'Krawfish::Corpus';
 use Krawfish::Posting;
 use Krawfish::Query::Nowhere;
 use Krawfish::Log;

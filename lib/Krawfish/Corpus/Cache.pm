@@ -1,5 +1,6 @@
 package Krawfish::Corpus::Cache;
-use parent 'Krawfish::Corpus';
+use Role::Tiny;
+with 'Krawfish::Corpus';
 use Krawfish::Index::Stream;
 use Krawfish::Cache;
 use strict;

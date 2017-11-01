@@ -1,16 +1,9 @@
 package Krawfish::Query;
 use Role::Tiny;
-requires qw/current
-            next
-            next_doc
-            skip_doc
-            skip_pos
-            same_doc
-            clone
-            max_freq
+with 'Krawfish::Corpus';
+requires qw/skip_pos
             filter_by
-            requires_filter
-            to_string/;
+            requires_filter/;
 use Krawfish::Log;
 use Krawfish::Posting::Span;
 use Scalar::Util qw/blessed refaddr/;
@@ -65,25 +58,6 @@ sub next_doc {
 };
 
 
-# Overwrite
-# Skip to (or beyond) a certain doc id.
-# This should be overwritten to more effective methods.
-sub skip_doc {
-  my ($self, $target_doc_id) = @_;
-
-  print_log('query', refaddr($self) . ': skip to doc id ' . $target_doc_id) if DEBUG;
-
-  while (!$self->current || $self->current->doc_id < $target_doc_id) {
-    $self->next_doc or return;
-  };
-
-  # TODO:
-  #   Return NOMORE in case no more
-  #   documents exist
-  return $self->current->doc_id;
-};
-
-
 # Skip to (or beyond) a certain position in the doc.
 # Returns true, if the new current is positioned
 # in the same document beyond the given pos.
@@ -110,47 +84,12 @@ sub skip_pos {
 };
 
 
-# Move both spans to the same document
-sub same_doc {
-  my ($self, $second) = @_;
-
-  my $first_c = $self->current or return;
-  my $second_c = $second->current or return;
-
-  # Iterate to the first matching document
-  while ($first_c->doc_id != $second_c->doc_id) {
-    print_log('query', 'Current span is not in docs') if DEBUG;
-
-    # Forward the first span to advance to the document of the second span
-    if ($first_c->doc_id < $second_c->doc_id) {
-      print_log('query', 'Forward first') if DEBUG;
-      $self->skip_doc($second_c->doc_id) or return;
-      $first_c = $self->current;
-    }
-
-    # Forward the second span to advance to the document of the first span
-    else {
-      print_log('query', 'Forward second') if DEBUG;
-      $second->skip_doc($first_c->doc_id) or return;
-      $second_c = $second->current;
-    };
-  };
-
-  return 1;
-};
-
 
 # Clone query
 # (Not implemented yet)
 sub clone {
   warn $_[0];
   ...
-};
-
-
-# Per default every operation is complex
-sub complex {
-  return 1;
 };
 
 
