@@ -1,5 +1,9 @@
 package Krawfish::Posting::Bundle;
-use parent 'Krawfish::Posting';
+use Role::Tiny;
+with 'Krawfish::Posting';
+# TODO:
+#   Also have a PostingIterator type
+#   with next() and current()
 use Krawfish::Log;
 use overload '""' => sub { $_[0]->to_string }, fallback => 1;
 use warnings;
@@ -47,17 +51,17 @@ sub doc_id {
 
 
 # Start position not available
-sub start {
-  warn 'Not available on bundle';
-  0;
-};
+#sub start {
+#  warn 'Not available on bundle';
+#  0;
+#};
 
 
 # End position not available
-sub end {
-  warn 'Not available on bundle';
-  0;
-};
+#sub end {
+#  warn 'Not available on bundle';
+#  0;
+#};
 
 
 # Clone posting object
@@ -104,7 +108,7 @@ sub add {
   my $list = $self->{list};
 
   # Push object to list
-  if ($obj->isa('Krawfish::Posting')) {
+  if (Role::Tiny::does_role($obj, 'Krawfish::Posting')) {
     push @$list, $obj;
     return 1;
   };
@@ -154,7 +158,7 @@ sub next {
   };
 
   # The bundle bundles bundles
-  if ($current && $current->isa('Krawfish::Posting::Bundle')) {
+  if ($current && Role::Tiny::does_role($current, 'Krawfish::Posting::Bundle')) {
 
     if (DEBUG) {
       print_log('p_bundle', 'Move to next item in bundled bundle');

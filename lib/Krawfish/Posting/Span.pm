@@ -1,5 +1,10 @@
 package Krawfish::Posting::Span;
-use parent 'Krawfish::Posting';
+use Role::Tiny;
+with 'Krawfish::Posting';
+requires qw/start
+            end
+            payload
+            compare/;
 use Krawfish::Util::Constants ':PAYLOAD';
 use Krawfish::Posting::Payload;
 use strict;
@@ -61,6 +66,8 @@ sub compare {
 
 
 # Return all classes in the payload
+# TODO:
+#   Rename to query_classes
 sub get_classes {
   my ($self, $nrs) = @_;
 
@@ -111,6 +118,8 @@ sub get_classes {
 
 
 # Return classes sorted by start position
+# TODO:
+#   Rename to query_classes
 sub get_classes_sorted {
   my ($self, $nrs) = @_;
   # The same as get_classes, but ordered by start position
@@ -131,6 +140,8 @@ sub clone {
   );
 };
 
+
+# Check for same as
 sub same_as {
   my ($self, $comp) = @_;
   return unless $comp;

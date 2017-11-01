@@ -1,5 +1,6 @@
 package Krawfish::Posting::List;
-use parent 'Krawfish::Posting::Bundle';
+use Role::Tiny;
+with 'Krawfish::Posting::Bundle';
 use warnings;
 use strict;
 
