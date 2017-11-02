@@ -1,11 +1,12 @@
 package Krawfish::Corpus::FieldID;
+use strict;
+use warnings;
 use Role::Tiny::With;
-with 'Krawfish::Corpus';
 use Krawfish::Posting;
 use Krawfish::Query::Nowhere;
 use Krawfish::Log;
-use strict;
-use warnings;
+
+with 'Krawfish::Corpus';
 
 use constant DEBUG => 0;
 

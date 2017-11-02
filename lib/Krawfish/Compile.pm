@@ -78,7 +78,40 @@ sub max_freq {
 
 # Override to compile data
 sub compile {
-  $_[0];
+  my $self = shift;
+
+  if (DEBUG) {
+    print_log('compile', 'Compile aggregation');
+  };
+
+  # Get result object
+  my $result = $self->result;
+
+  # Add all results
+  while ($self->next) {
+    if (DEBUG) {
+      print_log(
+        'compile',
+        'Add match ' . $self->current_match->to_string
+      );
+    };
+
+    $result->add_match($self->current_match);
+  };
+
+  # Collect more data
+  my $query = $self->{query};
+  if ($query->isa('Krawfish::Compile')) {
+    $query->result($result)->compile;
+  };
+
+  if (DEBUG) {
+    print_log(
+      'compile',
+      'Result is ' . $result
+    );
+  };
+  return $result;
 };
 
 

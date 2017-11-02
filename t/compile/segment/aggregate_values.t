@@ -135,10 +135,17 @@ ok($coll = $coll->inflate($index->dict), 'Inflate');
 is($coll->to_string,
    '[aggr=[values='.
      'total:[size:[sum:9,freq:3,min:2,max:5,avg:3]];'.
-     'inCorpus1:[size:[sum:2,freq:1,min:2,max:2,avg:2]];'.
-     'inCorpus2:[size:[sum:7,freq:2,min:2,max:5,avg:3.5]]]]'.
+     'inCorpus-1:[size:[sum:2,freq:1,min:2,max:2,avg:2]];'.
+     'inCorpus-2:[size:[sum:7,freq:2,min:2,max:5,avg:3.5]]]]'.
      '[matches=[0:1-2!1][2:1-2!2][3:1-2!2][3:3-4!2]]',
    'Stringification');
+
+
+my $json = $coll->to_koral_query->{aggregation}->{values};
+is($json->{total}->{size}->{avg}, 3, 'KQ serialization');
+is($json->{'inCorpus-1'}->{size}->{avg}, 2, 'KQ serialization');
+is($json->{'inCorpus-2'}->{size}->{sum}, 7, 'KQ serialization');
+is($json->{aggregation}, 'aggregation:values', 'KQ serialization');
 
 
 done_testing;

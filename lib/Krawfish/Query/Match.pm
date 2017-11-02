@@ -1,10 +1,10 @@
 package Krawfish::Query::Match;
-use Role::Tiny::With;
-with 'Krawfish::Query';
-use Krawfish::Log;
 use strict;
 use warnings;
+use Role::Tiny::With;
+use Krawfish::Log;
 
+with 'Krawfish::Query';
 
 # Get posting by doc id plus position and length.
 

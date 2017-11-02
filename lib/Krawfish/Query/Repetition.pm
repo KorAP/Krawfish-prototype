@@ -1,11 +1,12 @@
 package Krawfish::Query::Repetition;
+use strict;
+use warnings;
 use Role::Tiny::With;
-with 'Krawfish::Query';
 use Krawfish::Util::Buffer;
 use Krawfish::Log;
 use Krawfish::Posting;
-use strict;
-use warnings;
+
+with 'Krawfish::Query';
 
 use constant DEBUG => 0;
 

@@ -1,5 +1,9 @@
 package Krawfish::Corpus;
+use strict;
+use warnings;
 use Role::Tiny;
+use Krawfish::Log;
+
 requires qw/current
             next
             next_doc
@@ -9,9 +13,6 @@ requires qw/current
             max_freq
             to_string
            /;
-use Krawfish::Log;
-use strict;
-use warnings;
 
 # Krawfish::Corpus is the base class for all corpus queries.
 

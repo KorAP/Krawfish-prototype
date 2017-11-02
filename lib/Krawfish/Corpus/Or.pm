@@ -1,10 +1,11 @@
 package Krawfish::Corpus::Or;
-use Role::Tiny::With;
-with 'Krawfish::Corpus';
-use Krawfish::Util::Bits;
-use Krawfish::Log;
 use strict;
 use warnings;
+use Role::Tiny::With;
+use Krawfish::Util::Bits;
+use Krawfish::Log;
+
+with 'Krawfish::Corpus';
 
 use constant DEBUG => 0;
 

@@ -1,7 +1,10 @@
 package Krawfish::Koral::Result::Aggregate::Values;
-use Krawfish::Util::Bits;
 use strict;
 use warnings;
+use Role::Tiny::With;
+use Krawfish::Util::Bits;
+
+with 'Krawfish::Koral::Result::Inflatable';
 
 # Support of classes is relevant, e.g. to compare the size
 # of subcorpora.
@@ -149,7 +152,7 @@ sub to_string {
   my @classes = @{$self->_to_classes};
   my $first = 0;
   foreach (my $i = 0; $i < @classes; $i++) {
-    $str .= $i == 0 ? 'total' : 'inCorpus' . $i;
+    $str .= $i == 0 ? 'total' : 'inCorpus-' . $i;
     $str .= ':[';
 
     my $fields = $classes[$i];
@@ -176,6 +179,36 @@ sub to_string {
   return $str;
 };
 
+
+sub to_koral_fragment {
+  my $self = shift;
+  my $aggr = {
+    '@type' => 'koral:aggregation',
+    'aggregation' => 'aggregation:values'
+  };
+
+  my @classes = @{$self->_to_classes};
+  my $first = 0;
+  foreach (my $i = 0; $i < @classes; $i++) {
+    my $val = $aggr->{$i == 0 ? 'total' : 'inCorpus-' . $i} = {};
+    my $fields = $classes[$i];
+
+    foreach my $field (sort keys %$fields) {
+      my $values = $fields->{$field};
+
+      # Set values per field
+      $val->{$field} = {
+        'sum'  => $values->{sum},
+        'freq' => $values->{freq},
+        'min'  => $values->{min},
+        'max'  => $values->{max},
+        'avg'  => $values->{avg}
+      };
+    };
+  };
+
+  return $aggr;
+};
 
 
 # Finish the aggregation

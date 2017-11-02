@@ -1,6 +1,9 @@
 package Krawfish::Koral::Result::Enrich::Fields;
 use strict;
 use warnings;
+use Role::Tiny::With;
+
+with 'Krawfish::Koral::Result::Inflatable';
 
 # The fields are represented as Krawfish::Koral::Document::Field* objects!
 

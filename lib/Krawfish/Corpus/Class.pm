@@ -1,10 +1,11 @@
 package Krawfish::Corpus::Class;
-use Role::Tiny;
-with 'Krawfish::Corpus';
-use Krawfish::Util::Bits qw/classes_to_flags bitstring/;
-use Krawfish::Log;
 use strict;
 use warnings;
+use Role::Tiny;
+use Krawfish::Util::Bits qw/classes_to_flags bitstring/;
+use Krawfish::Log;
+
+with 'Krawfish::Corpus';
 
 # "class" queries are useful with "or" queries.
 # They return the information, if a match

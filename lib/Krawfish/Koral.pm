@@ -1,14 +1,16 @@
 package Krawfish::Koral;
-use Role::Tiny::With;
 use strict;
 use warnings;
-with 'Krawfish::Koral::Report';
+use Role::Tiny::With;
 use Krawfish::Log;
 use Krawfish::Koral::Document;
 use Krawfish::Koral::Query::Builder;
 use Krawfish::Koral::Corpus::Builder;
 use Krawfish::Koral::Compile::Builder;
 use Krawfish::Koral::Compile;
+
+with 'Krawfish::Koral::Report';
+with 'Krawfish::Koral::Result::Inflatable';
 
 use constant DEBUG => 0;
 
@@ -57,12 +59,6 @@ use constant DEBUG => 0;
 #   When a user searches a term in a query,
 #   this should issue an update in the autosuggestion
 #   dictionary.
-
-# TODO:
-#   This is now double with Krawfish::Koral::Query!
-use constant {
-  CONTEXT => 'http://korap.ids-mannheim.de/ns/koral/0.6/context.jsonld'
-};
 
 sub new {
   my $class = shift;
@@ -140,100 +136,9 @@ sub compilation_builder {
 };
 
 
-# sub response { ... };
-
-sub from_koral_query {
-  ...
-};
-
-
 # Clone the query object
 sub clone {
   ...
-};
-
-
-# This introduces the normalization phase
-# TODO:
-#   It should probably return a Koral::* object, that can be send!
-sub to_nodes {
-  my $self = shift;
-
-  # Optionally pass a node id for replication retrieval
-  my $replicant_id = shift;
-
-  # Build a complete query object
-  my $query;
-
-  # A virtual corpus and a query is given
-  if ($self->corpus && $self->query) {
-
-    # Filter query by corpus
-    $query = $self->query_builder->filter_by($self->query, $self->corpus);
-  }
-
-  # Only a query is given
-  elsif ($self->query) {
-
-    print_log('koral', 'Added live document filter') if DEBUG;
-
-    # Add corpus filter for live documents
-    $query = $self->query_builder->filter_by(
-      $self->query,
-      $self->corpus_builder->anywhere
-    );
-  }
-
-  # Only a corpus query is given
-  else {
-
-    # TODO:
-    #   This may have influence on the possible compile object!
-    $query = $self->corpus;
-  };
-
-  # If request is focused on replication, filter to replicates
-  if ($replicant_id) {
-    $query = $self->query_builder->filter_by(
-      $query,
-      $self->corpus_builder->replicant_node($replicant_id)
-    );
-  }
-
-  # Focus on primary data
-  else {
-    # $query = $self->query_builder->filter_by(
-    #   $query,
-    #   $self->corpus_builder->primary_node
-    # );
-  }
-
-  # Normalize the query
-  my $query_norm;
-  unless ($query_norm = $query->normalize) {
-    $self->copy_info_from($query);
-    return;
-  };
-
-  # Finalize the query
-  my $query_final;
-  unless ($query_final = $query_norm->finalize) {
-    $self->copy_info_from($query);
-    return;
-  };
-
-  # This is just for testing
-  return $query_final unless $self->compilation;
-
-  # Normalize the compile
-  my $compile;
-  unless ($compile = $self->compilation->normalize) {
-    $self->copy_info_from($self->compilation);
-    return;
-  };
-
-  # Serialize from compile
-  return $self->compilation->to_nodes($query_final);
 };
 
 
@@ -328,20 +233,15 @@ sub to_query {
 };
 
 
-# TODO:
-#   This is just temporarily, because results are still a mess!
-sub to_segments {
-  my ($self, $dict) = @_;
+sub inflate {
+  ...
 };
 
-
 # Serialization of KoralQuery
-sub to_koral_query {
+sub to_koral_fragment {
   my $self = shift;
 
-  my $koral = {
-    '@context' => CONTEXT
-  };
+  my $koral = {};
 
   # Set query object
   if ($self->query) {
@@ -380,36 +280,10 @@ sub to_string {
 };
 
 
-
-
-
-
 # Get KoralQuery with results
 sub to_result {
   ...
 };
-
-
-# TODO:
-#   This is the new entry point!
-sub prepare_for_cluster {
-  # ->normalize->finalize->refer
-  ...
-};
-
-sub prepare_for_node {
-  # ->identify($dict)
-  # WARN! This may require a new normalization, but it should be kept in mind that this
-  # also may require double added warnings!
-  ...
-};
-
-sub prepare_for_segment {
-  # ->cache->optimize($segment)
-  ...
-};
-
-
 
 
 # Find identical subqueries and replace outer queries with
@@ -437,3 +311,118 @@ sub replace_subqueries {
 
 
 __END__
+
+
+
+# TODO:
+#   This is the new entry point!
+sub prepare_for_cluster {
+  # ->normalize->finalize->refer
+  ...
+};
+
+sub prepare_for_node {
+  # ->identify($dict)
+  # WARN! This may require a new normalization, but it should be kept in mind that this
+  # also may require double added warnings!
+  ...
+};
+
+sub prepare_for_segment {
+  # ->cache->optimize($segment)
+  ...
+};
+
+
+
+# This introduces the normalization phase
+# TODO:
+#   It should probably return a Koral::* object, that can be send!
+sub to_nodes {
+  my $self = shift;
+
+  # Optionally pass a node id for replication retrieval
+  my $replicant_id = shift;
+
+  # Build a complete query object
+  my $query;
+
+  # A virtual corpus and a query is given
+  if ($self->corpus && $self->query) {
+
+    # Filter query by corpus
+    $query = $self->query_builder->filter_by($self->query, $self->corpus);
+  }
+
+  # Only a query is given
+  elsif ($self->query) {
+
+    print_log('koral', 'Added live document filter') if DEBUG;
+
+    # Add corpus filter for live documents
+    $query = $self->query_builder->filter_by(
+      $self->query,
+      $self->corpus_builder->anywhere
+    );
+  }
+
+  # Only a corpus query is given
+  else {
+
+    # TODO:
+    #   This may have influence on the possible compile object!
+    $query = $self->corpus;
+  };
+
+  # If request is focused on replication, filter to replicates
+  if ($replicant_id) {
+    $query = $self->query_builder->filter_by(
+      $query,
+      $self->corpus_builder->replicant_node($replicant_id)
+    );
+  }
+
+  # Focus on primary data
+  else {
+    # $query = $self->query_builder->filter_by(
+    #   $query,
+    #   $self->corpus_builder->primary_node
+    # );
+  }
+
+  # Normalize the query
+  my $query_norm;
+  unless ($query_norm = $query->normalize) {
+    $self->copy_info_from($query);
+    return;
+  };
+
+  # Finalize the query
+  my $query_final;
+  unless ($query_final = $query_norm->finalize) {
+    $self->copy_info_from($query);
+    return;
+  };
+
+  # This is just for testing
+  return $query_final unless $self->compilation;
+
+  # Normalize the compile
+  my $compile;
+  unless ($compile = $self->compilation->normalize) {
+    $self->copy_info_from($self->compilation);
+    return;
+  };
+
+  # Serialize from compile
+  return $self->compilation->to_nodes($query_final);
+};
+
+
+
+
+# TODO:
+#   This is just temporarily, because results are still a mess!
+sub to_segments {
+  my ($self, $dict) = @_;
+};

@@ -1,9 +1,21 @@
 package Krawfish::Koral::Result;
 use Role::Tiny::With;
 with 'Krawfish::Koral::Report';
+with 'Krawfish::Koral::Result::Inflatable';
 use strict;
 use warnings;
 
+# TODO:
+# It may be beneficial to have
+# - Aggregate
+# - Group
+# - Sort
+# - Enrich
+# on the same level as query and corpus
+# and remove the intermediate compile
+# directive!
+
+# Constructor
 sub new {
   my $class = shift;
   bless {
@@ -14,19 +26,6 @@ sub new {
 };
 
 
-# Inflate results
-sub inflate {
-  my ($self, $dict) = @_;
-  foreach (@{$self->matches}) {
-    $_->inflate($dict);
-  };
-  foreach (@{$self->aggregation}) {
-    $_->inflate($dict);
-  };
-
-  $self;
-};
-
 # Add matches to the result
 sub add_match {
   my ($self, $match) = @_;
@@ -34,6 +33,7 @@ sub add_match {
 };
 
 
+# Get list of matches
 sub matches {
   $_[0]->{matches};
 };
@@ -53,6 +53,7 @@ sub aggregation {
 };
 
 
+# Stringification
 sub to_string {
   my $self = shift;
   my $str = '';
@@ -78,20 +79,55 @@ sub to_string {
   return $str;
 };
 
+# Inflate results
+sub inflate {
+  my ($self, $dict) = @_;
+  foreach (@{$self->matches}) {
+    $_->inflate($dict);
+  };
+  foreach (@{$self->aggregation}) {
+    $_->inflate($dict);
+  };
+
+  $self;
+};
+
 
 # Get koral result fragment
 sub to_koral_fragment {
   my $self = shift;
-  return {
+  my $result = {
     '@type' => 'koral:result',
-
-    # TODO:
-    #   Rename to 'compilation'
-    'collection' => $self->{collection}->to_koral_fragment,
-    'matches' => [
-      map { $_->to_koral_fragment } @{$self->{matches}}
-    ]
   };
+
+
+  # Add aggregation
+  if ($self->{aggregation}) {
+    # It is beneficial to be able to point to,
+    # e.g. the field frequencies without iterating
+    # through all aggregations.
+    # Therefor it is probably better to use the ->key
+    # to add aggregations instead of arrays.
+
+    my %aggr = ();
+    foreach (@{$self->{aggregation}}) {
+      $aggr{$_->key} = $_->to_koral_fragment;
+    };
+
+    $result->{aggregation} = \%aggr;
+  };
+
+  # Add matches
+  if ($self->{matches}) {
+    my @matches = ();
+    foreach (@{$self->{matches}}) {
+      push @matches, $_->to_koral_fragment;
+    };
+
+    $result->{matches} = \@matches;
+  };
+
+  return $result;
 };
 
 

@@ -1,9 +1,10 @@
 package Krawfish::Query::Extension;
-use Role::Tiny::With;
-with 'Krawfish::Query::Base::Dual';
-with 'Krawfish::Query';
 use strict;
 use warnings;
+use Role::Tiny::With;
+
+with 'Krawfish::Query::Base::Dual';
+with 'Krawfish::Query';
 
 # This query adds subtokens to the left or the right
 # of a matching span

@@ -139,6 +139,29 @@ ok(!$fields->next, 'Next');
 
 
 
+
+$koral = Krawfish::Koral->new;
+$koral->query($qb->token('aa'));
+$koral->compilation(
+  $mb->enrich(
+    $mb->e_fields('license','corpus')
+  )
+);
+
+my $result = $koral->to_query
+  ->identify($index->dict)
+  ->optimize($index->segment)
+  ->compile
+  ->inflate($index->dict);
+
+ok($kq = $result->to_koral_query, 'Serialize KQ');
+
+my $first_fields = $kq->{matches}->[0]->{fields};
+is($first_fields->[0]->{key}, 'corpus');
+is($first_fields->[0]->{value}, 'corpus-2');
+is($first_fields->[1]->{key}, 'license');
+is($first_fields->[1]->{value}, 'free');
+
 done_testing;
 __END__
 

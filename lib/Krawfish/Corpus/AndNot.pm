@@ -1,9 +1,10 @@
 package Krawfish::Corpus::AndNot;
-use Role::Tiny::With;
-with 'Krawfish::Corpus';
-use Krawfish::Log;
 use strict;
 use warnings;
+use Role::Tiny::With;
+use Krawfish::Log;
+
+with 'Krawfish::Corpus';
 
 use constant DEBUG => 0;
 

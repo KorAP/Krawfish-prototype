@@ -1,10 +1,11 @@
 package Krawfish::Corpus::Cache;
-use Role::Tiny;
-with 'Krawfish::Corpus';
-use Krawfish::Index::Stream;
-use Krawfish::Cache;
 use strict;
 use warnings;
+use Role::Tiny;
+use Krawfish::Index::Stream;
+use Krawfish::Cache;
+
+with 'Krawfish::Corpus';
 
 # Caching is not always a good thing. Caching is only applyable
 # to certain subqueries, caching may slow down the queries, when the

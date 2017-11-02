@@ -1,8 +1,9 @@
 package Krawfish::Corpus::Span;
-use Role::Tiny::With;
-with 'Krawfish::Corpus';
 use strict;
 use warnings;
+use Role::Tiny::With;
+
+with 'Krawfish::Corpus';
 
 # Search for intratextual features
 

@@ -33,7 +33,7 @@ $koral->corpus($kcb->string('author')->eq('Peter'));
 
 is($koral->to_string, 'corpus=[author=Peter],query=[bb]', 'Stringification');
 
-my $query = $koral->to_nodes->identify($index->dict);
+my $query = $koral->to_query->identify($index->dict);
 is($query->to_string, "[0]", 'Planned stringification');
 ok($query = $query->optimize($index->segment), 'Optimize');
 is($query->to_string, "[0]", 'Planned stringification');
@@ -42,7 +42,7 @@ $koral->corpus($kcb->string('author')->eq('Arthur'));
 
 is($koral->to_string, 'corpus=[author=Arthur],query=[bb]', 'Stringification');
 
-$query = $koral->to_nodes->identify($index->dict)->optimize($index->segment);
+$query = $koral->to_query->identify($index->dict)->optimize($index->segment);
 
 
 # Can't match anywhere:

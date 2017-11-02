@@ -1,8 +1,9 @@
 package Krawfish::Corpus::DocVector;
-use Role::Tiny;
-with 'Krawfish::Corpus';
 use strict;
 use warnings;
+use Role::Tiny;
+
+with 'Krawfish::Corpus';
 
 # Accepts a vector of UIDs, that are translated
 # to a sorted vector of document IDs to be used in

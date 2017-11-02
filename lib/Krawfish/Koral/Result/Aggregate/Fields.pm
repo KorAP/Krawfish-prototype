@@ -1,13 +1,15 @@
 package Krawfish::Koral::Result::Aggregate::Fields;
+use strict;
+use warnings;
+use Role::Tiny::With;
 use Krawfish::Log;
 use Krawfish::Util::Bits;
 use Krawfish::Util::Constants qw/:PREFIX/;
-use strict;
-use warnings;
+
+with 'Krawfish::Koral::Result::Inflatable';
 
 # This remembers facets for multiple classes,
 # both using ids and terms
-
 
 # TODO:
 #   The first field level should be initiated
@@ -246,7 +248,7 @@ sub to_string {
   my @classes = @{$self->_to_classes};
   my $first = 0;
   foreach (my $i = 0; $i < @classes; $i++) {
-    $str .= $i == 0 ? 'total' : 'inCorpus' . $i;
+    $str .= $i == 0 ? 'total' : 'inCorpus-' . $i;
     $str .= ':[';
 
     my $fields = $classes[$i];
@@ -275,6 +277,48 @@ sub key {
   'fields';
 };
 
+
+# Serialize to KQ
+sub to_koral_fragment {
+  my $self = shift;
+  my $aggr = {
+    '@type' => 'koral:aggregation',
+    'aggregation' => 'aggregation:fields'
+  };
+
+  # No terms yet
+  unless ($self->{fields_terms}) {
+    warn 'ID based stringification currently not supported';
+    return;
+  };
+
+
+  my @classes = @{$self->_to_classes};
+  my $first = 0;
+  foreach (my $i = 0; $i < @classes; $i++) {
+    my $per_field = $aggr->{$i == 0 ? 'total' : 'inCorpus-' . $i} = {};
+    my $fields = $classes[$i];
+
+    # Store per field
+    foreach my $field (sort keys %$fields) {
+
+      # Get values
+      my $values = $fields->{$field};
+
+      # Iterate over values
+      foreach (keys %$values) {
+        my $freq = $values->{$_};
+        my $per_value = $per_field->{$field} //= {};
+        $per_value->{$_} = {
+          docs => $freq->[0],
+          matches => $freq->[1]
+        };
+      };
+    };
+  };
+
+  return $aggr;
+};
 
 1;
 

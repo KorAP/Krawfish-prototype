@@ -1,18 +1,19 @@
 package Krawfish::Posting;
+use strict;
+use warnings;
 use Role::Tiny;
+use overload '""' => sub { $_[0]->to_string }, fallback => 1;
+use Krawfish::Util::Bits;
+use Krawfish::Posting::Payload;
+use Krawfish::Log;
+use bytes;
+
 requires qw/doc_id
            flags
            corpus_classes
            same_as
            to_string
            clone/;
-use overload '""' => sub { $_[0]->to_string }, fallback => 1;
-use Krawfish::Util::Bits;
-use Krawfish::Posting::Payload;
-use Krawfish::Log;
-use bytes;
-use strict;
-use warnings;
 
 use constant DEBUG => 0;
 

@@ -1,8 +1,12 @@
 package Krawfish::Koral::Result::Match;
-use parent 'Krawfish::Posting::Span';
+use Role::Tiny::With;
 use Krawfish::Util::String qw/squote/;
 use warnings;
 use strict;
+
+with 'Krawfish::Koral::Report';
+with 'Krawfish::Posting::Span';
+with 'Krawfish::Koral::Result::Inflatable';
 
 # TODO:
 #   Move Posting::Match, Posting::Aggregate, Posting::Group,

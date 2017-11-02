@@ -1,6 +1,10 @@
 package Krawfish::Koral::Result::Enrich::CorpusClasses;
 use strict;
 use warnings;
+use Role::Tiny::With;
+
+with 'Krawfish::Koral::Report';
+with 'Krawfish::Koral::Result::Inflatable';
 
 # The classes are only numbers (1..15)
 
@@ -18,19 +22,17 @@ sub inflate {
   $_[0];
 };
 
-
-# Key for enrichment
-sub key {
-  'inCorpus';
-};
-
-
 # Stringification
 sub to_string {
   my $self = shift;
   return 'inCorpus:' . join(',', @{$self->{classes}});
 };
 
+
+# Key for enrichment
+sub key {
+  'inCorpus';
+};
 
 # Serialize to KoralQuery
 sub to_koral_fragment {

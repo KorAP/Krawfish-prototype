@@ -1,13 +1,14 @@
 package Krawfish::Corpus::Anywhere;
+use strict;
+use warnings;
 use Role::Tiny;
-with 'Krawfish::Corpus';
 use Krawfish::Index::PostingsLive;
 use Krawfish::Posting;
 use Krawfish::Query::Nowhere;
 use Scalar::Util qw/refaddr/;
 use Krawfish::Log;
-use strict;
-use warnings;
+
+with 'Krawfish::Corpus';
 
 use constant DEBUG => 0;
 

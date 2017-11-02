@@ -1,12 +1,13 @@
 package Krawfish::Query::Constraints;
+use strict;
+use warnings;
 use Role::Tiny::With;
-with 'Krawfish::Query::Base::Dual';
-with 'Krawfish::Query';
 use Krawfish::Util::Buffer;
 use List::Util qw/min/;
 use Krawfish::Log;
-use strict;
-use warnings;
+
+with 'Krawfish::Query::Base::Dual';
+with 'Krawfish::Query';
 
 # TODO:
 #   Improve by skipping to the same document

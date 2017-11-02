@@ -1,8 +1,11 @@
 package Krawfish::Koral::Result::Aggregate::Frequencies;
-use Krawfish::Koral::Result::Aggregate::Length;
-use Krawfish::Util::Bits;
 use strict;
 use warnings;
+use Role::Tiny::With;
+use Krawfish::Koral::Result::Aggregate::Length;
+use Krawfish::Util::Bits;
+
+with 'Krawfish::Koral::Result::Inflatable';
 
 # This calculates frequencies for all classes
 
@@ -20,6 +23,10 @@ sub new {
   }, $class;
 };
 
+
+sub key {
+  'frequencies';
+};
 
 # Increment value per document
 sub incr_doc {
@@ -83,7 +90,7 @@ sub to_string {
 
   my $first = 0;
   foreach (my $i = 0; $i < @classes; $i++) {
-    $str .= $i == 0 ? 'total' : 'inCorpus' . $i;
+    $str .= $i == 0 ? 'total' : 'inCorpus-' . $i;
     $str .= ':[' . $classes[$i]->[0] . ',' .  $classes[$i]->[1] . ']';
     $str .= ';';
   };
@@ -92,8 +99,24 @@ sub to_string {
 };
 
 
-sub key {
-  'frequencies';
+# Serialize to KQ
+sub to_koral_fragment {
+  my $self = shift;
+  my $aggr = {
+    '@type' => 'koral:aggregation',
+    'aggregation' => 'aggregation:frequencies'
+  };
+
+  my @classes = @{$self->_to_classes};
+  my $first = 0;
+  foreach (my $i = 0; $i < @classes; $i++) {
+    $aggr->{$i == 0 ? 'total' : 'inCorpus-' . $i} = {
+      docs => $classes[$i]->[0],
+      matches => $classes[$i]->[1]
+    };
+  };
+
+  return $aggr;
 };
 
 1;

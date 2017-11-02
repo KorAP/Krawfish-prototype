@@ -1,11 +1,12 @@
 package Krawfish::Corpus::And;
+use strict;
+use warnings;
 use Role::Tiny::With;
-with 'Krawfish::Corpus';
 use List::Util qw/min/;
 use Scalar::Util qw/refaddr/;
 use Krawfish::Log;
-use strict;
-use warnings;
+
+with 'Krawfish::Corpus';
 
 # TODO:
 #   Support class flags

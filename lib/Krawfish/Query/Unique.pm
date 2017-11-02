@@ -1,9 +1,10 @@
 package Krawfish::Query::Unique;
-use Role::Tiny::With;
-with 'Krawfish::Query';
-use Krawfish::Log;
 use strict;
 use warnings;
+use Role::Tiny::With;
+use Krawfish::Log;
+
+with 'Krawfish::Query';
 
 # Filter duplicate postings
 

@@ -1,10 +1,11 @@
 package Krawfish::Query::Cache;
-use Role::Tiny::With;
-with 'Krawfish::Query';
-use Krawfish::Index::Stream;
-use Krawfish::Cache;
 use strict;
 use warnings;
+use Role::Tiny::With;
+use Krawfish::Index::Stream;
+use Krawfish::Cache;
+
+with 'Krawfish::Query';
 
 # Cache implementation for queries
 

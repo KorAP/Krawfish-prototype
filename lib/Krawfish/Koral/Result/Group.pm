@@ -1,6 +1,10 @@
 package Krawfish::Koral::Result::Group;
+use Role::Tiny::With;
 use strict;
 use warnings;
+
+with 'Krawfish::Koral::Report';
+with 'Krawfish::Koral::Result::Inflatable';
 
 # This will be returned by a Group search
 # It needs a to_hash method,

@@ -1,10 +1,11 @@
 package Krawfish::Query::InCorpus;
-use Role::Tiny::With;
-with 'Krawfish::Query';
-use Krawfish::Util::Bits;
-use Krawfish::Log;
 use strict;
 use warnings;
+use Role::Tiny::With;
+use Krawfish::Util::Bits;
+use Krawfish::Log;
+
+with 'Krawfish::Query';
 
 # Filter matches occuring in the wrong
 # subcorpus. This is helpful in comparable corpora,

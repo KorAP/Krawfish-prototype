@@ -52,6 +52,12 @@ sub sortable {
 
 sub to_koral_fragment {
   my $self = shift;
+
+  unless ($self->key) {
+    warn 'Inflate!';
+    return;
+  };
+
   return {
     '@type' => 'koral:field',
     'type' => 'type:' . (

@@ -1,14 +1,15 @@
 package Krawfish::Query;
+use strict;
+use warnings;
 use Role::Tiny;
+use Krawfish::Log;
+use Krawfish::Posting::Span;
+use Scalar::Util qw/blessed refaddr/;
+
 with 'Krawfish::Corpus';
 requires qw/skip_pos
             filter_by
             requires_filter/;
-use Krawfish::Log;
-use Krawfish::Posting::Span;
-use Scalar::Util qw/blessed refaddr/;
-use strict;
-use warnings;
 
 
 # Krawfish::Query is the base class for all span queries.

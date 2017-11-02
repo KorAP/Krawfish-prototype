@@ -1,7 +1,10 @@
 package Krawfish::Koral::Result::Aggregate::Length;
-use Krawfish::Util::Bits;
 use strict;
 use warnings;
+use Krawfish::Util::Bits;
+use Role::Tiny::With;
+
+with 'Krawfish::Koral::Result::Inflatable';
 
 # This calculates match length for all
 # corpus classes.
@@ -102,7 +105,7 @@ sub to_string {
   foreach (my $i = 0; $i < @classes; $i++) {
 
     my $length = $classes[$i];
-    $str .= $i == 0 ? 'total' : 'inCorpus' . $i;
+    $str .= $i == 0 ? 'total' : 'inCorpus-' . $i;
     $str .= ':[';
     $str .= 'avg:' .  $length->{avg} . ',';
     $str .= 'freq:' . $length->{freq} . ',';
@@ -113,6 +116,33 @@ sub to_string {
   };
   chop $str;
   return $str . ']';
+};
+
+
+# Serialize to KQ
+sub to_koral_fragment {
+  my $self = shift;
+
+  my $aggr = {
+    '@type' => 'koral:aggregation',
+    'aggregation' => 'aggregation:length'
+  };
+
+  my @classes = @{$self->_to_classes};
+  my $first = 0;
+  foreach (my $i = 0; $i < @classes; $i++) {
+    my $length = $classes[$i];
+
+    $aggr->{$i == 0 ? 'total' : 'inCorpus-' . $i} = {
+      'avg'  =>  $length->{avg},
+      'freq' => $length->{freq},
+      'min'  => $length->{min},
+      'max'  => $length->{max},
+      'sum'  => $length->{sum}
+    };
+  };
+
+  return $aggr;
 };
 
 

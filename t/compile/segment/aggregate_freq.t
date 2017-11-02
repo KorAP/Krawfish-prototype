@@ -58,9 +58,18 @@ ok(my $query = $koral_query->optimize($index->segment), 'Optimization');
 
 # is($query->to_string, 'aggr([freq]:filter(#6,[1]))', 'Stringification');
 
-is($query->compile->to_string,
+ok(my $comp = $query->compile->inflate($index->dict), 'Compilation');
+is($comp->to_string,
    '[aggr=[freq=total:[2,2]]][matches=[0:1-2][2:1-2]]',
    'Aggregation');
+
+# Test serialization
+is($comp->to_koral_query->{'aggregation'}->{frequencies}->{aggregation},
+   'aggregation:frequencies',
+   'Check KQ');
+is($comp->to_koral_query->{'aggregation'}->{frequencies}->{total}->{matches},
+   2,
+   'Check KQ');
 
 
 # Test with imbalance regarding docs and matches
@@ -119,7 +128,7 @@ ok($query = $query->identify($index->dict)->optimize($index->segment),
 
 # Search till the end
 is($query->compile->to_string,
-   '[aggr=[freq=total:[3,7];inCorpus1:[2,4];inCorpus2:[1,3]]]'.
+   '[aggr=[freq=total:[3,7];inCorpus-1:[2,4];inCorpus-2:[1,3]]]'.
      '[matches=[0:0-1!1][0:0-2!1][1:0-1!2][1:0-2!2][1:0-3!2][2:0-1!1][2:0-2!1]]',
    'Finish');
 

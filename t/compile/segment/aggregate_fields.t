@@ -114,8 +114,6 @@ is($coll->to_string,
  );
 
 
-
-
 # Create compile query to aggregate on 'author'
 $koral->compilation(
   $mb->aggregate(
@@ -142,11 +140,19 @@ ok($coll = $query->compile->inflate($index->dict), 'To terms');
 is($coll->to_string,
    '[aggr=[fields='.
      'total:[author=Fritz:[1,2],Michael:[1,1],Peter:[3,4]];'.
-     'inCorpus1:[author=Fritz:[1,2],Michael:[1,1],Peter:[1,2]];'.
-     'inCorpus2:[author=Peter:[2,2]]]]'.
+     'inCorpus-1:[author=Fritz:[1,2],Michael:[1,1],Peter:[1,2]];'.
+     'inCorpus-2:[author=Peter:[2,2]]]]'.
      '[matches=[0:0-1!2][1:0-1!2][2:0-1!1][2:2-3!1][4:0-1!1]]',
    'Stringification'
  );
+
+ok($coll = $coll->to_koral_query->{aggregation}->{fields}, 'KQ Serialization');
+
+is($coll->{total}->{author}->{Peter}->{docs}, 3, 'Values');
+is($coll->{total}->{author}->{Peter}->{matches}, 4, 'Values');
+is($coll->{total}->{author}->{Fritz}->{matches}, 2, 'Values');
+is($coll->{total}->{author}->{Michael}->{matches}, 1, 'Values');
+is($coll->{'inCorpus-1'}->{author}->{Fritz}->{matches}, 2, 'Values');
 
 
 done_testing;

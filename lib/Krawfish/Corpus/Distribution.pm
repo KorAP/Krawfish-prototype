@@ -1,8 +1,9 @@
 package Krawfish::Corpus::Distribution;
-use Role::Tiny;
-with 'Krawfish::Corpus';
 use strict;
 use warnings;
+use Role::Tiny;
+
+with 'Krawfish::Corpus';
 
 # TODO:
 #   distr([1:3], 'author:Goethe', 'author:Schiller')

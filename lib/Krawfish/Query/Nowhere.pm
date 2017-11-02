@@ -1,8 +1,9 @@
 package Krawfish::Query::Nowhere;
-use Role::Tiny::With;
-with 'Krawfish::Query';
 use strict;
 use warnings;
+use Role::Tiny::With;
+
+with 'Krawfish::Query';
 
 # This is a query that returns nowhere
 sub new {

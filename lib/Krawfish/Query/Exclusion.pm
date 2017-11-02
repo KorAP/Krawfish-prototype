@@ -1,14 +1,16 @@
 package Krawfish::Query::Exclusion;
-use Role::Tiny::With;
-with 'Krawfish::Query::Base::Dual';
-with 'Krawfish::Query';
-use Krawfish::Query::Base::Dual;
-use Krawfish::Query::Constraint::Position; # Export constants and @next_a and @next_b
-use Krawfish::Util::Bits; # exports bitstring
-use Krawfish::Log;
 use strict;
 use warnings;
+use Role::Tiny::With;
+use Krawfish::Query::Base::Dual;
+# Export constants and @next_a and @next_b
+use Krawfish::Query::Constraint::Position;
+use Krawfish::Util::Bits; # exports bitstring
+use Krawfish::Log;
 use bytes;
+
+with 'Krawfish::Query::Base::Dual';
+with 'Krawfish::Query';
 
 # This query validates positional constraints
 # that are exclusive returns a valid forwarding mechanism

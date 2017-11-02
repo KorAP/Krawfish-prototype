@@ -63,6 +63,13 @@ is($coll->to_string,
      '[matches=[0:0-2][1:0-1][2:0-1][2:1-4]]',
    'Stringification');
 
+ok($coll = $coll->to_koral_query->{aggregation}->{length}, 'Serialize KQ');
+is($coll->{aggregation},
+   'aggregation:length',
+   'KQ serialization');
+
+is($coll->{total}->{sum}, 7,
+   'KQ serialization');
 
 $koral = Krawfish::Koral->new;
 $koral->query($qb->span('s'));
@@ -89,8 +96,8 @@ ok($koral_query = $koral->to_query
 is(
   $koral_query->to_string,
   '[aggr=[length=total:[avg:1.75,freq:4,min:1,max:3,sum:7];'.
-    'inCorpus1:[avg:2,freq:1,min:2,max:2,sum:2];'.
-    'inCorpus2:[avg:1.66666666666667,freq:3,min:1,max:3,sum:5]]]'.
+    'inCorpus-1:[avg:2,freq:1,min:2,max:2,sum:2];'.
+    'inCorpus-2:[avg:1.66666666666667,freq:3,min:1,max:3,sum:5]]]'.
     '[matches=[0:0-2!1][1:0-1!2][2:0-1!2][2:1-4!2]]',
   'Stringification');
 
