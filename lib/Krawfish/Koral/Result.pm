@@ -102,7 +102,7 @@ sub to_koral_fragment {
 
 
   # Add aggregation
-  if ($self->{aggregation}) {
+  if (@{$self->{aggregation}}) {
     # It is beneficial to be able to point to,
     # e.g. the field frequencies without iterating
     # through all aggregations.

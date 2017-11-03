@@ -63,11 +63,6 @@ is($match->to_string,
    '[0:0-1$0,2,0,1|terms:[2:' . SUBTERM_PREF . 'aa]]',
    'Current match');
 
-$match = $match->to_koral_fragment;
-is($match->{'@type'}, 'koral:match', 'KQ');
-is($match->{'terms'}->[0]->{terms}->[0], 'aa', 'KQ');
-is($match->{'terms'}->[0]->{classOut}, 2, 'KQ');
-
 ok($query->next, 'Next match');
 is($query->current_match->to_string,
    '[0:1-2$0,4,1,2|terms:[4:9]]', 'Current match');
@@ -83,6 +78,38 @@ is($query->current_match->inflate($index->dict)->to_string,
    '[0:3-4$0,4,3,4|terms:[4:' . SUBTERM_PREF . 'bb]]', 'Current match');
 
 ok(!$query->next, 'No nNext match');
+
+
+
+
+# TODO:
+#   Replace with clone of above query
+$koral = Krawfish::Koral->new;
+$koral->query(
+  $qb->bool_or(
+    $qb->class($qb->term('aa'),2),
+    $qb->class($qb->term('bb'),4)
+  )
+);
+$koral->compilation(
+  $mb->enrich(
+    $mb->e_terms(2,4)
+  )
+);
+
+ok(my $result = $koral->to_query
+     ->identify($index->dict)
+     ->optimize($index->segment)
+     ->compile
+     ->inflate($index->dict)
+     ->to_koral_query,
+   'Serialize KQ');
+
+is_deeply($result->{matches}->[0]->{terms}->[0]->{'terms'}, ['aa'], 'Check terms');
+is($result->{matches}->[0]->{terms}->[0]->{'classOut'}, 2, 'Check terms');
+is_deeply($result->{matches}->[1]->{terms}->[0]->{'terms'}, ['bb'], 'Check terms');
+is($result->{matches}->[1]->{terms}->[0]->{'classOut'}, 4, 'Check terms');
+
 
 TODO: {
   local $TODO = 'Test with longer matches and overlaps'

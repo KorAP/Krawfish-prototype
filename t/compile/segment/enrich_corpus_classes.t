@@ -101,90 +101,51 @@ is($query->current_match->to_string, "[2:0-1!1|fields:#1=#17|inCorpus:1]",
    'Current match');
 ok(!$query->next, 'Next');
 
-done_testing;
-__END__
 
-
-
-
-
-
-
-
-
-
-my $kq = $fields->current_match->inflate($index->dict)->to_koral_fragment;
-is($kq->{'@type'}, 'koral:match', 'KQ');
-is($kq->{fields}->[0]->{key}, 'corpus', 'KQ');
-is($kq->{fields}->[0]->{value}, 'corpus-2', 'KQ');
-is($kq->{fields}->[1]->{key}, 'license', 'KQ');
-is($kq->{fields}->[1]->{value}, 'free', 'KQ');
-
-ok($fields->next, 'Next');
-is($fields->current_match->to_string, "[1:0-1|fields:#1=#13,#7=#16]",
-   'Current match');
-
-$kq = $fields->current_match->inflate($index->dict)->to_koral_fragment;
-is($kq->{'@type'}, 'koral:match', 'KQ');
-is($kq->{fields}->[0]->{key}, 'corpus', 'KQ');
-is($kq->{fields}->[0]->{value}, 'corpus-3', 'KQ');
-is($kq->{fields}->[1]->{key}, 'license', 'KQ');
-is($kq->{fields}->[1]->{value}, 'closed', 'KQ');
-
-ok(!$fields->next, 'No more next');
-
-
-
-# Fields for multiple spans
-# Retrieve including stored data
-$koral = Krawfish::Koral->new;
-$koral->query($qb->bool_or('aa', 'bb'));
-$koral->compilation(
-  $mb->enrich(
-    $mb->e_fields('license','corpus', 'uri', 'year')
+# TODO:
+#   This should use the above query cloned:
+# Define corpus
+$koral->corpus(
+  $cb->bool_or(
+    $cb->class($cb->string('license')->eq('free'), 1),
+    $cb->class($cb->span(
+      $qb->term('aa')
+    ), 2)
   )
 );
-$fields = $koral->to_query->identify($index->dict)->optimize($index->segment);
 
-ok($fields->next, 'Next');
-is($fields->current->to_string, '[0:0-1]', 'Current object');
-is($fields->current_match->to_string, "[0:0-1|fields:#1=#2,#5=#6(1996),#7=#8]",
-   'Current match');
+# Define query
+$koral->query(
+  $qb->token('bb')
+);
 
-$kq = $fields->current_match->inflate($index->dict)->to_koral_fragment;
-is($kq->{'@type'}, 'koral:match', 'KQ');
-is($kq->{fields}->[0]->{key}, 'corpus', 'KQ');
-is($kq->{fields}->[0]->{value}, 'corpus-2', 'KQ');
-is($kq->{fields}->[1]->{key}, 'year', 'KQ');
-is($kq->{fields}->[1]->{value}, 1996, 'KQ');
-is($kq->{fields}->[2]->{key}, 'license', 'KQ');
-is($kq->{fields}->[2]->{value}, 'free', 'KQ');
+# Define compilation
+$koral->compilation(
+  $mb->enrich(
+    $mb->e_corpus_classes(1,2),
+    $mb->e_fields("corpus")
+  )
+);
 
-ok($fields->next, 'Next');
-is($fields->current->to_string, '[0:1-2]', 'Current object');
-is($fields->current_match->to_string, "[0:1-2|fields:#1=#2,#5=#6(1996),#7=#8]",
-   'Current match');
+ok(my $result = $koral->to_query
+     ->identify($index->dict)
+     ->optimize($index->segment)
+     ->compile
+     ->inflate($index->dict)
+     ->to_koral_query, 'Serialize KQ');
 
-ok($fields->next, 'Next');
-is($fields->current->to_string, '[1:0-1]', 'Current object');
-is($fields->current_match->to_string, "[1:0-1|fields:#1=#13,#5=#15(1998),#7=#16]",
-   'Current match');
+my $match = $result->{matches}->[0];
+is($match->{'@type'}, 'koral:match', 'Check KQ type');
+is($match->{fields}->[0]->{key}, 'corpus', 'Check KQ');
+is($match->{fields}->[0]->{value}, 'corpus-2', 'Check KQ');
+is_deeply($match->{inCorpus}, [1,2], 'Check KQ');
 
-ok($fields->next, 'Next');
-is($fields->current->to_string, '[1:1-2]', 'Current object');
-is($fields->current_match->to_string, "[1:1-2|fields:#1=#13,#5=#15(1998),#7=#16]",
-   'Current match');
-
-ok($fields->next, 'Next');
-is($fields->current->to_string, '[2:0-1]', 'Current object');
-is($fields->current_match->to_string, "[2:0-1|fields:#1=#17,#5=#19(2002),#7=#8,#20='My URL']",
-   'Current match');
-
-ok(!$fields->next, 'Next');
-
+$match = $result->{matches}->[1];
+is($match->{'@type'}, 'koral:match', 'Check KQ type');
+is($match->{fields}->[0]->{key}, 'corpus', 'Check KQ');
+is($match->{fields}->[0]->{value}, 'corpus-3', 'Check KQ');
+is_deeply($match->{inCorpus}, [2], 'Check KQ');
 
 
 done_testing;
 __END__
-
-

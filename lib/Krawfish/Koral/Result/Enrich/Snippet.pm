@@ -1,6 +1,9 @@
 package Krawfish::Koral::Result::Enrich::Snippet;
 use strict;
 use warnings;
+use Role::Tiny::With;
+
+with 'Krawfish::Koral::Result::Inflatable';
 
 
 # Constructor
@@ -8,10 +11,13 @@ sub new {
   my $class = shift;
 
   # match_ids
-  bless { @_ }, $class;
+  bless {
+    @_
+  }, $class;
 };
 
 
+# Inflate term ids to terms
 sub inflate {
   my ($self, $dict) = @_;
   my $hit = $self->{hit_ids};
@@ -29,14 +35,17 @@ sub to_string {
 };
 
 
+# Key for KQ serialization
 sub key {
   'snippet'
 };
 
 
+# Serialize KQ
 sub to_koral_fragment {
   my $self = shift;
   return join('', map { $_->to_string } @{$self->{hit_ids}});
 };
+
 
 1;

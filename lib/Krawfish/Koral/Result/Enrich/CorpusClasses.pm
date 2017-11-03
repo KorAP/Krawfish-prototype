@@ -3,10 +3,11 @@ use strict;
 use warnings;
 use Role::Tiny::With;
 
-with 'Krawfish::Koral::Report';
 with 'Krawfish::Koral::Result::Inflatable';
 
-# The classes are only numbers (1..15)
+# Enrich with class numbers.
+# The classes are simple numbers (1..15).
+# The match class (0) is ignored.
 
 # Constructor
 sub new {
@@ -33,6 +34,7 @@ sub to_string {
 sub key {
   'inCorpus';
 };
+
 
 # Serialize to KoralQuery
 sub to_koral_fragment {

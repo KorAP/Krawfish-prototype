@@ -28,7 +28,9 @@ sub current_match {
   my @classes = $match->corpus_classes(0b0111_1111_1111_1111);
 
   # Enrich match
-  $match->add(Krawfish::Koral::Result::Enrich::CorpusClasses->new(@classes));
+  $match->add(
+    Krawfish::Koral::Result::Enrich::CorpusClasses->new(@classes)
+    );
 
   return $match;
 };
