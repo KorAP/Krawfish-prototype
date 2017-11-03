@@ -1,5 +1,6 @@
 package Krawfish::Koral::Document;
 use Krawfish::Koral::Document::Stream;
+use Krawfish::Koral::Document::Subtoken;
 use Krawfish::Koral::Document::Fields;
 use Krawfish::Koral::Query::Term;
 use Krawfish::Log;
@@ -178,7 +179,12 @@ sub _parse {
 
       print_log('doc', 'Surface form is ' . $term) if DEBUG;
 
-      $stream->subtoken($pos, $preceding, $term);
+      $stream->subtoken(
+        $pos,
+        Krawfish::Koral::Document::Subtoken->new(
+          preceding => $preceding,
+          subterm => $term
+        ));
       $pos++;
     };
   };
@@ -187,7 +193,14 @@ sub _parse {
   # There are tokens indexed by subtokens
   if ($primary_index) {
     my $preceding = substr($primary, $primary_index);
-    $stream->subtoken($pos, $preceding, '') if $preceding;
+
+    if ($preceding) {
+      $stream->subtoken(
+        $pos,
+        Krawfish::Koral::Document::Subtoken->new(
+          preceding => $preceding
+        ));
+    };
 
     # TODO: Probably not a good idea
     $primary_index = 0;
@@ -245,7 +258,12 @@ sub _parse {
           my $term = substr($primary, $start, $end - $start);
           $primary_index = $end;
 
-          $stream->subtoken($pos, $preceding, $term);
+          $stream->subtoken(
+            $pos,
+            Krawfish::Koral::Document::Subtoken->new(
+              preceding => $preceding,
+              subterm => $term
+            ));
         };
         $pos++;
       };
@@ -282,7 +300,14 @@ sub _parse {
   # There are tokens indexed by subtokens
   if ($primary_index) {
     my $preceding = substr($primary, $primary_index);
-    $stream->subtoken($pos, $preceding, '') if $preceding;
+
+    if ($preceding) {
+      $stream->subtoken(
+        $pos,
+        Krawfish::Koral::Document::Subtoken->new(
+          preceding => $preceding
+        ));
+    };
 
     # TODO: Probably not a good idea
     $primary_index = 0;

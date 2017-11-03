@@ -151,8 +151,7 @@ sub skip_pos {
 };
 
 
-# Get the current token
-# As this does not return a posting, this may be renamed!
+# Get the current token (a Krawfish::Posting::Forward)
 sub current {
   my $self = shift;
 

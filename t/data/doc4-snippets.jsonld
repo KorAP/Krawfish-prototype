@@ -1,0 +1,108 @@
+{
+  "@context" : "http://korap.ids-mannheim.de/ns/koral/0.5/context.jsonld",
+  "document" : {
+    "@type" : "koral:document",
+    "primaryData" : "Der Mann sagte: \"Hallo!\"",
+    "id" : 3,
+    "fields" : [
+      {
+        "@type" : "koral:field",
+        "key" : "docID",
+        "value" : "doc-4",
+        "type" : "type:string",
+        "sortable":true        
+      },
+      {
+        "@type":"koral:field",
+        "key":"license",
+        "value":"closed",
+        "type":"type:string",
+        "sortable":true
+      }
+    ],
+    "subtokens" : [
+      {
+        "@type" : "koral:subtoken",
+        "offsets" : [0,3],
+        "comment" : "Der"
+      },
+      {
+        "@type" : "koral:subtoken",
+        "offsets" : [4,8],
+        "comment" : "Mann"
+      },
+      {
+        "@type" : "koral:subtoken",
+        "offsets" : [9,14],
+        "comment" : "sagte"
+      },
+      {
+        "@type" : "koral:subtoken",
+        "offsets" : [17,22],
+        "comment" : "Hallo"
+      }
+    ],
+    "annotations" : [
+      {
+        "@type": "koral:token",
+        "subtokens" : [0],
+        "wrap" : {
+          "@type" : "koral:term",
+          "foundry" : "akron",
+          "key" : "Der"
+        }
+      },
+      {
+        "@type" : "koral:span",
+        "subtokens" : [1],
+        "wrap" : {
+          "@type" : "koral:term",
+          "foundry" : "akron",
+          "key" : "Mann"
+        }
+      },
+      {
+        "@type": "koral:token",
+        "subtokens" : [2],
+        "wrap" : {
+          "@type" : "koral:term",
+          "foundry" : "akron",
+          "key" : "sagte"
+        }
+      },
+      {
+        "@type": "koral:token",
+        "subtokens" : [3],
+        "wrap" : {
+          "@type" : "koral:term",
+          "foundry" : "akron",
+          "key" : "Hallo"
+        }
+      },
+      {
+        "@type" : "koral:span",
+        "subtokens" : [0,3],
+        "comment" : "The span includes two more character to the right",
+        "wrap" : {
+          "@type" : "koral:term",
+          "foundry" : "akron",
+          "layer" : "s",
+          "key" : "s",
+          "charExt" : [0,2]
+        }
+      },
+      {
+        "@type" : "koral:span",
+        "subtokens" : [3],
+        "comment" : "The span includes one more character to the left and two more characters to the right",
+        "wrap" : {
+          "@type" : "koral:term",
+          "foundry" : "akron",
+          "layer" : "s",
+          "key" : "quote",
+          "charExt" : [1,2]
+        }
+      },
+    ]
+  }
+}

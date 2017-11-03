@@ -6,6 +6,8 @@ use warnings;
 
 use constant DEBUG => 0;
 
+
+# Constructor
 sub new {
   my $class = shift;
   bless {
@@ -13,6 +15,8 @@ sub new {
   }, $class;
 };
 
+
+# This will read the hit content
 sub content {
   my ($self, $match, $forward) = @_;
 
@@ -21,6 +25,9 @@ sub content {
     return;
   };
 
+  # Get all surface tokens of the match and store in data stream
+  # TODO:
+  #   Data may be an abstract snippet object!
   my @data;
   my $length = $match->end - $match->start;
   while ($length > 0) {

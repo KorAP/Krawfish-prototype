@@ -155,6 +155,17 @@ sub e_span_context {
   );
 };
 
+sub e_inline {
+  # TODO:
+  #   Add inline annotation information, like
+  #   e_inline(
+  #     span => 'dereko/s=pb',
+  #     start => '<span class="pb">',
+  #     content => '@page-after'
+  #     end => '</span>
+  # )
+  ...
+};
 
 # Enrich with Term lists per class
 sub e_terms {

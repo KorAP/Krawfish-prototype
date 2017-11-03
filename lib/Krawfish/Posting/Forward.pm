@@ -5,6 +5,8 @@ use warnings;
 
 # Posting in the Forward index
 
+# THIS IS VERY SIMILAR TO Krawfish::Koral::Document::Subtoken
+
 # API:
 #   ->preceding_data   # The whitespace data before the subtoken
 #   ->subterm_id       # The current subterm identifier
@@ -34,7 +36,7 @@ use constant DEBUG => 0;
 sub new {
   my $class = shift;
 
-  # Contains term_id, preceding_data, cur, pos and stream
+  # Contains term_id, preceding_data, cur and stream
   bless {@_}, $class;
 };
 
@@ -52,6 +54,9 @@ sub term_id {
 
 
 # Get preceding data
+# TODO:
+#   Rename to 'preceding_enc' to be in line
+#   with K::K::Document::Subtoken
 sub preceding_data {
   $_[0]->{preceding_data} // '';
 };
@@ -60,12 +65,6 @@ sub preceding_data {
 # Get stream (if available)
 sub stream {
   $_[0]->{stream};
-};
-
-
-# Get the token position
-sub pos {
-  $_[0]->{pos}
 };
 
 
@@ -116,42 +115,59 @@ sub annotation {
       );
     };
 
+    # The annotation has the correct foundry
     if ($list->[$self->{cur}] == $foundry_id) {
       $self->{cur}++;
+
+      # The annotation has the corrext layer
       if ($list->[$self->{cur}] == $layer_id) {
         $self->{cur}++;
 
         # Ignore type
         $self->{cur}++;
 
-        # Anno id is identical
+        # The annotation has the correct annotation
         if ($list->[$self->{cur}] == $anno_id) {
           $self->{cur}++;
 
           # Get data (for tokens, this is the end)
           my $data = $list->[$self->{cur}];
           push @anno, $data;
-          $self->{cur}++; # Move to next
+
+          # Move to next potentially valid annotation
+          $self->{cur}++;
         }
+
+        # The current anno id is beyond scope
         elsif ($list->[$self->{cur}] > $anno_id) {
           last;
         }
+
+        # Check the next annotation
         else {
           $self->{cur}+=2; # Ignore data, anno_id
           $self->{cur}++; # Move to next
         }
       }
+
+      # The layer is beyond scope
       elsif ($list->[$self->{cur}] > $layer_id) {
         last;
       }
+
+      # Check next layer
       else {
         $self->{cur}+=3; # Ignore data, anno_id, layer, type
         $self->{cur}++; # Move to next
       }
     }
+
+    # The foundry is beyond scope
     elsif ($list->[$self->{cur}] > $foundry_id) {
       last;
     }
+
+    # Check next foundry
     else {
       $self->{cur}+=4; # Ignore data, anno_id, layer_id, foundry
       $self->{cur}++; # Move to next

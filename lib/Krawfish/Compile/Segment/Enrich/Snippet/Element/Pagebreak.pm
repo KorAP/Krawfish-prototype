@@ -3,6 +3,10 @@ use parent 'Krawfish::Compile::Segment::Enrich::Snippet::Element';
 use strict;
 use warnings;
 
+# TODO:
+#   Probably remove this support and
+#   add a more general "Inline" helper
+
 sub new {
   my $self = shift;
   bless {

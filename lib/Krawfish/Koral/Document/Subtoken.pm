@@ -7,13 +7,15 @@ use strict;
 
 # This represents a single token in a forward index
 
+# THIS IS VERY SIMILAR TO Krawfish::Posting::Forward
+
+# This should be an inflatable as well!
+
 sub new {
   my $class = shift;
-  bless {
-    preceding => shift,
-    subterm => shift,
-    anno => []
-  }, $class;
+  my %hash = @_;
+  $hash{anno} //= [];
+  bless \%hash, $class;
 };
 
 
@@ -29,10 +31,12 @@ sub new_by_term_id {
   }, $class;
 };
 
+
 # Preceeding bytes of the subterm
 sub preceding {
   $_[0]->{preceding} // '';
 };
+
 
 sub preceding_enc {
   $_[0]->{preceding_enc} // '';
@@ -44,6 +48,14 @@ sub subterm {
   $_[0]->{subterm};
 };
 
+
+# Subterm id
+sub subterm_id {
+  $_[0]->{subterm_id};
+};
+
+
+# Alias
 sub term_id {
   $_[0]->{subterm_id};
 };
@@ -61,6 +73,7 @@ sub add_annotation {
 };
 
 
+# Inflate
 sub inflate {
   my ($self, $dict) = @_;
   $self->{preceding} = $self->{preceding_enc};
@@ -69,10 +82,12 @@ sub inflate {
 };
 
 
+# Identify terms
 sub identify {
   my ($self, $dict) = @_;
 
-  # This is the final subtoken that's only required for preceding bytes
+  # This is the final subtoken that's only
+  # required for preceding bytes
 
   $self->{preceding_enc} = $self->{preceding};
 
@@ -102,7 +117,21 @@ sub to_string {
   }
 
   else {
-    $str .= $self->{subterm} ? squote($self->{subterm}) : "''";
+
+    # Subterm defined
+    if ($self->{subterm}) {
+      $str .= squote($self->{subterm})
+    }
+
+    # Not yet inflated!
+    elsif ($self->{subterm_id}) {
+
+      # warn 'Subtoken ' . $self->{subterm_id} . ' is not yet inflated!';
+      $str .= "'?'";
+    }
+    else {
+      $str .= "''";
+    };
   };
 
   if (@{$self->{anno}}) {

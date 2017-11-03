@@ -6,6 +6,8 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
+# This is an inflatable!
+
 use constant {
   DEBUG => 0,
   MAX_TOKENS => 4096

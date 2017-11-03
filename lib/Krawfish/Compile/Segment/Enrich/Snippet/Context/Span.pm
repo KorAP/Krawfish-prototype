@@ -1,7 +1,10 @@
 package Krawfish::Compile::Segment::Enrich::Snippet::Context::Span;
 use Krawfish::Posting::Forward;
+use Krawfish::Log;
 use strict;
 use warnings;
+
+use constant DEBUG => 1;
 
 sub new {
   my $class = shift;
@@ -18,8 +21,93 @@ sub new {
 };
 
 
-# Get left context
+# Reposition the pointer to the start position of the context
+sub start {
+  my ($self, $pointer) = @_;
+
+  # It is expected that the pointer is
+  # already positioned to the match start.
+
+  my $left_start             = $pointer->pos;
+  my $left_start_ext_char    = 0;
+  my $right_min_end          = $pointer->pos;
+  my $right_min_end_ext_char = 0;
+
+  # Do not search beyond maximum tokens
+  my $max = $self->{max};
+
+  # Count the number of valid elements to the left
+  my $count = $self->{count};
+
+  # As long as it is allowed, iterate through tokens
+  while ($max-- > 0) {
+
+    # Get current forward token (a Krawfish::Posting::Forward)
+    my $current = $pointer->current;
+
+    # Check if the token is relevant for annotation
+    if (my $anno = $current->annotation(
+      $self->{foundry_id},
+      $self->{layer_id},
+      $self->{anno_id},
+    )) {
+      # Annotation was found - get span length!
+
+      # Get the first annotation (that has the shortest span length)
+      # TODO:
+      #   It may be beneficial to check, if there is a better length,
+      #   e.g. one that surrounds the match
+      my $anno_data = $anno->[0];
+
+      # The first part of the annotation is the end position
+      my $anno_end = $anno_data->[0];
+
+      # Remember the end position, if it exceeds the min value
+      $right_min_end = $anno_end if $right_min_end > $anno_end;
+
+      # Remember the starting position!
+      $left_start = $pointer->pos;
+
+      # TODO:
+      #   Check for character extensions!
+
+      # Element was found - and it's the last time it's valid
+      last if --$count < 0;
+    }
+
+    # Element is not found at position
+    else {
+
+      # Maximum tokens exceeded
+      last if $max-- < 1;
+
+      # Move backwards
+      $pointer->prev;
+    };
+  };
+
+  # Move pointer to new start
+  if ($pointer->pos < $left_start) {
+    $pointer->skip_pos($left_start)
+  };
+
+  # Return all relevant information
+  return (
+    $left_start,
+    $left_start_ext_char,
+    $right_min_end,
+    $right_min_end_ext_char
+  );
+};
+
+
+
+# Get left context and minimal right extension
 sub left {
+
+  # TODO:
+  #   THIS IS DEPRECATED!
+
   my ($self, $match, $pointer) = @_;
 
   # The context as an array of preceeding strings and term_ids

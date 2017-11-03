@@ -49,15 +49,18 @@ ok(my $query = $koral_query->optimize($index->segment), 'Optimize');
 is ($query->to_string, 'snippet(hit:filter(or(#10,#8),[1]))', 'Stringification');
 
 ok($query->next, 'Next match');
-is($query->current_match->to_string(1), "[0:0-1|snippet:<>[#7]]", 'Current match');
+is($query->current_match->to_string(1), "[0:0-1|snippet:(0)<>[#7]]", 'Current match');
 ok($query->next, 'Next match');
 is($index->dict->term_by_term_id(7), SUBTERM_PREF . 'aa', 'Get term');
-is($query->current_match->to_string(1), "[0:1-2|snippet:< >[#9]]", 'Current match');
+is($query->current_match->to_string(1), "[0:1-2|snippet:(0)< >[#9]]", 'Current match');
 ok($query->next, 'Next match');
 is($index->dict->term_by_term_id(9), SUBTERM_PREF . 'bb', 'Get term');
-is($query->current_match->to_string(1), "[0:2-3|snippet:< >[#7]]", 'Current match');
+is($query->current_match->to_string(1), "[0:2-3|snippet:(0)< >[#7]]", 'Current match');
 ok($query->next, 'Next match');
-is($query->current_match->to_string(1), "[0:3-4|snippet:< >[#9]]", 'Current match');
+is($query->current_match->to_string(1), "[0:3-4|snippet:(0)< >[#9]]", 'Current match');
+is($query->current_match->inflate($index->dict)->to_string,
+   "[0:3-4|snippet:(0)< >['.bb']]",
+   'Current match');
 ok(!$query->next, 'No more match');
 
 

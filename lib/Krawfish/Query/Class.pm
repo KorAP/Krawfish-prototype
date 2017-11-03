@@ -6,6 +6,16 @@ use Krawfish::Log;
 
 with 'Krawfish::Query';
 
+# TODO:
+#   It may be beneficial to remember
+#   char-extensions here as well, in case
+#   they are relevant.
+#   This would unfortunately mean, the
+#   query is slowed down immensely
+#   (as this information is only relevant
+#   for snippet generation), but it would
+#   result in more correct snippets.
+
 use constant DEBUG => 0;
 
 
