@@ -80,6 +80,17 @@ sub hit_end {
 };
 
 
+# Set doc id
+sub doc_id {
+  my $self = shift;
+  if (@_) {
+    $self->{doc_id} = shift;
+    return $self;
+  };
+  return $self->{doc_id};
+};
+
+
 # Add highlight to snippet
 sub add_highlight {
   my ($self, $highlight) = @_;

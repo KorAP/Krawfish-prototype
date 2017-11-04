@@ -10,3 +10,5 @@
 # move till the end of the right context.
 #
 # All annotations may be added as milestones.
+#
+# A special decorator will add empty elements for every word.

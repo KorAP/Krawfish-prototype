@@ -19,14 +19,14 @@ sub new {
 
 sub to_string {
   my $self = shift;
-  my $str = 'snippet(';
+  my $str = 'snippet(hit';
   if ($self->{left}) {
-    $str .= 'left=' . $self->{left}->to_string . ',';
+    $str .= ',left=' . $self->{left}->to_string;
   };
   if ($self->{right}) {
-    $str .= 'right=' . $self->{right}->to_string . ',';
+    $str .= ',right=' . $self->{right}->to_string;
   };
-  $str .= $self->{hit}->to_string;
+#  $str .= $self->{hit}->to_string;
   $str .= ':' . $self->{query}->to_string . ')';
 };
 
@@ -49,7 +49,7 @@ sub identify {
   # Identify hit
   # This will at least define a "surface only" hit object,
   # even if requested annotations do not exist
-  $self->{hit} = $self->{hit}->identify($dict);
+  # $self->{hit} = $self->{hit}->identify($dict);
 
   # Identify query
   $self->{query} = $self->{query}->identify($dict);
@@ -80,13 +80,13 @@ sub optimize {
   };
 
   # Optimize hit
-  $self->{hit} = $self->{hit}->optimize($segment);
+  # $self->{hit} = $self->{hit}->optimize($segment);
 
   # Return snippet object
   return Krawfish::Compile::Segment::Enrich::Snippet->new(
     query   => $query,
     fwd_obj => $segment->forward,
-    hit     => $self->{hit},
+    # hit     => $self->{hit},
     left    => $left,
     right   => $right
   );

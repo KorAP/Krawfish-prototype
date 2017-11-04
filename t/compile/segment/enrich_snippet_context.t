@@ -29,14 +29,14 @@ $koral->compilation(
 );
 
 is($koral->to_string,
-   'compilation=[enrich=[snippet=[left:span(a/b=c,0),right:span(a/b=c,0),hit]]],query=[aa]',
+   'compilation=[enrich=[snippet=[hit,left:span(a/b=c,0),right:span(a/b=c,0)]]],query=[aa]',
    'Stringification');
 
 ok(my $koral_query = $koral->to_query, 'Normalization');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   'snippet(left=span(a/b=c,0),right=span(a/b=c,0),hit:filter(aa,[1]))',
+   'snippet(hit,left=span(a/b=c,0),right=span(a/b=c,0):filter(aa,[1]))',
    'Stringification');
 
 # This is a query that is fine to be send to segments:
@@ -44,12 +44,12 @@ ok($koral_query = $koral_query->identify($index->dict), 'Identify');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   'snippet(left=span(#10/#11=#9,0),right=span(#10/#11=#9,0),hit:filter(#8,[1]))',
+   'snippet(hit,left=span(#10/#11=#9,0),right=span(#10/#11=#9,0):filter(#8,[1]))',
    'Stringification');
 
 ok(my $query = $koral_query->optimize($index->segment), 'Optimize');
 is ($query->to_string,
-    'snippet(span(#10/#11=#9,0,4096),span(#10/#11=#9,0,4096),hit:filter(#8,[1]))',
+    'snippet(hit,span(#10/#11=#9,0,4096),span(#10/#11=#9,0,4096):filter(#8,[1]))',
     'Stringification'
   );
 

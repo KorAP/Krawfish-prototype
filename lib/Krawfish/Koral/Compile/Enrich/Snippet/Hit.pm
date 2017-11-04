@@ -8,6 +8,9 @@ use warnings;
 
 sub new {
   my $class = shift;
+
+  warn 'DEPRECATED!';
+
   bless { @_ }, $class;
 };
 

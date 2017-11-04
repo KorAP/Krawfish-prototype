@@ -24,14 +24,24 @@ use constant DEBUG => 1;
 #      - Set highlights
 #      - Set relevant char extensions
 
-#   3. Pass the forward index to the snippet object
-#      - Fetch all relevant annotations
+#   3. Fetch all relevant annotations
 #      - Add match boundary (respect char extensions)
+#      - Add decorators
 #      - Add highlights (respect char extensions)
 #      - Add inline information (e.g. for pagebreak numbers)
 #      - Extend to context boundary
 #      - Serialize snippet
 
+# TODO:
+#   It may be useful to include some flagOptional-Queries,
+#   that will add attributes to matches (Payloads?),
+#   that can be checked before enriching with snippets.
+#   In that way, it can be checked, if a match has an
+#   'right-to-left' meta-field so the snippet is displayed in reverse
+#   order. Or it is checked, if a specific license is used, so the decorators
+#   need to apply for every token.
+#   E.g. check using an ifCorpus() query, if a match has a certain flag set.
+#   But how would this be serialized in a query?
 
 sub new {
   my $class = shift;
@@ -94,29 +104,11 @@ sub current_match {
 
   print_log('c_snippet', 'match is ' . $match->to_string) if DEBUG;
 
-  # Get forward query
-  my $forward = $self->{fwd_pointer};
-
-  my $doc_id = $match->doc_id;
-
-  # Move to current document
-  # THIS SHOULD NEVER FAIL!
-  return unless $forward->skip_doc($doc_id) == $doc_id;
-
-  # Move pointer to start position of match
-  unless ($forward->skip_pos($match->start)) {
-
-    # In case the last match was overlapping with the current match, the forward
-    # pointer needs to move backward step by step
-    while ($forward->pos > $match->start) {
-      $forward->prev;
-    };
-  };
-
   # Create new snippet object
   my $new_snippet = Krawfish::Koral::Result::Enrich::Snippet->new(
     hit_start => $match->start,
-    hit_end => $match->end
+    hit_end   => $match->end,
+    doc_id    => $match->doc_id
   );
 
 
@@ -132,13 +124,58 @@ sub current_match {
   # TODO:
   #   Add character extensions from match's payload
 
+  # Fetch information from forward index
+  $self->_fetch_stream($new_snippet) or return;
+
+  # Add snippet to match
+  $match->add($new_snippet);
+
+  $self->{match} = $match;
+  return $match;
+};
+
+
+
+# Add all relevant annotations from the forward stream
+# from the start to the end - including extensions and context!
+# TODO:
+#   This needs to respect character extensions!
+sub _fetch_stream {
+  my ($self, $snippet) = @_;
+
+  # Get pointer to forward stream
+  my $forward = $self->{fwd_pointer};
+
+  my $doc_id = $snippet->doc_id;
+
+  # Move to current document
+  # THIS SHOULD NEVER FAIL!
+  return unless $forward->skip_doc($doc_id) == $doc_id;
+
+  # Move pointer to start position of match
+  unless ($forward->skip_pos($snippet->hit_start)) {
+
+    # In case the last match was overlapping with the current match,
+    # the forward pointer needs to move backward step by step
+    while ($forward->pos > $snippet->hit_start) {
+      $forward->prev;
+    };
+  };
+
+  # THIS SHOULD NEVER FAIL!
+  if ($forward->pos != $snippet->hit_start) {
+    return;
+  };
+
+  print_log('c_snippet', 'Retrieve annotation data for match') if DEBUG;
+
   # Initialize context
   my (
     $left_start,              # The first subtoken in the context
     $left_start_ext_char,     # A potential character extension to the left
     $right_min_end,           # The minimum last subtoken in the context
     $right_min_end_ext_char   # A potential character extension to the right
-  ) = ($match->start, 0, $match->end, 0);
+  ) = ($snippet->hit_start, 0, $snippet->hit_end, 0);
 
 
   # TODO:
@@ -153,7 +190,7 @@ sub current_match {
   else {
 
     # set optional extension end to same value as hit end
-    $new_snippet->extension_end($new_snippet->hit_end);
+    $snippet->extension_end($snippet->hit_end);
   };
 
   # Get context, if left context is defined
@@ -163,55 +200,9 @@ sub current_match {
 
     # The pointer now is set to the context's start
     # Set context end
-    $new_snippet->context_end($right_min_end);
+    $snippet->context_end($right_min_end);
   };
 
-
-  # Fetch information from forward index
-  $self->_fetch_stream($new_snippet);
-
-  # Add snippet to match
-  $match->add($new_snippet);
-
-  $self->{match} = $match;
-  return $match;
-
-
-  # This is the old Snippet retrieval:
-
-  # Get data from hit
-  my $hit_data = $self->{hit}->content($match, $forward);
-
-  if (DEBUG) {
-    print_log('c_snippet', 'Move to match position');
-  };
-
-  # Create snippet posting
-  my $snippet = Krawfish::Koral::Result::Enrich::Snippet->new(
-    hit_ids => $hit_data
-  );
-
-  # Add snippet to match
-  $match->add($snippet);
-
-  # Deal with left
-  # Deal with hit
-  # Deal with right
-
-  $self->{match} = $match;
-  return $match;
-};
-
-
-
-# Add all relevant annotations from the forward stream
-# TODO:
-#   This needs to respect character extensions!
-sub _fetch_stream {
-  my ($self, $snippet) = @_;
-
-  # Get forward query
-  my $forward = $self->{fwd_pointer};
 
   my $i = 0;
 
@@ -234,11 +225,13 @@ sub _fetch_stream {
         # (Needs to be renamed to preceding_enc)
         preceding_enc => $current->preceding_data,
         subterm_id => $current->term_id
-      )
-    );
+      ));
+
+    # TODO:
+    #   Check and remember decorators if requested
+
     last unless $forward->next;
   };
-
 
   # Retrieve the hit data including annotations!
   while ($forward->pos < $snippet->hit_end) {
@@ -260,6 +253,9 @@ sub _fetch_stream {
     #   $subtoken->add_annotation(
     #    Krawfish::Koral::Document::Annotation->()
     #   );
+
+    # TODO:
+    #   Check and remember decorators if requested
   };
 
   #if ($self->extension) {
@@ -273,7 +269,7 @@ sub _fetch_stream {
   #   of right extensions, the character data is correctly retrieved!
 
   $snippet->stream($stream);
-  return;
+  return 1;
 };
 
 
@@ -282,15 +278,14 @@ sub _fetch_stream {
 # Stringification
 sub to_string {
   my $self = shift;
-  my $str = 'snippet(';
+  my $str = 'snippet(hit';
   if ($self->{left}) {
-    $str .= $self->{left}->to_string . ',';
+    $str .= ',' . $self->{left}->to_string;
   };
   if ($self->{right}) {
-    $str .= $self->{right}->to_string . ',';
+    $str .= ',' . $self->{right}->to_string;
   };
-  $str .= $self->{hit}->to_string . ':';
-  $str .= $self->{query}->to_string;
+  $str .= ':' . $self->{query}->to_string;
   return $str . ')';
 };
 

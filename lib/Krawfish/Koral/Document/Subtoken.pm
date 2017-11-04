@@ -20,16 +20,16 @@ sub new {
 
 
 # TODO: This is just temporary
-sub new_by_term_id {
-  my $class = shift;
-  bless {
-
-    # TODO: Differ between compressed an uncompressed
-    preceding_enc => shift,
-    subterm_id => shift,
-    anno => []
-  }, $class;
-};
+#sub new_by_term_id {
+#  my $class = shift;
+#  bless {
+#
+#    # TODO: Differ between compressed an uncompressed
+#    preceding_enc => shift,
+#    subterm_id => shift,
+#    anno => []
+#  }, $class;
+#};
 
 
 # Preceeding bytes of the subterm

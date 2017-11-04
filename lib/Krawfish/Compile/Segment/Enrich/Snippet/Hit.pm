@@ -10,6 +10,8 @@ use constant DEBUG => 0;
 # Constructor
 sub new {
   my $class = shift;
+  warn 'DEPRECATED!';
+
   bless {
     @_
   }, $class;

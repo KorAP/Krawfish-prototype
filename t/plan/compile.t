@@ -119,16 +119,16 @@ $koral->compilation(
 );
 
 is($koral->compilation->to_string,
-   'enrich=[snippet=[left:span(opennlp/s=s,0),right:span(opennlp/s=s,0),hit]]',
+   'enrich=[snippet=[hit,left:span(opennlp/s=s,0),right:span(opennlp/s=s,0)]]',
    'stringification'
  );
 
 is($koral->to_string,
-   'compilation=[enrich=[snippet=[left:span(opennlp/s=s,0),right:span(opennlp/s=s,0),hit]]],query=[[a]]',
+   'compilation=[enrich=[snippet=[hit,left:span(opennlp/s=s,0),right:span(opennlp/s=s,0)]]],query=[[a]]',
    'stringification');
 
 $query = $koral->to_query;
-is($query->to_string, 'snippet(left=span(opennlp/s=s,0),right=span(opennlp/s=s,0),hit:filter(a,[1]))', 'Stringification');
+is($query->to_string, 'snippet(hit,left=span(opennlp/s=s,0),right=span(opennlp/s=s,0):filter(a,[1]))', 'Stringification');
 
 # The element doesn't exist, so the context is ignored
 $query = $query->identify($index->dict);
@@ -156,7 +156,7 @@ $koral->compilation(
 ok($query = $koral->to_query->identify($index->dict), 'Create query');
 
 # Better not check term ids ...
-is($query->to_string, 'snippet(left=span(#27/#28=#26,0),right=span(#27/#28=#26,0),hit:[0])', 'Stringification');
+is($query->to_string, 'snippet(hit,left=span(#27/#28=#26,0),right=span(#27/#28=#26,0):[0])', 'Stringification');
 
 
 

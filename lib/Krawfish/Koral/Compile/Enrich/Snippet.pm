@@ -1,5 +1,4 @@
 package Krawfish::Koral::Compile::Enrich::Snippet;
-use Krawfish::Koral::Compile::Enrich::Snippet::Hit;
 use Krawfish::Koral::Compile::Node::Enrich::Snippet;
 use strict;
 use warnings;
@@ -47,19 +46,6 @@ sub right_context {
 };
 
 
-# Get hit object
-sub hit {
-  my $self = shift;
-  if ($self->{hit}) {
-    return $self->{hit};
-  };
-
-  # Create empty hit object
-  $self->{hit} = Krawfish::Koral::Compile::Enrich::Snippet::Hit->new;
-  return $self->{hit};
-};
-
-
 # TODO:
 #   Normalize contexts here!
 sub normalize {
@@ -71,14 +57,16 @@ sub normalize {
 sub to_string {
   my $self = shift;
   my $str = 'snippet=[';
+
+  $str .= 'hit';
+
   if ($self->left_context) {
-    $str .= 'left:' . $self->left_context->to_string . ',';
+    $str .= ',left:' . $self->left_context->to_string;
   };
 
   if ($self->right_context) {
-    $str .= 'right:' . $self->right_context->to_string . ',';
+    $str .= ',right:' . $self->right_context->to_string;
   };
-  $str .= $self->hit->to_string;
 
   return $str . ']';
 };
@@ -91,7 +79,7 @@ sub wrap {
     query => $query,
     left  => $self->left_context,
     right => $self->right_context,
-    hit => $self->hit
+    # hit => $self->hit
   );
 };
 
