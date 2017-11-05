@@ -9,9 +9,6 @@ with 'Krawfish::Corpus';
 
 use constant DEBUG => 0;
 
-# TODO:
-#   Support class flags
-
 sub new {
   my $class = shift;
   bless {

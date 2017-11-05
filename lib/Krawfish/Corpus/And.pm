@@ -8,9 +8,6 @@ use Krawfish::Log;
 
 with 'Krawfish::Corpus';
 
-# TODO:
-#   Support class flags
-
 use constant DEBUG => 0;
 
 sub new {

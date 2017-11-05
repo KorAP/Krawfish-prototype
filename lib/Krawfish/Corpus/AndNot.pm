@@ -12,7 +12,9 @@ sub new {
   my $class = shift;
   bless {
     first => shift,
-    second => shift
+    second => shift,
+    doc_id => undef,
+    flags => 0b0000_0000_0000_0000
   }, $class;
 };
 
@@ -77,6 +79,7 @@ sub next {
       };
 
       $self->{doc_id} = $first->doc_id;
+      $self->{flags} = $first->flags;
       $self->{first}->next;
       return 1;
     }
@@ -102,6 +105,7 @@ sub next {
     print_log('vc_andnot', 'There is no second operand available anymore') if DEBUG;
 
     $self->{doc_id} = $first->doc_id;
+    $self->{flags} = $first->flags;
     $self->{first}->next;
     return 1;
   };

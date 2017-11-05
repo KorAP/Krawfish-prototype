@@ -125,6 +125,28 @@ is($query->current->to_string, '[2!2,3]', 'First match');
 ok(!$query->next, 'Next match');
 
 
+
+# Query with and-not
+ok($query = $cb->bool_and(
+  $cb->class($cb->string('author')->eq('David'), 2),
+  $cb->class($cb->string('age')->ne('24'), 3)
+), 'Create corpus query');
+
+ok($query->has_classes, 'Contains classes');
+
+is($query->to_string, '{2:author=David}&{3:age!=24}', 'Stringification');
+
+ok($query = $query->normalize->identify($index->dict)->optimize($index->segment), 'Planning');
+
+is($query->to_string,
+   "andNot(class(2:#2),#13)",
+   'Stringification');
+
+ok($query->next, 'Next match');
+is($query->current->to_string, '[0!2]', 'First match');
+ok(!$query->next, 'Next match');
+
+
 TODO: {
   local $TODO = 'Test corpus classes in queries';
   # Test optimization with ignorable options

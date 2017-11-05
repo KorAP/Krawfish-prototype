@@ -114,6 +114,17 @@ sub has_classes {
 };
 
 
+# Remove any classes
+sub remove_classes {
+  my $self = shift;
+  my $ops = $self->operands;
+  return $self unless $ops;
+  for (my $i = 0; $i < @$ops; $i++) {
+    $ops->[$i] = $ops->[$i]->remove_classes;
+  };
+  return $self;
+};
+
 
 # TODO:
 #   If "nothing" returns, optimize away

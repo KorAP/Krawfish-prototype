@@ -35,6 +35,13 @@ sub has_classes {
   1;
 };
 
+
+# Remove classes
+sub remove_classes {
+  return $_[0]->operand;
+};
+
+
 sub normalize {
   my $self = shift;
   $self->operand($self->operand->normalize);

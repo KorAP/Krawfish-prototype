@@ -36,9 +36,13 @@ sub toggle_negativity {
 # Normalize queries
 sub normalize {
   my $self = shift;
+
+  # Normalize first operand
+  $self->{operands}->[0] = $self->{operands}->[0]->normalize;
+
+  # Normalize and simplify negative operand
+  $self->{operands}->[1] = $self->{operands}->[1]->remove_classes->normalize;
   return $self;
-  # TODO:
-  #   $self->{neg}->remove_classes;
 };
 
 
