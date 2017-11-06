@@ -25,7 +25,10 @@ with 'Krawfish::Corpus';
 #
 #   However - in case skips are not available,
 #   this may be slow ...
-#
+
+# TODO:
+#   Support corpus classes
+
 # TODO:
 #   Another distribution variant would be
 #   distr(doc[1:1]: 'author:Goethe', 'author:Schiller')

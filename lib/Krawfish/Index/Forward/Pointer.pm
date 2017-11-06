@@ -1,6 +1,7 @@
 package Krawfish::Index::Forward::Pointer;
 use Krawfish::Posting::Forward;
 use Krawfish::Log;
+use Krawfish::Util::Constants qw/NOMOREDOCS/;
 use warnings;
 use strict;
 
@@ -10,8 +11,7 @@ use strict;
 #   This currently is not combined with live documents per default
 
 use constant {
-  DEBUG => 0,
-  NOMORE => -1
+  DEBUG => 0
 };
 
 # API:
@@ -123,7 +123,7 @@ sub skip_doc {
 
     return $target_doc_id;
   };
-  return NOMORE;
+  return NOMOREDOCS;
 };
 
 

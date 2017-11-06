@@ -1,6 +1,7 @@
 package Krawfish::Corpus;
 use strict;
 use warnings;
+use Krawfish::Util::Constants qw/NOMOREDOCS/;
 use Role::Tiny;
 use Krawfish::Log;
 
@@ -44,12 +45,9 @@ sub skip_doc {
   print_log('corpus', refaddr($self) . ': skip to doc id ' . $target_doc_id) if DEBUG;
 
   while (!$self->current || $self->current->doc_id < $target_doc_id) {
-    $self->next_doc or return;
+    $self->next_doc or return NOMOREDOCS;
   };
 
-  # TODO:
-  #   Return NOMORE in case no more
-  #   documents exist
   return $self->current->doc_id;
 };
 
@@ -69,14 +67,18 @@ sub same_doc {
     # Forward the first span to advance to the document of the second span
     if ($first_c->doc_id < $second_c->doc_id) {
       print_log('corpus', 'Forward first') if DEBUG;
-      $self->skip_doc($second_c->doc_id) or return;
+      if ($self->skip_doc($second_c->doc_id) == NOMOREDOCS) {
+        return;
+      };
       $first_c = $self->current;
     }
 
     # Forward the second span to advance to the document of the first span
     else {
       print_log('corpus', 'Forward second') if DEBUG;
-      $second->skip_doc($first_c->doc_id) or return;
+      if ($second->skip_doc($first_c->doc_id) == NOMOREDOCS) {
+        return;
+      };
       $second_c = $second->current;
     };
   };

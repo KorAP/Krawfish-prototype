@@ -4,6 +4,7 @@ use warnings;
 use Role::Tiny;
 use Krawfish::Index::Stream;
 use Krawfish::Cache;
+use Krawfish::Util::Constants qw/NOMOREDOCS/;
 
 with 'Krawfish::Corpus';
 
@@ -29,6 +30,9 @@ with 'Krawfish::Corpus';
 #  - If a query is cached but not indexed, the cache may
 #    be indexed next time
 #  - the signature of the koralquery can be used for caching
+
+# TODO:
+#   - support corpus classes
 
 # A cache may not necessarily be invalidated.
 # It may be filtered using the live document vector (so it is
@@ -105,7 +109,7 @@ sub skip_doc {
     return $self->{doc_id} if $doc_id >= $self->{doc_id};
   };
 
-  return;
+  return NOMOREDOCS;
 };
 
 

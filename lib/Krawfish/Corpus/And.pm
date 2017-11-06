@@ -2,6 +2,7 @@ package Krawfish::Corpus::And;
 use strict;
 use warnings;
 use Role::Tiny::With;
+use Krawfish::Util::Constants qw/NOMOREDOCS/;
 use List::Util qw/min/;
 use Scalar::Util qw/refaddr/;
 use Krawfish::Log;
@@ -105,7 +106,7 @@ sub next {
           );
       };
 
-      unless (defined $self->{first}->skip_doc($second->doc_id)) {
+      if ($self->{first}->skip_doc($second->doc_id) == NOMOREDOCS) {
         $self->{doc_id} = undef;
         return;
       }

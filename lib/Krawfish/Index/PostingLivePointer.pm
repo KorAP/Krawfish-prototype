@@ -1,5 +1,6 @@
 package Krawfish::Index::PostingLivePointer;
 use parent 'Krawfish::Query';
+use Krawfish::Util::Constants qw/NOMOREDOCS/;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -119,9 +120,23 @@ sub next_doc {
 sub skip_doc {
   my ($self, $target_doc_id) = @_;
 
-  if ($target_doc_id >= $self->{next_doc_id} || $target_doc_id < $self->{doc_id}) {
-    $self->{doc_id} = $self->{next_doc_id};
-    return;
+  if (DEBUG) {
+    print_log(
+      'live_p',
+      "Skip live pointer to $target_doc_id vs " . $self->{next_doc_id}
+    );
+  };
+
+  # Target exceeds doc length
+  if ($target_doc_id >= $self->{next_doc_id}) {
+    $self->{doc_id} = undef;
+    return NOMOREDOCS;
+  };
+
+  # Target is before current position
+  if ($target_doc_id < $self->{doc_id}) {
+    # $self->{doc_id} = $self->{next_doc_id};
+    return NOMOREDOCS; # $self->{doc_id};
   };
 
   my $list = $self->{list_copy};
@@ -140,8 +155,10 @@ sub skip_doc {
     $self->{pos}++;
   };
 
-  # TODO: Can this happen?
-  return if $target_doc_id >= $self->{next_doc_id};
+  # No more documents
+  if ($target_doc_id >= $self->{next_doc_id}) {
+    return NOMOREDOCS;
+  };
 
   # Set document id
   return $self->{doc_id} = $target_doc_id;

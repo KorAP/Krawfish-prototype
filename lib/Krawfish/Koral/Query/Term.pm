@@ -358,6 +358,7 @@ sub normalize {
 sub identify {
   my ($self, $dict) = @_;
 
+  # Term is no regular expression
   unless ($self->is_regex) {
 
     my $term = $self->to_term;

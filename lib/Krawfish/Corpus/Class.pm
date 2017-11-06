@@ -2,6 +2,7 @@ package Krawfish::Corpus::Class;
 use strict;
 use warnings;
 use Role::Tiny;
+use Krawfish::Util::Constants qw/NOMOREDOCS/;
 use Krawfish::Util::Bits qw/classes_to_flags bitstring/;
 use Krawfish::Log;
 
@@ -111,14 +112,14 @@ sub next {
 # Skip to target document
 sub skip_doc {
   my $self = shift;
-  if ($self->{corpus}->skip_doc(shift)) {
+  if ($self->{corpus}->skip_doc(shift) != NOMOREDOCS) {
     my $current = $self->{corpus}->current;
     $self->{doc_id} = $current->doc_id;
     $self->{flags}  = $current->flags | $self->{flag};
     return $self->{doc_id};
   };
   $self->{doc_id} = undef;
-  return;
+  return NOMOREDOCS;
 };
 
 

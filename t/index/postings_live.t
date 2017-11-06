@@ -2,6 +2,7 @@ use strict;
 use warnings;
 use Test::More;
 use Test::Krawfish;
+use Krawfish::Util::Constants qw/NOMOREDOCS/;
 use Krawfish::Index::PostingsLive;
 
 
@@ -62,12 +63,13 @@ is($p2->doc_id, 6, 'Get doc_id');
 is($p2->skip_doc(9), 9, 'Skipped to 9');
 is($p2->doc_id, 9, 'Get doc_id');
 
-ok(!$p2->skip_doc(10), 'Skipped to 9');
-is($p2->doc_id, 10, 'Get doc_id');
-ok(!$p2->skip_doc(11), 'Skipped to 9');
-is($p2->doc_id, 10, 'Get doc_id');
-ok(!$p2->skip_doc(12), 'Skipped to 9');
-is($p2->doc_id, 10, 'Get doc_id');
+is($p2->skip_doc(10), NOMOREDOCS, 'Skipped to 10');
+ok(!$p2->doc_id, 'Get doc_id');
+is($p2->skip_doc(11), NOMOREDOCS, 'Skipped to 9');
+
+ok(!$p2->doc_id, 'Get doc_id');
+is($p2->skip_doc(12), NOMOREDOCS, 'Skipped to 9');
+ok(!$p2->doc_id, 'Get doc_id');
 
 
 # Test with real index

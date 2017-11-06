@@ -2,6 +2,7 @@ package Krawfish::Index::PostingPointer;
 use parent 'Krawfish::Query';
 use Krawfish::Log;
 use Krawfish::Posting::Data;
+use Krawfish::Util::Constants qw/NOMOREDOCS/;
 use Krawfish::Posting;
 use Scalar::Util qw/refaddr/;
 use strict;
@@ -125,13 +126,12 @@ sub close {
 sub skip_doc {
   my ($self, $target_doc_id) = @_;
 
-  # TODO:
-  #   Return NOMORE in case there are no more postings.
-
-  print_log('ppointer', refaddr($self) . ': TEMP SLOW Skip to chosen document') if DEBUG;
+  if (DEBUG) {
+    print_log('ppointer', refaddr($self) . ': TEMP SLOW Skip to chosen document');
+  };
 
   while (!$self->current || $self->current->doc_id < $target_doc_id) {
-    $self->next or return;
+    $self->next or return NOMOREDOCS;
   };
 
   return $self->current->doc_id;

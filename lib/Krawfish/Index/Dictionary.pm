@@ -469,6 +469,8 @@ sub suffix_by_term_id {
 sub term_ids {
   my ($self, $re) = @_;
 
+  # In a golang port, this should use https://golang.org/pkg/regexp/syntax/
+
   if ($re) {
     my $hash = $self->{hash};
 

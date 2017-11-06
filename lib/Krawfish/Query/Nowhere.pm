@@ -1,6 +1,7 @@
 package Krawfish::Query::Nowhere;
 use strict;
 use warnings;
+use Krawfish::Util::Constants qw/NOMOREDOCS/;
 use Role::Tiny::With;
 
 with 'Krawfish::Query';
@@ -33,7 +34,7 @@ sub next {
 
 # Skip to target document (invalid)
 sub skip_doc {
-  return;
+  return NOMOREDOCS;
 };
 
 

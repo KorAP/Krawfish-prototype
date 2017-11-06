@@ -2,6 +2,7 @@ package Krawfish::Index::Fields::Pointer;
 use Krawfish::Koral::Document::FieldInt;
 use Krawfish::Koral::Document::FieldStore;
 use Krawfish::Koral::Document::FieldString;
+use Krawfish::Util::Constants qw/NOMOREDOCS/;
 use Krawfish::Log;
 use warnings;
 use strict;
@@ -87,7 +88,8 @@ sub skip_doc {
     $self->{pos} = 0;
     return $doc_id;
   };
-  return -1;
+
+  return NOMOREDOCS;
 };
 
 
