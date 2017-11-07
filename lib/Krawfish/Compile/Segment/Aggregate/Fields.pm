@@ -113,7 +113,7 @@ sub each_match {
 
 
 # Return result
-sub result {
+#sub result {
   # Return fields
   # Example structure for year
   # {
@@ -121,8 +121,8 @@ sub result {
   #   1998 => [5, 89],
   #   1999 => [3, 20]
   # }
-  $_[0]->{result};
-};
+#  $_[0]->{result};
+#};
 
 
 # Stringification

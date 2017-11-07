@@ -85,19 +85,9 @@ ok(my $query = $koral_query->optimize($index->segment), 'optimize query');
 
 is($query->to_string, 'gFields(#3:and(or(#17,#4),[1]))', 'Stringification');
 
-ok($query->next, 'Go to next');
-ok($query->finalize, 'Go to next');
+ok(my $result = $query->compile->inflate($index->dict), 'Compile');
 
-# TODO:
-#   This API is only temporarily implemented
-is($query->collection->to_string, 'gFields:[#3:[18=1,1;4=3,3]',
-   'Stringification');
-
-is($query->collection->inflate($index->dict)->to_string,
-   'gFields:[author:[Michael:1,1;Peter:3,3]',
-   'Stringification inflated');
-
-
+is($result->to_string, '[group=gFields:[author:[Michael:1,1;Peter:3,3]]', 'Group result');
 
 
 # Corpus object
@@ -129,13 +119,11 @@ is($query->to_string,
    'gFields(#3,#5:filter(or(#10,#12),or(#17,#2)))',
    'Stringification');
 
-ok(my $coll = $query->finalize->collection->inflate($index->dict), 'Search');
+ok($result = $query->compile->inflate($index->dict), 'Search');
 
-is($coll->to_string, 'gFields:[author,genre:[Michael|newsletter:1,2;Peter|novel:2,4]',
+is($result->to_string, '[group=gFields:[author,genre:[Michael|newsletter:1,2;Peter|novel:2,4]]',
    'Stringification');
-
-# TODO: Group on multiple fields!
-
 
 done_testing;
 __END__
+

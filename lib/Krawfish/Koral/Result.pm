@@ -19,7 +19,7 @@ use warnings;
 sub new {
   my $class = shift;
   bless {
-    collection  => {},
+    group       => undef,
     aggregation => [],
     matches     => []
   }, $class;
@@ -53,13 +53,25 @@ sub aggregation {
 };
 
 
+# Get or set group results
+sub group {
+  my $self = shift;
+  if (@_) {
+    $self->{group} = shift;
+    return $self;
+  };
+
+  $self->{group};
+};
+
+
 # Stringification
 sub to_string {
   my $self = shift;
   my $str = '';
 
   # Add aggregation
-  if ($self->{aggregation}) {
+  if (@{$self->{aggregation}}) {
     $str .= '[aggr=';
     foreach (@{$self->{aggregation}}) {
       $str .= $_->to_string;
@@ -68,11 +80,17 @@ sub to_string {
   };
 
   # Create matches
-  if ($self->{matches}) {
+  if (@{$self->{matches}}) {
     $str .= '[matches=';
     foreach (@{$self->{matches}}) {
       $str .= $_->to_string;
     };
+    $str .= ']';
+  };
+
+  if ($self->group) {
+    $str .= '[group=';
+    $str .= $self->group->to_string;
     $str .= ']';
   };
 
@@ -87,6 +105,10 @@ sub inflate {
   };
   foreach (@{$self->aggregation}) {
     $_->inflate($dict);
+  };
+
+  if ($self->group) {
+    $self->group->inflate($dict);
   };
 
   $self;

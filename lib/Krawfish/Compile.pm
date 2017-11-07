@@ -115,6 +115,15 @@ sub compile {
 };
 
 
+# Shorthand for "search through"
+sub finalize {
+
+  warn 'DEPRECATED';
+  while ($_[0]->next) {};
+  return $_[0];
+};
+
+
 # Get result object
 sub result {
   my $self = shift;

@@ -1,8 +1,11 @@
 package Krawfish::Koral::Result::Group::Fields;
 use Krawfish::Util::PatternList qw/pattern_list/;
+use Role::Tiny::With;
 use Krawfish::Log;
 use strict;
 use warnings;
+
+with 'Krawfish::Koral::Result::Inflatable';
 
 use constant DEBUG => 0;
 
@@ -19,6 +22,7 @@ sub new {
   my $class = shift;
   bless {
     field_keys => shift,
+    flags => shift,
     cache => undef,
     group => {},
     freq => 0
@@ -28,7 +32,7 @@ sub new {
 
 # Increment on a pattern, which is an ordered list of fields
 sub incr_doc {
-  my ($self, $pattern) = @_;
+  my ($self, $pattern, $flags) = @_;
 
   # Store all patterns in a cache
   $self->{cache} = [
@@ -57,7 +61,7 @@ sub flush {
     foreach my $group (@{$self->{cache}}) {
 
       # This uses an array as a key ... probably should be realized differently
-      my $group_name = join('_',@$group);
+      my $group_name = join('_', @$group);
       my $freq = ($self->{group}->{$group_name} //= [0,0]);
 
       if (DEBUG) {
@@ -73,7 +77,14 @@ sub flush {
   };
 };
 
+# On finish, flush the cache
+sub on_finish {
+  $_[0]->flush;
+  $_[0];
+};
 
+
+# Translate this to terms
 sub inflate {
   my ($self, $dict) = @_;
   my $field_keys = $self->{field_keys};
@@ -127,6 +138,7 @@ sub inflate {
 };
 
 
+# Stringification
 sub to_string {
   my $self = shift;
   my $str = 'gFields:[';
@@ -148,20 +160,44 @@ sub to_string {
 };
 
 
-sub to_koral_query {
+# Convert flags to classes
+sub _to_classes {
+  ...
+};
+
+
+# Key for KQ serialization
+sub key {
+  'fields'
+};
+
+
+# Serialize KQ
+sub to_koral_fragment {
+  my $self = shift;
+
+  my $group = {
+    '@type'   => 'koral:groupBy',
+    'groupBy' => 'groupBy:fields',
+    'labels'  => $self->{field_terms}
+  };
+
   # Create groups like
   # {
-  #   "@type":"koral:collection",
-  #   "groupedBy":"groupedBy:fields",   # or "aggregatedBy, "sortedBy"
-  #   "labels":[...],
-  #   "items":[
+  #   "total" : [
+  #     ...
+  #   ],
+  #   "inCorpus-1" : [
   #     {
-  #       "@type":"koral:item",
-  #       // "signature":"ab47mhjhjgfjuizgtzurzt",
-  #       "cols":[...]
+  #       "@type" : "koral:row",
+  #       "cols" : [..., ...],
+  #       "matches" : 4,
+  #       "docs" : 2,
+  #       "sig" : "abfgfjhgkjdfdmjttnzfgj"
   #     }
   #   ]
   # }
+
   ...
 };
 

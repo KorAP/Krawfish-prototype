@@ -132,7 +132,6 @@ sub next {
 
     foreach (@{$self->{ops}}) {
       $_->result->on_finish;
-      # $_->on_finish($collection);
     };
     $self->{finished} = 1;
   };

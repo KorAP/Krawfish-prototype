@@ -136,16 +136,14 @@ sub flush {
 };
 
 
-# On finish
-# This may do some calculations as well
+# On finish flush the cache
 sub on_finish {
   $_[0]->flush;
   $_[0];
 };
 
 
-# Translate this to terms and build up
-# class structure from flags
+# Translate this to terms
 sub inflate {
   my ($self, $dict) = @_;
 

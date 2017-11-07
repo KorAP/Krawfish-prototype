@@ -26,7 +26,20 @@ sub to_string {
 };
 
 sub collection {
+  warn 'DEPRECATED';
   ...
+};
+
+
+# Get result object
+sub result {
+  my $self = shift;
+  if ($_[0]) {
+    $self->{result} = shift;
+    return $self;
+  };
+  $self->{result} //= Krawfish::Koral::Result->new;
+  return $self->{result};
 };
 
 1;

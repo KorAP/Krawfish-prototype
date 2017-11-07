@@ -1,11 +1,12 @@
 package Krawfish::Compile::Segment::Group::Fields;
-use parent 'Krawfish::Compile';
+use parent 'Krawfish::Compile::Segment::Group';
 use Krawfish::Koral::Result::Group::Fields;
+use Krawfish::Util::Constants qw/NOMOREDOCS/;
 use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # This will group matches (especially document matches) by field
 # This is useful e.g. for document browsing per corpus.
@@ -28,11 +29,12 @@ sub new {
     field_obj  => $field_obj,
     query      => $query,
     field_keys => [map { ref($_) ? $_->term_id : $_ } @$fields],
-    last_doc_id => -1
+    last_doc_id => -1,
+    finished => 0
   }, $class;
 
   # Initialize group object
-  $self->{groups} = Krawfish::Koral::Result::Group::Fields->new($self->{field_keys});
+  $self->{group} = Krawfish::Koral::Result::Group::Fields->new($self->{field_keys});
 
   return $self;
 };
@@ -51,18 +53,12 @@ sub _init {
 };
 
 
+# Stringification
 sub to_string {
   my $self = shift;
   my $str = 'gFields(' . join(',', map { '#' . $_ } @{$self->{field_keys}}) .
     ':' . $self->{query}->to_string . ')';
   return $str;
-};
-
-
-# Shorthand for "search through"
-sub finalize {
-  while ($_[0]->next) {};
-  return $_[0];
 };
 
 
@@ -72,7 +68,7 @@ sub next {
 
   $self->_init;
 
-  my $groups = $self->{groups};
+  my $group = $self->{group};
   my $pointer = $self->{field_pointer};
 
   # There is a next match
@@ -81,15 +77,22 @@ sub next {
     # Get the current posting
     my $current = $self->{query}->current;
 
+    # The new match is not in the same document
     if ($current->doc_id != $self->{last_doc_id}) {
 
       # Flush old information
-      $groups->flush;
+      $group->flush;
 
       my $doc_id = $pointer->skip_doc($current->doc_id);
 
+      # There are no more field docs
+      last if $doc_id == NOMOREDOCS;
+
       # There are no fields for this doc
       next if $doc_id != $current->doc_id;
+
+      # Remember flags
+      my $flags = $current->flags($self->{flags});
 
       # Due to multivalued fields,
       # a document can yield a permutation of
@@ -143,33 +146,25 @@ sub next {
       };
 
       # This adds
-      $groups->incr_doc(\@patterns);
+      $group->incr_doc(\@patterns, $flags);
 
       # Set last doc to current doc
       $self->{last_doc_id} = $current->doc_id;
     };
 
     # Add to frequencies
-    $groups->incr_match;
+    $group->incr_match;
 
     return 1;
   };
 
-  # Flush cached results
-  $groups->flush;
+  # Release on_finish event
+  unless ($self->{finished}) {
+    $self->group->on_finish;
+    $self->{finished} = 1;
+  };
 
   return 0;
-};
-
-
-sub current {
-  return $_[0]->{query}->current;
-};
-
-
-# Get collection
-sub collection {
-  $_[0]->{groups};
 };
 
 
