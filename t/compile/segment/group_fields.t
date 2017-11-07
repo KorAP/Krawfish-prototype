@@ -87,7 +87,8 @@ is($query->to_string, 'gFields(#3:and(or(#17,#4),[1]))', 'Stringification');
 
 ok(my $result = $query->compile->inflate($index->dict), 'Compile');
 
-is($result->to_string, '[group=gFields:[author:[Michael:1,1;Peter:3,3]]', 'Group result');
+is($result->to_string, "[group=[fields=['author'];total:['Michael':[1,1],'Peter':[3,3]]]]",
+   'Group result');
 
 
 # Corpus object
@@ -121,9 +122,51 @@ is($query->to_string,
 
 ok($result = $query->compile->inflate($index->dict), 'Search');
 
-is($result->to_string, '[group=gFields:[author,genre:[Michael|newsletter:1,2;Peter|novel:2,4]]',
+is($result->to_string,
+   "[group=[fields=['author','genre'];total:['Michael_newsletter':[1,2],'Peter_novel':[2,4]]]]",
    'Stringification');
+
+
+
+
+$koral = Krawfish::Koral->new;
+
+# Corpus object
+$koral->corpus(
+  $cb->bool_or(
+    $cb->class($cb->string('genre')->eq('novel'), 1),
+    $cb->class($cb->string('genre')->eq('newsletter'), 2),
+  )
+);
+
+# Compile object
+$koral->compilation(
+  $mb->group_by(
+    $mb->g_fields('author', 'age')
+  )
+);
+
+$koral->query(
+  $qb->bool_or($qb->term('aa'), $qb->term('bb'))
+);
+
+ok($query = $koral->to_query, 'To query');
+
+is($query->to_string,
+   "gFields('author','age':filter(aa|bb,{1:genre=novel}|{2:genre=newsletter}))",
+   'Stringification');
+
+ok($result = $query->identify($index->dict)->optimize($index->segment)->compile->inflate($index->dict),
+   'Compile');
+
+is($result->to_string,
+   "[group=[fields=['age','author'];" .
+     "total:['3_Peter':[2,4],'4_Peter':[1,2],'7_Michael':[1,2]],".
+     "inCorpus-1:['3_Peter':[2,4]],".
+     "inCorpus-2:['4_Peter':[1,2],'7_Michael':[1,2]]]]",
+   'Stringification');
+
+diag 'Check grouping with aggregation (e.g. frequencies) and empty fields';
 
 done_testing;
 __END__
-

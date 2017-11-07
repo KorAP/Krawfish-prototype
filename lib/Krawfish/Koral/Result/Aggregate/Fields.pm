@@ -48,6 +48,10 @@ sub new {
 sub incr_doc {
   my ($self, $key_id, $field_id, $flags) = @_;
 
+  # TODO:
+  #   It may be easier to create the structure
+  #   in flush(), similar to K::R::Group::Fields
+
   # Structure is
   # {
   #   field1 => {

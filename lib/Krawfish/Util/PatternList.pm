@@ -21,6 +21,10 @@ use warnings;
 # This is used by
 # Krawfish::Koral::Result::Group::Fields
 
+# TODO:
+#   This should probably be relocated to
+#   Krawfish::Koral::Util::*
+
 our @EXPORT = qw/pattern_list/;
 
 use constant DEBUG => 0;

@@ -122,7 +122,6 @@ sub to_koral_fragment {
     '@type' => 'koral:result',
   };
 
-
   # Add aggregation
   if (@{$self->{aggregation}}) {
     # It is beneficial to be able to point to,

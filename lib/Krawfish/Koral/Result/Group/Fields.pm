@@ -1,7 +1,9 @@
 package Krawfish::Koral::Result::Group::Fields;
 use Krawfish::Util::PatternList qw/pattern_list/;
 use Role::Tiny::With;
+use Krawfish::Util::Bits;
 use Krawfish::Log;
+use Krawfish::Util::String qw/squote/;
 use strict;
 use warnings;
 
@@ -36,8 +38,12 @@ sub incr_doc {
 
   # Store all patterns in a cache
   $self->{cache} = [
+
+    # This is an array of patterns
     pattern_list(@$pattern)
   ];
+
+  $self->{cache_flags} = $flags;
 };
 
 
@@ -60,19 +66,27 @@ sub flush {
     # Iterate over all lists
     foreach my $group (@{$self->{cache}}) {
 
-      # This uses an array as a key ... probably should be realized differently
+      # This uses an array as a key ...
+      # probably should be serialized differently
       my $group_name = join('_', @$group);
-      my $freq = ($self->{group}->{$group_name} //= [0,0]);
+
+      my $group_value = ($self->{group}->{$group_name} //= {});
 
       if (DEBUG) {
         print_log('p_g_fields', 'Group on name ' . $group_name);
       };
 
+      my $freq = ($group_value->{$self->{cache_flags}} //= [0,0]);
+
+      # Increment doc freq
       $freq->[0]++;
+
+      # Increment match freq
       $freq->[1] += $self->{freq};
     };
 
     $self->{cache} = undef;
+    $self->{cache_flags} = undef;
     $self->{freq} = 0;
   };
 };
@@ -82,7 +96,6 @@ sub on_finish {
   $_[0]->flush;
   $_[0];
 };
-
 
 # Translate this to terms
 sub inflate {
@@ -131,38 +144,82 @@ sub inflate {
       $i++;
     };
 
-    push @{$self->{group_terms}}, [\@group, @{$self->{group}->{$group}}];
+    push @{$self->{group_terms}}, [join('_',@group), $self->{group}->{$group}];
   };
 
   return $self;
 };
 
 
-# Stringification
-sub to_string {
+# Generate class ordering
+sub _to_classes {
   my $self = shift;
-  my $str = 'gFields:[';
+  my @classes;
 
-  if ($self->{field_terms}) {
-    $str .= join(',', @{$self->{field_terms}}) . ':[';
-    foreach my $group (@{$self->{group_terms}}) {
-      $str .= join('|', @{$group->[0]}) . ':' . $group->[1] . ',' . $group->[2] . ';';
-    };
-  }
-  else {
-    $str .= join(',', map { '#' . $_ } @{$self->{field_keys}}) . ':[';
-    foreach my $group (sort keys %{$self->{group}}) {
-      $str .= $group .'=' . join(',', @{$self->{group}->{$group}}) . ';';
+  my $groups = $self->{group_terms};
+
+  # Iterate over group names
+  foreach my $group (@$groups) {
+
+    # Group has the structure [sig,{flag=>[freq]}]
+
+    my $sig = $group->[0];
+    my $flags = $group->[1];
+
+    # Iterate over all flags
+    foreach my $flag (keys %$flags) {
+
+      # Iterate over classes
+      foreach my $class (flags_to_classes($flag)) {
+
+        # Store all data below class information
+        $classes[$class] //= {};
+        my $field = ($classes[$class]->{$sig} //= [0,0]);
+        $field->[0] += $flags->{$flag}->[0];
+        $field->[1] += $flags->{$flag}->[1];
+      };
     };
   };
-  chop $str;
-  return $str . ']';
+
+  return \@classes;
 };
 
 
-# Convert flags to classes
-sub _to_classes {
-  ...
+# Stringification
+sub to_string {
+  my ($self, $id) = @_;
+
+  my $str = '[fields=[';
+
+  if ($id) {
+    $str .= join(',', map { '#' . $_ } @{$self->{field_keys}}) . ':[';
+  } else {
+    $str .= join(',', map { squote($_) } @{$self->{field_terms}});
+  };
+
+  $str .= '];';
+
+  my @classes = @{$self->_to_classes};
+  my $first = 0;
+  foreach (my $i = 0; $i < @classes; $i++) {
+    $str .= $i == 0 ? 'total' : 'inCorpus-' . $i;
+    $str .= ':[';
+
+    my $fields = $classes[$i];
+    foreach my $group (sort keys %{$fields}) {
+
+      # serialize frequencies
+      $str .= squote($group) . ':[';
+      $str .= $fields->{$group}->[0] . ',';
+      $str .= $fields->{$group}->[1] . '],';
+    };
+    chop $str;
+    $str .= ']';
+    $str .= ',';
+  };
+
+  chop $str;
+  return $str . ']';
 };
 
 
