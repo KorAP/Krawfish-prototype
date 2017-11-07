@@ -139,13 +139,17 @@ sub to_koral_fragment {
   };
 
   # Add matches
-  if ($self->{matches}) {
+  if (@{$self->{matches}}) {
     my @matches = ();
     foreach (@{$self->{matches}}) {
       push @matches, $_->to_koral_fragment;
     };
 
     $result->{matches} = \@matches;
+  };
+
+  if ($self->{group}) {
+    $result->{group} = $self->group->to_koral_fragment
   };
 
   return $result;

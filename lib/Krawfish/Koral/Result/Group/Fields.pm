@@ -14,11 +14,9 @@ use constant DEBUG => 0;
 # Group on a sequence of field values
 
 # TODO:
-#   Support corpus classes
-
-# TODO:
 #   In addition to the group name
 #   create a signature that is universal for each group
+#   Probably by creating a group-class with as_sig() and as_list()
 
 sub new {
   my $class = shift;
@@ -236,26 +234,31 @@ sub to_koral_fragment {
   my $group = {
     '@type'   => 'koral:groupBy',
     'groupBy' => 'groupBy:fields',
-    'labels'  => $self->{field_terms}
+    'fields'  => $self->{field_terms},
+    'sortBy' => undef # Not yet sorted
   };
 
-  # Create groups like
-  # {
-  #   "total" : [
-  #     ...
-  #   ],
-  #   "inCorpus-1" : [
-  #     {
-  #       "@type" : "koral:row",
-  #       "cols" : [..., ...],
-  #       "matches" : 4,
-  #       "docs" : 2,
-  #       "sig" : "abfgfjhgkjdfdmjttnzfgj"
-  #     }
-  #   ]
-  # }
+  my @classes = @{$self->_to_classes};
+  my $first = 0;
+  foreach (my $i = 0; $i < @classes; $i++) {
+    my $corpus = ($group->{$i == 0 ? 'total' : 'inCorpus-' . $i} //= []);
 
-  ...
+    my $fields = $classes[$i];
+
+    # TODO: The list should be sorted!
+    foreach my $group (sort keys %{$fields}) {
+
+      # serialize frequencies
+      push @$corpus, {
+        '@type' => 'koral:row',
+        cols    => [split('_', $group)],
+        docs    => $fields->{$group}->[0],
+        matches => $fields->{$group}->[1]
+      };
+    };
+  };
+
+  return $group;
 };
 
 1;

@@ -166,6 +166,27 @@ is($result->to_string,
      "inCorpus-2:['4_Peter':[1,2],'7_Michael':[1,2]]]]",
    'Stringification');
 
+is($result->to_koral_query->{group}->{'@type'},
+  'koral:groupBy',
+  'KQ type');
+
+is($result->to_koral_query->{group}->{'groupBy'},
+  'groupBy:fields',
+  'KQ type');
+
+is_deeply($result->to_koral_query->{group}->{'fields'},
+  [qw/age author/],
+  'KQ type');
+
+is_deeply($result->to_koral_query->{group}->{total}->[1],
+          {
+            '@type' => 'koral:row',
+            docs => 1,
+            matches => 2,
+            cols => [4, 'Peter']
+          },
+          'KQ type');
+
 diag 'Check grouping with aggregation (e.g. frequencies) and empty fields';
 
 done_testing;
