@@ -36,8 +36,8 @@ our %COMPILE_ORDER = (
   sort      => 2,
   sample    => 3,
   enrich    => 4,
-  aggregate => 5,
-  group     => 6,
+  group     => 5,
+  aggregate => 6,
   filter    => 7
 );
 

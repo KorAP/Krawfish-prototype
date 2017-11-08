@@ -128,7 +128,7 @@ is($result->to_string,
 
 
 
-
+# New query
 $koral = Krawfish::Koral->new;
 
 # Corpus object
@@ -186,6 +186,66 @@ is_deeply($result->to_koral_query->{group}->{total}->[1],
             cols => [4, 'Peter']
           },
           'KQ type');
+
+
+
+# New query - with additional aggregation
+$koral = Krawfish::Koral->new;
+
+# Corpus object
+$koral->corpus(
+  $cb->bool_or(
+    $cb->class($cb->string('genre')->eq('novel'), 1),
+    $cb->class($cb->string('genre')->eq('newsletter'), 2),
+  )
+);
+
+# Compile object
+$koral->compilation(
+  $mb->group_by(
+    $mb->g_fields('author')
+  ),
+  $mb->aggregate(
+    $mb->a_frequencies
+  )
+);
+
+$koral->query(
+  $qb->bool_or($qb->term('aa'), $qb->term('bb'))
+);
+
+ok($query = $koral->to_query, 'To query');
+
+is($query->to_string,
+   "gFields('author':aggr(freq:filter(aa|bb,{1:genre=novel}|{2:genre=newsletter})))",
+   'Stringification');
+
+ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimize');
+is($query->to_string,
+   'gFields(#3:aggr([freq]:filter(or(#10,#12),or(class(1:#6),class(2:#15)))))',
+   'Stringification');
+
+ok($result = $query->compile->inflate($index->dict), 'Compile');
+
+is($result->to_string,
+   "[aggr=[".
+     "freq=".
+     "total:[4,8];".
+     "inCorpus-1:[2,4];".
+     "inCorpus-2:[2,4]]]".
+     "[group=[fields=['author'];".
+     "total:['Michael':[1,2],'Peter':[3,6]],".
+     "inCorpus-1:['Peter':[2,4]],".
+     "inCorpus-2:['Michael':[1,2],'Peter':[1,2]]]]",
+   'Stringification');
+
+
+
+
+
+
+
+
 
 diag 'Check grouping with aggregation (e.g. frequencies) and empty fields';
 

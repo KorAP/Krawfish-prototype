@@ -7,6 +7,8 @@ use Role::Tiny;
 
 with 'Krawfish::Compile::Segment::Aggregate::Base';
 
+use constant DEBUG => 0;
+
 # Count the frequencies of all matches of the query
 # per doc and per match.
 
@@ -38,6 +40,10 @@ sub each_doc {
   # Mix set flags with flags to aggregate on
   my $flags = $current->flags($self->{flags});
 
+  if (DEBUG) {
+    print_log('a_freq', 'Remember doc ' . $current->doc_id . ' on frequency');
+  };
+
   # Increment on flag value
   $self->{result}->incr_doc($flags);
 };
@@ -49,6 +55,10 @@ sub each_match {
 
   # Mix set flags with flags to aggregate on
   my $flags = $current->flags($self->{flags});
+
+  if (DEBUG) {
+    print_log('a_freq', 'Remember match in doc ' . $current->doc_id . ' on frequency');
+  };
 
   # Increment on flag value
   $self->{result}->incr_match($flags);

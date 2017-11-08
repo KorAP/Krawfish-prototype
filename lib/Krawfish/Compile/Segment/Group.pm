@@ -39,7 +39,7 @@ sub compile {
 
   # Collect more data
   my $query = $self->{query};
-  if ($query->isa('Krawfish::Compile')) {
+  if (Role::Tiny::does_role($query, 'Krawfish::Compile')) {
     $query->result($result)->compile;
   };
 
