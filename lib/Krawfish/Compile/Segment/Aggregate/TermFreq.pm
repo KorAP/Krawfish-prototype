@@ -1,9 +1,11 @@
 package Krawfish::Compile::Segment::Aggregate::TermFreq;
-use parent 'Krawfish::Compile::Segment::Aggregate::Base';
 use Krawfish::Util::String qw/squote/;
 use Krawfish::Log;
 use strict;
 use warnings;
+use Role::Tiny;
+
+with 'Krawfish::Compile::Segment::Aggregate::Base';
 
 # Counts the frequency for each term in a TermFrequency
 # query. This is necessary for co-occurrence search and the
@@ -58,6 +60,7 @@ sub on_finish {
   my $freq = ($result->{freq} //= {});
   $frew->{$term} = $self->{freq};
 };
+
 
 # Stringification
 sub to_string {

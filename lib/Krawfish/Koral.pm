@@ -120,6 +120,12 @@ sub corpus_builder {
 
 
 # Compile part of the Koral object
+# TODO:
+#   It may be better to have a separation of
+#   - groupBy
+#   - sortBy
+#   - aggregateBy
+#   - enrichBy
 sub compilation {
   my $self = shift;
   if ($_[0]) {

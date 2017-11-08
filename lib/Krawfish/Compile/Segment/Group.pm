@@ -1,10 +1,15 @@
 package Krawfish::Compile::Segment::Group;
-use parent 'Krawfish::Compile';
 use Krawfish::Log;
 use strict;
 use warnings;
+use Role::Tiny;
 
-use constant DEBUG => 1;
+with 'Krawfish::Compile';
+
+requires qw/group/;
+
+use constant DEBUG => 0;
+
 
 # Override to compile data
 sub compile {
@@ -48,24 +53,12 @@ sub compile {
 };
 
 
-
-# Get collection
-sub collection {
-  warn 'DEPRECATED';
-  $_[0]->{result};
-};
-
-
-# Get collection
+# Get group
+# TODO:
+#   rename to group_result
 sub group {
   $_[0]->{group};
 };
-
-
-# Get collection
-# sub result {
-#   $_[0]->{result};
-# };
 
 
 # Get current posting

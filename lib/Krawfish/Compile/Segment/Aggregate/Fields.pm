@@ -1,10 +1,13 @@
 package Krawfish::Compile::Segment::Aggregate::Fields;
-use parent 'Krawfish::Compile::Segment::Aggregate::Base';
 use Krawfish::Koral::Result::Aggregate::Fields;
 use Krawfish::Util::String qw/squote/;
 use Krawfish::Log;
 use strict;
 use warnings;
+use Role::Tiny;
+
+with 'Krawfish::Compile::Segment::Aggregate::Base';
+
 
 use constant DEBUG => 0;
 
@@ -110,19 +113,6 @@ sub each_doc {
 sub each_match {
   $_[0]->{result}->incr_match;
 };
-
-
-# Return result
-#sub result {
-  # Return fields
-  # Example structure for year
-  # {
-  #   1997 => [4, 67],
-  #   1998 => [5, 89],
-  #   1999 => [3, 20]
-  # }
-#  $_[0]->{result};
-#};
 
 
 # Stringification

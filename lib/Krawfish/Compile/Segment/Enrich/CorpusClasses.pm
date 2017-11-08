@@ -1,8 +1,10 @@
 package Krawfish::Compile::Segment::Enrich::CorpusClasses;
-use parent 'Krawfish::Compile';
 use Krawfish::Koral::Result::Enrich::CorpusClasses;
 use strict;
 use warnings;
+use Role::Tiny;
+
+with 'Krawfish::Compile';
 
 
 # Constructor

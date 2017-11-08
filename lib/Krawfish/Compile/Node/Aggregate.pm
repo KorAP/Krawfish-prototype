@@ -1,7 +1,9 @@
 package Krawfish::Compile::Node::Aggregate;
-use parent 'Krawfish::Compile::Node';
 use strict;
 use warnings;
+use Role::Tiny;
+
+with 'Krawfish::Compile::Node';
 
 # TODO:
 #   Implement the aggregate() method on all Node::Aggregate::*

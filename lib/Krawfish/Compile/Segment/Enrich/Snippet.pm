@@ -1,12 +1,14 @@
 package Krawfish::Compile::Segment::Enrich::Snippet;
 use strict;
 use warnings;
-use parent 'Krawfish::Compile';
 use Krawfish::Koral::Result::Enrich::Snippet;
 # use Krawfish::Compile::Segment::Enrich::Snippet::Highlights;
 use Krawfish::Koral::Document::Stream;
 use Krawfish::Koral::Document::Subtoken;
 use Krawfish::Log;
+use Role::Tiny;
+
+with 'Krawfish::Compile';
 
 use constant DEBUG => 1;
 

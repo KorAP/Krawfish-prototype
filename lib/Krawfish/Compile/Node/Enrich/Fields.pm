@@ -1,5 +1,4 @@
 package Krawfish::Compile::Node::Enrich::Fields;
-use parent 'Krawfish::Query';
 use Krawfish::Util::String qw/squote/;
 use strict;
 use warnings;

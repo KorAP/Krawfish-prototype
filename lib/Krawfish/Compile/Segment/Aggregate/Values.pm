@@ -1,15 +1,14 @@
 package Krawfish::Compile::Segment::Aggregate::Values;
-use parent 'Krawfish::Compile::Segment::Aggregate::Base';
 use Krawfish::Koral::Result::Aggregate::Values;
 use Krawfish::Log;
 use strict;
 use warnings;
+use Role::Tiny;
+
+with 'Krawfish::Compile::Segment::Aggregate::Base';
 
 # TODO:
 #   Rename to FieldCalc or FieldSum
-
-# TODO:
-#   Support corpus classes
 
 # TODO:
 #   This is rather a group query or better:
@@ -60,7 +59,7 @@ sub _init {
 
 # Release for each doc
 sub each_doc {
-  my ($self, $current, $result) = @_;
+  my ($self, $current) = @_;
 
   $self->_init;
 
@@ -95,12 +94,6 @@ sub each_doc {
       $aggr->incr_doc($field->key_id, $field->value, $flags);
     };
   };
-};
-
-
-# Result
-sub result {
-  $_[0]->{result};
 };
 
 

@@ -1,13 +1,25 @@
 package Krawfish::Compile::Segment::Aggregate;
-use parent 'Krawfish::Compile';
 use Krawfish::Log;
 use strict;
 use warnings;
+use Role::Tiny;
+
+with 'Krawfish::Compile';
 
 use constant DEBUG => 0;
 
 # Aggregate values of matches per document and
 # per match.
+
+# TODO:
+#   It may be necessary to introduce an "AggregateOnCorpus"
+#   mechanism, that first wraps the corpus before filtering.
+#   This - however - will require the corpus being referenced
+#   so aggregation is not done multiple times.
+#   This is necessary, e.g., to aggregate the number of tokens
+#   in a corpus independent of the matches in this corpus.
+#   A value, relevant to compute t-score or mi.
+#   See http://lingua.mtsu.edu/chinese-computing/docs/tscore.html
 
 # TODO:
 #   See https://www.elastic.co/guide/en/

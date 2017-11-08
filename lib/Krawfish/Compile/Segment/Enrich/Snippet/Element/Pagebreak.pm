@@ -1,7 +1,9 @@
 package Krawfish::Compile::Segment::Enrich::Snippet::Element::Pagebreak;
-use parent 'Krawfish::Compile::Segment::Enrich::Snippet::Element';
 use strict;
 use warnings;
+use Role::Tiny;
+
+with 'Krawfish::Compile::Segment::Enrich::Snippet::Element';
 
 # TODO:
 #   Probably remove this support and

@@ -1,9 +1,11 @@
 package Krawfish::Compile::Segment::Aggregate::Frequencies;
-use parent 'Krawfish::Compile::Segment::Aggregate::Base';
 use Krawfish::Koral::Result::Aggregate::Frequencies;
 use Krawfish::Log;
 use strict;
 use warnings;
+use Role::Tiny;
+
+with 'Krawfish::Compile::Segment::Aggregate::Base';
 
 # Count the frequencies of all matches of the query
 # per doc and per match.
@@ -50,12 +52,6 @@ sub each_match {
 
   # Increment on flag value
   $self->{result}->incr_match($flags);
-};
-
-
-# Return result object
-sub result {
-  $_[0]->{result};
 };
 
 

@@ -1,9 +1,11 @@
 package Krawfish::Compile::Segment::Group::ClassFrequencies;
-use parent 'Krawfish::Compile';
 use Krawfish::Koral::Result::Group::ClassFrequencies;
 use Krawfish::Log;
 use strict;
 use warnings;
+use Role::Tiny;
+
+with 'Krawfish::Compile::Segment::Group';
 
 use constant DEBUG => 0;
 

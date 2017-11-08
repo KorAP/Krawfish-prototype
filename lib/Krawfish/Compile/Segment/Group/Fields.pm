@@ -1,10 +1,12 @@
 package Krawfish::Compile::Segment::Group::Fields;
-use parent 'Krawfish::Compile::Segment::Group';
 use Krawfish::Koral::Result::Group::Fields;
 use Krawfish::Util::Constants qw/NOMOREDOCS/;
 use Krawfish::Log;
 use strict;
 use warnings;
+use Role::Tiny;
+
+with 'Krawfish::Compile::Segment::Group';
 
 use constant DEBUG => 1;
 

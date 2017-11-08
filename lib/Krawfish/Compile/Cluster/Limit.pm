@@ -1,8 +1,11 @@
 package Krawfish::Compile::Cluster::Limit;
-use parent 'Krawfish::Compile';
 use Krawfish::Log;
 use strict;
 use warnings;
+use Role::Tiny;
+
+with 'Krawfish::Compile';
+
 
 use constant DEBUG => 0;
 

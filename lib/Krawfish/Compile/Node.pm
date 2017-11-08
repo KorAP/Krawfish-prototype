@@ -1,6 +1,7 @@
 package Krawfish::Compile::Node;
 use strict;
 use warnings;
+use Role::Tiny;
 
 # Create a class for result aggregation on the node level.
 

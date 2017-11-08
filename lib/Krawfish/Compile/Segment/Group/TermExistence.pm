@@ -1,7 +1,9 @@
 package Krawfish::Compile::Segment::Group::TermExistence;
-use parent 'Krawfish::Compile';
 use strict;
 use warnings;
+use Role::Tiny;
+
+with 'Krawfish::Compile::Segment::Group';
 
 # The query works similar to Or-query, but only accepts term ids.
 

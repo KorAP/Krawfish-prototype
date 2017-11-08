@@ -1,9 +1,12 @@
 package Krawfish::Compile::Segment::Enrich::Terms;
 use Krawfish::Koral::Result::Enrich::Terms;
-use parent 'Krawfish::Compile';
 use Krawfish::Log;
 use strict;
 use warnings;
+use Role::Tiny;
+
+with 'Krawfish::Compile';
+
 
 # TODO:
 #   Potentially rename to ::Terms! or ::Classes!

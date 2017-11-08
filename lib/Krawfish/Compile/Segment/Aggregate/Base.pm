@@ -1,35 +1,18 @@
 package Krawfish::Compile::Segment::Aggregate::Base;
 use strict;
 use warnings;
+use Role::Tiny;
 
-# Does not need anything in the object
-sub new {
-  my $class = shift;
-  bless \(my $self = ''), $class;
-};
-
-# Per default do nothing
-sub each_doc {
-};
-
-# Per default do nothing
-sub each_match {
-};
+requires qw/each_doc
+            each_match
+            on_finish
+            result
+            to_string/;
 
 # Per default do nothing
 sub on_finish {
+  $_[0];
 };
-
-# Not implemented on base
-sub to_string {
-  ...
-};
-
-sub collection {
-  warn 'DEPRECATED';
-  ...
-};
-
 
 # Get result object
 sub result {
@@ -38,7 +21,7 @@ sub result {
     $self->{result} = shift;
     return $self;
   };
-  $self->{result} //= Krawfish::Koral::Result->new;
+  # $self->{result} //= Krawfish::Koral::Result->new;
   return $self->{result};
 };
 

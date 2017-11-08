@@ -1,9 +1,17 @@
 package Krawfish::Compile::Segment::SortAfter;
-use parent 'Krawfish::Compile::Segment::Sort';
 use Data::Dumper;
 use Krawfish::Log;
 use strict;
 use warnings;
+use Role::Tiny;
+
+with 'Krawfish::Compile::Segment::Sort';
+
+# TODO:
+#   Split this up, so it can be composed
+#   using the same roles as ::Sort,
+#   by changing the get_bundle_from_buffer
+#   method.
 
 # This sorting query is similar to
 # Krawfish::Compile::Segment::Sort,

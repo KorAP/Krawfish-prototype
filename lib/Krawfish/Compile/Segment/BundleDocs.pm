@@ -1,9 +1,14 @@
 package Krawfish::Compile::Segment::BundleDocs;
-use parent 'Krawfish::Compile::Segment::Bundle';
 use Krawfish::Log;
 use Krawfish::Posting::List;
 use strict;
 use warnings;
+use Role::Tiny;
+
+with 'Krawfish::Compile::Segment::Bundle';
+
+requires qw/next_bundle/;
+
 
 # Bundle matches in the same document.
 

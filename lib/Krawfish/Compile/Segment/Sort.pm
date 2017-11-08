@@ -1,5 +1,4 @@
 package Krawfish::Compile::Segment::Sort;
-use parent 'Krawfish::Compile::Segment::Bundle';
 use Krawfish::Util::String qw/squote/;
 use Krawfish::Util::PriorityQueue::PerDoc;
 use Krawfish::Koral::Result::Match;
@@ -8,6 +7,10 @@ use Krawfish::Log;
 use Data::Dumper;
 use strict;
 use warnings;
+use Role::Tiny;
+
+with 'Krawfish::Compile';
+with 'Krawfish::Compile::Segment::BundleDocs';
 
 # This is the general sorting implementation based on ranks.
 #
@@ -18,6 +21,9 @@ use warnings;
 # during search in a sort filter.
 
 # TODO:
+#   Split up the roles for better compositionality
+
+# TODO:
 #   Currently this is limited to fields and works different to subterms.
 #   So this may need to be renamed to Sort/ByField and Sort/ByFieldAfter.
 
@@ -25,6 +31,11 @@ use warnings;
 #   It's possible that fields return a rank of 0, indicating that
 #   the field does not exist for the document.
 #   They will always be sorted at the end.
+#   In that case these fields have to be looked up, in case they are
+#   potentially in the result set (meaning they are ranked before/after
+#   the last accepted rank field). If so, they need to be remembered.
+#   After a sort turn, the non-ranked fields are sorted in the ranked
+#   fields. The field can be reranked any time.
 
 # TODO:
 #   Ranks should respect the ranking mechanism of FieldsRan,
@@ -65,7 +76,7 @@ sub new {
   #
   my $query    = $param{query};
 
-  unless ($query->isa('Krawfish::Compile::Segment::Bundle')) {
+  unless (Role::Tiny::does_role($query, 'Krawfish::Compile::Segment::Bundle')) {
     warn 'The query is no bundled query';
     return;
   };
@@ -365,6 +376,7 @@ sub current {
 };
 
 
+# Stringification
 sub to_string {
   my $self = shift;
   my $str = 'sort(';

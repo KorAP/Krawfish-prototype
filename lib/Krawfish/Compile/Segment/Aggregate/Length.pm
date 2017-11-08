@@ -1,8 +1,10 @@
 package Krawfish::Compile::Segment::Aggregate::Length;
-use parent 'Krawfish::Compile::Segment::Aggregate::Base';
 use Krawfish::Log;
 use strict;
 use warnings;
+use Role::Tiny;
+
+with 'Krawfish::Compile::Segment::Aggregate::Base';
 
 # This will check the hits length in subtokens -
 # currently other word lengths are not supported
@@ -30,12 +32,6 @@ sub each_match {
     $current->end - $current->start,
     $current->flags($self->{flags})
   );
-};
-
-
-# Return result object
-sub result {
-  $_[0]->{result};
 };
 
 

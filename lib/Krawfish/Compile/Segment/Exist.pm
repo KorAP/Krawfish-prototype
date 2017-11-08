@@ -1,7 +1,10 @@
 package Krawfish::Compile::Segment::Exist;
-use parent 'Krawfish::Compile';
 use strict;
 use warnings;
+use Role::Tiny;
+
+with 'Krawfish::Compile';
+
 
 # Check, if a certain query results in at least one single
 # posting.

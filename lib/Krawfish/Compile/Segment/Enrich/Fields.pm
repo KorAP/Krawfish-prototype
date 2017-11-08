@@ -1,9 +1,11 @@
 package Krawfish::Compile::Segment::Enrich::Fields;
-use parent 'Krawfish::Compile';
 use Krawfish::Koral::Result::Enrich::Fields;
 use Krawfish::Log;
 use strict;
 use warnings;
+use Role::Tiny;
+
+with 'Krawfish::Compile';
 
 use constant DEBUG => 0;
 

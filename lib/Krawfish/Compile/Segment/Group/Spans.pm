@@ -1,8 +1,10 @@
 package Krawfish::Compile::Segment::Group::Spans;
-use parent 'Krawfish::Compile';
 use Krawfish::Log;
 use strict;
 use warnings;
+use Role::Tiny;
+
+with 'Krawfish::Compile::Segment::Group';
 
 # This may be generalizable, but for the moment
 # It should make it possible to group the span positions

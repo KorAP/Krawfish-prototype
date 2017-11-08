@@ -1,7 +1,9 @@
 package Krawfish::Compile::Segment::Enrich::SortCriterion;
-use parent 'Krawfish::Compile';
 use warnings;
 use strict;
+use Role::Tiny;
+
+with 'Krawfish::Compile';
 
 # Enrich an item with sort criteria.
 # This is necessary to sort items beyond the segment.

@@ -1,8 +1,11 @@
 package Krawfish::Compile::Segment::Bundle;
-use parent 'Krawfish::Compile';
+use Role::Tiny;
 use Krawfish::Log;
 use strict;
 use warnings;
+
+requires qw/current_bundle
+            next_bundle/;
 
 
 # This class represents bundles of postings

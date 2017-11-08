@@ -1,13 +1,32 @@
 package Krawfish::Compile;
-use parent 'Krawfish::Query';
 use Krawfish::Koral::Result::Match;
 use Krawfish::Koral::Result;
 use Krawfish::Log;
+use Role::Tiny;
 use strict;
 use warnings;
 
+# TODO:
+#   It may be better to use Krawfish::Corpus instead
+#
+with 'Krawfish::Query';
+
+requires qw/current_match
+            match_from_query
+            compile
+            result/;
+
+# TODO:
+#   result() should be in a separate
+#   interface, so it is
+#   usable in Aggregation::Base as well.
+
 # Krawfish::Compile is the base class for all Compile queries.
 
+# TODO:
+#   It may be beneficial to have group, aggregation, sort etc.
+#   queries on the root level instead of the intermediate
+#   compile level
 
 use constant DEBUG => 0;
 
@@ -112,15 +131,6 @@ sub compile {
     );
   };
   return $result;
-};
-
-
-# Shorthand for "search through"
-sub finalize {
-
-  warn 'DEPRECATED';
-  while ($_[0]->next) {};
-  return $_[0];
 };
 
 
