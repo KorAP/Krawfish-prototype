@@ -45,6 +45,14 @@ is(remove_diacritics(
 is(remove_diacritics(
   q/!"#$'()*+,-.0123456789:;=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_` abcdefghijklmnoprstuvwxyz{|}~¡¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿−ÀÁÂ ÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ/),
   q/!"#$'()*+,-.0123456789:;=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_` abcdefghijklmnoprstuvwxyz{|}~¡¢£¤¥¦§¨©ª«¬®¯°±²³´µ¶·¸¹º»¼½¾¿−AAA AAAÆCEEEEIIIIDNOOOOO×OUUUUYÞßaaaaaaæceeeeiiiiðnooooo÷ouuuuyþy/);
+
+is(squote("baum"), "'baum'", 'Check quote');
+is(squote("that's"), "'that\\'s'", 'Check quote');
+is(squote("that\\'s"), "'that\\\\\\'s'", 'Check quote');
+is(unsquote("'that\\\\\\'s'"), "that\\'s", 'Check unquote');
+is(unsquote("'that\\'s'"), "that's", 'Check unquote');
+is(unsquote("'baum'"), "baum", 'Check unquote');
+
 done_testing;
 __END__
 

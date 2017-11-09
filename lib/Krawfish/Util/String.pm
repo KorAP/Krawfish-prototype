@@ -13,7 +13,8 @@ use utf8;
 our @EXPORT = qw/fold_case
                  remove_diacritics
                  normalize_nfkc
-                 squote/;
+                 squote
+                 unsquote/;
 
 
 # Fold case of a term
@@ -60,5 +61,14 @@ sub squote {
   return qq{'$str'};
 };
 
+
+# From Mojo::Util
+sub unsquote {
+  my $str = shift;
+  return $str unless $str =~ s/^'(.*)'$/$1/g;
+  $str =~ s/\\\\/\\/g;
+  $str =~ s/\\'/'/g;
+  return $str;
+}
 
 1;
