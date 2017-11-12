@@ -1,4 +1,4 @@
-![Krawfish Prototype](https://raw.githubusercontent.com/KorAP/Krawfish-Prototype/master/misc/krawfish-prototype.png)
+![Krawfish Prototype](https://raw.githubusercontent.com/KorAP/Krawfish-prototype/master/misc/krawfish-prototype.png)
 
 The Krawfish Prototype is a testbed search backend for KorAP,
 to implement design concepts both for Kanalito and Krill.
@@ -22,9 +22,9 @@ Krawfish Prototype requires Perl of at least v5.10.1.
 The recommended environment is based on [Perlbrew](http://perlbrew.pl/)
 with [App::cpanminus](http://search.cpan.org/~miyagawa/App-cpanminus/).
 
-```
-$ git clone https://github.com/KorAP/Krawfish-Prototype
-$ cd Krawfish-Prototype
+```bash
+$ git clone https://github.com/KorAP/Krawfish-prototype
+$ cd Krawfish-prototype
 $ cpanm --installdeps .
 $ perl Makefile.PL
 $ make test
@@ -32,7 +32,7 @@ $ make test
 
 ## SYNOPSIS
 
-```
+```perl
 use Krawfish::Koral;
 use Krawfish::Index;
 
@@ -103,4 +103,4 @@ Copyright (C) 2017, [IDS Mannheim](http://www.ids-mannheim.de/)<br>
 Author: [Nils Diewald](http://nils-diewald.de/)
 
 Krawfish Prototype is free software published under the
-[BSD-2 License](https://raw.githubusercontent.com/KorAP/Krawfish-Prototype/master/LICENSE).
+[BSD-2 License](https://raw.githubusercontent.com/KorAP/Krawfish-prototype/master/LICENSE).

@@ -24,7 +24,9 @@ use constant DEBUG => 0;
 #   https://github.com/gpakosz/PackedArray
 #   That's why max_rank is important, because it indicates
 #   how many bits per doc are necessary to encode
-#   the rank!
+#   the rank ceil(log(N)/log(2))!
+#   https://arxiv.org/pdf/1401.6399.pdf
+#   https://github.com/zhenjl/encoding
 
 # TODO:
 #   In case, a field is only set for a couple of documents, a different
