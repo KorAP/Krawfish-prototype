@@ -46,21 +46,36 @@ sub new {
 };
 
 
+# Clone query
+sub clone {
+  my $self = shift;
+  return __PACKAGE__->new(
+    $self->{span},
+    $self->{capacity}
+  );
+};
+
+
+# Get maximum frequency
 sub max_freq {
   $_->{span}->max_freq;
 };
 
 
+# Filter query
 sub filter_by {
   my $self = shift;
   $self->{span}->filter_by(@_);
 };
 
 
+# Check if the query requires filtering
 sub requires_filter {
   shift->{span}->requires_filter;
 };
 
+
+# Stringification
 sub to_string {
   my $self = shift;
   return 'sorted(' . $self->{span}->to_string . ')';

@@ -155,6 +155,7 @@ sub e_span_context {
   );
 };
 
+
 sub e_inline {
   # TODO:
   #   Add inline annotation information, like
@@ -166,6 +167,7 @@ sub e_inline {
   # )
   ...
 };
+
 
 # Enrich with Term lists per class
 sub e_terms {

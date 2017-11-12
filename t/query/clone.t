@@ -10,18 +10,32 @@ use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral');
 
 my $index = Krawfish::Index->new;
+
+ok($index->introduce_field('id', 'NUM'),
+   'Introduce field as sortable');
+ok($index->introduce_field('size', 'NUM'),
+   'Introduce field as sortable');
+ok($index->introduce_field('genre', 'DE'),
+   'Introduce field as sortable');
+
 ok_index($index, {
   id => 1,
+  integer_size => 4,
   genre => 'novel',
 } => '[a|b]<1:x>[a|b|c]</1>[a][b|c]', 'Add complex document');
 ok_index($index, {
   id => 2,
+  integer_size => 5,
   genre => 'news',
 } => '[a|b][a|b|c][a][b|c]', 'Add complex document');
 ok_index($index, {
   id => 3,
+  integer_size => 7,
   genre => 'novel',
 } => '<1:x>[a|b][a|b|c][a]</1>[b|c]', 'Add complex document');
+
+ok($index->commit, 'Commit data');
+
 
 my $koral = Krawfish::Koral->new;
 ok(my $qb = $koral->query_builder, 'Create Koral::Builder');
@@ -82,7 +96,7 @@ is($query->to_string,
 ok($query = $query->identify($index->dict), 'Identify');
 
 is($query->to_string,
-   'filter(unique({3:(#6&#7)|#9}[]#6{1,4}),(#11|#2)&(#13|#4))',
+   'filter(unique({3:#11|(#8&#9)}[]#8{1,4}),(#13|#4)&(#16|#5))',
    'stringification');
 
 ok($query = $query->optimize($index->segment), 'Materialize');
@@ -100,6 +114,50 @@ is($clone->current->to_string, '[0:0-3$0,3,0,1]', 'Current match');
 ok($clone->next, 'Next match found');
 is($clone->current->to_string, '[2:0-3$0,3,0,1]', 'Current match');
 ok(!$clone->next, 'Next match found');
+
+
+$koral = Krawfish::Koral->new;
+ok(my $comp = $koral->compilation_builder, 'Create Koral::Builder');
+$koral->query($qb->token('a'));
+$koral->compilation(
+  $comp->aggregate(
+    $comp->a_fields(qw/author/),
+    $comp->a_frequencies,
+    $comp->a_length,
+    $comp->a_values(qw/size/)
+  ),
+  $comp->enrich(
+    $comp->e_fields(qw/size/),
+    $comp->e_corpus_classes(3,4) # TODO: Ignore corpus classes, in case they are not set!
+  ),
+  $comp->sort_by(
+    $comp->s_field('genre')
+  )
+);
+
+# Check stringification
+is($koral->to_string,
+   "compilation=[".
+     "aggr=[fields:['author'],freq,length,values:['size']],".
+     "enrich=[fields:['size'],".
+     "corpusclasses:[3,4]],".
+     "sort=[field='genre'<]".
+     "],".
+     "query=[[a]]",
+   'Serialization');
+
+ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment), 'Query generation');
+#ok($clone = $query->clone, 'Cloning');
+
+#is($query->to_string,
+#  '[0]',
+#  'Stringification');
+
+# Run query
+#is($query->compile->inflate($index->dict)->to_string,
+#  '',
+#  'Stringification');
+
 
 # Test cloning (and running)
 diag 'Check compile queries';

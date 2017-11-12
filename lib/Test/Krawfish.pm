@@ -272,8 +272,13 @@ sub _fields {
   foreach my $key (sort keys %$hash) {
     my $type = 'string';
     my $long_key = $key;
-    if ($key =~ s/^(string|integer|store)_//) {
-      $type = $1;
+    if ($key =~ s/^(string|int(?:eger)?|store)_//) {
+      if ($1 eq 'int') {
+        $type = 'integer';
+      }
+      else {
+        $type = $1;
+      };
     };
 
     push(@fields, {

@@ -255,18 +255,6 @@ sub wrap {
 };
 
 
-# Send to segments
-sub to_segment {
-  ...
-};
-
-
-# Optimize query
-sub optimize {
-  ...
-};
-
-
 1;
 
 

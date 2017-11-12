@@ -4,7 +4,7 @@ package Krawfish::Koral::Compile::Node::Limit;
 #   Limiting can only be done on the cluster level!
 
 use Krawfish::Compile::Cluster::Limit;
-use Krawfish::Query::Nowhere;
+use Krawfish::Compile::Segment::Nowhere;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -50,7 +50,7 @@ sub optimize {
   my $query = $self->{query}->optimize($segment);
 
   if ($query->max_freq == 0) {
-    return Krawfish::Query::Nowhere->new;
+    return Krawfish::Compile::Segment::Nowhere->new;
   };
 
   return Krawfish::Compile::Limit->new(

@@ -1,6 +1,6 @@
 package Krawfish::Koral::Compile::Node::Aggregate;
 use Krawfish::Compile::Segment::Aggregate;
-use Krawfish::Query::Nowhere;
+use Krawfish::Compile::Segment::Nowhere;
 use strict;
 use warnings;
 
@@ -54,7 +54,7 @@ sub optimize {
   #   null-values for aggregation that need to
   #   be returned.
   if ($query->max_freq == 0) {
-    return Krawfish::Query::Nowhere->new;
+    return Krawfish::Compile::Segment::Nowhere->new;
   };
 
   # Get all aggregations

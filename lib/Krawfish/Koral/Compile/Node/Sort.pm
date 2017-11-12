@@ -2,7 +2,7 @@ package Krawfish::Koral::Compile::Node::Sort;
 use Krawfish::Compile::Segment::Sort;
 use Krawfish::Compile::Segment::SortAfter;
 use Krawfish::Compile::Segment::BundleDocs;
-use Krawfish::Query::Nowhere;
+use Krawfish::Compile::Segment::Nowhere;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -68,7 +68,7 @@ sub optimize {
   my $query = $self->{query}->optimize($segment);
 
   if ($query->max_freq == 0) {
-    return Krawfish::Query::Nowhere->new;
+    return Krawfish::Compile::Segment::Nowhere->new;
   };
 
   # TODO:

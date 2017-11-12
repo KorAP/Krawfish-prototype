@@ -93,4 +93,11 @@ sub complex {
 };
 
 
+# Stop compilation of results in non-compile queries
+sub compile {
+  1;
+};
+
+
+
 1;

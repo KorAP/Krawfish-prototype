@@ -89,6 +89,10 @@ sub match_from_query {
 };
 
 
+sub clone {
+  warn 'Unimplemented';
+};
+
 # Get maximum frequency
 sub max_freq {
   $_[0]->{query}->max_freq;
