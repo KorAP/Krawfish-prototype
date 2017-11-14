@@ -121,7 +121,7 @@ ok(my $comp = $koral->compilation_builder, 'Create Koral::Builder');
 $koral->query($qb->token('a'));
 $koral->compilation(
   $comp->aggregate(
-    $comp->a_fields(qw/author/),
+    $comp->a_fields(qw/genre/),
     $comp->a_frequencies,
     $comp->a_length,
     $comp->a_values(qw/size/)
@@ -130,33 +130,66 @@ $koral->compilation(
     $comp->e_fields(qw/size/),
     $comp->e_corpus_classes(3,4) # TODO: Ignore corpus classes, in case they are not set!
   ),
-  $comp->sort_by(
-    $comp->s_field('genre')
-  )
+
+  # TODO:
+  #   Sorting and enrichment can't be combined!
+  # $comp->sort_by(
+  #  $comp->s_field('genre')
+  # )
 );
 
 # Check stringification
 is($koral->to_string,
    "compilation=[".
-     "aggr=[fields:['author'],freq,length,values:['size']],".
-     "enrich=[fields:['size'],".
-     "corpusclasses:[3,4]],".
-     "sort=[field='genre'<]".
+     "aggr=[".
+       "fields:['genre'],".
+       "freq,".
+       "length,".
+       "values:['size']".
      "],".
-     "query=[[a]]",
+     "enrich=[".
+       "fields:['size'],".
+       "corpusclasses:[3,4]".
+     "]".
+   "],".
+   "query=[[a]]",
    'Serialization');
 
-ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment), 'Query generation');
-#ok($clone = $query->clone, 'Cloning');
+ok($query = $koral->to_query, 'Wrap queries');
 
-#is($query->to_string,
-#  '[0]',
-#  'Stringification');
+is($query->to_string,
+  "corpusclasses(3,4:fields('size':aggr(length,freq,fields:['genre'],values:['size']:filter(a,[1]))))",
+  'Stringification');
+
+
+ok($query = $query->identify($index->dict)->optimize($index->segment), 'Query generation');
+
+is($query->to_string,
+  'eCorpusClasses(6144:eFields(2:aggr([length,freq,fields:#3,values:#2]:filter(#8,[1]))))',
+  'Stringification');
+
+# ok($clone = $query->clone, 'Cloning');
 
 # Run query
-#is($query->compile->inflate($index->dict)->to_string,
-#  '',
-#  'Stringification');
+is($query->compile->inflate($index->dict)->to_string,
+   '[aggr='.
+     '[length=total:[avg:1,freq:9,min:1,max:1,sum:9]]'.
+     '[freq=total:[3,9]]'.
+     '[fields=total:[genre=news:[1,3],novel:[2,6]]]'.
+     '[values=total:[size:[sum:16,freq:3,min:4,max:7,avg:5.33333333333333]]]'.
+   ']'.
+   '[matches='.
+     '[0:0-1|fields:#2=#6(4)]'.
+     '[0:1-2|fields:#2=#6(4)]'.
+     '[0:2-3|fields:#2=#6(4)]'.
+     '[1:0-1|fields:#2=#15(5)]'.
+     '[1:1-2|fields:#2=#15(5)]'.
+     '[1:2-3|fields:#2=#15(5)]'.
+     '[2:0-1|fields:#2=#17(7)]'.
+     '[2:1-2|fields:#2=#17(7)]'.
+     '[2:2-3|fields:#2=#17(7)]'.
+   ']',
+  'Stringification');
 
 
 # Test cloning (and running)

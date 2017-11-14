@@ -135,6 +135,8 @@ sub new {
   }, $class;
 };
 
+
+# Clone query
 sub clone {
   my $self = shift;
   __PACKAGE__->new(
@@ -325,54 +327,6 @@ sub get_bundle_from_buffer {
   };
 
   return $new_bundle;
-};
-
-
-# Get the current match object
-sub current_match {
-  my $self = shift;
-  my $match = $self->match_from_query or return;
-
-  if (DEBUG) {
-    print_log('sort', 'Current match is ' . $match->to_string);
-  };
-
-  return $match;
-};
-
-
-# Get match from query
-sub match_from_query {
-  my $self = shift;
-
-  print_log('sort', 'Get match from query') if DEBUG;
-
-  # Get current match from query
-  my $current = $self->current or return;
-
-  if (DEBUG) {
-    print_log('sort', 'Current posting is '. $self->{query}->to_string);
-  };
-
-  # Create new match
-  return Krawfish::Koral::Result::Match->new(
-    doc_id  => $current->doc_id,
-    start   => $current->start,
-    end     => $current->end,
-    payload => $current->payload->clone
-  );
-};
-
-
-
-# Return the current posting
-sub current {
-  my $self = shift;
-  if (DEBUG) {
-    print_log('sort', 'Current posting is ' . $self->{current}->to_string);
-  };
-
-  $self->{current};
 };
 
 

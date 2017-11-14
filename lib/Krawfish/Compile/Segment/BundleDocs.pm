@@ -25,7 +25,8 @@ sub new {
   my $class = shift;
   bless {
     query => shift,
-    buffer => undef
+    buffer => undef,
+    current => undef,
   }, $class;
 };
 

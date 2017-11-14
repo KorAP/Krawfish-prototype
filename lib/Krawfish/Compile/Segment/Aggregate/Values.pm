@@ -99,7 +99,7 @@ sub each_doc {
 
 # Stringification
 sub to_string {
-  return 'values:' . join(',', @{$_[0]->{field_ids}});
+  return 'values:' . join(',', map { '#' . $_ } @{$_[0]->{field_ids}});
 };
 
 

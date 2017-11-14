@@ -28,27 +28,32 @@ requires qw/current_match
 #   queries on the root level instead of the intermediate
 #   compile level
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 
 # Return match object
 sub current_match {
   my $self = shift;
-  my $current = $self->current;
-  return unless $current;
-  return Krawfish::Koral::Result::Match->new(
-    doc_id  => $current->doc_id,
-    start   => $current->start,
-    end     => $current->end,
-    payload => $current->payload,
-    flags   => $current->flags
-  );
+
+  my $match = $self->match_from_query or return;
+
+  if (DEBUG) {
+    print_log('compile', 'Current match is ' . $match->to_string);
+  };
+
+  return $match;
 };
 
 
 # Return the current posting
 sub current {
-  shift->{query}->current;
+  my $self = shift;
+
+  if (DEBUG) {
+    print_log('compile', 'Get current from ' . ref $self);
+  };
+
+  return $self->{current} // $self->{query}->current;
 };
 
 
@@ -60,7 +65,7 @@ sub current {
 sub match_from_query {
   my $self = shift;
 
-  print_log('result', 'Get match from query') if DEBUG;
+  print_log('compile', 'Get match from query') if DEBUG;
 
   # Get current match from query
   my $match = $self->{query}->current_match;
@@ -68,12 +73,17 @@ sub match_from_query {
   # Not yet defined
   unless ($match) {
 
-    print_log('result', 'No match found yet') if DEBUG;
+    print_log('compile', 'No match found yet') if DEBUG;
 
     # Get current object
     my $current = $self->current;
 
-    print_log('result', 'Current posting is '. $self->{query}->to_string) if DEBUG;
+    unless ($current) {
+      print_log('compile', 'No current definable from ' . ref $self) if DEBUG;
+      return;
+    };
+
+    print_log('compile', 'Current posting is from '. $self->{query}->to_string) if DEBUG;
 
     # Create new match
     $match = Krawfish::Koral::Result::Match->new(
@@ -122,9 +132,29 @@ sub compile {
     $result->add_match($self->current_match);
   };
 
+  # Add aggregations
+  if (Role::Tiny::does_role($self, 'Krawfish::Compile::Segment::Aggregate')) {
+
+    # Add aggregations to result
+    foreach (@{$self->operations}) {
+      if (DEBUG) {
+        print_log(
+          'aggr',
+          'Add result to aggr ' . $_->result
+        );
+      };
+      $result->add_aggregation($_->result);
+    };
+  };
+
   # Collect more data
   my $query = $self->{query};
-  if ($query->isa('Krawfish::Compile')) {
+
+  if (DEBUG) {
+    print_log('compile', 'Check if ' . $query . ' does compiling');
+  };
+
+  if (Role::Tiny::does_role($query, 'Krawfish::Compile')) {
     $query->result($result)->compile;
   };
 

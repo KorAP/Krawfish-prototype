@@ -26,12 +26,9 @@ sub current_bundle {
   return $self->{current_bundle};
 };
 
-
-# Get current match
-#sub current_match {
-#  $_[0]->{current_match};
-#};
-
+sub current {
+  return $_[0]->{current};
+};
 
 
 # Move to the next posting in the list,
@@ -78,7 +75,7 @@ sub next {
       };
 
       $self->{current} = undef;
-      return 0;
+      return;
     };
   };
 
@@ -90,18 +87,6 @@ sub next {
 
   return 1;
 };
-
-
-# Return the current match
-sub current {
-  my $self = shift;
-  if (DEBUG) {
-    print_log('bundle', 'Current posting is ' . $self->{current}->to_string);
-  };
-
-  $self->{current};
-};
-
 
 
 # Get frequency

@@ -7,7 +7,7 @@ use Role::Tiny;
 
 with 'Krawfish::Compile';
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # This will enrich each match with specific field information
 # Needs to be called on the segment level
@@ -38,7 +38,7 @@ sub _init {
   # Match is already set
   if (DEBUG) {
     print_log(
-      'r_fields',
+      'e_fields',
       'Initiate pointer to fields'
     );
   };
@@ -57,13 +57,17 @@ sub pointer {
 sub current_match {
   my $self = shift;
 
+  if (DEBUG) {
+    print_log('e_fields', 'Get current match');
+  };
+
   $self->_init;
 
   # Match is already set
   if ($self->{match}) {
     if (DEBUG) {
       print_log(
-        'r_fields',
+        'e_fields',
         'Match already defined ' . $self->{match}->to_string
       );
     };
@@ -72,6 +76,12 @@ sub current_match {
 
   my $match = $self->match_from_query;
 
+  unless ($match) {
+    if (DEBUG) {
+      print_log('e_fields', 'No match definable');
+    };
+    return;
+  };
 
   # Match is in the same document as before
   if ($match->doc_id == $self->{last_doc_id}) {
@@ -80,6 +90,10 @@ sub current_match {
     $match->add(
       Krawfish::Koral::Result::Enrich::Fields->new(@{$self->{last_fields}})
       );
+
+    if (DEBUG) {
+      print_log('e_fields', 'Current match is ' . $match->to_string);
+    };
 
     # The document has no associated fields
     return ($self->{match} = $match);
@@ -95,12 +109,18 @@ sub current_match {
   if ($fields_doc_id != $match->doc_id) {
 
     if (DEBUG) {
-      print_log('r_fields', 'Match doc id #' . $match->doc_id .
+      print_log('e_fields', 'Match doc id #' . $match->doc_id .
                   ' mismatches fields doc id #' . $fields_doc_id);
     };
 
     # The document has no associated fields
-    return ($self->{match} = $match);
+    $self->{match} = $match;
+
+    if (DEBUG) {
+      print_log('e_fields', 'Current match is ' . $match->to_string);
+    };
+
+    return $match;
   };
 
   # Get the fields from the fields stream
@@ -116,7 +136,9 @@ sub current_match {
 
   $self->{match} = $match;
 
-  print_log('r_fields', 'Match now contains data for ' . join(', ', @fields)) if DEBUG;
+  if (DEBUG) {
+    print_log('e_fields', 'Current match is ' . $match->to_string);
+  };
 
   return $match;
 };
