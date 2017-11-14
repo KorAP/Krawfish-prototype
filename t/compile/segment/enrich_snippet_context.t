@@ -49,7 +49,7 @@ is($koral_query->to_string,
 
 ok(my $query = $koral_query->optimize($index->segment), 'Optimize');
 is ($query->to_string,
-    'snippet(hit,span(#10/#11=#9,0,4096),span(#10/#11=#9,0,4096):filter(#8,[1]))',
+    'eSnippet(hit,span(#10/#11=#9,0,4096),span(#10/#11=#9,0,4096):filter(#8,[1]))',
     'Stringification'
   );
 

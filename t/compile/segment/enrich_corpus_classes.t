@@ -82,7 +82,7 @@ ok(my $query = $koral_query->optimize($index->segment), 'optimize query');
 
 # This is a query that is fine to be send to nodes
 is($query->to_string(1),
-   'corpusClasses(24576:enrichFields(1:filter(#12,or(class(1:#8),class(2:span(#10))))))',
+   'eCorpusClasses(24576:eFields(1:filter(#12,or(class(1:#8),class(2:span(#10))))))',
    'Stringification');
 
 ok($query->next, 'Next');

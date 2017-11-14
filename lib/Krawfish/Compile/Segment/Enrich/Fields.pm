@@ -132,7 +132,7 @@ sub next {
 
 # Stringification
 sub to_string {
-  my $str = 'enrichFields(' . join(',', @{$_[0]->{fields}}) . ':';
+  my $str = 'eFields(' . join(',', @{$_[0]->{fields}}) . ':';
   $str .= $_[0]->{query}->to_string;
   return $str . ')';
 };

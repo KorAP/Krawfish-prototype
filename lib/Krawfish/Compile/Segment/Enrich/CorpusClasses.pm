@@ -40,7 +40,7 @@ sub current_match {
 
 # Stringification
 sub to_string {
-  'corpusClasses(' . $_[0]->{flags} . ':' . $_[0]->{query}->to_string . ')'
+  'eCorpusClasses(' . $_[0]->{flags} . ':' . $_[0]->{query}->to_string . ')'
 };
 
 1;

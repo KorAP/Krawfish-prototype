@@ -280,7 +280,7 @@ sub _fetch_stream {
 # Stringification
 sub to_string {
   my $self = shift;
-  my $str = 'snippet(hit';
+  my $str = 'eSnippet(hit';
   if ($self->{left}) {
     $str .= ',' . $self->{left}->to_string;
   };
