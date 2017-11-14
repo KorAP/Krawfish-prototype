@@ -6,6 +6,7 @@ use warnings;
 use Role::Tiny;
 
 with 'Krawfish::Compile::Segment::Bundle';
+with 'Krawfish::Compile';
 
 requires qw/next_bundle/;
 
@@ -16,6 +17,7 @@ requires qw/next_bundle/;
 #   The problem with the current approch is, that next_bundle
 #   will bundle the next doc - without asking if the doc
 #   is relevant.
+#   That's why next_doc is identical to next_bundle-
 
 use constant DEBUG => 0;
 
@@ -37,10 +39,9 @@ sub clone {
 };
 
 
-# TODO:
-#   Implement next doc!
+# Move to next doc
 sub next_doc {
-  ...
+  return $_[0]->next_bundle;
 };
 
 

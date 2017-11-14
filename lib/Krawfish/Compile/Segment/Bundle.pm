@@ -8,7 +8,7 @@ requires qw/current_bundle
             next_bundle/;
 
 
-# This class represents bundles of postings
+# This role represents bundles of postings
 # (or bundles of bundles of postings) sorted by a certain criterion.
 
 
@@ -28,16 +28,9 @@ sub current_bundle {
 
 
 # Get current match
-sub current_match {
-  $_[0]->{current_match};
-};
-
-
-# Get next bundle
-# This needs to be overwritten!
-sub next_bundle {
-  ...
-};
+#sub current_match {
+#  $_[0]->{current_match};
+#};
 
 
 

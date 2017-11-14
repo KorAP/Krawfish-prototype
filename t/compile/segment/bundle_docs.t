@@ -67,7 +67,7 @@ ok($query->next_bundle, 'Move to next bundle');
 
 ok($query->next_bundle, 'Move to next bundle');
 
-#is($query->current_match->doc_id, 1, 'Current match');
+# is($query->current_match->doc_id, 1, 'Current match');
 #ok($query->preview_doc_id, 'Move to next document');
 #is($query->current_match->doc_id, 2, 'Current match');
 ok($bundle = $query->current_bundle, 'Get first bundle');
@@ -126,6 +126,7 @@ ok($query = Krawfish::Compile::Segment::BundleDocs->new($query),
 
 ok($query->next, 'Move forward');
 is($query->current->to_string, '[0:0-2]', 'Current match');
+
 ok($query->next, 'Move forward');
 is($query->current->to_string, '[1:0-2]', 'Current match');
 ok($query->next, 'Move forward');
