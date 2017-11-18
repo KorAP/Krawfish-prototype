@@ -5,6 +5,11 @@ use warnings;
 use strict;
 use Krawfish::Koral::Query::Term;
 
+# TODO:
+#   Have common methods with
+#   Krawfish::Koral::Result::Enrich::Snippet::Markup
+
+
 # Accepts a Krawfish::Koral::Query::Term object
 sub new {
   my $class = shift;

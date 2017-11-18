@@ -3,6 +3,10 @@ use strict;
 use warnings;
 use Krawfish::Koral::Result::Enrich::Snippet;
 # use Krawfish::Compile::Segment::Enrich::Snippet::Highlights;
+
+use Krawfish::Koral::Result::Enrich::Snippet::Hit;
+use Krawfish::Koral::Result::Enrich::Snippet::Highlight;
+
 use Krawfish::Koral::Document::Stream;
 use Krawfish::Koral::Document::Subtoken;
 use Krawfish::Log;
@@ -11,6 +15,7 @@ use Role::Tiny;
 with 'Krawfish::Compile';
 
 use constant DEBUG => 1;
+
 
 # TODO:
 #   It may be more efficient to first collect all required
@@ -47,11 +52,14 @@ use constant DEBUG => 1;
 
 sub new {
   my $class = shift;
-  # query
-  # fwd_obj
-  # left
-  # right
-  # hit
+  # - query
+  # - fwd_obj
+  # - left
+  # - right
+  # - hit
+  #
+  # TODO:
+  #   Pass highlight class list
   return bless { @_ }, $class;
 };
 
@@ -65,25 +73,7 @@ sub _init {
 };
 
 
-# Get extension element
-sub extension {
-  $_[0]->{extension}
-};
-
-
-# Get left context object
-sub left_context {
-  $_[0]->{left};
-};
-
-
-# Get right object context
-sub right_context {
-  $_[0]->{right};
-};
-
-
-# Iterated through the ordered matches
+# Iterate through the ordered matches
 sub next {
   my $self = shift;
   $self->_init;
@@ -104,22 +94,42 @@ sub current_match {
   # Get current match from query
   my $match = $self->match_from_query;
 
-  print_log('c_snippet', 'match is ' . $match->to_string) if DEBUG;
+  if (DEBUG) {
+    print_log('c_snippet', 'match is ' . $match->to_string);
+  };
 
-  # Create new snippet object
+  # Create hit object
+  my $hit = Krawfish::Koral::Result::Enrich::Snippet::Hit->new(
+    start => $match->start,
+    end   => $match->end
+  );
+
+  # Create new snippet result object
   my $new_snippet = Krawfish::Koral::Result::Enrich::Snippet->new(
-    hit_start => $match->start,
-    hit_end   => $match->end,
     doc_id    => $match->doc_id
   );
 
+  # Add hit object
+  $new_snippet->add($hit);
 
-  # TODO:
-  #   Check for classes with supported highlights!
+  # Retrieve classes from match
   foreach my $highlight ($match->get_classes) {
 
-    # Add highlight
-    $new_snippet->add_highlight($highlight);
+    # TODO:
+    #   Check for classes with supported highlights!
+
+    if ($highlight->[0] >= $new_snippet->hit_start &&
+          $highlight->[1] <= $new_snippet->hit_end) {
+
+      my $e = Krawfish::Koral::Result::Enrich::Snippet::Highlight->new(
+        number => $highlight->[0],
+        start  => $highlight->[1],
+        end    => $highlight->[2],
+      );
+
+      # Add highlight
+      $new_snippet->add($e);
+    };
   };
 
 
@@ -134,6 +144,25 @@ sub current_match {
 
   $self->{match} = $match;
   return $match;
+};
+
+
+# Get possible extension element, that will extend the scope
+# of the hit to the match
+sub extension {
+  $_[0]->{extension}
+};
+
+
+# Get left context object
+sub left_context {
+  $_[0]->{left};
+};
+
+
+# Get right context object
+sub right_context {
+  $_[0]->{right};
 };
 
 
@@ -192,7 +221,7 @@ sub _fetch_stream {
   else {
 
     # set optional extension end to same value as hit end
-    $snippet->extension_end($snippet->hit_end);
+    $snippet->focus_end($snippet->hit_end);
   };
 
   # Get context, if left context is defined
@@ -252,8 +281,10 @@ sub _fetch_stream {
 
     last unless $forward->next;
     # TODO:
-    #   $subtoken->add_annotation(
-    #    Krawfish::Koral::Document::Annotation->()
+    #   $snippet->add(
+    #      Krawfish::Koral::Document::Annotation->()
+    #      or
+    #      Krawfish::Koral::Result::Enrich::Snippet::Span etc.
     #   );
 
     # TODO:

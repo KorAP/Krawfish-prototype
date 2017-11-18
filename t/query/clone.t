@@ -194,6 +194,7 @@ is($query->compile->inflate($index->dict)->to_string,
 
 # Test cloning (and running)
 diag 'Check compile queries';
+diag 'Check that sort never mixes with enrich!';
 
 done_testing;
 __END__

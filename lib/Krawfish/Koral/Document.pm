@@ -26,6 +26,13 @@ use List::MoreUtils qw/uniq/;
 # TODO:
 #   Don't forget to deal with TUIs!
 
+# TODO:
+#   Add character extensions to the forward index only
+
+# TODO:
+#   Fields need - depending on the type -
+#   a prefix AND a postfix!
+
 use constant DEBUG => 0;
 
 # Parse the document and create an inverted index file

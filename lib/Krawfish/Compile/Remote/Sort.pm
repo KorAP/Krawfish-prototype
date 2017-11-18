@@ -21,6 +21,9 @@ use warnings;
 # as well. This will override rank sorting on terms and fields
 # (and is probably slow).
 
+# TODO:
+#   see https://www.elastic.co/guide/en/elasticsearch/reference/6.0/modules-cross-cluster-search.html
+
 sub new {
   my $class = shift;
   bless {
