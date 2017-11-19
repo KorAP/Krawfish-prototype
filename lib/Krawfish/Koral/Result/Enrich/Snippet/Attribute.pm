@@ -1,10 +1,11 @@
 package Krawfish::Koral::Result::Enrich::Snippet::Attribute;
 use strict;
 use warnings;
-use Role::Tiny;
+use Role::Tiny::With;
 
+with 'Krawfish::Koral::Document::Annotation';
 with 'Krawfish::Koral::Result::Enrich::Snippet::Markup';
-with 'Krawfish::Koral::Result::Enrich::Snippet::Annotation';
+with 'Krawfish::Koral::Result::Enrich::Snippet::Certainty';
 
 
 # Start position of target
@@ -16,8 +17,6 @@ sub ref_tui {
   };
   return $self->{target_start};
 };
-
-
 
 
 1;

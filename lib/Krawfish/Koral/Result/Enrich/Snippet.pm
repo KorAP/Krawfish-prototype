@@ -126,12 +126,16 @@ sub _order_markup {
   #    - by start position
   #    - by start character extension
   #    - by end position
-  #    - by class number
+  #    - by class number / depth
+  #    - by annotation term
+  #    - by certainty
   # 3. Sort the closing tags
   #    - by end position
   #    - by end character extension
   #    - by start position
-  #    - by class number
+  #    - by class number /depth
+  #    - by annotation term
+  #    - by certainty
   # 4. Create a stack or a list of the doubled length of
   #    the opening list
   my @stack;
@@ -179,21 +183,20 @@ sub add {
 
   # Add markup objects
   if (Role::Tiny::does_role($e, 'Krawfish::Koral::Result::Enrich::Snippet::Markup')) {
-
     # Add the hit boundaries
-    if (Role::Tiny::does_role($e, 'Krawfish::Koral::Result::Enrich::Snippet::Hit')) {
+    if ($e->isa('Krawfish::Koral::Result::Enrich::Snippet::Hit')) {
       $self->hit_start($e->start);
       $self->hit_end($e->end);
     }
 
     # Context information
-    elsif (Role::Tiny::does_role($e, 'Krawfish::Koral::Result::Enrich::Snippet::Context')) {
+    elsif ($e->isa('Krawfish::Koral::Result::Enrich::Snippet::Context')) {
       $self->context_start($e->start);
       $self->context_end($e->end);
     }
 
     # Scope extended by, e.g., spans
-    elsif (Role::Tiny::does_role($e, 'Krawfish::Koral::Result::Enrich::Snippet::Focus')) {
+    elsif ($e->isa('Krawfish::Koral::Result::Enrich::Snippet::Focus')) {
       $self->focus_start($e->start);
       $self->focus_end($e->end);
     };

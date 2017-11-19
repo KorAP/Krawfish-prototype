@@ -1,4 +1,6 @@
 package Krawfish::Koral::Result::Inflatable;
+use strict;
+use warnings;
 use Role::Tiny;
 requires qw/inflate
             to_string

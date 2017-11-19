@@ -5,6 +5,7 @@ use warnings;
 use_ok('Krawfish::Koral::Result::Enrich::Snippet');
 use_ok('Krawfish::Koral::Result::Enrich::Snippet::Hit');
 use_ok('Krawfish::Koral::Result::Enrich::Snippet::Highlight');
+use_ok('Krawfish::Koral::Result::Enrich::Snippet::Span');
 
 # Create snippet object
 my $snippet = Krawfish::Koral::Result::Enrich::Snippet->new(
@@ -29,6 +30,16 @@ my $highlight = Krawfish::Koral::Result::Enrich::Snippet::Highlight->new(
 );
 
 ok($snippet->add($highlight), 'Add highlight');
+
+# Add annotation
+my $span = Krawfish::Koral::Result::Enrich::Snippet::Span->new(
+  term => Krawfish::Koral::Query::Term->new('opennlp/l=Baum'),
+  start => 2,
+  end => 3,
+  depth => 0
+);
+
+ok($snippet->add($span), 'Add span');
 
 done_testing;
 

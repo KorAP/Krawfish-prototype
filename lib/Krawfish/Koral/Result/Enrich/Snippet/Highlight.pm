@@ -1,7 +1,7 @@
 package Krawfish::Koral::Result::Enrich::Snippet::Highlight;
 use strict;
 use warnings;
-use Role::Tiny;
+use Role::Tiny::With;
 use Krawfish::Log;
 
 with 'Krawfish::Koral::Result::Enrich::Snippet::Markup';

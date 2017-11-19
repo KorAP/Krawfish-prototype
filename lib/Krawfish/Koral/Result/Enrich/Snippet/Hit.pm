@@ -1,13 +1,12 @@
 package Krawfish::Koral::Result::Enrich::Snippet::Hit;
 use strict;
 use warnings;
-use Role::Tiny;
+use Role::Tiny::With;
 use Krawfish::Log;
-
-with 'Krawfish::Koral::Result::Enrich::Snippet::Markup';
 
 use constant DEBUG => 0;
 
+with 'Krawfish::Koral::Result::Enrich::Snippet::Markup';
 
 # Stringify to brackets
 sub to_brackets {

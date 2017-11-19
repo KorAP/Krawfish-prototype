@@ -1,9 +1,10 @@
 package Krawfish::Koral::Result::Enrich::Snippet::Span;
 use strict;
 use warnings;
-use Role::Tiny;
+use Role::Tiny::With;
 use Krawfish::Log;
 
+with 'Krawfish::Koral::Document::Annotation';
 with 'Krawfish::Koral::Result::Enrich::Snippet::Markup';
 with 'Krawfish::Koral::Result::Enrich::Snippet::TUI';
 with 'Krawfish::Koral::Result::Enrich::Snippet::Certainty';
@@ -20,7 +21,8 @@ sub depth {
     $self->{depth} = shift;
     return $self;
   };
-  return $self->{depth};
+  return $self->{depth} // 0;
 };
+
 
 1;

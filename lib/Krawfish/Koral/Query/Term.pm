@@ -240,6 +240,8 @@ sub is_regex {
 sub to_koral_fragment {
   my $self = shift;
 
+  # TODO:
+  #   Respect term_type!
   my $hash = {
     '@type' => 'koral:term',
   };

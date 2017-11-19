@@ -1,9 +1,12 @@
 package Krawfish::Koral::Document::Annotation;
-use Krawfish::Util::String qw/squote/;
-use Krawfish::Util::Constants qw/:PREFIX/;
 use warnings;
 use strict;
+use Krawfish::Util::String qw/squote/;
+use Krawfish::Util::Constants qw/:PREFIX/;
 use Krawfish::Koral::Query::Term;
+use Role::Tiny;
+
+with 'Krawfish::Koral::Result::Inflatable';
 
 # TODO:
 #   Have common methods with
@@ -11,6 +14,10 @@ use Krawfish::Koral::Query::Term;
 
 
 # Accepts a Krawfish::Koral::Query::Term object
+#
+# TODO:
+#   May as well only accept a term_id etc.
+#   and needs to be inflated
 sub new {
   my $class = shift;
   bless {
@@ -20,35 +27,43 @@ sub new {
 };
 
 
+# Get term string
 sub term {
   $_[0]->{term};
 };
 
 
+# Get data array
 sub data {
   $_[0]->{data}
 };
 
 
+# Get foundry identifier
 sub foundry_id {
   $_[0]->{foundry_id} // 0;
 };
 
 
+# Get layer identifier
 sub layer_id {
   $_[0]->{layer_id} // 0;
 };
 
 
+# Get the term type
 sub type {
   $_[0]->{term}->term_type;
 };
 
+
+# Get the term identifier
 sub term_id {
   $_[0]->{term_id};
 };
 
 
+# Turn the term into ids
 sub identify {
   my ($self, $dict) = @_;
 
@@ -89,6 +104,24 @@ sub identify {
 };
 
 
+# Inflate
+sub inflate {
+  my ($self, $dict) = @_;
+
+  return $self if $self->{term};
+
+  # Term identifier is defined
+  if ($self->{term_id}) {
+    my $term_str = $dict->term_by_term_id($self->{term_id});
+    $self->{term} = Krawfish::Koral::Query::Term->new($term_str);
+    return $self;
+  };
+
+  return;
+};
+
+
+# Stringify annotation
 sub to_string {
   my $self = shift;
   my $str = '';
@@ -101,6 +134,12 @@ sub to_string {
     $str .= squote($self->{term}->to_term);
   };
   return $str . '$' . join(',',  @{$self->{data}});
+};
+
+
+# Turn the Annotation into a koral fragment
+sub to_koral_fragment {
+  return $_[0]->term->to_koral_fragment;
 };
 
 1;

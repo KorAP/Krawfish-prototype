@@ -1,19 +1,7 @@
-package Krawfish::Koral::Result::Enrich::Snippet::Annotation;
+package Krawfish::Koral::Result::Enrich::Snippet::Certainty;
 use strict;
 use warnings;
 use Role::Tiny;
-
-# TODO:
-#   This role needs the term identifier
-#   role!
-
-sub foundry {};
-
-sub layer {};
-
-sub key {};
-
-sub value {};
 
 # Certainty of the annotation
 sub certainty {
