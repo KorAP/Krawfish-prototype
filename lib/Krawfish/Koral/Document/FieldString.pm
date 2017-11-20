@@ -1,10 +1,11 @@
 package Krawfish::Koral::Document::FieldString;
+use warnings;
+use strict;
 use Krawfish::Util::String qw/squote/;
 use Krawfish::Util::Constants ':PREFIX';
 use Role::Tiny::With;
+
 with 'Krawfish::Koral::Document::FieldBase';
-use warnings;
-use strict;
 
 # Class for string fields
 
@@ -63,11 +64,12 @@ sub inflate {
 
 # Stringification
 sub to_string {
-  my $self = shift;
-  unless ($self->{key_id}) {
-    return squote($self->key) . '=' . squote($self->value);
+  my ($self, $id) = @_;
+
+  if (!$self->{key} || ($id && $self->{key_id})) {
+    return '#' . $self->key_id . '=' . '#' . $self->term_id;
   };
-  return '#' . $self->key_id . '=' . '#' . $self->term_id;
+  return squote($self->key) . '=' . squote($self->value);
 };
 
 1;

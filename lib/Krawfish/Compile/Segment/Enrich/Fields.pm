@@ -27,6 +27,15 @@ sub new {
   }, $class;
 };
 
+sub clone {
+  my $self = shift;
+  __PACKAGE__->new(
+    $self->{field_obj},
+    $self->{query}->clone,
+    $self->{fields} # TODO: May need some unpacking/repacking
+  );
+};
+
 
 # Initialize fields enrichment
 sub _init {

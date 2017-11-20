@@ -3,7 +3,7 @@ use Krawfish::Koral::Result::Enrich::Terms;
 use Krawfish::Log;
 use strict;
 use warnings;
-use Role::Tiny;
+use Role::Tiny::With;
 
 with 'Krawfish::Compile';
 
@@ -47,6 +47,16 @@ sub new {
     nrs   => shift // [0],
     match => undef
   }, $class;
+};
+
+
+sub clone {
+  my $self = shift;
+  __PACKAGE__->new(
+    $self->{forward_obj},
+    $self->{query}->clone,
+    [@{$self->{nrs} // [0]}]
+  );
 };
 
 sub to_string {

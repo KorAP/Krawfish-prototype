@@ -2,7 +2,7 @@ package Krawfish::Compile::Segment::Aggregate::Length;
 use Krawfish::Log;
 use strict;
 use warnings;
-use Role::Tiny;
+use Role::Tiny::With;
 
 with 'Krawfish::Compile::Segment::Aggregate::Base';
 
@@ -22,6 +22,12 @@ sub new {
     flags => $flags,
     result => Krawfish::Koral::Result::Aggregate::Length->new($flags)
   }, $class;
+};
+
+
+# Clone operation
+sub clone {
+  return __PACKAGE__->new($_[0]->{flags});
 };
 
 

@@ -47,7 +47,8 @@ sub add_store {
 
 
 sub to_string {
-  return join(';', map { $_->to_string } @{$_[0]});
+  my ($self, $id) = @_;
+  return join(';', map { $_->to_string($id) } @{$self});
 };
 
 

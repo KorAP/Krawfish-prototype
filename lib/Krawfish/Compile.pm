@@ -100,8 +100,22 @@ sub match_from_query {
 
 
 sub clone {
-  warn 'Unimplemented';
+  warn ref($_[0]) . ' - Unimplemented';
 };
+
+
+# Check, if a filter is required
+sub requires_filter {
+  $_[0]->{query}->requires_filter;
+};
+
+
+# Pass filter_by
+sub filter_by {
+  my ($self, $corpus) = @_;
+  return $self->filter_by($corpus);
+};
+
 
 # Get maximum frequency
 sub max_freq {
@@ -133,7 +147,7 @@ sub compile {
   };
 
   # Add aggregations
-  if (Role::Tiny::does_role($self, 'Krawfish::Compile::Segment::Aggregate')) {
+  if ($self->isa('Krawfish::Compile::Segment::Aggregate')) {
 
     # Add aggregations to result
     foreach (@{$self->operations}) {

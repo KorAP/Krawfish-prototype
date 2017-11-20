@@ -17,8 +17,10 @@ sub new {
 
 # Stringification
 sub to_string {
-  my $self = shift;
-  return 'fields:' . join(',', map { $_->to_string } @{$self->{fields}});
+  my ($self, $id) = @_;
+  return 'fields:' . join(',', map {
+    $_->to_string($id)
+  } @{$self->{fields}});
 };
 
 

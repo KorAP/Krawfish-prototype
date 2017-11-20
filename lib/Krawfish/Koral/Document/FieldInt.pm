@@ -66,11 +66,12 @@ sub inflate {
 
 # Stringification
 sub to_string {
-  my $self = shift;
-  unless ($self->{key_id}) {
-    return squote($self->{key}) . '=' . $self->{value};
+  my ($self, $id) = @_;
+  if (!$self->{key} || ($id && $self->{key_id})) {
+    return '#' . $self->{key_id} . '=' . '#' . $self->{key_value_id} . '(' . $self->{value} . ')';
   };
-  return '#' . $self->{key_id} . '=' . '#' . $self->{key_value_id} . '(' . $self->{value} . ')';
+
+  return squote($self->{key}) . '=' . $self->{value};
 };
 
 

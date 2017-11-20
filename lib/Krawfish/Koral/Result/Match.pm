@@ -62,7 +62,7 @@ sub to_string {
   };
 
   if ($self->payload->length) {
-    $str .= '$' . $self->payload->to_string;
+    $str .= '$' . $self->payload->to_string($id);
   };
 
   foreach (@{$self->{enrichments}}) {

@@ -3,7 +3,7 @@ use Krawfish::Koral::Result::Aggregate::Values;
 use Krawfish::Log;
 use strict;
 use warnings;
-use Role::Tiny;
+use Role::Tiny::With;
 
 with 'Krawfish::Compile::Segment::Aggregate::Base';
 
@@ -44,6 +44,17 @@ sub new {
   );
 
   return $self;
+};
+
+
+# Clone query
+sub clone {
+  my $self = shift;
+  __PACKAGE__->new(
+    $self->{fields_obj},
+    [@{$self->{field_ids}}],
+    $self->{flags}
+  );
 };
 
 

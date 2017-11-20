@@ -67,14 +67,14 @@ sub group {
 
 # Stringification
 sub to_string {
-  my $self = shift;
+  my ($self, $id) = @_;
   my $str = '';
 
   # Add aggregation
   if (@{$self->{aggregation}}) {
     $str .= '[aggr=';
     foreach (@{$self->{aggregation}}) {
-      $str .= $_->to_string;
+      $str .= $_->to_string($id);
     };
     $str .= ']';
   };
@@ -83,14 +83,14 @@ sub to_string {
   if (@{$self->{matches}}) {
     $str .= '[matches=';
     foreach (@{$self->{matches}}) {
-      $str .= $_->to_string;
+      $str .= $_->to_string($id);
     };
     $str .= ']';
   };
 
   if ($self->group) {
     $str .= '[group=';
-    $str .= $self->group->to_string;
+    $str .= $self->group->to_string($id);
     $str .= ']';
   };
 

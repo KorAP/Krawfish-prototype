@@ -64,6 +64,20 @@ sub new {
 };
 
 
+# Clone snippet object
+sub clone {
+  my $self = shift;
+  __PACKAGE__->new(
+    query     => $self->{query}->clone,
+    fwd_obj   => $self->{fwd_obj},
+    left      => $self->{left},
+    right     => $self->{right},
+    extension => $self->{extension},
+    hit       => $self->{hit}
+  );
+};
+
+
 # Initialize forward index
 sub _init {
   return if $_[0]->{_init}++;
@@ -131,7 +145,6 @@ sub current_match {
       $new_snippet->add($e);
     };
   };
-
 
   # TODO:
   #   Add character extensions from match's payload

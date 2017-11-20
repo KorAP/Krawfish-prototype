@@ -1,13 +1,17 @@
 package Krawfish::Koral::Document::FieldStore;
+use warnings;
+use strict;
 use Krawfish::Util::String qw/squote/;
 use Krawfish::Util::Constants ':PREFIX';
 use Role::Tiny::With;
-with 'Krawfish::Koral::Document::FieldBase';
-use warnings;
-use strict;
 
 # Class for store-only fields
 # (not indexed in the dictionary)
+
+# TODO:
+#   use enc_string and dec_string!
+
+with 'Krawfish::Koral::Document::FieldBase';
 
 
 sub type {
@@ -47,12 +51,19 @@ sub inflate {
 };
 
 
+sub sortable { 0 }
+
+
 sub to_string {
-  my $self = shift;
-  my $str = $self->key_id ? '#' . $self->key_id : squote($self->key);
+  my ($self, $id) = @_;
+  my $str = '';
+  if (!$self->{key} || ($id && $self->{key_id})) {
+    $str .= '#' . $self->key_id;
+  }
+  else {
+    $str .= squote($self->key);
+  };
   return $str . '=' . squote($self->value);
 };
-
-sub sortable { 0 }
 
 1;

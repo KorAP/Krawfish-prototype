@@ -2,7 +2,7 @@ package Krawfish::Compile::Segment::Aggregate;
 use Krawfish::Log;
 use strict;
 use warnings;
-use Role::Tiny;
+use Role::Tiny::With;
 
 with 'Krawfish::Compile';
 
@@ -56,6 +56,18 @@ sub new {
 };
 
 
+# Clone object
+sub clone {
+  my $self = shift;
+  my $op_clones = [map { $_->clone } @{$self->operations}];
+  __PACKAGE__->new(
+    $self->{query}->clone,
+    $op_clones
+  );
+};
+
+
+# Get operations
 sub operations {
   $_[0]->{ops};
 };

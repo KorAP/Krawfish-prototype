@@ -3,7 +3,7 @@ use Krawfish::Koral::Result::Aggregate::Frequencies;
 use Krawfish::Log;
 use strict;
 use warnings;
-use Role::Tiny;
+use Role::Tiny::With;
 
 with 'Krawfish::Compile::Segment::Aggregate::Base';
 
@@ -32,6 +32,10 @@ sub new {
   }, $class;
 };
 
+
+sub clone {
+  __PACKAGE__->new($_[0]->{flags});
+};
 
 # Add to totalResources immediately
 sub each_doc {

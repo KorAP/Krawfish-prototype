@@ -4,7 +4,7 @@ use Krawfish::Util::String qw/squote/;
 use Krawfish::Log;
 use strict;
 use warnings;
-use Role::Tiny;
+use Role::Tiny::With;
 
 with 'Krawfish::Compile::Segment::Aggregate::Base';
 
@@ -40,6 +40,15 @@ sub new {
     result     => Krawfish::Koral::Result::Aggregate::Fields->new,
     freq       => 0
   }, $class;
+};
+
+
+# Clone query
+sub clone {
+  __PACKAGE__->new(
+    $_[0]->{field_obj},
+    [@{$_[0]->{field_keys}}]
+  );
 };
 
 

@@ -6,10 +6,15 @@ use strict;
 
 use constant DEBUG => 0;
 
+with 'Krawfish::Koral::Result::Inflatable';
+
+requires qw/identify
+            type
+            sortable/;
+
 # TODO:
 #   Probably use Krawfish::Koral::Compile::Type::KeyID and
 #   Krawfish::Koral::Compile::Type::Key.
-
 
 sub new {
   my $class = shift;
@@ -36,11 +41,6 @@ sub term_id {
 
 sub value {
   $_[0]->{value};
-};
-
-
-sub inflate {
-  ...
 };
 
 

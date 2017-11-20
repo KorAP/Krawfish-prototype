@@ -3,9 +3,11 @@ use Krawfish::Koral::Result::Enrich::CorpusClasses;
 use Krawfish::Log;
 use strict;
 use warnings;
-use Role::Tiny;
+use Role::Tiny::With;
 
 with 'Krawfish::Compile';
+
+# TODO: Support flags
 
 use constant DEBUG => 1;
 
@@ -20,6 +22,15 @@ sub new {
 sub next {
   $_[0]->{match} = undef;
   $_[0]->{query}->next;
+};
+
+
+# Clone query
+sub clone {
+  return __PACKAGE__->new(
+    query => $_[0]->{query}->clone,
+    flags => $_[0]->{flags}
+  );
 };
 
 

@@ -117,22 +117,23 @@ is($kq->{fields}->[2]->{value}, 'free', 'KQ');
 
 ok($fields->next, 'Next');
 is($fields->current->to_string, '[0:1-2]', 'Current object');
-is($fields->current_match->to_string, "[0:1-2|fields:#1=#2,#5=#6(1996),#7=#8]",
+is($fields->current_match->to_string,
+   "[0:1-2|fields:'corpus'='corpus-2','year'=1996,'license'='free']",
    'Current match');
 
 ok($fields->next, 'Next');
 is($fields->current->to_string, '[1:0-1]', 'Current object');
-is($fields->current_match->to_string, "[1:0-1|fields:#1=#13,#5=#15(1998),#7=#16]",
+is($fields->current_match->to_string(1), "[1:0-1|fields:#1=#13,#5=#15(1998),#7=#16]",
    'Current match');
 
 ok($fields->next, 'Next');
 is($fields->current->to_string, '[1:1-2]', 'Current object');
-is($fields->current_match->to_string, "[1:1-2|fields:#1=#13,#5=#15(1998),#7=#16]",
+is($fields->current_match->to_string(1), "[1:1-2|fields:#1=#13,#5=#15(1998),#7=#16]",
    'Current match');
 
 ok($fields->next, 'Next');
 is($fields->current->to_string, '[2:0-1]', 'Current object');
-is($fields->current_match->to_string, "[2:0-1|fields:#1=#17,#5=#19(2002),#7=#8,#20='My URL']",
+is($fields->current_match->to_string(1), "[2:0-1|fields:#1=#17,#5=#19(2002),#7=#8,#20='My URL']",
    'Current match');
 
 ok(!$fields->next, 'Next');

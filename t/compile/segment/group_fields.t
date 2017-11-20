@@ -240,14 +240,7 @@ is($result->to_string,
    'Stringification');
 
 
-
-
-
-
-
-
-
-diag 'Check grouping with aggregation (e.g. frequencies) and empty fields';
+diag 'Check grouping with empty fields';
 
 done_testing;
 __END__
