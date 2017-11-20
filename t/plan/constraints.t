@@ -7,7 +7,7 @@ use_ok('Krawfish::Koral::Query::Builder');
 my $qb = Krawfish::Koral::Query::Builder->new;
 
 # No constraints
-ok(my $query = $qb->constraints(
+ok(my $query = $qb->constraint(
   [],
   $qb->repeat($qb->term('a'),2),
   $qb->term('b')
@@ -20,7 +20,7 @@ ok($query->has_error, 'Has error');
 
 
 # Position constraint: succeeds_directly
-ok($query = $qb->constraints(
+ok($query = $qb->constraint(
   [$qb->c_position('succeedsDirectly')],
   $qb->repeat($qb->term('a'), 2),
   $qb->term('b')
@@ -35,7 +35,7 @@ is($query->max_span, 3, 'Span length');
 
 
 # Position constraint: precedes
-ok($query = $qb->constraints(
+ok($query = $qb->constraint(
   [$qb->c_position('precedes')],
   $qb->repeat($qb->term('a'), 2),
   $qb->term('b')
@@ -50,7 +50,7 @@ is($query->max_span, -1, 'Span length');
 
 
 # Position constraint: overlaps
-ok($query = $qb->constraints(
+ok($query = $qb->constraint(
   [$qb->c_position('overlapsLeft', 'overlapsRight')],
   $qb->repeat($qb->term('a'), 2),
   $qb->term('b')
@@ -67,7 +67,7 @@ is($query->max_span, -1, 'Span length');
 
 
 # Position constraint: overlaps
-ok($query = $qb->constraints(
+ok($query = $qb->constraint(
   [$qb->c_position('overlapsLeft', 'overlapsRight')],
   $qb->repeat($qb->term('a'), 1, 100),
   $qb->repeat($qb->term('b'), 1, 100)
@@ -82,7 +82,7 @@ is($query->max_span, 199, 'Span length');
 
 
 # Overlaps with classes
-ok($query = $qb->constraints(
+ok($query = $qb->constraint(
   [$qb->c_position('overlapsLeft', 'overlapsRight')],
   $qb->class($qb->repeat($qb->term('a'), 1, undef),3),
   $qb->class($qb->repeat($qb->term('b'), 1, undef),4)
@@ -97,7 +97,7 @@ is($query->max_span, -1, 'Span length');
 
 
 # Overlaps with classes (2)
-ok($query = $qb->constraints(
+ok($query = $qb->constraint(
   [$qb->c_position('overlapsLeft', 'overlapsRight')],
   $qb->repeat($qb->class($qb->term('a'),3), 1, 100),
   $qb->repeat($qb->class($qb->term('b'),4), 1, 100)
@@ -112,7 +112,7 @@ is($query->max_span, 199, 'Span length');
 
 
 # Add some more constraints automatically
-ok($query = $qb->constraints(
+ok($query = $qb->constraint(
   [$qb->c_not_between($qb->term('b'))],
   $qb->term('a'),
   $qb->term('c')
@@ -123,7 +123,7 @@ is($query->to_string, 'constr(pos=precedes;succeeds,between=1-1,notBetween=b:a,c
    'Constraint');
 
 # Respect given constraints as well
-ok($query = $qb->constraints(
+ok($query = $qb->constraint(
   [
     $qb->c_not_between($qb->term('b')),
     $qb->c_position('precedes')
@@ -138,7 +138,7 @@ is($query->to_string, 'constr(pos=precedes,between=1-1,notBetween=b:a,c)',
 
 
 # Add position constraints to in_between constraint automatically
-ok($query = $qb->constraints(
+ok($query = $qb->constraint(
   [$qb->c_in_between(0,4)],
   $qb->term('a'),
   $qb->term('c')
@@ -154,7 +154,7 @@ is($query->max_span, 6, 'Span length');
 
 
 # In between in order
-ok($query = $qb->constraints(
+ok($query = $qb->constraint(
   [$qb->c_in_order, $qb->c_in_between(0,4)],
   $qb->term('a'),
   $qb->term('c')
@@ -172,7 +172,7 @@ is($query->max_span, 6, 'Span length');
 
 
 # Simplify multiple in_betweens
-ok($query = $qb->constraints(
+ok($query = $qb->constraint(
   [$qb->c_in_between(2,8), $qb->c_in_between(0,4)],
   $qb->term('a'),
   $qb->term('c')
@@ -187,7 +187,7 @@ is($query->max_span, 6, 'Span length');
 
 
 # Multiple in_betweens contradict theirselves
-ok($query = $qb->constraints(
+ok($query = $qb->constraint(
   [$qb->c_in_between(2,8), $qb->c_in_between(10,12)],
   $qb->term('a'),
   $qb->term('c')

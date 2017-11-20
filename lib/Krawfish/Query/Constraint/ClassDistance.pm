@@ -1,6 +1,9 @@
 package Krawfish::Query::Constraint::ClassDistance;
+use Role::Tiny::With;
 use strict;
 use warnings;
+
+with 'Krawfish::Query::Constraint::Base';
 
 # This is no real check,
 # it simply marks the distance between two spans

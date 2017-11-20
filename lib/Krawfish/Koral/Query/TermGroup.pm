@@ -2,7 +2,7 @@ package Krawfish::Koral::Query::TermGroup;
 use parent ('Krawfish::Koral::Util::Boolean','Krawfish::Koral::Query');
 use Krawfish::Koral::Query::Term;
 use Krawfish::Query::Or;
-use Krawfish::Query::Constraints;
+use Krawfish::Query::Constraint;
 use Krawfish::Query::Constraint::Position;
 use Krawfish::Log;
 use Scalar::Util qw/blessed/;
@@ -107,7 +107,7 @@ sub remove_classes {
 # Create a token based and-query
 sub bool_and_query {
   my $self = shift;
-  Krawfish::Query::Constraints->new(
+  Krawfish::Query::Constraint->new(
     [Krawfish::Query::Constraint::Position->new(MATCHES)],
     $_[0],
     $_[1]

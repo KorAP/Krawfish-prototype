@@ -12,7 +12,7 @@ ok_index($index, [qw/aa bb aa bb aa bb/], 'Add complex document');
 my $qb = Krawfish::Koral::Query::Builder->new;
 
 # This equals to [aa][]{1,4}[bb]
-my $wrap = $qb->constraints(
+my $wrap = $qb->constraint(
   [$qb->c_position('precedes', 'precedesDirectly'), $qb->c_in_between(1,4)],
   $qb->token('aa'),
   $qb->token('bb')
@@ -28,7 +28,7 @@ matches($query, ['[0:0-4]','[0:0-6]','[0:2-6]']);
 
 
 # This equals to [aa][]{1,3}[bb]
-$wrap = $qb->constraints(
+$wrap = $qb->constraint(
   [$qb->c_position('precedes', 'precedesDirectly'), $qb->c_in_between(1,3)],
   $qb->token('aa'),
   $qb->token('bb')
@@ -44,7 +44,7 @@ matches($query, ['[0:0-4]','[0:2-6]']);
 
 
 # This equals to [aa][]{1,3}[bb] - optimized
-$wrap = $qb->constraints(
+$wrap = $qb->constraint(
   [$qb->c_position('precedes'), $qb->c_in_between(1,3)],
   $qb->token('aa'),
   $qb->token('bb')
@@ -59,7 +59,7 @@ matches($query, ['[0:0-4]','[0:2-6]']);
 
 
 # This equals to [aa][]{1,3}[bb] - but is contradicted due to precedesDirectly!
-$wrap = $qb->constraints(
+$wrap = $qb->constraint(
   [$qb->c_position('precedesDirectly'), $qb->c_in_between(1,3)],
   $qb->token('aa'),
   $qb->token('bb')

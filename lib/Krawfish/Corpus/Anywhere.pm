@@ -1,7 +1,7 @@
 package Krawfish::Corpus::Anywhere;
 use strict;
 use warnings;
-use Role::Tiny;
+use Role::Tiny::With;
 use Krawfish::Index::PostingsLive;
 use Krawfish::Posting;
 use Krawfish::Query::Nowhere;

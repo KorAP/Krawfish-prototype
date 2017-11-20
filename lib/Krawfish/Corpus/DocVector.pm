@@ -1,7 +1,7 @@
 package Krawfish::Corpus::DocVector;
 use strict;
 use warnings;
-use Role::Tiny;
+use Role::Tiny::With;
 
 with 'Krawfish::Corpus';
 

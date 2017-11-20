@@ -3,7 +3,7 @@ use Krawfish::Log;
 use Krawfish::Query::Nowhere;
 use Krawfish::Query::Constraint::Position;
 use Krawfish::Query::Constraint::InBetween;
-use Krawfish::Query::Constraints;
+use Krawfish::Query::Constraint;
 use List::MoreUtils qw!uniq!;
 use strict;
 use warnings;
@@ -1086,7 +1086,7 @@ sub _compare {
 sub _precedes_directly {
   my ($query_a, $query_b) = @_;
 
-  return Krawfish::Query::Constraints->new(
+  return Krawfish::Query::Constraint->new(
     [Krawfish::Query::Constraint::Position->new(PRECEDES_DIRECTLY)],
     $query_a,
     $query_b
@@ -1097,7 +1097,7 @@ sub _precedes_directly {
 sub _succeeds_directly {
   my ($query_a, $query_b) = @_;
 
-  return Krawfish::Query::Constraints->new(
+  return Krawfish::Query::Constraint->new(
     [Krawfish::Query::Constraint::Position->new(SUCCEEDS_DIRECTLY)],
     $query_a,
     $query_b
@@ -1162,7 +1162,7 @@ sub _constraint {
   };
 
   # Return constraint query
-  return Krawfish::Query::Constraints->new(
+  return Krawfish::Query::Constraint->new(
     \@constraints,
     $query_a,
     $query_b

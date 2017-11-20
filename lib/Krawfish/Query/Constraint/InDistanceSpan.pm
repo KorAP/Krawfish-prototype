@@ -1,6 +1,10 @@
 package Krawfish::Query::Constraint::InSpanDistance;
+use Role::Tiny::With;
 use strict;
 use warnings;
+
+with 'Krawfish::Query::Constraint::Base';
+
 
 # The first span and the second span needs to be inside
 # spans, maybe in the same (max=0) or with a distance.

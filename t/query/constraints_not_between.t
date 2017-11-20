@@ -13,7 +13,7 @@ ok_index($index, '[aa|xx][cc][bb|xx]', 'Add complex document');
 
 my $qb = Krawfish::Koral::Query::Builder->new;
 
-my $query = $qb->constraints(
+my $query = $qb->constraint(
   [
     $qb->c_position('precedes'),
     $qb->c_not_between($qb->token('cc'))
@@ -31,7 +31,7 @@ ok(my $plan = $query->normalize->finalize->identify($index->dict)->optimize($ind
 matches($plan, [qw/[1:0-3]/]);
 
 # New query
-$query = $qb->constraints(
+$query = $qb->constraint(
   [
     $qb->c_position('precedes'),
     $qb->c_not_between($qb->token('dd'))
@@ -49,7 +49,7 @@ ok($plan = $query->normalize->finalize->identify($index->dict)->optimize($index-
 matches($plan, [qw/[0:0-3] [2:0-3]/]);
 
 # Ignore classes in negation
-$query = $qb->constraints(
+$query = $qb->constraint(
   [
     $qb->c_position('precedes'),
     $qb->c_not_between($qb->class($qb->token('dd')))
@@ -67,7 +67,7 @@ ok($plan = $query->normalize->finalize->identify($index->dict)->optimize($index-
 #   check matches
 
 # Introduce classes inbetween
-$query = $qb->constraints(
+$query = $qb->constraint(
   [
     $qb->c_position('precedes'),
     $qb->c_not_between($qb->token('dd')),
@@ -87,7 +87,7 @@ ok($plan = $query->normalize->finalize->identify($index->dict)->optimize($index-
 
 
 # Ignore no-match in negation
-$query = $qb->constraints(
+$query = $qb->constraint(
   [
     $qb->c_position('precedes'),
     $qb->c_not_between($qb->class($qb->token('ff')))

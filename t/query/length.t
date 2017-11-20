@@ -12,7 +12,7 @@ ok_index($index, [qw/aa bb aa bb aa bb aa bb aa bb/], 'Add complex document');
 my $qb = Krawfish::Koral::Query::Builder->new;
 
 my $wrap = $qb->length(
-  $qb->constraints(
+  $qb->constraint(
     [$qb->c_position('precedes')],
     $qb->token('aa'),
     $qb->token('bb')

@@ -15,7 +15,7 @@ use Krawfish::Koral::Query::Extension;
 use Krawfish::Koral::Query::Exclusion;
 use Krawfish::Koral::Query::Unique;
 use Krawfish::Koral::Query::Class;
-use Krawfish::Koral::Query::Constraints;
+use Krawfish::Koral::Query::Constraint;
 use Krawfish::Koral::Query::Length;
 use Krawfish::Koral::Query::Nowhere;
 use Krawfish::Koral::Query::Or;
@@ -131,7 +131,7 @@ sub in_text {
 sub position {
   my $self = shift;
   my $frames = shift;
-  return $self->constraints(
+  return $self->constraint(
     [$self->c_position(@$frames)],
     @_
   );
@@ -159,9 +159,9 @@ sub reference {
 };
 
 
-sub constraints {
+sub constraint {
   shift;
-  Krawfish::Koral::Query::Constraints->new(@_);
+  Krawfish::Koral::Query::Constraint->new(@_);
 };
 
 sub c_position {

@@ -1,7 +1,10 @@
 package Krawfish::Query::Constraint::NotBetween;
+use Role::Tiny::With;
 use Krawfish::Log;
 use strict;
 use warnings;
+
+with 'Krawfish::Query::Constraint::Base';
 
 # Check, if a negative token is in between.
 # Like [orth=Der][orth!=alte][orth=Mann].

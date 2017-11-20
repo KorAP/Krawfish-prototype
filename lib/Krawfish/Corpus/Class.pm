@@ -1,7 +1,7 @@
 package Krawfish::Corpus::Class;
 use strict;
 use warnings;
-use Role::Tiny;
+use Role::Tiny::With;
 use Krawfish::Util::Constants qw/NOMOREDOCS/;
 use Krawfish::Util::Bits qw/classes_to_flags bitstring/;
 use Krawfish::Log;

@@ -29,7 +29,7 @@ ok($q = $q->normalize->finalize->identify($index->dict)->optimize($index->segmen
 is($q->to_string, "class(2:or(or(or(#10,#12),#8),#2))", 'Stringification');
 
 # Constraints
-ok($q = $qb->constraints(
+ok($q = $qb->constraint(
   [$qb->c_position('precedes')],
   $qb->term_re('[ac].'),
   $qb->term_re('b.')
@@ -40,7 +40,7 @@ is($q->to_string, "constr(pos=1:or(or(or(#10,#12),#8),#2),or(#6,#4))",
 
 
 # Constraints: Inflate in constraint
-ok($q = $qb->constraints(
+ok($q = $qb->constraint(
   [
     $qb->c_position('precedes'),
     $qb->c_not_between(
@@ -64,7 +64,7 @@ is($q->to_string, "constr(pos=1,between=1-1,notBetween=or(or(or(#10,#12),#8),#2)
    'Stringification');
 
 # Constraints: One operand is missing
-ok($q = $qb->constraints(
+ok($q = $qb->constraint(
   [
     $qb->c_class_distance(2)
   ],
@@ -80,7 +80,7 @@ is($q->to_string, "[0]", 'Stringification');
 
 
 # Constraints: One constraint fails
-ok($q = $qb->constraints(
+ok($q = $qb->constraint(
   [
     $qb->c_not_between(
       $qb->term_re('[e].')

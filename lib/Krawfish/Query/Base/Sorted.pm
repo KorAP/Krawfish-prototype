@@ -1,5 +1,5 @@
 package Krawfish::Query::Base::Sorted;
-use Role::Tiny::With;
+use Role::Tiny;
 use Krawfish::Log;
 use strict;
 use warnings;

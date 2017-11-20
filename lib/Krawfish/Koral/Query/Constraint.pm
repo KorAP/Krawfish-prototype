@@ -1,7 +1,7 @@
-package Krawfish::Koral::Query::Constraints;
+package Krawfish::Koral::Query::Constraint;
 use parent 'Krawfish::Koral::Query';
 use List::Util qw/min max/;
-use Krawfish::Query::Constraints;
+use Krawfish::Query::Constraint;
 use Krawfish::Query::Constraint::Position;
 use Krawfish::Util::Bits;
 use Krawfish::Log;
@@ -295,7 +295,7 @@ sub optimize {
   };
 
   # Create constraint
-  return Krawfish::Query::Constraints->new(
+  return Krawfish::Query::Constraint->new(
     \@constraints,
     $first,
     $second

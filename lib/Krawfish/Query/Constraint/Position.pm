@@ -2,8 +2,11 @@ package Krawfish::Query::Constraint::Position;
 use parent 'Exporter';
 use Krawfish::Log;
 use Krawfish::Util::Bits; # exports bitstring()
+use Role::Tiny::With;
 use strict;
 use warnings;
+
+with 'Krawfish::Query::Constraint::Base';
 
 # This constraint validates positions
 # between spans and returns a valid forwarding mechanism

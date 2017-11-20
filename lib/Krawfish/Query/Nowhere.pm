@@ -2,7 +2,7 @@ package Krawfish::Query::Nowhere;
 use strict;
 use warnings;
 use Krawfish::Util::Constants qw/NOMOREDOCS/;
-use Role::Tiny;
+use Role::Tiny; # Is also a role and an instance ... probably bad!
 
 with 'Krawfish::Query';
 

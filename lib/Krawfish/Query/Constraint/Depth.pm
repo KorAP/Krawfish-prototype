@@ -1,7 +1,11 @@
 package Krawfish::Query::Constraint::Depth;
+use Role::Tiny::With;
 use Krawfish::Query::Base::Dual;
 use strict;
 use warnings;
+
+with 'Krawfish::Query::Constraint::Base';
+
 
 # THIS IS CURRENTLY JUST A MOCKUP
 

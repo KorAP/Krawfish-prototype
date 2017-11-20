@@ -12,7 +12,7 @@ ok_index($index, [qw/aa bb aa bb aa bb/], 'Add complex document');
 my $qb = Krawfish::Koral::Query::Builder->new;
 
 # This equals to [aa]{5:[]+}[bb]
-my $wrap = $qb->constraints(
+my $wrap = $qb->constraint(
   [$qb->c_position('precedes'), $qb->c_class_distance(5)],
   $qb->token('aa'),
   $qb->token('bb')
@@ -25,7 +25,7 @@ ok(my $query = $wrap->normalize->finalize->identify($index->dict)->optimize($ind
 matches($query, ['[0:0-4$0,5,1,2]','[0:0-6$0,5,1,4]','[0:2-6$0,5,3,4]']);
 
 # This equals to [aa]{5:[]*}[bb]
-$wrap = $qb->constraints(
+$wrap = $qb->constraint(
   [$qb->c_position('precedes', 'precedesDirectly'), $qb->c_class_distance(5)],
   $qb->token('aa'),
   $qb->token('bb')

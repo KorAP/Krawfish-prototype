@@ -1,7 +1,7 @@
 package Krawfish::Corpus::Cache;
 use strict;
 use warnings;
-use Role::Tiny;
+use Role::Tiny::With;
 use Krawfish::Index::Stream;
 use Krawfish::Cache;
 use Krawfish::Util::Constants qw/NOMOREDOCS/;

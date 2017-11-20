@@ -1,6 +1,10 @@
 package Krawfish::Query::Constraint::InBetween;
 use strict;
 use warnings;
+use Role::Tiny::With;
+
+with 'Krawfish::Query::Constraint::Base';
+
 
 # Check tokens or segments in between.
 # Like [orth=Der][]{1,2}[orth=Mann] or

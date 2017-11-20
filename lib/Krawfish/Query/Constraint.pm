@@ -1,4 +1,4 @@
-package Krawfish::Query::Constraints;
+package Krawfish::Query::Constraint;
 use strict;
 use warnings;
 use Role::Tiny::With;
