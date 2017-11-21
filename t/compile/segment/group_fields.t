@@ -13,6 +13,7 @@ ok_index($index, {
   id => 2,
   author => 'Peter',
   genre => 'novel',
+  category => 'new',
   age => 3
 } => [qw/aa bb/], 'Add complex document');
 ok_index($index, {
@@ -25,12 +26,14 @@ ok_index($index, {
   id => 5,
   author => 'Peter',
   genre => 'newsletter',
+  category => 'new',
   age => 4
 } => [qw/aa bb/], 'Add complex document');
 ok_index($index, {
   id => 6,
   author => 'Michael',
   genre => 'newsletter',
+  category => 'new',
   age => 7
 } => [qw/aa bb/], 'Add complex document');
 
@@ -78,12 +81,12 @@ ok($koral_query = $koral_query->identify($index->dict),
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string(1),
-   "gFields(#3:(#17|#4)&[1])",
+   "gFields(#3:(#19|#4)&[1])",
    'Stringification');
 
 ok(my $query = $koral_query->optimize($index->segment), 'optimize query');
 
-is($query->to_string, 'gFields(#3:and(or(#17,#4),[1]))', 'Stringification');
+is($query->to_string, 'gFields(#3:and(or(#19,#4),[1]))', 'Stringification');
 
 ok(my $result = $query->compile->inflate($index->dict), 'Compile');
 
@@ -117,7 +120,7 @@ is($koral->to_string,
 ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment), 'Optimize');
 
 is($query->to_string,
-   'gFields(#3,#5:filter(or(#10,#12),or(#17,#2)))',
+   'gFields(#3,#7:filter(or(#12,#14),or(#19,#2)))',
    'Stringification');
 
 ok($result = $query->compile->inflate($index->dict), 'Search');
@@ -222,7 +225,7 @@ is($query->to_string,
 
 ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimize');
 is($query->to_string,
-   'gFields(#3:aggr([freq]:filter(or(#10,#12),or(class(1:#6),class(2:#15)))))',
+   'gFields(#3:aggr([freq]:filter(or(#12,#14),or(class(1:#8),class(2:#17)))))',
    'Stringification');
 
 ok($result = $query->compile->inflate($index->dict), 'Compile');
@@ -240,7 +243,44 @@ is($result->to_string,
    'Stringification');
 
 
-diag 'Check grouping with empty fields';
+
+# New query - with additional aggregation
+$koral = Krawfish::Koral->new;
+
+# Compile object
+$koral->compilation(
+  $mb->group_by(
+    $mb->g_fields('unknown','category', 'genre')
+  )
+);
+
+$koral->query(
+  $qb->bool_or($qb->term('aa'), $qb->term('bb'))
+);
+
+ok($query = $koral->to_query, 'To query');
+
+is($query->to_string,
+   "gFields('unknown','category','genre':filter(aa|bb,[1]))",
+   'Stringification');
+
+ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimize');
+is($query->to_string,
+   'gFields(#5,#7:filter(or(#12,#14),[1]))',
+   'Stringification');
+
+ok($result = $query->compile->inflate($index->dict), 'Compile');
+
+is($result->to_string,
+   "[group=".
+     "[fields=['category','genre'];".
+     "total:[".
+     "'_novel':[1,2],".
+     "'new_newsletter':[2,4],".
+     "'new_novel':[1,2]]".
+     "]".
+     "]",
+   'Result stringification');
 
 done_testing;
 __END__

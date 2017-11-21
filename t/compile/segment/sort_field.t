@@ -213,7 +213,6 @@ $koral->compilation($mb->sort_by($mb->s_field('author')));
 ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment), 'Optimize');
 
 # 2, [3, 5], [4,7,6], 0
-# print "\n-----------------------------------------\n\n";
 ok($query->next, 'Move to next bundle');
 is($query->current->to_string, '[2:0-2]', 'Stringification');
 ok($query->next, 'Move to next bundle');

@@ -113,6 +113,7 @@ sub next {
 
         # There are no more values for the position
         if (!$field_objs[$val_pos]) {
+
           # Add ignorable null term
           unless (@{$patterns[$key_pos]}) {
             push @{$patterns[$key_pos]}, 0;
@@ -132,9 +133,17 @@ sub next {
         # Forward key position
         elsif ($field_keys[$key_pos] < $field_objs[$val_pos]->key_id) {
 
+          if (DEBUG) {
+            print_log(
+              'g_fields',
+              'Key at ' . $key_pos . ' is ' . $field_keys[$key_pos] .
+                ' which is smaller than ' . $field_objs[$val_pos]->key_id);
+          };
+
           # Add ignorable null term
-          unless (@{$patterns[$key_pos]}) {
-            push @{$patterns[$key_pos]}, 0;
+          # Pattern is not yet initialized
+          if (!$patterns[$key_pos] || !@{$patterns[$key_pos]}) {
+            $patterns[$key_pos] = [0]
           };
           $key_pos++;
         }
