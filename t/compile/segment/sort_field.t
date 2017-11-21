@@ -210,7 +210,13 @@ ok(!$query->next_bundle, 'No more next bundles');
 
 $koral->query($qb->seq($qb->token('aa'),$qb->token('bb')));
 $koral->compilation($mb->sort_by($mb->s_field('author')));
-ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment), 'Optimize');
+
+ok($query = $koral->to_query, 'To query');
+
+# Run query
+ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimize');
+
+ok(my $clone = $query->clone, 'Clone query');
 
 # 2, [3, 5], [4,7,6], 0
 ok($query->next, 'Move to next bundle');
@@ -232,7 +238,13 @@ is($query->current->to_string, '[0:0-2]', 'Stringification');
 ok(!$query->next, 'No more next bundles');
 
 
-diag 'Test cloning';
+# Run clone
+ok(my $result = $clone->compile->inflate($index->dict), 'Run clone');
+
+is($result->to_string,
+   '[matches=[2:0-2][3:0-2][5:0-2][4:0-2][7:0-2][7:2-4][6:0-2][0:0-2]]',
+   'Stringification');
+
 diag 'Deal with non-ranked fields';
 diag 'Add sorting criteria in unbundling phase';
 
