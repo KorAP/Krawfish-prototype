@@ -44,7 +44,7 @@ sub rank_for {
     );
   };
 
-  return $self->[$doc_id] // 0;
+  return $self->[$doc_id];
 };
 
 

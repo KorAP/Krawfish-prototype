@@ -22,7 +22,7 @@ memoize('max_span');
 #
 # next([Der],previous(filter(author=goethe,[Mann]),[alte&ADJ]))
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 sub new {
   my $class = shift;
@@ -102,6 +102,10 @@ sub finalize {
 sub optimize {
   my ($self, $segment) = @_;
 
+  if (DEBUG) {
+    print_log('kq_filter', 'Optimize filter ' . $self->to_string);
+  };
+
   # Optimize corpus
   my $corpus = $self->corpus->optimize($segment);
 
@@ -117,13 +121,28 @@ sub optimize {
   # Optimize span
   my $span = $self->operand->optimize($segment);
 
+  if (DEBUG) {
+    print_log('kq_filter', 'Operands are now ' .
+                ref($span) . ':' . $span->to_string . ' and ' .
+                ref($corpus) . ':' . $corpus->to_string);
+  };
+
   # Filter would rule out everything
   if ($span->max_freq == 0) {
     return Krawfish::Query::Nowhere->new;
   };
 
   # Filter the span with the corpus
-  return $span->filter_by($corpus);
+  my $filter =  $span->filter_by($corpus);
+
+  if (DEBUG) {
+    print_log(
+      'kq_filter',
+      'Optimized filter query is ' . ref($filter) . ':' . $filter->to_string
+    );
+  };
+
+  return $filter;
 };
 
 

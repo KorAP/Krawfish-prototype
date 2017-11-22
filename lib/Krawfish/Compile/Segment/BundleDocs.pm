@@ -19,7 +19,7 @@ requires qw/next_bundle/;
 #   is relevant.
 #   That's why next_doc is identical to next_bundle-
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 sub new {
   my $class = shift;

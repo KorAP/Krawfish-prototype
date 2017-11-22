@@ -6,6 +6,8 @@ use Role::Tiny;
 
 with 'Krawfish::Compile';
 
+# TODO:
+#   Rename to offset!
 
 use constant DEBUG => 0;
 

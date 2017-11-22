@@ -264,6 +264,9 @@ is($query->to_string,
    "gFields('unknown','category','genre':filter(aa|bb,[1]))",
    'Stringification');
 
+diag 'Respect unknown field';
+# as it may only be unknown to this node!
+
 ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimize');
 is($query->to_string,
    'gFields(#5,#7:filter(or(#12,#14),[1]))',

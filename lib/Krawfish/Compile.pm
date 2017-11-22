@@ -28,7 +28,7 @@ requires qw/current_match
 #   queries on the root level instead of the intermediate
 #   compile level
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 
 # Return match object
@@ -128,7 +128,7 @@ sub compile {
   my $self = shift;
 
   if (DEBUG) {
-    print_log('compile', 'Compile aggregation');
+    print_log('compile', 'Compile aggregation with ' . ref($self));
   };
 
   # Get result object
@@ -165,10 +165,13 @@ sub compile {
   my $query = $self->{query};
 
   if (DEBUG) {
-    print_log('compile', 'Check if ' . $query . ' does compiling');
+    print_log('compile', 'Check if ' . ref($query) . ' does compiling');
   };
 
   if (Role::Tiny::does_role($query, 'Krawfish::Compile')) {
+    if (DEBUG) {
+      print_log('compile', 'Add result from ' . ref($query));
+    };
     $query->result($result)->compile;
   };
 

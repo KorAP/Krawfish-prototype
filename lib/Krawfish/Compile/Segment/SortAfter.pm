@@ -1,9 +1,10 @@
 package Krawfish::Compile::Segment::SortAfter;
 use Data::Dumper;
 use Krawfish::Log;
+use Krawfish::Util::Constants qw/MAX_TOP_K/;
 use strict;
 use warnings;
-use Role::Tiny;
+use Role::Tiny::With;
 
 with 'Krawfish::Compile::Segment::Sort';
 
@@ -25,7 +26,7 @@ with 'Krawfish::Compile::Segment::Sort';
 
 
 use constant {
-  DEBUG   => 0,
+  DEBUG   => 1,
   RANK    => 0,
   SAME    => 1,
   VALUE   => 2,
@@ -45,7 +46,7 @@ sub new {
   # This is the sort criterion
   my $sort     = $param{sort};
 
-  $top_k //= $segment->max_rank;
+  $top_k //= MAX_TOP_K;
 
   if (DEBUG) {
     print_log('sort_after', 'Initiate follow up sort');
@@ -71,7 +72,7 @@ sub next_bundle {
     print_log('sort_after', 'Move to next bundle');
   };
 
-  $_[0]->{current_bundle} = undef;
+  $self->{current_bundle} = undef;
 
   # Already served enough
   if ($self->{pos} > $self->{top_k}) {
@@ -148,6 +149,10 @@ sub next_bundle {
     # Get stored rank
     $rank = $sort->rank_for($posting->doc_id);
 
+    if (DEBUG) {
+      print_log('sort_after', 'Rank for doc id ' . $posting->doc_id . " is $rank");
+    };
+
     # Checking for $$max_rank_ref is not useful here,
     # as the bundles are already bundled and skipping bundles
     # using next_doc() and preview_doc_id() is not beneficial.
@@ -158,9 +163,11 @@ sub next_bundle {
   # Get the sorted array (which has still the ranking structure etc.)
   my $array = $queue->reverse_array;
 
-  print_log('sort_after', 'Get list ranking of ' . Dumper($array)) if DEBUG;
+  if (DEBUG && 0) {
+    print_log('sort_after', 'Get list ranking of ' . Dumper($array));
+  };
 
-  if (DEBUG) {
+  if (DEBUG && $self->{current_bundle}) {
     print_log(
       'sort_after',
       'New current bundle is ' . $self->{current_bundle}->to_string
@@ -188,17 +195,6 @@ sub clone {
     top_k   => $self->{top_k},
     sort    => $self->{sort}
   );
-};
-
-
-# Stringification
-sub to_string {
-  my $self = shift;
-  my $str = 'sort(';
-  $str .= $self->{sort}->to_string;
-  $str .= ',0-' . $self->{top_k} if $self->{top_k};
-  $str .= ':' . $self->{query}->to_string;
-  return $str . ')';
 };
 
 1;

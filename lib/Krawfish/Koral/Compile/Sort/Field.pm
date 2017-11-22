@@ -30,8 +30,8 @@ sub optimize {
 
   return Krawfish::Compile::Segment::Sort::Field->new(
     $segment,
-    $_[0]->{field}->term_id,
-    $_[0]->{desc}
+    $self->{field}->term_id,
+    $self->{desc}
   );
 };
 

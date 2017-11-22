@@ -1,5 +1,6 @@
 package Krawfish::Compile::Segment::Sort;
 use Krawfish::Util::String qw/squote/;
+use Krawfish::Util::Constants qw/MAX_TOP_K/;
 use Krawfish::Util::PriorityQueue::PerDoc;
 use Krawfish::Koral::Result::Match;
 use Krawfish::Posting::Bundle;
@@ -54,7 +55,7 @@ with 'Krawfish::Compile::Segment::BundleDocs';
 
 
 use constant {
-  DEBUG   => 0,
+  DEBUG   => 1,
   RANK    => 0,
   SAME    => 1,
   VALUE   => 2,
@@ -74,7 +75,7 @@ sub new {
   # TODO:
   #   Check for mandatory parameters
   #
-  my $query    = $param{query};
+  my $query = $param{query};
 
   unless (Role::Tiny::does_role($query, 'Krawfish::Compile::Segment::Bundle')) {
     warn 'The query is no bundled query';
@@ -90,7 +91,7 @@ sub new {
   # Set top_k if not yet set
   # - to be honest, heap sort is probably not the
   # best approach for a full search
-  $top_k //= $segment->max_rank;
+  $top_k //= MAX_TOP_K;
 
   # The maximum ranking value may be used
   # by outside filters to know in advance,
@@ -120,6 +121,7 @@ sub new {
     query        => $query,
     queue        => $queue,
     max_rank_ref => $max_rank_ref,
+    max_rank     => $segment->max_rank,
 
     # TODO:
     #   Rename to criterion
@@ -201,6 +203,13 @@ sub _init {
       print_log('sort', "Check rank $rank against max rank " . $$max_rank_ref);
     };
 
+    # Rank is not given, because the field is not defined
+    # Always sort this to be at the end, no matter what the order is
+    # TODO:
+    #   Alternatively the rank could be max_rank from rank_for!
+#    if ($rank == 0) {
+#      $rank = $self->{max_rank};
+#    };
 
     # Precheck if the match is relevant
     if ($rank > $$max_rank_ref) {
@@ -234,6 +243,10 @@ sub _init {
   my $array = $queue->reverse_array;
   if (DEBUG && 0) {
     print_log('sort', 'Get list ranking of ' . Dumper($array));
+  };
+
+  if (DEBUG) {
+    print_log('sort', 'First pass sorting finished','----------------');
   };
 
   # Get the rank reference (new);
@@ -279,14 +292,14 @@ sub get_bundle_from_buffer {
   my $top_bundle = $self->{buffer}->[$pos];
 
   if (DEBUG) {
-    print_log('sort_after', "Move to next bundle at $pos, which is " .
+    print_log('sort', "Move to next bundle at $pos, which is " .
                 $top_bundle->[VALUE]);
   };
 
   my $rank = $top_bundle->[RANK];
 
   if (DEBUG) {
-    print_log('sort_after', "Create new bundle from prio at $pos starting with " .
+    print_log('sort', "Create new bundle from prio at $pos starting with " .
                 $top_bundle->[VALUE]->to_string);
   };
 
@@ -335,7 +348,9 @@ sub to_string {
   my $self = shift;
   my $str = 'sort(';
   $str .= $self->{sort}->to_string;
-  $str .= ',0-' . $self->{top_k} if $self->{top_k};
+  if ($self->{top_k} != MAX_TOP_K) {
+    $str .= ',0-' . $self->{top_k};
+  };
   $str .= ':' . $self->{query}->to_string;
   return $str . ')';
 };

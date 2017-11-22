@@ -18,6 +18,10 @@ use constant DEBUG => 0;
 # TODO:
 #   Return max rank for unknown fields!
 
+# TODO:
+#   This may need to be an inflatable
+
+
 sub new {
   my $class = shift;
 
@@ -59,7 +63,7 @@ sub type {
 sub rank_for {
   my ($self, $doc_id) = @_;
 
-  return $self->{rank}->rank_for($doc_id);
+  return $self->{rank}->rank_for($doc_id) || ($self->max_rank + 1);
 
   # Get rank if rank is littler than value
   # my $value = shift;
@@ -80,11 +84,11 @@ sub term_id {
   $_[0]->{field_id};
 };
 
-# TODO:
-#   This may need to be an inflatable
+
+# Stringification
 sub to_string {
   my $self = shift;
-  return 'field=#' . $self->{field_id} . ($_->{desc} ? '>' : '<')
+  return 'field=#' . $self->{field_id} . ($self->{desc} ? '>' : '<')
 };
 
 1;

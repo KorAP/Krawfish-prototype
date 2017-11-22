@@ -8,7 +8,7 @@ use strict;
 use warnings;
 
 use constant {
-  DEBUG => 0,
+  DEBUG => 1,
   UNIQUE => 'id'
 };
 
@@ -65,7 +65,17 @@ sub identify {
 sub optimize {
   my ($self, $segment) = @_;
 
+  if (DEBUG) {
+    print_log('kq_n_sort', 'Optimize query ' . ref($self->{query}) . '=' .
+                $self->{query}->to_string);
+  };
+
   my $query = $self->{query}->optimize($segment);
+
+  if (DEBUG) {
+    print_log('kq_n_sort', 'Optimized query is now ' . ref($query) . '=' .
+                $query->to_string);
+  };
 
   if ($query->max_freq == 0) {
     return Krawfish::Compile::Segment::Nowhere->new;
@@ -91,6 +101,9 @@ sub optimize {
   my $sort = $self->{sort}->optimize($segment);
 
   unless ($sort) {
+    print_log('kq_n_sort', 'Sort is not optimizable: ' . $self->{sort}->to_string);
+
+    warn 'Do not sort on a non-sortable field!';
 
     # TODO:
     #   This needs to be checked in identify!
@@ -108,6 +121,10 @@ sub optimize {
     #   the sorting criterion may very well be important, so a NoSort-query
     #   also needs to add the query criterion!
     return $self->{query};
+  }
+
+  elsif (DEBUG) {
+    print_log('kq_n_sort', 'Optimize sort criterion: ' . $sort->to_string);
   };
 
   # TODO:
