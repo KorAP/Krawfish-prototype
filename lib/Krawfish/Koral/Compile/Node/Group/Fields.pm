@@ -32,8 +32,15 @@ sub identify {
 
     # Field may not exist in dictionary
     my $field = $_->identify($dict);
+
+    # Field is known
     if ($field) {
       push @identifier, $field;
+    }
+
+    # Field is unknown
+    else {
+      push @identifier, $_;
     };
   };
 
@@ -50,10 +57,10 @@ sub identify {
 
 
 # Materialize query
-sub term_ids {
-  my $self = shift;
-  return [map { $_->term_id } @{$self->{fields}}];
-};
+#sub term_ids {
+#  my $self = shift;
+#  return [map { $_->term_id } @{$self->{fields}}];
+#};
 
 
 # Materialize query for segment search
@@ -69,7 +76,7 @@ sub optimize {
   return Krawfish::Compile::Segment::Group::Fields->new(
     $segment->fields,
     $query,
-    $self->term_ids
+    $self->{fields} # $self->term_ids
   );
 };
 

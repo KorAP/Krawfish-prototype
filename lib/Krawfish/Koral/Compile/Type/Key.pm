@@ -42,10 +42,17 @@ sub term {
 
 
 sub term_id {
-  $_[0]->{term_id};
+  $_[0]->{term_id} // 0;
 };
 
 
+# Alias to term_id
+sub key_id {
+  $_[0]->{term_id} // 0;
+};
+
+
+# Stringification
 sub to_string {
   my ($self, $id) = @_;
   if ($id) {
@@ -54,7 +61,6 @@ sub to_string {
   };
   return squote($self->{term});
 };
-
 
 
 1;

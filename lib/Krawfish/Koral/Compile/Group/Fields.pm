@@ -54,34 +54,10 @@ sub wrap {
 };
 
 
-#sub identify {
-#  my ($self, $dict) = @_;
-#
-#  my @identifier;
-#  foreach (@$self) {
-#
-#    # Field may not exist in dictionary
-#    my $field = $_->identify($dict);
-#    if ($field) {
-#      push @identifier, $field;
-#    };
-#  };
-#
-#  return unless @identifier;
-#
-#  @{$self} = @identifier;
-#
-#  return $self;
-#};
-
-
 sub to_string {
   my $self = shift;
   return 'fields:[' . join(',', map { $_->to_string } @$self) . ']';
 };
 
-sub optimize {
-  ...
-};
 
 1;

@@ -12,7 +12,7 @@ requires qw/current_bundle
 # (or bundles of bundles of postings) sorted by a certain criterion.
 
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 
 # Bundle the current match

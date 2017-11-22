@@ -100,19 +100,22 @@ sub inflate {
   my ($self, $dict) = @_;
   my $field_keys = $self->{field_keys};
 
-  $self->{field_terms} = [];
+  # $self->{field_terms} = [];
   $self->{group_terms} = [];
 
   # Inflate head line
-  foreach my $field_id (@{$field_keys}) {
-    my $field_term = $dict->term_by_term_id($field_id);
+  foreach my $field (@{$field_keys}) {
+
+    $field->identify($dict);
+
+    # my $field_term = $dict->term_by_term_id($field_id);
 
     # $field_term =~ s/^!//;
     # TODO:
     #   This may be a direct feature of the dictionary
-    $field_term = substr($field_term, 1);
+    # $field_term = substr($field_term, 1);
 
-    push @{$self->{field_terms}}, $field_term;
+    # push @{$self->{field_terms}}, $field_term;
   };
 
   # Inflate groups
@@ -126,7 +129,7 @@ sub inflate {
 
         # Retrieve term
         my $term = $dict->term_by_term_id($term_id);
-        my $field_term = $self->{field_terms}->[$i];
+        my $field_term = $self->{field_keys}->[$i]->term;
 
         # TODO:
         #   This may be a direct feature of the dictionary
@@ -189,11 +192,7 @@ sub to_string {
 
   my $str = '[fields=[';
 
-  if ($id) {
-    $str .= join(',', map { '#' . $_ } @{$self->{field_keys}}) . ':[';
-  } else {
-    $str .= join(',', map { squote($_) } @{$self->{field_terms}});
-  };
+  $str .= join(',', map { $_->to_string($id) } @{$self->{field_keys}});
 
   $str .= '];';
 
@@ -234,7 +233,7 @@ sub to_koral_fragment {
   my $group = {
     '@type'   => 'koral:groupBy',
     'groupBy' => 'groupBy:fields',
-    'fields'  => $self->{field_terms},
+    'fields'  => [map { $_->term } @{$self->{field_keys}}],
     'sortBy' => undef # Not yet sorted
   };
 

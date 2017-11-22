@@ -8,7 +8,7 @@ use Role::Tiny;
 
 with 'Krawfish::Compile::Segment::Group';
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # This will group matches (especially document matches) by field
 # This is useful e.g. for document browsing per corpus.
@@ -30,7 +30,7 @@ sub new {
   my $self = bless {
     field_obj  => $field_obj,
     query      => $query,
-    field_keys => [map { ref($_) ? $_->term_id : $_ } @$fields],
+    field_keys => $fields,
     last_doc_id => -1,
     finished => 0
   }, $class;
@@ -57,9 +57,9 @@ sub _init {
 
 # Stringification
 sub to_string {
-  my $self = shift;
-  my $str = 'gFields(' . join(',', map { '#' . $_ } @{$self->{field_keys}}) .
-    ':' . $self->{query}->to_string . ')';
+  my ($self, $id) = @_;
+  my $str = 'gFields(' . join(',', map { $_->to_string($id) } @{$self->{field_keys}}) .
+    ':' . $self->{query}->to_string($id) . ')';
   return $str;
 };
 
@@ -103,7 +103,15 @@ sub next {
       my @field_keys = @{$self->{field_keys}};
 
       # Ignore stored fields
-      my @field_objs = grep { $_->type ne 'store' } $pointer->fields(@field_keys);
+      my @field_objs = grep { $_->type ne 'store' } $pointer->fields(
+        map { $_->term_id } @field_keys
+      );
+
+#      warn scalar(@field_objs) . ': ' . join(',', @field_objs);
+#      warn scalar(@field_keys) . ': ' . join(',', @field_keys);
+
+      # TODO:
+      #   Skip term id #0
 
       my ($key_pos, $val_pos) = (0,0);
 
@@ -115,14 +123,17 @@ sub next {
         if (!$field_objs[$val_pos]) {
 
           # Add ignorable null term
-          unless (@{$patterns[$key_pos]}) {
-            push @{$patterns[$key_pos]}, 0;
+          if (!$patterns[$key_pos] || !@{$patterns[$key_pos]}) {
+            $patterns[$key_pos] = [0]
           };
+          #unless (@{$patterns[$key_pos]}) {
+          #  push @{$patterns[$key_pos]}, 0;
+          #};
           $key_pos++;
         }
 
         # Key identifier are matching
-        elsif ($field_keys[$key_pos] == $field_objs[$val_pos]->key_id) {
+        elsif ($field_keys[$key_pos]->key_id == $field_objs[$val_pos]->key_id) {
 
           # Add key to pattern
           $patterns[$key_pos] //= [];
@@ -131,12 +142,12 @@ sub next {
         }
 
         # Forward key position
-        elsif ($field_keys[$key_pos] < $field_objs[$val_pos]->key_id) {
+        elsif ($field_keys[$key_pos]->key_id < $field_objs[$val_pos]->key_id) {
 
           if (DEBUG) {
             print_log(
               'g_fields',
-              'Key at ' . $key_pos . ' is ' . $field_keys[$key_pos] .
+              'Key at ' . $key_pos . ' is ' . $field_keys[$key_pos]->key_id .
                 ' which is smaller than ' . $field_objs[$val_pos]->key_id);
           };
 

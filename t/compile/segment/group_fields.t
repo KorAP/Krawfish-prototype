@@ -66,7 +66,6 @@ is($koral->to_string,
    "compilation=[group=[fields:['author']]],corpus=[age=7|author=Peter]",
    'Stringification');
 
-
 ok(my $koral_query = $koral->to_query, 'Normalization');
 
 # This is a query that is fine to be send to nodes
@@ -86,7 +85,7 @@ is($koral_query->to_string(1),
 
 ok(my $query = $koral_query->optimize($index->segment), 'optimize query');
 
-is($query->to_string, 'gFields(#3:and(or(#19,#4),[1]))', 'Stringification');
+is($query->to_string(1), 'gFields(#3:and(or(#19,#4),[1]))', 'Stringification');
 
 ok(my $result = $query->compile->inflate($index->dict), 'Compile');
 
@@ -119,7 +118,7 @@ is($koral->to_string,
 
 ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment), 'Optimize');
 
-is($query->to_string,
+is($query->to_string(1),
    'gFields(#3,#7:filter(or(#12,#14),or(#19,#2)))',
    'Stringification');
 
@@ -128,8 +127,6 @@ ok($result = $query->compile->inflate($index->dict), 'Search');
 is($result->to_string,
    "[group=[fields=['author','genre'];total:['Michael_newsletter':[1,2],'Peter_novel':[2,4]]]]",
    'Stringification');
-
-
 
 # New query
 $koral = Krawfish::Koral->new;
@@ -162,6 +159,7 @@ is($query->to_string,
 ok($result = $query->identify($index->dict)->optimize($index->segment)->compile->inflate($index->dict),
    'Compile');
 
+
 is($result->to_string,
    "[group=[fields=['age','author'];" .
      "total:['3_Peter':[2,4],'4_Peter':[1,2],'7_Michael':[1,2]],".
@@ -180,6 +178,7 @@ is($result->to_koral_query->{group}->{'groupBy'},
 is_deeply($result->to_koral_query->{group}->{'fields'},
   [qw/age author/],
   'KQ type');
+
 
 is_deeply($result->to_koral_query->{group}->{total}->[1],
           {
@@ -224,11 +223,12 @@ is($query->to_string,
    'Stringification');
 
 ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimize');
-is($query->to_string,
+is($query->to_string(1),
    'gFields(#3:aggr([freq]:filter(or(#12,#14),or(class(1:#8),class(2:#17)))))',
    'Stringification');
 
 ok($result = $query->compile->inflate($index->dict), 'Compile');
+
 
 is($result->to_string,
    "[aggr=[".
@@ -241,7 +241,6 @@ is($result->to_string,
      "inCorpus-1:['Peter':[2,4]],".
      "inCorpus-2:['Michael':[1,2],'Peter':[1,2]]]]",
    'Stringification');
-
 
 
 # New query - with additional aggregation
@@ -264,23 +263,21 @@ is($query->to_string,
    "gFields('unknown','category','genre':filter(aa|bb,[1]))",
    'Stringification');
 
-diag 'Respect unknown field';
-# as it may only be unknown to this node!
 
 ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimize');
-is($query->to_string,
-   'gFields(#5,#7:filter(or(#12,#14),[1]))',
+is($query->to_string(1),
+   "gFields(!'unknown',#5,#7:filter(or(#12,#14),[1]))",
    'Stringification');
 
 ok($result = $query->compile->inflate($index->dict), 'Compile');
 
 is($result->to_string,
    "[group=".
-     "[fields=['category','genre'];".
+     "[fields=['unknown','category','genre'];".
      "total:[".
-     "'_novel':[1,2],".
-     "'new_newsletter':[2,4],".
-     "'new_novel':[1,2]]".
+     "'__novel':[1,2],".
+     "'_new_newsletter':[2,4],".
+     "'_new_novel':[1,2]]".
      "]".
      "]",
    'Result stringification');
