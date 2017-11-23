@@ -90,14 +90,15 @@ is($query->to_string,
 ok($query->next_bundle, 'Move to next bundle');
 
 # The bundle is: fieldBundle(docBundle(match()))
-is($query->current_bundle->to_string, '[[[2:0-2]]]', 'Stringification');
+is($query->current_bundle->to_string, '[[[2:0-2]::1]]', 'Stringification');
 ok($query->next_bundle, 'Move to next bundle');
-is($query->current_bundle->to_string, '[[[0:0-2]]]', 'Stringification');
+is($query->current_bundle->to_string, '[[[0:0-2]::2]]', 'Stringification');
 ok($query->next_bundle, 'Move to next bundle');
-is($query->current_bundle->to_string, '[[[4:0-2]]]', 'Stringification');
+is($query->current_bundle->to_string, '[[[4:0-2]::4]]', 'Stringification');
 ok($query->next_bundle, 'Move to next bundle');
-is($query->current_bundle->to_string, '[[[3:0-2]]]', 'Stringification');
+is($query->current_bundle->to_string, '[[[3:0-2]::5]]', 'Stringification');
 ok(!$query->next_bundle, 'No more next bundle');
+
 
 # New query - sort by author
 $koral = Krawfish::Koral->new;
@@ -133,21 +134,23 @@ is($query->to_string(1),
 ok($query = $query->optimize($index->segment), 'Optimize');
 
 is($query->to_string,
-   'sort(field=#1<:sort(field=#2<:bundleDocs(constr(pos=2:#11,filter(#13,[1])))))',
+   'sort(field=#1<,l=1:sort(field=#2<:bundleDocs(constr(pos=2:#11,filter(#13,[1])))))',
    'Stringification');
 
 # 0:Peter, 1:Julian!, 2:Abraham, 3:Fritz, 4:Michael
 # 2, 3, 4, 0
 # The bundle is: fieldBundle(docBundle(match()))
+# The second level is unranked
 ok($query->next_bundle, 'Move to next bundle');
-is($query->current_bundle->to_string, '[[[2:0-2]]]', 'Stringification');
+is($query->current_bundle->to_string, '[[[2:0-2]::1]]', 'Stringification');
 ok($query->next_bundle, 'Move to next bundle');
-is($query->current_bundle->to_string, '[[[3:0-2]]]', 'Stringification');
+is($query->current_bundle->to_string, '[[[3:0-2]::2]]', 'Stringification');
 ok($query->next_bundle, 'Move to next bundle');
-is($query->current_bundle->to_string, '[[[4:0-2]]]', 'Stringification');
+is($query->current_bundle->to_string, '[[[4:0-2]::4]]', 'Stringification');
 ok($query->next_bundle, 'Move to next bundle');
-is($query->current_bundle->to_string, '[[[0:0-2]]]', 'Stringification');
+is($query->current_bundle->to_string, '[[[0:0-2]::5]]', 'Stringification');
 ok(!$query->next_bundle, 'No more next bundle');
+
 
 # Add to more documents
 # 5
@@ -190,26 +193,26 @@ $koral->compilation(
 ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment), 'Optimize');
 
 is($query->to_string,
-   'sort(field=#1<:sort(field=#2<:bundleDocs(constr(pos=2:#11,filter(#13,[1])))))',
+   'sort(field=#1<,l=1:sort(field=#2<:bundleDocs(constr(pos=2:#11,filter(#13,[1])))))',
    'Stringification');
 
 
 # 0:Peter, 1:Julian!, 2:Abraham, 3:Fritz, 4:Michael, 5:Fritz, 6:Michael, 7:Michael
 # 2, [3, 5], [4,7,6], 0
 ok($query->next_bundle, 'Move to next bundle');
-is($query->current_bundle->to_string, '[[[2:0-2]]]', 'Stringification');
+is($query->current_bundle->to_string, '[[[2:0-2]::1]]', 'Stringification');
 ok($query->next_bundle, 'Move to next bundle');
-is($query->current_bundle->to_string, '[[[3:0-2]]]', 'Stringification');
+is($query->current_bundle->to_string, '[[[3:0-2]::2,5]]', 'Stringification');
 ok($query->next_bundle, 'Move to next bundle');
-is($query->current_bundle->to_string, '[[[5:0-2]]]', 'Stringification');
+is($query->current_bundle->to_string, '[[[5:0-2]::2,7]]', 'Stringification');
 ok($query->next_bundle, 'Move to next bundle');
-is($query->current_bundle->to_string, '[[[4:0-2]]]', 'Stringification');
+is($query->current_bundle->to_string, '[[[4:0-2]::4,4]]', 'Stringification');
 ok($query->next_bundle, 'Move to next bundle');
-is($query->current_bundle->to_string, '[[[7:0-2]|[7:2-4]]]', 'Stringification');
+is($query->current_bundle->to_string, '[[[7:0-2]|[7:2-4]::4,6]]', 'Stringification');
 ok($query->next_bundle, 'Move to next bundle');
-is($query->current_bundle->to_string, '[[[6:0-2]]]', 'Stringification');
+is($query->current_bundle->to_string, '[[[6:0-2]::4,8]]', 'Stringification');
 ok($query->next_bundle, 'Move to next bundle');
-is($query->current_bundle->to_string, '[[[0:0-2]]]', 'Stringification');
+is($query->current_bundle->to_string, '[[[0:0-2]::5]]', 'Stringification');
 ok(!$query->next_bundle, 'No more next bundles');
 
 $koral = Krawfish::Koral->new;
@@ -225,23 +228,22 @@ ok($clone = $query->clone, 'Clone query');
 
 # 2, [3, 5], [4,7,7,6], 0
 ok($query->next, 'Move to next bundle');
-is($query->current->to_string, '[2:0-2]', 'Stringification');
+is($query->current->to_string, '[2:0-2::1]', 'Stringification');
 ok($query->next, 'Move to next bundle');
-is($query->current->to_string, '[3:0-2]', 'Stringification');
+is($query->current->to_string, '[3:0-2::2,5]', 'Stringification');
 ok($query->next, 'Move to next bundle');
-is($query->current->to_string, '[5:0-2]', 'Stringification');
+is($query->current->to_string, '[5:0-2::2,7]', 'Stringification');
 ok($query->next, 'Move to next bundle');
-is($query->current->to_string, '[4:0-2]', 'Stringification');
+is($query->current->to_string, '[4:0-2::4,4]', 'Stringification');
 ok($query->next, 'Move to next bundle');
-is($query->current->to_string, '[7:0-2]', 'Stringification');
+is($query->current->to_string, '[7:0-2::4,6]', 'Stringification');
 ok($query->next, 'Move to next bundle');
-is($query->current->to_string, '[7:2-4]', 'Stringification');
+is($query->current->to_string, '[7:2-4::4,6]', 'Stringification');
 ok($query->next, 'Move to next bundle');
-is($query->current->to_string, '[6:0-2]', 'Stringification');
+is($query->current->to_string, '[6:0-2::4,8]', 'Stringification');
 ok($query->next, 'Move to next bundle');
-is($query->current->to_string, '[0:0-2]', 'Stringification');
+is($query->current->to_string, '[0:0-2::5]', 'Stringification');
 ok(!$query->next, 'No more next bundles');
-
 
 # Run clone
 ok($result = $clone->compile->inflate($index->dict), 'Run clone');
@@ -266,7 +268,7 @@ $koral->compilation(
 
 ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment), 'Optimize');
 is($query->to_string,
-   'sort(field=#1<:sort(field=#4<:sort(field=#3<:bundleDocs(filter(or(#13,#11),[1])))))',
+   'sort(field=#1<,l=2:sort(field=#4<,l=1:sort(field=#3<:bundleDocs(filter(or(#13,#11),[1])))))',
    'Stringification');
 
 # genre,title,id

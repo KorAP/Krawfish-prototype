@@ -1,4 +1,4 @@
-package Krawfish::Koral::Result::Enrich::SortCriteria;
+package Krawfish::Koral::Result::Enrich::SortCriterion;
 use strict;
 use warnings;
 use Role::Tiny::With;
@@ -8,12 +8,6 @@ with 'Krawfish::Koral::Result::Inflatable';
 # Smilar to Snippet, this will add the surface information
 # for all sorting criteria to make sorting possible for
 # cluster sorting.
-
-sub new {
-  my $class = shift;
-  bless [@_], $class;
-};
-
 
 # sortedBy : [
 #   {
@@ -27,11 +21,21 @@ sub new {
 # ]
 
 
+sub new {
+  my $class = shift;
+  bless { field => shift }, $class;
+};
+
+
+sub to_koral_fragment {
+  ...
+};
+
+
 # Stringification
 sub to_string {
-  my $self = shift;
-  my $str = 'criteria:[';
-  $str .= join(',', map { $_->to_string } @$self);
+  my ($self, $id) = @_;
+  my $str = 'criterion:[' . $self->{field}->to_string($id);
   return $str.']';
 };
 

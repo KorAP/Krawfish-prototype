@@ -42,10 +42,7 @@ our %COMPILE_ORDER = (
 );
 
 
-use constant {
-  DEBUG => 0,
-  UNIQUE_FIELD => 'id'
-};
+use constant DEBUG => 0;
 
 
 # Constructor

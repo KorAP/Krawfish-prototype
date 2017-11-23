@@ -12,7 +12,7 @@ requires qw/current_bundle
 # (or bundles of bundles of postings) sorted by a certain criterion.
 
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 
 # Bundle the current match
@@ -26,6 +26,8 @@ sub current_bundle {
   return $self->{current_bundle};
 };
 
+
+# Get current posting
 sub current {
   return $_[0]->{current};
 };
@@ -61,6 +63,8 @@ sub next {
 
     # There are more bundles
     if ($self->next_bundle) {
+
+      # Get current bundle
       $bundle = $self->current_bundle;
       if (DEBUG) {
         print_log('bundle', 'Current bundle to check is ' . $bundle->to_string);
@@ -79,11 +83,36 @@ sub next {
     };
   };
 
+  if (DEBUG) {
+    print_log(
+      'bundle',
+      'Copy the ranks from ' . ref($bundle) . '=' . $bundle->to_string .
+        ' to posting [' . join(', ', $bundle->ranks) . ']'
+    );
+  };
+
   $self->{current} = $bundle->current;
 
-  if (DEBUG) {
-    print_log('bundle', 'Set current posting to ' . $self->{current}->to_string);
+  # In case of a bundled bundle, get the rank of the first item
+  if ($bundle && Role::Tiny::does_role($bundle, 'Krawfish::Posting::Bundle')) {
+
+    # TODO:
+    #   I am not sure about the scenarios with multiple bundled bundles though
+    $self->{current}->ranks($bundle->item(0)->ranks);
+  }
+
+  # In case of a bundled posting
+  else {
+    $self->{current}->ranks($bundle->ranks);
   };
+
+  if (DEBUG) {
+    print_log(
+      'bundle',
+      'Set current posting to ' . $self->{current}->to_string
+    );
+  };
+
 
   return 1;
 };

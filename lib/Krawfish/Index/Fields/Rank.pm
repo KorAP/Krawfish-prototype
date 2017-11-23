@@ -7,9 +7,10 @@ use warnings;
 use constant DEBUG => 0;
 
 # TODO:
-#   Split ranks in asc_rank and desc_rank,
-#   as only one rank needs to be lifted
-#   on a sort
+#   It may be useful for criterion generation
+#   to have witnesses for ranks, e.g. the ranking list
+#   points to the list of sorted values.
+#   Unfortunately this would mean that there can't be front-encoding.
 
 # TODO:
 #   On commit keep a note if a field is
@@ -60,7 +61,7 @@ sub new {
     calc_desc => shift,
     asc       => Krawfish::Index::Fields::Direction->new,
     desc      => Krawfish::Index::Fields::Direction->new,
-    sorted    => [],
+    sorted    => [], # Better: Krawfish::Index::Fields::Sorted
     plain     => [],
     max_rank  => undef
   }, $class;
@@ -129,7 +130,8 @@ sub max_rank {
 };
 
 
-# Prepare the plain list for merging
+# Prepare the plain list for merging,
+# maybe for enrichment with sort criteria,
 # or - for the moment - to become
 # rankable
 sub commit {
@@ -142,6 +144,14 @@ sub commit {
   #    the collation
   #    Creates the structure
   #    [collocation]([field-term-with-front-coding|value-as-delta][doc_id]*)*
+
+  # TODO:
+  #   It's probably better to sort by collocation and store
+  #   the comparation keys without front-coding, making it
+  #   skippable as well, so the structure is
+  #   [collocation]([skip-data]([rank][length][comparation-key|value][doc_id]*)*)*
+  #   As not every rank will have a skip-embedding, it's possible
+  #   to use front-encoding / delta-encoding while in a skip-chunk.
 
   # TODO:
   #   This requires a change for ranges!
@@ -250,6 +260,12 @@ sub commit {
   #    Because the list is only needed
   #    for merging, it can be
   #    stored compressed
+};
+
+
+# Returns the sorted object
+sub sorted {
+  ...
 };
 
 

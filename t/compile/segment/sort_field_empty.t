@@ -44,7 +44,7 @@ $koral->compilation(
 );
 ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment), 'Optimize');
 is($query->to_string,
-   'sort(field=#1<:sort(field=#2<:bundleDocs(filter(#8,[1]))))',
+   'sort(field=#1<,l=1:sort(field=#2<:bundleDocs(filter(#8,[1]))))',
    'Stringification');
 ok($result = $query->compile->inflate($index->dict), 'Run clone');
 is($result->to_string,
@@ -67,7 +67,7 @@ is($query->to_string(1),
    'Stringification');
 ok($query = $query->optimize($index->segment), 'Optimize');
 is($query->to_string(1),
-   'sort(field=#1<:sort(field=#2>:bundleDocs(filter(#8,[1]))))',
+   'sort(field=#1<,l=1:sort(field=#2>:bundleDocs(filter(#8,[1]))))',
    'Stringification');
 ok($result = $query->compile->inflate($index->dict), 'Run clone');
 is($result->to_string,
@@ -84,9 +84,20 @@ $koral->compilation(
 );
 ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment), 'Optimize');
 is($query->to_string,
-   'sort(field=#1<:sort(field=#2<:sort(field=#3<:bundleDocs(filter(#8,[1])))))',
+   'sort(field=#1<,l=2:sort(field=#2<,l=1:sort(field=#3<:bundleDocs(filter(#8,[1])))))',
    'Stringification');
-ok($result = $query->compile->inflate($index->dict), 'Run clone');
+
+ok($clone = $query->clone, 'Clone query');
+
+ok($query->next_bundle, 'Next');
+is($query->current_bundle->to_string, '[[[1:0-1]::1,1]]', 'Stringification');
+ok($query->next_bundle, 'Next');
+is($query->current_bundle->to_string, '[[[0:0-1]::1,2]]', 'Stringification');
+ok($query->next_bundle, 'Next');
+is($query->current_bundle->to_string, '[[[2:0-1]::1,3]]', 'Stringification');
+ok(!$query->next_bundle, 'Next');
+
+ok($result = $clone->compile->inflate($index->dict), 'Run clone');
 is($result->to_string,
    '[matches=[1:0-1][0:0-1][2:0-1]]',
    'Stringification');
@@ -101,7 +112,7 @@ $koral->compilation(
 );
 ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment), 'Optimize');
 is($query->to_string,
-   'sort(field=#1<:sort(field=#2>:sort(field=#3<:bundleDocs(filter(#8,[1])))))',
+   'sort(field=#1<,l=2:sort(field=#2>,l=1:sort(field=#3<:bundleDocs(filter(#8,[1])))))',
    'Stringification');
 ok($result = $query->compile->inflate($index->dict), 'Run clone');
 is($result->to_string,

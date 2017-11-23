@@ -15,6 +15,8 @@ requires qw/doc_id
            to_string
            clone/;
 
+with 'Krawfish::Posting::Ranks';
+
 use constant DEBUG => 0;
 
 # Constructor
@@ -83,6 +85,10 @@ sub to_string {
   # In case a class != 0 is set - serialize
   if ($self->flags & 0b0111_1111_1111_1111) {
     $str .= '!' . join(',', $self->corpus_classes);
+  };
+
+  if ($self->ranks) {
+    $str .= '::' . join(',', map { $_ ? $_ : '0' } $self->ranks);
   };
 
   $str . ']';

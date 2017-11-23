@@ -1,6 +1,5 @@
 package Krawfish::Posting::Bundle;
 use Role::Tiny;
-with 'Krawfish::Posting';
 # TODO:
 #   Also have a PostingIterator type
 #   with next() and current()
@@ -8,6 +7,9 @@ use Krawfish::Log;
 use overload '""' => sub { $_[0]->to_string }, fallback => 1;
 use warnings;
 use strict;
+
+with 'Krawfish::Posting';
+
 
 # This is a container class for multiple Krawfish::Posting objects,
 # used for (among others) sorting.
@@ -20,7 +22,7 @@ use strict;
 # TODO:
 #   Make unbundle() an iterator!
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # Constructor
 sub new {
@@ -50,30 +52,10 @@ sub doc_id {
 };
 
 
-# Start position not available
-#sub start {
-#  warn 'Not available on bundle';
-#  0;
-#};
-
-
-# End position not available
-#sub end {
-#  warn 'Not available on bundle';
-#  0;
-#};
-
-
 # Clone posting object
 sub clone {
   my $self = shift;
   return __PACKAGE__->new(@$self);
-};
-
-
-# Payload not really available
-sub payload {
-  Krawfish::Posting::Payload->new;
 };
 
 
@@ -84,6 +66,8 @@ sub size {
 
 
 # Get the number of matches in the bundle
+# TODO:
+#   Rename to match_count!
 sub matches {
   my $self = shift;
   my $matches = 0;
@@ -119,7 +103,11 @@ sub add {
 # Stringification
 sub to_string {
   my $self = shift;
-  return '[' . join ('|', map { $_->to_string } @{$self->{list}}) . ']';
+  my $str = '[' . join ('|', map { $_->to_string } @{$self->{list}});
+  if ($self->ranks) {
+    $str .= '::' . join(',', map { $_ ? $_ : '0' } $self->ranks);
+  };
+  $str .= ']';
 };
 
 

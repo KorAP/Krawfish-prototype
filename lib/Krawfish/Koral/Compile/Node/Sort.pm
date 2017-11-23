@@ -23,11 +23,11 @@ sub new {
   };
 
   return bless {
-    query     => shift,
-    sort      => shift, # Single sort criterium
-    top_k     => shift,
-    filter    => shift,
-    follow_up => shift  # The query nests a presorted query
+    query  => shift,
+    sort   => shift, # Single sort criterium
+    top_k  => shift,
+    filter => shift,
+    level  => shift
   }, $class;
 };
 
@@ -66,8 +66,11 @@ sub optimize {
   my ($self, $segment) = @_;
 
   if (DEBUG) {
-    print_log('kq_n_sort', 'Optimize query ' . ref($self->{query}) . '=' .
-                $self->{query}->to_string);
+    print_log(
+      'kq_n_sort',
+      'Optimize query ' . ref($self->{query}) . '=' .
+        $self->{query}->to_string
+      );
   };
 
   my $query = $self->{query}->optimize($segment);
@@ -103,6 +106,10 @@ sub optimize {
   unless ($sort) {
     print_log('kq_n_sort', 'Sort is not optimizable: ' . $self->{sort}->to_string);
 
+    # TODO:
+    #   In case the field is not defined: Introduce a no-sort-field
+    #   Otherwise add a warning before introducing a no-sort field!
+
     warn 'Do not sort on a non-sortable field!';
 
     # TODO:
@@ -127,13 +134,9 @@ sub optimize {
     print_log('kq_n_sort', 'Optimize sort criterion: ' . $sort->to_string);
   };
 
-  # TODO:
-  #   Return Krawfish::Compile::Segment::Sort::Fine->new;
-  #   in case it is a follow up!
-  # follow_up => $self->{follow_up}
 
   # Bundle documents
-  if ($sort->type eq 'field' && !$self->{follow_up}) {
+  if ($sort->type eq 'field' && !$self->{level}) {
     $query = Krawfish::Compile::Segment::BundleDocs->new($query);
 
     # Return sort object
@@ -147,10 +150,11 @@ sub optimize {
   };
 
   return Krawfish::Compile::Segment::SortAfter->new(
-    query     => $query,
-    segment   => $segment,
-    sort      => $sort,
-    top_k     => $self->{top_k},
+    query   => $query,
+    segment => $segment,
+    sort    => $sort,
+    top_k   => $self->{top_k},
+    level   => $self->{level}
   );
 };
 

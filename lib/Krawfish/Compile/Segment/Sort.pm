@@ -12,6 +12,7 @@ use Role::Tiny;
 
 with 'Krawfish::Compile';
 with 'Krawfish::Compile::Segment::BundleDocs';
+with 'Krawfish::Compile::Segment::Sort::Criterion';
 
 # This is the general sorting implementation based on ranks.
 #
@@ -138,19 +139,6 @@ sub new {
 };
 
 
-# Clone query
-sub clone {
-  my $self = shift;
-  __PACKAGE__->new(
-    query   => $self->{query}->clone,
-    segment => $self->{segment},
-    top_k   => $self->{top_k},
-    sort    => $self->{sort},
-    max_rank_ref => $self->{max_rank_ref}
-  );
-};
-
-
 # Initialize the sorting - this will do a full run!
 sub _init {
   my $self = shift;
@@ -203,14 +191,6 @@ sub _init {
       print_log('sort', "Check rank $rank against max rank " . $$max_rank_ref);
     };
 
-    # Rank is not given, because the field is not defined
-    # Always sort this to be at the end, no matter what the order is
-    # TODO:
-    #   Alternatively the rank could be max_rank from rank_for!
-#    if ($rank == 0) {
-#      $rank = $self->{max_rank};
-#    };
-
     # Precheck if the match is relevant
     if ($rank > $$max_rank_ref) {
 
@@ -228,6 +208,9 @@ sub _init {
 
     # Get current bundle
     my $bundle = $query->current_bundle;
+
+    # Set level for doc bundle
+    $bundle->set_rank(0, $rank);
 
     # Insert bundle into priority queue with length information
     $queue->insert([$rank, 0, $bundle, $bundle->matches]) if $bundle;
@@ -253,6 +236,25 @@ sub _init {
   $self->{buffer} = $array;
 };
 
+
+# Clone query
+sub clone {
+  my $self = shift;
+  __PACKAGE__->new(
+    query   => $self->{query}->clone,
+    segment => $self->{segment},
+    top_k   => $self->{top_k},
+    sort    => $self->{sort},
+    max_rank_ref => $self->{max_rank_ref}
+  );
+};
+
+
+# The sorting level
+# (relevant for enrichments of criteria)
+sub level {
+  0;
+};
 
 
 # Move to the next item in the bundled document list
@@ -292,15 +294,19 @@ sub get_bundle_from_buffer {
   my $top_bundle = $self->{buffer}->[$pos];
 
   if (DEBUG) {
-    print_log('sort', "Move to next bundle at $pos, which is " .
-                $top_bundle->[VALUE]);
+    print_log(
+      'sort',
+      "Move to next bundle at $pos, which is " .
+        $top_bundle->[VALUE]);
   };
 
   my $rank = $top_bundle->[RANK];
 
   if (DEBUG) {
-    print_log('sort', "Create new bundle from prio at $pos starting with " .
-                $top_bundle->[VALUE]->to_string);
+    print_log(
+      'sort',
+      "Create new bundle from prio at $pos starting with " .
+        $top_bundle->[VALUE]->to_string);
   };
 
   # Initiate new bundle
@@ -311,7 +317,10 @@ sub get_bundle_from_buffer {
     $top_bundle = $self->{buffer}->[$pos];
 
     if (DEBUG) {
-      print_log('sort', 'Check follow up from prio: ' . $top_bundle->[VALUE]->to_string);
+      print_log(
+        'sort',
+        'Check follow up from prio: ' . $top_bundle->[VALUE]->to_string
+      );
     };
 
     # Add element to bundle
@@ -343,11 +352,17 @@ sub get_bundle_from_buffer {
 };
 
 
+sub criterion {
+  $_[0]->{sort};
+};
+
+
 # Stringification
 sub to_string {
   my $self = shift;
   my $str = 'sort(';
   $str .= $self->{sort}->to_string;
+  $str .= ',l=' . $self->level if $self->level;
   if ($self->{top_k} != MAX_TOP_K) {
     $str .= ',0-' . $self->{top_k};
   };

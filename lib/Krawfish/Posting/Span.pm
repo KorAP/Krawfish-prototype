@@ -1,14 +1,16 @@
 package Krawfish::Posting::Span;
 use Role::Tiny;
-with 'Krawfish::Posting';
-requires qw/start
-            end
-            payload
-            compare/;
 use Krawfish::Util::Constants ':PAYLOAD';
 use Krawfish::Posting::Payload;
 use strict;
 use warnings;
+
+with 'Krawfish::Posting';
+
+requires qw/start
+            end
+            payload
+            compare/;
 
 # Posting representing a single token
 
@@ -136,7 +138,8 @@ sub clone {
     start => $self->start,
     end => $self->end,
     payload => defined $self->{payload} ? $self->payload->clone : undef,
-    flags => $self->{flags}
+    flags => $self->{flags},
+    ranks => $self->{ranks}
   );
 };
 
@@ -168,6 +171,10 @@ sub to_string {
 
   if ($self->payload->length) {
     $str .= '$' . $self->payload->to_string;
+  };
+
+  if ($self->ranks) {
+    $str .= '::' . join(',', map { $_ ? $_ : '0' } $self->ranks);
   };
 
   return $str . ']';

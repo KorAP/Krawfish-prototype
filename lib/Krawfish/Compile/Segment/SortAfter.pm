@@ -43,13 +43,20 @@ sub new {
   my $segment  = $param{segment};
   my $top_k    = $param{top_k};
 
+  # TODO:
+  #   Rename to 'criterion'
   # This is the sort criterion
   my $sort     = $param{sort};
+
+  # This is the sorting level -
+  # relevant for remembering the ranking
+  my $level    = $param{level};
+
 
   $top_k //= MAX_TOP_K;
 
   if (DEBUG) {
-    print_log('sort_after', 'Initiate follow up sort');
+    print_log('sort_after', "Initiate follow up sort on level $level");
   };
 
   bless {
@@ -57,10 +64,18 @@ sub new {
     segment     => $segment,
     top_k       => $top_k,
     sort        => $sort,
+    level       => $level,
     max_rank    => $segment->max_rank,
     pos_in_sort => 0, # Current position in sorted heap
     pos         => 0  # Number of (bundled) matches already served
   }, $class;
+};
+
+
+# The sorting level
+# (relevant for enrichments of criteria)
+sub level {
+  $_[0]->{level};
 };
 
 
@@ -140,24 +155,27 @@ sub next_bundle {
   for (my $i = 0; $i < $next_bundle->size; $i++) {
 
     # Get item from list
-    my $posting = $next_bundle->item($i);
+    my $bundle = $next_bundle->item($i);
 
     if (DEBUG) {
       print_log('sort_after', 'Get next posting from ' . $self->{query}->to_string);
     };
 
     # Get stored rank
-    $rank = $sort->rank_for($posting->doc_id);
+    $rank = $sort->rank_for($bundle->doc_id);
 
     if (DEBUG) {
-      print_log('sort_after', 'Rank for doc id ' . $posting->doc_id . " is $rank");
+      print_log('sort_after', 'Rank for doc id ' . $bundle->doc_id . " is $rank");
     };
 
     # Checking for $$max_rank_ref is not useful here,
     # as the bundles are already bundled and skipping bundles
     # using next_doc() and preview_doc_id() is not beneficial.
 
-    $queue->insert([$rank, 0, $posting, $posting->matches]);
+    # Set level
+    $bundle->set_rank($self->level, $rank);
+
+    $queue->insert([$rank, 0, $bundle, $bundle->matches]);
   };
 
   # Get the sorted array (which has still the ranking structure etc.)
@@ -193,7 +211,8 @@ sub clone {
     query   => $self->{query}->clone,
     segment => $self->{segment},
     top_k   => $self->{top_k},
-    sort    => $self->{sort}
+    sort    => $self->{sort},
+    level   => $self->{level}
   );
 };
 
