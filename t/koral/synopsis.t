@@ -69,7 +69,7 @@ if ($request->next) {
 
 # warn $request->collection->to_string;
 
-is($str, '[0:9-12]');
+is($str, '[0:9-12::*,*]');
 
 done_testing;
 __END__

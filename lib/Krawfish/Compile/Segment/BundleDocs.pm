@@ -19,7 +19,7 @@ requires qw/next_bundle/;
 #   is relevant.
 #   That's why next_doc is identical to next_bundle-
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 sub new {
   my $class = shift;
@@ -51,7 +51,15 @@ sub next_bundle {
   my $self = shift;
 
   # Reset current bundle
+  $self->{current} = undef;
   $self->{current_bundle} = undef;
+
+  if (DEBUG) {
+    print_log(
+      'd_bundle',
+      'Move to next bundle'
+    );
+  };
 
   my $first;
 
@@ -110,7 +118,10 @@ sub next_bundle {
     if ($next->doc_id == $first->doc_id) {
 
       if (DEBUG) {
-        print_log('d_bundle', 'Posting ' . $next->to_string . ' has identical doc id');
+        print_log(
+          'd_bundle',
+          'Posting ' . $next->to_string . ' has identical doc id'
+        );
       };
 
       $bundle->add($next);
@@ -120,7 +131,10 @@ sub next_bundle {
     else {
 
       if (DEBUG) {
-        print_log('d_bundle', 'Posting ' . $next->to_string . ' has different doc id');
+        print_log(
+          'd_bundle',
+          'Posting ' . $next->to_string . ' has different doc id - buffer!',
+        );
       };
 
       $self->{buffer} = $next;
@@ -129,7 +143,7 @@ sub next_bundle {
   };
 
   if (DEBUG) {
-    print_log('d_bundle', 'Current bundle is ' . $bundle->to_string);
+    print_log('d_bundle', 'Set current bundle to ' . $bundle->to_string);
   };
 
   $self->{current_bundle} = $bundle;

@@ -10,9 +10,9 @@ use strict;
 use warnings;
 use Role::Tiny;
 
-with 'Krawfish::Compile';
-with 'Krawfish::Compile::Segment::BundleDocs';
 with 'Krawfish::Compile::Segment::Sort::Criterion';
+with 'Krawfish::Compile::Segment::BundleDocs';
+with 'Krawfish::Compile';
 
 # This is the general sorting implementation based on ranks.
 #
@@ -124,8 +124,10 @@ sub new {
     max_rank_ref => $max_rank_ref,
     max_rank     => $segment->max_rank,
 
+    last_doc_id  => -1,
+
     # TODO:
-    #   Rename to criterion
+    #   Rename to sorted_by
     sort         => $sort,
 
     buffer       => undef,
@@ -174,7 +176,10 @@ sub _init {
   my ($match, $rank);
 
   # Init
-  $query->next_bundle;
+  unless ($query->next_bundle) {
+    print_log('sort', 'Nothing to sort');
+    return;
+  };
 
   # Pass through all queries
   while ($match = $query->current_bundle) {
@@ -184,6 +189,8 @@ sub _init {
     };
 
     # Get stored rank
+    # TODO:
+    #   Rank may already be set for level, e.g. by SortFilter
     $rank = $sort->rank_for($match->doc_id);
 
     if (DEBUG) {
@@ -210,7 +217,7 @@ sub _init {
     my $bundle = $query->current_bundle;
 
     # Set level for doc bundle
-    $bundle->set_rank(0, $rank);
+    $bundle->rank(0 => $rank);
 
     # Insert bundle into priority queue with length information
     $queue->insert([$rank, 0, $bundle, $bundle->matches]) if $bundle;
@@ -229,7 +236,11 @@ sub _init {
   };
 
   if (DEBUG) {
-    print_log('sort', 'First pass sorting finished','----------------');
+    print_log(
+      'sort',
+      'First pass sorting finished',
+      '###############################'
+    );
   };
 
   # Get the rank reference (new);
@@ -247,6 +258,11 @@ sub clone {
     sort    => $self->{sort},
     max_rank_ref => $self->{max_rank_ref}
   );
+};
+
+
+sub max_rank {
+  $_[0]->{max_rank};
 };
 
 
@@ -274,8 +290,16 @@ sub next_bundle {
     return;
   };
 
+  if (DEBUG) {
+    print_log('sort', 'Get current bundle from buffer');
+  };
+
   # Set current bundle
   $self->{current_bundle} = $self->get_bundle_from_buffer;
+
+  if (DEBUG) {
+    print_log('sort', 'Current bundle is now ' . $self->{current_bundle}->to_string);
+  };
 
   # Remember the number of entries
   $self->{pos} += $self->{current_bundle}->matches;
@@ -345,7 +369,7 @@ sub get_bundle_from_buffer {
   $self->{pos_in_sort} = $pos;
 
   if (DEBUG) {
-    print_log('sort', 'Current bundle is now ' . $new_bundle->to_string);
+    print_log('sort', 'Return bundle is ' . $new_bundle->to_string);
   };
 
   return $new_bundle;

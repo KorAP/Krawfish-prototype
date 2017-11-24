@@ -12,7 +12,7 @@ requires qw/current_bundle
 # (or bundles of bundles of postings) sorted by a certain criterion.
 
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 
 # Bundle the current match
@@ -20,7 +20,13 @@ sub current_bundle {
   my $self = shift;
 
   if (DEBUG) {
-    print_log('bundle', 'Get bundle');
+    print_log(
+      'bundle',
+      'Get current bundle in ' . ref($self),
+      '  is ' .
+        ($self->{current_bundle} ? $self->{current_bundle}->to_string : '????'),
+      '  called from ' . join(', ', caller)
+      );
   };
 
   return $self->{current_bundle};
@@ -29,7 +35,21 @@ sub current_bundle {
 
 # Get current posting
 sub current {
-  return $_[0]->{current};
+  my $self = shift;
+
+  if (DEBUG) {
+    print_log(
+      'bundle',
+      'Get current from ' . ref($self),
+      '  is ' .
+        ($self->{current} ? $self->{current}->to_string : '???'),
+      '  called from ' . join(', ', caller),
+      '  current bundle is ' .
+        ($self->{current_bundle} ? $self->{current_bundle}->to_string : '???'),
+    );
+  };
+
+  return $self->{current};
 };
 
 
@@ -39,8 +59,10 @@ sub current {
 sub next {
   my $self = shift;
 
+  $self->{match} = undef;
+
   if (DEBUG) {
-    print_log('bundle', 'Move to next posting');
+    print_log('bundle', 'Move to next posting in ' . ref($self));
   };
 
   # Get current bundle
@@ -64,10 +86,22 @@ sub next {
     # There are more bundles
     if ($self->next_bundle) {
 
+      if (DEBUG) {
+        print_log(
+          'bundle',
+          'Moved to next bundle'
+        );
+      };
+
       # Get current bundle
       $bundle = $self->current_bundle;
+
       if (DEBUG) {
-        print_log('bundle', 'Current bundle to check is ' . $bundle->to_string);
+        print_log(
+          'bundle',
+          'Current bundle to check is ' .
+            $bundle->to_string
+          );
       };
     }
 
@@ -86,12 +120,18 @@ sub next {
   if (DEBUG) {
     print_log(
       'bundle',
-      'Copy the ranks from ' . ref($bundle) . '=' . $bundle->to_string .
-        ' to posting [' . join(', ', $bundle->ranks) . ']'
+      'Copy the ranks from ' . ref($bundle) . '=' . $bundle->to_string,
+      '  to posting [' . join(', ', $bundle->ranks) . '] in ' .
+        ref($self)
     );
   };
 
+  # Set current match
   $self->{current} = $bundle->current;
+
+  # TODO:
+  #   Remembering ranks may not be relevant as long as criteria are
+  #   fetched using the rank again!
 
   # In case of a bundled bundle, get the rank of the first item
   if ($bundle && Role::Tiny::does_role($bundle, 'Krawfish::Posting::Bundle')) {
@@ -109,10 +149,11 @@ sub next {
   if (DEBUG) {
     print_log(
       'bundle',
-      'Set current posting to ' . $self->{current}->to_string
-    );
+      'Set current posting to ' .
+        $self->{current}->to_string .
+        ' from ' . ref($self)
+      );
   };
-
 
   return 1;
 };

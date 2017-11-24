@@ -1,4 +1,5 @@
 package Krawfish::Koral::Result::Match;
+use Krawfish::Koral::Result::Enrich::SortCriterion;
 use Role::Tiny::With;
 use Krawfish::Util::String qw/squote/;
 use warnings;
@@ -34,6 +35,14 @@ sub add {
 };
 
 
+# Return sort criterion
+sub sorted_by {
+  my $self = shift;
+  $self->{sorted_by} //= Krawfish::Koral::Result::Enrich::SortCriterion->new;
+  return $self->{sorted_by};
+};
+
+
 # Inflate enrichments
 sub inflate {
   my ($self, $dict) = @_;
@@ -63,6 +72,10 @@ sub to_string {
 
   if ($self->payload->length) {
     $str .= '$' . $self->payload->to_string($id);
+  };
+
+  if (defined $self->{sorted_by}) {
+    $str .= '::' . $self->{sorted_by}->to_string($id);
   };
 
   foreach (@{$self->{enrichments}}) {

@@ -1,4 +1,6 @@
 package Krawfish::Koral::Result::Enrich::SortCriterion;
+# TODO:
+#   Rerename to Criteria
 use strict;
 use warnings;
 use Role::Tiny::With;
@@ -23,7 +25,14 @@ with 'Krawfish::Koral::Result::Inflatable';
 
 sub new {
   my $class = shift;
-  bless { field => shift }, $class;
+  bless [], $class;
+};
+
+
+# Set criterion
+sub criterion {
+  my ($self, $level, $criterion) = @_;
+  $self->[$level] = $criterion;
 };
 
 
@@ -35,8 +44,9 @@ sub to_koral_fragment {
 # Stringification
 sub to_string {
   my ($self, $id) = @_;
-  my $str = 'criterion:[' . $self->{field}->to_string($id);
-  return $str.']';
+  my $str = '';
+  $str .= join(',', @$self);
+  return $str;
 };
 
 

@@ -7,7 +7,7 @@ use Role::Tiny;
 
 with 'Krawfish::Compile';
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # This will enrich each match with specific field information
 # Needs to be called on the segment level

@@ -5,11 +5,23 @@ use warnings;
 
 # Remember ranks per match, so enrichment is easier
 
+# TODO:
+#   This may not be relevant for enrichment of criteria!
+
 # Set individual rank
-sub set_rank {
+sub rank {
   my ($self, $level, $rank) = @_;
-  $self->{ranks} //= [];
-  $self->{ranks}->[$level] = $rank;
+
+  # Set rank
+  if (defined $rank) {
+    $self->{ranks} //= [];
+    $self->{ranks}->[$level] = $rank;
+  }
+
+  # Get rank
+  else {
+    return $self->{ranks}->[$level] // 0;
+  };
 };
 
 

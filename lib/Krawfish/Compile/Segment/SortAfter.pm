@@ -67,7 +67,8 @@ sub new {
     level       => $level,
     max_rank    => $segment->max_rank,
     pos_in_sort => 0, # Current position in sorted heap
-    pos         => 0  # Number of (bundled) matches already served
+    pos         => 0, # Number of (bundled) matches already served
+    last_doc_id => -1
   }, $class;
 };
 
@@ -173,7 +174,7 @@ sub next_bundle {
     # using next_doc() and preview_doc_id() is not beneficial.
 
     # Set level
-    $bundle->set_rank($self->level, $rank);
+    $bundle->rank($self->level => $rank);
 
     $queue->insert([$rank, 0, $bundle, $bundle->matches]);
   };

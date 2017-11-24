@@ -22,7 +22,7 @@ with 'Krawfish::Posting';
 # TODO:
 #   Make unbundle() an iterator!
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # Constructor
 sub new {

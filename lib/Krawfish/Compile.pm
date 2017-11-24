@@ -35,10 +35,20 @@ use constant DEBUG => 0;
 sub current_match {
   my $self = shift;
 
+  if (DEBUG) {
+    print_log(
+      'compile',
+      'Current match requested by ' . ref($self)
+      );
+  };
+
   my $match = $self->match_from_query or return;
 
   if (DEBUG) {
-    print_log('compile', 'Current match is ' . $match->to_string);
+    print_log(
+      'compile',
+      'Current match is ' . $match->to_string
+      );
   };
 
   return $match;
@@ -65,42 +75,65 @@ sub current {
 sub match_from_query {
   my $self = shift;
 
-  print_log('compile', 'Get match from query') if DEBUG;
+  print_log('compile', 'Get match from query as ' . ref($self)) if DEBUG;
 
-  # Get current match from query
-  my $match = $self->{query}->current_match;
+  my $match;
+
+  # In case, the stream is still valid (for diving in the query cascade),
+  # get the match from the query - otherwise construct from current
+  # TODO:
+  #   This may not be important!
+  unless ($self->isa('Krawfish::Compile::Segment::Sort')) {
+    # Get current match from query
+    $match = $self->{query}->current_match;
+  };
 
   # Not yet defined
   unless ($match) {
 
-    print_log('compile', 'No match found yet') if DEBUG;
+    print_log('compile', 'No match found from ' . ref($self->{query})) if DEBUG;
 
     # Get current object
     my $current = $self->current;
 
     unless ($current) {
-      print_log('compile', 'No current definable from ' . ref $self) if DEBUG;
+      print_log(
+        'compile',
+        'No current definable from ' .
+          ref($self)) if DEBUG;
       return;
     };
 
-    print_log('compile', 'Current posting is from '. $self->{query}->to_string) if DEBUG;
+    if (DEBUG) {
+      print_log(
+        'compile',
+        'Current posting is from '. $self->{query}->to_string
+      );
+    };
 
-    # Create new match
-    $match = Krawfish::Koral::Result::Match->new(
-      doc_id  => $current->doc_id,
-      start   => $current->start,
-      end     => $current->end,
-      flags   => $current->flags,
-      payload => $current->payload->clone
-    );
+    return $self->match_from_posting($current);
   };
 
   return $match;
 };
 
 
-sub clone {
-  warn ref($_[0]) . ' - Unimplemented';
+# Get a match from a span posting
+# TODO:
+#   Probably make this a method of postings!
+#   to_match()!
+sub match_from_posting {
+  my ($self, $current) = @_;
+
+  # Create new match
+  return Krawfish::Koral::Result::Match->new(
+    doc_id  => $current->doc_id,
+    start   => $current->start,
+    end     => $current->end,
+    flags   => $current->flags,
+    payload => $current->payload->clone,
+    ranks   => [$current->ranks]
+  );
 };
 
 

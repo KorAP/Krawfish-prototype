@@ -48,7 +48,7 @@ is($query->to_string,
    'Stringification');
 ok($result = $query->compile->inflate($index->dict), 'Run clone');
 is($result->to_string,
-   '[matches=[1:0-1][0:0-1][2:0-1]]',
+   '[matches=[1:0-1::*,0][0:0-1::*,*][2:0-1::0,*]]',
    'Stringification');
 
 # Sort in reverse order with an empty field
@@ -71,7 +71,7 @@ is($query->to_string(1),
    'Stringification');
 ok($result = $query->compile->inflate($index->dict), 'Run clone');
 is($result->to_string,
-   '[matches=[0:0-1][1:0-1][2:0-1]]',
+   '[matches=[0:0-1::*,*][1:0-1::*,0][2:0-1::0,*]]',
    'Stringification');
 
 
@@ -99,7 +99,7 @@ ok(!$query->next_bundle, 'Next');
 
 ok($result = $clone->compile->inflate($index->dict), 'Run clone');
 is($result->to_string,
-   '[matches=[1:0-1][0:0-1][2:0-1]]',
+   '[matches=[1:0-1::*,*,0][0:0-1::*,*,*][2:0-1::*,0,*]]',
    'Stringification');
 
 
@@ -116,7 +116,7 @@ is($query->to_string,
    'Stringification');
 ok($result = $query->compile->inflate($index->dict), 'Run clone');
 is($result->to_string,
-   '[matches=[0:0-1][1:0-1][2:0-1]]',
+   '[matches=[0:0-1::*,*,*][1:0-1::*,*,0][2:0-1::*,0,*]]',
    'Stringification');
 
 
