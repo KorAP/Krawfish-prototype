@@ -66,15 +66,13 @@ sub size {
 
 
 # Get the number of matches in the bundle
-# TODO:
-#   Rename to match_count!
-sub matches {
+sub match_count {
   my $self = shift;
-  my $matches = 0;
+  my $count = 0;
   foreach (@{$self->{list}}) {
-    $matches += $_->matches;
+    $count += $_->match_count;
   };
-  return $matches;
+  return $count;
 };
 
 

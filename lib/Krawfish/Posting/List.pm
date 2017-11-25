@@ -7,7 +7,7 @@ with 'Krawfish::Posting::Bundle';
 
 # This is a sorted bundle of postings.
 
-sub matches {
+sub match_count {
   return $_[0]->size;
 };
 

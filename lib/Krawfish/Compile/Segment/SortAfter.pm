@@ -104,7 +104,7 @@ sub next_bundle {
       $self->{current_bundle} = $self->get_bundle_from_buffer;
 
       # Get the number of matches in the bundle
-      $self->{pos} += $self->{current_bundle}->matches;
+      $self->{pos} += $self->{current_bundle}->match_count;
 
       # Fine
       return 1;
@@ -176,7 +176,7 @@ sub next_bundle {
     # Set level
     $bundle->rank($self->level => $rank);
 
-    $queue->insert([$rank, 0, $bundle, $bundle->matches]);
+    $queue->insert([$rank, 0, $bundle, $bundle->match_count]);
   };
 
   # Get the sorted array (which has still the ranking structure etc.)
@@ -200,7 +200,7 @@ sub next_bundle {
   $self->{current_bundle} = $self->get_bundle_from_buffer;
 
   # Remember the number of entries
-  $self->{pos} += $self->{current_bundle}->matches;
+  $self->{pos} += $self->{current_bundle}->match_count;
   return 1;
 };
 

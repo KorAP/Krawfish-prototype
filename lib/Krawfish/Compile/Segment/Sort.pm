@@ -220,7 +220,7 @@ sub _init {
     $bundle->rank(0 => $rank);
 
     # Insert bundle into priority queue with length information
-    $queue->insert([$rank, 0, $bundle, $bundle->matches]) if $bundle;
+    $queue->insert([$rank, 0, $bundle, $bundle->match_count]) if $bundle;
 
     if (DEBUG) {
       print_log('sort', 'Move to next bundle');
@@ -302,7 +302,7 @@ sub next_bundle {
   };
 
   # Remember the number of entries
-  $self->{pos} += $self->{current_bundle}->matches;
+  $self->{pos} += $self->{current_bundle}->match_count;
   return 1;
 };
 
