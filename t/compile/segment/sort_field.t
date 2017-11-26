@@ -56,8 +56,6 @@ my $mb = $koral->compilation_builder;
 my ($query, $result, $clone);
 
 
-if (0) {
-
 $koral->query(
   $qb->seq(
     $qb->token('aa'),
@@ -152,9 +150,6 @@ ok($query->next_bundle, 'Move to next bundle');
 is($query->current_bundle->to_string, '[[[0:0-2]::5]]', 'Stringification');
 ok(!$query->next_bundle, 'No more next bundle');
 
-}
-# end
-
 # Add to more documents
 # 5
 ok_index($index, {
@@ -173,9 +168,6 @@ ok_index($index, {
 } => [qw/aa bb aa bb aa/], 'Add complex document');
 
 ok($index->commit, 'Commit data');
-
-# start
-if (0) {
 
 # New query - sort by author
 $koral = Krawfish::Koral->new;
@@ -220,8 +212,6 @@ is($query->current_bundle->to_string, '[[[6:0-2]::4,8]]', 'Stringification');
 ok($query->next_bundle, 'Move to next bundle');
 is($query->current_bundle->to_string, '[[[0:0-2]::5]]', 'Stringification');
 ok(!$query->next_bundle, 'No more next bundles');
-
-} # end
 
 $koral = Krawfish::Koral->new;
 $koral->query($qb->seq($qb->token('aa'),$qb->token('bb')));

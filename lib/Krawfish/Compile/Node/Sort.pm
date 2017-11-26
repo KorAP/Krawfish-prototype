@@ -5,7 +5,11 @@ use warnings;
 
 # This will sort the incoming results using a heap
 # and the sort criteria.
-# This is obviously less efficient than a dynamic
+# The priority queue will have n entries for n channels.
+# When th list is full, the top entry is taken and the
+# next entry of the channel of the top entry is enqueued.
+
+# This may be less efficient than a dynamic
 # mergesort, but for the moment, it's way simpler.
 
 # TODO:
@@ -13,7 +17,7 @@ use warnings;
 #   use a concurrent priorityqueue instead.
 
 # TODO:
-#   May need to return Krawfish::Posting::Sorted
+#   May need to return Krawfish::Posting::List
 #   with a 'criterion' array.
 #   Instead of next() followed by current(), this should use
 #   next_current() and - for matches - next_match()
@@ -33,6 +37,7 @@ sub new {
     sub {
       my ($obj_a, $obj_b) = @_;
 
+      # List of criteria
       my $criterion_a = $obj_a->{criterion};
       my $criterion_b = $obj_b->{criterion};
 
@@ -77,6 +82,13 @@ sub process_tail {
   };
 
   $self->{query}->process_tail($tail);
+};
+
+# TOD:
+#   This should probably merge all aggregation results
+#   directly in Krawfish::Koral::Result::*
+sub process_aggregates {
+  ...
 };
 
 
