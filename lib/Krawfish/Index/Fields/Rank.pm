@@ -1,10 +1,18 @@
 package Krawfish::Index::Fields::Rank;
 use Krawfish::Index::Fields::Direction;
+use Krawfish::Index::Fields::Sorted;
 use Krawfish::Log;
 use strict;
 use warnings;
 
 use constant DEBUG => 0;
+
+# TODO:
+#   Merge plain and sorted lists, so there is only
+#   one list with values and doc ids, that
+#   accepts new entries, can be merged with new entries,
+#   can create ranks in both orders and
+#   can return values per rank.
 
 # TODO:
 #   It may be useful for criterion generation
@@ -61,7 +69,7 @@ sub new {
     calc_desc => shift,
     asc       => Krawfish::Index::Fields::Direction->new,
     desc      => Krawfish::Index::Fields::Direction->new,
-    sorted    => [], # Better: Krawfish::Index::Fields::Sorted
+    sorted    => Krawfish::Index::Fields::Sorted->new,
     plain     => [],
     max_rank  => undef
   }, $class;
@@ -108,6 +116,8 @@ sub add {
 
   # Use collation
   else {
+
+    # Add sortkey to plain
     push @{$self->{plain}}, [$self->{collation}->sort_key($value), $doc_id];
   };
 
@@ -120,7 +130,8 @@ sub add {
   };
 
   $self->{max_rank} = undef;
-  $self->{sorted}   = [];
+  $self->{sorted}->reset;
+  return $self;
 };
 
 
@@ -178,8 +189,9 @@ sub commit {
   # need to reconsult the dictionary
 
   # Remove duplicates
-  my @sort;
   my $last_value;
+  my $sorted = $self->{sorted};
+  $sorted->reset;
 
   # Iterate over presort list
   foreach my $next (@presort) {
@@ -187,13 +199,16 @@ sub commit {
     # The last value is given and it's equal to the next value
     if (defined $last_value && ($next->[0] eq $last_value)) {
 
-      # Add to the last added list
-      push @{$sort[-1]}, $next->[1]
+      # Add doc id to the last added list
+      $sorted->add_doc_id_to_final($next->[1]);
     }
     else {
 
+      # TODO:
+      #   This should add the sort key as well
+
       # Create new item
-      push @sort, [$next->[1]];
+      $sorted->add($next->[0], $next->[1]);
       $last_value = $next->[0];
     };
   };
@@ -202,18 +217,20 @@ sub commit {
     print_log(
       'f_rank',
       'Sorted list on ranks [DOC*] is ' .
-        join('', map { '[' . join(',',@$_) . ']' } @sort)
+        $sorted->to_string
       );
   };
-
-
-  $self->{sorted} = \@sort;
 
   # Create the ascending rank
   my (@asc, @desc) = ();
 
+  # TODO:
+  #   Use
+  #   - $sorted->to_asc()
+  #   - $sorted->to_desc()
+
   my $rank = 1;
-  foreach my $doc_ids (@sort) {
+  foreach my $doc_ids ($sorted->doc_ids) {
 
     # Get all documents associated with the rank
     foreach (@$doc_ids) {
@@ -240,7 +257,7 @@ sub commit {
   $self->{max_rank} = --$rank;
 
   # Iterate again for suffixes
-  foreach my $doc_ids (@sort) {
+  foreach my $doc_ids ($sorted->doc_ids) {
 
     # Get all documents associated with the rank
     foreach (@$doc_ids) {
@@ -260,12 +277,15 @@ sub commit {
   #    Because the list is only needed
   #    for merging, it can be
   #    stored compressed
+  #    TODO:
+  #      Or rather improve the list
+  #      being indexed for criterion attachements.
 };
 
 
 # Returns the sorted object
 sub sorted {
-  ...
+  $_[0]->{sorted};
 };
 
 
@@ -285,7 +305,7 @@ sub descending {
 sub to_string {
   my $self = shift;
   if ($self->{sorted}) {
-    return join '', map { '[' . join(',', @{$_}) . ']' } @{$self->{sorted}};
+    return $self->{sorted}->to_string;
   }
   else {
     return '?';
