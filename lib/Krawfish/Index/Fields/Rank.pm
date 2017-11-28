@@ -1,6 +1,7 @@
 package Krawfish::Index::Fields::Rank;
 use Krawfish::Index::Fields::Direction;
 use Krawfish::Index::Fields::Sorted;
+use Krawfish::Index::Fields::Plain;
 use Krawfish::Log;
 use strict;
 use warnings;
@@ -59,8 +60,10 @@ sub new {
     print_log('f_rank', 'Initiate rank object');
   };
 
+  my $collation = shift;
+
   bless {
-    collation => shift,
+    collation => $collation,
 
     # If calc_desc is activated,
     # the rank is ascending, but desc can be calculated
@@ -70,7 +73,7 @@ sub new {
     asc       => Krawfish::Index::Fields::Direction->new,
     desc      => Krawfish::Index::Fields::Direction->new,
     sorted    => Krawfish::Index::Fields::Sorted->new,
-    plain     => [],
+    plain     => Krawfish::Index::Fields::Plain->new($collation),
     max_rank  => undef
   }, $class;
 };
@@ -85,47 +88,13 @@ sub add {
     print_log('f_rank', qq!Add value "$value" associated to $doc_id!);
   };
 
-  # TODO:
-  #   Request the type of a collation, to support
-  #   numerical, numerical range, date, date range,
-  #   and string collations.
-
-  # Collation is numerical
-  if ($self->{collation} eq 'NUM') {
-    push @{$self->{plain}}, [$value, $doc_id];
-  }
-
-  # Collation is numerical with range
-  elsif ($self->{collation} eq 'NUMRANGE' || $self->{collation} eq 'DATERANGE') {
-
-    # TODO:
-    #   Not yet implemented
-    my ($min, $max) = $self->{collation}->min_max($value);
-    push @{$self->{plain}}, [$min, $max, $doc_id];
-  }
-
-  # Collation is a date
-  elsif ($self->{collation} eq 'DATE') {
-
-    # TODO:
-    #   Not yet implementated
-    my $date = $self->{collation}->date_num($value);
-    push @{$self->{plain}}, [$date, $doc_id];
-
-  }
-
-  # Use collation
-  else {
-
-    # Add sortkey to plain
-    push @{$self->{plain}}, [$self->{collation}->sort_key($value), $doc_id];
-  };
+  $self->{plain}->add($value, $doc_id);
 
   if (DEBUG) {
     print_log(
       'f_rank',
       qq!Plain ranks are [VALUE,DOC_ID] ! .
-        join('', map { '[' . join(',',@$_) . ']' } @{$self->{plain}})
+        $self->{plain}->to_string
       );
   };
 
@@ -171,9 +140,7 @@ sub commit {
   #   (per doc in case of multiple ranges)
 
   # Sort the list
-  my @presort = $self->{collation} eq 'NUM' ?
-    _numsort_fields($self->{plain}) :
-    _alphasort_fields($self->{plain});
+  my @presort = $self->{plain}->to_sorted;
 
   if (DEBUG) {
     print_log(
@@ -311,23 +278,5 @@ sub to_string {
     return '?';
   };
 };
-
-
-# This should depend on collation
-sub _alphasort_fields {
-  my $plain = shift;
-
-  return sort { $a->[0] cmp $b->[0] } @$plain;
-};
-
-
-# Numerical sorting
-sub _numsort_fields {
-  my $plain = shift;
-
-  # Or sort numerically
-  return sort { $a->[0] <=> $b->[0] } @$plain;
-};
-
 
 1;

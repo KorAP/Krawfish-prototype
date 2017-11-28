@@ -3,6 +3,10 @@ use strict;
 use warnings;
 
 # TODO:
+#   Plain and Sorted should
+#   probably be in a single object!
+
+# TODO:
 #   Currently the sorted list only contains
 #   a list of doc_ids per rank. However - It's
 #   more beneficial to store the value as well.
