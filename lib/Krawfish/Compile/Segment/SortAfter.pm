@@ -26,7 +26,7 @@ with 'Krawfish::Compile::Segment::Sort';
 
 
 use constant {
-  DEBUG   => 0,
+  DEBUG   => 1,
   RANK    => 0,
   SAME    => 1,
   VALUE   => 2,

@@ -56,7 +56,7 @@ with 'Krawfish::Compile';
 
 
 use constant {
-  DEBUG   => 0,
+  DEBUG   => 1,
   RANK    => 0,
   SAME    => 1,
   VALUE   => 2,

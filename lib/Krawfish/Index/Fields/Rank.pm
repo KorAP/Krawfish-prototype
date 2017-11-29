@@ -1,12 +1,10 @@
 package Krawfish::Index::Fields::Rank;
-use Krawfish::Index::Fields::Direction;
-use Krawfish::Index::Fields::Sorted;
-use Krawfish::Index::Fields::Plain;
+use Krawfish::Util::String qw/squote/;
 use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # TODO:
 #   Merge plain and sorted lists, so there is only
@@ -52,78 +50,95 @@ use constant DEBUG => 0;
 #     ([term][term_id][doc_id])*
 #   ...
 
-# Constructor
 sub new {
   my $class = shift;
-
-  if (DEBUG) {
-    print_log('f_rank', 'Initiate rank object');
-  };
-
-  my $collation = shift;
-
   bless {
-    collation => $collation,
 
-    # If calc_desc is activated,
-    # the rank is ascending, but desc can be calculated
-    # based on max_rank.
-    # This is only possible for single-valued fields
-    calc_desc => shift,
-    asc       => Krawfish::Index::Fields::Direction->new,
-    desc      => Krawfish::Index::Fields::Direction->new,
-    sorted    => Krawfish::Index::Fields::Sorted->new,
-    plain     => Krawfish::Index::Fields::Plain->new($collation),
-    max_rank  => undef
+    # This is stored
+    collation => shift,
+    sort      => [],
+    asc       => [],
+    desc      => [],
+    max_rank  => 0,
+
+    buffer    => [],
+    buffered  => 0,
+    sorted    => 0,
+    ranked    => 0
   }, $class;
 };
 
 
-# Add an entry to the plain list
+# Add a new field value
 sub add {
-  my $self = shift;
-  my ($value, $doc_id) = @_;
+  my ($self, $value, $doc_id) = @_;
+
+  my $coll = $self->{collation};
 
   if (DEBUG) {
-    print_log('f_rank', qq!Add value "$value" associated to $doc_id!);
+    print_log('f_rank', 'Add ' . squote($value) . ' for doc_id ' . $doc_id);
   };
 
-  $self->{plain}->add($value, $doc_id);
+  # Get buffer
+  my $buffer = $self->{buffer};
 
-  if (DEBUG) {
-    print_log(
-      'f_rank',
-      qq!Plain ranks are [VALUE,DOC_ID] ! .
-        $self->{plain}->to_string
-      );
+  # Collation is numerical
+  if ($coll eq 'NUM') {
+    push @{$self->{buffer}}, [$value, $doc_id];
+  }
+
+  # Collation is numerical with range
+  elsif ($coll eq 'NUMRANGE') {
+
+    # TODO:
+    #   Not yet implemented
+    my ($min, $max) = $coll->min_max($value);
+    push @{$self->{buffer}}, [$min, $doc_id];
+    push @{$self->{buffer}}, [$max, $doc_id];
+  }
+
+  # Collation is date with range
+  elsif ($coll eq 'DATERANGE') {
+
+    # TODO:
+    #   Not yet implementated
+    my ($min, $max) = $coll->min_max($value);
+    push @{$self->{buffer}}, [$coll->date_num($min), $doc_id];
+    push @{$self->{buffer}}, [$coll->date_num($max), $doc_id];
+  }
+
+  # Collation is a date
+  elsif ($coll eq 'DATE') {
+
+    # TODO:
+    #   Not yet implementated
+    push @{$self->{buffer}}, [$coll->date_num($value), $doc_id];
+
+  }
+
+  # Use collation
+  else {
+
+    # Add sortkey to buffer
+    push @{$self->{buffer}}, [$coll->sort_key($value), $doc_id];
   };
 
-  $self->{max_rank} = undef;
-  $self->{sorted}->reset;
-  return $self;
+
+  return $self->{buffered} = 1;
+
+  return;
 };
 
 
-# Get the maximum rank
+# Get max_rank
 sub max_rank {
   $_[0]->{max_rank};
 };
 
 
-# Prepare the plain list for merging,
-# maybe for enrichment with sort criteria,
-# or - for the moment - to become
-# rankable
+# Commit all changes
 sub commit {
   my $self = shift;
-
-  # Return if everything commited
-  return if $self->{max_rank};
-
-  # 1. sort the plain list following
-  #    the collation
-  #    Creates the structure
-  #    [collocation]([field-term-with-front-coding|value-as-delta][doc_id]*)*
 
   # TODO:
   #   It's probably better to sort by collocation and store
@@ -139,144 +154,314 @@ sub commit {
   #   and the descending order will use the maximum value
   #   (per doc in case of multiple ranges)
 
-  # Sort the list
-  my @presort = $self->{plain}->to_sorted;
+  # Return if everything commited
+  return unless $self->{buffered};
+
+  # 1. sort the plain list following
+  #    the collation
+  #    Creates the structure
+  #    [collocation]([field-term-with-front-coding|value-as-delta][doc_id]*)*
+
+  my $buffer = $self->{buffer};
 
   if (DEBUG) {
-    print_log(
-      'f_rank',
-      'Presorted list [VALUE,DOC] is ' .
-        join('', map { '[' . join(',',@$_) . ']' } @presort)
-      );
+    print_log('f_rank', 'Sort buffer');
   };
 
-  # This list keeps existing, even
-  # when the segment becomes static -
-  # to make merging possible without the
-  # need to reconsult the dictionary
+  my @sorted_buffer = $self->{collation} eq 'NUM' ?
+    _numsort_fields($self->{buffer}) :
+    _keysort_fields($self->{buffer});
 
-  # Remove duplicates
   my $last_value;
-  my $sorted = $self->{sorted};
-  $sorted->reset;
 
-  # Iterate over presort list
-  foreach my $next (@presort) {
+  # TODO:
+  #   Deal with already sorted list!
+  my $sort = $self->{sort};
+  my $coll = $self->{collation};
+  my $pos = 0;
+
+  # Iterate over sorted buffer
+  # TODO:
+  #   This should automatically merge with
+  #   an existing list
+  my $max_rank = $self->{max_rank};
+
+  if (DEBUG) {
+    print_log('f_rank', 'Maximum rank so far is ' . $max_rank);
+  };
+
+  foreach my $next (@sorted_buffer) {
+
+    if (DEBUG) {
+      print_log('f_rank', 'Check next item from buffer ' . $next->[0]);
+    };
+
+    my $current_sort = $sort->[$pos];
+
+    # Move to the first item in the sorted
+    # list that is > than current
+    while (
+      $current_sort && (
+      $coll eq 'NUM' ?
+        $current_sort->[0] < $next->[0] :
+        $current_sort->[0] lt $next->[0])
+    ) {
+
+      if (DEBUG) {
+        print_log(
+          'f_rank',
+          "At $pos - Move on till next is larger: " .
+          $current_sort->[0] . ' < ' . $next->[0]
+        );
+      };
+
+      # Get to next sort entry
+      $current_sort = $sort->[++$pos];
+    };
 
     # The last value is given and it's equal to the next value
-    if (defined $last_value && ($next->[0] eq $last_value)) {
+    if (defined $current_sort && (
+      $coll eq 'NUM' ?
+        $next->[0] == $current_sort->[0] :
+        $next->[0] eq $current_sort->[0])
+      ) {
 
-      # Add doc id to the last added list
-      $sorted->add_doc_id_to_final($next->[1]);
+      if (DEBUG) {
+        print_log(
+          'f_rank',
+          "At $pos - Sort and next are identical, add doc: " .
+            $next->[0] . ' == ' . $next->[0]
+        );
+      };
+
+      # Add doc id to the current sort item
+      push @{$current_sort}, $next->[1];
     }
+
+    # The new entry is in the middle of the sorted list
     else {
 
-      # TODO:
-      #   This should add the sort key as well
+      # Add value => doc_id field
+      if ($pos > $#$sort) {
 
-      # Create new item
-      $sorted->add($next->[0], $next->[1]);
-      $last_value = $next->[0];
+        # Add it to the end
+        push(@$sort, [$next->[0], $next->[1]]);
+      }
+
+      # Add it in the middle
+      else {
+        splice(@$sort, $pos, 0, [$next->[0], $next->[1]]);
+      };
+      $max_rank++;
+    };
+
+    if (DEBUG) {
+      print_log('f_rank',"At $pos - New sort: " . $self->to_string($pos));
     };
   };
 
+
+  $self->{sorted} = 1;
+  $self->{buffer} = [];
+  $self->{buffered} = 0;
+  $self->{ranked} = 0;
+  $self->{max_rank} = $max_rank;
+
   if (DEBUG) {
-    print_log(
-      'f_rank',
-      'Sorted list on ranks [DOC*] is ' .
-        $sorted->to_string
-      );
+    print_log('f_rank', 'List is is ' . $self->to_string);
   };
+
+  return 1;
+};
+
+
+# Sort data
+sub vector {
+  my $self = shift;
+  return $self->{sort} if $self->{sorted};
+  return [];
+};
+
+
+# Create ranks
+sub _create_ranks {
+  my $self = shift;
+
+  # Already ranked
+  return if $self->{ranked};
 
   # Create the ascending rank
   my (@asc, @desc) = ();
 
-  # TODO:
-  #   Use
-  #   - $sorted->to_asc()
-  #   - $sorted->to_desc()
+  my $pos_rank = 1;
+  my $neg_rank = $self->max_rank;
 
-  my $rank = 1;
-  foreach my $doc_ids ($sorted->doc_ids) {
+  if (DEBUG) {
+    print_log('f_rank', 'Rank the list');
+  };
+
+  foreach my $entry (@{$self->vector}) {
 
     # Get all documents associated with the rank
-    foreach (@$doc_ids) {
+    foreach (@{$entry}[1..$#$entry]) {
 
       # Only set the value,
       # if not ranked yet
-      $asc[$_] //= $rank;
+      $asc[$_] //= $pos_rank;
+      $desc[$_] = $neg_rank;
     };
 
-    $rank++;
+    $pos_rank++;
+    $neg_rank--;
   };
 
   if (DEBUG) {
     print_log(
       'f_rank',
       'Ascending ranks per doc are ' .
-        join('', map { "[${_}]" } @asc)
+        join('', map { $_ ? "[${_}]" : '[]' } @asc)
       );
   };
 
-  $self->{asc}->load(\@asc);
+  $self->{asc} = \@asc;
+  $self->{desc} = \@desc;
 
-  # Max rank is relevant for efficient encoding
-  $self->{max_rank} = --$rank;
-
-  # Iterate again for suffixes
-  foreach my $doc_ids ($sorted->doc_ids) {
-
-    # Get all documents associated with the rank
-    foreach (@$doc_ids) {
-
-      # Take the last value
-      $desc[$_] = $rank;
-    };
-
-    $rank--;
-  };
-
-  $self->{desc}->load(\@desc);
-
-  return $self;
-
-  # 4. Compress the sorted list
-  #    Because the list is only needed
-  #    for merging, it can be
-  #    stored compressed
-  #    TODO:
-  #      Or rather improve the list
-  #      being indexed for criterion attachements.
+  $self->{ranked} = 1;
+  return;
 };
 
 
-# Returns the sorted object
-sub sorted {
-  $_[0]->{sorted};
+# Get the key for a certain asc rank
+sub asc_key_for {
+  my ($self, $rank) = @_;
+
+  # TODO:
+  #   This should only load the sort if necessary
+
+  my $entry = $self->{sort}->[$rank-1];
+
+  # return value
+  return $entry->[0];
 };
 
 
-# Get ascending ranking
-sub ascending {
-  $_[0]->{asc};
+# Get the key for a certain desc rank
+sub desc_key_for {
+  my ($self, $rank) = @_;
+
+  # TODO:
+  #   This should only load the sort if necessary
+
+  my $entry = $self->{sort}->[($self->max_rank - $rank)];
+
+  # return value
+  return $entry->[0];
 };
 
 
-# Get descending ranking
-sub descending {
-  $_[0]->{desc};
-}
+# Get ascending ranks
+sub asc_rank_for {
+  my ($self, $doc_id) = @_;
+
+  # TODO:
+  #   This should only load the asc rank on request
+  $self->_create_ranks;
+  $self->{asc}->[$doc_id] // 0;
+};
+
+
+# Get descending ranks
+sub desc_rank_for {
+  my ($self, $doc_id) = @_;
+
+  # TODO:
+  #   This should only load the desc rank on request
+  $self->_create_ranks;
+  $self->{desc}->[$doc_id] // 0;
+};
+
+
+
+# Sort by comparation key
+sub _keysort_fields {
+  my $plain = shift;
+
+  return sort { $a->[0] cmp $b->[0] } @$plain;
+};
+
+
+# Numerical sorting
+sub _numsort_fields {
+  my $plain = shift;
+
+  # Or sort numerically
+  return sort { $a->[0] <=> $b->[0] } @$plain;
+};
 
 
 # Stringification
 sub to_string {
-  my $self = shift;
-  if ($self->{sorted}) {
-    return $self->{sorted}->to_string;
-  }
-  else {
-    return '?';
+  my ($self, $pos) = @_;
+
+  my $str = '';
+  my $coll = $self->{collation} eq 'NUM' ? 1 : 0;
+
+  # Sorted list
+  if (@{$self->{sort}}) {
+    $str .= '<';
+
+    my $i = 0;
+    foreach (@{$self->{sort}}) {
+      $str .= '(' if defined $pos && $i == $pos;
+      $str .= ($coll ? $_->[0] : '?') . ':' . join(',', @{$_}[1..$#{$_}]);
+      $str .= ')' if defined $pos && $i == $pos;
+      $str .= ';';
+      $i++;
+    };
+    chop($str);
+    $str .= '>';
   };
+
+  # Buffered list
+  if ($self->{buffered}) {
+    $str .=
+      '{' . join(';', map { ($coll ? $_->[0] : '?') . ':' . $_->[1] } (@{$self->{buffer}})) . '}';
+  };
+
+  return $str;
 };
 
+
+sub to_doc_string {
+  my $self = shift;
+
+  my $str = '';
+
+  # Sorted list
+  if ($self->{sorted}) {
+    $str .= join('', map { '[' . join(',', @{$_}[1..$#{$_}]) . ']' }
+                   (@{$self->{sort}}));
+  };
+
+  return $str;
+};
+
+
+# Return ascending ranks
+sub to_asc_string {
+  my $self = shift;
+  $self->_create_ranks;
+  return join('', map { $_ ? "[${_}]" : '[]' } @{$self->{asc}})
+};
+
+
+# return descending string
+sub to_desc_string {
+  my $self = shift;
+  $self->_create_ranks;
+  return join('', map { $_ ? "[${_}]" : '[]' } @{$self->{desc}})
+};
+
+
 1;
+

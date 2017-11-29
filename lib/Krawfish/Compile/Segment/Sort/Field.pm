@@ -3,7 +3,7 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # TODO:
 #   Use this an instantiate it directly with
@@ -34,22 +34,10 @@ sub new {
 
   my $self = bless {
     field_id => $field_id,
+    rank     => $rank,
     desc     => $descending,
     max_rank => $rank->max_rank
   }, $class;
-
-  # Get fields in descending order
-  if ($descending) {
-
-    # This may be a real descending order file
-    # or a reversed single-valued ascending order file
-    $self->{rank} = $rank->descending or return;
-  }
-
-  # Get fields in ascending order
-  else {
-    $self->{rank} = $rank->ascending or return;
-  };
 
   return $self;
 };
@@ -63,7 +51,17 @@ sub type {
 sub rank_for {
   my ($self, $doc_id) = @_;
 
-  return $self->{rank}->rank_for($doc_id) || ($self->max_rank + 1);
+
+  # Get fields in descending order
+  if ($self->{desc}) {
+
+    # This may be a real descending order file
+    # or a reversed single-valued ascending order file
+    return $self->{rank}->desc_rank_for($doc_id) || ($self->max_rank + 1);
+  };
+
+  # Get fields in ascending order
+  return $self->{rank}->asc_rank_for($doc_id) || ($self->max_rank + 1);
 
   # Get rank if rank is littler than value
   # my $value = shift;

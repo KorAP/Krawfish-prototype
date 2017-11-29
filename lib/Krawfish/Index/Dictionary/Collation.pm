@@ -25,4 +25,9 @@ sub sort_key {
   return $$self->getSortKey($value);
 };
 
+# TODO:
+#   Introduce
+#   - lt()
+#   - cmp()
+
 1;

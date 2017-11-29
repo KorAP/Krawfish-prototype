@@ -150,6 +150,8 @@ ok($query->next_bundle, 'Move to next bundle');
 is($query->current_bundle->to_string, '[[[0:0-2]::5]]', 'Stringification');
 ok(!$query->next_bundle, 'No more next bundle');
 
+
+
 # Add to more documents
 # 5
 ok_index($index, {
@@ -195,8 +197,24 @@ is($query->to_string,
    'Stringification');
 
 
-# 0:Peter, 1:Julian!, 2:Abraham, 3:Fritz, 4:Michael, 5:Fritz, 6:Michael, 7:Michael
+# 0:Peter, 1:Julian, 2:Abraham, 3:Fritz, 4:Michael,
+# 5:Fritz, 6:Michael, 7:Michael
+# Abraham:1:[2];Fritz:2:[3,5];Julian:3:[1];Michael:4:[4,6,7];Peter:5:[0]
+# Ranks? [5][3][1][2][4][2][4][4]
+# Rank:  [6][3][1][2][5][2][5][4]
+# Rank:  [6][3][1][2][4][2][4][5]
+
+#
 # 2, [3, 5], [4,7,6], 0
+# 0:2, 1:3, 2:1, 3:6, 4:5, 5:8, 6:9, 7:7
+#
+
+# List is id => doc_id
+# <1:2;2:0;3:1;5:4;6:3;7:7;8:5;9:6>
+# [2][3][1][5][4][7][8][6]
+#     5,7    4,6,8
+
+
 ok($query->next_bundle, 'Move to next bundle');
 is($query->current_bundle->to_string, '[[[2:0-2]::1]]', 'Stringification');
 ok($query->next_bundle, 'Move to next bundle');
@@ -212,6 +230,8 @@ is($query->current_bundle->to_string, '[[[6:0-2]::4,8]]', 'Stringification');
 ok($query->next_bundle, 'Move to next bundle');
 is($query->current_bundle->to_string, '[[[0:0-2]::5]]', 'Stringification');
 ok(!$query->next_bundle, 'No more next bundles');
+
+
 
 $koral = Krawfish::Koral->new;
 $koral->query($qb->seq($qb->token('aa'),$qb->token('bb')));

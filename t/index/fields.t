@@ -116,34 +116,31 @@ ok(my $term_id = $index->dict->term_id_by_term(KEY_PREF . 'author'), 'Get term i
 
 ok(my $ranks = $index->segment->field_ranks->by($term_id), 'Get ranks');
 
-is($ranks->to_string, '[1][2][0]', 'Get rank file');
+is($ranks->to_doc_string, '[1][2][0]', 'Get rank file');
 
 
-my $dir = $ranks->ascending;
-is($dir->rank_for(0), 3, 'Get ascending rank');
-is($dir->rank_for(1), 1, 'Get ascending rank');
-is($dir->rank_for(2), 2, 'Get ascending rank');
+is($ranks->asc_rank_for(0), 3, 'Get ascending rank');
+is($ranks->asc_rank_for(1), 1, 'Get ascending rank');
+is($ranks->asc_rank_for(2), 2, 'Get ascending rank');
 
-$dir = $ranks->descending;
-is($dir->rank_for(0), 1, 'Get descending rank');
-is($dir->rank_for(1), 3, 'Get descending rank');
-is($dir->rank_for(2), 2, 'Get descending rank');
+is($ranks->desc_rank_for(0), 1, 'Get descending rank');
+is($ranks->desc_rank_for(1), 3, 'Get descending rank');
+is($ranks->desc_rank_for(2), 2, 'Get descending rank');
+
 
 # Numerical ranks for size
 ok($term_id = $index->dict->term_id_by_term(KEY_PREF . 'size'), 'Get term id');
 ok($ranks = $index->segment->field_ranks->by($term_id), 'Get ranks');
 
-is($ranks->to_string, '[0][1][2]', 'Get rank file');
+is($ranks->to_string, '<2:0;3:1;17:2>', 'Get rank file');
 
-$dir = $ranks->ascending;
-is($dir->rank_for(0), 1, 'Get ascending rank');
-is($dir->rank_for(1), 2, 'Get ascending rank');
-is($dir->rank_for(2), 3, 'Get ascending rank');
+is($ranks->asc_rank_for(0), 1, 'Get ascending rank');
+is($ranks->asc_rank_for(1), 2, 'Get ascending rank');
+is($ranks->asc_rank_for(2), 3, 'Get ascending rank');
 
-$dir = $ranks->descending;
-is($dir->rank_for(0), 3, 'Get descending rank');
-is($dir->rank_for(1), 2, 'Get descending rank');
-is($dir->rank_for(2), 1, 'Get descending rank');
+is($ranks->desc_rank_for(0), 3, 'Get descending rank');
+is($ranks->desc_rank_for(1), 2, 'Get descending rank');
+is($ranks->desc_rank_for(2), 1, 'Get descending rank');
 
 
 # New index with multivalued fields
@@ -203,19 +200,18 @@ ok(!$fields[3], 'Field id');
 
 # This lists the sorted keys (therefore 4)
 # with associated docs (therefore 1 is listed twice)
-is($ranks->to_string, '[1][2][0][1]', 'Get rank file');
+is($ranks->to_doc_string, '[1][2][0][1]', 'Get rank file');
+
 
 # The ascending rank takes Amy
-$dir = $ranks->ascending;
-is($dir->rank_for(0), 3, 'Get ascending rank');
-is($dir->rank_for(1), 1, 'Get ascending rank');
-is($dir->rank_for(2), 2, 'Get ascending rank');
+is($ranks->asc_rank_for(0), 3, 'Get ascending rank');
+is($ranks->asc_rank_for(1), 1, 'Get ascending rank');
+is($ranks->asc_rank_for(2), 2, 'Get ascending rank');
 
 # The descending rank takes 'Mike'
-$dir = $ranks->descending;
-is($dir->rank_for(0), 2, 'Get descending rank');
-is($dir->rank_for(1), 1, 'Get descending rank');
-is($dir->rank_for(2), 3, 'Get descending rank');
+is($ranks->desc_rank_for(0), 2, 'Get descending rank');
+is($ranks->desc_rank_for(1), 1, 'Get descending rank');
+is($ranks->desc_rank_for(2), 3, 'Get descending rank');
 
 
 
@@ -242,28 +238,60 @@ ok($index->commit, 'Commit data');
 # The numerical ascending ranks of 'id'
 ok($term_id = $index->dict->term_id_by_term(KEY_PREF . 'id'), 'Get term id');
 ok($ranks = $index->segment->field_ranks->by($term_id), 'Get ranks');
-$dir = $ranks->ascending;
-is($dir->rank_for(2), 1, 'Get ascending rank');
-is($dir->rank_for(0), 2, 'Get ascending rank');
-is($dir->rank_for(1), 3, 'Get ascending rank');
-is($dir->rank_for(4), 4, 'Get ascending rank');
-is($dir->rank_for(3), 5, 'Get ascending rank');
+is($ranks->asc_rank_for(2), 1, 'Get ascending rank');
+is($ranks->asc_rank_for(0), 2, 'Get ascending rank');
+is($ranks->asc_rank_for(1), 3, 'Get ascending rank');
+is($ranks->asc_rank_for(4), 4, 'Get ascending rank');
+is($ranks->asc_rank_for(3), 5, 'Get ascending rank');
+
+is($ranks->to_string, '<1:2;2:0;3:1;5:4;6:3>', 'Sorted list');
 
 
-# Add another document
-print "-------------------\n\n";
+# Add another document with a given id
 ok_index($index, {
   id => 2,
 } => [qw/aa bb/], 'Add complex document');
+
+is($ranks->to_string, '<1:2;2:0;3:1;5:4;6:3>{2:5}', 'Sorted list');
+
 $index->commit;
 
-is($dir->rank_for(2), 1, 'Get ascending rank');
-is($dir->rank_for(0), 2, 'Get ascending rank');
-is($dir->rank_for(1), 3, 'Get ascending rank');
-is($dir->rank_for(4), 4, 'Get ascending rank');
-is($dir->rank_for(3), 5, 'Get ascending rank');
-is($dir->rank_for(5), 2, 'Get ascending rank');
+is($ranks->to_string, '<1:2;2:0,5;3:1;5:4;6:3>', 'Sorted list');
 
+is($ranks->asc_rank_for(2), 1, 'Get ascending rank');
+is($ranks->asc_rank_for(0), 2, 'Get ascending rank');
+is($ranks->asc_rank_for(1), 3, 'Get ascending rank');
+is($ranks->asc_rank_for(4), 4, 'Get ascending rank');
+is($ranks->asc_rank_for(3), 5, 'Get ascending rank');
+is($ranks->asc_rank_for(5), 2, 'Get ascending rank');
+
+is($ranks->asc_key_for(1), 1, 'Get ascending key');
+is($ranks->asc_key_for(2), 2, 'Get ascending key');
+is($ranks->asc_key_for(4), 5, 'Get ascending key');
+
+
+# Add another document with a given id
+ok_index($index, {
+  id => 4,
+} => [qw/aa bb/], 'Add complex document');
+
+is($ranks->to_string, '<1:2;2:0,5;3:1;5:4;6:3>{4:6}', 'Sorted list');
+
+$index->commit;
+
+is($ranks->to_string, '<1:2;2:0,5;3:1;4:6;5:4;6:3>', 'Sorted list');
+
+is($ranks->asc_rank_for(2), 1, 'Get ascending rank');
+is($ranks->asc_rank_for(0), 2, 'Get ascending rank');
+is($ranks->asc_rank_for(1), 3, 'Get ascending rank');
+is($ranks->asc_rank_for(6), 4, 'Get ascending rank');
+is($ranks->asc_rank_for(4), 5, 'Get ascending rank');
+is($ranks->asc_rank_for(3), 6, 'Get ascending rank');
+is($ranks->asc_rank_for(5), 2, 'Get ascending rank');
+
+is($ranks->asc_key_for(1), 1, 'Get ascending key');
+is($ranks->asc_key_for(2), 2, 'Get ascending key');
+is($ranks->asc_key_for(4), 4, 'Get ascending key');
 
 
 done_testing;
