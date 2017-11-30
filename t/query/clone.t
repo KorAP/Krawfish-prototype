@@ -165,7 +165,7 @@ is($query->to_string,
 ok($query = $query->identify($index->dict)->optimize($index->segment), 'Query generation');
 
 is($query->to_string,
-  'eCorpusClasses(6144:eFields(2:aggr([length,freq,fields:#3,values:#2]:filter(#8,[1]))))',
+  'eCorpusClasses(6144:eFields(#2:aggr([length,freq,fields:#3,values:#2]:filter(#8,[1]))))',
   'Stringification');
 
 ok($clone = $query->clone, 'Cloning');

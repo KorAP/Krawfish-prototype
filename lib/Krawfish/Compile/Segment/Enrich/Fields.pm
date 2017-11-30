@@ -163,8 +163,9 @@ sub next {
 
 # Stringification
 sub to_string {
-  my $str = 'eFields(' . join(',', @{$_[0]->{fields}}) . ':';
-  $str .= $_[0]->{query}->to_string;
+  my ($self, $id) = @_;
+  my $str = 'eFields(' . join(',', map { '#' . $_ } @{$_[0]->{fields}}) . ':';
+  $str .= $_[0]->{query}->to_string($id);
   return $str . ')';
 };
 

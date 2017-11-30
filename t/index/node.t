@@ -73,13 +73,14 @@ is($node_q->to_string(1), "fields(#2:filter((#10#12)|(#10#14),[1]))", 'Stringifi
 ok(my $seg_q_1 = $node_q->optimize($index->segment(0)), 'Run on index 1');
 ok(my $seg_q_2 = $node_q->optimize($index->segment(1)), 'Run on index 2');
 
+# No segment specific optimization
 is($seg_q_1->to_string(1),
-   'eFields(2:or(constr(pos=2:#10,filter(#12,[1])),constr(pos=2:#10,filter(#14,[1]))))',
+   'eFields(#2:or(constr(pos=2:#10,filter(#12,[1])),constr(pos=2:#10,filter(#14,[1]))))',
    'Stringification 1');
 
-# There is no 'cc' in segment 1
+# There is no 'cc' in segment 1 - removed
 is($seg_q_2->to_string(1),
-   'eFields(2:constr(pos=2:#10,filter(#12,[1])))',
+   'eFields(#2:constr(pos=2:#10,filter(#12,[1])))',
    'Stringification 2');
 
 is($seg_q_1->compile->inflate($index->dict)->to_string,
