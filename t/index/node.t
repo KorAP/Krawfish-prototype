@@ -94,11 +94,3 @@ is($seg_q_2->compile->inflate($index->dict)->to_string,
 
 done_testing;
 __END__
-
-
-
-
-
-
-done_testing;
-__END__

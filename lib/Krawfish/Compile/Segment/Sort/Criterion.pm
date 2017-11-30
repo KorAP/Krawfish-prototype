@@ -7,16 +7,19 @@ use Role::Tiny;
 
 use constant DEBUG => 0;
 
-# TODO:
-#   On the segment level, it's enough to compare on the ranks,
-#   but it's also necessary to enrich with the fields
-#   to have the necessary enrichment when moving to the cluster
-#   (at least having the collation comparation key).
-#   To make this work in multivalued fields, the fields
-#   would
+# Enrich an item with sort criteria.
+# This is necessary to sort items beyond the segment.
+# The problem with this enrichment is,
+# that it needs to augment the sorted items after sorting,
+# so they are not in a proper order to go through
+# the fields lists (for example) to collect the field values
+# or through the forward index to collect term_ids (though
+# this may be a different API).
 #
-#     a) need to be sorted in alphabetic or numeric order
-#     b) the ranking sorted field is indexed
+# The current solution expects an indexed sorting list
+# for the ranks, so the rank of the level is retrieved
+# and based on that, the sorted field list returns
+# the key.
 
 # TODO:
 #   This may very well be in Krawfish::Compile::Enrich::SortCriterion;
@@ -37,18 +40,27 @@ sub current_match {
     );
   };
 
+  # Current match is already defined
   return $self->{match} if $self->{match};
 
+  # There is no current posting defined
   unless ($self->{current}) {
     warn 'No current defined!';
     return;
   };
 
-  my $match = $self->match_from_posting($self->{current});
+  # Get match from current posting
+  my $match = $self->match_from_posting(
+    $self->{current}
+  );
 
+  # No match constructible by posting
   unless ($match) {
     if (DEBUG) {
-      print_log('c_s_crit', 'No match found requested by ' . ref($self));
+      print_log(
+        'c_s_crit',
+        'No match found requested by ' . ref($self)
+      );
     };
     return;
   };
@@ -61,16 +73,18 @@ sub current_match {
       );
   };
 
-  # Add criteria
+  # Add criteria to match
   $self->add_criteria_to($match);
 
+  # Set current match
   $self->{match} = $match;
 
   return $match;
 };
 
 
-# Add criteria
+# Add criteria to match
+# This will go down all levels of the query
 sub add_criteria_to {
   my ($self, $match) = @_;
 
@@ -175,7 +189,9 @@ sub add_criteria_to {
   };
 
   # Add criteria for deeper levels
-  if (Role::Tiny::does_role($self->{query}, 'Krawfish::Compile::Segment::Sort::Criterion')) {
+  if (Role::Tiny::does_role(
+    $self->{query},
+    'Krawfish::Compile::Segment::Sort::Criterion')) {
     $self->{query}->add_criteria_to($match);
   };
 };
