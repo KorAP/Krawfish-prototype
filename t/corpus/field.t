@@ -13,6 +13,7 @@ ok_index_file($index, 'doc1.jsonld', 'Add new document');
 ok_index_file($index, 'doc3-segments.jsonld', 'Add new document');
 
 
+
 ok(my $cb = Krawfish::Koral::Corpus::Builder->new, 'Create CorpusBuilder');
 
 ok(my $field = $cb->string('license')->eq('free'), 'String field');

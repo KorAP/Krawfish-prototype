@@ -73,7 +73,7 @@ sub _resolve_optionality {
   my @ops;
   foreach my $op (@{$self->operands}) {
 
-    # The operand 
+    # The operand is optional
     if ($op->is_optional) {
 
       # Remove optionality

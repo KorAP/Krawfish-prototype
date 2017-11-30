@@ -115,7 +115,15 @@ sub segments {
 
 # Get the dynamic segment
 sub segment {
-  $_[0]->{segments}->[0];
+  my ($self, $id) = @_;
+  $self->{segments}->[$id // 0];
+};
+
+
+# Add segment to index
+sub add_segment {
+  my ($self, $seg) = @_;
+  push @{$self->{segments}}, $seg;
 };
 
 
@@ -192,7 +200,9 @@ sub introduce_field {
 
 # Add to index
 sub add_doc {
-  my ($self, $file) = @_;
+  my ($self, $file, $seg_id) = @_;
+
+  $seg_id //= 0;
 
   # Get Koral document
   my $kq = Krawfish::Koral::Document->new($file) or return;
@@ -201,7 +211,7 @@ sub add_doc {
   $kq = $kq->identify($self->dict) or return;
 
   # Add to segment
-  $self->segment->add($kq) or return;
+  $self->segment($seg_id)->add($kq) or return;
 
   return $self;
 };

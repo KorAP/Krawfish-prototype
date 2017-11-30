@@ -12,6 +12,7 @@ our @EXPORT = qw(test_doc ok_index ok_index_file ok_index_koral matches);
 use constant DEBUG => 0;
 
 
+# Get KoralQuery document based on simple data
 sub test_doc {
   my $kq = {};
   my $doc = ($kq->{document} = {});
@@ -38,7 +39,7 @@ sub test_doc {
 };
 
 
-
+# Add simple data to index
 sub ok_index {
   my $index = shift;
 
@@ -61,8 +62,13 @@ sub ok_index {
 };
 
 
+# Add koral document to index/segment
 sub ok_index_koral {
   my $index = shift;
+
+  # Get segment id
+  my $id = 0;
+  $id = shift if @_ > 1;
 
   # Get Koral document
   my $kq = Krawfish::Koral::Document->new(shift);
@@ -77,11 +83,11 @@ sub ok_index_koral {
   my $tb = Test::More->builder;
 
   # Add to segment
-  $tb->ok(defined $index->segment->add($kq), $desc);
+  $tb->ok(defined $index->segment($id)->add($kq), $desc);
 };
 
 
-
+# Add file to index
 sub ok_index_file {
   my $index = shift;
   my $file = shift;
@@ -104,7 +110,7 @@ sub ok_index_file {
   # Transform to term_ids
   $kq = $kq->identify($index->dict);
 
-  my $desc = 'Add example document';
+  my $desc = shift // 'Add example document';
 
   local $Test::Builder::Level = $Test::Builder::Level + 1;
 
