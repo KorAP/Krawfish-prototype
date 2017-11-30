@@ -5,13 +5,20 @@ use Role::Tiny::With;
 
 with 'Krawfish::Koral::Result::Inflatable';
 
-# The fields are represented as Krawfish::Koral::Document::Field* objects!
+# The fields are represented as
+# Krawfish::Koral::Document::Field* objects!
 
 sub new {
   my $class = shift;
   bless {
     fields => [@_]
   }, $class;
+};
+
+
+# Key for enrichment
+sub key {
+  'fields';
 };
 
 
@@ -32,12 +39,6 @@ sub inflate {
     $self->{fields}->[$i] = $fields->[$i]->inflate($dict);
   };
   return $self;
-};
-
-
-# Key for enrichment
-sub key {
-  'fields';
 };
 
 

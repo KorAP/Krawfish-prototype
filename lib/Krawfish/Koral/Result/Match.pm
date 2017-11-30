@@ -1,5 +1,5 @@
 package Krawfish::Koral::Result::Match;
-use Krawfish::Koral::Result::Enrich::SortCriterion;
+use Krawfish::Koral::Result::Enrich::Criteria;
 use Role::Tiny::With;
 use Krawfish::Util::String qw/squote/;
 use warnings;
@@ -35,10 +35,10 @@ sub add {
 };
 
 
-# Return sort criterion
+# Return sort criteria object
 sub sorted_by {
   my $self = shift;
-  $self->{sorted_by} //= Krawfish::Koral::Result::Enrich::SortCriterion->new;
+  $self->{sorted_by} //= Krawfish::Koral::Result::Enrich::Criteria->new;
   return $self->{sorted_by};
 };
 
