@@ -70,6 +70,23 @@ sub rank_for {
 };
 
 
+# Get key by rank
+sub key_for {
+  my ($self, $rank) = @_;
+
+    # Get fields in descending order
+  if ($self->{desc}) {
+
+    # This may be a real descending order file
+    # or a reversed single-valued ascending order file
+    return $self->{rank}->desc_key_for($rank);
+  };
+
+  # Get fields in ascending order
+  return $self->{rank}->asc_key_for($rank);
+};
+
+
 sub criterion {
   $_[0]->{field_id};
 };

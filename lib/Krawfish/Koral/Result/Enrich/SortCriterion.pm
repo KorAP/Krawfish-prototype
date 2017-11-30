@@ -4,6 +4,8 @@ package Krawfish::Koral::Result::Enrich::SortCriterion;
 use strict;
 use warnings;
 use Role::Tiny::With;
+use Scalar::Util qw/looks_like_number/;
+use Krawfish::Util::String qw/binary_short/;
 
 with 'Krawfish::Koral::Result::Inflatable';
 
@@ -45,7 +47,9 @@ sub to_koral_fragment {
 sub to_string {
   my ($self, $id) = @_;
   my $str = '';
-  $str .= join(',', @$self);
+  $str .= join(',', map {
+    binary_short($_)
+  } @$self);
   return $str;
 };
 

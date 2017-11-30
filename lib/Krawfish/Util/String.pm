@@ -3,6 +3,8 @@ use strict;
 use warnings;
 # Potentially use Unicode::UCD instead
 use Unicode::CaseFold;
+use Scalar::Util qw/looks_like_number/;
+use Mojo::Util qw/b64_encode/;
 use Unicode::Normalize qw/getCombinClass normalize/;
 use parent 'Exporter';
 use utf8;
@@ -14,7 +16,8 @@ our @EXPORT = qw/fold_case
                  remove_diacritics
                  normalize_nfkc
                  squote
-                 unsquote/;
+                 unsquote
+                 binary_short/;
 
 
 # Fold case of a term
@@ -69,6 +72,20 @@ sub unsquote {
   $str =~ s/\\\\/\\/g;
   $str =~ s/\\'/'/g;
   return $str;
-}
+};
+
+
+# Accepts a possible binary value
+# and returns a shortened b64 encoding.
+# In case the value looks like a number,
+# the number is returned.
+# In case the value is undefined, a '-'
+# is returned.
+sub binary_short {
+  my $v = shift;
+  return '-' unless defined $v;
+  return $v if looks_like_number($v);
+  return substr(b64_encode($v), 0, 3) . '..' . substr(b64_encode($v), -4,3);
+};
 
 1;

@@ -31,6 +31,14 @@ sub criterion {
   $_[0]->{field};
 };
 
+sub max_rank {
+  0;
+};
+
+sub key_for {
+  undef;
+};
+
 sub to_string {
   my $self = shift;
   return 'field=' . $self->{field} . ($_->{desc} ? '>' : '<')

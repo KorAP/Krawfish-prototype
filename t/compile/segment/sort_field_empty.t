@@ -12,7 +12,7 @@ my $index = Krawfish::Index->new;
 
 ok($index->introduce_field('id', 'NUM'), 'Introduce field as sortable');
 ok($index->introduce_field('author', 'DE'), 'Introduce field as sortable');
-ok($index->introduce_field('age', 'DE'), 'Introduce field as sortable');
+ok($index->introduce_field('age', 'NUM'), 'Introduce field as sortable');
 
 ok_index($index, {
   id => 2,
@@ -48,7 +48,7 @@ is($query->to_string,
    'Stringification');
 ok($result = $query->compile->inflate($index->dict), 'Run clone');
 is($result->to_string,
-   '[matches=[1:0-1::*,0][0:0-1::*,*][2:0-1::0,*]]',
+   '[matches=[1:0-1::GhA..AA=,3][0:0-1::Gs4..wAA,2][2:0-1::-,1]]',
    'Stringification');
 
 # Sort in reverse order with an empty field
@@ -71,9 +71,8 @@ is($query->to_string(1),
    'Stringification');
 ok($result = $query->compile->inflate($index->dict), 'Run clone');
 is($result->to_string,
-   '[matches=[0:0-1::*,*][1:0-1::*,0][2:0-1::0,*]]',
+   '[matches=[0:0-1::Gs4..wAA,2][1:0-1::GhA..AA=,3][2:0-1::-,1]]',
    'Stringification');
-
 
 # Sort after with an empty field
 $koral = Krawfish::Koral->new;
@@ -99,9 +98,8 @@ ok(!$query->next_bundle, 'Next');
 
 ok($result = $clone->compile->inflate($index->dict), 'Run clone');
 is($result->to_string,
-   '[matches=[1:0-1::*,*,0][0:0-1::*,*,*][2:0-1::*,0,*]]',
+   '[matches=[1:0-1::4,GhA..AA=,3][0:0-1::4,Gs4..wAA,2][2:0-1::4,-,1]]',
    'Stringification');
-
 
 # Sort after in reverse order with an empty field
 $koral = Krawfish::Koral->new;
@@ -116,9 +114,8 @@ is($query->to_string,
    'Stringification');
 ok($result = $query->compile->inflate($index->dict), 'Run clone');
 is($result->to_string,
-   '[matches=[0:0-1::*,*,*][1:0-1::*,*,0][2:0-1::*,0,*]]',
+   '[matches=[0:0-1::4,Gs4..wAA,2][1:0-1::4,GhA..AA=,3][2:0-1::4,-,1]]',
    'Stringification');
-
 
 
 done_testing;

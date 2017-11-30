@@ -1,10 +1,10 @@
 package Krawfish::Index::Fields::Rank;
-use Krawfish::Util::String qw/squote/;
+use Krawfish::Util::String qw/squote binary_short/;
 use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # TODO:
 #   Merge plain and sorted lists, so there is only
@@ -193,7 +193,7 @@ sub commit {
   foreach my $next (@sorted_buffer) {
 
     if (DEBUG) {
-      print_log('f_rank', 'Check next item from buffer ' . $next->[0]);
+      print_log('f_rank', 'Check next item from buffer ' . binary_short($next->[0]));
     };
 
     my $current_sort = $sort->[$pos];
@@ -211,7 +211,8 @@ sub commit {
         print_log(
           'f_rank',
           "At $pos - Move on till next is larger: " .
-          $current_sort->[0] . ' < ' . $next->[0]
+            binary_short($current_sort->[0]) . ' < ' .
+            binary_short($next->[0])
         );
       };
 
@@ -230,7 +231,7 @@ sub commit {
         print_log(
           'f_rank',
           "At $pos - Sort and next are identical, add doc: " .
-            $next->[0] . ' == ' . $next->[0]
+            binary_short($next->[0]) . ' == ' . binary_short($next->[0])
         );
       };
 
@@ -413,7 +414,7 @@ sub to_string {
     my $i = 0;
     foreach (@{$self->{sort}}) {
       $str .= '(' if defined $pos && $i == $pos;
-      $str .= ($coll ? $_->[0] : '?') . ':' . join(',', @{$_}[1..$#{$_}]);
+      $str .= binary_short($_->[0]) . ':' . join(',', @{$_}[1..$#{$_}]);
       $str .= ')' if defined $pos && $i == $pos;
       $str .= ';';
       $i++;
@@ -425,7 +426,7 @@ sub to_string {
   # Buffered list
   if ($self->{buffered}) {
     $str .=
-      '{' . join(';', map { ($coll ? $_->[0] : '?') . ':' . $_->[1] } (@{$self->{buffer}})) . '}';
+      '{' . join(';', map { binary_short($_->[0]) . ':' . $_->[1] } (@{$self->{buffer}})) . '}';
   };
 
   return $str;

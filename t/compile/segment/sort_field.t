@@ -55,7 +55,6 @@ my $qb = $koral->query_builder;
 my $mb = $koral->compilation_builder;
 my ($query, $result, $clone);
 
-
 $koral->query(
   $qb->seq(
     $qb->token('aa'),
@@ -117,6 +116,7 @@ $koral->compilation(
   )
 );
 
+
 # Check for multiple fields in order
 ok($query = $koral->to_query, 'Normalize');
 
@@ -151,7 +151,6 @@ is($query->current_bundle->to_string, '[[[0:0-2]::5]]', 'Stringification');
 ok(!$query->next_bundle, 'No more next bundle');
 
 
-
 # Add to more documents
 # 5
 ok_index($index, {
@@ -170,6 +169,7 @@ ok_index($index, {
 } => [qw/aa bb aa bb aa/], 'Add complex document');
 
 ok($index->commit, 'Commit data');
+
 
 # New query - sort by author
 $koral = Krawfish::Koral->new;
@@ -232,7 +232,6 @@ is($query->current_bundle->to_string, '[[[0:0-2]::5]]', 'Stringification');
 ok(!$query->next_bundle, 'No more next bundles');
 
 
-
 $koral = Krawfish::Koral->new;
 $koral->query($qb->seq($qb->token('aa'),$qb->token('bb')));
 $koral->compilation($mb->sort_by($mb->s_field('author')));
@@ -243,6 +242,7 @@ ok($query = $koral->to_query, 'To query');
 ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimize');
 
 ok($clone = $query->clone, 'Clone query');
+
 
 # 2, [3, 5], [4,7,7,6], 0
 ok($query->next, 'Move to next bundle');
@@ -263,13 +263,20 @@ ok($query->next, 'Move to next bundle');
 is($query->current->to_string, '[0:0-2::5]', 'Stringification');
 ok(!$query->next, 'No more next bundles');
 
-
 # Run clone
 ok($result = $clone->compile->inflate($index->dict), 'Run clone');
 
 is($result->to_string,
-   '[matches=[2:0-2::*,*][3:0-2::*,*][5:0-2::*,*][4:0-2::*,*]'.
-     '[7:0-2::*,*][7:2-4::*,*][6:0-2::*,0][0:0-2::*,*]]',
+   '[matches='.
+     '[2:0-2::GQw..A==,1]'.
+     '[3:0-2::Gak..wAA,6]'.
+     '[5:0-2::Gak..wAA,8]'.
+     '[4:0-2::Gm4..A==,5]'.
+     '[7:0-2::Gm4..A==,7]'.
+     '[7:2-4::Gm4..A==,7]'.
+     '[6:0-2::Gm4..A==,9]'.
+     '[0:0-2::Gs4..wAA,2]'.
+     ']',
    'Stringification');
 
 
@@ -298,13 +305,40 @@ is($query->to_string,
 # Finally:
 # [4,2,3,0,1,7,5,6]
 
+# List is <Gn0..A==:2,3,4;Gn0..wAA:0,1>
+# List is is <G80..AA=:4;G80..wAA:2>
+# List is is <1:2;2:0;3:1;5:4;6:3;7:7;8:5;9:6>
+
 ok($result = $query->compile->inflate($index->dict), 'Run clone');
 is($result->to_string,
-   '[matches=[4:0-1::*,*,*][4:1-2::*,*,*][2:0-1::*,*,*][2:1-2::*,*,*][2:2-3::*,*,*][3:0-1::*,*,*][3:1-2::*,*,*][0:0-1::*,*,*][0:1-2::*,*,*][1:0-1::*,*,*][7:0-1::*,*,*][7:1-2::*,*,*][7:2-3::*,*,*][7:3-4::*,*,*][7:4-5::*,*,*][5:0-1::*,*,*][5:1-2::*,*,*][6:0-1::*,*,0][6:1-2::*,*,0]]',
+   # genre,title,id:
+   '[matches='.
+     '[4:0-1::Gn0..A==,G80..AA=,5]'. # Newsletter,
+     #                                 Your new way to success!
+     '[4:1-2::Gn0..A==,G80..AA=,5]'. # Newsletter,
+     #                                 Your new way to success!
+     '[2:0-1::Gn0..A==,G80..wAA,1]'. # Newsletter,
+     #                                 Your way to success!
+     '[2:1-2::Gn0..A==,G80..wAA,1]'. # Newsletter,
+     #                                 Your way to success!
+     '[2:2-3::Gn0..A==,G80..wAA,1]'. # Newsletter,
+     #                                 Your way to success!
+     '[3:0-1::Gn0..A==,-,6]'.        # Newsletter
+     '[3:1-2::Gn0..A==,-,6]'.        # Newsletter
+     '[0:0-1::Gn0..wAA,-,2]'.        # Novel
+     '[0:1-2::Gn0..wAA,-,2]'.        # Novel
+     '[1:0-1::Gn0..wAA,-,3]'.        # Novel
+     '[7:0-1::-,-,7]'.
+     '[7:1-2::-,-,7]'.
+     '[7:2-3::-,-,7]'.
+     '[7:3-4::-,-,7]'.
+     '[7:4-5::-,-,7]'.
+     '[5:0-1::-,-,8]'.
+     '[5:1-2::-,-,8]'.
+     '[6:0-1::-,-,9]'.
+     '[6:1-2::-,-,9]'.
+     ']',
    'Stringification');
-
-
-diag 'Add sorting criteria in unbundling phase';
 
 done_testing;
 __END__
