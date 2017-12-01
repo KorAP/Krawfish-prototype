@@ -31,6 +31,73 @@ sub criterion {
 };
 
 
+# Get unique doc identifier
+sub uuid {
+
+  # Get the last sort criterion
+  # (is always the unique marker)
+  $_[0]->[-1];
+};
+
+# Get number of levels
+sub level_count {
+  scalar @{$_[0]};
+};
+
+
+# Compare criteria
+sub compare {
+  my ($self, $with) = @_;
+
+  for (my $i = 0; $i < $self->level_count; $i++) {
+
+    # One level is undefined
+    if (!$self->[$i] && !$with->[$i]) {
+      if (!$self->[$i] && $with->[$i]) {
+        return 1;
+      }
+      elsif ($self->[$i] && !$with->[$i]) {
+        return -1;
+      }
+      $i++;
+    }
+
+    # Compare numerical level
+    elsif (looks_like_number($self->[$i])) {
+
+      if ($self->[$i] < $with->[$i]) {
+        return -1;
+      }
+
+      elsif ($self->[$i] > $with->[$i]) {
+        return 1;
+      }
+
+      else {
+        $i++;
+      };
+    }
+
+    # Compare string level
+    else {
+      if ($self->[$i] lt $with->[$i]) {
+        return -1;
+      }
+
+      elsif ($self->[$i] gt $with->[$i]) {
+        return 1;
+      }
+
+      else {
+        $i++;
+      };
+    };
+  };
+
+  return -1;
+};
+
+
 # Stringification
 sub to_string {
   my ($self, $id) = @_;
@@ -58,7 +125,7 @@ sub to_koral_fragment {
 
 # Inflate (nothing to do)
 sub inflate {
-  $_[0]
+  $_[0];
 };
 
 

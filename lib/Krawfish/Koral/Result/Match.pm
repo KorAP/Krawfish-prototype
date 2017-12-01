@@ -43,6 +43,14 @@ sub sorted_by {
 };
 
 
+# Get the uuid if defined
+sub uuid {
+  if ($_[0]->{sorted_by}) {
+    return $_[0]->{sorted_by}->uuid;
+  };
+  return;
+};
+
 # Inflate enrichments
 sub inflate {
   my ($self, $dict) = @_;

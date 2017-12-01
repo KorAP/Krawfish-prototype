@@ -24,7 +24,8 @@ WriteMakefile(
     'List::Util' => 0,
     'Test::More' => 0,
     'Memoize' => 0,
-    'Unicode::Collate::Locale' => 0
+    'Unicode::Collate::Locale' => 0,
+    'Array::Queue::Priority' => '0.1.2'
   },
   test => {
     TESTS => 't/*.t t/**/*.t'

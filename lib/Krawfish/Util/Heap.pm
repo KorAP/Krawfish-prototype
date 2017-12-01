@@ -2,7 +2,10 @@ package Krawfish::Util::Heap;
 use strict;
 use warnings;
 
-# Heap structure for top-k heap sort
+# Heap structure
+# (used for n-ary merge sort in nodes and for top-k heap sort)
+
+# See https://metacpan.org/pod/Array::Queue::Priority
 
 # TODO:
 #   Use this as the base for PrioritySort
