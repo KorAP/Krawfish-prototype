@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Role::Tiny;
 
-with 'Krawfish::Compile::Node';
+# with 'Krawfish::Compile::Node';
 
 # TODO:
 #   Implement the aggregate() method on all Node::Aggregate::*
@@ -23,6 +23,13 @@ with 'Krawfish::Compile::Node';
 # The result lines can be returned using next_current() etc.
 # while the data aggregation section is returned by the first
 # call.
+
+
+
+1;
+
+
+__END__
 
 sub new {
   my $class = shift;
