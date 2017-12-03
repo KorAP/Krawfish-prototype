@@ -60,15 +60,18 @@ sub optimize {
   # Get all aggregations
   my $aggr = $self->{aggregates};
 
+  # Can't overwrite aggregates because of reoptimization on nodes
+  my @aggr;
+
   # Optimize all aggregation objects
   for (my $i = 0; $i < @$aggr; $i++) {
-    $aggr->[$i] = $aggr->[$i]->optimize($segment);
+    push @aggr, $aggr->[$i]->optimize($segment);
   };
 
   # Create aggregation query with all aggregations
   return Krawfish::Compile::Segment::Aggregate->new(
     $query,
-    $aggr
+    \@aggr
   );
 };
 

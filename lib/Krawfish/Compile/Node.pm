@@ -5,6 +5,9 @@ use Role::Tiny;
 
 # Create a class for result aggregation on the node level.
 
+warn 'Currently unused!';
+
+
 # TODO:
 #   Add a timeout! Just in case ...!
 

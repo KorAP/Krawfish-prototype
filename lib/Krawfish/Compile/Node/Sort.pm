@@ -5,11 +5,18 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
+# Sort matches based on their criteria!
+
 # This will sort the incoming results using a heap
 # and the sort criteria.
 # The priority queue will have n entries for n channels.
 # When the list is full, the top entry is taken and the
 # next entry of the channel of the top entry is enqueued.
+
+# TODO:
+#   Share result(), aggregate() and some other
+#   methods/attributes with the compile-role!
+
 
 # This may be less efficient than a dynamic
 # mergesort, but for the moment, it's way simpler.
@@ -18,13 +25,9 @@ use warnings;
 #   Instead of using a mergesort approach, this may
 #   use a concurrent priorityqueue instead.
 
-# TODO:
-#   May need to return Krawfish::Koral::Result::Match
-#   with a 'sorted_by' array.
-#   Instead of next() followed by current(), this should use
-#   next_current() and - for matches - next_match()
 
 use constant DEBUG => 0;
+
 
 # Constructor
 sub new {
@@ -198,6 +201,99 @@ sub next {
 # Return current match
 sub current_match {
   return $_[0]->{match};
+};
+
+
+# Get merged result match
+# TODO:
+#   May not be necessary
+sub compile {
+  my $self = shift;
+
+  $self->_init;
+
+  my $result = $self->result;
+
+  print_log('c_n_sort','Compile result') if DEBUG;
+
+  my $k = $self->{top_k};
+
+  # Get next match from list
+  # TODO: dequeue
+  while ($k--) {
+    my $entry = $self->{prio}->remove;
+
+    # No more entries
+    last unless $entry;
+
+    $result->add_match($entry->[0]);
+
+    # Get channel
+    my $channel = $self->{segment_queries}->[$entry->[1]];
+
+    # If the channel has more entries to come,
+    # add them to the priority queue
+    if ($channel->next) {
+      $self->{prio}->add(
+        [$channel->current_match, $entry->[1]]
+      );
+    };
+  };
+
+  # Because all queries were sorted on a first pass,
+  # there is no need to next() to the end for aggregation
+
+  # Merge all aggregation
+  $self->aggregate;
+
+  return $result;
+};
+
+
+# Get aggregation data only
+# TODO:
+#   Identical with ::Compile
+sub aggregate {
+  my $self = shift;
+
+  $self->_init;
+
+  if (DEBUG) {
+    print_log('c_n_sort', 'Aggregate data');
+  };
+
+  my $result = $self->result;
+
+  # Iterate over all queries
+  foreach my $seg_q (@{$self->{segment_queries}}) {
+
+    # Check for compilation role
+    if (Role::Tiny::does_role($seg_q, 'Krawfish::Compile')) {
+      if (DEBUG) {
+        print_log('c_n_sort', 'Add result from ' . ref($seg_q));
+      };
+
+      # Merge aggregations
+      $result->merge_aggregation($seg_q->aggregate);
+    };
+  };
+
+  return $result;
+};
+
+
+
+# Get result object
+# TODO:
+#   Identical with ::Compile
+sub result {
+  my $self = shift;
+  if ($_[0]) {
+    $self->{result} = shift;
+    return $self;
+  };
+  $self->{result} //= Krawfish::Koral::Result->new;
+  return $self->{result};
 };
 
 

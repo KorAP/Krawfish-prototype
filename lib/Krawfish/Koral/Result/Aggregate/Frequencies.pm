@@ -7,6 +7,9 @@ use Krawfish::Util::Bits;
 
 with 'Krawfish::Koral::Result::Inflatable';
 
+# TODO:
+#   requires a merge() method
+
 # This calculates frequencies for all classes
 
 # TODO:
@@ -28,6 +31,7 @@ sub key {
   'frequencies';
 };
 
+
 # Increment value per document
 sub incr_doc {
   my ($self, $flags) = @_;
@@ -41,6 +45,22 @@ sub incr_match {
   my ($self, $flags) = @_;
   my $freq = ($self->{freqs}->{$flags} //= [0,0]);
   $freq->[1]++;
+};
+
+
+# Merge results
+sub merge {
+  my ($self, $aggr) = @_;
+  foreach my $est_flags (keys %{$self->{freqs}}) {
+    foreach my $new_flags (keys %{$aggr->{freqs}}) {
+
+      # Flag values are identical
+      if ($est_flags eq $new_flags) {
+        $self->{freqs}->{$est_flags}->[0] += $aggr->{freqs}->{$est_flags}->[0];
+        $self->{freqs}->{$est_flags}->[1] += $aggr->{freqs}->{$est_flags}->[1];
+      };
+    };
+  };
 };
 
 
@@ -118,5 +138,6 @@ sub to_koral_fragment {
 
   return $aggr;
 };
+
 
 1;

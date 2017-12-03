@@ -47,6 +47,35 @@ sub add_aggregation {
 };
 
 
+# Merge aggregation
+sub merge_aggregation {
+  my ($self, $result) = @_;
+
+  my $aggregates = $self->{aggregation};
+
+  # Check all aggregations
+  AGGR: foreach my $new_aggr (@{$result->{aggregation}}) {
+
+    # Merge with existing aggregation
+    foreach my $est_aggr (@$aggregates) {
+
+      # Merge new aggregations with established aggregations
+      if ($new_aggr->key eq $est_aggr->key) {
+
+        # Merge
+        $est_aggr->merge($new_aggr);
+        next AGGR;
+      };
+    };
+
+    # Introduce aggregation
+    $self->add_aggregation($new_aggr);
+  };
+
+  return;
+};
+
+
 # Get aggregations
 sub aggregation {
   $_[0]->{aggregation};

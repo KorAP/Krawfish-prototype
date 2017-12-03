@@ -108,7 +108,7 @@ sub current_match {
 
 # Lose all information about the query
 sub close {
-  ...
+  # Not yet implemented
 };
 
 
