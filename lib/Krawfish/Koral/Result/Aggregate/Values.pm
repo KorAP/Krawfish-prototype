@@ -5,12 +5,16 @@ use Role::Tiny::With;
 use Krawfish::Util::Bits;
 
 with 'Krawfish::Koral::Result::Inflatable';
+with 'Krawfish::Koral::Result::Aggregate';
 
 # Support of classes is relevant, e.g. to compare the size
 # of subcorpora.
 # Example:
 #   What's the difference between a corpus and a rewritten
 #   corpus in regards to number of sentences.
+
+# TODO:
+#   Implement merge()
 
 use constant {
   MIN_INIT_VALUE => 32_000
@@ -35,6 +39,12 @@ sub new {
 
 sub key {
   'values';
+};
+
+
+# Merge aggregation results on node level
+sub merge {
+  ...
 };
 
 
@@ -210,10 +220,5 @@ sub to_koral_fragment {
   return $aggr;
 };
 
-
-# Finish the aggregation
-sub on_finish {
-  $_[0];
-};
 
 1;

@@ -5,6 +5,7 @@ use Krawfish::Util::Bits;
 use Role::Tiny::With;
 
 with 'Krawfish::Koral::Result::Inflatable';
+with 'Krawfish::Koral::Result::Aggregate';
 
 # This calculates match length for all
 # corpus classes.
@@ -13,6 +14,8 @@ with 'Krawfish::Koral::Result::Inflatable';
 #   It may very vell also support query
 #   classes.
 
+# TODO:
+#   Implement merge()
 
 use constant {
   MIN_INIT_VALUE => 32_000
@@ -44,6 +47,12 @@ sub incr_match {
   $l->{max} = $length > $l->{max} ? $length : $l->{max};
   $l->{sum} += $length;
   $l->{freq}++;
+};
+
+
+# Merge aggregation results on node level
+sub merge {
+  ...
 };
 
 
@@ -86,13 +95,6 @@ sub _to_classes {
   };
 
   return \@classes;
-};
-
-
-
-# Finish the calculation
-sub on_finish {
-  $_[0];
 };
 
 

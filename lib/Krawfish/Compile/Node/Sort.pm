@@ -26,7 +26,7 @@ use warnings;
 #   use a concurrent priorityqueue instead.
 
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 
 # Constructor
@@ -263,6 +263,10 @@ sub aggregate {
   };
 
   my $result = $self->result;
+
+  if (DEBUG && @{$result->{aggregation}}) {
+    print_log('c_n_sort', 'Aggregation is already done');
+  };
 
   # Aggregation already collected
   return $result if @{$result->{aggregation}};

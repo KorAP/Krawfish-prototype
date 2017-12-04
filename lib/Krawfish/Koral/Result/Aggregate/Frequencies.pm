@@ -6,6 +6,7 @@ use Krawfish::Koral::Result::Aggregate::Length;
 use Krawfish::Util::Bits;
 
 with 'Krawfish::Koral::Result::Inflatable';
+with 'Krawfish::Koral::Result::Aggregate';
 
 # TODO:
 #   requires a merge() method
@@ -51,15 +52,11 @@ sub incr_match {
 # Merge results
 sub merge {
   my ($self, $aggr) = @_;
-  foreach my $est_flags (keys %{$self->{freqs}}) {
-    foreach my $new_flags (keys %{$aggr->{freqs}}) {
 
-      # Flag values are identical
-      if ($est_flags eq $new_flags) {
-        $self->{freqs}->{$est_flags}->[0] += $aggr->{freqs}->{$est_flags}->[0];
-        $self->{freqs}->{$est_flags}->[1] += $aggr->{freqs}->{$est_flags}->[1];
-      };
-    };
+  foreach my $new_flags (keys %{$aggr->{freqs}}) {
+    $self->{freqs}->{$new_flags} //= [0,0];
+    $self->{freqs}->{$new_flags}->[0] += $aggr->{freqs}->{$new_flags}->[0];
+    $self->{freqs}->{$new_flags}->[1] += $aggr->{freqs}->{$new_flags}->[1];
   };
 };
 
@@ -67,12 +64,6 @@ sub merge {
 # Inflate result
 sub inflate {
   $_[0];
-};
-
-
-# Finish the calculation
-sub on_finish {
-  $_[0]
 };
 
 

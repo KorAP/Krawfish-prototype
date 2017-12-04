@@ -7,6 +7,7 @@ use Krawfish::Util::Bits;
 use Krawfish::Util::Constants qw/:PREFIX/;
 
 with 'Krawfish::Koral::Result::Inflatable';
+with 'Krawfish::Koral::Result::Aggregate';
 
 # This remembers facets for multiple classes,
 # both using ids and terms
@@ -85,7 +86,10 @@ sub incr_doc {
   my $field_flag_freq = ($field_freq->{$flags} //= [0,0]);
 
   if (DEBUG) {
-    print_log('p_a_fields', 'Increment doc frequency for #' . $key_id . '=#' . $field_id . ' for flag ' . $flags);
+    print_log(
+      'p_a_fields',
+      "Increment doc frequency for #" . $key_id . '=#' . "$field_id for flag $flags"
+    );
   };
 
   # Remember the frequency
@@ -147,6 +151,27 @@ sub on_finish {
 };
 
 
+# Merge aggregation data
+sub merge {
+  my ($self, $aggr) = @_;
+
+  foreach my $field (keys %{$aggr->{fields}}) {
+    $self->{fields}->{$field} //= {};
+
+    foreach my $key (keys %{$aggr->{fields}->{$field}}) {
+      my $flags = $aggr->{fields}->{$field}->{$key};
+      my $self_flags = ($self->{fields}->{$field}->{$key} //= {});
+
+      foreach my $flag (keys %$flags) {
+        $self_flags->{$flag} //= [0,0];
+        $self_flags->{$flag}->[0] += $flags->{$flag}->[0];
+        $self_flags->{$flag}->[1] += $flags->{$flag}->[1];
+      }
+    };
+  };
+};
+
+
 # Translate this to terms
 sub inflate {
   my ($self, $dict) = @_;
@@ -185,7 +210,6 @@ sub inflate {
   };
 
   $self->{fields_terms} = \%fields;
-  $self->{fields} = undef; # Cleanup!
   $self;
 };
 
@@ -235,13 +259,13 @@ sub to_string {
 
   # IDs not supported
   if ($ids) {
-    warn 'ID based stringification currently not supported';
+    # warn 'ID based stringification currently not supported';
     return '';
   };
 
   # No terms yet
   unless ($self->{fields_terms}) {
-    warn 'ID based stringification currently not supported';
+    # warn 'ID based stringification currently not supported';
     return '';
   };
 

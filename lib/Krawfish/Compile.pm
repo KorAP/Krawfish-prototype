@@ -200,6 +200,8 @@ sub aggregate {
 
   my $result = $self->result;
 
+  return $result if @{$result->{aggregation}};
+
   # Add aggregations
   if ($self->isa('Krawfish::Compile::Segment::Aggregate')) {
 
