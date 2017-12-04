@@ -122,9 +122,9 @@ is($node_query->to_string,
      ')',
    'Stringification');
 
-#is($node_query->aggregate->to_string,
-#   '[aggr=[freq=total:[8,12]]]',
-#   'Result stringification');
+is($node_query->aggregate->to_string,
+   '[aggr=[freq=total:[8,12]]]',
+   'Result stringification');
 
 is($node_query->compile->to_string,
    '[aggr='.
@@ -146,9 +146,7 @@ is($node_query->compile->to_string,
    ']',
    'Stringification');
 
-diag 'Support multiple calls to aggregate()';
 diag 'Check multiple aggregations()';
-# Use aggregate in compile()
 
 done_testing;
 __END__

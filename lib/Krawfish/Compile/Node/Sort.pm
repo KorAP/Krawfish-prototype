@@ -264,6 +264,9 @@ sub aggregate {
 
   my $result = $self->result;
 
+  # Aggregation already collected
+  return $result if @{$result->{aggregation}};
+
   # Iterate over all queries
   foreach my $seg_q (@{$self->{segment_queries}}) {
 

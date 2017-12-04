@@ -160,8 +160,7 @@ sub max_freq {
 sub compile {
   my $self = shift;
 
-  # TODO:
-  #   This is rather for testing purposes
+  # This is rather for testing purposes
 
   if (DEBUG) {
     print_log('compile', 'Compile aggregation with ' . ref($self));
@@ -182,34 +181,8 @@ sub compile {
     $result->add_match($self->current_match);
   };
 
-  # Add aggregations
-  if ($self->isa('Krawfish::Compile::Segment::Aggregate')) {
-
-    # Add aggregations to result
-    foreach (@{$self->operations}) {
-      if (DEBUG) {
-        print_log(
-          'aggr',
-          'Add result to aggr ' . $_->result
-        );
-      };
-      $result->add_aggregation($_->result);
-    };
-  };
-
-  # Collect more data
-  my $query = $self->{query};
-
-  if (DEBUG) {
-    print_log('compile', 'Check if ' . ref($query) . ' does compiling');
-  };
-
-  if (Role::Tiny::does_role($query, 'Krawfish::Compile')) {
-    if (DEBUG) {
-      print_log('compile', 'Add result from ' . ref($query));
-    };
-    $query->result($result)->compile;
-  };
+  # Aggregate data
+  $self->aggregate;
 
   if (DEBUG) {
     print_log(
