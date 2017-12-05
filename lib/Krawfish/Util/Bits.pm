@@ -33,6 +33,8 @@ sub classes_to_flags {
 sub flags_to_classes ($) {
   my $flags = shift;
 
+  return () if bitstring($flags) eq '0000'.'0000'.'0000'.'0000';
+
   # Initialize move variable
   my $move = 0b1000_0000_0000_0000;
 
@@ -46,7 +48,7 @@ sub flags_to_classes ($) {
       print_log(
         'post',
         'Check move ' . reverse(bitstring($move)) . ' and flags ' .
-          reverse(bitstring($flags))
+          reverse(bitstring($flags)) . " - $move|$flags"
       );
     };
 

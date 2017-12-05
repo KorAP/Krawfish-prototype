@@ -26,7 +26,7 @@ use warnings;
 #   use a concurrent priorityqueue instead.
 
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 
 # Constructor
@@ -281,7 +281,16 @@ sub aggregate {
       };
 
       # Merge aggregations
-      $result->merge_aggregation($seg_q->aggregate);
+      my $aggregate = $seg_q->aggregate;
+      if (DEBUG) {
+        use Data::Dumper;
+        print_log('c_n_sort', 'Merge result ' . $aggregate->to_string);
+      };
+      $result->merge_aggregation($aggregate);
+
+      if (DEBUG) {
+        print_log('c_n_sort', 'Result merged');
+      };
     };
   };
 

@@ -147,6 +147,7 @@ is($json->{'inCorpus-1'}->{size}->{avg}, 2, 'KQ serialization');
 is($json->{'inCorpus-2'}->{size}->{sum}, 7, 'KQ serialization');
 is($json->{aggregation}, 'aggregation:values', 'KQ serialization');
 
+diag 'Test with non-int fields!';
 
 done_testing;
 __END__

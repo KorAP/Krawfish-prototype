@@ -3,6 +3,8 @@ use strict;
 use warnings;
 use Role::Tiny::With;
 use Krawfish::Util::Bits;
+use Krawfish::Log;
+use Data::Dumper;
 
 with 'Krawfish::Koral::Result::Inflatable';
 with 'Krawfish::Koral::Result::Aggregate';
@@ -13,11 +15,9 @@ with 'Krawfish::Koral::Result::Aggregate';
 #   What's the difference between a corpus and a rewritten
 #   corpus in regards to number of sentences.
 
-# TODO:
-#   Implement merge()
-
 use constant {
-  MIN_INIT_VALUE => 32_000
+  MIN_INIT_VALUE => 32_000,
+  DEBUG => 0
 };
 
 sub new {
@@ -25,13 +25,13 @@ sub new {
   my $self = bless {
     field_ids => shift,
     flags => shift,
-    fields => {},
+    values => {},
     field_terms => undef
   }, $class;
 
   # Initiate aggregation maps for each field
   foreach (@{$self->{field_ids}}) {
-    $self->{fields}->{$_} = {};
+    $self->{values}->{$_} = {};
   };
 
   return $self;
@@ -44,7 +44,61 @@ sub key {
 
 # Merge aggregation results on node level
 sub merge {
-  ...
+  my ($self, $aggr) = @_;
+
+  if (DEBUG) {
+    print_log(
+      'k_r_a_values',
+      'Aggr: ' . Dumper($self),
+      'New: ' . Dumper($aggr));
+  };
+
+
+  my $value = ($self->{values} //= {});
+
+  # Iterate over all fields
+  foreach my $field (keys %{$aggr->{values}}) {
+
+    $value = ($value->{$field} //= {});
+
+    # Iterate over flags
+    foreach my $flag (keys %{$aggr->{values}->{$field}}) {
+
+      if (DEBUG) {
+        print_log('k_r_a_values', 'Merge #' . $field . ':' . $flag);
+      };
+
+      # Get flag fvalue
+      my $a_flag = $aggr->{values}->{$field}->{$flag};
+
+      if (!exists $value->{$flag} || !defined $value->{$flag}->{min}) {
+
+        # Set flag
+        $value->{$flag} = {
+          min => $a_flag->{min},
+          max => $a_flag->{max},
+          sum => $a_flag->{sum},
+          freq => $a_flag->{freq}
+        };
+
+        if (DEBUG) {
+          print_log('k_r_a_values', 'a: ' . Dumper $a_flag);
+        };
+      }
+      else {
+
+        if (DEBUG) {
+          print_log('k_r_a_values', 'b: ' . Dumper $a_flag);
+        };
+
+        my $l_flag = $value->{$flag};
+        $l_flag->{min} = $a_flag->{min} < $l_flag->{min} ? $a_flag->{min} : $l_flag->{min};
+        $l_flag->{max} = $a_flag->{max} > $l_flag->{max} ? $a_flag->{max} : $l_flag->{max};
+        $l_flag->{sum} += $a_flag->{sum};
+        $l_flag->{freq} += $a_flag->{freq};
+      };
+    };
+  };
 };
 
 
@@ -53,7 +107,7 @@ sub incr_doc {
   my ($self, $field_id, $value, $flags) = @_;
 
   # Get field of interest
-  my $aggr = $self->{fields}->{$field_id};
+  my $aggr = $self->{values}->{$field_id};
 
   my $aggr_flag = $aggr->{$flags} //= {
     min  => MIN_INIT_VALUE,
@@ -73,10 +127,10 @@ sub incr_doc {
 sub inflate {
   my ($self, $dict) = @_;
 
-  my $fields = $self->{fields};
+  my $values = $self->{values};
 
-  my %fields;
-  foreach my $field_id (keys %{$fields}) {
+  my %values;
+  foreach my $field_id (keys %{$values}) {
 
     my $field_term = $dict->term_by_term_id($field_id);
 
@@ -85,10 +139,10 @@ sub inflate {
     #   this may be a direct feature of the dictionary instead
     # $field_term =~ s/^!//;
     $field_term = substr($field_term, 1); # ~ s/^!//;
-    $fields{$field_term} = $fields->{$field_id};
+    $values{$field_term} = $values->{$field_id};
   };
 
-  $self->{field_terms} = \%fields;
+  $self->{field_terms} = \%values;
   return $self;
 };
 
@@ -99,15 +153,28 @@ sub _to_classes {
 
   my @classes;
 
-  my $fields = $self->{field_terms};
+  my $values = $self->{field_terms};
 
-  # Iterate over fields
-  foreach my $field (keys %$fields) {
+  if (DEBUG) {
+    print_log('k_r_values', 'Make classes');
+  };
 
-    my $flags = $fields->{$field};
+  # Iterate over values
+  foreach my $field (keys %$values) {
+
+    if (DEBUG) {
+      print_log('k_r_values', 'Field is ' . $field);
+    };
+
+    my $flags = $values->{$field};
 
     # Iterate over flags
     foreach my $flag (keys %$flags) {
+
+      if (DEBUG) {
+        print_log('k_r_values', 'Flag is ' . $flag . '|' . bitstring($flag));
+      };
+
 
       # Iterate over classes
       foreach my $class (flags_to_classes($flag)) {
@@ -145,19 +212,20 @@ sub _to_classes {
 sub to_string {
   my ($self, $ids) = @_;
 
+  my $str = '[values=';
+
   # IDs not supported
   if ($ids) {
-    warn 'ID based stringification currently not supported';
-    return '';
+    # warn 'ID based stringification currently not supported';
+    return $str . '#?]';
   };
 
   # No terms yet
   unless ($self->{field_terms}) {
-    warn 'ID based stringification currently not supported';
-    return '';
+    # warn 'ID based stringification currently not supported';
+    return $str . '#?]';
   };
 
-  my $str = '[values=';
 
   my @classes = @{$self->_to_classes};
   my $first = 0;
@@ -165,12 +233,12 @@ sub to_string {
     $str .= $i == 0 ? 'total' : 'inCorpus-' . $i;
     $str .= ':[';
 
-    my $fields = $classes[$i];
+    my $values = $classes[$i];
 
-    foreach my $field (sort keys %$fields) {
+    foreach my $field (sort keys %$values) {
       $str .= $field . ':';
 
-      my $values = $fields->{$field};
+      my $values = $values->{$field};
 
       $str .= '[';
       $str .= 'sum:' . $values->{sum} . ',';
@@ -201,10 +269,10 @@ sub to_koral_fragment {
   my $first = 0;
   foreach (my $i = 0; $i < @classes; $i++) {
     my $val = $aggr->{$i == 0 ? 'total' : 'inCorpus-' . $i} = {};
-    my $fields = $classes[$i];
+    my $values = $classes[$i];
 
-    foreach my $field (sort keys %$fields) {
-      my $values = $fields->{$field};
+    foreach my $field (sort keys %$values) {
+      my $values = $values->{$field};
 
       # Set values per field
       $val->{$field} = {

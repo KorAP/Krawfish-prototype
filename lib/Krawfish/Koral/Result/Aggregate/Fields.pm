@@ -257,19 +257,19 @@ sub _to_classes {
 sub to_string {
   my ($self, $ids) = @_;
 
+  my $str = '[fields=';
+
   # IDs not supported
   if ($ids) {
     # warn 'ID based stringification currently not supported';
-    return '';
+    return $str . '#?]';
   };
 
   # No terms yet
   unless ($self->{fields_terms}) {
     # warn 'ID based stringification currently not supported';
-    return '';
+    return $str . '#?]';
   };
-
-  my $str = '[fields=';
 
   my @classes = @{$self->_to_classes};
   my $first = 0;

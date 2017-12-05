@@ -14,9 +14,6 @@ with 'Krawfish::Koral::Result::Aggregate';
 #   It may very vell also support query
 #   classes.
 
-# TODO:
-#   Implement merge()
-
 use constant {
   MIN_INIT_VALUE => 32_000
 };
@@ -52,7 +49,30 @@ sub incr_match {
 
 # Merge aggregation results on node level
 sub merge {
-  ...
+  my ($self, $aggr) = @_;
+
+  my $length = ($self->{length} //= {});
+
+  foreach my $flag (keys %{$aggr->{length}}) {
+    my $l_flag = $length->{$flag};
+    my $a_flag = $aggr->{length}->{$flag};
+
+    if (!defined $l_flag) {
+      # Set flag
+      $length->{$flag} = {
+        min => $a_flag->{min},
+        max => $a_flag->{max},
+        sum => $a_flag->{sum},
+        freq => $a_flag->{freq}
+      };
+    }
+    else {
+      $l_flag->{min} = $a_flag->{min} < $l_flag->{min} ? $a_flag->{min} : $l_flag->{min};
+      $l_flag->{max} = $a_flag->{max} > $l_flag->{max} ? $a_flag->{max} : $l_flag->{max};
+      $l_flag->{sum} += $a_flag->{sum};
+      $l_flag->{freq} += $a_flag->{freq};
+    };
+  };
 };
 
 

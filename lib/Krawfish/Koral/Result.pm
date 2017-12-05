@@ -1,5 +1,6 @@
 package Krawfish::Koral::Result;
 use Role::Tiny::With;
+use Krawfish::Log;
 with 'Krawfish::Koral::Report';
 with 'Krawfish::Koral::Result::Inflatable';
 use strict;
@@ -14,6 +15,8 @@ use warnings;
 # on the same level as query and corpus
 # and remove the intermediate compile
 # directive!
+
+use constant DEBUG => 0;
 
 # Constructor
 sub new {
@@ -54,7 +57,11 @@ sub merge_aggregation {
   my $aggregates = $self->{aggregation};
 
   # Check all aggregations
-  AGGR: foreach my $new_aggr (@{$result->{aggregation}}) {
+ AGGR: foreach my $new_aggr (@{$result->{aggregation}}) {
+
+    if (DEBUG) {
+      print_log('k_result', 'Merge aggregation data for ' . $new_aggr->key);
+    };
 
     # Merge with existing aggregation
     foreach my $est_aggr (@$aggregates) {
@@ -64,9 +71,15 @@ sub merge_aggregation {
 
         # Merge
         $est_aggr->merge($new_aggr);
+
         next AGGR;
       };
     };
+
+    if (DEBUG) {
+      print_log('k_result', 'Add aggregation data for ' . $new_aggr->key);
+    };
+
 
     # Introduce aggregation
     $self->add_aggregation($new_aggr);
@@ -98,6 +111,10 @@ sub group {
 sub to_string {
   my ($self, $id) = @_;
   my $str = '';
+
+  if (DEBUG) {
+    print_log('k_result', 'Stringify result');
+  };
 
   # Add aggregation
   if (@{$self->{aggregation}}) {

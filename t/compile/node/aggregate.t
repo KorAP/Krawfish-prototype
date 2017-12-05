@@ -19,49 +19,57 @@ ok($index->introduce_field('genre', 'DE'), 'Introduce field as sortable');
 
 # Fill node 1
 ok_index_koral($index => 0, test_doc({
-  id => 1,
+  integer_id => 1,
   author => 'Peter',
   genre => 'newsletter',
+  integer_size => 4
 } => [qw/aa bb aa cc/]), 'Add document to segment 0');
 ok_index_koral($index => 0, test_doc({
-  id => 3,
+  integer_id => 3,
   author => 'Frank',
   genre => 'novel',
+  integer_size => 4
 } => [qw/aa aa cc bb/]), 'Add document to segment 0');
 ok_index_koral($index => 0, test_doc({
-  id => 5,
+  integer_id => 5,
   author => 'Joachim',
   genre => 'novel',
+  integer_size => 4
 } => [qw/aa aa bb cc/]), 'Add document to segment 0');
 ok_index_koral($index => 0, test_doc({
-  id => 7,
+  integer_id => 7,
   author => 'Martin',
   genre => 'newsletter',
+  integer_size => 4
 } => [qw/cc aa bb cc/]), 'Add document to segment 0');
 
 
 # Add documents to second index
 # (normally the second index is not dynamic, so this is just temporary)
 ok_index_koral($index => 1, test_doc({
-  id => 2,
+  integer_id => 2,
   author => 'Lukas',
   genre => 'newsletter',
+  integer_size => 8
 } => [qw/aa bb cc cc aa bb aa bb/]), 'Add document to segment 1');
 ok_index_koral($index => 1, test_doc({
-  id => 4,
+  integer_id => 4,
   author => 'Abraham',
   genre => 'novel',
+  integer_size => 4
 } => [qw/aa bb bb cc/]), 'Add document to segment 1');
 ok_index_koral($index => 1, test_doc({
-  id => 6,
+  integer_id => 6,
   author => 'Xaver',
   genre => 'newsletter',
-} => [qw/aa cc cc aa/]), 'Add document to segment 1');
+  integer_size => 5
+} => [qw/aa cc cc aa xx/]), 'Add document to segment 1');
 ok_index_koral($index => 1, test_doc({
-  id => 8,
+  integer_id => 8,
   author => 'Henning',
   genre => 'novel',
-} => [qw/aa bb aa cc/]), 'Add document to segment 1');
+  integer_size => 6
+} => [qw/aa bb aa cc xx yy/]), 'Add document to segment 1');
 
 
 # Normally commiting only works on the first segment,
@@ -88,8 +96,10 @@ $koral->query(
 
 $koral->compilation(
   $mb->aggregate(
-    $mb->a_fields(qw/genre/),
-    $mb->a_frequencies
+    $mb->a_fields(qw/genre size/),
+    $mb->a_frequencies,
+    $mb->a_values('size'),
+    $mb->a_length
   ),
   $mb->sort_by(
     $mb->s_field('author'),
@@ -100,13 +110,13 @@ ok(my $cluster_q = $koral->to_query, 'To cluster query');
 
 
 is($cluster_q->to_string,
-   "sort(field='id'<:sort(field='author'<:aggr(freq,fields:['genre']:filter((aabb)|(aacc),[1]))))",
+   "sort(field='id'<:sort(field='author'<:aggr(length,freq,fields:['genre','size'],values:['size']:filter((aabb)|(aacc),[1]))))",
    'Stringification');
 
 my $node_q = $cluster_q->identify($index->dict);
 
 is($node_q->to_string(1),
-   "sort(field=#1<:sort(field=#2<:aggr(freq,fields:[#3]:filter((#8#10)|(#8#12),[1]))))",
+   "sort(field=#1<:sort(field=#2<:aggr(length,freq,fields:[#3,#7],values:[#7]:filter((#10#12)|(#10#14),[1]))))",
    'Stringification');
 
 my $node_query = Krawfish::Compile::Node::Sort->new(
@@ -117,19 +127,30 @@ my $node_query = Krawfish::Compile::Node::Sort->new(
 
 is($node_query->to_string,
    'nSort('.
-     'sort(field=#1<,l=1:sort(field=#2<:bundleDocs(aggr([freq,fields:#3]:or(constr(pos=2:#8,filter(#10,[1])),constr(pos=2:#8,filter(#12,[1])))))));'.
-     'sort(field=#1<,l=1:sort(field=#2<:bundleDocs(aggr([freq,fields:#3]:or(constr(pos=2:#8,filter(#10,[1])),constr(pos=2:#8,filter(#12,[1])))))))'.
-     ')',
+     'sort(field=#1<,l=1:sort(field=#2<:bundleDocs(aggr([length,freq,fields:#3,#7,values:#7]:or(constr(pos=2:#10,filter(#12,[1])),constr(pos=2:#10,filter(#14,[1])))))));'.
+     'sort(field=#1<,l=1:sort(field=#2<:bundleDocs(aggr([length,freq,fields:#3,#7,values:#7]:or(constr(pos=2:#10,filter(#12,[1])),constr(pos=2:#10,filter(#14,[1])))))))'.
+   ')',
    'Stringification');
 
 is($node_query->aggregate->inflate($index->dict)->to_string,
-   '[aggr=[freq=total:[8,12]][fields=total:[genre=newsletter:[4,7],novel:[4,5]]]]',
+   '[aggr='.
+     '[length=total:[avg:2,freq:12,min:2,max:2,sum:24]]' .
+     '[freq=total:[8,12]]'.
+     '[fields=total:'.
+       '[genre=newsletter:[4,7],novel:[4,5];size=4:[5,6],5:[1,1],6:[1,2],8:[1,3]]'.
+     ']'.
+     '[values=total:[size:[sum:39,freq:8,min:4,max:8,avg:4.875]]]'.
+   ']',
    'Result stringification');
 
 is($node_query->compile->inflate($index->dict)->to_string,
    '[aggr='.
+     '[length=total:[avg:2,freq:12,min:2,max:2,sum:24]]' .
      '[freq=total:[8,12]]'.
-     '[fields=total:[genre=newsletter:[4,7],novel:[4,5]]]'.
+     '[fields=total:'.
+       '[genre=newsletter:[4,7],novel:[4,5];size=4:[5,6],5:[1,1],6:[1,2],8:[1,3]]'.
+     ']'.
+     '[values=total:[size:[sum:39,freq:8,min:4,max:8,avg:4.875]]]'.
    ']'.
    '[matches='.
      '[1:0-2::GQw..A==,4]'.
