@@ -6,7 +6,7 @@ use warnings;
 use_ok('Krawfish::Koral');
 use_ok('Krawfish::Index');
 use_ok('Krawfish::Index::Segment');
-use_ok('Krawfish::Compile::Node::Sort');
+use_ok('Krawfish::Compile::Node');
 
 ok(my $index = Krawfish::Index->new(':temp1:'), 'Create new index object');
 
@@ -119,14 +119,14 @@ is($node_q->to_string(1),
    "sort(field=#1<:sort(field=#2<:aggr(length,freq,fields:[#3,#7],values:[#7]:filter((#10#12)|(#10#14),[1]))))",
    'Stringification');
 
-my $node_query = Krawfish::Compile::Node::Sort->new(
+my $node_query = Krawfish::Compile::Node->new(
   query => $node_q,
   top_k => 100,
   segments => $index->segments
 );
 
 is($node_query->to_string,
-   'nSort('.
+   'node('.
      'sort(field=#1<,l=1:sort(field=#2<:bundleDocs(aggr([length,freq,fields:#3,#7,values:#7]:or(constr(pos=2:#10,filter(#12,[1])),constr(pos=2:#10,filter(#14,[1])))))));'.
      'sort(field=#1<,l=1:sort(field=#2<:bundleDocs(aggr([length,freq,fields:#3,#7,values:#7]:or(constr(pos=2:#10,filter(#12,[1])),constr(pos=2:#10,filter(#14,[1])))))))'.
    ')',

@@ -1,202 +1,337 @@
 package Krawfish::Compile::Node;
+use Array::Queue::Priority;
+use Krawfish::Util::Heap;
+use Krawfish::Log;
 use strict;
 use warnings;
-use Role::Tiny;
 
-# Create a class for result aggregation on the node level.
+# Sort matches based on their criteria!
 
-warn 'Currently unused!';
-
+# This will sort the incoming results using a heap
+# and the sort criteria.
+# The priority queue will have n entries for n channels.
+# When the list is full, the top entry is taken and the
+# next entry of the channel of the top entry is enqueued.
 
 # TODO:
 #   Add a timeout! Just in case ...!
 
+# TODO:
+#   Share result(), aggregate() and some other
+#   methods/attributes with the compile-role!
+
+# TODO:
+#   Introduce max_rank_ref!
+
+# This may be less efficient than a dynamic
+# mergesort, but for the moment, it's way simpler.
+
+# TODO:
+#   Instead of using a mergesort approach, this may
+#   use a concurrent priorityqueue instead.
+
+# May be renamed to
+# - Krawfish::MultiSegment::*
+# - Krawfish::MultiNodes::*
+
+
+use constant DEBUG => 0;
+
+
+# Constructor
 sub new {
   my $class = shift;
+
+  # top_k
   my $self = bless {
-    aggregation => [], # Array of aggregation methods
-
-    # The sorting criteria for the buffer
-    sorting => [],
-
-    query => undef,
-    indexes => [],
-    data => undef,
-    groups => {},  # Store all groups
+    @_
   }, $class;
 
 
-  # Building a merge sorting buffer
-  $self->{buffer} = Krawfish::Compile::Node::SortingBuffer->new(
-    scalar @{$self->{indexes}}, # Size of the buffer
-    $self->{sorting}            # Criteria for sorting
+  # Initialize match position
+  $self->{pos} = 0;
+  $self->{match} = undef;
+
+  # Get query
+  my $query = $self->{query};
+
+  # Optimize query for segments
+  my @segment_queries;
+  foreach my $seg (@{$self->{segments}}) {
+    my $segment_query = $query->optimize($seg);
+
+    if (DEBUG) {
+      print_log('c_n_sort', 'Add query ' . $segment_query->to_string . ' to merge');
+    };
+
+    # There are results expected
+    if ($segment_query->max_freq != 0) {
+      push @segment_queries, $segment_query;
+    };
+  };
+
+  $self->{segment_queries} = \@segment_queries;
+
+  # Add criterion comparation method here
+  $self->{prio} = Array::Queue::Priority->new(
+    sort_cb => sub {
+      my ($match_a, $match_b) = @_;
+
+      # List of criteria
+      my $crit_a = $match_a->[0]->sorted_by;
+      my $crit_b = $match_b->[0]->sorted_by;
+
+      # If the criterion is not defined on any level,
+      # the entry is below any set entry
+      return $crit_a->compare($crit_b);
+    }
   );
   return $self;
 };
 
 
-# Get or set rank reference value
-# This is useful for sorting coordination between processes
-sub max_rank_reference {
+# Initially fill up the heap
+sub _init {
   my $self = shift;
 
-  if (@_) {
-    $self->{max_rank_ref} = shift;
-    return $self;
+  return if $self->{init}++;
+
+  if (DEBUG) {
+    print_log('c_n_sort', 'Initialize sorting queue');
   };
 
-  return $self->{max_rank_ref};
-};
+  my $i = 0;
+  my $n = scalar @{$self->{segment_queries}};
 
+  # Priority queue, per default with size $n
+  my $prio = $self->{prio};
 
-# Overwrite process_head and pass to deeper query
-sub process_head {
-  my ($self, $head) = @_;
-  $_[0]->{query}->process_head($head);
-  return;
-};
+  # Iterate over all segments until the prio is full
+  #
+  # TODO:
+  #   This needs to be done in parallel, as the initial
+  #   querying (+ sorting) can take quite a lot of time!
+  for (my $i = 0; $i < $n; $i++) {
 
+    # Get query from segment
+    my $seg_q = $self->{segment_queries}->[$i];
 
-sub buffer {
-  return $_[0]->{buffer};
-};
+    # There is a next item from the segment
+    if ($seg_q->next) {
 
+      if (DEBUG) {
+        print_log('c_n_sort', "Init query at channel $i");
+      };
 
-# Open all channels and send the query
-# Initially this will return all aggregate data and,
-# in case it is a group query, all groups.
-sub open {
-  my $self = shift;
-  foreach my $index (@{$self->{indexes}}) {
+      # Enqueue and remember the segment/channel
+      # TODO: enqueue
+      $prio->add([$seg_q->current_match, $i]);
 
-    CORE::next if $index->is_closed;
+      if (DEBUG) {
+        print_log('c_n_sort', "Added match " . $seg_q->current_match->to_string);
+      };
+    }
 
-    # Send query to all channels in parallel
-    # Note if one index is not available
-    $index->send(
-      $self->{query} => sub {
+    # No next segment - remove segment from query processing
+    else {
 
-        # Get the initial aggregation data -
-        # aggregate in new data hash
-        my ($aggregates, $groups) = @_;
-        $self->aggregation($aggregates);
-        $self->grouping($groups);
-      });
+      if (DEBUG) {
+        print_log('c_n_sort', "Remove query at channel $i");
+      };
+
+      # Remove segment query
+      splice(@{$self->{segment_queries}}, $i, 1);
+      # segment list is shortened
+      $i--;
+      $n--;
+    };
   };
 
-  return 1;
+  # Resize the priority queue
+  # $prio->size($n);
+
+  if (DEBUG) {
+    print_log(
+      'c_n_sort',
+      'Array: ' . join(',', map { $_->[0]->to_string } @{$prio->queue})
+    );
+  };
+
+  $self->{prio} = $prio;
 };
 
 
-# Go to next position
+# Get next match
 sub next {
   my $self = shift;
 
-  # Get next element from buffer
-  $self->{current} = $self->buffer->shift;
+  $self->_init;
 
-  unless ($self->{current}) {
-    $self->{current} = $self->_next_current or return;
+  # There is no next
+  return if $self->{pos} > $self->{top_k} -1;
+
+  # Get next match from list
+  # TODO: dequeue
+  my $entry = $self->{prio}->remove;
+
+  # No more entries
+  unless ($entry) {
+
+    # Prevent further requests
+    $self->{pos} = $self->{top_k} + 1;
+    $self->{match} = undef;
+    return;
   };
 
+  # Set match
+  $self->{match} = $entry->[0];
+
+  # Get channel
+  my $channel = $self->{segment_queries}->[$entry->[1]];
+
+  # If the channel has more entries to come,
+  # add them to the priority queue
+  if ($channel->next) {
+    $self->{prio}->add([$channel->current_match, $entry->[1]]);
+  };
+
+  if (DEBUG) {
+    print_log(
+      'c_n_sort',
+      'Array: ' . join(',', map { $_->[0]->to_string } @{$self->{prio}->queue})
+    );
+  };
+
+  $self->{pos}++;
   return 1;
 };
 
 
-# Fill the buffer with the next matches,
-# sorted by the criterion.
-# close indexes no longer needed.
-sub _next_current {
-  my $self = shift;
-
-
-  # TODO:
-  #    this does not work for indexes with sorted items like:
-  #
-  #    1. 1 8 9
-  #    2. 2 4 5  <- here, the 4 is before 5!
-  #    3. 5 6 8
-  #
-  foreach my $index (@{$self->{indexes}}) {
-
-    CORE::next if $index->is_closed;
-
-    # remember index to get current_match
-    # TODO:
-    #   Probably use next_current
-    my $current = $index->next_current;
-
-    # No more matches from this index
-    unless ($current) {
-
-      # Close the index
-      $index->close;
-      CORE::next;
-    };
-
-    $self->buffer->push($index, $current);
-
-  };
-
-  return $self->buffer->pop;
-};
-
-
-# Close all indexes still open
-sub close_all {
-  my $self = shift;
-
-  # Iterate over all indexes
-  foreach my $index (@{$self->{indexes}}) {
-
-    # Index already closed
-    CORE::next if $index->is_closed;
-
-    # Close index
-    $index->close();
-  };
-
-  # Remove all indexes
-  $self->{indexes} = [];
-};
-
-
-# Get current
-sub current {
-  my $self = shift;
-
-  # Get current field if available
-  my $current = $self->{current}->[1] or return;
-
-  # TODO:
-  #   Rewrite criterion to criterion strings!
-};
-
-
-# Get current match (including criterion string
+# Return current match
 sub current_match {
+  return $_[0]->{match};
+};
+
+
+# Get merged result match
+# TODO:
+#   May not be necessary
+sub compile {
   my $self = shift;
 
-  # Get current field if available
-  my $current_index = $self->{current}->[0] or return;
+  $self->_init;
 
-  # This should never haben, because it calls a closed index
-  return if $current_index->is_closed;
+  my $result = $self->result;
 
-  # Return the match
-  return $current_index->current_match;
-};
+  print_log('c_n_sort','Compile result') if DEBUG;
 
+  my $k = $self->{top_k};
 
-# Aggregate all data using the aggregation mechanisms
-sub aggregate {
-  my ($self, $data) = @_;
+  # Get next match from list
+  # TODO: dequeue
+  while ($k--) {
+    my $entry = $self->{prio}->remove;
 
-  foreach my $aggr (@{$self->{aggregation}}) {
-    $aggr->aggregate($data);
+    # No more entries
+    last unless $entry;
+
+    $result->add_match($entry->[0]);
+
+    # Get channel
+    my $channel = $self->{segment_queries}->[$entry->[1]];
+
+    # If the channel has more entries to come,
+    # add them to the priority queue
+    if ($channel->next) {
+      $self->{prio}->add(
+        [$channel->current_match, $entry->[1]]
+      );
+    };
   };
 
-  return 1;
+  # Because all queries were sorted on a first pass,
+  # there is no need to next() to the end for aggregation
+
+  # Merge all aggregation
+  $self->aggregate;
+
+  return $result;
 };
+
+
+# Get aggregation data only
+# TODO:
+#   Identical with ::Compile
+sub aggregate {
+  my $self = shift;
+
+  $self->_init;
+
+  if (DEBUG) {
+    print_log('c_n_sort', 'Aggregate data');
+  };
+
+  my $result = $self->result;
+
+  if (DEBUG && @{$result->{aggregation}}) {
+    print_log('c_n_sort', 'Aggregation is already done');
+  };
+
+  # Aggregation already collected
+  return $result if @{$result->{aggregation}};
+
+  # Iterate over all queries
+  foreach my $seg_q (@{$self->{segment_queries}}) {
+
+    # Check for compilation role
+    if (Role::Tiny::does_role($seg_q, 'Krawfish::Compile')) {
+      if (DEBUG) {
+        print_log('c_n_sort', 'Add result from ' . ref($seg_q));
+      };
+
+      # Merge aggregations
+      my $aggregate = $seg_q->aggregate;
+      if (DEBUG) {
+        use Data::Dumper;
+        print_log('c_n_sort', 'Merge result ' . $aggregate->to_string);
+      };
+      $result->merge_aggregation($aggregate);
+
+      if (DEBUG) {
+        print_log('c_n_sort', 'Result merged');
+      };
+    };
+  };
+
+  return $result;
+};
+
+
+
+# Get result object
+# TODO:
+#   Identical with ::Compile
+sub result {
+  my $self = shift;
+  if ($_[0]) {
+    $self->{result} = shift;
+    return $self;
+  };
+  $self->{result} //= Krawfish::Koral::Result->new;
+  return $self->{result};
+};
+
+
+# stringification
+sub to_string {
+  my ($self, $id) = @_;
+  my $str = 'node(';
+  $str .= join(';', map { $_->to_string($id) } @{$self->{segment_queries}});
+  $str .= ')';
+};
+
 
 1;
+
+
+__END__

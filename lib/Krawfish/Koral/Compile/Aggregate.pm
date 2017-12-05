@@ -1,6 +1,5 @@
 package Krawfish::Koral::Compile::Aggregate;
 use Krawfish::Koral::Compile::Node::Aggregate;
-use Krawfish::Compile::Node::Aggregate;
 use Krawfish::Log;
 use List::MoreUtils qw/uniq/;
 use strict;
