@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Role::Tiny;
 
-with 'Krawfish::Compile';
+with 'Krawfish::Compile::Segment';
 
 requires qw/group/;
 
@@ -39,7 +39,7 @@ sub compile {
 
   # Collect more data
   my $query = $self->{query};
-  if (Role::Tiny::does_role($query, 'Krawfish::Compile')) {
+  if (Role::Tiny::does_role($query, 'Krawfish::Compile::Segment')) {
     $query->result($result)->compile;
   };
 

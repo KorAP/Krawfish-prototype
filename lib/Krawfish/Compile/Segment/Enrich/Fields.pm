@@ -5,7 +5,7 @@ use strict;
 use warnings;
 use Role::Tiny;
 
-with 'Krawfish::Compile';
+with 'Krawfish::Compile::Segment';
 
 use constant DEBUG => 0;
 

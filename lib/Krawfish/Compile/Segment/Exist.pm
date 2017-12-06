@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Role::Tiny;
 
-with 'Krawfish::Compile';
+with 'Krawfish::Compile::Segment';
 
 
 # Check, if a certain query results in at least one single

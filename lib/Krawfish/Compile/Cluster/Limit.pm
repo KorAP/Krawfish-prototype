@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Role::Tiny;
 
-with 'Krawfish::Compile';
+# with 'Krawfish::Compile::Segment';
 
 # TODO:
 #   Rename to offset!

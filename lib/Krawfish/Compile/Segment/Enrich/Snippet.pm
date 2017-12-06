@@ -12,7 +12,7 @@ use Krawfish::Koral::Document::Subtoken;
 use Krawfish::Log;
 use Role::Tiny;
 
-with 'Krawfish::Compile';
+with 'Krawfish::Compile::Segment';
 
 use constant DEBUG => 0;
 

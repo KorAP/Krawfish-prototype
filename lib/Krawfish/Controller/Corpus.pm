@@ -3,7 +3,7 @@ use Mojo::Base 'Mojolicious::Controller';
 use Mojo::ByteStream 'b';
 
 use Krawfish::Koral::Corpus::Builder;
-use Krawfish::Koral::Compile;
+use Krawfish::Koral::Compile::Segment;
 
 use strict;
 use warnings;

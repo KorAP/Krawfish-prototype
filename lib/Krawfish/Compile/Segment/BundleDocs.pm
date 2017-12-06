@@ -6,7 +6,7 @@ use warnings;
 use Role::Tiny;
 
 with 'Krawfish::Compile::Segment::Bundle';
-with 'Krawfish::Compile';
+with 'Krawfish::Compile::Segment';
 
 requires qw/next_bundle/;
 

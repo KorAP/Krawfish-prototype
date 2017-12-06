@@ -4,7 +4,7 @@ use warnings;
 use Role::Tiny;
 
 with 'Krawfish::Query::Nowhere';
-with 'Krawfish::Compile';
+with 'Krawfish::Compile::Segment';
 
 
 sub compile {

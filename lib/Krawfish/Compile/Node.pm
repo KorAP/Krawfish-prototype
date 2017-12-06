@@ -2,10 +2,11 @@ package Krawfish::Compile::Node;
 use Array::Queue::Priority;
 use Krawfish::Util::Heap;
 use Krawfish::Log;
+use Role::Tiny::With;
 use strict;
 use warnings;
 
-# Sort matches based on their criteria!
+with 'Krawfish::Compile';
 
 # This will sort the incoming results using a heap
 # and the sort criteria.
@@ -15,10 +16,6 @@ use warnings;
 
 # TODO:
 #   Add a timeout! Just in case ...!
-
-# TODO:
-#   Share result(), aggregate() and some other
-#   methods/attributes with the compile-role!
 
 # TODO:
 #   Introduce max_rank_ref!
@@ -61,7 +58,7 @@ sub new {
     my $segment_query = $query->optimize($seg);
 
     if (DEBUG) {
-      print_log('c_n_sort', 'Add query ' . $segment_query->to_string . ' to merge');
+      print_log('node', 'Add query ' . $segment_query->to_string . ' to merge');
     };
 
     # There are results expected
@@ -97,7 +94,7 @@ sub _init {
   return if $self->{init}++;
 
   if (DEBUG) {
-    print_log('c_n_sort', 'Initialize sorting queue');
+    print_log('node', 'Initialize sorting queue');
   };
 
   my $i = 0;
@@ -120,7 +117,7 @@ sub _init {
     if ($seg_q->next) {
 
       if (DEBUG) {
-        print_log('c_n_sort', "Init query at channel $i");
+        print_log('node', "Init query at channel $i");
       };
 
       # Enqueue and remember the segment/channel
@@ -128,7 +125,7 @@ sub _init {
       $prio->add([$seg_q->current_match, $i]);
 
       if (DEBUG) {
-        print_log('c_n_sort', "Added match " . $seg_q->current_match->to_string);
+        print_log('node', "Added match " . $seg_q->current_match->to_string);
       };
     }
 
@@ -136,7 +133,7 @@ sub _init {
     else {
 
       if (DEBUG) {
-        print_log('c_n_sort', "Remove query at channel $i");
+        print_log('node', "Remove query at channel $i");
       };
 
       # Remove segment query
@@ -152,7 +149,7 @@ sub _init {
 
   if (DEBUG) {
     print_log(
-      'c_n_sort',
+      'node',
       'Array: ' . join(',', map { $_->[0]->to_string } @{$prio->queue})
     );
   };
@@ -197,7 +194,7 @@ sub next {
 
   if (DEBUG) {
     print_log(
-      'c_n_sort',
+      'node',
       'Array: ' . join(',', map { $_->[0]->to_string } @{$self->{prio}->queue})
     );
   };
@@ -223,7 +220,7 @@ sub compile {
 
   my $result = $self->result;
 
-  print_log('c_n_sort','Compile result') if DEBUG;
+  print_log('node','Compile result') if DEBUG;
 
   my $k = $self->{top_k};
 
@@ -268,13 +265,13 @@ sub aggregate {
   $self->_init;
 
   if (DEBUG) {
-    print_log('c_n_sort', 'Aggregate data');
+    print_log('node', 'Aggregate data');
   };
 
   my $result = $self->result;
 
   if (DEBUG && @{$result->{aggregation}}) {
-    print_log('c_n_sort', 'Aggregation is already done');
+    print_log('node', 'Aggregation is already done');
   };
 
   # Aggregation already collected
@@ -284,41 +281,26 @@ sub aggregate {
   foreach my $seg_q (@{$self->{segment_queries}}) {
 
     # Check for compilation role
-    if (Role::Tiny::does_role($seg_q, 'Krawfish::Compile')) {
+    if (Role::Tiny::does_role($seg_q, 'Krawfish::Compile::Segment')) {
       if (DEBUG) {
-        print_log('c_n_sort', 'Add result from ' . ref($seg_q));
+        print_log('node', 'Add result from ' . ref($seg_q));
       };
 
       # Merge aggregations
       my $aggregate = $seg_q->aggregate;
       if (DEBUG) {
         use Data::Dumper;
-        print_log('c_n_sort', 'Merge result ' . $aggregate->to_string);
+        print_log('node', 'Merge result ' . $aggregate->to_string);
       };
       $result->merge_aggregation($aggregate);
 
       if (DEBUG) {
-        print_log('c_n_sort', 'Result merged');
+        print_log('node', 'Result merged');
       };
     };
   };
 
   return $result;
-};
-
-
-
-# Get result object
-# TODO:
-#   Identical with ::Compile
-sub result {
-  my $self = shift;
-  if ($_[0]) {
-    $self->{result} = shift;
-    return $self;
-  };
-  $self->{result} //= Krawfish::Koral::Result->new;
-  return $self->{result};
 };
 
 

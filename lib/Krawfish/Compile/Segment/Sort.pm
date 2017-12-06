@@ -12,7 +12,7 @@ use Role::Tiny;
 
 with 'Krawfish::Compile::Segment::Sort::Criterion';
 with 'Krawfish::Compile::Segment::BundleDocs';
-with 'Krawfish::Compile';
+with 'Krawfish::Compile::Segment';
 
 # This is the general sorting implementation based on ranks.
 #

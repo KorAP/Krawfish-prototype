@@ -89,7 +89,8 @@ is($query->to_string(1), 'gFields(#3:and(or(#19,#4),[1]))', 'Stringification');
 
 ok(my $result = $query->compile->inflate($index->dict), 'Compile');
 
-is($result->to_string, "[group=[fields=['author'];total:['Michael':[1,1],'Peter':[3,3]]]]",
+is($result->to_string,
+   "[group=[fields=['author'];total:['Michael':[1,1],'Peter':[3,3]]]]",
    'Group result');
 
 
@@ -235,11 +236,14 @@ is($result->to_string,
      "freq=".
      "total:[4,8];".
      "inCorpus-1:[2,4];".
-     "inCorpus-2:[2,4]]]".
-     "[group=[fields=['author'];".
+     "inCorpus-2:[2,4]]".
+   "]".
+   "[group=".
+     "[fields=['author'];".
      "total:['Michael':[1,2],'Peter':[3,6]],".
      "inCorpus-1:['Peter':[2,4]],".
-     "inCorpus-2:['Michael':[1,2],'Peter':[1,2]]]]",
+     "inCorpus-2:['Michael':[1,2],'Peter':[1,2]]]".
+   "]",
    'Stringification');
 
 
