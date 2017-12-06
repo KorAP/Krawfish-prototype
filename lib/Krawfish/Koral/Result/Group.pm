@@ -1,17 +1,19 @@
 package Krawfish::Koral::Result::Group;
-use Role::Tiny::With;
+use Role::Tiny;
 use strict;
 use warnings;
 
-with 'Krawfish::Koral::Report';
-with 'Krawfish::Koral::Result::Inflatable';
+# TODO: Identical to Result::Aggregate
+
+requires qw/key
+            merge
+            inflate
+            to_string
+            to_koral_fragment/;
 
 # This will be returned by a Group search
 # It needs a to_hash method,
 # does not require start, end etc ...
-
-# TODO:
-#   This is quite similar to K::P::Bundle
 
 # With a witness, the group has:
 # {
@@ -31,17 +33,9 @@ with 'Krawfish::Koral::Result::Inflatable';
 #   criterion => [freq, doc_freq, match, freq, doc_freq, match, freq, doc_freq, match ...]
 # }
 
-
-sub freq {
-  ...
-};
-
-sub doc_freq {
-  ...
-};
-
-sub to_hash {
-  ...
+sub on_finish {
+  $_[0];
 };
 
 1;
+

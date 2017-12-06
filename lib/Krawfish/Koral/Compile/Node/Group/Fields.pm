@@ -2,8 +2,12 @@ package Krawfish::Koral::Compile::Node::Group::Fields;
 use Krawfish::Compile::Segment::Group::Fields;
 use Krawfish::Util::String qw/squote/;
 use Krawfish::Compile::Segment::Nowhere;
+use Role::Tiny::With;
 use strict;
 use warnings;
+
+
+with 'Krawfish::Koral::Compile::Node::Group';
 
 
 # Create new enrichment object for fields

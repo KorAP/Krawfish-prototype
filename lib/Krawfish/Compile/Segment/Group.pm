@@ -8,7 +8,7 @@ with 'Krawfish::Compile::Segment';
 
 requires qw/group/;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 
 # Override to compile data
@@ -23,14 +23,7 @@ sub compile {
   my $result = $self->result;
 
   # Add all results
-  while ($self->next) {
-    if (DEBUG) {
-      print_log(
-        'compile',
-        'Check match ' . $self->current->to_string
-      );
-    };
-  };
+  $self->finalize;
 
   # Set group to result
   $result->group(
@@ -54,10 +47,24 @@ sub compile {
 
 
 # Get group
-# TODO:
-#   rename to group_result
 sub group {
   $_[0]->{group};
+};
+
+
+# Finalize query
+sub finalize {
+  my $self = shift;
+
+  if (DEBUG) {
+    print_log(
+      'group',
+      'Finalize query for grouping'
+    );
+  };
+
+  while ($self->next) {};
+  return $self;
 };
 
 

@@ -4,11 +4,11 @@ use Krawfish::Util::Constants qw/NOMOREDOCS/;
 use Krawfish::Log;
 use strict;
 use warnings;
-use Role::Tiny;
+use Role::Tiny::With;
 
 with 'Krawfish::Compile::Segment::Group';
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # This will group matches (especially document matches) by field
 # This is useful e.g. for document browsing per corpus.
@@ -39,6 +39,17 @@ sub new {
   $self->{group} = Krawfish::Koral::Result::Group::Fields->new($self->{field_keys});
 
   return $self;
+};
+
+
+# Clone query
+sub clone {
+  my $self = shift;
+  return __PACKAGE__->new(
+    $self->{field_obj},
+    $self->{query},
+    $self->{field_keys}
+  );
 };
 
 
@@ -134,6 +145,13 @@ sub next {
 
         # Key identifier are matching
         elsif ($field_keys[$key_pos]->key_id == $field_objs[$val_pos]->key_id) {
+
+          if (DEBUG) {
+            print_log(
+              'g_fields',
+              'Key at ' . $key_pos . ' is ' . $field_keys[$key_pos]->key_id .
+                ' which is equal to ' . $field_objs[$val_pos]->key_id);
+          };
 
           # Add key to pattern
           $patterns[$key_pos] //= [];

@@ -1,5 +1,6 @@
 package Krawfish::Koral::Result::Group::Fields;
 use Krawfish::Util::PatternList qw/pattern_list/;
+use Data::Dumper;
 use Role::Tiny::With;
 use Krawfish::Util::Bits;
 use Krawfish::Log;
@@ -8,8 +9,9 @@ use strict;
 use warnings;
 
 with 'Krawfish::Koral::Result::Inflatable';
+with 'Krawfish::Koral::Result::Group';
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # Group on a sequence of field values
 
@@ -89,11 +91,41 @@ sub flush {
   };
 };
 
+
 # On finish, flush the cache
 sub on_finish {
   $_[0]->flush;
   $_[0];
 };
+
+
+# Merge groups
+sub merge {
+  my ($self, $group) = @_;
+  my $est_group = $self->{group};
+  my $new_group = $group->{group};
+
+  # Get groups
+  foreach my $signature (keys %{$new_group}) {
+    $est_group->{$signature} //= {};
+
+    if (DEBUG) {
+      print_log('p_g_fields','Result: ' . Dumper $new_group);
+    };
+
+    # Iterate over all existing groups
+    foreach my $flag (keys %{$new_group->{$signature}}) {
+
+      my $value = ($est_group->{$signature}->{$flag} //= [0,0]);
+      my $freq = $new_group->{$signature}->{$flag};
+
+      $value->[0] += $freq->[0];
+      $value->[1] += $freq->[1];
+    };
+  };
+};
+
+
 
 # Translate this to terms
 sub inflate {

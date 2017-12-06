@@ -3,7 +3,13 @@ use strict;
 use warnings;
 use Role::Tiny;
 
-requires qw/key merge/;
+# TODO: Identical to Result::Group
+
+requires qw/key
+            merge
+            inflate
+            to_string
+            to_koral_fragment/;
 
 # Finish the calculation
 sub on_finish {

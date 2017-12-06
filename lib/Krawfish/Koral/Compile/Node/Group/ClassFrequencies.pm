@@ -2,8 +2,12 @@ package Krawfish::Koral::Compile::Node::Group::ClassFrequencies;
 use Krawfish::Compile::Segment::Group::ClassFrequencies;
 use Krawfish::Util::String qw/squote/;
 use Krawfish::Compile::Segment::Nowhere;
+use Role::Tiny::With;
 use strict;
 use warnings;
+
+
+with 'Krawfish::Koral::Compile::Node::Group';
 
 
 # Create new enrichment object for fields

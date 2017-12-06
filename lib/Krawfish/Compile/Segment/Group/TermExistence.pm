@@ -1,7 +1,7 @@
 package Krawfish::Compile::Segment::Group::TermExistence;
 use strict;
 use warnings;
-use Role::Tiny;
+use Role::Tiny::With;
 
 with 'Krawfish::Compile::Segment::Group';
 
@@ -18,6 +18,10 @@ sub new {
 };
 
 sub _init {
+  ...
+};
+
+sub clone {
   ...
 };
 

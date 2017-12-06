@@ -2,7 +2,7 @@ package Krawfish::Compile::Segment::Group::Spans;
 use Krawfish::Log;
 use strict;
 use warnings;
-use Role::Tiny;
+use Role::Tiny::With;
 
 with 'Krawfish::Compile::Segment::Group';
 
@@ -56,6 +56,11 @@ sub get_group {
   my $slice_start = 0;
   my $slice_end = 0;
   return $slice_start . '_' . $slice_end;
+};
+
+
+sub clone {
+  ...
 };
 
 1;

@@ -18,6 +18,9 @@ with 'Krawfish::Compile';
 #   Add a timeout! Just in case ...!
 
 # TODO:
+#   Merge warnings, errors, messages!
+
+# TODO:
 #   Introduce max_rank_ref!
 
 # This may be less efficient than a dynamic
@@ -32,7 +35,7 @@ with 'Krawfish::Compile';
 # - Krawfish::MultiNodes::*
 
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 
 # Constructor
@@ -58,7 +61,7 @@ sub new {
     my $segment_query = $query->optimize($seg);
 
     if (DEBUG) {
-      print_log('node', 'Add query ' . $segment_query->to_string . ' to merge');
+      print_log('cmp_node', 'Add query ' . $segment_query->to_string . ' to merge');
     };
 
     # There are results expected
@@ -69,7 +72,13 @@ sub new {
 
   $self->{segment_queries} = \@segment_queries;
 
-  # Add criterion comparation method here
+  # Query does not require sorted result
+  if (Role::Tiny::does_role($query, 'Krawfish::Koral::Compile::Node::Group')) {
+    $self->{top_k} = 0;
+    return $self;
+  };
+
+  # Add criterion comparation method
   $self->{prio} = Array::Queue::Priority->new(
     sort_cb => sub {
       my ($match_a, $match_b) = @_;
@@ -83,6 +92,7 @@ sub new {
       return $crit_a->compare($crit_b);
     }
   );
+
   return $self;
 };
 
@@ -94,16 +104,17 @@ sub _init {
   return if $self->{init}++;
 
   if (DEBUG) {
-    print_log('node', 'Initialize sorting queue');
+    print_log('cmp_node', 'Initialize node response');
   };
+
+  # Priority queue if sorting is required, per default with size $n
+  my $prio = $self->{prio};
 
   my $i = 0;
   my $n = scalar @{$self->{segment_queries}};
 
-  # Priority queue, per default with size $n
-  my $prio = $self->{prio};
-
-  # Iterate over all segments until the prio is full
+  # Iterate over all segments - either for grouping
+  # or (in case of sorting) until the prio is full
   #
   # TODO:
   #   This needs to be done in parallel, as the initial
@@ -113,11 +124,23 @@ sub _init {
     # Get query from segment
     my $seg_q = $self->{segment_queries}->[$i];
 
+    # Do grouping!
+    unless ($prio) {
+
+      if (DEBUG) {
+        print_log('cmp_node', "Finalize query at channel $i");
+      };
+
+      # Search through all results
+      $seg_q->finalize;
+      next;
+    };
+
     # There is a next item from the segment
     if ($seg_q->next) {
 
       if (DEBUG) {
-        print_log('node', "Init query at channel $i");
+        print_log('cmp_node', "Init query at channel $i");
       };
 
       # Enqueue and remember the segment/channel
@@ -125,7 +148,7 @@ sub _init {
       $prio->add([$seg_q->current_match, $i]);
 
       if (DEBUG) {
-        print_log('node', "Added match " . $seg_q->current_match->to_string);
+        print_log('cmp_node', "Added match " . $seg_q->current_match->to_string);
       };
     }
 
@@ -133,7 +156,7 @@ sub _init {
     else {
 
       if (DEBUG) {
-        print_log('node', "Remove query at channel $i");
+        print_log('cmp_node', "Remove query at channel $i");
       };
 
       # Remove segment query
@@ -144,17 +167,19 @@ sub _init {
     };
   };
 
+  return unless $self->{prio};
+
   # Resize the priority queue
   # $prio->size($n);
 
   if (DEBUG) {
     print_log(
-      'node',
+      'cmp_node',
       'Array: ' . join(',', map { $_->[0]->to_string } @{$prio->queue})
     );
   };
 
-  $self->{prio} = $prio;
+  # $self->{prio} = $prio;
 };
 
 
@@ -165,7 +190,7 @@ sub next {
   $self->_init;
 
   # There is no next
-  return if $self->{pos} > $self->{top_k} -1;
+  return if !$self->{prio} || $self->{pos} > $self->{top_k} -1;
 
   # Get next match from list
   # TODO: dequeue
@@ -194,7 +219,7 @@ sub next {
 
   if (DEBUG) {
     print_log(
-      'node',
+      'cmp_node',
       'Array: ' . join(',', map { $_->[0]->to_string } @{$self->{prio}->queue})
     );
   };
@@ -220,13 +245,13 @@ sub compile {
 
   my $result = $self->result;
 
-  print_log('node','Compile result') if DEBUG;
+  print_log('cmp_node','Compile result') if DEBUG;
 
   my $k = $self->{top_k};
 
   # Get next match from list
   # TODO: dequeue
-  while ($k--) {
+  while ($k-- > 0) {
     my $entry = $self->{prio}->remove;
 
     # No more entries
@@ -256,22 +281,69 @@ sub compile {
 };
 
 
+# Group data
+sub group {
+  my $self = shift;
+
+  $self->_init;
+
+  if (DEBUG) {
+    print_log('cmp_node', 'Group data');
+  };
+
+  my $result = $self->result;
+
+  if (DEBUG && $result->{group}) {
+    print_log('cmp_node', 'Group is already done is already done');
+  };
+
+  # Aggregation already collected
+  return $result if $result->group;
+
+  # Iterate over all queries
+  foreach my $seg_q (@{$self->{segment_queries}}) {
+
+    # Check for compilation role
+    if (Role::Tiny::does_role($seg_q, 'Krawfish::Compile::Segment::Group')) {
+      if (DEBUG) {
+        print_log('cmp_node', 'Add result from ' . ref($seg_q));
+      };
+
+      # Merge aggregations
+      my $group = $seg_q->group;
+
+      if (DEBUG) {
+        use Data::Dumper;
+        print_log('cmp_node', 'Merge result: ' . ref($group) . ':' . $group->to_string);
+      };
+
+      # Merge group
+      $result->merge_group($group);
+
+      if (DEBUG) {
+        print_log('cmp_node', 'Groups merged');
+      };
+    };
+  };
+
+  return $result;
+};
+
+
 # Get aggregation data only
-# TODO:
-#   Identical with ::Compile
 sub aggregate {
   my $self = shift;
 
   $self->_init;
 
   if (DEBUG) {
-    print_log('node', 'Aggregate data');
+    print_log('cmp_node', 'Aggregate data');
   };
 
   my $result = $self->result;
 
   if (DEBUG && @{$result->{aggregation}}) {
-    print_log('node', 'Aggregation is already done');
+    print_log('cmp_node', 'Aggregation is already done');
   };
 
   # Aggregation already collected
@@ -283,19 +355,19 @@ sub aggregate {
     # Check for compilation role
     if (Role::Tiny::does_role($seg_q, 'Krawfish::Compile::Segment')) {
       if (DEBUG) {
-        print_log('node', 'Add result from ' . ref($seg_q));
+        print_log('cmp_node', 'Add result from ' . ref($seg_q));
       };
 
       # Merge aggregations
       my $aggregate = $seg_q->aggregate;
       if (DEBUG) {
         use Data::Dumper;
-        print_log('node', 'Merge result ' . $aggregate->to_string);
+        print_log('cmp_node', 'Merge result ' . $aggregate->to_string);
       };
       $result->merge_aggregation($aggregate);
 
       if (DEBUG) {
-        print_log('node', 'Result merged');
+        print_log('cmp_node', 'Result merged');
       };
     };
   };

@@ -3,7 +3,7 @@ use Krawfish::Koral::Result::Group::ClassFrequencies;
 use Krawfish::Log;
 use strict;
 use warnings;
-use Role::Tiny;
+use Role::Tiny::With;
 
 with 'Krawfish::Compile::Segment::Group';
 
@@ -55,10 +55,8 @@ sub _init {
 };
 
 
-# Shorthand for "search through"
-sub finalize {
-  while ($_[0]->next) {};
-  return $_[0];
+sub clone {
+  ...
 };
 
 

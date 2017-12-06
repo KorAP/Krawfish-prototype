@@ -168,6 +168,59 @@ is($node_query->compile->inflate($index->dict)->to_string,
    ']',
    'Stringification');
 
+
+# Run merge query
+$koral = Krawfish::Koral->new;
+$koral->query(
+  $qb->bool_or(
+    $qb->seq(
+      $qb->token('aa'),
+      $qb->token('bb')
+    ),
+    $qb->seq(
+      $qb->token('aa'),
+      $qb->token('cc')
+    )
+  )
+);
+$koral->compilation(
+  $mb->aggregate(
+    $mb->a_fields(qw/genre_size/)
+  ),
+  $mb->group_by(
+    $mb->g_fields(qw/genre size/)
+  )
+);
+
+ok($cluster_q = $koral->to_query, 'To cluster query');
+
+is($cluster_q->to_string, "gFields('genre','size':aggr(fields:['genre_size']:filter((aabb)|(aacc),[1])))", 'stringification');
+
+$node_q = $cluster_q->identify($index->dict);
+
+is($node_q->to_string(1),
+   'gFields(#3,#7:filter((#10#12)|(#10#14),[1]))',
+   'Stringification');
+
+# Join node query
+$node_query = Krawfish::Compile::Node->new(
+  query => $node_q,
+  top_k => 100,
+  segments => $index->segments
+);
+
+is($node_query->to_string(1),
+   "node(".
+     "gFields(#3,#7:or(constr(pos=2:#10,filter(#12,[1])),constr(pos=2:#10,filter(#14,[1]))));".
+     "gFields(#3,#7:or(constr(pos=2:#10,filter(#12,[1])),constr(pos=2:#10,filter(#14,[1]))))".
+   ")",
+   'Stringification');
+
+is($node_query->group->inflate($index->dict)->to_string,
+   "[group=[fields=['genre','size'];total:['newsletter_4':[2,3],'newsletter_5':[1,1],'newsletter_8':[1,3],'novel_4':[3,3],'novel_6':[1,2]]]]",
+   'Collect group');
+
+
 done_testing;
 __END__
 

@@ -30,7 +30,7 @@ sub current_match {
 
   if (DEBUG) {
     print_log(
-      'compile',
+      'cmp_seg',
       'Current match requested by ' . ref($self)
       );
   };
@@ -39,7 +39,7 @@ sub current_match {
 
   if (DEBUG) {
     print_log(
-      'compile',
+      'cmp_seg',
       'Current match is ' . $match->to_string
       );
   };
@@ -53,7 +53,7 @@ sub current {
   my $self = shift;
 
   if (DEBUG) {
-    print_log('compile', 'Get current from ' . ref $self);
+    print_log('cmp_seg', 'Get current from ' . ref $self);
   };
 
   return $self->{current} // $self->{query}->current;
@@ -68,7 +68,7 @@ sub current {
 sub match_from_query {
   my $self = shift;
 
-  print_log('compile', 'Get match from query as ' . ref($self)) if DEBUG;
+  print_log('cmp_seg', 'Get match from query as ' . ref($self)) if DEBUG;
 
   my $match;
 
@@ -84,14 +84,14 @@ sub match_from_query {
   # Not yet defined
   unless ($match) {
 
-    print_log('compile', 'No match found from ' . ref($self->{query})) if DEBUG;
+    print_log('cmp_seg', 'No match found from ' . ref($self->{query})) if DEBUG;
 
     # Get current object
     my $current = $self->current;
 
     unless ($current) {
       print_log(
-        'compile',
+        'cmp_seg',
         'No current definable from ' .
           ref($self)) if DEBUG;
       return;
@@ -99,7 +99,7 @@ sub match_from_query {
 
     if (DEBUG) {
       print_log(
-        'compile',
+        'cmp_seg',
         'Current posting is from '. $self->{query}->to_string
       );
     };
@@ -156,7 +156,7 @@ sub compile {
   # This is rather for testing purposes
 
   if (DEBUG) {
-    print_log('compile', 'Compile aggregation with ' . ref($self));
+    print_log('cmp_seg', 'Compile aggregation with ' . ref($self));
   };
 
   # Get result object
@@ -166,7 +166,7 @@ sub compile {
   while ($self->next) {
     if (DEBUG) {
       print_log(
-        'compile',
+        'cmp_seg',
         'Add match ' . $self->current_match->to_string
       );
     };
@@ -179,7 +179,7 @@ sub compile {
 
   if (DEBUG) {
     print_log(
-      'compile',
+      'cmp_seg',
       'Result is ' . $result
     );
   };
@@ -214,12 +214,12 @@ sub aggregate {
   my $query = $self->{query};
 
   if (DEBUG) {
-    print_log('compile', 'Check if ' . ref($query) . ' does compiling');
+    print_log('cmp_seg', 'Check if ' . ref($query) . ' does compiling');
   };
 
   if (Role::Tiny::does_role($query, __PACKAGE__)) {
     if (DEBUG) {
-      print_log('compile', 'Add result from ' . ref($query));
+      print_log('cmp_seg', 'Add result from ' . ref($query));
     };
     $query->result($result)->aggregate;
   };

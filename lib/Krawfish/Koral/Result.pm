@@ -80,7 +80,6 @@ sub merge_aggregation {
       print_log('k_result', 'Add aggregation data for ' . $new_aggr->key);
     };
 
-
     # Introduce aggregation
     $self->add_aggregation($new_aggr);
   };
@@ -88,6 +87,34 @@ sub merge_aggregation {
   return;
 };
 
+# Merge groups
+sub merge_group {
+  my ($self, $group) = @_;
+
+  if (DEBUG) {
+    print_log('k_result', 'Merge group data');
+  };
+
+  # Merge with existing group
+  if ($self->{group}) {
+
+    if ($self->{group}->key ne $group->key) {
+      $self->add_error(000 => 'Groups are not compatible');
+      delete $self->{group};
+      return;
+    };
+
+    # Merge
+    $self->{group}->merge($group);
+  }
+
+  # Establish first group
+  else {
+    $self->{group} = $group;
+  };
+
+ return;
+};
 
 # Get aggregations
 sub aggregation {
