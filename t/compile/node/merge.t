@@ -185,7 +185,7 @@ $koral->query(
 );
 $koral->compilation(
   $mb->aggregate(
-    $mb->a_fields(qw/genre_size/)
+    $mb->a_fields(qw/genre size/)
   ),
   $mb->group_by(
     $mb->g_fields(qw/genre size/)
@@ -194,12 +194,12 @@ $koral->compilation(
 
 ok($cluster_q = $koral->to_query, 'To cluster query');
 
-is($cluster_q->to_string, "gFields('genre','size':aggr(fields:['genre_size']:filter((aabb)|(aacc),[1])))", 'stringification');
+is($cluster_q->to_string, "gFields('genre','size':aggr(fields:['genre','size']:filter((aabb)|(aacc),[1])))", 'stringification');
 
 $node_q = $cluster_q->identify($index->dict);
 
 is($node_q->to_string(1),
-   'gFields(#3,#7:filter((#10#12)|(#10#14),[1]))',
+   'gFields(#3,#7:aggr(fields:[#3,#7]:filter((#10#12)|(#10#14),[1])))',
    'Stringification');
 
 # Join node query
@@ -211,14 +211,46 @@ $node_query = Krawfish::Compile::Node->new(
 
 is($node_query->to_string(1),
    "node(".
-     "gFields(#3,#7:or(constr(pos=2:#10,filter(#12,[1])),constr(pos=2:#10,filter(#14,[1]))));".
-     "gFields(#3,#7:or(constr(pos=2:#10,filter(#12,[1])),constr(pos=2:#10,filter(#14,[1]))))".
+     "gFields(#3,#7:aggr([fields:#3,#7]:or(constr(pos=2:#10,filter(#12,[1])),constr(pos=2:#10,filter(#14,[1])))));".
+     "gFields(#3,#7:aggr([fields:#3,#7]:or(constr(pos=2:#10,filter(#12,[1])),constr(pos=2:#10,filter(#14,[1])))))".
    ")",
    'Stringification');
 
 is($node_query->group->inflate($index->dict)->to_string,
-   "[group=[fields=['genre','size'];total:['newsletter_4':[2,3],'newsletter_5':[1,1],'newsletter_8':[1,3],'novel_4':[3,3],'novel_6':[1,2]]]]",
+   "[group=".
+     "[fields=['genre','size'];".
+       "total:[".
+         "'newsletter_4':[2,3],".
+         "'newsletter_5':[1,1],".
+         "'newsletter_8':[1,3],".
+         "'novel_4':[3,3],".
+         "'novel_6':[1,2]".
+       "]".
+     "]".
+   "]",
    'Collect group');
+
+is($node_query->compile->inflate($index->dict)->to_string,
+   "[aggr=".
+     "[fields=".
+       "total:[".
+         "genre=newsletter:[4,7],novel:[4,5];".
+         "size=4:[5,6],5:[1,1],6:[1,2],8:[1,3]".
+       "]".
+     "]".
+   "]".
+   "[group=".
+     "[fields=['genre','size'];".
+       "total:[".
+         "'newsletter_4':[2,3],".
+         "'newsletter_5':[1,1],".
+         "'newsletter_8':[1,3],".
+         "'novel_4':[3,3],".
+         "'novel_6':[1,2]".
+       "]".
+     "]".
+   "]",
+   'Full compilation');
 
 
 done_testing;

@@ -243,6 +243,7 @@ sub inflate {
   ...
 };
 
+
 # Serialization of KoralQuery
 sub to_koral_fragment {
   my $self = shift;
@@ -285,11 +286,6 @@ sub to_string {
   return join(',', @list);
 };
 
-
-# Get KoralQuery with results
-sub to_result {
-  ...
-};
 
 
 # Find identical subqueries and replace outer queries with
