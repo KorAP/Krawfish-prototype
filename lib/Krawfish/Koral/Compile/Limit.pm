@@ -14,15 +14,19 @@ sub new {
 };
 
 
+# Items per page
 sub items_per_page {
   $_[0]->{items_per_page};
 };
 
+
+# Start index
 sub start_index {
   $_[0]->{start_index};
 };
 
 
+# Get query type
 sub type {
   'limit';
 };
@@ -57,10 +61,12 @@ sub normalize {
 };
 
 
+# Stringification
 sub to_string {
   my $self = shift;
   return 'limit=[' . $self->start_index . '-'.
     ($self->start_index + $self->items_per_page) . ']';
 };
+
 
 1;

@@ -32,13 +32,15 @@ use warnings;
 #   This requires a method like ->used_classes
 
 our %COMPILE_ORDER = (
-  limit     => 1,
-  sort      => 2,
-  sample    => 3,
-  enrich    => 4,
-  group     => 5,
-  aggregate => 6,
-  filter    => 7
+  limit         => 1,
+  cluster_merge => 2,
+  node_merge    => 3,
+  sort          => 4,
+  sample        => 5,
+  enrich        => 6,
+  group         => 7,
+  aggregate     => 8,
+  filter        => 9
 );
 
 
@@ -76,6 +78,13 @@ sub operations {
 };
 
 
+# Add operation
+sub add {
+  my ($self, $op) = @_;
+  push @$self, $op;
+};
+
+
 # Normalize compile object
 sub normalize {
   my $self = shift;
@@ -109,28 +118,10 @@ sub normalize {
 
 
   # 1. Introduce required information
-  #    e.g. sort(field) => fields(field)
   my $sort_filtering = 1;
   for (my $i = 0; $i < scalar @compile; $i++) {
 
-    # For all sort fields, it may be beneficial to
-    # retrieve the fields as well - as they need
-    # to be retrieved nonetheless for search criteria
-    #if ($compile[$i]->type eq 'sort') {
-    #
-    #  my $mb = $self->builder;
-    #  push @compile,
-    #    $mb->enrich($mb->e_fields($compile[$i]->fields));
-    #
-    #  if (DEBUG) {
-    #    print_log('kq_compile', 'Added sorting ' .
-    #                join(',', map {$_->to_string } $compile[$i]->fields) .
-    #                ' to fields');
-    #  };
-    #}
-
     # There is at least one aggregation field
-    #els
     if ($compile[$i]->type eq 'aggregate') {
       $sort_filtering = 0;
     }

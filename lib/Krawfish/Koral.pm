@@ -9,10 +9,12 @@ use Krawfish::Koral::Corpus::Builder;
 use Krawfish::Koral::Compile::Builder;
 use Krawfish::Koral::Compile;
 
+use Krawfish::Koral::Compile::Node;
+
 with 'Krawfish::Koral::Report';
 with 'Krawfish::Koral::Result::Inflatable';
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # Parse a koral query object and transform to an
 # actual index query.
@@ -150,10 +152,7 @@ sub clone {
 
 # Create a single query tree
 sub to_query {
-  my $self = shift;
-
-  # Optionally pass a node id for replication retrieval
-  my $replicant_id = shift;
+  my ($self, $replicant_id) = @_;
 
   # Build a complete query object
   my $query;
@@ -218,6 +217,7 @@ sub to_query {
     return;
   };
 
+
   # This is just for testing
   return $query_final unless $self->compilation;
 
@@ -237,6 +237,31 @@ sub to_query {
   # Serialize from compile
   return $self->compilation->wrap($query_final);
 };
+
+
+# Prepare the query to work on segments
+sub to_segments {
+  my ($self, $replicant_id) = @_;
+
+  # Get compilation object
+  my $cmp = $self->compilation;
+
+  # Check for a set limit
+  my $top_k;
+  foreach ($cmp->operations) {
+    if ($_->type eq 'limit') {
+      $top_k = $_->start_index + $_->items_per_page;
+    };
+  };
+
+  print_log('koral', 'Add wrapping node query') if DEBUG;
+
+  # Add wrapping node query
+  $cmp->add(Krawfish::Koral::Compile::Node->new($top_k));
+
+  return $self->to_query($replicant_id);
+};
+
 
 
 sub inflate {

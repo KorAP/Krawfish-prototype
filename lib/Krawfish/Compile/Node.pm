@@ -13,6 +13,9 @@ with 'Krawfish::Compile';
 # The priority queue will have n entries for n channels.
 # When the list is full, the top entry is taken and the
 # next entry of the channel of the top entry is enqueued.
+#
+# This may be less efficient than a dynamic
+# mergesort, but for the moment, it's way simpler.
 
 # TODO:
 #   Add a timeout! Just in case ...!
@@ -23,12 +26,8 @@ with 'Krawfish::Compile';
 # TODO:
 #   Introduce max_rank_ref!
 
-# This may be less efficient than a dynamic
-# mergesort, but for the moment, it's way simpler.
-
 # TODO:
-#   Instead of using a mergesort approach, this may
-#   use a concurrent priorityqueue instead.
+#   This may use a concurrent priorityqueue
 
 # May be renamed to
 # - Krawfish::MultiSegment::*
@@ -42,7 +41,7 @@ use constant DEBUG => 1;
 sub new {
   my $class = shift;
 
-  # top_k
+  # top_k, query
   my $self = bless {
     @_
   }, $class;
@@ -56,6 +55,9 @@ sub new {
   my $query = $self->{query};
 
   # Optimize query for segments
+  # TODO:
+  #   This may be done in the optimize() method
+  #   of Koral::Compile::Node.
   my @segment_queries;
   foreach my $seg (@{$self->{segments}}) {
     my $segment_query = $query->optimize($seg);
@@ -96,6 +98,16 @@ sub new {
   return $self;
 };
 
+
+# Get maximum frequency
+sub max_freq {
+  my $self = shift;
+  my $max_freq;
+  foreach (@{$self->{segment_queries}}) {
+    $max_freq += $_->max_freq
+  };
+  return $max_freq;
+};
 
 # Initially fill up the heap
 sub _init {

@@ -106,6 +106,8 @@ $koral->compilation(
   )
 );
 
+# Here it is possible to pass a potential
+# replicant
 ok(my $cluster_q = $koral->to_query, 'To cluster query');
 
 
