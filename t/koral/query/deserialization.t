@@ -5,19 +5,16 @@ use Mojo::JSON qw/encode_json decode_json/;
 use Mojo::File;
 use Data::Dumper;
 
-use_ok('Krawfish::Koral::Query');
+use_ok('Krawfish::Koral::Query::Importer');
 
 # deserialize import document
 # my $doc_1 = slurp('t/data/doc1.jsonld');
 # my $koral = Krawfish::Koral->new(decode_json($doc_1));
 
-diag 'Implementation requires rewrite';
 
-done_testing;
+ok(my $importer = Krawfish::Koral::Query::Importer->new, 'New importer');
 
-__END__
-
-my $query = Krawfish::Koral::Query->from_koral(
+ok(my $query = $importer->from_koral(
   {
     '@type' => 'koral:group',
     'operation' => 'operation:sequence',
@@ -50,22 +47,42 @@ my $query = Krawfish::Koral::Query->from_koral(
       }
     ]
   }
-);
-
-
-
+), 'Import Sequence, Token, Term, Class');
 
 is(my $deserialized = $query->to_string, '[tt/p=NN]{2:[tt/p!=NN]}', 'Stringification');
-
 ok(my $fragment = $query->to_koral_fragment, 'Get parsed fragment');
-
-ok(my $serialized = Krawfish::Koral::Query->from_koral($fragment), 'Parse serialization');
-
+ok(my $serialized = $importer->from_koral($fragment), 'Parse serialization');
 is($deserialized, $serialized->to_string, 'In/Out equivalence');
 
-TODO: {
-  local $TODO = 'Test further'
-};
+
+ok($query = $importer->from_koral({
+  '@type' => 'koral:group',
+  'operation' => 'operation:repetition',
+  'boundary' => {
+    '@type' => 'koral:boundary',
+    min => 2,
+    max => 3
+  },
+  'operands' => [
+    {
+      '@type' => 'koral:token',
+      'wrap' => {
+        '@type' => 'koral:term',
+        'foundry' => 'tt',
+        'key' => 'NN',
+        'layer' => 'p'
+      }
+    }
+  ]
+}), 'Import Repetition, Token, Term');
+
+is($deserialized = $query->to_string, '[tt/p=NN]{2,3}', 'Stringification');
+ok($fragment = $query->to_koral_fragment, 'Get parsed fragment');
+ok($serialized = $importer->from_koral($fragment), 'Parse serialization');
+is($deserialized, $serialized->to_string, 'In/Out equivalence');
+
+
+local $TODO = 'Test further';
 
 
 done_testing;

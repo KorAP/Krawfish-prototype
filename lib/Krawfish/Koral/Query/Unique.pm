@@ -20,6 +20,10 @@ sub to_koral_fragment {
   ...
 };
 
+sub from_koral {
+  ...
+};
+
 sub type { 'unique' };
 
 

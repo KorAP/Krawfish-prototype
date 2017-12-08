@@ -204,7 +204,7 @@ sub from_koral {
   my $nr = $kq->{'classOut'} or warn 'No class defined';
 
   # Import operand
-  my $op = $importer->all($kq->{operands}->[0]);
+  my $op = $importer->from_koral($kq->{operands}->[0]);
 
   return $class->new($op, $nr);
 };

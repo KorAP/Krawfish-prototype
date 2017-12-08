@@ -44,6 +44,10 @@ sub to_koral_fragment {
   return $koral;
 };
 
+sub from_koral {
+  ...
+};
+
 
 #########################################
 # Query Planning methods and attributes #

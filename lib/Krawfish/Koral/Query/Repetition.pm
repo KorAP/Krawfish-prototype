@@ -5,6 +5,7 @@ use strict;
 use warnings;
 
 with 'Krawfish::Koral::Query';
+with 'Krawfish::Koral::Query::Boundary';
 
 our $MAX = 100;
 
@@ -34,24 +35,6 @@ sub new {
     min => $min,
     max => $max
   }, $class;
-};
-
-
-sub min {
-  if (defined $_[1]) {
-    $_[0]->{min} = $_[1];
-    return $_[0];
-  };
-  $_[0]->{min};
-};
-
-
-sub max {
-  if (defined $_[1]) {
-    $_[0]->{max} = $_[1];
-    return $_[0];
-  };
-  $_[0]->{max};
 };
 
 
@@ -97,6 +80,28 @@ sub to_koral_fragment {
       $self->operand->to_koral_fragment
     ]
   };
+};
+
+sub from_koral {
+  my ($class, $kq) = @_;
+  my $boundary = $kq->{boundary};
+
+  my ($min, $max);
+  if ($boundary->{min}) {
+    $min = $boundary->{min};
+  };
+  if ($boundary->{max}) {
+    $max = $boundary->{max};
+  };
+
+  my $importer = $class->importer;
+
+  # Get operand
+  my $op = $importer->from_koral(
+    $kq->{operands}->[0]
+  );
+
+  $class->new($op, $min, $max);
 };
 
 

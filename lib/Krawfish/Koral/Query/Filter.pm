@@ -173,6 +173,11 @@ sub to_koral_fragment {
 };
 
 
+sub from_koral {
+  ...
+};
+
+
 # Return the minimum numbers of tokens of the span
 sub min_span {
   $_[0]->operand->min_span;

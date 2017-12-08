@@ -10,6 +10,7 @@ memoize('min_span');
 memoize('max_span');
 
 with 'Krawfish::Koral::Query';
+with 'Krawfish::Koral::Query::Boundary';
 
 # TODO:
 #   Normalize chained length queries
@@ -59,26 +60,6 @@ sub new {
     max => $max,
     token => $token
   }, $class;
-};
-
-
-# Minimum length of either tokens or (default) subtokens
-sub min {
-  if (defined $_[1]) {
-    $_[0]->{min} = $_[1];
-    return $_[0];
-  };
-  $_[0]->{min};
-};
-
-
-# Minimum length of either tokens or (default) subtokens
-sub max {
-  if (defined $_[1]) {
-    $_[0]->{max} = $_[1];
-    return $_[0];
-  };
-  $_[0]->{max};
 };
 
 
@@ -137,11 +118,6 @@ sub token_base {
 
 
 sub type { 'length' };
-
-
-sub to_koral_fragment {
-  ...
-};
 
 
 # Normalize query
@@ -235,8 +211,38 @@ sub maybe_unsorted {
 };
 
 
+# Serialize to koral fragment
+sub to_koral_fragment {
+  my $self = shift;
+  return {
+    '@type' => 'koral:group',
+    operation => 'operation:length',
+    boundary => $self->boundary,
+    # token    => $self->token_base,
+    operands => [
+      $self->operand->to_koral_fragment
+    ]
+  };
+};
+
+
+# Deserialize from koral fragment
 sub from_koral {
-  ...
+  my ($class, $kq) = @_;
+
+  my $importer = $class->importer;
+
+  my @param = ();
+  my $boundary = $kq->{boundary};
+  if ($boundary) {
+    push @param, $boundary->{min} if $boundary->{min};
+    push @param, $boundary->{max} if $boundary->{max};
+  };
+  push @param, $kq->{token} if $kq->{token};
+
+  return $class->new(
+    $kq->{operands}->[0], @param
+  );
 };
 
 

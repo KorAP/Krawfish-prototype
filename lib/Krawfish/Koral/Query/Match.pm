@@ -6,6 +6,10 @@ use warnings;
 
 with 'Krawfish::Koral::Query';
 
+
+# TODO:
+#   Suport corpus classes!
+
 # This Query does not search segment data, but
 # returns the data it is passed to.
 # It is used to fetch enriched match data.
@@ -35,6 +39,10 @@ sub to_koral_fragment {
     'start' => $self->start,
     'end' => $self->end
   };
+};
+
+sub from_koral {
+  ...
 };
 
 sub type { 'match' };

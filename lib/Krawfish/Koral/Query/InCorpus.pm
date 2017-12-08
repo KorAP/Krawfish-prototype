@@ -97,6 +97,10 @@ sub to_koral_fragment {
 };
 
 
+sub from_koral {
+  ...
+};
+
 # TODO: Identical to class/unique
 
 sub is_anywhere {

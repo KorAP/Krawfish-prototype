@@ -347,6 +347,10 @@ sub to_koral_fragment {
   ...
 };
 
+sub from_koral {
+  ...
+};
+
 
 # Stringification
 sub to_string {

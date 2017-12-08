@@ -160,6 +160,7 @@ sub to_string {
 };
 
 
+# Get from koralquery
 sub from_koral {
   my $class = shift;
   my $kq = shift;
@@ -167,7 +168,7 @@ sub from_koral {
   my $importer = $class->importer;
 
   return $class->new(
-    map { $importer->all($_) } @{$kq->{operands}}
+    map { $importer->from_koral($_) } @{$kq->{operands}}
   );
 };
 

@@ -61,7 +61,7 @@ use constant {
 # Constructor
 sub new {
   my $class = shift;
-  my $self = bless {
+  bless {
     anywhere => 0,
     optional => 0,
     null => 0,
@@ -70,12 +70,6 @@ sub new {
     extended_left => 0,
    extended_right => 0
   }, $class;
-
-  if ($_[0]) {
-    return $self->from_koral(shift);
-  };
-
-  $self;
 };
 
 
@@ -341,38 +335,6 @@ sub maybe_unsorted {
 # Query Application methods #
 #############################
 
-# Deserialization of KoralQuery
-# TODO: export this method from Importer
-sub from_koral {
-  my ($class, $kq) = @_;
-  my $importer = Krawfish::Koral::Query::Importer->new;
-
-  my $type = $kq->{'@type'};
-  if ($type eq 'koral:group') {
-    my $op = $kq->{operation};
-    if ($op eq 'operation:sequence') {
-      return $importer->seq($kq);
-    }
-
-    elsif ($op eq 'operation:class') {
-      return $importer->class($kq);
-    }
-    else {
-      warn 'Operation ' . $op . ' no supported';
-    };
-  }
-
-  elsif ($type eq 'koral:token') {
-    return $importer->token($kq);
-  }
-  else {
-    warn $type . ' unknown';
-  };
-
-  return;
-};
-
-
 # Serialize
 sub to_koral_query {
   my $self = shift;
@@ -408,20 +370,8 @@ sub builder {
 
 
 # Create KoralQuery builder
-#sub importer {
-#  return Krawfish::Koral::Query::Importer->new;
-#};
-
-
-# Serialization helper
-sub boundary {
-  my $self = shift;
-  my %hash = (
-    '@type' => 'koral:boundary'
-  );
-  $hash{min} = $self->{min} if defined $self->{min};
-  $hash{max} = $self->{max} if defined $self->{max};
-  return \%hash;
+sub importer {
+  return Krawfish::Koral::Query::Importer->new;
 };
 
 

@@ -85,6 +85,10 @@ sub to_koral_fragment {
   ...
 };
 
+sub from_koral {
+  ...
+};
+
 sub uses_classes {
   ...
 };
