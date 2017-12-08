@@ -1,21 +1,43 @@
 package Krawfish::Koral::Corpus;
-use Role::Tiny::With;
-with 'Krawfish::Koral::Report';
-# TODO: Use the same parent as Koral::Query
+use Role::Tiny;
 use Krawfish::Koral::Corpus::Builder;
 use Krawfish::Log;
 use strict;
 use warnings;
+
+# TODO: Use the same role as Koral::Query
+
+# TODO: Add this everywhere
+with 'Krawfish::Koral::Report';
+
+requires qw/normalize
+            optimize
+            identify
+            type
+            operands
+            operand
+            finalize
+            has_classes
+            remove_classes
+            is_negative
+            is_anywhere
+            is_nowhere
+            is_null
+            is_leaf
+            from_koral
+            to_koral_fragment
+            to_string
+            to_neutral/;
 
 use constant DEBUG => 0;
 
 # Base object for virtual corpus queries
 
 # Constructor
-sub new {
-  my $class = shift;
-  bless {}, $class;
-};
+#sub new {
+#  my $class = shift;
+#  bless {}, $class;
+#};
 
 #########################################
 # Query Planning methods and attributes #
@@ -56,12 +78,6 @@ sub operand {
 # Check for cached subqueries
 sub cache {
   $_[0];
-};
-
-
-# Optimize for an index
-sub optimize {
-  warn 'override';
 };
 
 
@@ -195,28 +211,6 @@ sub is_leaf {
 # Create KoralQuery builder
 sub builder {
   return Krawfish::Koral::Corpus::Builder->new;
-};
-
-
-#############################
-# Query Application methods #
-#############################
-
-# Deserialize
-sub from_koral {
-  warn 'override';
-};
-
-
-# serialize
-sub to_koral_fragment {
-  warn 'override';
-};
-
-
-# Stringification
-sub to_string {
-  warn 'override';
 };
 
 

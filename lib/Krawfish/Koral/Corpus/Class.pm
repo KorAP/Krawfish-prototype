@@ -1,10 +1,12 @@
 package Krawfish::Koral::Corpus::Class;
-use parent 'Krawfish::Koral::Corpus';
+use Role::Tiny::With;
 use Krawfish::Corpus::Class;
 use Krawfish::Log;
 use strict;
 use warnings;
 use constant DEBUG => 0;
+
+with 'Krawfish::Koral::Corpus';
 
 
 sub new {
@@ -74,6 +76,10 @@ sub to_koral_fragment {
       $self->operand->to_koral_fragment
     ]
   };
+};
+
+sub from_koral {
+  ...
 };
 
 

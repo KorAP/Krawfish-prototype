@@ -1,15 +1,15 @@
 package Krawfish::Koral::Corpus::FieldGroup;
-use parent ('Krawfish::Koral::Util::Boolean', 'Krawfish::Koral::Corpus');
+use Role::Tiny::With;
 use Krawfish::Log;
 use Krawfish::Koral::Corpus::AndNot;
 use Krawfish::Koral::Corpus::Anywhere;
-
 use Krawfish::Corpus::Or;
-# use Krawfish::Corpus::OrWithFlags;
 use Krawfish::Corpus::And;
-# use Krawfish::Corpus::AndWithFlags;
 use strict;
 use warnings;
+
+with 'Krawfish::Koral::Util::Boolean';
+with 'Krawfish::Koral::Corpus';
 
 # TODO:
 #   Preparation should be:
@@ -123,6 +123,11 @@ sub to_string {
 
   $str .= $self->is_negative ? ')' : '';
   $str;
+};
+
+
+sub from_koral {
+  ...
 };
 
 

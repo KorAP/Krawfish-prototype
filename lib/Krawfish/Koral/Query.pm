@@ -1,6 +1,5 @@
 package Krawfish::Koral::Query;
-use Role::Tiny::With;
-with 'Krawfish::Koral::Report';
+use Role::Tiny;
 # TODO: Use the same parent as Koral::Corpus
 use Krawfish::Koral::Query::Builder;
 use Krawfish::Koral::Query::Importer;
@@ -8,6 +7,8 @@ use Krawfish::Log;
 use Mojo::Util qw/md5_sum/;
 use warnings;
 use strict;
+
+with 'Krawfish::Koral::Report';
 
 # Base class for span queries
 

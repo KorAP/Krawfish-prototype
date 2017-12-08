@@ -1,7 +1,9 @@
 package Krawfish::Koral::Corpus::Static;
-use parent 'Krawfish::Koral::Corpus';
+use Role::Tiny::With;
 use strict;
 use warnings;
+
+with 'Krawfish::Koral::Corpus';
 
 # Accepts an identifier to a static virtual corpus query
 # (e.g. a list of text/Siglen), represented as a normalized

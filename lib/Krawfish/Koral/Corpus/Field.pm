@@ -1,9 +1,11 @@
 package Krawfish::Koral::Corpus::Field;
-use parent 'Krawfish::Koral::Corpus';
 use Krawfish::Koral::Corpus::FieldID;
 use Krawfish::Util::Constants ':PREFIX';
+use Role::Tiny::With;
 use strict;
 use warnings;
+
+with 'Krawfish::Koral::Corpus';
 
 use constant DEBUG => 0;
 
@@ -272,6 +274,10 @@ sub to_term {
   return $term;
 };
 
+
+sub from_koral {
+  ...
+};
 
 sub to_neutral {
   $_[0]->to_term;

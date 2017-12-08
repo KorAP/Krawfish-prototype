@@ -1,8 +1,10 @@
 package Krawfish::Koral::Corpus::FieldID;
-use parent 'Krawfish::Koral::Corpus';
+use Role::Tiny::With;
 use Krawfish::Corpus::FieldID;
 use strict;
 use warnings;
+
+with 'Krawfish::Koral::Corpus';
 
 use constant DEBUG => 0;
 
@@ -63,6 +65,11 @@ sub optimize {
   };
 
   return $query;
+};
+
+
+sub from_koral {
+  ...
 };
 
 

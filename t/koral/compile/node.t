@@ -46,7 +46,5 @@ is($koral->to_segments->to_string,
 
 diag 'Test normalization with nodes';
 
-diag 'Optimize segments in optimize() method';
-
 done_testing;
 __END__

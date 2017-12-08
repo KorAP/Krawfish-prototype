@@ -1,11 +1,13 @@
 package Krawfish::Koral::Corpus::Span;
-use parent 'Krawfish::Koral::Corpus';
+use Role::Tiny::With;
 use Krawfish::Util::Constants ':PREFIX';
 use Krawfish::Query::Nowhere;
 use Krawfish::Corpus::Span;
 use Krawfish::Log;
 use strict;
 use warnings;
+
+with 'Krawfish::Koral::Corpus';
 
 use constant DEBUG => 0;
 
@@ -158,6 +160,10 @@ sub to_koral_fragment {
   }
 };
 
+
+sub from_koral {
+  ...
+};
 
 1;
 

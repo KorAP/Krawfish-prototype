@@ -1,8 +1,10 @@
 package Krawfish::Koral::Corpus::Cache;
-use parent 'Krawfish::Koral::Corpus';
 use Krawfish::Corpus::Cache;
+use Role::Tiny::With;
 use strict;
 use warnings;
+
+with 'Krawfish::Koral::Corpus';
 
 use constant DEBUG => 0;
 
@@ -44,5 +46,8 @@ sub to_string {
   return $_[0]->operand->to_string;
 };
 
+sub from_koral {
+  ...
+};
 
 1;

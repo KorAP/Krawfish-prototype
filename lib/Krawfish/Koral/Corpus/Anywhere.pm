@@ -1,8 +1,10 @@
 package Krawfish::Koral::Corpus::Anywhere;
-use parent 'Krawfish::Koral::Corpus';
+use Role::Tiny::With;
 use Krawfish::Corpus::Anywhere;
 use strict;
 use warnings;
+
+with 'Krawfish::Koral::Corpus';
 
 # This matches all live documents!
 
@@ -48,6 +50,11 @@ sub to_koral_fragment {
   return {
     '@type' => 'koral:field'
   };
+};
+
+
+sub from_koral {
+  ...
 };
 
 1;

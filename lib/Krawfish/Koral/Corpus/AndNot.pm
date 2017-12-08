@@ -1,9 +1,11 @@
 package Krawfish::Koral::Corpus::AndNot;
-use parent 'Krawfish::Koral::Corpus';
+use Role::Tiny::With;
 use Krawfish::Corpus::AndNot;
 use Krawfish::Log;
 use strict;
 use warnings;
+
+with 'Krawfish::Koral::Corpus';
 
 use constant DEBUG => 0;
 
@@ -90,6 +92,10 @@ sub to_koral_fragment {
   ...
 };
 
+
+sub from_koral {
+  ...
+};
 
 # Stringification
 sub to_string {

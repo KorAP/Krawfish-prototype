@@ -1,4 +1,5 @@
 package Krawfish::Koral::Util::Boolean;
+use Role::Tiny;
 use Krawfish::Log;
 use List::MoreUtils qw!uniq!;
 use strict;
@@ -12,6 +13,9 @@ use warnings;
 # - Koral::Query::Or
 
 use constant DEBUG => 0;
+
+requires qw/bool_and_query
+            bool_or_query/;
 
 # TODO:
 #   Introduce a ->complex attribute to all queries,
