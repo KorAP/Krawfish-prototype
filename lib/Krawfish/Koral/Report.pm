@@ -1,14 +1,16 @@
 package Krawfish::Koral::Report;
+use strict;
+use warnings;
 use Role::Tiny;
+use Krawfish::Log;
+
+
 requires qw/error
             warning
             message
             has_error
             has_warning
             has_message/;
-use Krawfish::Log;
-use strict;
-use warnings;
 
 # Report on errors, warnings an anything else
 

@@ -1,7 +1,4 @@
 package Krawfish::Koral::Query::Builder;
-use strict;
-use warnings;
-
 use Krawfish::Util::Constants qw/:PREFIX/;
 
 use Krawfish::Koral::Query::Term;
@@ -31,6 +28,8 @@ use Krawfish::Koral::Query::Constraint::InBetween;
 use Krawfish::Koral::Corpus::Builder;
 
 use Scalar::Util qw/blessed/;
+use strict;
+use warnings;
 
 use constant DOC_IDENTIFIER => 'id';
 
@@ -40,9 +39,26 @@ sub new {
   bless [$text_span], $class;
 };
 
+
 #########################
 # KoralQuery constructs #
 #########################
+
+
+# Token construct
+# Should probably be like:
+# ->token('Der') or
+# ->token(->term_or('Der', 'Die', 'Das'))
+sub token {
+  shift;
+  return Krawfish::Koral::Query::Token->new(@_);
+};
+
+
+sub class {
+  shift;
+  Krawfish::Koral::Query::Class->new(@_);
+};
 
 # Sequence construct
 sub seq {
@@ -56,15 +72,6 @@ sub repeat {
   return Krawfish::Koral::Query::Repetition->new(@_);
 };
 
-
-# Token construct
-# Should probably be like:
-# ->token('Der') or
-# ->token(->term_or('Der', 'Die', 'Das'))
-sub token {
-  shift;
-  Krawfish::Koral::Query::Token->new(@_);
-};
 
 sub term {
   shift;
@@ -199,10 +206,6 @@ sub length {
   Krawfish::Koral::Query::Length->new(@_);
 };
 
-sub class {
-  shift;
-  Krawfish::Koral::Query::Class->new(@_);
-};
 
 # Extension to the left
 sub ext_left {

@@ -1,11 +1,13 @@
 package Krawfish::Koral::Query::Focus;
-use parent 'Krawfish::Koral::Query';
-use Krawfish::Query::Base::Sorted;
 use strict;
 use warnings;
+use Role::Tiny::With;
+use Krawfish::Query::Base::Sorted;
 use Memoize;
 memoize('min_span');
 memoize('max_span');
+
+with 'Krawfish::Koral::Query';
 
 # TODO:
 #   If span is maybe_unsorted, use a sorted focus,

@@ -1,5 +1,5 @@
 package Krawfish::Koral::Query::Span;
-use parent 'Krawfish::Koral::Query';
+use Role::Tiny::With;
 use Krawfish::Util::Constants ':PREFIX';
 use Krawfish::Koral::Query::TermID;
 use Krawfish::Koral::Query::Term;
@@ -7,6 +7,8 @@ use Krawfish::Log;
 use Scalar::Util qw/blessed/;
 use strict;
 use warnings;
+
+with 'Krawfish::Koral::Query';
 
 use constant DEBUG => 0;
 

@@ -1,7 +1,7 @@
 package Krawfish::Log;
-use parent 'Exporter';
 use strict;
 use warnings;
+use parent 'Exporter';
 
 # Simple log mechanism
 

@@ -1,11 +1,13 @@
 package Krawfish::Koral::Query::Unique;
-use parent 'Krawfish::Koral::Query';
+use Role::Tiny::With;
 use Krawfish::Query::Unique;
 use strict;
 use warnings;
 use Memoize;
 memoize('min_span');
 memoize('max_span');
+
+with 'Krawfish::Koral::Query';
 
 sub new {
   my $class = shift;

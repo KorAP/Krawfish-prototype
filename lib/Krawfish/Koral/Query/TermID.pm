@@ -1,8 +1,10 @@
 package Krawfish::Koral::Query::TermID;
-use parent 'Krawfish::Koral::Query';
+use Role::Tiny::With;
 use Krawfish::Query::TermID;
 use strict;
 use warnings;
+
+with 'Krawfish::Koral::Query';
 
 sub new {
   my ($class, $term_id) = @_;

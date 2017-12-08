@@ -8,6 +8,7 @@ use warnings;
 #   aa* and [] means it matches anywhere!
 
 use_ok('Krawfish::Koral::Corpus::Builder');
+use_ok('Krawfish::Koral::Query::Builder');
 use_ok('Krawfish::Index');
 
 my $index = Krawfish::Index->new;

@@ -1,8 +1,7 @@
 package Krawfish::Koral::Query;
 use Role::Tiny;
-# TODO: Use the same parent as Koral::Corpus
-use Krawfish::Koral::Query::Builder;
-use Krawfish::Koral::Query::Importer;
+# use Krawfish::Koral::Query::Builder;
+# use Krawfish::Koral::Query::Importer;
 use Krawfish::Log;
 use Mojo::Util qw/md5_sum/;
 use warnings;
@@ -10,6 +9,38 @@ use strict;
 
 with 'Krawfish::Koral::Report';
 
+# TODO:
+#   Share a role with Koral::Corpus
+requires qw/normalize
+            optimize
+            identify
+            type
+            operands
+            operand
+            finalize
+
+            uses_classes
+
+            is_anywhere
+            is_optional
+            is_null
+            is_nowhere
+            is_leaf
+            is_extended_right
+            is_extended_left
+            is_negative
+
+            maybe_anchor
+            maybe_unsorted
+
+            min_span
+            max_span
+
+            from_koral
+
+            to_koral_fragment
+            to_string
+            to_signature/;
 # Base class for span queries
 
 # TODO:
@@ -37,7 +68,7 @@ sub new {
     negative => 0,
     extended => 0,
     extended_left => 0,
-    extended_right => 0
+   extended_right => 0
   }, $class;
 
   if ($_[0]) {
@@ -48,28 +79,15 @@ sub new {
 };
 
 
-# Override type
-sub type {
-  warn 'override';
-};
-
-
 #########################################
 # Query Planning methods and attributes #
 #########################################
-
-
-# Normalize the query
-sub normalize {
-  warn 'override';
-};
 
 
 # Refer to common subqueries
 sub refer {
   $_[0];
 };
-
 
 # Translate to ids
 # TODO:
@@ -90,12 +108,6 @@ sub identify {
 # Check for cached subqueries
 sub cache {
   $_[0];
-};
-
-
-# Optimize for an index
-sub optimize {
-  ...
 };
 
 
@@ -163,13 +175,6 @@ sub finalize {
 };
 
 
-# Returns a list of classes used by the query,
-# e.g. in a focus() context.
-sub uses_classes {
-  warn 'override';
-};
-
-
 sub remove_unused_classes {
   my ($self, $classes) = @_;
   my $used = $self->uses_classes;
@@ -177,6 +182,10 @@ sub remove_unused_classes {
   # and take classes from uses_classes() into account.
   # This is not done recursively, as it first needs to
   # gather all classes and then can remove them.
+};
+
+sub uses_classes {
+  warn 'Not yet implemented';
 };
 
 
@@ -215,10 +224,12 @@ sub operands {
 
 # Get and set first and only operand
 sub operand {
-  if (@_ == 2) {
-    $_[0]->{operands} = [$_[1]];
+  my $self = shift;
+
+  if (@_ == 1) {
+    $self->{operands} = [shift];
   };
-  $_[0]->{operands}->[0];
+  return $self->{operands}->[0];
 };
 
 
@@ -326,19 +337,6 @@ sub maybe_unsorted {
 };
 
 
-# Get the minimum tokens the query spans
-sub min_span {
-  warn 'override';
-};
-
-
-# Get the maximum tokens the query spans
-# -1 means arbitrary
-sub max_span {
-  warn 'override';
-};
-
-
 #############################
 # Query Application methods #
 #############################
@@ -376,23 +374,11 @@ sub from_koral {
 
 
 # Serialize
-sub to_koral_fragment {
-  warn 'override';
-};
-
-
-# Serialize
 sub to_koral_query {
   my $self = shift;
   my $koral = $self->to_koral_fragment;
   $koral->{'@context'} = CONTEXT;
   $koral;
-};
-
-
-# Stringification
-sub to_string {
-  warn 'override';
 };
 
 
@@ -422,9 +408,9 @@ sub builder {
 
 
 # Create KoralQuery builder
-sub importer {
-  return Krawfish::Koral::Query::Importer->new;
-};
+#sub importer {
+#  return Krawfish::Koral::Query::Importer->new;
+#};
 
 
 # Serialization helper

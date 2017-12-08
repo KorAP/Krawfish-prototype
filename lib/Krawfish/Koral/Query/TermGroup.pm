@@ -1,5 +1,5 @@
 package Krawfish::Koral::Query::TermGroup;
-use parent ('Krawfish::Koral::Util::Boolean','Krawfish::Koral::Query');
+use Role::Tiny::With;
 use Krawfish::Koral::Query::Term;
 use Krawfish::Query::Or;
 use Krawfish::Query::Constraint;
@@ -8,6 +8,9 @@ use Krawfish::Log;
 use Scalar::Util qw/blessed/;
 use strict;
 use warnings;
+
+with 'Krawfish::Koral::Util::Boolean';
+with 'Krawfish::Koral::Query';
 
 # TODO:
 #   Preparation should be:

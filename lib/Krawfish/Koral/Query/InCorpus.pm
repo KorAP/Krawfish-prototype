@@ -1,9 +1,11 @@
 package Krawfish::Koral::Query::InCorpus;
-use parent 'Krawfish::Koral::Query';
+use Role::Tiny::With;
 use Krawfish::Util::Bits;
 use Krawfish::Query::InCorpus;
 use strict;
 use warnings;
+
+with 'Krawfish::Koral::Query';
 
 # Create a query that will check if a certain
 # match is associated to certain classes.

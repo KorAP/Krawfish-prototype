@@ -1,11 +1,11 @@
 package Krawfish::Koral::Query::Importer;
+use warnings;
+use strict;
 use Krawfish::Koral::Query;
 use Krawfish::Koral::Query::Sequence;
 use Krawfish::Koral::Query::Token;
 use Krawfish::Koral::Query::Term;
 use Krawfish::Koral::Query::Class;
-use warnings;
-use strict;
 
 sub new {
   my $var;

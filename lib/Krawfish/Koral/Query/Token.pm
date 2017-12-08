@@ -1,13 +1,13 @@
 package Krawfish::Koral::Query::Token;
-use parent 'Krawfish::Koral::Query';
-# use Krawfish::Koral::Query::Token;
+use Role::Tiny::With;
 use Krawfish::Util::Constants qw/:PREFIX/;
 use Krawfish::Koral::Query::Term;
-# use Krawfish::Query::Term;
 use Krawfish::Log;
 use strict;
 use warnings;
 use Scalar::Util qw/blessed/;
+
+with 'Krawfish::Koral::Query';
 
 use constant DEBUG => 0;
 

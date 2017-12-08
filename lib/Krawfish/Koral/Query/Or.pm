@@ -1,5 +1,5 @@
 package Krawfish::Koral::Query::Or;
-use parent ('Krawfish::Koral::Util::Boolean','Krawfish::Koral::Query');
+use Role::Tiny::With;
 use Krawfish::Log;
 use Krawfish::Query::Or;
 use strict;
@@ -7,6 +7,9 @@ use warnings;
 use Memoize;
 memoize('min_span');
 memoize('max_span');
+
+with 'Krawfish::Koral::Util::Boolean';
+with 'Krawfish::Koral::Query';
 
 # Or-Construct on spans
 
@@ -54,7 +57,7 @@ sub bool_and_query {
 # so this has to be resolved as well.
 sub normalize {
   my $self = shift;
-  return $self->SUPER::normalize
+  return Krawfish::Koral::Util::Boolean::normalize($self)
     ->_resolve_optionality;
 };
 
@@ -141,5 +144,11 @@ sub max_span {
   };
   return $max;
 };
+
+
+sub to_koral_fragment {
+  ...
+};
+
 
 1;

@@ -3,9 +3,10 @@ use Test::Krawfish;
 use strict;
 use warnings;
 use Data::Dumper;
+use Krawfish::Koral::Util::Sequential;
 
-use_ok('Krawfish::Koral::Query::Builder');
 use_ok('Krawfish::Index');
+use_ok('Krawfish::Koral');
 
 my $index = Krawfish::Index->new;
 ok_index($index, '[a|b][a|b|c][a][b|c]', 'Add complex document');
@@ -14,7 +15,8 @@ ok_index($index, '[b][b|c][a]', 'Add complex document');
 # a: 4
 # b: 5
 
-my $qb = Krawfish::Koral::Query::Builder->new;
+my $koral = Krawfish::Koral->new;
+my $qb = $koral->query_builder;
 
 # [a]
 my $seq = $qb->seq(
@@ -80,7 +82,6 @@ $seq = $qb->seq(
 is($seq->to_string, '[a][b][c]', 'Stringification');
 is($seq->size, 2, 'Number of operands');
 
-
 # Flatten
 ok($seq = $seq->normalize, 'Normalization');
 is($seq->to_string, 'abc', 'Stringification');
@@ -117,6 +118,7 @@ is($seq->to_string, 'abcdef', 'Stringification');
 # Not found
 ok($seq = $seq->identify($index->dict), 'Optimization');
 
+
 # May already be [0]!
 is($seq->to_string, '#2#3#4[0][0][0]', 'Stringification');
 ok($seq = $seq->optimize($index->segment), 'Optimization');
@@ -146,7 +148,6 @@ ok($seq = $seq->finalize, 'Normalization');
 is($seq->to_string, 'a{1,4}', 'Stringification');
 ok($seq->has_warning, 'Has warnings');
 
-
 TODO: {
   local $TODO = 'Repetition simplification not yet implemented';
   # [a][a][a] -> [a]{3}
@@ -171,6 +172,7 @@ TODO: {
 
 
 # Check optimize:
+
 my $compare = \&Krawfish::Koral::Util::Sequential::_compare;
 my $queries = [[1,5], [1,1]];
 is($compare->($queries, 0,1), 1, 'simple compare');

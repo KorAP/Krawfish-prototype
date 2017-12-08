@@ -1,5 +1,5 @@
 package Krawfish::Koral::Query::Constraint;
-use parent 'Krawfish::Koral::Query';
+use Role::Tiny::With;
 use List::Util qw/min max/;
 use Krawfish::Query::Constraint;
 use Krawfish::Query::Constraint::Position;
@@ -8,6 +8,10 @@ use Krawfish::Log;
 use v5.10;
 use strict;
 use warnings;
+
+with 'Krawfish::Koral::Query';
+
+
 use Memoize;
 memoize('min_span');
 memoize('max_span');

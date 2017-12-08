@@ -1,8 +1,10 @@
 package Krawfish::Koral::Query::Match;
-use parent 'Krawfish::Koral::Query';
+use Role::Tiny::With;
 use Krawfish::Query::Match;
 use strict;
 use warnings;
+
+with 'Krawfish::Koral::Query';
 
 # This Query does not search segment data, but
 # returns the data it is passed to.
@@ -173,12 +175,6 @@ sub maybe_unsorded {
 
 sub is_classed {
   0;
-};
-
-
-sub from_koral {
-  my ($class, $kq) = @_;
-  ...
 };
 
 

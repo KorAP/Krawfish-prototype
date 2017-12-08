@@ -1,11 +1,13 @@
 package Krawfish::Koral::Query::Term;
-use parent 'Krawfish::Koral::Query';
+use Role::Tiny::With;
 use Krawfish::Util::Constants qw/:PREFIX/;
 use Krawfish::Koral::Query::TermID;
 use Krawfish::Query::Nowhere;
 use Krawfish::Log;
 use strict;
 use warnings;
+
+with 'Krawfish::Koral::Query';
 
 # TODO:
 #   Probably join this with TermID

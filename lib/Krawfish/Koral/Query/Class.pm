@@ -1,20 +1,22 @@
 package Krawfish::Koral::Query::Class;
-use parent 'Krawfish::Koral::Query';
+use Role::Tiny::With;
 use Krawfish::Query::Class;
 use Krawfish::Log;
-use strict;
-use warnings;
-use Memoize;
-memoize('min_span');
-memoize('max_span');
-
 
 use constant DEBUG => 0;
+
+with 'Krawfish::Koral::Query';
+
+use Memoize;
+
+memoize('min_span');
+memoize('max_span');
 
 
 # Constructor
 sub new {
   my $class = shift;
+
   bless {
     operands => [shift],
     number => shift // 1

@@ -1,8 +1,10 @@
 package Krawfish::Koral::Query::Repetition;
-use parent 'Krawfish::Koral::Query';
+use Role::Tiny::With;
 use Krawfish::Query::Repetition;
 use strict;
 use warnings;
+
+with 'Krawfish::Koral::Query';
 
 our $MAX = 100;
 

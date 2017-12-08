@@ -1,8 +1,10 @@
 package Krawfish::Koral::Query::Nowhere;
-use parent 'Krawfish::Koral::Query';
+use Role::Tiny::With;
 use Krawfish::Query::Nowhere;
 use strict;
 use warnings;
+
+with 'Krawfish::Koral::Query';
 
 sub new {
   my $class = shift;
@@ -57,6 +59,10 @@ sub min_span {
 
 sub max_span {
   -1;
+};
+
+sub to_koral_fragment {
+  ...
 };
 
 1;

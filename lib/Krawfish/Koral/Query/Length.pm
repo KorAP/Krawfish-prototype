@@ -1,5 +1,5 @@
 package Krawfish::Koral::Query::Length;
-use parent 'Krawfish::Koral::Query';
+use Role::Tiny::With;
 use Scalar::Util qw/looks_like_number/;
 use List::Util;
 use Krawfish::Query::Length;
@@ -8,6 +8,8 @@ use warnings;
 use Memoize;
 memoize('min_span');
 memoize('max_span');
+
+with 'Krawfish::Koral::Query';
 
 # TODO:
 #   Normalize chained length queries

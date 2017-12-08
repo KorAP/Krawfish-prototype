@@ -1,15 +1,17 @@
 package Krawfish::Koral::Query::Exclusion;
-use parent 'Krawfish::Koral::Query';
+use strict;
+use warnings;
+use Role::Tiny::With;
 # Exports to_frame:
 use Krawfish::Koral::Query::Constraint::Position;
 use Krawfish::Query::Exclusion;
 use Krawfish::Log;
 use Mojo::JSON;
-use strict;
-use warnings;
 use Memoize;
 memoize('min_span');
 memoize('max_span');
+
+with 'Krawfish::Koral::Query';
 
 use constant DEBUG => 0;
 

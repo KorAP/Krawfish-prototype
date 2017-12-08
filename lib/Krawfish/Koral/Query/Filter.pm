@@ -1,5 +1,5 @@
 package Krawfish::Koral::Query::Filter;
-use parent 'Krawfish::Koral::Query';
+use Role::Tiny::With;
 use Krawfish::Log;
 use Krawfish::Query::Nowhere;
 use strict;
@@ -7,6 +7,8 @@ use warnings;
 use Memoize;
 memoize('min_span');
 memoize('max_span');
+
+with 'Krawfish::Koral::Query';
 
 # The filter will filter a query based on a virtual corpus.
 # First the filter is always on the root of the query.

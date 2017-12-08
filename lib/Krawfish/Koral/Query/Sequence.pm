@@ -1,11 +1,14 @@
 package Krawfish::Koral::Query::Sequence;
-use parent ('Krawfish::Koral::Util::Sequential','Krawfish::Koral::Query');
+use Role::Tiny::With;
 use Krawfish::Log;
 use strict;
 use warnings;
 use Memoize;
 memoize('min_span');
 memoize('max_span');
+
+with 'Krawfish::Koral::Util::Sequential';
+with 'Krawfish::Koral::Query';
 
 # TODO:
 #   Check for queries like "Der {[pos!=ADJ]*} Mann"
@@ -28,7 +31,7 @@ use constant DEBUG => 0;
 
 sub new {
   my $class = shift;
-  my $self = $class->SUPER::new;
+  my $self = Krawfish::Koral::Query::new($class);
   $self->{operands} = [@_];
   $self->{info} = undef;
   $self->{_checked} = 0;

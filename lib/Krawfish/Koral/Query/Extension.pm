@@ -1,7 +1,9 @@
 package Krawfish::Koral::Query::Extension;
-use parent 'Krawfish::Koral::Query';
+use Role::Tiny::With;
 use strict;
 use warnings;
+
+with 'Krawfish::Koral::Query';
 
 
 # TODO:
@@ -68,6 +70,22 @@ sub min_span {
 };
 
 sub max_span {
+  ...
+};
+
+sub optimize {
+  ...;
+};
+
+sub type {
+  'extension';
+};
+
+sub to_koral_fragment {
+  ...
+};
+
+sub uses_classes {
   ...
 };
 

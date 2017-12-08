@@ -15,9 +15,12 @@ my $koral = Krawfish::Koral->new;
 my $qb = $koral->query_builder;
 
 my $query = $qb->class($qb->token('Der'), 3);
+ok($query->refer, 'check');
+
 is($query->min_span, 1, 'Span length');
 is($query->max_span, 1, 'Span length');
 is($query->to_string, '{3:[Der]}', 'Stringification');
+
 ok($query = $query->normalize, 'Normalize');
 is($query->to_string, "{3:Der}", 'Planned Stringification');
 ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimize');

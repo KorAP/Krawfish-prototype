@@ -1,12 +1,13 @@
 package Krawfish::Koral::Util::Sequential;
+use strict;
+use warnings;
+use Role::Tiny;
 use Krawfish::Log;
 use Krawfish::Query::Nowhere;
 use Krawfish::Query::Constraint::Position;
 use Krawfish::Query::Constraint::InBetween;
 use Krawfish::Query::Constraint;
 use List::MoreUtils qw!uniq!;
-use strict;
-use warnings;
 
 use constant {
   DEBUG  => 0,
@@ -20,6 +21,8 @@ use constant {
   QUERY  => 2,
   KQUERY => 3
 };
+
+with 'Krawfish::Koral::Report';
 
 # TODO:
 #   Resolve optionality!
@@ -1174,73 +1177,3 @@ sub _constraint {
 
 
 __END__
-
-
-  my $last_type;
-  my @consecutives;
-
-  for (my $i = ($self->size - 1); $i >= -1; $i--) {
-
-    # Initialize last type
-    unless (defined $last_type) {
-      $last_type = $query_types[$i]->[0];
-      CORE::next;
-    };
-
-    if (($i >= 0) && ($query_types[$i]->[0] == $last_type)) {
-
-      # Initialize consecutives
-      unless (@consecutives) {
-        unshift @consecutives, $i+1;
-      };
-      unshift @consecutives, $i;
-    }
-
-    # Types differ - flush
-    elsif (scalar @consecutives > 1) {
-
-      # The group consists of positives
-      if ($query_types[$consecutives[0]]->[0] == POS) {
-
-        my $first_i = shift @consecutives;
-        my $query = $queries[$first_i];
-
-        print_log('kq_sequtil', 'Create query for consecutive positive ops') if DEBUG;
-
-        # Iterate as long as there are consecutives
-        while (@consecutives) {
-
-          # Get next from list
-          my $next_i = shift @consecutives;
-
-          # Create a precedes directly
-          if ($query->max_freq <= $queries[$next_i]->max_freq) {
-
-            print_log(
-              'kq_sequtil',
-              'Freq is '. $query->to_string . ' <= ' .$queries[$next_i]->to_string
-            ) if DEBUG;
-
-            $query = _precedes_directly($query, $queries[$next_i]);
-          }
-
-          # Reverse the order due to frequency optimization
-          else {
-            $query = _succeeds_directly($queries[$next_i], $query);
-          };
-
-          $queries[$next_i] = undef;
-          $query_types[$next_i] = [NULL, 0];
-        };
-
-        # Store the newly build query at the first position.
-        $queries[$first_i] = $query;
-
-        @consecutives = ();
-        $last_type = $i;
-      }
-      else {
-        warn 'Types not supported yet';
-      };
-    };
-  };
