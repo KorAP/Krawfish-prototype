@@ -108,31 +108,19 @@ $koral->compilation(
 
 # Here it is possible to pass a potential
 # replicant
-ok(my $cluster_q = $koral->to_query, 'To cluster query');
-
+ok(my $cluster_q = $koral->to_segments, 'To cluster query');
 
 is($cluster_q->to_string,
-   "sort(field='id'<:sort(field='author'<:aggr(length,freq,fields:['genre','size'],values:['size']:filter((aabb)|(aacc),[1]))))",
+   "node(k=100:sort(field='id'<:sort(field='author'<:aggr(length,freq,fields:['genre','size'],values:['size']:filter((aabb)|(aacc),[1])))))",
    'Stringification');
 
 my $node_q = $cluster_q->identify($index->dict);
 
 is($node_q->to_string(1),
-   "sort(field=#1<:sort(field=#2<:aggr(length,freq,fields:[#3,#7],values:[#7]:filter((#10#12)|(#10#14),[1]))))",
+   "node(k=100:sort(field=#1<:sort(field=#2<:aggr(length,freq,fields:[#3,#7],values:[#7]:filter((#10#12)|(#10#14),[1])))))",
    'Stringification');
 
-my $node_query = Krawfish::Compile::Node->new(
-  query => $node_q,
-  top_k => 100,
-  segments => $index->segments
-);
-
-is($node_query->to_string,
-   'node('.
-     'sort(field=#1<,l=1:sort(field=#2<:bundleDocs(aggr([length,freq,fields:#3,#7,values:#7]:or(constr(pos=2:#10,filter(#12,[1])),constr(pos=2:#10,filter(#14,[1])))))));'.
-     'sort(field=#1<,l=1:sort(field=#2<:bundleDocs(aggr([length,freq,fields:#3,#7,values:#7]:or(constr(pos=2:#10,filter(#12,[1])),constr(pos=2:#10,filter(#14,[1])))))))'.
-   ')',
-   'Stringification');
+ok(my $node_query = $node_q->optimize($index->segments), 'Optimize');
 
 is($node_query->aggregate->inflate($index->dict)->to_string,
    '[aggr='.
@@ -194,29 +182,19 @@ $koral->compilation(
   )
 );
 
-ok($cluster_q = $koral->to_query, 'To cluster query');
+ok($cluster_q = $koral->to_segments, 'To cluster query');
 
-is($cluster_q->to_string, "gFields('genre','size':aggr(fields:['genre','size']:filter((aabb)|(aacc),[1])))", 'stringification');
+is($cluster_q->to_string,
+   "node(k=100:gFields('genre','size':aggr(fields:['genre','size']:filter((aabb)|(aacc),[1]))))",
+   'stringification');
 
 $node_q = $cluster_q->identify($index->dict);
 
 is($node_q->to_string(1),
-   'gFields(#3,#7:aggr(fields:[#3,#7]:filter((#10#12)|(#10#14),[1])))',
+   'node(k=100:gFields(#3,#7:aggr(fields:[#3,#7]:filter((#10#12)|(#10#14),[1]))))',
    'Stringification');
 
-# Join node query
-$node_query = Krawfish::Compile::Node->new(
-  query => $node_q,
-  top_k => 100,
-  segments => $index->segments
-);
-
-is($node_query->to_string(1),
-   "node(".
-     "gFields(#3,#7:aggr([fields:#3,#7]:or(constr(pos=2:#10,filter(#12,[1])),constr(pos=2:#10,filter(#14,[1])))));".
-     "gFields(#3,#7:aggr([fields:#3,#7]:or(constr(pos=2:#10,filter(#12,[1])),constr(pos=2:#10,filter(#14,[1])))))".
-   ")",
-   'Stringification');
+ok($node_query = $node_q->optimize($index->segments), 'Optimize');
 
 is($node_query->group->inflate($index->dict)->to_string,
    "[group=".

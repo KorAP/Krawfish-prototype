@@ -25,7 +25,7 @@ sub new {
 
   bless {
     query  => shift,
-    top_k  => shift,
+    top_k  => shift // 100,
   }, $class;
 };
 
@@ -58,14 +58,31 @@ sub optimize {
       );
   };
 
-  # TODO:
-  #   Optimize all segments here!
+
+  # Optimize queries for segments
+  my @queries;
+  foreach my $seg (@$segments) {
+    my $segment_query = $self->{query}->optimize($seg);
+
+    if (DEBUG) {
+      print_log('cmp_node', 'Add query ' . $segment_query->to_string . ' to merge');
+    };
+
+    # There are results expected
+    if ($segment_query->max_freq != 0) {
+      push @queries, $segment_query;
+    };
+  };
+
+  # Query does not require sorted result
+  if (Role::Tiny::does_role($self->{query}, 'Krawfish::Koral::Compile::Node::Group')) {
+    $self->{top_k} = 0;
+  };
 
   # Create new node query
   my $query = Krawfish::Compile::Node->new(
-    query => $self->{query},
     top_k => $self->{top_k},
-    segments => $segments
+    queries => \@queries
   );
 
   if ($query->max_freq == 0) {
@@ -84,10 +101,10 @@ sub to_string {
   my $str = 'node(';
 
   if ($self->{top_k}) {
-    $str .= 'k=' . $self->{top_k};
+    $str .= 'k=' . $self->{top_k} . ':';
   };
 
-  return $str . ':' . $self->{query}->to_string($id) . ')';
+  return $str . $self->{query}->to_string($id) . ')';
 };
 
 

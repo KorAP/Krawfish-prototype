@@ -41,7 +41,7 @@ use constant DEBUG => 1;
 sub new {
   my $class = shift;
 
-  # top_k, query
+  # top_k, query, queries
   my $self = bless {
     @_
   }, $class;
@@ -51,34 +51,7 @@ sub new {
   $self->{pos} = 0;
   $self->{match} = undef;
 
-  # Get query
-  my $query = $self->{query};
-
-  # Optimize query for segments
-  # TODO:
-  #   This may be done in the optimize() method
-  #   of Koral::Compile::Node.
-  my @segment_queries;
-  foreach my $seg (@{$self->{segments}}) {
-    my $segment_query = $query->optimize($seg);
-
-    if (DEBUG) {
-      print_log('cmp_node', 'Add query ' . $segment_query->to_string . ' to merge');
-    };
-
-    # There are results expected
-    if ($segment_query->max_freq != 0) {
-      push @segment_queries, $segment_query;
-    };
-  };
-
-  $self->{segment_queries} = \@segment_queries;
-
-  # Query does not require sorted result
-  if (Role::Tiny::does_role($query, 'Krawfish::Koral::Compile::Node::Group')) {
-    $self->{top_k} = 0;
-    return $self;
-  };
+  return $self unless $self->{top_k};
 
   # Add criterion comparation method
   $self->{prio} = Array::Queue::Priority->new(
@@ -103,11 +76,12 @@ sub new {
 sub max_freq {
   my $self = shift;
   my $max_freq;
-  foreach (@{$self->{segment_queries}}) {
+  foreach (@{$self->{queries}}) {
     $max_freq += $_->max_freq
   };
   return $max_freq;
 };
+
 
 # Initially fill up the heap
 sub _init {
@@ -123,7 +97,7 @@ sub _init {
   my $prio = $self->{prio};
 
   my $i = 0;
-  my $n = scalar @{$self->{segment_queries}};
+  my $n = scalar @{$self->{queries}};
 
   # Iterate over all segments - either for grouping
   # or (in case of sorting) until the prio is full
@@ -134,7 +108,7 @@ sub _init {
   for (my $i = 0; $i < $n; $i++) {
 
     # Get query from segment
-    my $seg_q = $self->{segment_queries}->[$i];
+    my $seg_q = $self->{queries}->[$i];
 
     # Do grouping!
     unless ($prio) {
@@ -172,7 +146,7 @@ sub _init {
       };
 
       # Remove segment query
-      splice(@{$self->{segment_queries}}, $i, 1);
+      splice(@{$self->{queries}}, $i, 1);
       # segment list is shortened
       $i--;
       $n--;
@@ -221,7 +195,7 @@ sub next {
   $self->{match} = $entry->[0];
 
   # Get channel
-  my $channel = $self->{segment_queries}->[$entry->[1]];
+  my $channel = $self->{queries}->[$entry->[1]];
 
   # If the channel has more entries to come,
   # add them to the priority queue
@@ -272,7 +246,7 @@ sub compile {
     $result->add_match($entry->[0]);
 
     # Get channel
-    my $channel = $self->{segment_queries}->[$entry->[1]];
+    my $channel = $self->{queries}->[$entry->[1]];
 
     # If the channel has more entries to come,
     # add them to the priority queue
@@ -313,7 +287,7 @@ sub group {
   return $result if $result->group;
 
   # Iterate over all queries
-  foreach my $seg_q (@{$self->{segment_queries}}) {
+  foreach my $seg_q (@{$self->{queries}}) {
 
     # Check for compilation role
     if (Role::Tiny::does_role($seg_q, 'Krawfish::Compile::Segment::Group')) {
@@ -362,7 +336,7 @@ sub aggregate {
   return $result if @{$result->{aggregation}};
 
   # Iterate over all queries
-  foreach my $seg_q (@{$self->{segment_queries}}) {
+  foreach my $seg_q (@{$self->{queries}}) {
 
     # Check for compilation role
     if (Role::Tiny::does_role($seg_q, 'Krawfish::Compile::Segment')) {
@@ -388,11 +362,26 @@ sub aggregate {
 };
 
 
+# Prefetch final results
+sub prefetch {
+  # TODO:
+  #   In case there are enrich methods,
+  #   it can be beneficial to enrich the first x matches before
+  #   the cluster resend the request to the nodes and the segments.
+  #   so - the node may send the enrich request to the segments
+  #   after the last successfull current_match with a certain number
+  #   of matches to prefetch. When this is done, the segments
+  #   can go through the top X results and prefetch snippets
+  #   etc. while the node and the cluster is busy merging the result.
+  ...
+};
+
+
 # stringification
 sub to_string {
   my ($self, $id) = @_;
   my $str = 'node(';
-  $str .= join(';', map { $_->to_string($id) } @{$self->{segment_queries}});
+  $str .= join(';', map { $_->to_string($id) } @{$self->{queries}});
   $str .= ')';
 };
 
