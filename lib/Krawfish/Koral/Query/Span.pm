@@ -13,8 +13,10 @@ with 'Krawfish::Koral::Query';
 use constant DEBUG => 0;
 
 sub new {
-  my $class = shift;
-  my $span = shift;
+  my ($class, $span) = @_;
+
+  unless ($span) {
+  }
 
   # Span is a string
   unless (blessed $span) {
@@ -114,10 +116,30 @@ sub max_span {
 sub maybe_unsorted { 0 };
 
 
-sub from_koral {
-  ...
-};
 # Todo: Change the term_type!
+sub from_koral {
+  my ($class, $kq) = @_;
+  my $importer = $class->importer;
+
+  # No wrap
+  unless ($kq->{'wrap'}) {
+
+    # TODO:
+    #   This should return an error!
+    warn 'Wrap not supported!'
+  }
+
+  # Wrap is a term
+  else {
+    my $wrap = $kq->{wrap};
+    if ($wrap->{'@type'} eq 'koral:term') {
+      return $class->new($importer->term($wrap)->term_type('span'));
+    }
+    else {
+      warn 'Wrap type not supported!'
+    };
+  }
+};
 
 
 sub to_string {

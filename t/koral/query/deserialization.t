@@ -11,9 +11,28 @@ use_ok('Krawfish::Koral::Query::Importer');
 # my $doc_1 = slurp('t/data/doc1.jsonld');
 # my $koral = Krawfish::Koral->new(decode_json($doc_1));
 
-
 ok(my $importer = Krawfish::Koral::Query::Importer->new, 'New importer');
 
+
+sub serialize_deserialize_ok {
+  my $query = shift;
+  my $serialized = $query->to_string;
+  unless ($serialized) {
+    fail('Query not serializable');
+  };
+  my $fragment = $query->to_koral_fragment;
+  unless ($fragment) {
+    fail('Fragment not generated');
+  };
+  my $deserialized = $importer->from_koral($fragment);
+  unless ($deserialized) {
+    fail('Fragment not deserializable');
+  };
+  is($deserialized->to_string, $serialized, 'Serialization is equal');
+};
+
+
+# Sequence, token, term
 ok(my $query = $importer->from_koral(
   {
     '@type' => 'koral:group',
@@ -49,12 +68,10 @@ ok(my $query = $importer->from_koral(
   }
 ), 'Import Sequence, Token, Term, Class');
 
-is(my $deserialized = $query->to_string, '[tt/p=NN]{2:[tt/p!=NN]}', 'Stringification');
-ok(my $fragment = $query->to_koral_fragment, 'Get parsed fragment');
-ok(my $serialized = $importer->from_koral($fragment), 'Parse serialization');
-is($deserialized, $serialized->to_string, 'In/Out equivalence');
+is($query->to_string, '[tt/p=NN]{2:[tt/p!=NN]}', 'Stringification');
+serialize_deserialize_ok($query);
 
-
+# Repetition, Span
 ok($query = $importer->from_koral({
   '@type' => 'koral:group',
   'operation' => 'operation:repetition',
@@ -65,24 +82,23 @@ ok($query = $importer->from_koral({
   },
   'operands' => [
     {
-      '@type' => 'koral:token',
+      '@type' => 'koral:span',
       'wrap' => {
         '@type' => 'koral:term',
-        'foundry' => 'tt',
-        'key' => 'NN',
-        'layer' => 'p'
+        'foundry' => 'cnx',
+        'key' => 'NP',
+        'layer' => 'c'
       }
     }
   ]
-}), 'Import Repetition, Token, Term');
+}), 'Import Repetition, Span, Term');
 
-is($deserialized = $query->to_string, '[tt/p=NN]{2,3}', 'Stringification');
-ok($fragment = $query->to_koral_fragment, 'Get parsed fragment');
-ok($serialized = $importer->from_koral($fragment), 'Parse serialization');
-is($deserialized, $serialized->to_string, 'In/Out equivalence');
+is($query->to_string, '<cnx/c=NP>{2,3}', 'Stringification');
+serialize_deserialize_ok($query);
 
 
-local $TODO = 'Test further';
+diag 'Test deserialization failures';
+# E.g. span without wrap
 
 
 done_testing;

@@ -4,9 +4,11 @@ use strict;
 use Krawfish::Koral::Query;
 use Krawfish::Koral::Query::Sequence;
 use Krawfish::Koral::Query::Token;
+use Krawfish::Koral::Query::Span;
 use Krawfish::Koral::Query::Term;
 use Krawfish::Koral::Query::Class;
 use Krawfish::Koral::Query::Repetition;
+use Krawfish::Koral::Query::Length;
 
 sub new {
   my $var;
@@ -47,6 +49,11 @@ sub from_koral {
   elsif ($type eq 'koral:token') {
     return $self->token($kq);
   }
+
+  elsif ($type eq 'koral:span') {
+    return $self->span($kq);
+  }
+
   else {
     warn $type . ' unknown';
   };
@@ -66,6 +73,13 @@ sub seq {
 sub token {
   shift;
   return Krawfish::Koral::Query::Token->from_koral(shift);
+};
+
+
+# Import span
+sub span {
+  shift;
+  return Krawfish::Koral::Query::Span->from_koral(shift);
 };
 
 
