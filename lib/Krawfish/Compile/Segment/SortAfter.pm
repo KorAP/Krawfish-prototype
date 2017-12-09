@@ -46,7 +46,7 @@ sub new {
   # TODO:
   #   Rename to 'criterion'
   # This is the sort criterion
-  my $sort     = $param{sort};
+  my $criterion     = $param{criterion};
 
   # This is the sorting level -
   # relevant for remembering the ranking
@@ -63,7 +63,7 @@ sub new {
     query       => $query,
     segment     => $segment,
     top_k       => $top_k,
-    sort        => $sort,
+    criterion   => $criterion,
     level       => $level,
     max_rank    => $segment->max_rank,
     pos_in_sort => 0, # Current position in sorted heap
@@ -139,7 +139,7 @@ sub next_bundle {
   # This should probably check for a simpler sorting
   # algorithm for small data sets
   my $rank;
-  my $sort = $self->{sort};
+  my $criterion = $self->{criterion};
   my $max_rank_ref = \(my $max_rank = $self->{max_rank});
 
   if (DEBUG) {
@@ -163,7 +163,7 @@ sub next_bundle {
     };
 
     # Get stored rank
-    $rank = $sort->rank_for($bundle->doc_id);
+    $rank = $criterion->rank_for($bundle->doc_id);
 
     if (DEBUG) {
       print_log('sort_after', 'Rank for doc id ' . $bundle->doc_id . " is $rank");
@@ -209,11 +209,11 @@ sub next_bundle {
 sub clone {
   my $self = shift;
   __PACKAGE__->new(
-    query   => $self->{query}->clone,
-    segment => $self->{segment},
-    top_k   => $self->{top_k},
-    sort    => $self->{sort},
-    level   => $self->{level}
+    query     => $self->{query}->clone,
+    segment   => $self->{segment},
+    top_k     => $self->{top_k},
+    criterion => $self->{criterion},
+    level     => $self->{level}
   );
 };
 

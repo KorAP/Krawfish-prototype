@@ -87,7 +87,7 @@ sub new {
   my $top_k    = $param{top_k};
 
   # This is the sort criterion
-  my $sort     = $param{sort};
+  my $criterion = $param{criterion};
 
   # Set top_k if not yet set
   # - to be honest, heap sort is probably not the
@@ -126,9 +126,7 @@ sub new {
 
     last_doc_id  => -1,
 
-    # TODO:
-    #   Rename to sorted_by
-    sort         => $sort,
+    criterion    => $criterion,
 
     buffer       => undef,
     pos_in_sort  => 0,
@@ -166,10 +164,10 @@ sub _init {
   # Get maximum accepted rank from queue
   my $max_rank_ref = $self->{max_rank_ref};
   my $queue = $self->{queue};
-  my $sort = $self->{sort};
+  my $criterion = $self->{criterion};
 
   if (DEBUG) {
-    print_log('sort', qq!Next Rank on field #! . $sort->term_id);
+    print_log('sort', qq!Next Rank on field #! . $criterion->term_id);
   };
 
   # Store the last match buffered
@@ -191,7 +189,7 @@ sub _init {
     # Get stored rank
     # TODO:
     #   Rank may already be set for level, e.g. by SortFilter
-    $rank = $sort->rank_for($match->doc_id);
+    $rank = $criterion->rank_for($match->doc_id);
 
     if (DEBUG) {
       print_log('sort', 'Rank for doc id ' . $match->doc_id . " is $rank");
@@ -255,7 +253,7 @@ sub clone {
     query   => $self->{query}->clone,
     segment => $self->{segment},
     top_k   => $self->{top_k},
-    sort    => $self->{sort},
+    criterion => $self->{criterion},
     max_rank_ref => $self->{max_rank_ref}
   );
 };
@@ -377,7 +375,7 @@ sub get_bundle_from_buffer {
 
 
 sub criterion {
-  $_[0]->{sort};
+  $_[0]->{criterion};
 };
 
 
@@ -385,7 +383,7 @@ sub criterion {
 sub to_string {
   my $self = shift;
   my $str = 'sort(';
-  $str .= $self->{sort}->to_string;
+  $str .= $self->{criterion}->to_string;
   $str .= ',l=' . $self->level if $self->level;
   if ($self->{top_k} != MAX_TOP_K) {
     $str .= ',0-' . $self->{top_k};

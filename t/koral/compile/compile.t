@@ -28,7 +28,6 @@ is($meta->to_string, "enrich=[fields:['author','title','id']]", 'Stringification
 ok($meta = $mb->sort_by($mb->s_field('author', 1), $mb->s_field('age')), 'Create fields');
 is($meta->to_string, "sort=[field='author'>,field='age'<]", 'Stringification');
 
-
 my $meta_koral = Krawfish::Koral::Compile->new(
   $mb->sort_by($mb->s_field('author', 1), $mb->s_field('age')),
   $mb->enrich($mb->e_fields('author', 'title', 'id'))

@@ -19,6 +19,11 @@ use constant {
 #   e.g. sample cannot be mixed with
 #   another sorting!
 
+# TODO: Should differ between
+# - sort_by_fields()
+# and
+# - sort_by_class()
+
 sub new {
   my $class = shift;
 
@@ -29,7 +34,7 @@ sub new {
 
   # Check that all passed values are sorting criteria
   bless {
-    sort => [@_],
+    criteria => [@_],
     top_k => undef,
     filter => undef,
     unique => UNIQUE_ID
@@ -71,7 +76,7 @@ sub fields {
   my $self = shift;
   my @fields = ();
 
-  foreach (@{$self->{sort}}) {
+  foreach (@{$self->{criteria}}) {
     if ($_->can('field')) {
       push @fields, $_->field;
     }
@@ -89,10 +94,10 @@ sub fields {
 sub operations {
   my $self = shift;
   if (@_) {
-    @{$self->{sort}} = @_;
+    @{$self->{criteria}} = @_;
     return $self;
   };
-  return @{$self->{sort}};
+  return @{$self->{criteria}};
 };
 
 
@@ -105,12 +110,12 @@ sub normalize {
   my $sampling = 0;
 
   # Add unique sorting to sort array
-  push @{$self->{sort}}, Krawfish::Koral::Compile::Sort::Field->new(
+  push @{$self->{criteria}}, Krawfish::Koral::Compile::Sort::Field->new(
     Krawfish::Koral::Compile::Type::Key->new($self->{unique})
   );
 
   # Normalize sorting
-  foreach (@{$self->{sort}}) {
+  foreach (@{$self->{criteria}}) {
 
     # Sampling can't be combined with other sorting
     # mechanisms - and it can't be filtered,
@@ -128,7 +133,7 @@ sub normalize {
   };
 
   # Create unique sort
-  @{$self->{sort}} = @unique;
+  @{$self->{criteria}} = @unique;
 
   return $self;
 };
@@ -158,7 +163,7 @@ sub wrap {
 
 sub to_string {
   my $self = shift;
-  my $str = join(',', map { $_->to_string } @{$self->{sort}});
+  my $str = join(',', map { $_->to_string } @{$self->{criteria}});
 
   if ($self->top_k) {
     $str .= ';k=' . $self->top_k;
@@ -170,53 +175,6 @@ sub to_string {
 
   return 'sort=[' . $str . ']';
 };
-
-1;
-
-
-__END__
-
-# TODO: Should differ between
-# - sort_by_fields()
-# and
-# - sort_by_class()
-
-# TODO: should support criteria instead
-# criteria => [[field => asc => 'author', field =>desc => 'title']]
-sub new {
-  my $class = shift;
-  bless {
-    criteria => [@_],
-    top_k => undef
-  }, $class;
-};
-
-sub top_k {
-  my $self = shift;
-  return $self->{top_k} unless @_;
-  $self->{top_k} = shift;
-};
-
-
-
-sub type { 'sort' };
-
-
-sub to_koral_fragment {
-  ...
-};
-
-
-# Stringify sort
-sub to_string {
-  my $self = shift;
-  my $str = 'sort(';
-  foreach my $criterion (@{$self->{criteria}}) {
-    $str .= $criterion->to_string;
-  };
-  return $str . ')';
-};
-
 
 1;
 

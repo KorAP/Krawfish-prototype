@@ -23,11 +23,11 @@ sub new {
   };
 
   return bless {
-    query  => shift,
-    sort   => shift, # Single sort criterium
-    top_k  => shift,
-    filter => shift,
-    level  => shift
+    query     => shift,
+    criterion => shift,
+    top_k     => shift,
+    filter    => shift,
+    level     => shift
   }, $class;
 };
 
@@ -44,8 +44,8 @@ sub identify {
   $self->{query} = $self->{query}->identify($dict);
 
   # Criterion may not exist in dictionary
-  if (my $criterion = $self->{sort}->identify($dict)) {
-    $self->{sort} = $criterion;
+  if (my $criterion = $self->{criterion}->identify($dict)) {
+    $self->{criterion} = $criterion;
   }
   else {
 
@@ -53,7 +53,7 @@ sub identify {
     #   This requires a NonSort criterion to add the criterion
     #   plainly. Although the criterion is not available on this node,
     #   it may very well be available in another
-    $self->{sort} = undef;
+    $self->{criterion} = undef;
   };
 
 
@@ -101,10 +101,10 @@ sub optimize {
   #   The sort criterion should provide an API to the ranking
   #   with ->rank_for()
 
-  my $sort = $self->{sort}->optimize($segment);
+  my $criterion = $self->{criterion}->optimize($segment);
 
-  unless ($sort) {
-    print_log('kq_n_sort', 'Sort is not optimizable: ' . $self->{sort}->to_string);
+  unless ($criterion) {
+    print_log('kq_n_sort', 'Sort is not optimizable: ' . $self->{criterion}->to_string);
 
     # TODO:
     #   In case the field is not defined: Introduce a no-sort-field
@@ -131,30 +131,30 @@ sub optimize {
   }
 
   elsif (DEBUG) {
-    print_log('kq_n_sort', 'Optimize sort criterion: ' . $sort->to_string);
+    print_log('kq_n_sort', 'Optimize sort criterion: ' . $criterion->to_string);
   };
 
 
   # Bundle documents
-  if ($sort->type eq 'field' && !$self->{level}) {
+  if ($criterion->type eq 'field' && !$self->{level}) {
     $query = Krawfish::Compile::Segment::BundleDocs->new($query);
 
     # Return sort object
     return Krawfish::Compile::Segment::Sort->new(
       query     => $query,
       segment   => $segment,
-      sort      => $sort,
+      criterion => $criterion,
       top_k     => $self->{top_k},
       # max_rank_ref => $max_rank_ref
     );
   };
 
   return Krawfish::Compile::Segment::SortAfter->new(
-    query   => $query,
-    segment => $segment,
-    sort    => $sort,
-    top_k   => $self->{top_k},
-    level   => $self->{level}
+    query     => $query,
+    segment   => $segment,
+    criterion => $criterion,
+    top_k     => $self->{top_k},
+    level     => $self->{level}
   );
 };
 
@@ -163,7 +163,7 @@ sub optimize {
 # Stringification
 sub to_string {
   my ($self, $id) = @_;
-  my $str = $self->{sort}->to_string($id);
+  my $str = $self->{criterion}->to_string($id);
 
   if ($self->{top_k}) {
     $str .= ';k=' . $self->{top_k};
