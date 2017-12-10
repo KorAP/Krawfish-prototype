@@ -199,15 +199,9 @@ sub from_koral {
   # Wrap is a term
   else {
     my $wrap = $kq->{wrap};
-    if ($wrap->{'@type'} eq 'koral:term') {
-      return $class->new($importer->term($wrap));
-    }
-    elsif ($wrap->{'@type'} eq 'koral:termGroup') {
-      return $class->new($importer->term_group($wrap));
-    }
-    else {
-      warn 'Wrap type not supported!'
-    };
+    return $class->new(
+      $importer->from_term_or_term_group($kq->{wrap})
+    );
   }
 };
 
@@ -225,7 +219,6 @@ sub to_koral_fragment {
 
   $token;
 };
-
 
 
 1;

@@ -6,6 +6,7 @@ use Krawfish::Koral::Query::Sequence;
 use Krawfish::Koral::Query::Token;
 use Krawfish::Koral::Query::Span;
 use Krawfish::Koral::Query::Term;
+use Krawfish::Koral::Query::TermGroup;
 use Krawfish::Koral::Query::Class;
 use Krawfish::Koral::Query::Repetition;
 use Krawfish::Koral::Query::Length;
@@ -62,6 +63,21 @@ sub from_koral {
 };
 
 
+# Deserialize from term or term group
+sub from_term_or_term_group {
+  my ($self, $kq) = @_;
+  my $type = $kq->{'@type'};
+  if ($type eq 'koral:term') {
+    return $self->term($kq);
+  }
+  elsif ($type eq 'koral:termGroup') {
+    return $self->term_group($kq);
+  };
+  warn 'Not term or termGroup: ' . $kq->{'@type'};
+  return;
+};
+
+
 # Import sequence
 sub seq {
   shift;
@@ -87,6 +103,13 @@ sub span {
 sub term {
   shift;
   return Krawfish::Koral::Query::Term->from_koral(shift);
+};
+
+
+# Import term
+sub term_group {
+  shift;
+  return Krawfish::Koral::Query::TermGroup->from_koral(shift);
 };
 
 

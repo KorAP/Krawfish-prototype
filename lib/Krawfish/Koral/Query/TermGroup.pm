@@ -213,9 +213,10 @@ sub to_koral_fragment {
   my $self = shift;
 
   my $group = {
-    '@type' => 'koral:group',
-    'operation' => 'operation:termGroup',
-    'relation' => 'relation:' . $self->operation
+    # '@type' => 'koral:group',
+    # 'operation' => 'operation:termGroup',
+    '@type' => 'koral:termGroup',
+    'operation' => 'operation:' . $self->operation
   };
 
   my $ops = ($group->{operands} = []);
@@ -229,7 +230,21 @@ sub to_koral_fragment {
 
 
 sub from_koral {
-  ...
+  my ($class, $kq) = @_;
+  my $op = $kq->{operation} // $kq->{relation};
+  unless ($op) {
+    warn 'Operation needs to be defined!';
+    return;
+  };
+
+  $op =~ s/^(?:oper|rel)ation://;
+
+  my $importer = $class->importer;
+
+  return $class->new(
+    $op,
+    map { $importer->from_term_or_term_group($_) } @{$kq->{operands}}
+  );
 };
 
 1;

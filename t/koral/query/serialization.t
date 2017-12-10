@@ -91,9 +91,10 @@ is($op->{'@type'}, 'koral:token', 'Operand is a token');
 ok($op->{'wrap'}, 'wrap');
 
 $op = $op->{wrap};
-is($op->{'@type'}, 'koral:group', 'Operand is a group');
-is($op->{'operation'}, 'operation:termGroup', 'operation');
-is($op->{'relation'}, 'relation:and', 'operation');
+is($op->{'@type'}, 'koral:termGroup', 'Operand is a group');
+# is($op->{'operation'}, 'operation:termGroup', 'operation');
+# is($op->{'relation'}, 'relation:and', 'operation');
+is($op->{'operation'}, 'operation:and', 'operation');
 ok($op->{'operands'}, 'operands');
 
 $ops = $op->{operands};
@@ -106,9 +107,10 @@ is($op->{'@type'}, 'koral:term', 'Operand is a term');
 is($op->{key}, 'e', 'Operand is a term');
 
 $op = $ops->[1];
-is($op->{'@type'}, 'koral:group', 'Operand is a group');
-is($op->{'operation'}, 'operation:termGroup', 'operation');
-is($op->{'relation'}, 'relation:or', 'operation');
+is($op->{'@type'}, 'koral:termGroup', 'Operand is a group');
+# is($op->{'operation'}, 'operation:termGroup', 'operation');
+# is($op->{'relation'}, 'relation:or', 'operation');
+is($op->{'operation'}, 'operation:or', 'operation');
 ok($op->{'operands'}, 'operands');
 
 $ops = $op->{operands};
@@ -124,45 +126,6 @@ $op = $ops->[2];
 is($op->{'@type'}, 'koral:term', 'Operand is a term');
 is($op->{key}, 'd', 'Operand is a term');
 
-
-
-
-
-# Create corpus
-my $cb = $koral->corpus_builder;
-
-my $corpus_query = $cb->bool_and(
-  $cb->string('author')->eq('Peter'),
-  $cb->date('pubDate')->geq('2014-04-03')
-);
-
-is($corpus_query->to_string, 'author=Peter&pubDate>=2014-04-03',
-   'Stringification of corpus query');
-
-$koral->corpus($corpus_query);
-
-is($koral->to_string,
-   'corpus=[author=Peter&pubDate>=2014-04-03],query=[x[]{2,3}[a&(b|c|d)&e]]',
-   'Stringification');
-
-$serial = $koral->to_koral_query;
-
-ok(my $c = $serial->{'corpus'}, 'Query is given');
-is($c->{'@type'}, 'koral:fieldGroup', '@type');
-is($c->{'operation'}, 'operation:and', 'operation');
-ok($op = $c->{'operands'}, 'Operands');
-
-is($op->[0]->{'@type'}, 'koral:field', 'Operand');
-is($op->[0]->{'type'}, 'type:string', 'Operand');
-is($op->[0]->{'key'}, 'author', 'Operand');
-is($op->[0]->{'value'}, 'Peter', 'Operand');
-is($op->[0]->{'match'}, 'match:eq', 'Operand');
-
-is($op->[1]->{'@type'}, 'koral:field', 'Operand');
-is($op->[1]->{'type'}, 'type:date', 'Operand');
-is($op->[1]->{'key'}, 'pubDate', 'Operand');
-is($op->[1]->{'value'}, '2014-04-03', 'Operand');
-is($op->[1]->{'match'}, 'match:geq', 'Operand');
 
 done_testing;
 __END__

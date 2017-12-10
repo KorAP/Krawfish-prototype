@@ -14,6 +14,7 @@ use_ok('Krawfish::Koral::Query::Importer');
 ok(my $importer = Krawfish::Koral::Query::Importer->new, 'New importer');
 
 
+# Check serialization and deserialization match
 sub serialize_deserialize_ok {
   my $query = shift;
   my $serialized = $query->to_string;
@@ -32,7 +33,7 @@ sub serialize_deserialize_ok {
 };
 
 
-# Sequence, token, term
+# Sequence, token, term, class(nr)
 ok(my $query = $importer->from_koral(
   {
     '@type' => 'koral:group',
@@ -97,9 +98,77 @@ is($query->to_string, '<cnx/c=NP>{2,3}', 'Stringification');
 serialize_deserialize_ok($query);
 
 
-diag 'Test deserialization failures';
-# E.g. span without wrap
+# Length, Token(termgroup), class(nonr)
+ok($query = $importer->from_koral({
+  '@type' => 'koral:group',
+  'operation' => 'operation:repetition',
+  'boundary' => {
+    '@type' => 'koral:boundary',
+    min => 2,
+    max => 3
+  },
+  'operands' => [
+    {
+      '@type' => 'koral:token',
+      'wrap' => {
+        '@type' => 'koral:termGroup',
+        'operation' => 'operation:and',
+        'operands' => [
+          {
+            '@type' => 'koral:term',
+            'foundry' => 'cnx',
+            'key' => 'NP',
+            'layer' => 'c'
+          },
+          {
+            '@type' => 'koral:term',
+            'foundry' => 'cnx',
+            'key' => 'VP',
+            'layer' => 'c'
+          },
+          {
+            '@type' => 'koral:termGroup',
+            'operation' => 'operation:or',
+            'operands' => [
+              {
+                '@type' => 'koral:term',
+                'foundry' => 'tt',
+                'key' => 'NN',
+                'layer' => 'p'
+              },
+              {
+                '@type' => 'koral:term',
+                'foundry' => 'opennlp',
+                'key' => 'NN',
+                'layer' => 'p'
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}), 'Import Repetition, Span, Term');
 
+
+is($query->to_string,
+   '[cnx/c=NP&cnx/c=VP&(opennlp/p=NN|tt/p=NN)]{2,3}',
+   'Stringification');
+
+serialize_deserialize_ok($query);
+
+done_testing;
+__END__
+
+
+diag 'Test deserialization failures';
+# E.g.
+#   - span without wrap
+#   - termGroups
+#     - without operation
+#     - without operation but relation
+#     - without operands
+#     - with a single operand
 
 done_testing;
 
