@@ -238,10 +238,13 @@ sub from_koral {
     push @param, $boundary->{min} if $boundary->{min};
     push @param, $boundary->{max} if $boundary->{max};
   };
+
+  # TODO:
+  #   Not yet implemented
   push @param, $kq->{token} if $kq->{token};
 
   return $class->new(
-    $kq->{operands}->[0], @param
+    $importer->from_koral($kq->{operands}->[0]), @param
   );
 };
 

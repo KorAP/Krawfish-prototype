@@ -197,11 +197,13 @@ sub maybe_unsorded {
 sub is_classed { 1 };
 
 
+# TODO:
+#   Currently supports classOut only
 sub from_koral {
   my ($class, $kq) = @_;
   my $importer = $class->importer;
 
-  my $nr = $kq->{'classOut'} or warn 'No class defined';
+  my $nr = $kq->{'classOut'} // 1;
 
   # Import operand
   my $op = $importer->from_koral($kq->{operands}->[0]);

@@ -33,7 +33,7 @@ sub serialize_deserialize_ok {
 };
 
 
-# Sequence, token, term, class(nr)
+# group:sequence, token, term, group:class(nr)
 ok(my $query = $importer->from_koral(
   {
     '@type' => 'koral:group',
@@ -72,7 +72,7 @@ ok(my $query = $importer->from_koral(
 is($query->to_string, '[tt/p=NN]{2:[tt/p!=NN]}', 'Stringification');
 serialize_deserialize_ok($query);
 
-# Repetition, Span
+# group:repetition, span
 ok($query = $importer->from_koral({
   '@type' => 'koral:group',
   'operation' => 'operation:repetition',
@@ -97,11 +97,10 @@ ok($query = $importer->from_koral({
 is($query->to_string, '<cnx/c=NP>{2,3}', 'Stringification');
 serialize_deserialize_ok($query);
 
-
-# Length, Token(termgroup), class(nonr)
+# group:length, termgroup, group:class(no nr)
 ok($query = $importer->from_koral({
   '@type' => 'koral:group',
-  'operation' => 'operation:repetition',
+  'operation' => 'operation:length',
   'boundary' => {
     '@type' => 'koral:boundary',
     min => 2,
@@ -109,50 +108,56 @@ ok($query = $importer->from_koral({
   },
   'operands' => [
     {
-      '@type' => 'koral:token',
-      'wrap' => {
-        '@type' => 'koral:termGroup',
-        'operation' => 'operation:and',
-        'operands' => [
-          {
-            '@type' => 'koral:term',
-            'foundry' => 'cnx',
-            'key' => 'NP',
-            'layer' => 'c'
-          },
-          {
-            '@type' => 'koral:term',
-            'foundry' => 'cnx',
-            'key' => 'VP',
-            'layer' => 'c'
-          },
-          {
+      '@type' => 'koral:group',
+      'operation' => 'operation:class',
+      'operands' => [
+        {
+          '@type' => 'koral:token',
+          'wrap' => {
             '@type' => 'koral:termGroup',
-            'operation' => 'operation:or',
+            'operation' => 'operation:and',
             'operands' => [
               {
                 '@type' => 'koral:term',
-                'foundry' => 'tt',
-                'key' => 'NN',
-                'layer' => 'p'
+                'foundry' => 'cnx',
+                'key' => 'NP',
+                'layer' => 'c'
               },
               {
                 '@type' => 'koral:term',
-                'foundry' => 'opennlp',
-                'key' => 'NN',
-                'layer' => 'p'
+                'foundry' => 'cnx',
+                'key' => 'VP',
+                'layer' => 'c'
+              },
+              {
+                '@type' => 'koral:termGroup',
+                'operation' => 'operation:or',
+                'operands' => [
+                  {
+                    '@type' => 'koral:term',
+                    'foundry' => 'tt',
+                    'key' => 'NN',
+                    'layer' => 'p'
+                  },
+                  {
+                    '@type' => 'koral:term',
+                    'foundry' => 'opennlp',
+                    'key' => 'NN',
+                    'layer' => 'p'
+                  }
+                ]
               }
             ]
           }
-        ]
-      }
+        }
+      ]
     }
   ]
 }), 'Import Repetition, Span, Term');
 
 
 is($query->to_string,
-   '[cnx/c=NP&cnx/c=VP&(opennlp/p=NN|tt/p=NN)]{2,3}',
+   'length(2-3:{1:[cnx/c=NP&cnx/c=VP&(opennlp/p=NN|tt/p=NN)]})',
    'Stringification');
 
 serialize_deserialize_ok($query);
