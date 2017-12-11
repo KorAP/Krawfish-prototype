@@ -344,11 +344,46 @@ sub maybe_unsorded {
 
 # Serialize to KoralQuery
 sub to_koral_fragment {
-  ...
+  my $self = shift;
+
+  return {
+    '@type' => 'koral:group',
+    'operation' => 'operation:constraint',
+    constraints => [
+      map { $_->to_koral_fragment } @{$self->constraints}
+    ],
+    operands => [
+      map { $_->to_koral_fragment } @{$self->operands}
+    ]
+  };
 };
 
+
+# From Koral Query
 sub from_koral {
-  ...
+  my ($class, $kq) = @_;
+
+  my $importer = $class->importer;
+
+  my $op = $kq->{operation};
+
+  my $constraints;
+  if ($op eq 'operation:position') {
+    $constraints = [{
+      '@type' => 'constraint:position',
+      'frames' => $kq->{frames}
+    }];
+  }
+
+  # Take
+  else {
+    $constraints = $kq->{constraints};
+  };
+
+  $class->new(
+    [map { $importer->from_koral_constraint($_) } @$constraints],
+    map { $importer->from_koral($_) } @{$kq->{operands}}
+  );
 };
 
 

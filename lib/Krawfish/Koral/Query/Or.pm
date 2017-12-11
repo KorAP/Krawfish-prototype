@@ -147,11 +147,25 @@ sub max_span {
 
 
 sub to_koral_fragment {
-  ...
+  my $self = shift;
+  return {
+    '@type' => 'koral:group',
+    'operation' => 'operation:or',
+    'operands' => [
+      map { $_->to_koral_fragment } @{$self->{operands}}
+    ]
+  };
 };
 
 sub from_koral {
-  ...
+  my ($class, $kq) = @_;
+
+  my $importer = $class->importer;
+
+  return $class->new(
+    map { $importer->from_koral($_) } @{$kq->{operands}}
+  );
+
 };
 
 1;

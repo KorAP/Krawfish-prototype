@@ -201,4 +201,20 @@ sub optimize {
 };
 
 
+sub from_koral {
+  my ($class, $kq) = @_;
+  return $class->new(@{$kq->{frames}});
+};
+
+
+sub to_koral_fragment {
+  my $self = shift;
+  return {
+    '@type' => 'constraint:position',
+    'frames' => [
+      map { 'frames:' . $_ } to_list($$self)
+    ]
+  };
+};
+
 1;

@@ -11,6 +11,13 @@ use Krawfish::Koral::Query::Class;
 use Krawfish::Koral::Query::Repetition;
 use Krawfish::Koral::Query::Length;
 use Krawfish::Koral::Query::Exclusion;
+use Krawfish::Koral::Query::Constraint;
+use Krawfish::Koral::Query::Or;
+
+use Krawfish::Koral::Query::Constraint::Position;
+
+# TODO:
+#   Merge with Builder!
 
 sub new {
   my $var;
@@ -47,6 +54,14 @@ sub from_koral {
       return $self->exclusion($kq);
     }
 
+    elsif ($op eq 'operation:position' || $op eq 'operation:constraint') {
+      return $self->constraint($kq);
+    }
+
+    elsif ($op eq 'operation:disjunction' || $op eq 'operation:or') {
+      return $self->bool_or($kq);
+    }
+
     else {
       warn 'Operation ' . $op . ' no supported';
     };
@@ -67,6 +82,18 @@ sub from_koral {
   return;
 };
 
+
+sub from_koral_constraint {
+  shift;
+  my $kq = shift;
+  if ($kq->{'@type'} eq 'constraint:position') {
+    return Krawfish::Koral::Query::Constraint::Position->new(
+      @{$kq->{frames}}
+    );
+  };
+
+  warn 'Type ' . $kq->{'@type'} . ' unknown';
+};
 
 # Deserialize from term or term group
 sub from_term_or_term_group {
@@ -122,6 +149,20 @@ sub term_group {
 sub class {
   shift;
   return Krawfish::Koral::Query::Class->from_koral(shift);
+};
+
+
+# Import position
+sub constraint {
+  shift;
+  return Krawfish::Koral::Query::Constraint->from_koral(shift);
+};
+
+
+# Import disjunction
+sub bool_or {
+  shift;
+  return Krawfish::Koral::Query::Or->from_koral(shift);
 };
 
 

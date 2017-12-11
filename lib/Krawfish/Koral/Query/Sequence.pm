@@ -164,8 +164,7 @@ sub to_string {
 # TODO:
 #   Support further constraints!
 sub from_koral {
-  my $class = shift;
-  my $kq = shift;
+  my ($class, $kq) = @_;
 
   my $importer = $class->importer;
 

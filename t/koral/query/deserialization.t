@@ -205,6 +205,64 @@ is($query->to_string,
 serialize_deserialize_ok($query);
 
 
+
+# group:position, group:disjunction/or
+ok($query = $importer->from_koral({
+  '@type' => 'koral:group',
+  'operation' => 'operation:position',
+  'frames' => [
+    'frames:overlapsRight',
+    'frames:endsWith',
+    'frames:isAround',
+    'frames:overlapsLeft',
+    'frames:startsWith',
+    'frames:matches'
+  ],
+  'operands' => [
+    {
+      '@type' => 'koral:span',
+      wrap => {
+        '@type' => 'koral:term',
+        'foundry' => 'cnx',
+        'key' => 'VP',
+        'layer' => 'c'
+      },
+    },
+    {
+      '@type' => 'koral:group',
+      'operation' => 'operation:disjunction',
+      operands => [
+        {
+          '@type' => 'koral:token',
+          'wrap' => {
+            '@type' => 'koral:term',
+            'foundry' => 'tt',
+            'key' => 'V',
+            'layer' => 'p'
+          },
+        },
+        {
+          '@type' => 'koral:token',
+          'wrap' => {
+            '@type' => 'koral:term',
+            'foundry' => 'opennlp',
+            'key' => 'V',
+            'layer' => 'p'
+          },
+        }
+      ]
+    }
+  ]
+}), 'Import Repetition, Span, Term');
+
+is($query->to_string,
+   'constr(pos=endsWith;isAround;matches;overlapsLeft;overlapsRight;startsWith:'.
+     '<cnx/c=VP>,([opennlp/p=V])|([tt/p=V]))',
+   'Stringification');
+
+serialize_deserialize_ok($query);
+
+
 diag 'Test deserialization failures';
 # E.g.
 #   - span without wrap
