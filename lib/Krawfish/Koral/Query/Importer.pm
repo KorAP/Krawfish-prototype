@@ -15,6 +15,9 @@ use Krawfish::Koral::Query::Constraint;
 use Krawfish::Koral::Query::Or;
 
 use Krawfish::Koral::Query::Constraint::Position;
+use Krawfish::Koral::Query::Constraint::ClassBetween;
+use Krawfish::Koral::Query::Constraint::NotBetween;
+use Krawfish::Koral::Query::Constraint::InBetween;
 
 # TODO:
 #   Merge with Builder!
@@ -87,9 +90,19 @@ sub from_koral_constraint {
   shift;
   my $kq = shift;
   if ($kq->{'@type'} eq 'constraint:position') {
-    return Krawfish::Koral::Query::Constraint::Position->new(
-      @{$kq->{frames}}
-    );
+    return Krawfish::Koral::Query::Constraint::Position->from_koral($kq);
+  }
+
+  elsif ($kq->{'@type'} eq 'constraint:classBetween') {
+    return Krawfish::Koral::Query::Constraint::ClassBetween->from_koral($kq);
+  }
+
+  elsif ($kq->{'@type'} eq 'constraint:notBetween') {
+    return Krawfish::Koral::Query::Constraint::NotBetween->from_koral($kq);
+  }
+
+  elsif ($kq->{'@type'} eq 'constraint:inBetween') {
+    return Krawfish::Koral::Query::Constraint::InBetween->from_koral($kq);
   };
 
   warn 'Type ' . $kq->{'@type'} . ' unknown';

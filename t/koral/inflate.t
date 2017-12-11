@@ -66,7 +66,7 @@ is($q->to_string, "constr(pos=1,between=1-1,notBetween=or(or(or(#10,#12),#8),#2)
 # Constraints: One operand is missing
 ok($q = $qb->constraint(
   [
-    $qb->c_class_distance(2)
+    $qb->c_class_between(2)
   ],
   $qb->term_re('[ac].'),
   $qb->term_re('b[a]'),

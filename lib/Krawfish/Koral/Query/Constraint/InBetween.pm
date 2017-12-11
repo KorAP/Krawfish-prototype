@@ -1,7 +1,11 @@
 package Krawfish::Koral::Query::Constraint::InBetween;
 use Krawfish::Query::Constraint::InBetween;
+use Role::Tiny::With;
 use strict;
 use warnings;
+
+with 'Krawfish::Koral::Query::Constraint::Base';
+with 'Krawfish::Koral::Query::Boundary';
 
 # TODO:
 #   Support foundry for tokenization
@@ -25,28 +29,11 @@ sub type {
 # Stringify
 sub to_string {
   my $self = shift;
-  return 'between=' . (defined $self->{min} ? $self->{min} : 0) . '-' . (defined $self->{max} ? $self->{max} : 'INF');
+  return 'between=' . (defined $self->{min} ? $self->{min} : 0) .
+    '-' .
+    (defined $self->{max} ? $self->{max} : 'INF');
 };
 
-
-sub min {
-  my $self = shift;
-  if ($_[0]) {
-    $self->{min} = shift;
-    return $self;
-  };
-  $self->{min};
-};
-
-
-sub max {
-  my $self = shift;
-  if ($_[0]) {
-    $self->{max} = shift;
-    return $self;
-  };
-  $self->{max};
-};
 
 
 # Normalize constraint
@@ -64,11 +51,6 @@ sub normalize {
   push @constraints, Krawfish::Koral::Query::Constraint::Position->new(@frames);
 
   return @constraints;
-};
-
-
-sub identify {
-  $_[0];
 };
 
 
@@ -107,6 +89,29 @@ sub max_span {
 
   # return the joined lengths plus the maximum space between
   return $first_len + $second_len + $self->{max};
+};
+
+
+# Deserialize
+sub from_koral {
+  my ($class, $kq) = @_;
+
+  return $class->new(
+    $class->from_koral_boundary(
+      $kq->{boundary}
+    )
+  );
+};
+
+
+# serialize
+sub to_koral_fragment {
+  my $self = shift;
+
+  return {
+    '@type' => 'constraint:inBetween',
+    boundary => $self->to_koral_boundary
+  };
 };
 
 

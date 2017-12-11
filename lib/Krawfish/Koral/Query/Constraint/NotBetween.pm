@@ -1,10 +1,14 @@
 package Krawfish::Koral::Query::Constraint::NotBetween;
+use Role::Tiny::With;
 use Krawfish::Query::Constraint::NotBetween;
 use Krawfish::Koral::Query::Constraint::InBetween;
-use Krawfish::Koral::Query::Constraint::ClassDistance;
+use Krawfish::Koral::Query::Constraint::ClassBetween;
 use Krawfish::Koral::Query::Constraint::Position;
+use Krawfish::Koral::Query::Importer;
 use strict;
 use warnings;
+
+with 'Krawfish::Koral::Query::Constraint::Base';
 
 # Check that a query between two operands is does nmot occur.
 # In case this operand never occurs, it will at least set a relevant length.
@@ -44,7 +48,7 @@ sub normalize {
 
   # Wrap out the classes
   while ($query->type eq 'class') {
-    push @constraints, Krawfish::Koral::Query::Constraint::ClassDistance->new($query->number);
+    push @constraints, Krawfish::Koral::Query::Constraint::ClassBetween->new($query->number);
     $query = $query->operand;
   };
 
@@ -126,6 +130,29 @@ sub identify {
   my ($self, $dict) = @_;
   $self->{query} = $self->{query}->identify($dict);
   $self;
+};
+
+
+# Deserialize
+sub from_koral {
+  my ($class, $kq) = @_;
+
+  my $importer = Krawfish::Koral::Query::Importer->new;
+
+  my $wrap = $kq->{wrap};
+  return $class->new(
+    $importer->from_koral($wrap)
+  );
+};
+
+
+# Serialize
+sub to_koral_fragment {
+  my $self = shift;
+  return {
+    '@type' => 'constraint:notBetween',
+    'wrap' => $self->{query}->to_koral_fragment
+  };
 };
 
 

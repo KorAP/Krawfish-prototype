@@ -6,6 +6,7 @@ use Krawfish::Log;
 use Krawfish::Query::Nowhere;
 use Krawfish::Query::Constraint::Position;
 use Krawfish::Query::Constraint::InBetween;
+use Krawfish::Query::Constraint::ClassBetween;
 use Krawfish::Query::Constraint;
 use List::MoreUtils qw!uniq!;
 
@@ -1160,7 +1161,7 @@ sub _constraint {
   if ($constraint->{classes}) {
     foreach (@{$constraint->{classes}}) {
       push @constraints,
-        Krawfish::Query::Constraint::ClassDistance->new($_);
+        Krawfish::Query::Constraint::ClassBetween->new($_);
     };
   };
 

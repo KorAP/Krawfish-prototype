@@ -75,7 +75,7 @@ sub to_koral_fragment {
   return {
     '@type' => 'koral:group',
     'operation' => 'operation:repetition',
-    'boundary' => $self->boundary,
+    'boundary' => $self->to_koral_boundary,
     'operands' => [
       $self->operand->to_koral_fragment
     ]
@@ -84,15 +84,8 @@ sub to_koral_fragment {
 
 sub from_koral {
   my ($class, $kq) = @_;
-  my $boundary = $kq->{boundary};
 
-  my ($min, $max);
-  if ($boundary->{min}) {
-    $min = $boundary->{min};
-  };
-  if ($boundary->{max}) {
-    $max = $boundary->{max};
-  };
+  my ($min, $max) = $class->from_koral_boundary($kq->{boundary});
 
   my $importer = $class->importer;
 

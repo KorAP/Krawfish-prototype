@@ -71,7 +71,7 @@ $query = $qb->constraint(
   [
     $qb->c_position('precedes'),
     $qb->c_not_between($qb->token('dd')),
-    $qb->c_class_distance
+    $qb->c_class_between
   ],
   $qb->token('xx'),
   $qb->token('xx')

@@ -1,4 +1,4 @@
-package Krawfish::Query::Constraint::ClassDistance;
+package Krawfish::Query::Constraint::ClassBetween;
 use Role::Tiny::With;
 use strict;
 use warnings;

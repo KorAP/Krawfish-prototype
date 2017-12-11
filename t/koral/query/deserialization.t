@@ -263,6 +263,70 @@ is($query->to_string,
 serialize_deserialize_ok($query);
 
 
+
+# group:position, group:disjunction/or
+ok($query = $importer->from_koral({
+  '@type' => 'koral:group',
+  'operation' => 'operation:constraint',
+  'constraints' => [
+    {
+      '@type' => 'constraint:position',
+      frames => ['frames:matches']
+    },
+    {
+      '@type' => 'constraint:classBetween',
+      'classOut' => 5
+    },
+    {
+      '@type' => 'constraint:notBetween',
+      'wrap' => {
+        '@type' => 'koral:span',
+        wrap => {
+          '@type' => 'koral:term',
+          foundry => 'corenlp',
+          layer => 'p',
+          key => 'V'
+        }
+      }
+    },
+    {
+      '@type' => 'constraint:inBetween',
+      'boundary' => {
+        '@type' => 'koral:boundary',
+        'min' => 3,
+        'max' => 7
+      }
+    }
+
+  ],
+  'operands' => [{
+      '@type' => 'koral:token',
+      'wrap' => {
+        '@type' => 'koral:term',
+        'foundry' => 'tt',
+        'key' => 'V',
+        'layer' => 'p'
+      },
+    },{
+      '@type' => 'koral:token',
+      'wrap' => {
+        '@type' => 'koral:term',
+        'foundry' => 'opennlp',
+        'key' => 'V',
+        'layer' => 'p'
+      },
+    }
+  ]
+}), 'Import Repetition, Span, Term');
+
+
+is($query->to_string,
+   'constr(pos=matches,class=5,notBetween=<corenlp/p=V>,between=3-7:[tt/p=V],[opennlp/p=V])',
+   'Stringification');
+
+serialize_deserialize_ok($query);
+
+
 diag 'Test deserialization failures';
 # E.g.
 #   - span without wrap

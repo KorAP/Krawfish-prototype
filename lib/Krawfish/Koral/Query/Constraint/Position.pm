@@ -1,4 +1,5 @@
 package Krawfish::Koral::Query::Constraint::Position;
+use Role::Tiny::With;
 use parent 'Exporter';
 use Krawfish::Query::Constraint::Position;
 use feature 'state';
@@ -11,6 +12,8 @@ memoize('max_span');
 our @EXPORT = qw/to_frame
                  to_list
                  MATCHES/;
+
+with 'Krawfish::Koral::Query::Constraint::Base';
 
 # TODO:
 #   Add error etc. and base this on Krawfish::Query::Constraint::Base.
@@ -191,22 +194,21 @@ sub max_span {
 };
 
 
-sub identify {
-  $_[0];
-};
-
+# Optimize constraint
 sub optimize {
   my $self = shift;
   Krawfish::Query::Constraint::Position->new($$self);
 };
 
 
+# Deserialize
 sub from_koral {
   my ($class, $kq) = @_;
   return $class->new(@{$kq->{frames}});
 };
 
 
+# serialize
 sub to_koral_fragment {
   my $self = shift;
   return {
@@ -216,5 +218,6 @@ sub to_koral_fragment {
     ]
   };
 };
+
 
 1;

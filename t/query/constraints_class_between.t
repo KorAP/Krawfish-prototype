@@ -13,7 +13,7 @@ my $qb = Krawfish::Koral::Query::Builder->new;
 
 # This equals to [aa]{5:[]+}[bb]
 my $wrap = $qb->constraint(
-  [$qb->c_position('precedes'), $qb->c_class_distance(5)],
+  [$qb->c_position('precedes'), $qb->c_class_between(5)],
   $qb->token('aa'),
   $qb->token('bb')
 );
@@ -26,7 +26,7 @@ matches($query, ['[0:0-4$0,5,1,2]','[0:0-6$0,5,1,4]','[0:2-6$0,5,3,4]']);
 
 # This equals to [aa]{5:[]*}[bb]
 $wrap = $qb->constraint(
-  [$qb->c_position('precedes', 'precedesDirectly'), $qb->c_class_distance(5)],
+  [$qb->c_position('precedes', 'precedesDirectly'), $qb->c_class_between(5)],
   $qb->token('aa'),
   $qb->token('bb')
 );

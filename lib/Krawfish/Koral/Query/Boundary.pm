@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 # Serialization helper
-sub boundary {
+sub to_koral_boundary {
   my $self = shift;
   my %hash = (
     '@type' => 'koral:boundary'
@@ -12,6 +12,22 @@ sub boundary {
   $hash{min} = $self->{min} if defined $self->{min};
   $hash{max} = $self->{max} if defined $self->{max};
   return \%hash;
+};
+
+
+# Deserialization helper
+sub from_koral_boundary {
+  my ($class, $kq) = @_;
+
+  my ($min, $max);
+  if ($kq->{min}) {
+    $min = $kq->{min};
+  };
+  if ($kq->{max}) {
+    $max = $kq->{max};
+  };
+
+  return ($min, $max);
 };
 
 

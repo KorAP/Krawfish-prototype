@@ -217,7 +217,7 @@ sub to_koral_fragment {
   return {
     '@type' => 'koral:group',
     operation => 'operation:length',
-    boundary => $self->boundary,
+    boundary => $self->to_koral_boundary,
     # token    => $self->token_base,
     operands => [
       $self->operand->to_koral_fragment
@@ -233,11 +233,9 @@ sub from_koral {
   my $importer = $class->importer;
 
   my @param = ();
-  my $boundary = $kq->{boundary};
-  if ($boundary) {
-    push @param, $boundary->{min} if $boundary->{min};
-    push @param, $boundary->{max} if $boundary->{max};
-  };
+  my ($min, $max) = $class->from_koral_boundary($kq->{boundary});
+  push @param, $min if defined $min;
+  push @param, $max if defined $max;
 
   # TODO:
   #   Not yet implemented

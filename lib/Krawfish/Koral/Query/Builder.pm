@@ -21,7 +21,7 @@ use Krawfish::Koral::Query::Match;
 
 # TODO: Not all constraints need to be wrapped
 use Krawfish::Koral::Query::Constraint::Position;
-use Krawfish::Koral::Query::Constraint::ClassDistance;
+use Krawfish::Koral::Query::Constraint::ClassBetween;
 use Krawfish::Koral::Query::Constraint::NotBetween;
 use Krawfish::Koral::Query::Constraint::InBetween;
 
@@ -176,9 +176,9 @@ sub c_position {
   Krawfish::Koral::Query::Constraint::Position->new(@_);
 };
 
-sub c_class_distance {
+sub c_class_between {
   shift;
-  Krawfish::Koral::Query::Constraint::ClassDistance->new(@_);
+  Krawfish::Koral::Query::Constraint::ClassBetween->new(@_);
 };
 
 sub c_not_between {
