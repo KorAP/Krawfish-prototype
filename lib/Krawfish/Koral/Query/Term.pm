@@ -254,11 +254,11 @@ sub to_koral_fragment {
   $hash->{layer} = $self->layer if $self->layer;
   $hash->{value} = $self->value if $self->value;
 
+  $hash->{type} = $self->is_regex ? 'type:regex' : 'type:string';
+
   if ($self->operator eq '!=') {
     $hash->{match} = 'match:ne';
   };
-
-  # TODO: REGEX!
 
   return $hash;
 };

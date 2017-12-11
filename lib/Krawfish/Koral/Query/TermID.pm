@@ -41,14 +41,6 @@ sub max_span {
   warn 'not available';
 };
 
-sub to_koral_fragment {
-  ...
-};
-
-sub to_string {
-  return '#' . $_[0]->{term_id};
-};
-
 sub term_id {
   $_[0]->{term_id};
 };
@@ -84,10 +76,31 @@ sub is_extended_right { 0 };
 sub is_extended_left { 0 };
 sub maybe_unsorted { 0 };
 
-sub from_koral {
-  ...
+
+# Stringification
+sub to_string {
+  return '#' . $_[0]->{term_id};
 };
 
+
+# Serialization
+sub to_koral_fragment {
+  return {
+    '@type' => 'koral:term',
+    'id' => shift->term_id
+  };
+};
+
+
+# Deserialization
+sub from_koral {
+  my ($class, $kq) = @_;
+  my $id = $kq->{id};
+  return $class->new($id);
+};
+
+
 1;
+
 
 __END__

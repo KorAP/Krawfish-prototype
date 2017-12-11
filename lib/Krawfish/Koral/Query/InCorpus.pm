@@ -8,7 +8,7 @@ use warnings;
 with 'Krawfish::Koral::Query';
 
 # Create a query that will check if a certain
-# match is associated to certain classes.
+# match is associated to certain corpus classes.
 
 # Accepts the nesting query and a number of valid
 # corpus classes.

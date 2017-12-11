@@ -327,6 +327,61 @@ is($query->to_string,
 serialize_deserialize_ok($query);
 
 
+
+# nowhere
+ok($query = $importer->from_koral({
+  '@type' => 'koral:nowhere'
+}), 'Nowhere');
+
+is($query->to_string,
+   '[0]',
+   'Stringification');
+
+serialize_deserialize_ok($query);
+
+# Term ID
+ok($query = $importer->from_koral({
+  '@type' => 'koral:token',
+  'wrap' => {
+    '@type' => 'koral:term',
+    id => 15
+  }
+}), 'Term identifier');
+
+is($query->to_string,
+   '[#15]',
+   'Stringification');
+
+serialize_deserialize_ok($query);
+
+
+
+# Unique
+ok($query = $importer->from_koral({
+  '@type' => 'koral:group',
+  'operation' => 'operation:unique',
+  'operands' => [
+    {
+      '@type' => 'koral:token',
+      'wrap' => {
+        '@type' => 'koral:term',
+        'foundry' => 'opennlp',
+        'key' => 'V',
+        'layer' => 'p'
+      },
+    }
+  ]
+}), 'Term identifier');
+
+is($query->to_string,
+   'unique([opennlp/p=V])',
+   'Stringification');
+
+serialize_deserialize_ok($query);
+
+
+
+
 diag 'Test deserialization failures';
 # E.g.
 #   - span without wrap

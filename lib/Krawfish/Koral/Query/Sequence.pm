@@ -140,7 +140,7 @@ sub max_span {
 };
 
 
-
+# Serialization
 sub to_koral_fragment {
   my $self = shift;
   return {

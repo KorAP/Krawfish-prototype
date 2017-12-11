@@ -62,11 +62,13 @@ sub max_span {
 };
 
 sub to_koral_fragment {
-  ...
+  return {
+    '@type' => 'koral:nowhere'
+  }
 };
 
 sub from_koral {
-  ...
+  return shift->new;
 };
 
 1;

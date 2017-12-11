@@ -13,6 +13,8 @@ use Krawfish::Koral::Query::Length;
 use Krawfish::Koral::Query::Exclusion;
 use Krawfish::Koral::Query::Constraint;
 use Krawfish::Koral::Query::Or;
+use Krawfish::Koral::Query::Nowhere;
+use Krawfish::Koral::Query::Unique;
 
 use Krawfish::Koral::Query::Constraint::Position;
 use Krawfish::Koral::Query::Constraint::ClassBetween;
@@ -65,6 +67,10 @@ sub from_koral {
       return $self->bool_or($kq);
     }
 
+    elsif ($op eq 'operation:unique') {
+      return $self->unique($kq);
+    }
+
     else {
       warn 'Operation ' . $op . ' no supported';
     };
@@ -76,6 +82,10 @@ sub from_koral {
 
   elsif ($type eq 'koral:span') {
     return $self->span($kq);
+  }
+
+  elsif ($type eq 'koral:nowhere') {
+    return $self->nowhere;
   }
 
   else {
@@ -112,13 +122,24 @@ sub from_koral_constraint {
 sub from_term_or_term_group {
   my ($self, $kq) = @_;
   my $type = $kq->{'@type'};
+
+  # Defines a term
   if ($type eq 'koral:term') {
     return $self->term($kq);
   }
+
+  # Defines a term group
   elsif ($type eq 'koral:termGroup') {
     return $self->term_group($kq);
+  }
+
+  # Matches nowhere
+  elsif ($type eq 'koral:nowhere') {
+    return $self->nowhere;
   };
+
   warn 'Not term or termGroup: ' . $kq->{'@type'};
+
   return;
 };
 
@@ -147,7 +168,20 @@ sub span {
 # Import term
 sub term {
   shift;
-  return Krawfish::Koral::Query::Term->from_koral(shift);
+  my $kq = shift;
+
+  if (defined $kq->{id}) {
+    return Krawfish::Koral::Query::TermID->from_koral($kq);
+  };
+
+  return Krawfish::Koral::Query::Term->from_koral($kq);
+};
+
+
+# Import unique
+sub unique {
+  shift;
+  return Krawfish::Koral::Query::Unique->from_koral(shift);
 };
 
 
@@ -171,6 +205,9 @@ sub constraint {
   return Krawfish::Koral::Query::Constraint->from_koral(shift);
 };
 
+sub nowhere {
+  return Krawfish::Koral::Query::Nowhere->from_koral();
+};
 
 # Import disjunction
 sub bool_or {

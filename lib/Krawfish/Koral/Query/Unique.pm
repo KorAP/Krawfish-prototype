@@ -16,13 +16,6 @@ sub new {
   }
 };
 
-sub to_koral_fragment {
-  ...
-};
-
-sub from_koral {
-  ...
-};
 
 sub type { 'unique' };
 
@@ -109,6 +102,29 @@ sub min_span {
 # A unique query always spans its operand span
 sub max_span {
   $_[0]->operand->max_span;
+};
+
+
+# serialize
+sub to_koral_fragment {
+  my $self = shift;
+  return {
+    '@type' => 'koral:group',
+    'operation' => 'operation:unique',
+    'operands' => [
+      $self->operand->to_koral_fragment
+    ]
+  };
+};
+
+
+# Deserialize
+sub from_koral {
+  my ($class, $kq) = @_;
+  my $op = $kq->{operands}->[0];
+  return $class->new(
+    $class->importer->from_koral($op)
+  );
 };
 
 

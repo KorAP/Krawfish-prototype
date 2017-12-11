@@ -146,6 +146,7 @@ sub max_span {
 };
 
 
+# Serialization
 sub to_koral_fragment {
   my $self = shift;
   return {
@@ -157,6 +158,8 @@ sub to_koral_fragment {
   };
 };
 
+
+# Deserialization
 sub from_koral {
   my ($class, $kq) = @_;
 
@@ -165,7 +168,7 @@ sub from_koral {
   return $class->new(
     map { $importer->from_koral($_) } @{$kq->{operands}}
   );
-
 };
+
 
 1;
