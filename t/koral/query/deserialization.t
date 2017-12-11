@@ -162,8 +162,47 @@ is($query->to_string,
 
 serialize_deserialize_ok($query);
 
-done_testing;
-__END__
+
+# group:exclusion
+ok($query = $importer->from_koral({
+  '@type' => 'koral:group',
+  'operation' => 'operation:exclusion',
+  'frame' => [
+    'frames:overlapsRight',
+    'frames:endsWith',
+    'frames:isAround',
+    'frames:overlapsLeft',
+    'frames:startsWith',
+    'frames:matches'
+  ],
+  'operands' => [
+    {
+      '@type' => 'koral:span',
+      wrap => {
+        '@type' => 'koral:term',
+        'foundry' => 'cnx',
+        'key' => 'VP',
+        'layer' => 'c'
+      },
+    },
+    {
+      '@type' => 'koral:token',
+      'wrap' => {
+        '@type' => 'koral:term',
+        'foundry' => 'tt',
+        'key' => 'V',
+        'layer' => 'p'
+      },
+    }
+  ]
+}), 'Import Repetition, Span, Term');
+
+
+is($query->to_string,
+   'excl(endsWith;isAround;matches;startsWith:<cnx/c=VP>,[tt/p=V])',
+   'Stringification');
+
+serialize_deserialize_ok($query);
 
 
 diag 'Test deserialization failures';
@@ -174,6 +213,9 @@ diag 'Test deserialization failures';
 #     - without operation but relation
 #     - without operands
 #     - with a single operand
+#   - opreration:position & operation:exclusion
+#     - frames are not lists
+#     - operands != 2
 
 done_testing;
 

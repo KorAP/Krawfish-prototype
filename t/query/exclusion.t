@@ -20,7 +20,7 @@ $query = $qb->exclusion(
   $qb->span('aa'),
   $qb->token('bb')
 );
-is($query->to_string, 'excl(432:<aa>,[bb])', 'Stringification');
+is($query->to_string, 'excl(endsWith;isAround;matches;startsWith:<aa>,[bb])', 'Stringification');
 
 
 # Exclusion planning
@@ -42,10 +42,10 @@ $index = Krawfish::Index->new;
 ok_index($index, '<1:aa>[bb][bb]</1><2:aa><3:aa>[cc]</3>[bb]</2>', 'Add complex document');
 ok_index($index, '<1:aa>[dd]</1><2:aa>[dd][bb]</2><3:aa>[dd]</3>', 'Add complex document');
 ok($wrap = $query->normalize->finalize, 'Planning');
-is($wrap->to_string, "excl(432:<aa>,bb)",
+is($wrap->to_string, "excl(endsWith;isAround;matches;startsWith:<aa>,bb)",
    'Planned Stringification');
 ok($wrap = $query->identify($index->dict), 'Planning');
-is($wrap->to_string, "excl(432:#3,#2)",
+is($wrap->to_string, "excl(endsWith;isAround;matches;startsWith:#3,#2)",
    'Planned Stringification');
 ok($wrap = $query->optimize($index->segment), 'Planning');
 is($wrap->to_string, "excl(432:#3,#2)",
@@ -79,7 +79,7 @@ $query = $qb->exclusion(
   $qb->span('aa'),
   $qb->token('bb')
 );
-is($query->to_string, 'excl(16:<aa>,[bb])', 'Stringification');
+is($query->to_string, 'excl(startsWith:<aa>,[bb])', 'Stringification');
 
 ok($wrap = $query->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Planning');
 is($wrap->to_string, "excl(16:#3,#2)",
@@ -95,7 +95,7 @@ $query = $qb->exclusion(
   $qb->span('aa'),
   $qb->token('bb')
 );
-is($query->to_string, 'excl(256:<aa>,[bb])', 'Stringification');
+is($query->to_string, 'excl(endsWith:<aa>,[bb])', 'Stringification');
 ok($wrap = $query->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Planning');
 is($wrap->to_string, "excl(256:#3,#2)",
    'Planned Stringification');
@@ -110,14 +110,14 @@ $query = $qb->exclusion(
   $qb->token('bb'),
   $qb->token('bb')
 );
-is($query->to_string, 'excl(2:[bb],[bb])', 'Stringification');
+is($query->to_string, 'excl(precedesDirectly:[bb],[bb])', 'Stringification');
 ok($wrap = $query->normalize->finalize, 'Planning');
 
-is($wrap->to_string, "excl(2:bb,bb)",
+is($wrap->to_string, "excl(precedesDirectly:bb,bb)",
    'Planned Stringification');
 
 ok($wrap = $wrap->identify($index->dict), 'Planning');
-is($wrap->to_string, "excl(2:#2,#2)",
+is($wrap->to_string, "excl(precedesDirectly:#2,#2)",
    'Planned Stringification');
 ok($wrap = $wrap->optimize($index->segment), 'Planning');
 is($wrap->to_string, "excl(2:#2,#2)",
@@ -133,7 +133,7 @@ $query = $qb->exclusion(
   $qb->token('bb'),
   $qb->token('bb')
 );
-is($query->to_string, 'excl(2048:[bb],[bb])', 'Stringification');
+is($query->to_string, 'excl(succeedsDirectly:[bb],[bb])', 'Stringification');
 ok($wrap = $query->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Planning');
 is($wrap->to_string, "excl(2048:#2,#2)",
    'Planned Stringification');
@@ -149,7 +149,7 @@ $query = $qb->exclusion(
   $qb->token('bb'),
   $qb->token('bb')
 );
-is($query->to_string, 'excl(2050:[bb],[bb])', 'Stringification');
+is($query->to_string, 'excl(precedesDirectly;succeedsDirectly:[bb],[bb])', 'Stringification');
 ok($wrap = $query->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Planning');
 is($wrap->to_string, "excl(2050:#2,#2)",
    'Planned Stringification');
@@ -170,7 +170,7 @@ $query = $qb->exclusion(
   $qb->token('aa'),
   $qb->token('bb')
 );
-is($query->to_string, 'excl(2:[aa],[bb])', 'Stringification');
+is($query->to_string, 'excl(precedesDirectly:[aa],[bb])', 'Stringification');
 
 ok($wrap = $query->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Planning');
 is($wrap->to_string, "excl(2:#2,#3)",

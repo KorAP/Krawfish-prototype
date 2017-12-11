@@ -145,7 +145,7 @@ $query = $qb->token(
 );
 is($query->to_string, '[!second&first]', 'Stringifications');
 ok($query = $query->normalize, 'Normalize');
-is($query->to_string, 'excl(32:first,second)', 'Stringifications');
+is($query->to_string, 'excl(matches:first,second)', 'Stringifications');
 ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimize');
 is($query->to_string, "excl(32:#2,#4)", 'Stringifications');
 
@@ -157,7 +157,7 @@ $query = $qb->token(
 );
 is($query->to_string, '[first&opennlp/c!=NN]', 'Stringifications');
 ok($query = $query->normalize, 'Normalize');
-is($query->to_string, 'excl(32:first,opennlp/c=NN)', 'Stringifications');
+is($query->to_string, 'excl(matches:first,opennlp/c=NN)', 'Stringifications');
 ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimize');
 is($query->to_string, "#2", 'Stringifications');
 
@@ -172,7 +172,7 @@ $query = $qb->token(
 );
 is($query->to_string, '[(!fourth&second)&(!third&first)]', 'Stringifications');
 ok($query = $query->normalize, 'Normalize');
-is($query->to_string, 'excl(32:first&second,fourth|third)', 'Stringifications');
+is($query->to_string, 'excl(matches:first&second,fourth|third)', 'Stringifications');
 ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimize');
 is($query->to_string, "excl(32:constr(pos=32:#4,#2),or(#6,#8))", 'Stringifications');
 
@@ -186,7 +186,7 @@ $query = $qb->token(
 );
 is($query->to_string, '[(first&opennlp/c!=NN)&(second&tt/p!=ADJA)]', 'Stringifications');
 ok($query = $query->normalize->finalize, 'Normalize');
-is($query->to_string, 'excl(32:first&second,opennlp/c=NN|tt/p=ADJA)', 'Stringifications');
+is($query->to_string, 'excl(matches:first&second,opennlp/c=NN|tt/p=ADJA)', 'Stringifications');
 ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimize');
 is($query->to_string, "constr(pos=32:#4,#2)", 'Stringifications');
 

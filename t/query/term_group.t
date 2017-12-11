@@ -16,7 +16,7 @@ my $token = $qb->token(
 );
 is($token->to_string, '[!bb&aa]', 'Stringification');
 ok($token = $token->normalize, 'Normalization');
-is($token->to_string, 'excl(32:aa,bb)', 'Stringification');
+is($token->to_string, 'excl(matches:aa,bb)', 'Stringification');
 ok(my $plan = $token->identify($index->dict)->optimize($index->segment), 'Optimalization');
 
 
@@ -33,7 +33,7 @@ $token = $qb->token(
 );
 is($token->to_string, '[(!bb&aa)|(bb&cc)]', 'Stringification');
 ok($token = $token->normalize, 'Normalization');
-is($token->to_string, '(bb&cc)|excl(32:aa,bb)', 'Stringification');
+is($token->to_string, '(bb&cc)|excl(matches:aa,bb)', 'Stringification');
 ok($plan = $token->identify($index->dict)->optimize($index->segment), 'Planning');
 # is($plan->to_string, "or(constr(pos=32:#3,#4),excl(32:#2,#3))", 'Stringification');
 matches($plan, ['[0:1-2]', '[0:2-3]','[0:3-4]']);

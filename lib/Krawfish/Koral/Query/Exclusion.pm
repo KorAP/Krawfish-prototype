@@ -33,19 +33,39 @@ sub to_koral_fragment {
   my $self = shift;
   my $koral = {
     '@type' => 'koral:group',
-    'operation' => 'operation:position',
-    'exclude' => Mojo::JSON->true,
-    'frames' => [map { 'frames:' . $_ } $self->_to_list($self->{frames})],
+    'operation' => 'operation:exclusion',
+    'frames' => [map { 'frames:' . $_ } to_list($self->{frames})],
     'operands' => [
-      $self->operands->[0]->to_koral_query_fragment,
-      $self->operands->[1]->to_koral_query_fragment
+      $self->operands->[0]->to_koral_fragment,
+      $self->operands->[1]->to_koral_fragment
     ]
   };
   return $koral;
 };
 
+
+# Deserialize from KoralQuery
 sub from_koral {
-  ...
+  my ($class, $kq) = @_;
+  my $importer = $class->importer;
+  my @frames = ();
+
+  # Set default frames
+  unless ($kq->{frames}) {
+    push @frames,
+      ('frames:isAround',
+       'frames:endsWith',
+       'frames:startsWith',
+       'frames:matches');
+  }
+  else {
+    @frames = @{$kq->{frames}};
+  };
+
+  my $op1 = $importer->from_koral($kq->{operands}->[0]);
+  my $op2 = $importer->from_koral($kq->{operands}->[1]);
+
+  $class->new(\@frames, $op1, $op2);
 };
 
 
@@ -194,7 +214,8 @@ sub optimize {
 sub to_string {
   my $self = shift;
   my $string = 'excl(';
-  $string .= (0 + $self->{frames}) . ':';
+  $string .= join(';', to_list($self->{frames})) . ':';
+  # $string .= (0 + $self->{frames}) . ':';
   $string .= $self->operands->[0]->to_string . ',';
   $string .= $self->operands->[1]->to_string;
   return $string . ')';

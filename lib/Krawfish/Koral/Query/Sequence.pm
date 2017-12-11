@@ -161,6 +161,8 @@ sub to_string {
 
 
 # Get from koralquery
+# TODO:
+#   Support further constraints!
 sub from_koral {
   my $class = shift;
   my $kq = shift;

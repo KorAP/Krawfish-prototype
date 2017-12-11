@@ -10,6 +10,7 @@ use Krawfish::Koral::Query::TermGroup;
 use Krawfish::Koral::Query::Class;
 use Krawfish::Koral::Query::Repetition;
 use Krawfish::Koral::Query::Length;
+use Krawfish::Koral::Query::Exclusion;
 
 sub new {
   my $var;
@@ -40,6 +41,10 @@ sub from_koral {
 
     elsif ($op eq 'operation:repetition') {
       return $self->repeat($kq);
+    }
+
+    elsif ($op eq 'operation:exclusion') {
+      return $self->exclusion($kq);
     }
 
     else {
@@ -117,6 +122,13 @@ sub term_group {
 sub class {
   shift;
   return Krawfish::Koral::Query::Class->from_koral(shift);
+};
+
+
+# Import exclusion
+sub exclusion {
+  shift;
+  return Krawfish::Koral::Query::Exclusion->from_koral(shift);
 };
 
 

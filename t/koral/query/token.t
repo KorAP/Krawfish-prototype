@@ -257,7 +257,7 @@ $query = $builder->token(
 );
 is($query->to_string, '[(!bb&aa)|(bb&cc)]', 'Stringification');
 ok($query = $query->normalize, 'Normalization');
-is($query->to_string, '(bb&cc)|excl(32:aa,bb)', 'Stringification');
+is($query->to_string, '(bb&cc)|excl(matches:aa,bb)', 'Stringification');
 
 
 

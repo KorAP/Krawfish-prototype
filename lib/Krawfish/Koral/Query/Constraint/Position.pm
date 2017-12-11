@@ -9,6 +9,7 @@ memoize('min_span');
 memoize('max_span');
 
 our @EXPORT = qw/to_frame
+                 to_list
                  MATCHES/;
 
 # TODO:
@@ -63,7 +64,7 @@ sub frames {
 
 
 # List all positions of a frame
-sub _to_list {
+sub to_list {
   my $frame = shift;
   my @array = ();
   while (my ($key, $value) = each %FRAME) {
@@ -80,13 +81,17 @@ sub to_frame {
 
   # Iterate over all frames
   foreach (@_) {
+    my $f = $_;
 
     # Unify with frames
-    if (defined $FRAME{$_}) {
-      $frame |= $FRAME{$_};
+
+    $f =~ s/^frames://;
+
+    if (defined $FRAME{$f}) {
+      $frame |= $FRAME{$f};
     }
     else {
-      warn "Unknown frame title '$_'!"
+      warn "Unknown frame title '$f'!"
     };
   };
 
@@ -100,7 +105,7 @@ sub type {
 
 sub to_string {
   my $self = shift;
-  return 'pos=' . join(';', _to_list($$self));
+  return 'pos=' . join(';', to_list($$self));
 };
 
 
