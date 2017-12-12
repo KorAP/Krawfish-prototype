@@ -245,15 +245,3 @@ matches($koral_query, ['[0:0-1!5]','[1:0-2!5,8$0,1,1,2]'], 'Get match');
 
 done_testing;
 __END__
-
-
-
-
-
-
-
-
-
-
-done_testing;
-__END__

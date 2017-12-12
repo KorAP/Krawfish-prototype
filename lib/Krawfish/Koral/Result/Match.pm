@@ -101,6 +101,9 @@ sub to_koral_fragment {
     '@type' => 'koral:match'
   };
 
+  # TODO:
+  #   Add match id (see Koral/Query/Match)
+
   # Add enrichments to match
   foreach (@{$self->{enrichments}}) {
     $match->{$_->key} = $_->to_koral_fragment

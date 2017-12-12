@@ -9,12 +9,6 @@ with 'Krawfish::Query';
 
 # Get posting by doc id plus position and length.
 
-# TODO:
-#   Support classes and corpus classes
-
-# TODO:
-#   Support query classes
-
 use constant DEBUG => 0;
 
 
@@ -115,19 +109,6 @@ sub to_string {
 
   $str .= ']]';
 };
-
-
-# Get start position
-#sub start {
-#  $_[0]->{start};
-#};
-
-
-# Get end position
-#sub end {
-#  $_[0]->{end};
-#};
-
 
 
 # Filter query by VC

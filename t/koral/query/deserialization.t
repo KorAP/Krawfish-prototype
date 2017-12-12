@@ -381,6 +381,18 @@ serialize_deserialize_ok($query);
 
 
 
+# match
+ok($query = $importer->from_koral({
+  '@type' => 'koral:match',
+  '@id' => 'match:doc-1/p0-1_h(1)1-2_h(2)1-2_c5_c8'
+}), 'Import Repetition, Span, Term');
+
+is($query->to_string,
+   '[[id=doc-1:0-1!5,8$0,1,1,2|0,2,1,2]]',
+   'Stringification');
+
+serialize_deserialize_ok($query);
+
 
 diag 'Test deserialization failures';
 # E.g.

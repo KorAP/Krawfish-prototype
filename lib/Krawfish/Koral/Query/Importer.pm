@@ -15,6 +15,7 @@ use Krawfish::Koral::Query::Constraint;
 use Krawfish::Koral::Query::Or;
 use Krawfish::Koral::Query::Nowhere;
 use Krawfish::Koral::Query::Unique;
+use Krawfish::Koral::Query::Match;
 
 use Krawfish::Koral::Query::Constraint::Position;
 use Krawfish::Koral::Query::Constraint::ClassBetween;
@@ -33,6 +34,7 @@ sub new {
 # TODO: export this method from Importer
 
 
+# Deserialize
 sub from_koral {
   my ($self, $kq) = @_;
 
@@ -78,6 +80,10 @@ sub from_koral {
 
   elsif ($type eq 'koral:token') {
     return $self->token($kq);
+  }
+
+  elsif ($type eq 'koral:match') {
+    return $self->match($kq);
   }
 
   elsif ($type eq 'koral:span') {
@@ -155,6 +161,13 @@ sub seq {
 sub token {
   shift;
   return Krawfish::Koral::Query::Token->from_koral(shift);
+};
+
+
+# Import match
+sub match {
+  shift;
+  return Krawfish::Koral::Query::Match->from_koral(shift);
 };
 
 

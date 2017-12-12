@@ -2,17 +2,12 @@ package Krawfish::Koral::Query::Match;
 use Role::Tiny::With;
 use Krawfish::Query::Match;
 use Krawfish::Util::Bits;
+use Krawfish::Util::Constants qw/:PAYLOAD/;
 use strict;
 use warnings;
+use Krawfish::Koral::Query::Builder;
 
 with 'Krawfish::Koral::Query';
-
-
-# TODO:
-#   Suport corpus classes!
-
-# TODO:
-#   Support highlights!
 
 # This Query does not search segment data, but
 # returns the data it is passed to.
@@ -50,26 +45,34 @@ sub flags {
 
 
 # Serialization
+#   This should be identical/similar to
+#   Koral/Result/Match
 sub to_koral_fragment {
   my $self = shift;
-  my $kq = {
-    '@type' => 'koral:match',
-    'doc' => $self->operand->to_koral_fragment,
-    'start' => $self->start,
-    'end' => $self->end
-  };
+  my $mid = 'match:';
+
+  $mid .= $self->operand->value;
+
+  $mid .= '/p' . $self->{start} . '-' . $self->{end};
 
   # serialize classes
-  if ($self->payloads) {
-    # $obj->{payload} = $self->payload->to_array;
+  if ($self->payload) {
+    foreach ($self->payload->to_array) {
+      # 0 is PTI_CLASS!
+      $mid .= '_h';
+      $mid .= '(' . $_->[1] . ')';
+      $mid .= $_->[2] . '-' . $_->[3];
+    };
   };
 
-  # serialize flags
-  if ($self->flags) {
-    $kq->{corpusClasses} = [flags_to_classes($self->flags)];
+  foreach (flags_to_classes($self->flags)) {
+    $mid .= '_c' . $_;
   };
 
-  return $kq;
+  return {
+    '@type' => 'koral:match',
+    '@id' => $mid
+  };
 };
 
 
@@ -77,9 +80,36 @@ sub to_koral_fragment {
 sub from_koral {
   my ($class, $kq) = @_;
 
-  my $importer = $class->importer;
+  my $match_id = $kq->{'@id'};
 
-  
+  # Work around
+  my $qb = Krawfish::Koral::Query::Builder->new;
+
+  # TODO:
+  #   instead of match: also accept the match url
+  #   from the context!
+  if ($match_id =~ /^match:(.+?)\/p(\d+)-(\d+)((?:_h(?:\(\d+\))?\d+-\d+)*)((?:_c\d+)*)$/xo) {
+    my $id = $1;
+    my $start = $2;
+    my $end = $3;
+    my $highlights = $4;
+    my $corpora = $5;
+
+    my (@highlights, @corpora) = ();
+    while ($highlights =~ /_h(?:\((\d+)\))?(\d+)-(\d+)/g) {
+      push @highlights, [PTI_CLASS, $1 // 0, $2, $3];
+    };
+
+    while ($corpora =~ /\G_c(\d+)/g) {
+      push @corpora, $1;
+    };
+
+    return $qb->match(
+      $id, $start, $end, \@highlights, \@corpora
+    );
+  };
+
+  return;
 };
 
 sub type { 'match' };
