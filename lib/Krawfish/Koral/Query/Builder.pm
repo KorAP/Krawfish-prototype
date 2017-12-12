@@ -1,5 +1,6 @@
 package Krawfish::Koral::Query::Builder;
 use Krawfish::Util::Constants qw/:PREFIX/;
+use Krawfish::Util::Bits;
 
 use Krawfish::Koral::Query::Term;
 use Krawfish::Koral::Query::Token;
@@ -254,13 +255,29 @@ sub filter_by {
 # Find exactly one single match
 sub match {
   my $self = shift;
-  my ($doc_id, $start, $end) = @_;
+  my ($doc_id, $start, $end, $pl, $flags) = @_;
 
   my $cb = Krawfish::Koral::Corpus::Builder->new;
+  my $doc = $cb->string(DOC_IDENTIFIER)->eq($doc_id);
+
+  my $payload;
+  if ($pl) {
+    $payload = Krawfish::Posting::Payload->new;
+    foreach (@$pl) {
+      $payload->add(@{$_});
+    };
+  };
+
+  if ($flags && ref($flags) eq 'ARRAY') {
+    $flags = classes_to_flags(@$flags)
+  };
+
   Krawfish::Koral::Query::Match->new(
-    $cb->string(DOC_IDENTIFIER)->eq($doc_id),
+    $doc,
     $start,
-    $end
+    $end,
+    $payload,
+    $flags
   );
 };
 

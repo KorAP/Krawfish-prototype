@@ -1,6 +1,7 @@
 package Krawfish::Koral::Query::Match;
 use Role::Tiny::With;
 use Krawfish::Query::Match;
+use Krawfish::Util::Bits;
 use strict;
 use warnings;
 
@@ -9,6 +10,9 @@ with 'Krawfish::Koral::Query';
 
 # TODO:
 #   Suport corpus classes!
+
+# TODO:
+#   Support highlights!
 
 # This Query does not search segment data, but
 # returns the data it is passed to.
@@ -26,23 +30,56 @@ sub new {
   bless {
     operands => [shift],
     start    => shift,
-    end      => shift
+    end      => shift,
+    payload  => shift,
+    flags    => shift
   }, $class;
 };
 
 
+# Payloads
+sub payload {
+  return $_[0]->{payload};
+};
+
+
+# Flags
+sub flags {
+  return $_[0]->{flags};
+};
+
+
+# Serialization
 sub to_koral_fragment {
   my $self = shift;
-  return {
+  my $kq = {
     '@type' => 'koral:match',
     'doc' => $self->operand->to_koral_fragment,
     'start' => $self->start,
     'end' => $self->end
   };
+
+  # serialize classes
+  if ($self->payloads) {
+    # $obj->{payload} = $self->payload->to_array;
+  };
+
+  # serialize flags
+  if ($self->flags) {
+    $kq->{corpusClasses} = [flags_to_classes($self->flags)];
+  };
+
+  return $kq;
 };
 
+
+# Deserialization
 sub from_koral {
-  ...
+  my ($class, $kq) = @_;
+
+  my $importer = $class->importer;
+
+  
 };
 
 sub type { 'match' };
@@ -115,7 +152,9 @@ sub optimize {
   return Krawfish::Query::Match->new(
     $doc,
     $self->start,
-    $self->end
+    $self->end,
+    $self->payload,
+    $self->flags
   );
 };
 
@@ -123,7 +162,16 @@ sub optimize {
 
 sub to_string {
   my $self = shift;
-  return '[[' . $self->operand->to_string . ':' . $self->start . '-' . $self->end . ']]';
+  my $str = '[[' . $self->operand->to_string . ':' . $self->start . '-' . $self->end;
+
+  # In case a class != 0 is set - serialize
+  if ($self->flags && $self->flags & 0b0111_1111_1111_1111) {
+    $str .= '!' . join(',', flags_to_classes($self->{flags}));
+  };
+
+  $str .= '$' . $self->payload->to_string if $self->payload;
+
+  return $str . ']]';
 };
 
 

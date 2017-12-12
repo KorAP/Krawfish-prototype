@@ -6,6 +6,9 @@ use warnings;
 use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral');
 
+use_ok('Krawfish::Util::Bits');
+use_ok('Krawfish::Posting::Payload');
+
 my $index = Krawfish::Index->new;
 
 ok_index($index, {
@@ -201,6 +204,55 @@ ok($koral_query = $koral_query->optimize($index->segment), 'Identify');
 #   'Stringification');
 
 matches($koral_query, [qw/[0:0-1] [1:1-2]/], 'Get match');
+
+
+my $pl = Krawfish::Posting::Payload->new->add();
+
+# Using flags and payloads
+$koral = Krawfish::Koral->new;
+$koral->query(
+  $qb->bool_or(
+    $qb->match('doc-2', 0, 1, undef, [5]),
+    $qb->match('doc-1', 0, 2, [[0, 1, 1, 2]], [5,8])
+  )
+);
+
+$koral->corpus(
+  $cb->string('license')->eq('free')
+);
+
+is($koral->to_string,
+   'corpus=[license=free],query=[([[id=doc-1:0-2!5,8$0,1,1,2]])|([[id=doc-2:0-1!5]])]',
+   'Stringification');
+
+ok($koral_query = $koral->to_query, 'Normalization');
+
+is($koral_query->to_string,
+   'filter(([[id=doc-1:0-2!5,8$0,1,1,2]])|([[id=doc-2:0-1!5]]),license=free)',
+   'Stringification');
+
+# This is a query that is fine to be send to segments:
+ok($koral_query = $koral_query->identify($index->dict), 'Identify');
+
+is($koral_query->to_string,
+   'filter(([[#2:0-1!5]])|([[#9:0-2!5,8$0,1,1,2]]),#4)',
+   'Stringification');
+
+# This is a query that is fine to be send to segments:
+ok($koral_query = $koral_query->optimize($index->segment), 'Identify');
+
+matches($koral_query, ['[0:0-1!5]','[1:0-2!5,8$0,1,1,2]'], 'Get match');
+
+done_testing;
+__END__
+
+
+
+
+
+
+
+
 
 
 done_testing;

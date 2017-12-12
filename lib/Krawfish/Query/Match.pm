@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use Role::Tiny::With;
 use Krawfish::Log;
+use Krawfish::Util::Bits;
 
 with 'Krawfish::Query';
 
@@ -11,6 +12,8 @@ with 'Krawfish::Query';
 # TODO:
 #   Support classes and corpus classes
 
+# TODO:
+#   Support query classes
 
 use constant DEBUG => 0;
 
@@ -21,7 +24,9 @@ sub new {
   bless {
     doc => shift,
     start => shift,
-    end => shift
+    end => shift,
+    payload => shift,
+    flags => shift
   }, $class;
 };
 
@@ -32,7 +37,9 @@ sub clone {
   __PACKAGE__->new(
     $self->{doc}->clone,
     $self->{start},
-    $self->{end}
+    $self->{end},
+    $self->{payload},
+    $self->{flags}
   );
 };
 
@@ -66,8 +73,11 @@ sub next {
   print_log('match', 'Document ' . $doc->doc_id . ' is valid') if DEBUG;
 
   $self->{doc_id} = $doc->doc_id;
-  $self->{start} = $self->start;
-  $self->{end} = $self->end;
+
+  # TODO:
+  #   probably check if start and end is in a valid area
+  # $self->{start} = $self->start;
+  # $self->{end} = $self->end;
 
   # $self->{payload} = $current->payload->add(
   #   0,
@@ -94,20 +104,30 @@ sub max_freq {
 # Stringification
 sub to_string {
   my $self = shift;
-  return '[[' . $self->{doc}->to_string . ':' . $self->start . '-' . $self->end . ']]';
+  my $str = '[[' . $self->{doc}->to_string . ':' . $self->{start} . '-' . $self->{end};
+
+  # In case a class != 0 is set - serialize
+  if ($self->{flags} && $self->{flags} & 0b0111_1111_1111_1111) {
+    $str .= '!' . join(',', flags_to_classes($self->{flags}));
+  };
+
+  $str .= '$' . $self->{payload}->to_string if $self->{payload};
+
+  $str .= ']]';
 };
 
 
 # Get start position
-sub start {
-  $_[0]->{start};
-};
+#sub start {
+#  $_[0]->{start};
+#};
 
 
 # Get end position
-sub end {
-  $_[0]->{end};
-};
+#sub end {
+#  $_[0]->{end};
+#};
+
 
 
 # Filter query by VC

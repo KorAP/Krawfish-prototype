@@ -4,11 +4,32 @@ use strict;
 use warnings;
 use Scalar::Util qw/blessed/;
 
+# TODO:
+#   Deserialize and serialize KQ
+
 
 # Constructor
 sub new {
   my $class = shift;
-  bless [], $class;
+  my $pl = shift;
+
+  # There is a passed paqyload
+  if ($pl) {
+
+    # Not blessed payload
+    unless (blessed $pl) {
+
+      # Bless
+      return bless $pl, $class;
+    };
+  };
+
+  # Bless payload object
+  my $self = bless [], $class;
+
+  $self->copy_from($pl) if $pl;
+
+  return $self;
 };
 
 
