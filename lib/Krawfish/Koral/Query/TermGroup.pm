@@ -239,11 +239,11 @@ sub from_koral {
 
   $op =~ s/^(?:oper|rel)ation://;
 
-  my $importer = $class->importer;
+  my $qb = $class->builder;
 
   return $class->new(
     $op,
-    map { $importer->from_term_or_term_group($_) } @{$kq->{operands}}
+    map { $qb->from_koral_term_or_term_group($_) } @{$kq->{operands}}
   );
 };
 

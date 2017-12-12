@@ -166,10 +166,10 @@ sub to_string {
 sub from_koral {
   my ($class, $kq) = @_;
 
-  my $importer = $class->importer;
+  my $qb = $class->builder;
 
   return $class->new(
-    map { $importer->from_koral($_) } @{$kq->{operands}}
+    map { $qb->from_koral($_) } @{$kq->{operands}}
   );
 };
 

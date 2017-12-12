@@ -281,4 +281,142 @@ sub match {
   );
 };
 
+
+##############################
+# KoralQuery deserialization #
+##############################
+
+# Deserialize
+sub from_koral {
+  my ($self, $kq) = @_;
+
+  my $type = $kq->{'@type'};
+
+  # Deserialize groups
+  if ($type eq 'koral:group') {
+    my $op = $kq->{operation};
+
+    # Check for operation types
+    if ($op eq 'operation:sequence') {
+      return Krawfish::Koral::Query::Sequence->from_koral($kq);
+    }
+
+    elsif ($op eq 'operation:class') {
+      return Krawfish::Koral::Query::Class->from_koral($kq);
+    }
+
+    elsif ($op eq 'operation:length') {
+      return Krawfish::Koral::Query::Length->from_koral($kq);
+    }
+
+    elsif ($op eq 'operation:repetition') {
+      return Krawfish::Koral::Query::Repetition->from_koral($kq);
+    }
+
+    elsif ($op eq 'operation:exclusion') {
+      return Krawfish::Koral::Query::Exclusion->from_koral($kq);
+    }
+
+    elsif ($op eq 'operation:position' || $op eq 'operation:constraint') {
+      return Krawfish::Koral::Query::Constraint->from_koral($kq);
+    }
+
+    elsif ($op eq 'operation:disjunction' || $op eq 'operation:or') {
+      return Krawfish::Koral::Query::Or->from_koral($kq);
+    }
+
+    elsif ($op eq 'operation:unique') {
+      return Krawfish::Koral::Query::Unique->from_koral($kq);
+    }
+
+    else {
+      warn 'Operation ' . $op . ' no supported';
+    };
+  }
+
+  elsif ($type eq 'koral:token') {
+    return Krawfish::Koral::Query::Token->from_koral($kq);
+  }
+
+  elsif ($type eq 'koral:match') {
+    return Krawfish::Koral::Query::Match->from_koral($kq);
+  }
+
+  elsif ($type eq 'koral:span') {
+    return Krawfish::Koral::Query::Span->from_koral($kq);
+  }
+
+  elsif ($type eq 'koral:nowhere') {
+    return Krawfish::Koral::Query::Nowhere->from_koral;
+  }
+
+  else {
+    warn $type . ' unknown';
+  };
+
+  return;
+};
+
+
+sub from_koral_constraint {
+  shift;
+  my $kq = shift;
+  if ($kq->{'@type'} eq 'constraint:position') {
+    return Krawfish::Koral::Query::Constraint::Position->from_koral($kq);
+  }
+
+  elsif ($kq->{'@type'} eq 'constraint:classBetween') {
+    return Krawfish::Koral::Query::Constraint::ClassBetween->from_koral($kq);
+  }
+
+  elsif ($kq->{'@type'} eq 'constraint:notBetween') {
+    return Krawfish::Koral::Query::Constraint::NotBetween->from_koral($kq);
+  }
+
+  elsif ($kq->{'@type'} eq 'constraint:inBetween') {
+    return Krawfish::Koral::Query::Constraint::InBetween->from_koral($kq);
+  };
+
+  warn 'Type ' . $kq->{'@type'} . ' unknown';
+};
+
+
+# Deserialize from term or term group
+sub from_koral_term_or_term_group {
+  my ($self, $kq) = @_;
+  my $type = $kq->{'@type'};
+
+  # Defines a term
+  if ($type eq 'koral:term') {
+    return $self->from_koral_term($kq);
+  }
+
+  # Defines a term group
+  elsif ($type eq 'koral:termGroup') {
+    return Krawfish::Koral::Query::TermGroup->from_koral($kq);
+  }
+
+  # Matches nowhere
+  elsif ($type eq 'koral:nowhere') {
+    return Krawfish::Koral::Query::Nowhere->from_koral;
+  };
+
+  warn 'Not term or termGroup: ' . $kq->{'@type'};
+
+  return;
+};
+
+
+# Get from koral:term
+sub from_koral_term {
+  my ($self, $kq) = @_;
+
+  if (defined $kq->{'@id'}) {
+    return Krawfish::Koral::Query::TermID->from_koral($kq);
+  };
+
+  return Krawfish::Koral::Query::Term->from_koral($kq);
+};
+
+
 1;

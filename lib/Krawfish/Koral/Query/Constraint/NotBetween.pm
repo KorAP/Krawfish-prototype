@@ -4,7 +4,7 @@ use Krawfish::Query::Constraint::NotBetween;
 use Krawfish::Koral::Query::Constraint::InBetween;
 use Krawfish::Koral::Query::Constraint::ClassBetween;
 use Krawfish::Koral::Query::Constraint::Position;
-use Krawfish::Koral::Query::Importer;
+use Krawfish::Koral::Query::Builder;
 use strict;
 use warnings;
 
@@ -137,11 +137,11 @@ sub identify {
 sub from_koral {
   my ($class, $kq) = @_;
 
-  my $importer = Krawfish::Koral::Query::Importer->new;
+  my $qb = Krawfish::Koral::Query::Builder->new;
 
   my $wrap = $kq->{wrap};
   return $class->new(
-    $importer->from_koral($wrap)
+    $qb->from_koral($wrap)
   );
 };
 

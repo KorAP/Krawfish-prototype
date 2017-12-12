@@ -87,7 +87,7 @@ sub to_string {
 sub to_koral_fragment {
   return {
     '@type' => 'koral:term',
-    'id' => shift->term_id
+    '@id' => 'term:' . shift->term_id
   };
 };
 
@@ -95,7 +95,8 @@ sub to_koral_fragment {
 # Deserialization
 sub from_koral {
   my ($class, $kq) = @_;
-  my $id = $kq->{id};
+  my $id = $kq->{'@id'};
+  $id =~ s/^term://;
   return $class->new($id);
 };
 

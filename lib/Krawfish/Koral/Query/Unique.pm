@@ -123,7 +123,7 @@ sub from_koral {
   my ($class, $kq) = @_;
   my $op = $kq->{operands}->[0];
   return $class->new(
-    $class->importer->from_koral($op)
+    $class->builder->from_koral($op)
   );
 };
 

@@ -87,10 +87,10 @@ sub from_koral {
 
   my ($min, $max) = $class->from_koral_boundary($kq->{boundary});
 
-  my $importer = $class->importer;
+  my $qb = $class->builder;
 
   # Get operand
-  my $op = $importer->from_koral(
+  my $op = $qb->from_koral(
     $kq->{operands}->[0]
   );
 

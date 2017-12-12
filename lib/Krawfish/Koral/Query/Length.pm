@@ -230,7 +230,7 @@ sub to_koral_fragment {
 sub from_koral {
   my ($class, $kq) = @_;
 
-  my $importer = $class->importer;
+  my $qb = $class->builder;
 
   my @param = ();
   my ($min, $max) = $class->from_koral_boundary($kq->{boundary});
@@ -242,7 +242,7 @@ sub from_koral {
   push @param, $kq->{token} if $kq->{token};
 
   return $class->new(
-    $importer->from_koral($kq->{operands}->[0]), @param
+    $qb->from_koral($kq->{operands}->[0]), @param
   );
 };
 

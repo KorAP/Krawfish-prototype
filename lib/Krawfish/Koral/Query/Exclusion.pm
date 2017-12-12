@@ -47,7 +47,7 @@ sub to_koral_fragment {
 # Deserialize from KoralQuery
 sub from_koral {
   my ($class, $kq) = @_;
-  my $importer = $class->importer;
+  my $qb = $class->builder;
   my @frames = ();
 
   # Set default frames
@@ -62,8 +62,8 @@ sub from_koral {
     @frames = @{$kq->{frames}};
   };
 
-  my $op1 = $importer->from_koral($kq->{operands}->[0]);
-  my $op2 = $importer->from_koral($kq->{operands}->[1]);
+  my $op1 = $qb->from_koral($kq->{operands}->[0]);
+  my $op2 = $qb->from_koral($kq->{operands}->[1]);
 
   $class->new(\@frames, $op1, $op2);
 };

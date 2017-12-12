@@ -119,7 +119,7 @@ sub maybe_unsorted { 0 };
 # Todo: Change the term_type!
 sub from_koral {
   my ($class, $kq) = @_;
-  my $importer = $class->importer;
+  my $qb = $class->builder;
 
   # No wrap
   unless ($kq->{'wrap'}) {
@@ -133,7 +133,7 @@ sub from_koral {
   else {
     my $wrap = $kq->{wrap};
     if ($wrap->{'@type'} eq 'koral:term') {
-      return $class->new($importer->term($wrap)->term_type('span'));
+      return $class->new($qb->from_koral_term($wrap)->term_type('span'));
     }
     else {
       warn 'Wrap type not supported!'

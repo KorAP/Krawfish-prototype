@@ -189,7 +189,7 @@ sub maybe_unsorted { 0 };
 sub from_koral {
   my $class = shift;
   my $kq = shift;
-  my $importer = $class->importer;
+  my $qb = $class->builder;
 
   # No wrap
   unless ($kq->{'wrap'}) {
@@ -200,7 +200,7 @@ sub from_koral {
   else {
     my $wrap = $kq->{wrap};
     return $class->new(
-      $importer->from_term_or_term_group($kq->{wrap})
+      $qb->from_koral_term_or_term_group($kq->{wrap})
     );
   }
 };

@@ -1,7 +1,6 @@
 package Krawfish::Koral::Query;
 use Role::Tiny;
 # use Krawfish::Koral::Query::Builder;
-# use Krawfish::Koral::Query::Importer;
 use Krawfish::Log;
 use Mojo::Util qw/md5_sum/;
 use warnings;
@@ -366,12 +365,6 @@ sub complexity {
 # Create KoralQuery builder
 sub builder {
   return Krawfish::Koral::Query::Builder->new;
-};
-
-
-# Create KoralQuery builder
-sub importer {
-  return Krawfish::Koral::Query::Importer->new;
 };
 
 

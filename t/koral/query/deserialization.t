@@ -5,13 +5,13 @@ use Mojo::JSON qw/encode_json decode_json/;
 use Mojo::File;
 use Data::Dumper;
 
-use_ok('Krawfish::Koral::Query::Importer');
+use_ok('Krawfish::Koral::Query::Builder');
 
 # deserialize import document
 # my $doc_1 = slurp('t/data/doc1.jsonld');
 # my $koral = Krawfish::Koral->new(decode_json($doc_1));
 
-ok(my $importer = Krawfish::Koral::Query::Importer->new, 'New importer');
+ok(my $qb = Krawfish::Koral::Query::Builder->new, 'New importer');
 
 
 # Check serialization and deserialization match
@@ -25,7 +25,7 @@ sub serialize_deserialize_ok {
   unless ($fragment) {
     fail('Fragment not generated');
   };
-  my $deserialized = $importer->from_koral($fragment);
+  my $deserialized = $qb->from_koral($fragment);
   unless ($deserialized) {
     fail('Fragment not deserializable');
   };
@@ -34,7 +34,7 @@ sub serialize_deserialize_ok {
 
 
 # group:sequence, token, term, group:class(nr)
-ok(my $query = $importer->from_koral(
+ok(my $query = $qb->from_koral(
   {
     '@type' => 'koral:group',
     'operation' => 'operation:sequence',
@@ -73,7 +73,7 @@ is($query->to_string, '[tt/p=NN]{2:[tt/p!=NN]}', 'Stringification');
 serialize_deserialize_ok($query);
 
 # group:repetition, span
-ok($query = $importer->from_koral({
+ok($query = $qb->from_koral({
   '@type' => 'koral:group',
   'operation' => 'operation:repetition',
   'boundary' => {
@@ -97,8 +97,9 @@ ok($query = $importer->from_koral({
 is($query->to_string, '<cnx/c=NP>{2,3}', 'Stringification');
 serialize_deserialize_ok($query);
 
+
 # group:length, termgroup, group:class(no nr)
-ok($query = $importer->from_koral({
+ok($query = $qb->from_koral({
   '@type' => 'koral:group',
   'operation' => 'operation:length',
   'boundary' => {
@@ -164,7 +165,7 @@ serialize_deserialize_ok($query);
 
 
 # group:exclusion
-ok($query = $importer->from_koral({
+ok($query = $qb->from_koral({
   '@type' => 'koral:group',
   'operation' => 'operation:exclusion',
   'frame' => [
@@ -207,7 +208,7 @@ serialize_deserialize_ok($query);
 
 
 # group:position, group:disjunction/or
-ok($query = $importer->from_koral({
+ok($query = $qb->from_koral({
   '@type' => 'koral:group',
   'operation' => 'operation:position',
   'frames' => [
@@ -265,7 +266,7 @@ serialize_deserialize_ok($query);
 
 
 # group:position, group:disjunction/or
-ok($query = $importer->from_koral({
+ok($query = $qb->from_koral({
   '@type' => 'koral:group',
   'operation' => 'operation:constraint',
   'constraints' => [
@@ -329,7 +330,7 @@ serialize_deserialize_ok($query);
 
 
 # nowhere
-ok($query = $importer->from_koral({
+ok($query = $qb->from_koral({
   '@type' => 'koral:nowhere'
 }), 'Nowhere');
 
@@ -340,11 +341,11 @@ is($query->to_string,
 serialize_deserialize_ok($query);
 
 # Term ID
-ok($query = $importer->from_koral({
+ok($query = $qb->from_koral({
   '@type' => 'koral:token',
   'wrap' => {
     '@type' => 'koral:term',
-    id => 15
+    '@id' => 'term:15'
   }
 }), 'Term identifier');
 
@@ -357,7 +358,7 @@ serialize_deserialize_ok($query);
 
 
 # Unique
-ok($query = $importer->from_koral({
+ok($query = $qb->from_koral({
   '@type' => 'koral:group',
   'operation' => 'operation:unique',
   'operands' => [
@@ -382,7 +383,7 @@ serialize_deserialize_ok($query);
 
 
 # match
-ok($query = $importer->from_koral({
+ok($query = $qb->from_koral({
   '@type' => 'koral:match',
   '@id' => 'match:doc-1/p0-1_h(1)1-2_h(2)1-2_c5_c8'
 }), 'Import Repetition, Span, Term');
@@ -392,6 +393,7 @@ is($query->to_string,
    'Stringification');
 
 serialize_deserialize_ok($query);
+
 
 
 diag 'Test deserialization failures';

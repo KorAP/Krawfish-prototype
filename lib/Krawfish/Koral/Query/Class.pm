@@ -201,12 +201,12 @@ sub is_classed { 1 };
 #   Currently supports classOut only
 sub from_koral {
   my ($class, $kq) = @_;
-  my $importer = $class->importer;
+  my $qb = $class->builder;
 
   my $nr = $kq->{'classOut'} // 1;
 
   # Import operand
-  my $op = $importer->from_koral($kq->{operands}->[0]);
+  my $op = $qb->from_koral($kq->{operands}->[0]);
 
   return $class->new($op, $nr);
 };
