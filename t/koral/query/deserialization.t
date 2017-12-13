@@ -7,10 +7,6 @@ use Data::Dumper;
 
 use_ok('Krawfish::Koral::Query::Builder');
 
-# deserialize import document
-# my $doc_1 = slurp('t/data/doc1.jsonld');
-# my $koral = Krawfish::Koral->new(decode_json($doc_1));
-
 ok(my $qb = Krawfish::Koral::Query::Builder->new, 'New importer');
 
 

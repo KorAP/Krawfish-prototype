@@ -20,6 +20,8 @@ use Krawfish::Koral::Query::Or;
 use Krawfish::Koral::Query::Filter;
 use Krawfish::Koral::Query::Match;
 
+use Krawfish::Koral::Query::Failure;
+
 use Krawfish::Koral::Query::Constraint::Position;
 use Krawfish::Koral::Query::Constraint::ClassBetween;
 use Krawfish::Koral::Query::Constraint::NotBetween;
@@ -264,6 +266,13 @@ sub null {
 };
 
 
+# Return Failure object
+sub failure {
+  shift;
+  Krawfish::Koral::Query::Failure->new(shift);
+};
+
+
 # No match
 sub nowhere {
   Krawfish::Koral::Query::Nowhere->new;
@@ -438,8 +447,8 @@ sub from_koral_term_or_term_group {
     return Krawfish::Koral::Query::Nowhere->from_koral;
   };
 
-  warn "Type $type no term or termGroup";
-  return;
+  # Return failure with error message
+  return $self->failure($kq)->error(000 => 'Type no term or termGroup', $type);
 };
 
 

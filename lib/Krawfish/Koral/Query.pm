@@ -9,7 +9,7 @@ use strict;
 with 'Krawfish::Koral::Report';
 
 # TODO:
-#   Share a role with Koral::Corpus
+#   Share a role with Koral::Corpus and Koral::Report::Failure
 requires qw/normalize
             optimize
             identify
@@ -52,7 +52,6 @@ requires qw/normalize
 #   This is now double with Krawfish::Koral!
 
 use constant {
-  CONTEXT => 'http://korap.ids-mannheim.de/ns/koral/0.6/context.jsonld',
   DEBUG => 0
 };
 
@@ -335,12 +334,12 @@ sub maybe_unsorted {
 #############################
 
 # Serialize
-sub to_koral_query {
-  my $self = shift;
-  my $koral = $self->to_koral_fragment;
-  $koral->{'@context'} = CONTEXT;
-  $koral;
-};
+#sub to_koral_query {
+#  my $self = shift;
+#  my $koral = $self->to_koral_fragment;
+#  $koral->{'@context'} = CONTEXT;
+#  $koral;
+#};
 
 
 sub to_neutral {

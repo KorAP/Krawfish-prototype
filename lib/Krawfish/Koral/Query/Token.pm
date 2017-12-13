@@ -84,7 +84,16 @@ sub normalize {
 
   # There is an operand defined
   if ($self->operand) {
+
     my $op = $self->operand->normalize;
+
+    # Operand has an error
+    if ($op->has_error) {
+      $self->copy_info_from($op);
+      return;
+    };
+
+
     if ($op->is_nowhere) {
       $self->operands([]);
       $self->is_nowhere(1);
@@ -106,6 +115,7 @@ sub normalize {
 };
 
 
+# Finalize query
 sub finalize {
   my $self = shift;
 
@@ -125,6 +135,7 @@ sub finalize {
 };
 
 
+# Optimize query
 sub optimize {
   my ($self, $segment) = @_;
 

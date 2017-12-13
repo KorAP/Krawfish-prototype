@@ -4,6 +4,11 @@ use warnings;
 use Role::Tiny;
 use Krawfish::Log;
 
+# TODO:
+#   This is now double with Krawfish::Koral::Query!
+use constant {
+  CONTEXT => 'http://korap.ids-mannheim.de/ns/koral/0.6/context.jsonld'
+};
 
 requires qw/error
             warning
@@ -107,6 +112,35 @@ sub _info {
   push(@{$self->{$type} //= []}, [$code, $msg, @param]);
   return $self;
 };
+
+
+sub to_koral_report {
+  my ($self, $type) = @_;
+  return $self->_info($type);
+};
+
+
+# Wrap the fragment in context
+sub to_koral_query {
+  my $self = shift;
+  my $koral = $self->to_koral_fragment;
+  $koral->{'@context'} = CONTEXT;
+
+  if ($self->has_warning) {
+    $koral->{warnings} = $self->to_koral_report('warning')
+  };
+
+  if ($self->has_error) {
+    $koral->{errors} = $self->to_koral_report('error')
+  };
+
+  if ($self->has_message) {
+    $koral->{messages} = $self->to_koral_report('message')
+  };
+
+  return $koral;
+};
+
 
 
 1;
