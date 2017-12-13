@@ -20,7 +20,6 @@ use Krawfish::Koral::Query::Or;
 use Krawfish::Koral::Query::Filter;
 use Krawfish::Koral::Query::Match;
 
-# TODO: Not all constraints need to be wrapped
 use Krawfish::Koral::Query::Constraint::Position;
 use Krawfish::Koral::Query::Constraint::ClassBetween;
 use Krawfish::Koral::Query::Constraint::NotBetween;
@@ -32,11 +31,16 @@ use Scalar::Util qw/blessed/;
 use strict;
 use warnings;
 
-use constant DOC_IDENTIFIER => 'id';
+use constant {
+  DOC_IDENTIFIER => 'id',
+  TEXT_SPAN      => 'base/s=t'
+};
 
+
+# Constructor
 sub new {
   my $class = shift;
-  my $text_span = shift // 'base/s=t';
+  my $text_span = shift // TEXT_SPAN;
   bless [$text_span], $class;
 };
 
@@ -56,10 +60,12 @@ sub token {
 };
 
 
+# Class construct
 sub class {
   shift;
   Krawfish::Koral::Query::Class->new(@_);
 };
+
 
 # Sequence construct
 sub seq {
@@ -68,33 +74,47 @@ sub seq {
 };
 
 
+# Repetition construct
 sub repeat {
   shift;
   return Krawfish::Koral::Query::Repetition->new(@_);
 };
 
 
+# Term construct
 sub term {
   shift;
   return Krawfish::Koral::Query::Term->new(TOKEN_PREF . shift);
 };
 
+
+# Term with negativity
 sub term_neg {
-  shift;
-  Krawfish::Koral::Query::Term->new(@_)->match('!=');
+  shift->term(@_)->match('!=');
 };
 
+
+# Term with regular expression
 sub term_re {
-  shift;
-  Krawfish::Koral::Query::Term->new(@_)->match('~');
+  shift->term(@_)->match('~');
 };
 
 
+# Span construct
+sub span {
+  shift;
+  Krawfish::Koral::Query::Span->new(@_);
+};
+
+
+# Conjunction group construct
 sub bool_and {
   shift;
   Krawfish::Koral::Query::TermGroup->new('and' => @_);
 };
 
+
+# Exclusion query construct
 sub bool_and_not {
   shift;
   my ($pos, $neg) = @_;
@@ -102,6 +122,7 @@ sub bool_and_not {
 };
 
 
+# Disjunction group construct
 sub bool_or {
   my $self = shift;
   my $first_type = blessed $_[0] ? $_[0]->type : 'term';
@@ -114,13 +135,6 @@ sub bool_or {
   };
 
   return Krawfish::Koral::Query::Or->new(@_);
-};
-
-
-# Span construct
-sub span {
-  shift;
-  Krawfish::Koral::Query::Span->new(@_);
 };
 
 
@@ -146,14 +160,14 @@ sub position {
 };
 
 
-# Position construct
+# Exclusion construct
 sub exclusion {
   shift;
   Krawfish::Koral::Query::Exclusion->new(@_);
 };
 
 
-# Search with reference to a specific supcorpus
+# Search with reference to a specific subcorpus
 sub in_corpus {
   shift;
   Krawfish::Koral::Query::InCorpus->new(@_);
@@ -167,26 +181,35 @@ sub reference {
 };
 
 
+# Create constraint query
 sub constraint {
   shift;
   Krawfish::Koral::Query::Constraint->new(@_);
 };
 
+
+# Create position constraint
 sub c_position {
   shift;
   Krawfish::Koral::Query::Constraint::Position->new(@_);
 };
 
+
+# Create class between constraint
 sub c_class_between {
   shift;
   Krawfish::Koral::Query::Constraint::ClassBetween->new(@_);
 };
 
+
+# Create not between constraint
 sub c_not_between {
   shift;
   Krawfish::Koral::Query::Constraint::NotBetween->new(@_);
 };
 
+
+# Create in between constraint
 sub c_in_between {
   shift;
   Krawfish::Koral::Query::Constraint::InBetween->new(@_);
@@ -197,11 +220,18 @@ sub c_in_between {
 sub c_in_order {
   shift;
   Krawfish::Koral::Query::Constraint::Position->new(
-    qw/precedesDirectly precedes endsWith isAround overlapsLeft alignsLeft matches/
+    qw/precedesDirectly
+       precedes
+       endsWith
+       isAround
+       overlapsLeft
+       alignsLeft
+       matches/
   );
 };
 
 
+# Create length query
 sub length {
   shift;
   Krawfish::Koral::Query::Length->new(@_);
@@ -214,6 +244,8 @@ sub ext_left {
   Krawfish::Koral::Query::Extension->new(1, @_);
 };
 
+
+# Extension to the right
 sub ext_right {
   shift;
   Krawfish::Koral::Query::Extension->new(0, @_);
@@ -255,6 +287,9 @@ sub filter_by {
 # Find exactly one single match
 sub match {
   my $self = shift;
+
+  # TODO:
+  #   Probably ask for a unique field!
   my ($doc_id, $start, $end, $pl, $flags) = @_;
 
   my $cb = Krawfish::Koral::Corpus::Builder->new;
@@ -286,7 +321,7 @@ sub match {
 # KoralQuery deserialization #
 ##############################
 
-# Deserialize
+# Deserialize KQ
 sub from_koral {
   my ($self, $kq) = @_;
 
@@ -351,13 +386,14 @@ sub from_koral {
   }
 
   else {
-    warn $type . ' unknown';
+    warn "Type $type unknown";
   };
 
   return;
 };
 
 
+# Deserialize constraint
 sub from_koral_constraint {
   shift;
   my $kq = shift;
@@ -378,6 +414,7 @@ sub from_koral_constraint {
   };
 
   warn 'Type ' . $kq->{'@type'} . ' unknown';
+  return;
 };
 
 
@@ -401,8 +438,7 @@ sub from_koral_term_or_term_group {
     return Krawfish::Koral::Query::Nowhere->from_koral;
   };
 
-  warn 'Not term or termGroup: ' . $kq->{'@type'};
-
+  warn "Type $type no term or termGroup";
   return;
 };
 
