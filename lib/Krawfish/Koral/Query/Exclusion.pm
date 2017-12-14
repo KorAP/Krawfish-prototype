@@ -15,6 +15,11 @@ with 'Krawfish::Koral::Query';
 
 use constant DEBUG => 0;
 
+# TODO:
+#   Take care of punctuations in (as they have different
+#   position information) -> excl(succedsDirectly:[corenlp/p=N],[.])
+
+
 sub new {
   my $class = shift;
   my ($frame_array, $first, $second) = @_;

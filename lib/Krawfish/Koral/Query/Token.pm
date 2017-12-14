@@ -85,11 +85,12 @@ sub normalize {
   # There is an operand defined
   if ($self->operand) {
 
+    # Normalize operand
     my $op = $self->operand->normalize;
 
     # Operand has an error
     if ($op->has_error) {
-      $self->copy_info_from($op);
+      $self->move_info_from($op);
       return;
     };
 

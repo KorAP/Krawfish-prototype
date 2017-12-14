@@ -24,7 +24,8 @@ with 'Krawfish::Koral::Query';
 #   an extension.
 
 # TODO:
-#   Rename array to operands!
+#   Take care of punctuations in sequences (as the have different
+#   position information) -> [corenlp/p=N][.]
 
 use constant DEBUG => 0;
 

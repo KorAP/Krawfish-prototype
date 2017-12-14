@@ -205,7 +205,7 @@ sub operands {
     my $ops = shift;
     my @new_ops = ();
     foreach my $op (@$ops) {
-      $self->remove_info_from($op);
+      $self->move_info_from($op);
       push @new_ops, $op;
     };
     $self->{operands} = \@new_ops;

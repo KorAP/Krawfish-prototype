@@ -21,13 +21,17 @@ ok(my $query = $qb->from_koral(
 
 is($query->to_string, '[!!!]', 'Stringification');
 
-ok(!(my $new_query = $query->normalize), "Can't normalize!");
+ok(!(my $new_query = $query->normalize), "Normalize!");
+
+ok($query->has_error, 'Query has an error');
 
 my $kq = $query->to_koral_query;
 
 is($kq->{'@type'}, 'koral:token');
 is($kq->{'wrap'}->{'@type'}, 'koral:token');
 is($kq->{'errors'}->[0]->[1], 'Type no term or termGroup');
+
+
 
 done_testing;
 

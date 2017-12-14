@@ -168,6 +168,7 @@ $seq = $qb->seq(
 is($seq->to_string, '[a]{1:[][]}[b]', 'Stringification');
 ok($seq = $seq->normalize, 'Normalization');
 is($seq->to_string, 'a{1:[]{2}}b', 'Stringification');
+
 ok($seq->has_warning, 'Query has warnings');
 ok($seq = $seq->finalize, 'Finalization');
 is($seq->to_string, 'a{1:[]{2}}b', 'Stringification');

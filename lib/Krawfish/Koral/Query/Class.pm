@@ -3,7 +3,7 @@ use Role::Tiny::With;
 use Krawfish::Query::Class;
 use Krawfish::Log;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 with 'Krawfish::Koral::Query';
 
@@ -55,6 +55,7 @@ sub remove_classes {
   return $self->operand;
 };
 
+
 # A class always spans its operand span
 sub min_span {
   $_[0]->operand->min_span;
@@ -74,7 +75,7 @@ sub normalize {
   # Normalize the span
   my $span;
   unless ($span = $self->operand->normalize) {
-    $self->copy_info_from($self->operand);
+    $self->move_info_from($self->operand);
     return;
   };
 

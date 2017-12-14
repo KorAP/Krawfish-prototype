@@ -4,12 +4,6 @@ use warnings;
 use Role::Tiny;
 use Krawfish::Log;
 
-# TODO:
-#   This is now double with Krawfish::Koral::Query!
-use constant {
-  CONTEXT => 'http://korap.ids-mannheim.de/ns/koral/0.6/context.jsonld'
-};
-
 requires qw/error
             warning
             message
@@ -19,7 +13,10 @@ requires qw/error
 
 # Report on errors, warnings an anything else
 
-use constant DEBUG => 0;
+use constant {
+  CONTEXT => 'http://korap.ids-mannheim.de/ns/koral/0.6/context.jsonld',
+  DEBUG => 0
+};
 
 
 # Add error
@@ -78,11 +75,13 @@ sub copy_info_from {
       push @{$self->{$type} //= []}, @{$obj->{$type}};
     };
   };
+
+  $self;
 };
 
 
 # Copy information from another object
-sub remove_info_from {
+sub move_info_from {
   my ($self, $obj) = @_;
 
   # Copy from types
@@ -92,6 +91,8 @@ sub remove_info_from {
       delete $obj->{$type};
     };
   };
+
+  $self;
 };
 
 
@@ -126,14 +127,17 @@ sub to_koral_query {
   my $koral = $self->to_koral_fragment;
   $koral->{'@context'} = CONTEXT;
 
+  # Add potential warnings
   if ($self->has_warning) {
     $koral->{warnings} = $self->to_koral_report('warning')
   };
 
+  # Add potential errors
   if ($self->has_error) {
     $koral->{errors} = $self->to_koral_report('error')
   };
 
+  # Add potential messages
   if ($self->has_message) {
     $koral->{messages} = $self->to_koral_report('message')
   };

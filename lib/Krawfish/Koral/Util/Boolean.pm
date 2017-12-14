@@ -201,7 +201,7 @@ sub _resolve_idempotence {
 
     elsif (DEBUG) {
       print_log('kq_bool', 'Subcorpora are idempotent');
-      $self->remove_info_from($ops->[$i]);
+      $self->move_info_from($ops->[$i]);
     };
 
     $i++;
@@ -364,7 +364,7 @@ sub _remove_nested_idempotence {
   # Get a list of all removable items in reverse order
   # To remove irrelevant nested groups
   foreach (uniq reverse sort @remove_groups) {
-    $self->remove_info_from($ops->[$_]);
+    $self->move_info_from($ops->[$_]);
     splice @$ops, $_, 1;
   };
 
@@ -403,7 +403,7 @@ sub _clean_and_flatten {
 
     # Remove empty elements
     if (!defined($op) || $op->is_null) {
-      $self->remove_info_from($ops->[$i]);
+      $self->move_info_from($ops->[$i]);
 
       splice @$ops, $i, 1;
     }
@@ -424,7 +424,7 @@ sub _clean_and_flatten {
 
       # A | B | [0] -> A | B
       elsif ($self->operation eq 'or') {
-        $self->remove_info_from($ops->[$i]);
+        $self->move_info_from($ops->[$i]);
         splice @$ops, $i, 1;
       }
     }
@@ -434,7 +434,7 @@ sub _clean_and_flatten {
 
       # A & B & [1] -> A & B
       if ($self->operation eq 'and') {
-        $self->remove_info_from($ops->[$i]);
+        $self->move_info_from($ops->[$i]);
         splice @$ops, $i, 1;
       }
 
@@ -605,7 +605,7 @@ sub _resolve_demorgan {
     # Be aware this could lead to heavy and unnecessary recursion
 
     my $norm = $new_group->normalize;
-    $self->remove_info_from($norm);
+    $self->move_info_from($norm);
     push @$ops, $norm;
   };
 
