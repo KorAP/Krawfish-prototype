@@ -248,7 +248,11 @@ sub is_optional {
 # Null is empty - e.g. in
 # Der >alte{0}< Mann
 sub is_null {
-  $_[0]->{null} // 0
+  my $self = shift;
+  if (defined $_[0]) {
+    $self->{null} = shift;
+  };
+  return $self->{null} // 0;
 };
 
 

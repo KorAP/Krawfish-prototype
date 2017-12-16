@@ -15,7 +15,6 @@ use constant DEBUG => 0;
 
 # TODO:
 #   Token should probably introduce a unique-query to filter out multiple matches.
-#   It should also remove classes, that are not allowed.
 
 sub new {
   my $class = shift;
@@ -94,15 +93,25 @@ sub normalize {
       return;
     };
 
+    # Operand is null (like in []{0})
+    if ($op->is_null) {
+      # $self->operands([]);
+      $self->is_null(1);
+    }
 
-    if ($op->is_nowhere) {
+    # Operand matches nowhere
+    elsif ($op->is_nowhere) {
       $self->operands([]);
       $self->is_nowhere(1);
     }
+
+    # Operand matches anywhere
     elsif ($op->is_anywhere) {
       $self->operands([]);
       $self->is_anywhere(1);
     }
+
+    # operand is optional
     elsif (!$self->is_optional && !$self->is_negative) {
       return $op;
     }
@@ -198,6 +207,8 @@ sub to_string {
 
 sub maybe_unsorted { 0 };
 
+
+# Deserialize from KQ
 sub from_koral {
   my $class = shift;
   my $kq = shift;

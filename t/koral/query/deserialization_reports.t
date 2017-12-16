@@ -21,7 +21,7 @@ ok(my $query = $qb->from_koral(
 
 is($query->to_string, '[!!!]', 'Stringification');
 
-ok(!(my $new_query = $query->normalize), "Normalize!");
+ok(!($query->normalize), "Normalize!");
 
 ok($query->has_error, 'Query has an error');
 
@@ -31,6 +31,30 @@ is($kq->{'@type'}, 'koral:token');
 is($kq->{'wrap'}->{'@type'}, 'koral:token');
 is($kq->{'errors'}->[0]->[1], 'Type no term or termGroup');
 
+
+# term
+ok($query = $qb->from_koral(
+  {
+    '@type' => 'koral:token',
+    wrap => {
+      '@type' => 'koral:term'
+    }
+  }
+), 'Import token with wrapped term');
+
+# Token is null, like in Der >alte{0}< Mann
+is($query->to_string, '[-]', 'Stringification');
+
+ok($query = $query->normalize, "Normalize!");
+is($query->to_string, '[-]{0}', 'Stringification');
+
+ok(!$query->finalize, "Finalize!");
+
+$kq = $query->to_koral_query;
+
+is($kq->{'@type'}, 'koral:token');
+is($kq->{'wrap'}->{'@type'}, 'koral:term');
+is($kq->{'errors'}->[0]->[1], 'Unable to search for null tokens');
 
 
 done_testing;

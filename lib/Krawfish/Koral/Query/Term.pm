@@ -351,10 +351,8 @@ sub to_term_escaped {
 
 
 sub normalize {
-  my $self = shift;
-
+  $_[0];
   # return $self->is_negative || $self->is_null;
-  return $self;
 };
 
 
@@ -416,6 +414,8 @@ sub is_optional {
   0
 };
 
+
+# Term is null
 sub is_null {
   return 1 unless $_[0]->key;
   return;
