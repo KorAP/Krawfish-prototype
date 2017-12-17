@@ -57,6 +57,30 @@ is($kq->{'wrap'}->{'@type'}, 'koral:term');
 is($kq->{'errors'}->[0]->[1], 'Unable to search for null tokens');
 
 
+
+# Matches anywhere
+ok($query = $qb->from_koral(
+  {
+    '@type' => 'koral:token'
+  }
+), 'Import token with wrapped term');
+
+# Token is null, like in Der >alte{0}< Mann
+is($query->to_string, '[]', 'Stringification');
+
+ok($query = $query->normalize, "Normalize!");
+is($query->to_string, '[]', 'Stringification');
+
+ok(!$query->finalize, "Finalize!");
+
+$kq = $query->to_koral_query;
+
+is($kq->{'@type'}, 'koral:token');
+is($kq->{'errors'}->[0]->[1], 'Query matches anywhere');
+
+
+
+
 done_testing;
 
 __END__

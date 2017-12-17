@@ -180,7 +180,7 @@ is($rep->to_string, '[]{2,4}', 'Stringification');
 ok(!$rep->finalize, 'Normalization');
 ok(!$rep->has_warning, 'Error not set');
 ok($rep->has_error, 'Error not set');
-is($rep->error->[0]->[1], 'Unable to search for anywhere tokens', 'Error');
+is($rep->error->[0]->[1], 'Query matches anywhere', 'Error');
 
 
 # []{,4}
@@ -201,7 +201,7 @@ ok(!$rep->finalize, 'Normalization');
 ok($rep->has_warning, 'Error not set');
 is($rep->warning->[0]->[1], 'Optionality of query is ignored', 'Error');
 ok($rep->has_error, 'Error not set');
-is($rep->error->[0]->[1], 'Unable to search for anywhere tokens', 'Error');
+is($rep->error->[0]->[1], 'Query matches anywhere', 'Error');
 
 
 # []{4,}
@@ -223,7 +223,7 @@ is($rep->to_string, '[]{4,100}', 'Stringification');
 ok(!$rep->finalize, 'Normalization');
 ok($rep->has_warning, 'Error not set');
 ok($rep->has_error, 'Error not set');
-is($rep->error->[0]->[1], 'Unable to search for anywhere tokens', 'Error');
+is($rep->error->[0]->[1], 'Query matches anywhere', 'Error');
 
 
 # []{8}
@@ -244,7 +244,7 @@ is($rep->to_string, '[]{8}', 'Stringification');
 ok(!$rep->finalize, 'Normalization');
 ok(!$rep->has_warning, 'Error not set');
 ok($rep->has_error, 'Error not set');
-is($rep->error->[0]->[1], 'Unable to search for anywhere tokens', 'Error');
+is($rep->error->[0]->[1], 'Query matches anywhere', 'Error');
 
 # <x>{2,3}
 $rep = $qb->repeat($qb->span('aaa'), 2,3);

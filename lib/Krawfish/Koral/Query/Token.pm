@@ -137,7 +137,7 @@ sub finalize {
 
   # No term defined
   unless ($self->operand) {
-    $self->error(000, 'Unable to search for anywhere tokens');
+    $self->error(000, 'Query matches anywhere');
     return;
   };
 
