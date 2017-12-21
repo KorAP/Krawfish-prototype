@@ -228,6 +228,7 @@ sub from_koral {
   }
 };
 
+
 # Return Koral fragment
 sub to_koral_fragment {
   my $self = shift;

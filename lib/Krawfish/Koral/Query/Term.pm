@@ -26,7 +26,8 @@ with 'Krawfish::Koral::Query';
 #   Field is probably useless
 
 # TODO:
-#   Rename to_term to to_neutral!
+#   The regex is valid for the value in case it is given.
+#   Otherwise it's valid for the key.
 
 use constant DEBUG => 0;
 
@@ -311,12 +312,6 @@ sub to_string {
 
 
 sub to_neutral {
-  return $_[0]->to_term;
-};
-
-
-
-sub to_term {
   my $self = shift;
   return if $self->is_null;
 
@@ -338,9 +333,9 @@ sub to_term {
 };
 
 
-sub to_term_escaped {
+sub to_neutral_escaped {
   my $self = shift;
-  my $term = $self->to_term;
+  my $term = $self->to_neutral;
   # (?:[^:]+?\:)?
   if ($term =~ m!^(.(?:[^/]+?\/)?(?:[^=]+?)\=)(.+?)$!) {
     return quotemeta($1). $2;
@@ -363,7 +358,7 @@ sub identify {
   # Term is no regular expression
   unless ($self->is_regex) {
 
-    my $term = $self->to_term;
+    my $term = $self->to_neutral;
 
     print_log('kq_term', "Translate term $term to term_id") if DEBUG;
 
@@ -375,7 +370,7 @@ sub identify {
   };
 
   # Get terms
-  my $term = $self->to_term_escaped;
+  my $term = $self->to_neutral_escaped;
 
   print_log('kq_term', 'Inflate /^' . $term . '$/') if DEBUG;
 

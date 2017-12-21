@@ -69,7 +69,7 @@ sub identify {
 
   my $term_id;
   my $term = $self->{term};
-  my $term_str = $term->to_term;
+  my $term_str = $term->to_neutral;
 
   $term_id = $dict->term_id_by_term($term_str);
 
@@ -131,7 +131,7 @@ sub to_string {
   }
 
   else {
-    $str .= squote($self->{term}->to_term);
+    $str .= squote($self->{term}->to_neutral);
   };
   return $str . '$' . join(',',  @{$self->{data}});
 };

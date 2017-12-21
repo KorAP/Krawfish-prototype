@@ -55,10 +55,10 @@ sub identify {
 
   my $term = $self->{term};
 
-  $self->{anno_id} = $dict->term_id_by_term($term->to_term);
+  $self->{anno_id} = $dict->term_id_by_term($term->to_neutral);
 
   if (DEBUG) {
-    print_log('k_ctx_span', 'Identify annotation for ' . $term->to_term);
+    print_log('k_ctx_span', 'Identify annotation for ' . $term->to_neutral);
   };
 
   # Term not found
