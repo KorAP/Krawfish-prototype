@@ -1,4 +1,4 @@
-package Krawfish::Query::TermID;
+package Krawfish::Query::Term;
 use strict;
 use warnings;
 use Role::Tiny::With;

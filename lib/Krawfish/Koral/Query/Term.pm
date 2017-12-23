@@ -2,17 +2,14 @@ package Krawfish::Koral::Query::Term;
 use Role::Tiny::With;
 use Krawfish::Util::Constants qw/:PREFIX/;
 use Scalar::Util qw/looks_like_number/;
-use Krawfish::Query::TermID;
+use Krawfish::Query::Term;
 use Krawfish::Query::Nowhere;
 use Krawfish::Log;
 use strict;
 use warnings;
 
 with 'Krawfish::Koral::Query';
-
-# TODO:
-#   Probably join this with TermID
-#   and make it inflatable
+with 'Krawfish::Koral::Result::Inflatable';
 
 # TODO:
 #  Probably introduce '#' as a prefix for
@@ -439,11 +436,15 @@ sub identify {
 };
 
 
+sub inflate {
+  ...
+};
+
 
 sub optimize {
   my ($self, $segment) = @_;
-  warn 'Inflate before!' unless defined $self->term_id;
-  return Krawfish::Query::TermID->new($segment, $self->term_id);
+  warn 'Identify before!' unless defined $self->term_id;
+  return Krawfish::Query::Term->new($segment, $self->term_id);
 };
 
 
