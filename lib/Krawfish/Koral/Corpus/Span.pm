@@ -146,8 +146,8 @@ sub is_null {
 
 # Stringify
 sub to_string {
-  my $self = shift;
-  return 'span(' . $self->operand->to_string . ')'
+  my ($self, $id) = @_;
+  return 'span(' . $self->operand->to_string($id) . ')'
 };
 
 

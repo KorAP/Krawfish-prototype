@@ -117,7 +117,7 @@ sub to_string {
            '(' . $_->to_string($id) . ')'
          )
        :
-       $_->to_string
+       $_->to_string($id)
      ) : '()'
     } @{$self->operands_in_order});
 

@@ -12,7 +12,7 @@ use warnings;
 # - Koral::Query::TermGroup
 # - Koral::Query::Or
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 requires qw/bool_and_query
             bool_or_query/;

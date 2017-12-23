@@ -18,16 +18,16 @@ sub new {
 
 
 sub to_string {
-  my $self = shift;
+  my ($self, $id) = @_;
   my $str = 'snippet(hit';
   if ($self->{left}) {
-    $str .= ',left=' . $self->{left}->to_string;
+    $str .= ',left=' . $self->{left}->to_string($id);
   };
   if ($self->{right}) {
-    $str .= ',right=' . $self->{right}->to_string;
+    $str .= ',right=' . $self->{right}->to_string($id);
   };
 #  $str .= $self->{hit}->to_string;
-  $str .= ':' . $self->{query}->to_string . ')';
+  $str .= ':' . $self->{query}->to_string($id) . ')';
 };
 
 

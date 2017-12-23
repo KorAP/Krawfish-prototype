@@ -188,7 +188,7 @@ sub to_string {
       $string .= '!';
     };
 
-    $string .= $self->operand->to_string;
+    $string .= $self->operand->to_string($id);
   }
 
   $string .= ']';

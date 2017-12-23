@@ -30,7 +30,7 @@ ok($query = $query->normalize, 'Normalize');
 is($query->to_string, 'constr(pos=isAround:<opennlp/c=NP>,Der)', 'Stringification');
 ok(!$query->has_error, 'Builder has no error');
 ok($query = $query->identify($index->dict), 'Optimize');
-is($query->to_string, "constr(pos=isAround:#3,#2)", 'Stringification');
+is($query->to_string(1), "constr(pos=isAround:#3,#2)", 'Stringification');
 ok($query = $query->optimize($index->segment), 'Optimize');
 is($query->to_string, "constr(pos=128:#3,#2)", 'Stringification');
 

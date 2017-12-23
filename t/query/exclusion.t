@@ -45,10 +45,12 @@ ok($wrap = $query->normalize->finalize, 'Planning');
 is($wrap->to_string, "excl(endsWith;isAround;matches;startsWith:<aa>,bb)",
    'Planned Stringification');
 ok($wrap = $query->identify($index->dict), 'Planning');
-is($wrap->to_string, "excl(endsWith;isAround;matches;startsWith:#3,#2)",
+is($wrap->to_string(1), "excl(endsWith;isAround;matches;startsWith:#3,#2)",
    'Planned Stringification');
+
+
 ok($wrap = $query->optimize($index->segment), 'Planning');
-is($wrap->to_string, "excl(432:#3,#2)",
+is($wrap->to_string(1), "excl(432:#3,#2)",
    'Planned Stringification');
 
 matches($wrap, [qw/[0:2-3] [1:0-1] [1:3-4]/], 'Matches');
@@ -117,7 +119,7 @@ is($wrap->to_string, "excl(precedesDirectly:bb,bb)",
    'Planned Stringification');
 
 ok($wrap = $wrap->identify($index->dict), 'Planning');
-is($wrap->to_string, "excl(precedesDirectly:#2,#2)",
+is($wrap->to_string(1), "excl(precedesDirectly:#2,#2)",
    'Planned Stringification');
 ok($wrap = $wrap->optimize($index->segment), 'Planning');
 is($wrap->to_string, "excl(2:#2,#2)",

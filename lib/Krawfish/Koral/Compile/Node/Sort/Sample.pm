@@ -54,7 +54,8 @@ sub optimize {
 
 
 sub to_string {
-  return 'sample(' . $_[0]->{top_k} . ':' . $_[0]->{query}->to_string . ')';
+  my ($self, $id) = @_;
+  return 'sample(' . $self->{top_k} . ':' . $self->{query}->to_string($id) . ')';
 };
 
 1;

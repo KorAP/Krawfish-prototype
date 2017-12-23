@@ -389,13 +389,13 @@ sub from_koral {
 
 # Stringification
 sub to_string {
-  my $self = shift;
+  my ($self, $id) = @_;
   my $str = 'constr(';
   if (@{$self->{constraints}}) {
-    $str .= join(',', map { $_->to_string } @{$self->{constraints}});
+    $str .= join(',', map { $_->to_string($id) } @{$self->{constraints}});
     $str .= ':';
   };
-  $str .= join ',', map { $_->to_string } @{$self->{operands}};
+  $str .= join ',', map { $_->to_string($id) } @{$self->{operands}};
   return $str . ')';
 };
 

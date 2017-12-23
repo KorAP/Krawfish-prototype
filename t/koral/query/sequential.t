@@ -120,7 +120,7 @@ ok($seq = $seq->identify($index->dict), 'Optimization');
 
 
 # May already be [0]!
-is($seq->to_string, '#2#3#4[0][0][0]', 'Stringification');
+is($seq->to_string(1), '#2#3#4[0][0][0]', 'Stringification');
 ok($seq = $seq->optimize($index->segment), 'Optimization');
 is($seq->to_string, '[0]', 'Stringification');
 

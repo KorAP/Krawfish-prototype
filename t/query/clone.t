@@ -95,8 +95,8 @@ is($query->to_string,
 
 ok($query = $query->identify($index->dict), 'Identify');
 
-is($query->to_string,
-   'filter(unique({3:#11|(#8&#9)}[]#8{1,4}),(#13|#4)&(#16|#5))',
+is($query->to_string(1),
+   'filter(unique({3:(#8&#9)|#11}[]#8{1,4}),(#13|#4)&(#16|#5))',
    'stringification');
 
 ok($query = $query->optimize($index->segment), 'Materialize');

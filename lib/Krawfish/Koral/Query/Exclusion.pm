@@ -217,12 +217,12 @@ sub optimize {
 
 
 sub to_string {
-  my $self = shift;
+  my ($self, $id) = @_;
   my $string = 'excl(';
   $string .= join(';', to_list($self->{frames})) . ':';
   # $string .= (0 + $self->{frames}) . ':';
-  $string .= $self->operands->[0]->to_string . ',';
-  $string .= $self->operands->[1]->to_string;
+  $string .= $self->operands->[0]->to_string($id) . ',';
+  $string .= $self->operands->[1]->to_string($id);
   return $string . ')';
 };
 

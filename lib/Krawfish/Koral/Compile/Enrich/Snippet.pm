@@ -55,17 +55,17 @@ sub normalize {
 
 # Stringification
 sub to_string {
-  my $self = shift;
+  my ($self, $id) = @_;
   my $str = 'snippet=[';
 
   $str .= 'hit';
 
   if ($self->left_context) {
-    $str .= ',left:' . $self->left_context->to_string;
+    $str .= ',left:' . $self->left_context->to_string($id);
   };
 
   if ($self->right_context) {
-    $str .= ',right:' . $self->right_context->to_string;
+    $str .= ',right:' . $self->right_context->to_string($id);
   };
 
   return $str . ']';

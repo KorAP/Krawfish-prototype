@@ -106,8 +106,8 @@ sub _resolve_optionality {
 
 # Stringification
 sub to_string {
-  my $self = shift;
-  return join '|', map { '(' . $_->to_string . ')'} @{$self->operands_in_order};
+  my ($self, $id) = @_;
+  return join '|', map { '(' . $_->to_string($id) . ')'} @{$self->operands_in_order};
 };
 
 

@@ -137,10 +137,10 @@ sub optimize {
 
 
 sub to_string {
-  my $self = shift;
+  my ($self, $id) = @_;
   my $str = '{';
   $str .= $self->number . ':' if $self->number;
-  return $str . $self->operand->to_string . '}';
+  return $str . $self->operand->to_string($id) . '}';
 };
 
 

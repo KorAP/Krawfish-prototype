@@ -66,7 +66,7 @@ with 'Krawfish::Koral::Query';
 #   {1:[marmot/m=case:dat]}|{2:[marmot/m=gender:masc]}|{3:[marmot/m=number:sg]}
 
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 sub new {
   my $class = shift;
@@ -185,6 +185,12 @@ sub to_string {
     return '1';
   };
 
+  if (DEBUG) {
+    print_log(
+      'kq_tgroup',
+      'Group is ' . join(',', map { $_->to_string($id) } @{$self->operands_in_order})
+    );
+  };
 
   my $op = $self->operation eq 'and' ? '&' : '|';
   my $inner = join $op, map {

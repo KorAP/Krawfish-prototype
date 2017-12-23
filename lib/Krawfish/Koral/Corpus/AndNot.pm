@@ -99,7 +99,7 @@ sub from_koral {
 
 # Stringification
 sub to_string {
-  my $self = shift;
+  my ($self, $id) = @_;
 
   my $op = '&!';
 
@@ -112,11 +112,11 @@ sub to_string {
             @{$_->operands} > 1 ?
               '(' . $_->to_string . ')'
               :
-              $_->to_string
+              $_->to_string($id)
           )
         )
       :
-      $_->to_string
+      $_->to_string($id)
     } @{$self->operands}) . ')';
 };
 

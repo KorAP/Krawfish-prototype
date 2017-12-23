@@ -51,8 +51,8 @@ sub optimize {
 
 
 sub to_string {
-  my $self = shift;
-  return 'unique(' . $self->operand->to_string . ')';
+  my ($self, $id) = @_;
+  return 'unique(' . $self->operand->to_string($id) . ')';
 };
 
 # TODO: Identical to class

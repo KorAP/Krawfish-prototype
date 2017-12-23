@@ -16,7 +16,7 @@ ok($q = $q->normalize->finalize, 'Prepare query');
 
 is($q->to_string, "/[ac]./", 'Stringification');
 ok($q = $q->identify($index->dict), 'Prepare query');
-is($q->to_string, '(#10)|(#12)|(#2)|(#8)', 'Stringification');
+is($q->to_string(1), '#10|#12|#2|#8', 'Stringification');
 
 ok($q = $q->optimize($index->segment), 'Prepare query');
 is($q->to_string, "or(or(or(#10,#12),#8),#2)", 'Stringification');
@@ -56,7 +56,7 @@ is($q->to_string, "constr(pos=precedes,between=1-1,notBetween=/[ac]./:aa,bb)",
    'Stringification');
 
 ok($q = $q->identify($index->dict), 'Prepare query');
-is($q->to_string, "constr(pos=precedes,between=1-1,notBetween=(#10)|(#12)|(#2)|(#8):#2,#4)",
+is($q->to_string(1), "constr(pos=precedes,between=1-1,notBetween=#10|#12|#2|#8:#2,#4)",
    'Stringification');
 
 ok($q = $q->optimize($index->segment), 'Prepare query');
@@ -94,7 +94,7 @@ ok($q = $q->normalize->finalize, 'Prepare query');
 is($q->to_string, "constr(pos=precedes;succeeds,between=1-1,notBetween=/[e]./:/[ac]./,/b./)", 'Stringification');
 ok($q = $q->identify($index->dict), 'Prepare query');
 is($q->to_string,
-   "constr(pos=precedes;succeeds,between=1-1,notBetween=[0]:(#10)|(#12)|(#2)|(#8),(#4)|(#6))",
+   "constr(pos=precedes;succeeds,between=1-1,notBetween=[0]:#10|#12|#2|#8,#4|#6)",
    'Stringification');
 ok($q = $q->optimize($index->segment), 'Prepare query');
 is($q->to_string,

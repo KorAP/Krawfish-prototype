@@ -455,11 +455,6 @@ sub from_koral_term_or_term_group {
 # Get from koral:term
 sub from_koral_term {
   my ($self, $kq) = @_;
-
-  if (defined $kq->{'@id'}) {
-    return Krawfish::Koral::Query::TermID->from_koral($kq);
-  };
-
   return Krawfish::Koral::Query::Term->from_koral($kq);
 };
 

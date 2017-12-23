@@ -64,7 +64,7 @@ is($query->to_string, 'sample(2:filter(aa,[1]))', 'Stringification');
 
 ok($query = $query->identify($index->dict), 'Identify');
 
-is($query->to_string, 'sample(2:filter(#10,[1]))', 'Stringification');
+is($query->to_string(1), 'sample(2:filter(#10,[1]))', 'Stringification');
 
 ok($query = $query->optimize($index->segment), 'Optimize');
 

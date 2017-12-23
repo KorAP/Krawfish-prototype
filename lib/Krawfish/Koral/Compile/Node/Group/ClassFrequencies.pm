@@ -21,9 +21,9 @@ sub new {
 
 
 sub to_string {
-  my $self = shift;
+  my ($self, $id) = @_;
   return 'gClassFreq(' . join(',', @{$self->{classes}}) .
-    ':' . $self->{query}->to_string . ')';
+    ':' . $self->{query}->to_string($id) . ')';
 };
 
 

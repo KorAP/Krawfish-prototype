@@ -281,9 +281,9 @@ sub maybe_unsorted {
 
 
 sub to_string {
-  my $self = shift;
+  my ($self, $id) = @_;
 
-  my $str = $self->operand->to_string;
+  my $str = $self->operand->to_string($id);
 
   my $type = $self->operand->type;
 

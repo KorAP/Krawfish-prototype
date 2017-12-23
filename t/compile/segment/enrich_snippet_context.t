@@ -43,7 +43,7 @@ is($koral_query->to_string,
 ok($koral_query = $koral_query->identify($index->dict), 'Identify');
 
 # This is a query that is fine to be send to nodes
-is($koral_query->to_string,
+is($koral_query->to_string(1),
    'snippet(hit,left=span(#10/#11=#9,0),right=span(#10/#11=#9,0):filter(#8,[1]))',
    'Stringification');
 

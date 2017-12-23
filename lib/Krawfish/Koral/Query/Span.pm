@@ -1,7 +1,6 @@
 package Krawfish::Koral::Query::Span;
 use Role::Tiny::With;
 use Krawfish::Util::Constants ':PREFIX';
-use Krawfish::Koral::Query::TermID;
 use Krawfish::Koral::Query::Term;
 use Krawfish::Log;
 use Scalar::Util qw/blessed/;
@@ -74,7 +73,7 @@ sub identify {
 
     return $self->builder->nowhere unless defined $term_id;
 
-    return Krawfish::Koral::Query::TermID->new($term_id);
+    return Krawfish::Koral::Query::Term->new($term_id);
   };
 
   warn 'Regexes are currently not supported';
@@ -143,7 +142,8 @@ sub from_koral {
 
 
 sub to_string {
-  return '<' . $_[0]->operand->to_string . '>';
+  my ($self, $id) = @_;
+  return '<' . $self->operand->to_string($id) . '>';
 };
 
 1;

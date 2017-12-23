@@ -59,7 +59,7 @@ is($query->to_string, 'author=Peter&span([bb][cc])', 'Stringification');
 ok($query = $query->normalize, 'Normalize');
 is($query->to_string, 'author=Peter&span(bbcc)', 'Stringification');
 ok($query = $query->identify($index->dict), 'Identify');
-is($query->to_string, '#17&span(#12#14)', 'Stringification');
+is($query->to_string(1), '#17&span(#12#14)', 'Stringification');
 ok($query = $query->optimize($index->segment), 'Optimize');
 is($query->to_string, 'and(span(constr(pos=2:#12,#14)),#17)', 'Stringification');
 
@@ -85,7 +85,7 @@ is($query->to_string, 'span([aa][bb])', 'Stringification');
 ok($query = $query->normalize, 'Normalize');
 is($query->to_string, 'span(aabb)', 'Stringification');
 ok($query = $query->identify($index->dict), 'Identify');
-is($query->to_string, 'span(#10#12)', 'Stringification');
+is($query->to_string(1), 'span(#10#12)', 'Stringification');
 ok($query = $query->optimize($index->segment), 'Optimize');
 is($query->to_string, 'span(constr(pos=2048:#12,#10))', 'Stringification');
 

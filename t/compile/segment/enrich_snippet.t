@@ -41,8 +41,8 @@ is($koral_query->to_string,
 ok($koral_query = $koral_query->identify($index->dict), 'Identify');
 
 # This is a query that is fine to be send to nodes
-is($koral_query->to_string,
-   "snippet(hit:filter(#10|#8,[1]))",
+is($koral_query->to_string(1),
+   "snippet(hit:filter(#8|#10,[1]))",
    'Stringification');
 
 ok(my $query = $koral_query->optimize($index->segment), 'Optimize');

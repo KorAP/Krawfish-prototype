@@ -54,7 +54,7 @@ ok(my $koral_query = $koral->to_query, 'Normalization');
 ok($koral_query = $koral_query->identify($index->dict), 'Identify');
 
 # This is a query that is fine to be send to nodes
-is($koral_query->to_string,
+is($koral_query->to_string(1),
    "gClassFreq(2,3:filter({2:#9}{3:#14},[1]))",
    'Stringification');
 

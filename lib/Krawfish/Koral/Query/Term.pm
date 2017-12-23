@@ -1,7 +1,8 @@
 package Krawfish::Koral::Query::Term;
 use Role::Tiny::With;
 use Krawfish::Util::Constants qw/:PREFIX/;
-use Krawfish::Koral::Query::TermID;
+use Scalar::Util qw/looks_like_number/;
+use Krawfish::Query::TermID;
 use Krawfish::Query::Nowhere;
 use Krawfish::Log;
 use strict;
@@ -29,7 +30,7 @@ with 'Krawfish::Koral::Query';
 #   The regex is valid for the value in case it is given.
 #   Otherwise it's valid for the key.
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 sub new {
   my $class = shift;
@@ -38,16 +39,22 @@ sub new {
   my %self;
 
   if ($term) {
-    if ($term =~ m!^(?:([^:\/]+?):)?   # 1 Field
-                   ($ANNO_PREFIX_RE)?  # 2 Prefix
-                   ([^\/]+?)           # 3 Foundry or Key
-                   (?:
-                     (?:/([^\=\!]+?))? # 4 Layer
-                     \s*(\!?[=~])\s*   # 5 Operator
-                     ([^\:]+?)         # 6 Key
-                     (?:\:(.+))?       # 7 Value
-                   )?
-                   $!x) {
+
+    # Is term id!
+    if (looks_like_number($term)) {
+      $self{term_id} = $term;
+    }
+
+    elsif ($term =~ m!^(?:([^:\/]+?):)?   # 1 Field
+                      ($ANNO_PREFIX_RE)?  # 2 Prefix
+                      ([^\/]+?)           # 3 Foundry or Key
+                      (?:
+                        (?:/([^\=\!]+?))? # 4 Layer
+                        \s*(\!?[=~])\s*   # 5 Operator
+                        ([^\:]+?)         # 6 Key
+                        (?:\:(.+))?       # 7 Value
+                      )?
+                      $!x) {
 
       # Key is defined
       if ($6) {
@@ -82,7 +89,9 @@ sub type { 'term' };
 
 sub is_leaf { 1 };
 
-sub is_nowhere { 0 };
+sub is_nowhere {
+  0
+};
 
 sub operands {
   [];
@@ -239,9 +248,20 @@ sub is_regex {
 };
 
 
+sub term_id {
+  $_[0]->{term_id};
+};
+
 # Create koral fragment
 sub to_koral_fragment {
   my $self = shift;
+
+  if ($self->{term_id}) {
+    return {
+      '@type' => 'koral:term',
+      '@id' => 'term:' . $self->term_id
+    };
+  };
 
   # TODO:
   #   Respect term_type!
@@ -273,9 +293,15 @@ sub to_koral_fragment {
 
 # stringify term
 sub to_string {
-  my ($self, $id, $fragment) = @_;
+  my ($self, $id) = @_;
 
   return '-' if $self->is_null;
+
+  if (($id && $self->{term_id})
+        ||
+        (!$self->key && $self->{term_id})) {
+    return '#' . $self->{term_id};
+  };
 
   my $str = '';
 
@@ -344,8 +370,11 @@ sub to_neutral_escaped {
 };
 
 
-
+# Normalize term query
 sub normalize {
+  if (DEBUG) {
+    print_log('kq_term', 'Normalize "' . $_[0]->to_string . '"');
+  };
   $_[0];
   # return $self->is_negative || $self->is_null;
 };
@@ -354,6 +383,9 @@ sub normalize {
 # Translate all terms to term_ids
 sub identify {
   my ($self, $dict) = @_;
+
+  # Is already a term id
+  return $self if defined $self->{term_id};
 
   # Term is no regular expression
   unless ($self->is_regex) {
@@ -366,7 +398,10 @@ sub identify {
 
     return $self->builder->nowhere unless defined $term_id;
 
-    return Krawfish::Koral::Query::TermID->new($term_id);
+    $self->{term_id} = $term_id;
+
+    return $self;
+    # return Krawfish::Koral::Query::Term->new($term_id);
   };
 
   # Get terms
@@ -378,8 +413,11 @@ sub identify {
   my @term_ids = $dict->term_ids(qr/^$term$/);
 
   if (DEBUG) {
-    print_log('kq_term', 'Expand /^' . $term . '$/');
-    print_log('kq_term', 'to ' . (@term_ids > 0 ? substr(join(',', @term_ids), 0, 50) : '[0]'));
+    print_log(
+      'kq_term',
+      'Expand /^' . $term . '$/',
+      'to ' . (@term_ids > 0 ? substr(join(',', map { '#' . $_ } @term_ids), 0, 50) : '[0]')
+    );
   };
 
   # Build empty term instead of nowhere
@@ -387,17 +425,25 @@ sub identify {
 
   # TODO:
   #   Use refer?
-  return $self->builder->bool_or(
+  my $or = $self->builder->bool_or(
     map {
-      Krawfish::Koral::Query::TermID->new($_)
+      __PACKAGE__->new($_)
       } @term_ids
-    )->normalize;
+    );
+
+  if (DEBUG) {
+    print_log('kq_term', 'New boolean query is ' . $or . ': ' . $or->to_string(1));
+  };
+
+  return $or->normalize;
 };
 
 
 
 sub optimize {
-  warn 'Not supported!';
+  my ($self, $segment) = @_;
+  warn 'Inflate before!' unless defined $self->term_id;
+  return Krawfish::Query::TermID->new($segment, $self->term_id);
 };
 
 
@@ -412,13 +458,16 @@ sub is_optional {
 
 # Term is null
 sub is_null {
-  return 1 unless $_[0]->key;
+  return 1 unless $_[0]->key || $_[0]->term_id;
   return;
 };
 
 
 sub is_negative {
   my $self = shift;
+
+  return 0 if defined $self->term_id;
+
   if (scalar @_ == 1) {
     my $neg = shift;
 
@@ -444,9 +493,14 @@ sub uses_classes {
 };
 
 sub from_koral {
-  my $class = shift;
-  my $kq = shift;
+  my ($class, $kq) = @_;
   my $term = $class->new;
+
+  if (my $id = $kq->{'@id'}) {
+    $id =~ s/^term://;
+    return $class->new($id);
+  };
+
   $term->foundry('' . $kq->{foundry}) if $kq->{foundry};
   $term->layer('' . $kq->{layer}) if $kq->{layer};
   $term->key('' . $kq->{key}) if $kq->{key};

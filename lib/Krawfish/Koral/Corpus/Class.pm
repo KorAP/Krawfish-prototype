@@ -84,9 +84,9 @@ sub from_koral {
 
 
 sub to_string {
-  my $self = shift;
+  my ($self, $id) = @_;
   my $str = '{' . $self->number . ':';
-  $str . $self->operand->to_string . '}';
+  $str . $self->operand->to_string($id) . '}';
 };
 
 1;

@@ -46,7 +46,7 @@ is($koral_query->to_string,
 ok($koral_query = $koral_query->identify($index->dict), 'Identify');
 
 # This is a query that is fine to be send to nodes
-is($koral_query->to_string,
+is($koral_query->to_string(1),
    "terms(2,4:filter(({2:#8})|({4:#10}),[1]))",
    'Stringification');
 

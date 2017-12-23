@@ -13,9 +13,9 @@ sub new {
 };
 
 sub to_string {
-  my $self = shift;
+  my ($self, $id) = @_;
   return 'terms(' . join(',', @{$self->{nrs}}) .
-    ':'. $self->{query}->to_string . ')';
+    ':'. $self->{query}->to_string($id) . ')';
 };
 
 
