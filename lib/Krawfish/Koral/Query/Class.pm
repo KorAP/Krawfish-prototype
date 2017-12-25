@@ -3,14 +3,10 @@ use Role::Tiny::With;
 use Krawfish::Query::Class;
 use Krawfish::Log;
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
+with 'Krawfish::Koral::Query::Proxy';
 with 'Krawfish::Koral::Query';
-
-use Memoize;
-
-memoize('min_span');
-memoize('max_span');
 
 
 # Constructor
@@ -56,16 +52,6 @@ sub remove_classes {
 };
 
 
-# A class always spans its operand span
-sub min_span {
-  $_[0]->operand->min_span;
-};
-
-
-# A class always spans its operand span
-sub max_span {
-  $_[0]->operand->max_span;
-};
 
 
 # Normalize the class query
@@ -121,21 +107,7 @@ sub optimize {
 };
 
 
-# Iterate over all subqueries and replace them
-# if necessary
-#sub replace_subqueries {
-#  my ($self, $cb) = @_;
-#
-#  # Check if the subspan should be replaced
-#  if (my $replace = $cb->($self->operand)) {
-#
-#    # Replace
-#    $self->{span} = $replace;
-#  };
-#};
-
-
-
+# Stringification
 sub to_string {
   my ($self, $id) = @_;
   my $str = '{';
@@ -149,21 +121,7 @@ sub number {
 };
 
 
-sub is_anywhere {
-  $_[0]->operand->is_anywhere;
-};
-
-
-sub is_optional {
-  $_[0]->operand->is_optional;
-};
-
-
-sub is_null {
-  $_[0]->operand->is_null;
-};
-
-
+# Get or set negativity
 sub is_negative {
   my $self = shift;
   my $span = $self->operand;
@@ -175,27 +133,10 @@ sub is_negative {
 };
 
 
-sub is_extended {
-  $_[0]->operand->is_extended;
+# Class queries are always classed
+sub is_classed {
+  1;
 };
-
-
-sub is_extended_right {
-  $_[0]->operand->is_extended_right;
-};
-
-
-sub is_extended_left {
-  $_[0]->operand->is_extended_left;
-};
-
-
-sub maybe_unsorded {
-  $_[0]->operand->maybe_unsorted;
-};
-
-
-sub is_classed { 1 };
 
 
 # TODO:

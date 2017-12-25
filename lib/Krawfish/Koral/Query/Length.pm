@@ -9,8 +9,10 @@ use Memoize;
 memoize('min_span');
 memoize('max_span');
 
+with 'Krawfish::Koral::Query::Proxy';
 with 'Krawfish::Koral::Query';
 with 'Krawfish::Koral::Query::Boundary';
+
 
 # TODO:
 #   Normalize chained length queries
@@ -206,11 +208,6 @@ sub optimize {
 };
 
 
-sub maybe_unsorted {
-  $_[0]->operand->maybe_unsorted;
-};
-
-
 # Serialize to koral fragment
 sub to_koral_fragment {
   my $self = shift;
@@ -259,8 +256,6 @@ sub to_string {
   return $str . ')';
 };
 
-sub is_anywhere { $_[0]->operand->is_anywhere };
-
 
 sub is_optional {
   my $self = shift;
@@ -276,10 +271,5 @@ sub is_null {
   return $_[0]->operand->is_null
 };
 
-sub is_negative { $_[0]->operand->is_negative };
-
-sub is_extended_right { $_[0]->operand->is_extended_right };
-
-sub is_extended_left { $_[0]->operand->is_extended_left };
 
 1;

@@ -3,10 +3,8 @@ use Role::Tiny::With;
 use Krawfish::Query::Unique;
 use strict;
 use warnings;
-use Memoize;
-memoize('min_span');
-memoize('max_span');
 
+with 'Krawfish::Koral::Query::Proxy';
 with 'Krawfish::Koral::Query';
 
 sub new {
@@ -17,7 +15,9 @@ sub new {
 };
 
 
-sub type { 'unique' };
+sub type {
+  'unique'
+};
 
 
 # Normalize unique query
@@ -50,58 +50,10 @@ sub optimize {
 };
 
 
+# Stringification
 sub to_string {
   my ($self, $id) = @_;
   return 'unique(' . $self->operand->to_string($id) . ')';
-};
-
-# TODO: Identical to class
-
-sub is_anywhere {
-  $_[0]->operand->is_anywhere;
-};
-
-sub is_optional {
-  $_[0]->operand->is_optional;
-};
-
-sub is_null {
-  $_[0]->operand->is_null;
-};
-
-sub is_negative {
-  $_[0]->operand->is_negative;
-};
-
-sub is_extended {
-  $_[0]->operand->is_extended;
-};
-
-sub is_extended_right {
-  $_[0]->operand->is_extended_right;
-};
-
-sub is_extended_left {
-  $_[0]->operand->is_extended_left;
-};
-
-sub is_classed {
-  $_[0]->operand->is_classed;
-};
-
-sub maybe_unsorted {
-  $_[0]->operand->maybe_unsorted;
-};
-
-# A unique query always spans its operand span
-sub min_span {
-  $_[0]->operand->min_span;
-};
-
-
-# A unique query always spans its operand span
-sub max_span {
-  $_[0]->operand->max_span;
 };
 
 
