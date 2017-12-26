@@ -30,7 +30,10 @@ sub new {
 };
 
 
-sub type { 'span' };
+# Type
+sub type {
+  'span';
+};
 
 
 # There are no classes allowed in spans
@@ -39,6 +42,7 @@ sub remove_classes {
 };
 
 
+# Serialize to KQ
 sub to_koral_fragment {
   my $self = shift;
   my $span = {
@@ -58,7 +62,7 @@ sub normalize {
 };
 
 
-
+# Turn terms into ids
 sub identify {
   my ($self, $dict) = @_;
 
@@ -112,7 +116,10 @@ sub max_span {
 };
 
 
-sub maybe_unsorted { 0 };
+# Not unsorted
+sub maybe_unsorted {
+  0;
+};
 
 
 # Todo: Change the term_type!
@@ -141,9 +148,11 @@ sub from_koral {
 };
 
 
+# Stringification
 sub to_string {
   my ($self, $id) = @_;
   return '<' . $self->operand->to_string($id) . '>';
 };
+
 
 1;
