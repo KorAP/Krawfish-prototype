@@ -1,6 +1,8 @@
 package Krawfish::Koral::Result::Enrich::Snippet;
 use strict;
 use warnings;
+use Krawfish::Log;
+use Krawfish::Koral::Result::Enrich::Snippet::Primary;
 use Role::Tiny::With;
 
 with 'Krawfish::Koral::Result::Inflatable';
@@ -25,6 +27,8 @@ with 'Krawfish::Koral::Result::Inflatable';
 # TODO:
 #   Make sure this works for right-to-left (RTL) language scripts as well!
 
+
+use constant DEBUG => 1;
 
 # Constructor
 sub new {
@@ -97,7 +101,21 @@ sub stream_offset {
 # Stringification
 sub to_string {
   my ($self, $id) = @_;
-  my $str = $self->key . ':' . $self->stream->to_string($id);
+
+  if ($id) {
+    return $self->key . ':' . $self->stream->to_string($id);
+  };
+
+  if (DEBUG) {
+    print_log('kq_snippet', 'Create ordered markup');
+  };
+
+  # Get list of annotations
+  my $list = $self->_inline_markup(
+    $self->_order_markup
+  );
+
+  return $self->key . ':' . join('', map { $_->to_brackets } @$list);
 };
 
 
@@ -115,71 +133,203 @@ sub to_koral_fragment {
 };
 
 
+# This is based on processHighlightStack() in Krill
 sub _order_markup {
-  my ($self, $stream) = @_;
-  # This is based on processHighlightStack() in Krill
-  #
+  my $self = shift;
+  my $stream = $self->stream;
+
+  # TODO:
+  #   Do not clone all elements but create index lists on the annotation
+  #   lists and mark open/close in the stack structure, that will basically be
+  #   [[index,openbool],[index,oprenbool],...]
+
   # 1. Take all markup and split into opening and closing tags
   #    - Milestones are only added as starts
-  my (@open, @close);
-  # 2. Sort the open tags:
-  #    - by start position
-  #    - by start character extension
-  #    - by end position
-  #    - by class number / depth
-  #    - by annotation term
-  #    - by certainty
+
+  # 2. Sort the closing tags
+  my @open = sort {
+
+    # Sort for opening tags
+    $a->compare_open($b)
+  } @{$self->{annotations}};
+
   # 3. Sort the closing tags
-  #    - by end position
-  #    - by end character extension
-  #    - by start position
-  #    - by class number /depth
-  #    - by annotation term
-  #    - by certainty
+  my @close = sort {
+
+    # Sort for opening tags
+    $a->compare_close($b)
+  } @{$self->{annotations}};
+
   # 4. Create a stack or a list of the doubled length of
   #    the opening list
-  my @stack;
-
+  my @stack = ();
   while (@open || @close) {
+
+    if (DEBUG) {
+      print_log('kq_snippet', 'Open or close list is not empty');
+    };
 
     # No more open tags
     if (!@open) {
-      push @stack, pop @close;
+
+      if (DEBUG) {
+        print_log(
+          'kq_snippet',
+          'Open is empty - push closener to stack: ' . $close[0]->to_string
+        );
+      };
+
+      push @stack, shift @close;
       next;
     }
 
     # No more end tags
     elsif (!@close) {
+
+      if (DEBUG) {
+        print_log('kq_snippet', 'Close is empty - do nothing');
+      };
+
       last;
     };
 
-    # The opener starts before the closer ends
-    if ($open[0] < $close[0]) {
-      push @stack, shift @open;
+    if (DEBUG) {
+      print_log('kq_snippet', 'Compare both tags');
+    };
+
+
+    # The first opener starts before the first closer ends
+    if ($open[0]->start < $close[0]->end) {
+
+      my $opener = shift(@open)->clone->is_opening(1);
+
+      if (DEBUG) {
+        print_log('kq_snippet', 'Push opener to stack: ' . $opener->to_string);
+      };
+
+      push @stack, $opener;
     }
 
     # First let the closer end
     else {
-      push(@stack, shift(@close));
+      if (DEBUG) {
+        print_log('kq_snippet', 'Push closener to stack: ' . $close[0]->to_string);
+      };
+
+      push @stack, shift @close;
     };
   };
 
-  return @stack;
+  if (DEBUG) {
+    print_log(
+      'kq_snippet',
+      'Stack is <' . join('; ', map { $_->to_string } @stack) . '>'
+    );
+  };
+
+  return \@stack;
+};
+
+
+# Iterate over all annotations and join with stream
+# Based on HighlightCombinator.java in Krill
+sub _inline_markup {
+  my ($self, $stack) = @_;
 
   # 5. Iterate over the stream and add all annotations.
   #    Stream is:
   #    Krawfish::Koral::Document::Stream
   #    with surface annotations only
-  my $length = $self->stream->length;
-  while ($length > 0) {
-    ...
+  my @list;
+  my $stream = $self->stream;
+  my $length = $stream->length;
+  my $i = 0;
+
+  if (DEBUG) {
+    print_log('kq_snippet', '> Inline markup elements');
   };
+
+  # TODO:
+  #   Take care of preceding data
+
+  # TODO:
+  #   Take care of stream_offset
+  my $anno = shift @$stack;
+  while ($i < $length || $anno) {
+
+    my $subtoken = $stream->[$i];
+
+    # Add opening tag
+    if ($anno->is_opening) {
+
+      # Add annotation start tag
+      if ($anno->start <= $i) {
+        if (DEBUG) {
+          print_log('kq_snippet', 'Add annotation to list ' . $anno->to_string);
+        };
+        push @list, $anno;
+        $anno = shift @$stack;
+      }
+
+      # Add data
+      else {
+        if (DEBUG) {
+          print_log('kq_snippet', 'Add text to list ' . $subtoken->subterm);
+        };
+        push @list, _new_data(substr($subtoken->subterm, 1));
+        $i++;
+      };
+    }
+
+    # Deal with closing tag
+    elsif ($anno->end > $i) {
+      if (DEBUG) {
+        print_log('kq_snippet', 'Add text to list: ' . $subtoken->subterm);
+      };
+      push @list, _new_data(substr($subtoken->subterm, 1));
+      $i++;
+    }
+
+    # Add closing tag
+    else {
+
+      # TODO:
+      #   This needs to take care of balancing elements,
+      #   so overlaps will work as expected
+      if (DEBUG) {
+        print_log('kq_snippet', 'Add annotation to list: ' . $anno->to_string);
+      };
+
+      push @list, $anno;
+      $anno = shift @$stack;
+    };
+  };
+
+  if (DEBUG) {
+    print_log(
+      'kq_snippet',
+      'List of elements is ' . join('', map { $_->to_brackets } @list)
+    );
+  };
+
+  return \@list;
 };
+
+
+# Create new primary data object
+sub _new_data {
+  return Krawfish::Koral::Result::Enrich::Snippet::Primary->new(data => $_[0]);
+};
+
 
 # Add annotation
 sub add {
   my $self = shift;
   my $e = shift;
+
+  if (DEBUG) {
+    print_log('kq_snippet', 'Add markup ' . $e);
+  };
 
   # Add markup objects
   if (Role::Tiny::does_role($e, 'Krawfish::Koral::Result::Enrich::Snippet::Markup')) {
@@ -202,7 +352,7 @@ sub add {
     };
 
     # Push to annotation list
-    push @{$self->{annotations}}, $_[0];
+    push @{$self->{annotations}}, $e;
   };
 };
 

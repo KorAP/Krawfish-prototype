@@ -14,7 +14,7 @@ use Role::Tiny;
 
 with 'Krawfish::Compile::Segment';
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 
 # TODO:
@@ -109,7 +109,7 @@ sub current_match {
   my $match = $self->match_from_query;
 
   if (DEBUG) {
-    print_log('c_snippet', 'match is ' . $match->to_string);
+    print_log('c_snippet', 'match is ' . $match->to_string(1));
   };
 
   # Create hit object
@@ -128,6 +128,9 @@ sub current_match {
 
   # Retrieve classes from match
   foreach my $highlight ($match->get_classes) {
+
+    # TEMP:
+    last;
 
     # TODO:
     #   Check for classes with supported highlights!
@@ -211,7 +214,12 @@ sub _fetch_stream {
     return;
   };
 
-  print_log('c_snippet', 'Retrieve annotation data for match') if DEBUG;
+  if (DEBUG) {
+    print_log(
+      'c_snippet',
+      'Retrieve annotation data for match starting at ' . $snippet->hit_start
+    );
+  };
 
   # Initialize context
   my (
@@ -323,15 +331,15 @@ sub _fetch_stream {
 
 # Stringification
 sub to_string {
-  my $self = shift;
+  my ($self, $id) = @_;
   my $str = 'eSnippet(hit';
   if ($self->{left}) {
-    $str .= ',' . $self->{left}->to_string;
+    $str .= ',' . $self->{left}->to_string($id);
   };
   if ($self->{right}) {
-    $str .= ',' . $self->{right}->to_string;
+    $str .= ',' . $self->{right}->to_string($id);
   };
-  $str .= ':' . $self->{query}->to_string;
+  $str .= ':' . $self->{query}->to_string($id);
   return $str . ')';
 };
 
