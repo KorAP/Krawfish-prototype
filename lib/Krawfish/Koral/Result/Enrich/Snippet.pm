@@ -1,6 +1,7 @@
 package Krawfish::Koral::Result::Enrich::Snippet;
 use strict;
 use warnings;
+use Krawfish::Util::Constants ':PREFIX';
 use Krawfish::Log;
 use Krawfish::Koral::Result::Enrich::Snippet::Primary;
 use Role::Tiny::With;
@@ -273,20 +274,24 @@ sub _inline_markup {
 
       # Add data
       else {
-        if (DEBUG) {
-          print_log('kq_snippet', 'Add text to list ' . $subtoken->subterm);
+        if ($subtoken->subterm) {
+          if (DEBUG) {
+            print_log('kq_snippet', 'Add text to list ' . $subtoken->subterm);
+          };
+          push @list, _new_data(substr($subtoken->subterm, 1));
         };
-        push @list, _new_data(substr($subtoken->subterm, 1));
         $i++;
       };
     }
 
     # Deal with closing tag
     elsif ($anno->end > $i) {
-      if (DEBUG) {
-        print_log('kq_snippet', 'Add text to list: ' . $subtoken->subterm);
+      if ($subtoken->subterm) {
+        if (DEBUG) {
+          print_log('kq_snippet', 'Add text to list: ' . $subtoken->subterm);
+        };
+        push @list, _new_data(substr($subtoken->subterm, 1));
       };
-      push @list, _new_data(substr($subtoken->subterm, 1));
       $i++;
     }
 
@@ -318,7 +323,9 @@ sub _inline_markup {
 
 # Create new primary data object
 sub _new_data {
-  return Krawfish::Koral::Result::Enrich::Snippet::Primary->new(data => $_[0]);
+  return Krawfish::Koral::Result::Enrich::Snippet::Primary->new(
+    data => shift
+  );
 };
 
 

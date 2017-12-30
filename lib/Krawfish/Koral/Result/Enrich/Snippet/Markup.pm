@@ -273,11 +273,11 @@ sub clone {
   my $self = shift;
 
   return blessed($self)->new(
-    start => $self->{start},
-    end => $self->{end},
-    start_char => $self->{start_char},
-    end_char => $self->{end_char},
-    opening => $self->{opening}
+    start => $self->start,
+    end => $self->end,
+    start_char => $self->start_char,
+    end_char => $self->end_char,
+    opening => $self->is_opening
   );
 };
 

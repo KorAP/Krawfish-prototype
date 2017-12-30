@@ -114,8 +114,8 @@ sub current_match {
 
   # Create hit object
   my $hit = Krawfish::Koral::Result::Enrich::Snippet::Hit->new(
-    start => $match->start,
-    end   => $match->end
+    start => $match->start // 0,
+    end   => $match->end // 0
   );
 
   # Create new snippet result object
@@ -139,9 +139,9 @@ sub current_match {
           $highlight->[1] <= $new_snippet->hit_end) {
 
       my $e = Krawfish::Koral::Result::Enrich::Snippet::Highlight->new(
-        number => $highlight->[0],
+        number => $highlight->[0] // 0,
         start  => $highlight->[1],
-        end    => $highlight->[2],
+        end    => $highlight->[2]
       );
 
       # Add highlight

@@ -49,16 +49,17 @@ ok(my $query = $koral_query->optimize($index->segment), 'Optimize');
 is ($query->to_string, 'eSnippet(hit:filter(or(#10,#8),[1]))', 'Stringification');
 
 ok($query->next, 'Next match');
+is($query->current_match->to_string(1), "[0:0-1|snippet:(0)<>[#7]]", 'Current match');
 is($query->current_match->inflate($index->dict)->to_string,
    "[0:0-1|snippet:[aa]]", 'Current match');
+is($query->current_match->to_string(1), "[0:0-1|snippet:(0)<>[#7]]", 'Current match');
+is($query->current_match->to_string(1), "[0:0-1|snippet:(0)<>[#7]]", 'Current match');
 
 diag 'Retrieve snippets multiple times';
 
 done_testing;
 __END__
 
-is($query->current_match->to_string(1), "[0:0-1|snippet:(0)<>[#7]]", 'Current match');
-is($query->current_match->to_string(1), "[0:0-1|snippet:(0)<>[#7]]", 'Current match');
 
 
 ok($query->next, 'Next match');
