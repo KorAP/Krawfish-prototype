@@ -243,11 +243,11 @@ sub _inline_markup {
   #    with surface annotations only
   my @list;
   my $stream = $self->stream;
-  my $length = $stream->length;
-  my $i = 0;
+  my $length = $stream->length + $self->stream_offset;
+  my $i = $self->stream_offset;
 
   if (DEBUG) {
-    print_log('kq_snippet', '> Inline markup elements');
+    print_log('kq_snippet', '> Inline markup elements at ' . $self->stream_offset);
   };
 
   # TODO:
@@ -258,7 +258,7 @@ sub _inline_markup {
   my $anno = shift @$stack;
   while ($i < $length || $anno) {
 
-    my $subtoken = $stream->[$i];
+    my $subtoken = $stream->[$i - $self->stream_offset];
 
     # Add opening tag
     if ($anno->is_opening) {
@@ -274,7 +274,7 @@ sub _inline_markup {
 
       # Add data
       else {
-        if ($subtoken->subterm) {
+        if ($subtoken && $subtoken->subterm) {
           if (DEBUG) {
             print_log('kq_snippet', 'Add text to list ' . $subtoken->subterm);
           };
@@ -286,7 +286,7 @@ sub _inline_markup {
 
     # Deal with closing tag
     elsif ($anno->end > $i) {
-      if ($subtoken->subterm) {
+      if ($subtoken && $subtoken->subterm) {
         if (DEBUG) {
           print_log('kq_snippet', 'Add text to list: ' . $subtoken->subterm);
         };
