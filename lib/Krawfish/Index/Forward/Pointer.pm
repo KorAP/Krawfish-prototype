@@ -11,7 +11,7 @@ use strict;
 #   This currently is not combined with live documents per default
 
 use constant {
-  DEBUG => 0
+  DEBUG => 1
 };
 
 # API:
@@ -39,7 +39,7 @@ sub new {
     next => undef,
 
     # Temporary until all is in one stream
-    doc => -1
+    doc => undef
   }, $class;
 };
 
@@ -195,10 +195,26 @@ sub next {
 
   # Initialize document
   if (!defined $self->{doc}) {
-    $self->skip_doc(0);
+
+    if (DEBUG) {
+      print_log('fwd_point', 'initialize forward pointer');
+    };
+
+    if ($self->skip_doc(0) == NOMOREDOCS) {
+      if (DEBUG) {
+        print_log('fwd_point', ' No more documents');
+      };
+
+      return NOMOREDOCS;
+    };
   };
 
+  # There is a document defined
   my $doc = $self->{doc} or return;
+
+  if (DEBUG) {
+    print_log('fwd_point', "Current document is $doc");
+  };
 
   if (!defined $self->{next}) {
 

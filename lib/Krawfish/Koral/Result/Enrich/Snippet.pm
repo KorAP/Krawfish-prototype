@@ -95,7 +95,7 @@ sub stream_offset {
     $self->{stream_offset} = shift;
     return $self;
   };
-  return $self->{stream_offset};
+  return $self->{stream_offset} // 0;
 };
 
 
@@ -260,8 +260,21 @@ sub _inline_markup {
 
     my $subtoken = $stream->[$i - $self->stream_offset];
 
+    # No more annotations
+    unless ($anno) {
+
+      if ($subtoken && $subtoken->subterm) {
+        if (DEBUG) {
+          print_log('kq_snippet', 'Add text to list ' . $subtoken->subterm);
+        };
+        push @list, _new_data(substr($subtoken->subterm, 1));
+      };
+      $i++;
+
     # Add opening tag
-    if ($anno->is_opening) {
+    }
+
+    elsif ($anno->is_opening) {
 
       # Add annotation start tag
       if ($anno->start <= $i) {

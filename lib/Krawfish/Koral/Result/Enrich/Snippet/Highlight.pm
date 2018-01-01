@@ -20,6 +20,14 @@ sub number {
 };
 
 
+# Stringify to brackets
+sub to_brackets {
+  my $self = shift;
+  return '}' unless $self->is_opening;
+  return '{' . $self->number .':' if $self->number;
+};
+
+
 sub clone {
   my $self = shift;
   return __PACKAGE__->new(

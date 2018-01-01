@@ -6,7 +6,6 @@ use Krawfish::Util::Constants qw/:PREFIX/;
 use Test::Krawfish;
 use Data::Dumper;
 
-# TODO: Move this to Koral::Document
 use_ok('Krawfish::Koral::Document');
 use_ok('Krawfish::Index');
 

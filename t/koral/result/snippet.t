@@ -1,4 +1,5 @@
 use Test::More;
+use Test::Krawfish;
 use strict;
 use warnings;
 
@@ -6,6 +7,13 @@ use_ok('Krawfish::Koral::Result::Enrich::Snippet');
 use_ok('Krawfish::Koral::Result::Enrich::Snippet::Hit');
 use_ok('Krawfish::Koral::Result::Enrich::Snippet::Highlight');
 use_ok('Krawfish::Koral::Result::Enrich::Snippet::Span');
+use_ok('Krawfish::Index');
+use_ok('Krawfish::Koral::Document::Stream');
+use_ok('Krawfish::Koral::Document::Subtoken');
+
+my $index = Krawfish::Index->new;
+
+ok_index_file($index, 'doc1.jsonld', 'Add new document');
 
 # Create snippet object
 my $snippet = Krawfish::Koral::Result::Enrich::Snippet->new(
@@ -31,6 +39,32 @@ my $highlight = Krawfish::Koral::Result::Enrich::Snippet::Highlight->new(
 
 ok($snippet->add($highlight), 'Add highlight');
 
+my $stream = Krawfish::Koral::Document::Stream->new;
+
+# Initialize forward pointer
+my $fwd = $index->segment->forward->pointer;
+$fwd->next;
+
+foreach (0..6) {
+  my $current = $fwd->current;
+  $stream->subtoken($_ => Krawfish::Koral::Document::Subtoken->new(
+    preceding_enc => $current->preceding_data,
+    subterm_id => $current->term_id
+  ));
+
+  $fwd->next;
+};
+
+ok($snippet->stream($stream));
+
+diag 'Check preceding data';
+
+done_testing;
+__END__
+
+is($snippet->inflate($index->dict)->to_string, 'Der [alte {4:Mann} ging] über die Straße');
+
+
 # Add annotation
 my $span = Krawfish::Koral::Result::Enrich::Snippet::Span->new(
   term => Krawfish::Koral::Query::Term->new('opennlp/l=Baum'),
@@ -40,7 +74,3 @@ my $span = Krawfish::Koral::Result::Enrich::Snippet::Span->new(
 );
 
 ok($snippet->add($span), 'Add span');
-
-done_testing;
-
-__END__
