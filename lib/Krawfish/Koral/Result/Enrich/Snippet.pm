@@ -50,6 +50,12 @@ sub new {
 };
 
 
+# Key for KQ serialization
+sub key {
+  'snippet'
+};
+
+
 # Inflate term ids to terms
 sub inflate {
   my ($self, $dict) = @_;
@@ -117,12 +123,6 @@ sub to_string {
   );
 
   return $self->key . ':' . join('', map { $_->to_brackets } @$list);
-};
-
-
-# Key for KQ serialization
-sub key {
-  'snippet'
 };
 
 
@@ -267,17 +267,34 @@ sub _inline_markup {
         if (DEBUG) {
           print_log('kq_snippet', 'Add text to list ' . $subtoken->subterm);
         };
+        push @list, _new_data($subtoken->preceding);
         push @list, _new_data(substr($subtoken->subterm, 1));
       };
       $i++;
 
-    # Add opening tag
     }
 
+    # Next tag is opening
     elsif ($anno->is_opening) {
 
       # Add annotation start tag
-      if ($anno->start <= $i) {
+      if ($anno->start == $i) {
+
+        if ($subtoken && $subtoken->preceding) {
+          push @list, _new_data($subtoken->preceding);
+        };
+        push @list, $anno;
+        $anno = shift @$stack;
+
+        if ($subtoken && $subtoken->subterm) {
+          push @list, _new_data(substr($subtoken->subterm, 1));
+        };
+
+        $i++;
+      }
+
+      # Current anno is smaller than i
+      elsif ($anno->start < $i) {
         if (DEBUG) {
           print_log('kq_snippet', 'Add annotation to list ' . $anno->to_string);
         };
@@ -291,18 +308,20 @@ sub _inline_markup {
           if (DEBUG) {
             print_log('kq_snippet', 'Add text to list ' . $subtoken->subterm);
           };
+          push @list, _new_data($subtoken->preceding);
           push @list, _new_data(substr($subtoken->subterm, 1));
         };
         $i++;
       };
     }
 
-    # Deal with closing tag
+    # Next tag is ending
     elsif ($anno->end > $i) {
       if ($subtoken && $subtoken->subterm) {
         if (DEBUG) {
           print_log('kq_snippet', 'Add text to list: ' . $subtoken->subterm);
         };
+        push @list, _new_data($subtoken->preceding);
         push @list, _new_data(substr($subtoken->subterm, 1));
       };
       $i++;

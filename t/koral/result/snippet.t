@@ -2,6 +2,7 @@ use Test::More;
 use Test::Krawfish;
 use strict;
 use warnings;
+use utf8;
 
 use_ok('Krawfish::Koral::Result::Enrich::Snippet');
 use_ok('Krawfish::Koral::Result::Enrich::Snippet::Hit');
@@ -57,12 +58,12 @@ foreach (0..6) {
 
 ok($snippet->stream($stream));
 
+is($snippet->inflate($index->dict)->to_string, 'snippet:Der [alte {4:Mann} ging] über die Straße');
+
 diag 'Check preceding data';
 
 done_testing;
 __END__
-
-is($snippet->inflate($index->dict)->to_string, 'Der [alte {4:Mann} ging] über die Straße');
 
 
 # Add annotation
