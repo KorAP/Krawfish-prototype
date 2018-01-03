@@ -130,6 +130,7 @@ sub to_koral_fragment {
 };
 
 
+# Order all annotations based on their starting/ending positions
 # This is based on processHighlightStack() in Krill
 sub _order_markup {
   my $self = shift;
@@ -227,7 +228,7 @@ sub _order_markup {
 };
 
 
-# Iterate over all annotations and join with stream
+# Iterate over all annotations and join with the primary data stream
 # Based on HighlightCombinator.java in Krill
 sub _inline_markup {
   my ($self, $stack) = @_;
@@ -245,26 +246,32 @@ sub _inline_markup {
     print_log('kq_snippet', '> Inline markup elements at ' . $self->stream_offset);
   };
 
-  # TODO:
-  #   Take care of stream_offset
   my $anno = shift @$stack;
-  my $init = 0;
-  while ($i < $length || $anno) {
 
-    my $subtoken = $stream->[$i - $self->stream_offset];
+  # Only take care of preceding data after start
+  my $init = 0;
+
+  # Get current annotation
+  my ($preceding, $subterm) = $self->_subtoken($i);
+
+  # TODO:
+  #   Take care of preceding data for initial annotations with start_char
+  #    and preceding data of following subtoken for ending annotations
+  #    with end_char
+
+  # TODO:
+  #   Check for the case where the last subtoken is retrieved
+  #   and the preceding data of the virtual last subtoken is needed
+  while ($i < $length || $anno) {
 
     # No more annotations
     unless ($anno) {
-
-      if ($subtoken && $subtoken->subterm) {
-        if (DEBUG) {
-          print_log('kq_snippet', 'Add text to list ' . $subtoken->subterm);
-        };
-        push @list, _new_data($subtoken->preceding) if $init++ && $subtoken->preceding;
-        push @list, _new_data(substr($subtoken->subterm, 1));
+      if (DEBUG) {
+        print_log('kq_snippet', '1. Add text to list: ' . ($subterm ? $subterm : '-'));
       };
-      $i++;
-
+      push @list, _new_data($preceding) if $init++ && $preceding;
+      push @list, _new_data(substr($subterm, 1)) if $subterm;
+      ($preceding, $subterm) = $self->_subtoken(++$i);
     }
 
     # Next tag is opening
@@ -273,17 +280,18 @@ sub _inline_markup {
       # Add annotation start tag
       if ($anno->start == $i) {
 
-        if ($init++ && $subtoken && $subtoken->preceding) {
-          push @list, _new_data($subtoken->preceding);
+        if (DEBUG) {
+          print_log('kq_snippet', 'Annotation starts with subtoken' .
+                      ' - add annotation to list ' . $anno->to_string);
+        };
+
+        # Take preceding data and ignore further
+        if ($preceding) {
+          push @list, _new_data($preceding) if $init++;
+          $preceding = undef;
         };
         push @list, $anno;
         $anno = shift @$stack;
-
-        if ($subtoken && $subtoken->subterm) {
-          push @list, _new_data(substr($subtoken->subterm, 1));
-        };
-
-        $i++;
       }
 
       # Current anno is smaller than i
@@ -297,27 +305,23 @@ sub _inline_markup {
 
       # Add data
       else {
-        if ($subtoken) {
-          if (DEBUG) {
-            print_log('kq_snippet', 'Add text to list ' . $subtoken->subterm);
-          };
-          push @list, _new_data($subtoken->preceding) if $init++ && $subtoken->preceding;
-          push @list, _new_data(substr($subtoken->subterm, 1)) if $subtoken->subterm;
+        if (DEBUG) {
+          print_log('kq_snippet', '2. Add text to list: ' . ($subterm ? $subterm : '-'));
         };
-        $i++;
+        push @list, _new_data($preceding) if $init++ && $preceding;
+        push @list, _new_data(substr($subterm, 1)) if $subterm;
+        ($preceding, $subterm) = $self->_subtoken(++$i);
       };
     }
 
     # Next tag is ending
     elsif ($anno->end > $i) {
-      if ($subtoken) {
-        if (DEBUG) {
-          print_log('kq_snippet', 'Add text to list: ' . $subtoken->subterm);
-        };
-        push @list, _new_data($subtoken->preceding) if $init++ && $subtoken->preceding;
-        push @list, _new_data(substr($subtoken->subterm, 1)) if $subtoken->subterm;
+      if (DEBUG) {
+        print_log('kq_snippet', '3. Add text to list: ' . ($subterm ? $subterm : '-'));
       };
-      $i++;
+      push @list, _new_data($preceding) if $init++ && $preceding;
+      push @list, _new_data(substr($subterm, 1)) if $subterm;
+      ($preceding, $subterm) = $self->_subtoken(++$i);
     }
 
     # Add closing tag
@@ -343,6 +347,18 @@ sub _inline_markup {
   };
 
   return \@list;
+};
+
+
+# Get subtoken at i
+sub _subtoken {
+  my ($self, $i) = @_;
+  my $subtoken = $self->stream->[$i - $self->stream_offset];
+  if (DEBUG) {
+    print_log('kq_snippet', 'Fetch next subtoken');
+  };
+  return ($subtoken->preceding, $subtoken->subterm) if $subtoken;
+  return ();
 };
 
 
