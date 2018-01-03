@@ -60,8 +60,6 @@ ok($snippet->stream($stream));
 
 is($snippet->inflate($index->dict)->to_string, 'snippet:Der [alte {4:Mann} ging] über die Straße');
 
-diag 'Check preceding data';
-
 done_testing;
 __END__
 

@@ -63,10 +63,6 @@ sub inflate {
   # Inflate the stream
   $self->stream($self->stream->inflate($dict));
 
-  #my $hit = $self->{hit_ids};
-  #for (my $i = 0; $i < @$hit; $i++) {
-  #  $hit->[$i] = $hit->[$i]->inflate($dict);
-  #};
   return $self;
 };
 
@@ -198,7 +194,6 @@ sub _order_markup {
       print_log('kq_snippet', 'Compare both tags');
     };
 
-
     # The first opener starts before the first closer ends
     if ($open[0]->start < $close[0]->end) {
 
@@ -251,11 +246,9 @@ sub _inline_markup {
   };
 
   # TODO:
-  #   Take care of preceding data
-
-  # TODO:
   #   Take care of stream_offset
   my $anno = shift @$stack;
+  my $init = 0;
   while ($i < $length || $anno) {
 
     my $subtoken = $stream->[$i - $self->stream_offset];
@@ -267,7 +260,7 @@ sub _inline_markup {
         if (DEBUG) {
           print_log('kq_snippet', 'Add text to list ' . $subtoken->subterm);
         };
-        push @list, _new_data($subtoken->preceding);
+        push @list, _new_data($subtoken->preceding) if $init++ && $subtoken->preceding;
         push @list, _new_data(substr($subtoken->subterm, 1));
       };
       $i++;
@@ -280,7 +273,7 @@ sub _inline_markup {
       # Add annotation start tag
       if ($anno->start == $i) {
 
-        if ($subtoken && $subtoken->preceding) {
+        if ($init++ && $subtoken && $subtoken->preceding) {
           push @list, _new_data($subtoken->preceding);
         };
         push @list, $anno;
@@ -304,12 +297,12 @@ sub _inline_markup {
 
       # Add data
       else {
-        if ($subtoken && $subtoken->subterm) {
+        if ($subtoken) {
           if (DEBUG) {
             print_log('kq_snippet', 'Add text to list ' . $subtoken->subterm);
           };
-          push @list, _new_data($subtoken->preceding);
-          push @list, _new_data(substr($subtoken->subterm, 1));
+          push @list, _new_data($subtoken->preceding) if $init++ && $subtoken->preceding;
+          push @list, _new_data(substr($subtoken->subterm, 1)) if $subtoken->subterm;
         };
         $i++;
       };
@@ -317,12 +310,12 @@ sub _inline_markup {
 
     # Next tag is ending
     elsif ($anno->end > $i) {
-      if ($subtoken && $subtoken->subterm) {
+      if ($subtoken) {
         if (DEBUG) {
           print_log('kq_snippet', 'Add text to list: ' . $subtoken->subterm);
         };
-        push @list, _new_data($subtoken->preceding);
-        push @list, _new_data(substr($subtoken->subterm, 1));
+        push @list, _new_data($subtoken->preceding) if $init++ && $subtoken->preceding;
+        push @list, _new_data(substr($subtoken->subterm, 1)) if $subtoken->subterm;
       };
       $i++;
     }
