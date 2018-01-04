@@ -14,5 +14,9 @@ sub to_brackets {
   return $self->is_opening ? '[' : ']';
 };
 
+sub to_specific_string {
+  return 'hit;';
+};
+
 
 1;

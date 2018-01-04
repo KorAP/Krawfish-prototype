@@ -8,6 +8,7 @@ requires qw/start
             end
             start_char
             end_char
+            to_specific_string
             clone/;
 
 # TODO:
@@ -122,12 +123,12 @@ sub compare_open {
   }
 
   # By end position
-  elsif ($self_a->end < $self_b->end) {
+  elsif ($self_a->end > $self_b->end) {
     return -1;
   }
 
-  elsif ($self_a->end > $self_b->end) {
-    return -1;
+  elsif ($self_a->end < $self_b->end) {
+    return 1;
   }
 
   # By number
@@ -199,12 +200,12 @@ sub compare_close {
   }
 
   # By start position
-  elsif ($self_a->start < $self_b->start) {
+  elsif ($self_a->start > $self_b->start) {
     return -1;
   }
 
-  elsif ($self_a->start > $self_b->start) {
-    return -1;
+  elsif ($self_a->start < $self_b->start) {
+    return 1;
   }
 
   # By number
@@ -287,6 +288,7 @@ sub to_string {
   my $self = shift;
   my $str = '';
   $str .= '(' if $self->is_opening;
+  $str .= $self->to_specific_string;
   $str .= join(',', map { $_ ? $_ : 0} @{$self}{qw/start start_char end end_char/});
   $str .= ')' if !$self->is_opening;
   return $str;

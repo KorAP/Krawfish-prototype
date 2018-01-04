@@ -70,6 +70,17 @@ ok($snippet->add($highlight), 'Add highlight');
 
 is($snippet->inflate($index->dict)->to_string, 'snippet:Der [alte {5:{4:Mann} ging}] über die Straße');
 
+$highlight = Krawfish::Koral::Result::Enrich::Snippet::Highlight->new(
+  start => 2,
+  start_char => -1,
+  end => 4,
+  number => 6
+);
+
+ok($snippet->add($highlight), 'Add highlight');
+
+is($snippet->inflate($index->dict)->to_string, 'snippet:Der [alte{6: {5:{4:Mann} ging}}] über die Straße');
+
 
 done_testing;
 __END__

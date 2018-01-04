@@ -287,9 +287,41 @@ sub _inline_markup {
 
         # Take preceding data and ignore further
         if ($preceding) {
-          push @list, _new_data($preceding) if $init++;
-          $preceding = undef;
-        };
+
+          # The start character
+          if ($anno->start_char < 0) {
+            my $start_char = $anno->start_char;
+
+            if ($start_char < (-1 * length($preceding))) {
+              warn 'invalid start char';
+            };
+
+            # Left preceding
+            my $take = substr($preceding, 0, length($preceding) + $start_char);
+            my $leave  = substr($preceding, $start_char);
+
+            if (DEBUG) {
+              print_log(
+                'kq_snippet',
+                'Annotation has start char at ' . $start_char,
+                'From "' . $preceding . '" take "' . $take . '" and leave "'.$leave.'"'
+              );
+            };
+
+            # Only add the first part, if given
+            push @list, _new_data($take) if $init++ && $take;
+            $preceding = $leave;
+          }
+          else {
+            push @list, _new_data($preceding) if $init++;
+            $preceding = undef;
+          };
+        }
+
+        # elsif ($anno->start_char < 0) {
+        #   warn 'invalid start char';
+        # };
+
         push @list, $anno;
         $anno = shift @$stack;
       }

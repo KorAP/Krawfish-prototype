@@ -9,5 +9,9 @@ sub to_brackets {
   return $_[0]->{data};
 };
 
+sub to_specific_string {
+  return 'primary;';
+};
+
 
 1;

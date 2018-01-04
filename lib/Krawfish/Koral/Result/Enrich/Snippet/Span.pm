@@ -25,4 +25,9 @@ sub depth {
 };
 
 
+sub to_specific_string {
+  return 'span:' . $_[0]->depth .';';
+};
+
+
 1;
