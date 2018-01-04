@@ -19,4 +19,8 @@ sub to_specific_string {
 };
 
 
+sub number {
+  0;
+};
+
 1;

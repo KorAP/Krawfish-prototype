@@ -31,9 +31,15 @@ use constant DEBUG => 1;
 
 sub new {
   my $class = shift;
-  my $term = shift;
 
   my %self;
+  if (@_ > 1) {
+    %self = @_;
+    return bless \%self, $class;
+  };
+
+  # Parse string or number
+  my $term = shift;
 
   if ($term) {
 
@@ -81,6 +87,22 @@ sub new {
 
   bless \%self, $class;
 };
+
+
+sub clone {
+  my $self = shift;
+  return __PACKAGE__->new(
+    field => $self->field,
+    prefix => $self->prefix,
+    foundry => $self->foundry,
+    layer => $self->layer,
+    operator => $self->operator,
+    key => $self->key,
+    value => $self->value,
+    term_id => $self->term_id
+  );
+};
+
 
 sub type { 'term' };
 

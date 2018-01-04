@@ -1,5 +1,6 @@
 use Test::More;
 use Test::Krawfish;
+use Krawfish::Util::Constants qw/:PREFIX/;
 use strict;
 use warnings;
 use utf8;
@@ -11,6 +12,7 @@ use_ok('Krawfish::Koral::Result::Enrich::Snippet::Span');
 use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Document::Stream');
 use_ok('Krawfish::Koral::Document::Subtoken');
+use_ok('Krawfish::Koral::Query::Term');
 
 my $index = Krawfish::Index->new;
 
@@ -74,6 +76,7 @@ $highlight = Krawfish::Koral::Result::Enrich::Snippet::Highlight->new(
   start => 2,
   start_char => -1,
   end => 4,
+  # end_char => 2,
   number => 6
 );
 
@@ -82,16 +85,24 @@ ok($snippet->add($highlight), 'Add highlight');
 is($snippet->inflate($index->dict)->to_string, 'snippet:Der [alte{6: {5:{4:Mann} ging}}] über die Straße');
 
 
+# Test span addition
+my $span = Krawfish::Koral::Result::Enrich::Snippet::Span->new(
+  term => Krawfish::Koral::Query::Term->new(SPAN_PREF . 'opennlp/l=Baum'),
+  start => 2,
+  end => 3,
+  number => 4,
+  depth => 0
+);
+
+ok($snippet->add($span), 'Add highlight');
+
+is($snippet->inflate($index->dict)->to_string,
+   'snippet:Der [alte{6: {5:{4:<opennlp/l=Baum>Mann</>} ging}}] über die Straße',
+ 'Annotation snippet');
+
+
+
 done_testing;
 __END__
 
 
-# Add annotation
-my $span = Krawfish::Koral::Result::Enrich::Snippet::Span->new(
-  term => Krawfish::Koral::Query::Term->new('opennlp/l=Baum'),
-  start => 2,
-  end => 3,
-  depth => 0
-);
-
-ok($snippet->add($span), 'Add span');

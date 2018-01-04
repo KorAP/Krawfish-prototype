@@ -1,10 +1,11 @@
 package Krawfish::Koral::Result::Enrich::Snippet::Span;
 use strict;
 use warnings;
+use Krawfish::Util::Constants qw/MAX_CLASS_NR/;
 use Role::Tiny::With;
 use Krawfish::Log;
 
-with 'Krawfish::Koral::Document::Annotation';
+with 'Krawfish::Koral::Document::Term';
 with 'Krawfish::Koral::Result::Enrich::Snippet::Markup';
 with 'Krawfish::Koral::Result::Enrich::Snippet::TUI';
 with 'Krawfish::Koral::Result::Enrich::Snippet::Certainty';
@@ -27,6 +28,32 @@ sub depth {
 
 sub to_specific_string {
   return 'span:' . $_[0]->depth .';';
+};
+
+
+sub to_brackets {
+  my $self = shift;
+  if ($self->is_opening) {
+    return '<' . $self->term->to_string . '>';
+  };
+  return '</>';
+};
+
+# Clone markup
+sub clone {
+  my $self = shift;
+
+  return __PACKAGE__->new(
+    start => $self->start,
+    end => $self->end,
+    start_char => $self->start_char,
+    end_char => $self->end_char,
+    opening => $self->is_opening,
+    depth => $self->depth,
+    certainty => $self->certainty,
+    term => $self->term->clone,
+    tui => $self->tui
+  );
 };
 
 

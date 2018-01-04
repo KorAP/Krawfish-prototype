@@ -1,8 +1,14 @@
 package Krawfish::Koral::Result::Enrich::Snippet::Markup;
+use v5.10;
 use strict;
 use warnings;
+use Krawfish::Log;
+use Krawfish::Util::Constants qw/MAX_CLASS_NR/;
+use Krawfish::Koral::Query::Term;
 use Scalar::Util qw/blessed/;
 use Role::Tiny;
+
+with 'Krawfish::Koral::Result::Inflatable';
 
 requires qw/start
             end
@@ -10,6 +16,8 @@ requires qw/start
             end_char
             to_specific_string
             clone/;
+
+use constant DEBUG => 1;
 
 # TODO:
 #   Have common methods with
@@ -133,6 +141,12 @@ sub compare_open {
 
   # By number
   elsif ($self_a->number < $self_b->number) {
+    if (DEBUG) {
+      print_log(
+        'kq_markup',
+        'Number is smaller: ' . $self_a->to_string . ' vs ' . $self_b->to_string
+      );
+    };
     return -1;
   }
 
@@ -150,11 +164,11 @@ sub compare_open {
   }
 
   # By annotation term
-  elsif ($self_a->term lt $self_b->term) {
+  elsif ($self_a->term->to_string lt $self_b->term->to_string) {
     return -1;
   }
 
-  elsif ($self_a->term gt $self_b->term) {
+  elsif ($self_a->term->to_string gt $self_b->term->to_string) {
     return 1;
   }
 
@@ -227,11 +241,11 @@ sub compare_close {
   }
 
   # By annotation term
-  elsif ($self_a->term lt $self_b->term) {
+  elsif ($self_a->term->to_neutral lt $self_b->term->to_neutral) {
     return 1;
   }
 
-  elsif ($self_a->term gt $self_b->term) {
+  elsif ($self_a->term->to_neutral gt $self_b->term->to_neutral) {
     return -1;
   }
 
@@ -249,7 +263,7 @@ sub compare_close {
 
 # Fake number for comparation
 sub number {
-  -1;
+  MAX_CLASS_NR + 2;
 };
 
 
@@ -264,8 +278,11 @@ sub certainty {
   0;
 };
 
+
+# Fake term for comparison
 sub term {
-  '';
+  state $term = Krawfish::Koral::Query::Term->new('000/000=000');
+  return $term;
 };
 
 
@@ -273,6 +290,8 @@ sub term {
 sub clone {
   my $self = shift;
 
+  # TODO:
+  #   To prevent errors it's probably better to remove this fallback clone!
   return blessed($self)->new(
     start => $self->start,
     end => $self->end,
@@ -294,5 +313,13 @@ sub to_string {
   return $str;
 };
 
+
+sub to_koral_fragment {
+  ...
+};
+
+sub inflate {
+  $_[0]
+};
 
 1;

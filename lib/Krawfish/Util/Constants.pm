@@ -16,7 +16,8 @@ use constant {
   REL_R_PREF   => '<',
   PTI_CLASS    => 0,    # Payload identifier for classes
   NOMOREDOCS   => 4_294_967_295, # (maximum value for 32 bit)
-  MAX_TOP_K    => 4_294_967_295
+  MAX_TOP_K    => 4_294_967_295,
+  MAX_CLASS_NR => 15
 };
 
 our $ANNO_PREFIX_RE = qr/(?:\:|\-|\@|\>|\<)/;
@@ -34,7 +35,8 @@ our @EXPORT_OK = (qw/KEY_PREF
                      PTI_CLASS
                      $ANNO_PREFIX_RE
                      NOMOREDOCS
-                     MAX_TOP_K/);
+                     MAX_TOP_K
+                     MAX_CLASS_NR/);
 
 our %EXPORT_TAGS = (
   PREFIX => [qw/KEY_PREF
