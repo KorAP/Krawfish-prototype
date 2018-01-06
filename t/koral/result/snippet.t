@@ -115,6 +115,36 @@ is($snippet->inflate($index->dict)->to_string,
    'snippet:Der [{7:alte{6: {5:{4:<opennlp/l=Baum>Mann</>}}}}{6:{5: ging}}] über die Straße',
    'Annotation snippet');
 
+# Check levels with discontinuing highlights
+is($snippet->inflate($index->dict)->to_html,
+   'Der '.
+   '<span class="match">'.
+     '<mark>'.
+       '<mark class="class-7 level-?">'.
+         'alte'.
+         '<mark class="class-6 level-?">'.
+           ' '.
+           '<mark class="class-5 level-?">'.
+             '<mark class="class-4 level-?">'.
+               '<span title="opennlp/l=Baum">'.
+                 'Mann'.
+               '</span>'.
+             '</mark>'.
+           '</mark>'.
+         '</mark>'.
+       '</mark>'.
+       '<mark class="class-6 level-?">'.
+         '<mark class="class-5 level-?">'.
+           ' ging'.
+         '</mark>'.
+       '</mark>'.
+     '</mark>'.
+   '</span>'.
+   ' über die Straße',
+   'Annotation snippet');
+
+
+
 
 # TODO:
 #   Check the behaviour, when the end_char is behind the next start_char

@@ -22,4 +22,9 @@ sub number {
   0;
 };
 
+sub to_html {
+  my $self = shift;
+  return $self->is_opening ? '<span class="match"><mark>' : '</mark></span>';
+};
+
 1;

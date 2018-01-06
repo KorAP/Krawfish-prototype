@@ -4,6 +4,7 @@ use warnings;
 use Krawfish::Util::Constants qw/MAX_CLASS_NR/;
 use Role::Tiny::With;
 use Krawfish::Log;
+use Mojo::Util qw/xml_escape/;
 
 with 'Krawfish::Koral::Document::Term';
 with 'Krawfish::Koral::Result::Enrich::Snippet::Markup';
@@ -48,6 +49,15 @@ sub to_brackets {
   return '</>';
 };
 
+sub to_html {
+  my $self = shift;
+  return '</span>' unless $self->is_opening;
+  my $str = '<span title="' . xml_escape($self->term->to_string) . '"';
+
+  # TODO:
+  #   Handle discontinuing spans!
+  return $str . '>';
+};
 
 # Clone markup
 sub clone {

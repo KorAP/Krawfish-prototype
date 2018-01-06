@@ -122,6 +122,23 @@ sub to_string {
 };
 
 
+# Serialization
+sub to_html {
+  my ($self, $id) = @_;
+
+    if (DEBUG) {
+    print_log('kq_snippet', 'Create ordered markup');
+  };
+
+  # Get list of annotations
+  my $list = $self->_inline_markup(
+    $self->_order_markup
+  );
+
+  return join('', map { $_->to_html } @$list);
+};
+
+
 # Serialize KQ
 sub to_koral_fragment {
   my $self = shift;

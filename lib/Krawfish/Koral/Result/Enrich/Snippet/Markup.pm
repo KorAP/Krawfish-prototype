@@ -14,6 +14,8 @@ requires qw/start
             end
             start_char
             end_char
+            to_brackets
+            to_html
             to_specific_string
             clone/;
 

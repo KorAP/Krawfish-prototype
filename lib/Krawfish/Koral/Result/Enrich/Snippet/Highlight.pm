@@ -27,6 +27,16 @@ sub to_brackets {
   return '{' . $self->number .':' if $self->number;
 };
 
+sub to_html {
+  my $self = shift;
+  return '</mark>' unless $self->is_opening;
+  my $str = '<mark';
+  if ($self->number) {
+    $str .= ' class="class-' . $self->number . ' level-?"';
+  };
+  return $str . '>';
+};
+
 
 sub clone {
   my $self = shift;
