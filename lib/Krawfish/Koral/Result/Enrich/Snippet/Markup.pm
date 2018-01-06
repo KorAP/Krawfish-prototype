@@ -121,6 +121,15 @@ sub compare_open {
     return 1;
   }
 
+  # By end position
+  elsif ($self_a->end > $self_b->end) {
+    return -1;
+  }
+
+  elsif ($self_a->end < $self_b->end) {
+    return 1;
+  }
+
   # By start character
   elsif ($self_a->start_char < $self_b->start_char){
     return -1;
@@ -130,12 +139,12 @@ sub compare_open {
     return 1;
   }
 
-  # By end position
-  elsif ($self_a->end > $self_b->end) {
+  # By end character
+  elsif ($self_a->end_char > $self_b->end_char){
     return -1;
   }
 
-  elsif ($self_a->end < $self_b->end) {
+  elsif ($self_a->end_char < $self_b->end_char) {
     return 1;
   }
 
@@ -204,6 +213,15 @@ sub compare_close {
     return 1;
   }
 
+  # By start position
+  elsif ($self_a->start > $self_b->start) {
+    return -1;
+  }
+
+  elsif ($self_a->start < $self_b->start) {
+    return 1;
+  }
+
   # By end character
   elsif ($self_a->end_char < $self_b->end_char){
     return -1;
@@ -213,12 +231,12 @@ sub compare_close {
     return 1;
   }
 
-  # By start position
-  elsif ($self_a->start > $self_b->start) {
+  # By start character
+  elsif ($self_a->start_char > $self_b->start_char){
     return -1;
   }
 
-  elsif ($self_a->start < $self_b->start) {
+  elsif ($self_a->start_char < $self_b->start_char) {
     return 1;
   }
 
@@ -307,7 +325,7 @@ sub to_string {
   my $self = shift;
   my $str = '';
   $str .= '(' if $self->is_opening;
-  $str .= $self->to_specific_string;
+  $str .= $self->to_specific_string . ';';
   $str .= join(',', map { $_ ? $_ : 0} @{$self}{qw/start start_char end end_char/});
   $str .= ')' if !$self->is_opening;
   return $str;
@@ -321,5 +339,18 @@ sub to_koral_fragment {
 sub inflate {
   $_[0]
 };
+
+
+# Check if the tag is a closing tag
+# that resembles another opening tag
+sub resembles {
+  my ($self, $other) = @_;
+  if ($self->to_specific_string eq $other->to_specific_string
+        && (!$self->is_opening && $other->is_opening)) {
+    return 1;
+  };
+  return;
+};
+
 
 1;

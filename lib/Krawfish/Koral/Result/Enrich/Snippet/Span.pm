@@ -27,7 +27,16 @@ sub depth {
 
 
 sub to_specific_string {
-  return 'span:' . $_[0]->depth .';';
+  my $self = shift;
+  my $str = 'span:' . $self->term->to_string . ',';
+  return $str . join(
+    ',',
+    map { $_ ? $_ : ''} (
+      $self->depth,
+      $self->certainty,
+      $self->tui
+    )
+  );
 };
 
 
@@ -38,6 +47,7 @@ sub to_brackets {
   };
   return '</>';
 };
+
 
 # Clone markup
 sub clone {

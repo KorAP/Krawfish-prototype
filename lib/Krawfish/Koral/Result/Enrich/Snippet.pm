@@ -126,7 +126,7 @@ sub to_string {
 sub to_koral_fragment {
   my $self = shift;
 
-  return $self->stream->to_string
+  return $self->stream->to_string;
 };
 
 
@@ -248,6 +248,12 @@ sub _inline_markup {
 
   my $anno = shift @$stack;
 
+  # This is the balance stack for annotations!
+  my @balance;
+
+  # This is an intermediate stack for closing and reopening tags
+  my @temp_balance;
+
   # Only take care of preceding data after start
   my $init = 0;
 
@@ -282,7 +288,7 @@ sub _inline_markup {
 
         if (DEBUG) {
           print_log('kq_snippet', 'Annotation starts with subtoken' .
-                      ' - add annotation to list ' . $anno->to_string);
+                      ' - add annotation to list ' . $anno->to_string . ' (1)');
         };
 
         # Take preceding data and ignore further
@@ -322,17 +328,42 @@ sub _inline_markup {
         #   warn 'invalid start char';
         # };
 
+        if (DEBUG) {
+          print_log('kq_snippet', 'Add annotation to list ' . $anno->to_string . ' (2)');
+        };
+
         push @list, $anno;
+        unshift @balance, $anno;
         $anno = shift @$stack;
+
+        if (DEBUG) {
+          print_log(
+            'kq_snippet',
+            'Balance-Stack is <' . join('; ', map { $_->to_string } @balance) . '>',
+            '-'
+          );
+        };
       }
 
       # Current anno is smaller than i
       elsif ($anno->start < $i) {
+
         if (DEBUG) {
-          print_log('kq_snippet', 'Add annotation to list ' . $anno->to_string);
+          print_log('kq_snippet', 'Add annotation to list ' . $anno->to_string . ' (3)');
         };
+
         push @list, $anno;
+        unshift @balance, $anno;
         $anno = shift @$stack;
+
+        if (DEBUG) {
+          print_log(
+            'kq_snippet',
+            'Balance-Stack is <' . join('; ', map { $_->to_string } @balance) . '>',
+            '-'
+          );
+        };
+
       }
 
       # Add data
@@ -357,17 +388,76 @@ sub _inline_markup {
     }
 
     # Add closing tag
-    else {
+    # - this requires something is on the balance stack
+    elsif ($balance[0]) {
 
-      # TODO:
-      #   This needs to take care of balancing elements,
-      #   so overlaps will work as expected
+      # Check, if the annotation is balanced
+      while (!$anno->resembles($balance[0])) {
+        my $last = shift @balance;
+
+        my $reopen = $last->clone->is_opening(1);
+        my $close = $last->clone->is_opening(0);
+
+        if (DEBUG) {
+          print_log(
+            'kq_snippet',
+            'Annotations are not balanced: ' .
+              $anno->to_string . ' vs ' . $close->to_string
+            );
+          print_log(
+            'kq_snippet',
+            'Temporarily close ' . $close->to_string
+          );
+          print_log(
+            'kq_snippet',
+            'Balance-Stack is <' . join('; ', map { $_->to_string } @balance) . '>',
+            '-'
+          );
+        };
+
+        # TODO:
+        #   Check if the element is another opener!
+
+        # TODO:
+        #   Remove empty elements from stack (if they can occur!)
+
+        unshift @temp_balance, $reopen;
+        push @list, $close;
+
+        if (DEBUG) {
+          print_log('kq_snippet', 'Add annotation to list ' . $close->to_string . ' (4)');
+        };
+      };
+
       if (DEBUG) {
-        print_log('kq_snippet', 'Add annotation to list: ' . $anno->to_string);
+        print_log('kq_snippet', 'Add annotation to list: ' . $anno->to_string . ' (5)');
       };
 
       push @list, $anno;
+      shift @balance;
+
+      # Reopen temporary closed elements
+      # unshift @balance, reverse @temp_balance;
+      unshift @$stack, @temp_balance;
+
+      if (DEBUG && @temp_balance) {
+        print_log('kq_snippet', 'Add temporary balanced tags for reopening to balance');
+        print_log(
+          'kq_snippet',
+          'Balance-Stack is <' . join('; ', map { $_->to_string } @balance) . '>',
+          '-'
+        );
+      };
+
+      @temp_balance = ();
       $anno = shift @$stack;
+
+      if (DEBUG && $anno) {
+        print_log(
+          'kq_snippet',
+          'Get next annotation from stack: ' . $anno->to_string
+        )
+      };
     };
   };
 

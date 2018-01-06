@@ -62,6 +62,7 @@ ok($snippet->stream($stream));
 
 is($snippet->inflate($index->dict)->to_string, 'snippet:Der [alte {4:Mann} ging] über die Straße');
 
+
 $highlight = Krawfish::Koral::Result::Enrich::Snippet::Highlight->new(
   start => 2,
   end => 4,
@@ -70,7 +71,8 @@ $highlight = Krawfish::Koral::Result::Enrich::Snippet::Highlight->new(
 
 ok($snippet->add($highlight), 'Add highlight');
 
-is($snippet->inflate($index->dict)->to_string, 'snippet:Der [alte {5:{4:Mann} ging}] über die Straße');
+is($snippet->inflate($index->dict)->to_string,
+   'snippet:Der [alte {5:{4:Mann} ging}] über die Straße');
 
 $highlight = Krawfish::Koral::Result::Enrich::Snippet::Highlight->new(
   start => 2,
@@ -90,7 +92,6 @@ my $span = Krawfish::Koral::Result::Enrich::Snippet::Span->new(
   term => Krawfish::Koral::Query::Term->new(SPAN_PREF . 'opennlp/l=Baum'),
   start => 2,
   end => 3,
-  number => 4,
   depth => 0
 );
 
@@ -101,8 +102,41 @@ is($snippet->inflate($index->dict)->to_string,
  'Annotation snippet');
 
 
+# Discontinuing highlight
+$highlight = Krawfish::Koral::Result::Enrich::Snippet::Highlight->new(
+  start => 1,
+  end => 3,
+  number => 7
+);
+
+ok($snippet->add($highlight), 'Add highlight');
+
+is($snippet->inflate($index->dict)->to_string,
+   'snippet:Der [{7:alte{6: {5:{4:<opennlp/l=Baum>Mann</>}}}}{6:{5: ging}}] über die Straße',
+   'Annotation snippet');
+
+
+# TODO:
+#   Check the behaviour, when the end_char is behind the next start_char
+#   {1:der{2: :1}alte:2}
 
 done_testing;
 __END__
 
 
+# With start and end chars
+$span = Krawfish::Koral::Result::Enrich::Snippet::Span->new(
+  term => Krawfish::Koral::Query::Term->new(SPAN_PREF . 'opennlp/l=Zweig'),
+  start => 2,
+  start_char => -1,
+  end_char => 1,
+  end => 3,
+  depth => 0
+);
+
+ok($snippet->add($span), 'Add highlight');
+
+
+is($snippet->inflate($index->dict)->to_string,
+   'snippet:Der [alte{6:<opennlp/l=Zweig> {5:{4:<opennlp/l=Baum>Mann</>}} </>{5:ging}}] über die Straße',
+ 'Annotation snippet');

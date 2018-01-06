@@ -41,7 +41,7 @@ sub clone {
 };
 
 sub to_specific_string {
-  return 'hl:' . $_[0]->number .';';
+  return 'hl:' . $_[0]->number;
 };
 
 1;

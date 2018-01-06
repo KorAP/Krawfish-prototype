@@ -15,9 +15,8 @@ sub to_brackets {
 };
 
 sub to_specific_string {
-  return 'hit;';
+  return 'hit';
 };
-
 
 sub number {
   0;
