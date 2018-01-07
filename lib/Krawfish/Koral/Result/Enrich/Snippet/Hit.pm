@@ -14,8 +14,12 @@ sub to_brackets {
   return $self->is_opening ? '[' : ']';
 };
 
+sub type {
+  'hit';
+};
+
 sub to_specific_string {
-  return 'hit';
+  return $_[0]->type;
 };
 
 sub number {

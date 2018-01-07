@@ -9,6 +9,10 @@ with 'Krawfish::Koral::Result::Enrich::Snippet::Markup';
 use constant DEBUG => 0;
 
 
+sub type {
+  'highlight'
+}
+
 # Class number of highlight
 sub number {
   my $self = shift;
@@ -19,6 +23,15 @@ sub number {
   return $self->{number};
 };
 
+sub level {
+  my $self = shift;
+  if (@_) {
+    $self->{level} = shift;
+    return $self;
+  };
+  return $self->{level} // '?';
+};
+
 
 # Stringify to brackets
 sub to_brackets {
@@ -27,12 +40,13 @@ sub to_brackets {
   return '{' . $self->number .':' if $self->number;
 };
 
+
 sub to_html {
   my $self = shift;
   return '</mark>' unless $self->is_opening;
   my $str = '<mark';
   if ($self->number) {
-    $str .= ' class="class-' . $self->number . ' level-?"';
+    $str .= ' class="class-' . $self->number . ' level-' . $self->level . '"';
   };
   return $str . '>';
 };
@@ -51,7 +65,7 @@ sub clone {
 };
 
 sub to_specific_string {
-  return 'hl:' . $_[0]->number;
+  return $_[0]->type . ':' . $_[0]->number;
 };
 
 1;

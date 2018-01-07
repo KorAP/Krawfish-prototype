@@ -5,6 +5,10 @@ use Role::Tiny::With;
 
 with 'Krawfish::Koral::Result::Enrich::Snippet::Markup';
 
+sub type {
+  'primary';
+};
+
 sub to_brackets {
   return $_[0]->{data};
 };

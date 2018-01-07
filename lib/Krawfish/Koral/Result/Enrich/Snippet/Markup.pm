@@ -16,6 +16,7 @@ requires qw/start
             end_char
             to_brackets
             to_html
+            type
             to_specific_string
             clone/;
 

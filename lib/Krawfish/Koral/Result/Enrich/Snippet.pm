@@ -1,7 +1,7 @@
 package Krawfish::Koral::Result::Enrich::Snippet;
 use strict;
 use warnings;
-use Krawfish::Util::Constants ':PREFIX';
+use Krawfish::Util::Constants qw/:PREFIX MAX_CLASS_NR/;
 use Krawfish::Log;
 use Krawfish::Koral::Result::Enrich::Snippet::Primary;
 use Role::Tiny::With;
@@ -271,6 +271,13 @@ sub _inline_markup {
   # This is an intermediate stack for closing and reopening tags
   my @temp_balance;
 
+  # Cache, that maps a highlight class to a level number
+  my $level_cache = [];
+
+  # Define a vector with set bits for all used levels
+  # Can be used like a bitset
+  my $level_vector = [(1) x MAX_CLASS_NR];
+
   # Only take care of preceding data after start
   my $init = 0;
 
@@ -347,6 +354,19 @@ sub _inline_markup {
 
         if (DEBUG) {
           print_log('kq_snippet', 'Add annotation to list ' . $anno->to_string . ' (2)');
+        };
+
+
+        # Set level to annotation, if it is a highlight
+        if ($anno->type eq 'highlight') {
+
+          $anno->level(
+            _get_level($level_cache, $level_vector, $anno->number)
+          );
+
+          if (DEBUG) {
+            print_log('kq_snippet', 'Highlight has class ' . $anno->number . ' and level ' . $anno->level);
+          };
         };
 
         push @list, $anno;
@@ -453,8 +473,20 @@ sub _inline_markup {
       push @list, $anno;
       shift @balance;
 
+      # TODO:
+      #   Check this element won't be reopened by fetching a terminal attribute
+      #   see HighilightCombinatorElement
+      if ($anno->type eq 'highlight') {
+
+        if (defined $level_cache->[$anno->number]) {
+
+          # If the annotation is terminal, remove the level from the vector
+          $level_vector->[$level_cache->[$anno->number]] = 1;
+        };
+      };
+
       # Reopen temporary closed elements
-      # unshift @balance, reverse @temp_balance;
+      # ??: unshift @balance, reverse @temp_balance;
       unshift @$stack, @temp_balance;
 
       if (DEBUG && @temp_balance) {
@@ -486,6 +518,38 @@ sub _inline_markup {
   };
 
   return \@list;
+};
+
+
+# Get the highlight level based on a specific number
+sub _get_level {
+  my ($self, $level_cache, $level_vector, $nr) = @_;
+
+  return '?' unless $nr;
+
+  # Return defined level
+  if ($level_cache->[$nr]) {
+    return $level_cache->[$nr];
+  };
+
+  # Iterate unless an unused level is found
+  foreach (0..MAX_CLASS_NR) {
+
+    if (DEBUG) {
+      print_log('kq_snippet', "Check level $_ if used");
+    };
+
+    # Check, if the level is not used yet
+    if ($level_vector->[$_]) {
+
+      # Set level as "used"
+      $level_vector->[$_] = undef;
+      $level_cache->[$nr] = $_;
+      return $_;
+    };
+  };
+
+  return '?';
 };
 
 

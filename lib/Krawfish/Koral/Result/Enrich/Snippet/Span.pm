@@ -16,6 +16,10 @@ with 'Krawfish::Koral::Result::Enrich::Snippet::Certainty';
 
 use constant DEBUG => 0;
 
+sub type {
+  'span'
+};
+
 # Depth
 sub depth {
   my $self = shift;
@@ -29,7 +33,7 @@ sub depth {
 
 sub to_specific_string {
   my $self = shift;
-  my $str = 'span:' . $self->term->to_string . ',';
+  my $str = $self->type . ':' . $self->term->to_string . ',';
   return $str . join(
     ',',
     map { $_ ? $_ : ''} (
