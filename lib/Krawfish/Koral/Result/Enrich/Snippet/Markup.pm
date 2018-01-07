@@ -27,16 +27,8 @@ use constant DEBUG => 1;
 #   Krawfish::Koral::Document::Annotation
 
 # TODO:
-#   This is the base class for
-#   - hit
-#   - highlight
-#   - relation
-#   - anchor
-#   - Annotation
-
-# TODO:
-#   All these role may very well
-#   be under Koral - as index data types.
+#   All these roles may very well
+#   be under Koral::Document - as index data types.
 
 sub new {
   my $class = shift;
@@ -96,6 +88,17 @@ sub is_opening {
     return $self;
   };
   return $self->{opening} // 0;
+};
+
+
+# The element has no further continuation elements
+sub is_terminal {
+  my $self = shift;
+  if (@_ > 0) {
+    $self->{terminal} = shift ? 1 : 0;
+    return $self;
+  };
+  return $self->{terminal} // 1;
 };
 
 
@@ -318,7 +321,8 @@ sub clone {
     end => $self->end,
     start_char => $self->start_char,
     end_char => $self->end_char,
-    opening => $self->is_opening
+    opening => $self->is_opening,
+    terminal => $self->is_terminal
   );
 };
 

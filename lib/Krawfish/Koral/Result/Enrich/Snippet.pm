@@ -135,7 +135,61 @@ sub to_html {
     $self->_order_markup
   );
 
-  return join('', map { $_->to_html } @$list);
+  # Cache, that maps a highlight class to a level number
+  my $level_cache = [];
+
+  # Define a vector with set bits for all used levels
+  # Can be used like a bitset
+  my $level_vector = [(1) x MAX_CLASS_NR];
+
+  my $str = '';
+  foreach my $anno (@$list) {
+
+    # Set level to annotation, if it is a highlight
+    if ($anno->type eq 'highlight') {
+
+      # Highlight is opening
+      if ($anno->is_opening) {
+
+        if (DEBUG) {
+          my $level = _get_level($level_cache, $level_vector, $anno->number);
+
+          $anno->level($level);
+
+          if (DEBUG) {
+            print_log(
+              'kq_snippet',
+              'Open highlight: ' . $anno->to_string . ' at l=' . $level
+            );
+            print_log(
+              'kq_snippet',
+              'Level vector is ' . join(',', @$level_vector)
+            );
+          };
+        };
+      }
+
+      # Is closing and terminal
+      elsif ($anno->is_terminal) {
+
+        if (DEBUG) {
+          print_log('kq_snippet', 'Close terminal highlight: ' . $anno->to_string);
+        };
+
+        # Level cache is defined for this class number
+        if (defined $level_cache->[$anno->number]) {
+
+          # If the annotation is terminal, remove the level from the vector
+          $level_vector->[$level_cache->[$anno->number]] = 1;
+          $level_cache->[$anno->number] = undef;
+        };
+      };
+
+    };
+    $str .= $anno->to_html;
+  };
+
+  return $str;
 };
 
 
@@ -271,13 +325,6 @@ sub _inline_markup {
   # This is an intermediate stack for closing and reopening tags
   my @temp_balance;
 
-  # Cache, that maps a highlight class to a level number
-  my $level_cache = [];
-
-  # Define a vector with set bits for all used levels
-  # Can be used like a bitset
-  my $level_vector = [(1) x MAX_CLASS_NR];
-
   # Only take care of preceding data after start
   my $init = 0;
 
@@ -356,19 +403,6 @@ sub _inline_markup {
           print_log('kq_snippet', 'Add annotation to list ' . $anno->to_string . ' (2)');
         };
 
-
-        # Set level to annotation, if it is a highlight
-        if ($anno->type eq 'highlight') {
-
-          $anno->level(
-            _get_level($level_cache, $level_vector, $anno->number)
-          );
-
-          if (DEBUG) {
-            print_log('kq_snippet', 'Highlight has class ' . $anno->number . ' and level ' . $anno->level);
-          };
-        };
-
         push @list, $anno;
         unshift @balance, $anno;
         $anno = shift @$stack;
@@ -432,8 +466,10 @@ sub _inline_markup {
       while (!$anno->resembles($balance[0])) {
         my $last = shift @balance;
 
+        # Create closing element with a terminal marker,
+        # indicating the element will be continued
+        my $close = $last->clone->is_opening(0)->is_terminal(0);
         my $reopen = $last->clone->is_opening(1);
-        my $close = $last->clone->is_opening(0);
 
         if (DEBUG) {
           print_log(
@@ -473,18 +509,6 @@ sub _inline_markup {
       push @list, $anno;
       shift @balance;
 
-      # TODO:
-      #   Check this element won't be reopened by fetching a terminal attribute
-      #   see HighilightCombinatorElement
-      if ($anno->type eq 'highlight') {
-
-        if (defined $level_cache->[$anno->number]) {
-
-          # If the annotation is terminal, remove the level from the vector
-          $level_vector->[$level_cache->[$anno->number]] = 1;
-        };
-      };
-
       # Reopen temporary closed elements
       # ??: unshift @balance, reverse @temp_balance;
       unshift @$stack, @temp_balance;
@@ -523,9 +547,13 @@ sub _inline_markup {
 
 # Get the highlight level based on a specific number
 sub _get_level {
-  my ($self, $level_cache, $level_vector, $nr) = @_;
+  my ($level_cache, $level_vector, $nr) = @_;
 
-  return '?' unless $nr;
+  if (DEBUG) {
+    print_log('kq_snippet', 'Retrive level for class ' . $nr);
+  };
+
+  return '?' unless defined $nr;
 
   # Return defined level
   if ($level_cache->[$nr]) {
@@ -533,19 +561,19 @@ sub _get_level {
   };
 
   # Iterate unless an unused level is found
-  foreach (0..MAX_CLASS_NR) {
-
-    if (DEBUG) {
-      print_log('kq_snippet', "Check level $_ if used");
-    };
+  foreach my $i (0..MAX_CLASS_NR) {
 
     # Check, if the level is not used yet
-    if ($level_vector->[$_]) {
+    if ($level_vector->[$i]) {
+
+      if (DEBUG) {
+        print_log('kq_snippet', "level $i is unused yet");
+      };
 
       # Set level as "used"
-      $level_vector->[$_] = undef;
-      $level_cache->[$nr] = $_;
-      return $_;
+      $level_vector->[$i] = 0;
+      $level_cache->[$nr] = $i;
+      return $i;
     };
   };
 

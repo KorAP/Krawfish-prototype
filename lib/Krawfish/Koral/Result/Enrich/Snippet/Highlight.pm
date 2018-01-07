@@ -23,6 +23,8 @@ sub number {
   return $self->{number};
 };
 
+
+# Level of the highlight
 sub level {
   my $self = shift;
   if (@_) {
@@ -60,6 +62,7 @@ sub clone {
     start_char => $self->start_char,
     end_char => $self->end_char,
     opening => $self->is_opening,
+    terminal => $self->is_terminal,
     number => $self->number
   );
 };

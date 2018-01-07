@@ -120,12 +120,12 @@ is($snippet->inflate($index->dict)->to_html,
    'Der '.
    '<span class="match">'.
      '<mark>'.
-       '<mark class="class-7 level-?">'.
+       '<mark class="class-7 level-0">'.
          'alte'.
-         '<mark class="class-6 level-?">'.
+         '<mark class="class-6 level-1">'.
            ' '.
-           '<mark class="class-5 level-?">'.
-             '<mark class="class-4 level-?">'.
+           '<mark class="class-5 level-2">'.
+             '<mark class="class-4 level-3">'.
                '<span title="opennlp/l=Baum">'.
                  'Mann'.
                '</span>'.
@@ -133,8 +133,8 @@ is($snippet->inflate($index->dict)->to_html,
            '</mark>'.
          '</mark>'.
        '</mark>'.
-       '<mark class="class-6 level-?">'.
-         '<mark class="class-5 level-?">'.
+       '<mark class="class-6 level-1">'.
+         '<mark class="class-5 level-2">'.
            ' ging'.
          '</mark>'.
        '</mark>'.
