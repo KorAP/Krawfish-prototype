@@ -17,7 +17,6 @@ requires qw/start
             to_brackets
             to_html
             type
-            to_specific_string
             clone/;
 
 use constant DEBUG => 1;
@@ -303,6 +302,12 @@ sub certainty {
 };
 
 
+# Do not end the element before the next element
+sub end_before_next {
+  0;
+};
+
+
 # Fake term for comparison
 sub term {
   state $term = Krawfish::Koral::Query::Term->new('000/000=000');
@@ -336,6 +341,11 @@ sub to_string {
   $str .= join(',', map { $_ ? $_ : 0} @{$self}{qw/start start_char end end_char/});
   $str .= ')' if !$self->is_opening;
   return $str;
+};
+
+
+sub to_specific_string {
+  return $_[0]->type;
 };
 
 

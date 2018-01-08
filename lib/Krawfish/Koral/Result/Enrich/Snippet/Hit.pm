@@ -18,10 +18,6 @@ sub type {
   'hit';
 };
 
-sub to_specific_string {
-  return $_[0]->type;
-};
-
 sub number {
   0;
 };

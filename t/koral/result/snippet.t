@@ -9,6 +9,7 @@ use_ok('Krawfish::Koral::Result::Enrich::Snippet');
 use_ok('Krawfish::Koral::Result::Enrich::Snippet::Hit');
 use_ok('Krawfish::Koral::Result::Enrich::Snippet::Highlight');
 use_ok('Krawfish::Koral::Result::Enrich::Snippet::Span');
+use_ok('Krawfish::Koral::Result::Enrich::Snippet::Context');
 use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Document::Stream');
 use_ok('Krawfish::Koral::Document::Subtoken');
@@ -144,11 +145,12 @@ is($snippet->inflate($index->dict)->to_html,
    'Annotation snippet');
 
 
+# Reset annotations
+$snippet->reset_annotations;
 
-
-# TODO:
-#   Check the behaviour, when the end_char is behind the next start_char
-#   {1:der{2: :1}alte:2}
+diag 'Check start_char/end_char behaviour';
+# when the end_char is behind the next start_char
+# {1:der{2: :1}alte:2}
 
 done_testing;
 __END__

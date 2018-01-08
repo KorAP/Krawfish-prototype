@@ -184,7 +184,6 @@ sub to_html {
           $level_cache->[$anno->number] = undef;
         };
       };
-
     };
     $str .= $anno->to_html;
   };
@@ -223,7 +222,11 @@ sub _order_markup {
   } @{$self->{annotations}};
 
   # 3. Sort the closing tags
-  my @close = sort {
+  my @close = grep {
+
+    # Do not close elements, that should end before next
+    !$_->end_before_next
+  } sort {
 
     # Sort for opening tags
     $a->compare_close($b)
@@ -393,11 +396,25 @@ sub _inline_markup {
             push @list, _new_data($preceding) if $init++;
             $preceding = undef;
           };
-        }
+        };
 
-        # elsif ($anno->start_char < 0) {
-        #   warn 'invalid start char';
-        # };
+
+        # Check, if the last annotation on the balance stack is opening and has a
+        # close-immediately marker (e.g. on left contexts)
+        while ($balance[0] && $balance[0]->is_opening && $balance[0]->end_before_next) {
+
+          if (DEBUG) {
+            print_log('kq_snippet', 'Last element on stack is close-before-next');
+          };
+
+          my $close = shift(@balance)->clone->is_opening(0);
+
+          if (DEBUG) {
+            print_log('kq_snippet', 'Add annotation to list ' . $close->to_string . ' (1 1/2)');
+          };
+
+          push @list, $close;
+        };
 
         if (DEBUG) {
           print_log('kq_snippet', 'Add annotation to list ' . $anno->to_string . ' (2)');
@@ -603,8 +620,7 @@ sub _new_data {
 
 # Add annotation
 sub add {
-  my $self = shift;
-  my $e = shift;
+  my ($self, $e) = @_;
 
   if (DEBUG) {
     print_log('kq_snippet', 'Add markup ' . $e);
@@ -612,6 +628,7 @@ sub add {
 
   # Add markup objects
   if (Role::Tiny::does_role($e, 'Krawfish::Koral::Result::Enrich::Snippet::Markup')) {
+
     # Add the hit boundaries
     if ($e->isa('Krawfish::Koral::Result::Enrich::Snippet::Hit')) {
       $self->hit_start($e->start);
@@ -636,6 +653,13 @@ sub add {
 };
 
 
+# Remove all annotations
+sub reset_annotations {
+  my $self = shift;
+  $self->{annotations} = [];
+  return $self;
+};
+
 
 # Set context start position
 sub context_start {
@@ -657,7 +681,6 @@ sub context_end {
   };
   return $self->{context_end};
 };
-
 
 
 # Set extension start position
@@ -702,8 +725,6 @@ sub hit_end {
   };
   return $self->{hit_end};
 };
-
-
 
 
 1;
