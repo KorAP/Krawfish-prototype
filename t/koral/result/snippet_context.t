@@ -54,8 +54,6 @@ ok($snippet->add($hit), 'Add left context');
 
 # Left context
 my $context_left = Krawfish::Koral::Result::Enrich::Snippet::Context->new(
-  # End marker is irrelevant, as the context ends when the first element starts
-  start => 0,
   left => 1
 );
 
@@ -64,7 +62,23 @@ ok($snippet->add($context_left), 'Add left context');
 is(
   $snippet->inflate($index->dict)->to_html,
   '<span class="context-left">Der</span><span class="match"><mark> alte Mann ging</mark></span> über die Straße',
-   'Render with context');
+  'Render with context');
+
+# Right context
+my $context_right = Krawfish::Koral::Result::Enrich::Snippet::Context->new(
+  # End marker is irrelevant, as the context ends when the first element starts
+  left => 0,
+  more => 1
+);
+
+ok($snippet->add($context_right), 'Add right context');
+
+is(
+  $snippet->inflate($index->dict)->to_html,
+  '<span class="context-left">Der</span><span class="match"><mark> alte Mann ging</mark></span><span class="context-right"> über die Straße<span class="more"></span></span>',
+  'Render with context');
+
+
 
 done_testing;
 __END__

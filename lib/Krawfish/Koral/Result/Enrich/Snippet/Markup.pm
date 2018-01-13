@@ -53,7 +53,7 @@ sub end {
     $self->{end} = shift;
     return $self;
   };
-  return $self->{end} // 0;
+  return $self->{end} // $self->start;
 };
 
 
@@ -209,8 +209,17 @@ sub compare_open {
 sub compare_close {
   my ($self_a, $self_b) = @_;
 
+  # By start_after_all flag
+  if ($self_a->start_after_all < $self_b->start_after_all) {
+    return -1;
+  }
+
+  elsif ($self_a->start_after_all > $self_b->start_after_all) {
+    return 1;
+  }
+
   # By end position
-  if ($self_a->end < $self_b->end) {
+  elsif ($self_a->end < $self_b->end) {
     return -1;
   }
 
@@ -308,6 +317,12 @@ sub end_before_next {
 };
 
 
+# Do not start the element before all other elements are closed
+sub start_after_all {
+  0;
+};
+
+
 # Fake term for comparison
 sub term {
   state $term = Krawfish::Koral::Query::Term->new('000/000=000');
@@ -337,8 +352,11 @@ sub to_string {
   my $self = shift;
   my $str = '';
   $str .= '(' if $self->is_opening;
-  $str .= $self->to_specific_string . ';';
-  $str .= join(',', map { $_ ? $_ : 0} @{$self}{qw/start start_char end end_char/});
+  $str .= $self->to_specific_string;
+  $str .= ';' . ($self->start      // '0');
+  $str .= ',' . ($self->start_char // '0');
+  $str .= ',' . ($self->end        // '0');
+  $str .= ',' . ($self->end_char   // '0');
   $str .= ')' if !$self->is_opening;
   return $str;
 };

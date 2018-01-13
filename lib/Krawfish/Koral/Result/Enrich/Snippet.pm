@@ -214,8 +214,13 @@ sub _order_markup {
   # 1. Take all markup and split into opening and closing tags
   #    - Milestones are only added as starts
 
-  # 2. Sort the closing tags
-  my @open = sort {
+  # 2. Sort the opening tags
+  my @open = grep {
+
+    # Do not open elements, that should start after all
+    !$_->start_after_all
+
+  } sort {
 
     # Sort for opening tags
     $a->compare_open($b)
@@ -404,7 +409,7 @@ sub _inline_markup {
         while ($balance[0] && $balance[0]->is_opening && $balance[0]->end_before_next) {
 
           if (DEBUG) {
-            print_log('kq_snippet', 'Last element on stack is close-before-next');
+            print_log('kq_snippet', 'Last element on stack is end-before-next');
           };
 
           my $close = shift(@balance)->clone->is_opening(0);
@@ -465,8 +470,29 @@ sub _inline_markup {
       };
     }
 
+    # Next tag is ending, but hasn't opened yet
+    elsif (!$balance[0] && $anno->start_after_all) {
+
+      if (DEBUG) {
+        print_log('kq_snippet', 'Last element on stack is start-after-all');
+      };
+
+      # Create opening tag
+      my $open = $anno->clone->is_opening(1);
+
+      if (DEBUG) {
+        print_log('kq_snippet', 'Add annotation to list ' . $open->to_string . ' (3 1/2)');
+      };
+
+      # Open tag immediately
+      push @list, $open;
+
+      # Balance
+      unshift @balance, $open;
+    }
+
     # Next tag is ending
-    elsif ($anno->end > $i) {
+    elsif ($anno->end > $i && ($subterm || $preceding)) {
       if (DEBUG) {
         print_log('kq_snippet', '3. Add text to list: ' . ($subterm ? $subterm : '-'));
       };
@@ -506,9 +532,6 @@ sub _inline_markup {
         };
 
         # TODO:
-        #   Check if the element is another opener!
-
-        # TODO:
         #   Remove empty elements from stack (if they can occur!)
 
         unshift @temp_balance, $reopen;
@@ -517,6 +540,8 @@ sub _inline_markup {
         if (DEBUG) {
           print_log('kq_snippet', 'Add annotation to list ' . $close->to_string . ' (4)');
         };
+
+        last unless $balance[0];
       };
 
       if (DEBUG) {
@@ -548,6 +573,12 @@ sub _inline_markup {
           'Get next annotation from stack: ' . $anno->to_string
         )
       };
+    }
+
+    # There is something wrong
+    else {
+      warn 'Annotation is not fine ' . $anno->to_string;
+      last;
     };
   };
 
