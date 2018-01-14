@@ -28,6 +28,9 @@ with 'Krawfish::Koral::Result::Inflatable';
 # TODO:
 #   Make sure this works for right-to-left (RTL) language scripts as well!
 
+# TODO:
+#   Instead of dealing with characters and
+
 
 use constant DEBUG => 1;
 
@@ -46,6 +49,8 @@ sub new {
 
 
   $self->{annotations} //= [];
+  $self->{char_string} = undef;
+  $self->{char_pos} = undef;
   return $self;
 };
 
@@ -195,8 +200,143 @@ sub to_html {
 # Serialize KQ
 sub to_koral_fragment {
   my $self = shift;
+  '';
+};
 
-  return $self->stream->to_string;
+
+# Get the character positions of a token
+sub start_char_pos {
+  my ($self, $token_pos) = @_;
+
+  # Not yet generated;
+  unless ($self->{char_pos}) {
+    $self->_create_primary_string;
+  };
+
+  # Return character position
+  my $pos = $self->{char_pos}->[$token_pos];
+  return $pos->[0] // 0;
+};
+
+
+# Get the character positions of a token
+sub end_char_pos {
+  my ($self, $token_pos) = @_;
+
+  # Not yet generated;
+  unless ($self->{char_pos}) {
+    $self->_create_primary_string;
+  };
+
+  # Return character position
+  my $pos = $self->{char_pos}->[$token_pos];
+
+  # Return either the found position or the position
+  # of the last token
+  return $pos->[1] // $self->{char_pos}->[-1]->[1]
+};
+
+
+# Get character string
+sub char_substr {
+  my ($self, $start, $length) = @_;
+
+  # Not yet generated;
+  unless ($self->{char_string}) {
+    $self->_create_primary_string;
+  };
+
+  return substr($self->{char_string}, $start, $length) if $length;
+  return substr($self->{char_string}, $start);
+};
+
+
+# Fetch all primary data strings and
+# create a single primary string with position matching
+sub _create_primary_string {
+  my $self = shift;
+
+  if (DEBUG) {
+    print_log('kq_snippet', 'Create primary string and token positions');
+  };
+
+  # Calculate character positions
+  my $stream = $self->stream;
+
+  my $i = $self->stream_offset;
+  my $length = $stream->length + $self->stream_offset;
+
+  my $char_string = '';
+
+  my $current_pos = 0;
+  my @char_position = ();
+
+  # Iterate through the stream
+  while ($i < $length) {
+
+    # Get current primary data
+    my ($preceding, $subterm) = $self->_subtoken($i);
+
+    $subterm = substr($subterm, 1) if $subterm;
+
+    # Add preceding characters
+    $char_string .= $preceding;
+
+    # Remember character offset
+    $current_pos += length($preceding);
+
+    # Add subterm characters
+    $char_string .= $subterm;
+
+    # Remember character position for token position
+    $char_position[$i] = [
+      $current_pos,
+      $current_pos + length($subterm)
+    ];
+
+    # Remember character offset
+    $current_pos += length($subterm) if $subterm;
+
+    $i++;
+  };
+
+  # Prepend following preceding data, as it may be relevant
+  my ($preceding) = $self->_subtoken($i);
+
+  $self->{char_string} .= $preceding if $preceding;
+
+  if (DEBUG) {
+    print_log(
+      'kq_snippet',
+      'Primary data is ' . $char_string
+    );
+  };
+
+  $self->{char_pos} = \@char_position;
+  $self->{char_string} = $char_string;
+};
+
+
+# Add start_abs_char and end_abs_char
+sub _add_real_char_positions {
+  my $self = shift;
+
+  # Initialize positions
+  $self->_create_primary_string;
+
+  # Iterate over all annotations
+  foreach my $anno (@{$self->{annotations}}) {
+
+    # Set abs_char
+    $anno->start_abs_char(
+      $self->char_pos($self->start)->[0] + $self->start_char
+    );
+
+    # Set abs_char
+    $anno->end_abs_char(
+      $self->char_pos($self->end)->[1] + $self->end_char
+    );
+  };
 };
 
 
@@ -633,8 +773,15 @@ sub _get_level {
 sub _subtoken {
   my ($self, $i) = @_;
   my $subtoken = $self->stream->[$i - $self->stream_offset];
-  if (DEBUG) {
-    print_log('kq_snippet', 'Fetch next subtoken');
+  if (DEBUG && $subtoken) {
+    print_log(
+      'kq_snippet',
+      'Fetch next subtoken "' .
+        ($subtoken->preceding ? $subtoken->preceding : '') .
+        '","' .
+        ($subtoken->subterm ? $subtoken->subterm : '') .
+        '"'
+    );
   };
   return ($subtoken->preceding, $subtoken->subterm) if $subtoken;
   return ();

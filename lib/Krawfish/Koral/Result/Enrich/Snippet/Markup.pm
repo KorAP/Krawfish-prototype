@@ -79,6 +79,28 @@ sub end_char {
 };
 
 
+# Start absolute character position
+sub start_abs_char {
+  my $self = shift;
+  if (@_) {
+    $self->{start_abs_char} = shift;
+    return $self;
+  };
+  return $self->{start_abs_char} // 0;
+};
+
+
+# End absolute character position
+sub end_abs_char {
+  my $self = shift;
+  if (@_) {
+    $self->{end_abs_char} = shift;
+    return $self;
+  };
+  return $self->{end_abs_char} // $self->start_abs_char;
+};
+
+
 # The element occurs as an opening tag
 sub is_opening {
   my $self = shift;

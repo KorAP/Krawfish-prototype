@@ -63,6 +63,9 @@ ok($snippet->stream($stream));
 
 is($snippet->inflate($index->dict)->to_string, 'snippet:Der [alte {4:Mann} ging] über die Straße');
 
+is($snippet->char_substr(0),
+   'Der alte Mann ging über die Straße',
+   'Get substring');
 
 $highlight = Krawfish::Koral::Result::Enrich::Snippet::Highlight->new(
   start => 2,
@@ -102,6 +105,30 @@ is($snippet->inflate($index->dict)->to_string,
    'snippet:Der [alte{6: {5:{4:<opennlp/l=Baum>Mann</>} ging}}] über die Straße',
  'Annotation snippet');
 
+# Check with HTML output
+is($snippet->inflate($index->dict)->to_html,
+   'Der' .
+     ' ' .
+     '<span class="match">' .
+     '<mark>' .
+     'alte' .
+     '<mark class="class-6 level-0">' .
+     ' ' .
+     '<mark class="class-5 level-1">' .
+     '<mark class="class-4 level-2">' .
+     '<span title="opennlp/l=Baum">' .
+     'Mann' .
+     '</span>' .
+     '</mark>' .
+     ' ' .
+     'ging' .
+     '</mark>' .
+     '</mark>' .
+     '</mark>' .
+     '</span>' .
+     ' über die Straße',
+   'Annotation snippet'
+ );
 
 # Discontinuing highlight
 $highlight = Krawfish::Koral::Result::Enrich::Snippet::Highlight->new(
@@ -144,10 +171,7 @@ is($snippet->inflate($index->dict)->to_html,
    ' über die Straße',
    'Annotation snippet');
 
-
-# Reset annotations
-$snippet->reset_annotations;
-
+diag 'Support end_char behaviour';
 diag 'Check start_char/end_char behaviour';
 # when the end_char is behind the next start_char
 # {1:der{2: :1}alte:2}
@@ -155,6 +179,8 @@ diag 'Check start_char/end_char behaviour';
 done_testing;
 __END__
 
+# Reset annotations
+$snippet->reset_annotations;
 
 # With start and end chars
 $span = Krawfish::Koral::Result::Enrich::Snippet::Span->new(
@@ -167,6 +193,12 @@ $span = Krawfish::Koral::Result::Enrich::Snippet::Span->new(
 );
 
 ok($snippet->add($span), 'Add highlight');
+
+is($snippet->inflate($index->dict)->to_string,
+   'snippet:Der alte<opennlp/l=Zweig> Mann </>ging über die Straße',
+ 'Annotation snippet');
+
+
 
 
 is($snippet->inflate($index->dict)->to_string,
