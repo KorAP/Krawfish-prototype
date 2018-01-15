@@ -14,6 +14,8 @@ requires qw/start
             end
             start_char
             end_char
+            start_abs
+            end_abs
             to_brackets
             to_html
             type
@@ -80,24 +82,24 @@ sub end_char {
 
 
 # Start absolute character position
-sub start_abs_char {
+sub start_abs {
   my $self = shift;
   if (@_) {
-    $self->{start_abs_char} = shift;
+    $self->{start_abs} = shift;
     return $self;
   };
-  return $self->{start_abs_char} // 0;
+  return $self->{start_abs} // 0;
 };
 
 
 # End absolute character position
-sub end_abs_char {
+sub end_abs {
   my $self = shift;
   if (@_) {
-    $self->{end_abs_char} = shift;
+    $self->{end_abs} = shift;
     return $self;
   };
-  return $self->{end_abs_char} // $self->start_abs_char;
+  return $self->{end_abs} // $self->start_abs;
 };
 
 
@@ -140,40 +142,44 @@ sub compare_open {
   my ($self_a, $self_b) = @_;
 
   # By start position
-  if ($self_a->start < $self_b->start) {
+#  if ($self_a->start < $self_b->start) {
+  if ($self_a->start_abs < $self_b->start_abs) {
     return -1;
   }
 
-  elsif ($self_a->start > $self_b->start) {
+#  elsif ($self_a->start > $self_b->start) {
+  elsif ($self_a->start_abs > $self_b->start_abs) {
     return 1;
   }
 
   # By end position
-  elsif ($self_a->end > $self_b->end) {
+#  elsif ($self_a->end > $self_b->end) {
+  elsif ($self_a->end_abs > $self_b->end_abs) {
     return -1;
   }
 
-  elsif ($self_a->end < $self_b->end) {
+#  elsif ($self_a->end < $self_b->end) {
+  elsif ($self_a->end_abs < $self_b->end_abs) {
     return 1;
   }
 
   # By start character
-  elsif ($self_a->start_char < $self_b->start_char){
-    return -1;
-  }
+#  elsif ($self_a->start_char < $self_b->start_char){
+#    return -1;
+#  }
 
-  elsif ($self_a->start_char > $self_b->start_char) {
-    return 1;
-  }
+#  elsif ($self_a->start_char > $self_b->start_char) {
+#    return 1;
+#  }
 
   # By end character
-  elsif ($self_a->end_char > $self_b->end_char){
-    return -1;
-  }
+#  elsif ($self_a->end_char > $self_b->end_char){
+#    return -1;
+#  }
 
-  elsif ($self_a->end_char < $self_b->end_char) {
-    return 1;
-  }
+#  elsif ($self_a->end_char < $self_b->end_char) {
+#    return 1;
+#  }
 
   # By number
   elsif ($self_a->number < $self_b->number) {
@@ -241,40 +247,44 @@ sub compare_close {
   }
 
   # By end position
-  elsif ($self_a->end < $self_b->end) {
+#  elsif ($self_a->end < $self_b->end) {
+  elsif ($self_a->end_abs < $self_b->end_abs) {
     return -1;
   }
 
-  elsif ($self_a->end > $self_b->end) {
+#  elsif ($self_a->end > $self_b->end) {
+  elsif ($self_a->end_abs > $self_b->end_abs) {
     return 1;
   }
 
   # By start position
-  elsif ($self_a->start > $self_b->start) {
+#  elsif ($self_a->start > $self_b->start) {
+  elsif ($self_a->start_abs > $self_b->start_abs) {
     return -1;
   }
 
-  elsif ($self_a->start < $self_b->start) {
+#  elsif ($self_a->start < $self_b->start) {
+  elsif ($self_a->start_abs < $self_b->start_abs) {
     return 1;
   }
 
   # By end character
-  elsif ($self_a->end_char < $self_b->end_char){
-    return -1;
-  }
+#  elsif ($self_a->end_char < $self_b->end_char){
+#    return -1;
+#  }
 
-  elsif ($self_a->end_char > $self_b->end_char) {
-    return 1;
-  }
+#  elsif ($self_a->end_char > $self_b->end_char) {
+#    return 1;
+#  }
 
   # By start character
-  elsif ($self_a->start_char > $self_b->start_char){
-    return -1;
-  }
+#  elsif ($self_a->start_char > $self_b->start_char){
+#    return -1;
+#  }
 
-  elsif ($self_a->start_char < $self_b->start_char) {
-    return 1;
-  }
+#  elsif ($self_a->start_char < $self_b->start_char) {
+#    return 1;
+#  }
 
   # By number
   elsif ($self_a->number < $self_b->number) {
@@ -363,6 +373,8 @@ sub clone {
     end => $self->end,
     start_char => $self->start_char,
     end_char => $self->end_char,
+    start_abs => $self->start_abs,
+    end_abs => $self->end_abs,
     opening => $self->is_opening,
     terminal => $self->is_terminal
   );
@@ -375,10 +387,12 @@ sub to_string {
   my $str = '';
   $str .= '(' if $self->is_opening;
   $str .= $self->to_specific_string;
-  $str .= ';' . ($self->start      // '0');
-  $str .= ',' . ($self->start_char // '0');
-  $str .= ',' . ($self->end        // '0');
-  $str .= ',' . ($self->end_char   // '0');
+  $str .= ';' . ($self->start_abs // '0');
+  $str .= ',' . ($self->end_abs   // '0');
+#  $str .= ';' . ($self->start      // '0');
+#  $str .= ',' . ($self->start_char // '0');
+#  $str .= ',' . ($self->end        // '0');
+#  $str .= ',' . ($self->end_char   // '0');
   $str .= ')' if !$self->is_opening;
   return $str;
 };

@@ -61,11 +61,27 @@ foreach (0..6) {
 
 ok($snippet->stream($stream));
 
-is($snippet->inflate($index->dict)->to_string, 'snippet:Der [alte {4:Mann} ging] über die Straße');
+ok($snippet->inflate($index->dict), 'Inflate');
 
-is($snippet->char_substr(0),
+# This will, behind the scenes, initialize the primary string and create annotation positions
+is($snippet->char_string,
    'Der alte Mann ging über die Straße',
    'Get substring');
+
+is($snippet->inflate($index->dict)->to_string, 'snippet:Der [alte {4:Mann} ging] über die Straße');
+
+diag 'Test new character based snippet system';
+
+
+done_testing;
+__END__
+
+
+
+
+
+
+
 
 $highlight = Krawfish::Koral::Result::Enrich::Snippet::Highlight->new(
   start => 2,
@@ -73,10 +89,15 @@ $highlight = Krawfish::Koral::Result::Enrich::Snippet::Highlight->new(
   number => 5
 );
 
+
 ok($snippet->add($highlight), 'Add highlight');
 
 is($snippet->inflate($index->dict)->to_string,
    'snippet:Der [alte {5:{4:Mann} ging}] über die Straße');
+
+
+
+
 
 $highlight = Krawfish::Koral::Result::Enrich::Snippet::Highlight->new(
   start => 2,

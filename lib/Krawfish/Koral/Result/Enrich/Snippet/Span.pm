@@ -72,6 +72,8 @@ sub clone {
     end => $self->end,
     start_char => $self->start_char,
     end_char => $self->end_char,
+    start_abs => $self->start_abs,
+    end_abs => $self->end_abs,
     opening => $self->is_opening,
     depth => $self->depth,
     certainty => $self->certainty,
