@@ -68,6 +68,9 @@ sub inflate {
   # Inflate the stream
   $self->stream($self->stream->inflate($dict));
 
+  # TODO:
+  #   After inflating the stream, create a char_string and the token_position list!
+  # Use stream_offset and stream_offset_char!
   return $self;
 };
 
@@ -103,6 +106,17 @@ sub stream_offset {
     return $self;
   };
   return $self->{stream_offset} // 0;
+};
+
+
+# Only relevant in inflation process
+sub stream_offset_char {
+  my $self = shift;
+  if (@_) {
+    $self->{stream_offset_char} = shift;
+    return $self;
+  };
+  return $self->{stream_offset_char} // 0;
 };
 
 
@@ -283,6 +297,9 @@ sub _init_primary_string {
   my $current_pos = 0;
   my @char_position = ();
 
+  my $init = 0;
+  my $offset_char = $self->stream_offset_char;
+
   # Iterate through the stream
   while ($i < $length) {
 
@@ -290,6 +307,18 @@ sub _init_primary_string {
     my ($preceding, $subterm) = $self->_subtoken($i);
 
     $subterm = substr($subterm, 1) if $subterm;
+
+    # At the beginning of the stream ...
+    unless ($init++) {
+
+      # Add preceding characters only if necessary
+      if ($offset_char < 0) {
+        $preceding = substr($preceding, $offset_char);
+      }
+      else {
+        $preceding = '';
+      };
+    };
 
     # Add preceding characters
     $char_string .= $preceding;

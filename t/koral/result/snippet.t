@@ -70,18 +70,6 @@ is($snippet->char_string,
 
 is($snippet->inflate($index->dict)->to_string, 'snippet:Der [alte {4:Mann} ging] über die Straße');
 
-diag 'Test new character based snippet system';
-
-
-done_testing;
-__END__
-
-
-
-
-
-
-
 
 $highlight = Krawfish::Koral::Result::Enrich::Snippet::Highlight->new(
   start => 2,
@@ -94,9 +82,6 @@ ok($snippet->add($highlight), 'Add highlight');
 
 is($snippet->inflate($index->dict)->to_string,
    'snippet:Der [alte {5:{4:Mann} ging}] über die Straße');
-
-
-
 
 
 $highlight = Krawfish::Koral::Result::Enrich::Snippet::Highlight->new(
@@ -192,6 +177,7 @@ is($snippet->inflate($index->dict)->to_html,
    ' über die Straße',
    'Annotation snippet');
 
+diag 'Test new character based snippet system';
 diag 'Support end_char behaviour';
 diag 'Check start_char/end_char behaviour';
 # when the end_char is behind the next start_char

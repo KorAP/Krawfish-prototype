@@ -60,14 +60,7 @@ ok($query->next, 'Next match');
 is($index->dict->term_by_term_id(7), SUBTERM_PREF . 'aa', 'Get term');
 is($query->current_match->to_string(1), "[0:1-2|snippet:(0)< >[#9]]", 'Current match');
 
-diag 'Fix initial preceding characters in snippets for new snippet scheme';
-
-
-done_testing;
-__END__
-
 is($query->current_match->inflate($index->dict)->to_string, "[0:1-2|snippet:[bb]]", 'Current match');
-
 
 ok($query->next, 'Next match');
 is($index->dict->term_by_term_id(9), SUBTERM_PREF . 'bb', 'Get term');

@@ -118,6 +118,9 @@ sub current_match {
     end   => $match->end // 0
   );
 
+  # TODO:
+  #   Match may have different start_char, end_char values!
+
   # Create new snippet result object
   my $new_snippet = Krawfish::Koral::Result::Enrich::Snippet->new(
     doc_id    => $match->doc_id
@@ -261,8 +264,12 @@ sub _fetch_stream {
   # Stream of forward postings
   my $stream = Krawfish::Koral::Document::Stream->new;
 
-  # Set offset
+  # Set offsets
   $snippet->stream_offset($forward->pos);
+  $snippet->stream_offset_char($left_start_ext_char);
+
+  # TODO:
+  #   Respect extension!
 
   # Retrieve the primary data only
   while ($forward->pos < $snippet->hit_start) {
@@ -270,14 +277,14 @@ sub _fetch_stream {
     # Get current posting
     my $current = $forward->current;
 
+    my $subtoken = Krawfish::Koral::Document::Subtoken->new(
+      # (Needs to be renamed to preceding_enc)
+      preceding_enc => $current->preceding_data,
+      subterm_id => $current->term_id
+    );
+
     # Add Subtoken to stream
-    $stream->subtoken(
-      $i++,
-      Krawfish::Koral::Document::Subtoken->new(
-        # (Needs to be renamed to preceding_enc)
-        preceding_enc => $current->preceding_data,
-        subterm_id => $current->term_id
-      ));
+    $stream->subtoken($i++, $subtoken);
 
     # TODO:
     #   Check and remember decorators if requested
@@ -291,14 +298,14 @@ sub _fetch_stream {
     # Get current posting
     my $current = $forward->current;
 
+    my $subtoken = Krawfish::Koral::Document::Subtoken->new(
+      # (Needs to be renamed to preceding_enc)
+      preceding_enc => $current->preceding_data,
+      subterm_id => $current->term_id
+    );
+
     # Add Subtoken to stream
-    my $subtoken = $stream->subtoken(
-      $i++,
-      Krawfish::Koral::Document::Subtoken->new(
-        # (Needs to be renamed to preceding_enc)
-        preceding_enc => $current->preceding_data,
-        subterm_id => $current->term_id
-      ));
+    $stream->subtoken($i++, $subtoken);
 
     last unless $forward->next;
     # TODO:
