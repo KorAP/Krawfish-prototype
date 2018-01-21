@@ -26,6 +26,23 @@ with 'Krawfish::Koral::Result::Inflatable';
 
 
 # TODO:
+#   Instead of "focus" it may be called "extension"
+
+# TODO:
+#   Annotations can only occur in the focus area, while decorators
+#   like token-markers, so a postfilter can limit the match to these elements,
+#   can occur in the context as well. To make this possible, it may be useful
+#   to add contexts correctly at the beginning.
+#   Another approach may be to mark, where annotations can occur,
+#   so for example page breaks can occur in context as well.
+#   That way, context extension may be used for table views, and all annotations
+#   can occur everywhere.
+
+# TODO:
+#   Decorators may be renamed to something like "Schnittmarkierungen"
+
+
+# TODO:
 #   Make sure this works for right-to-left (RTL) language scripts as well!
 
 # TODO:

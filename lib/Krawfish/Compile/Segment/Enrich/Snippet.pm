@@ -119,6 +119,9 @@ sub current_match {
   );
 
   # TODO:
+  #   Adjust expansion to hit / or only use context for that!
+
+  # TODO:
   #   Match may have different start_char, end_char values!
 
   # Create new snippet result object
@@ -129,31 +132,35 @@ sub current_match {
   # Add hit object
   $new_snippet->add($hit);
 
+  # TODO:
+  #   Add context enrichments to snippet
+
   # Retrieve classes from match
   foreach my $highlight ($match->get_classes) {
 
-    # TEMP:
-    last;
+    # Ignore hit-class
+    next if $highlight->[0] == 0;
 
     # TODO:
     #   Check for classes with supported highlights!
+
 
     if ($highlight->[0] >= $new_snippet->hit_start &&
           $highlight->[1] <= $new_snippet->hit_end) {
 
       my $e = Krawfish::Koral::Result::Enrich::Snippet::Highlight->new(
-        number => $highlight->[0] // 0,
+        number => $highlight->[0],
         start  => $highlight->[1],
         end    => $highlight->[2]
       );
+
+      # TODO:
+      #   Probably respect character extensions from match's payload
 
       # Add highlight
       $new_snippet->add($e);
     };
   };
-
-  # TODO:
-  #   Add character extensions from match's payload
 
   # Fetch information from forward index
   $self->_fetch_stream($new_snippet) or return;

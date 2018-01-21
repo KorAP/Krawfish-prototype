@@ -53,6 +53,7 @@ ok($query->next, 'Next match');
 is($query->current_match->to_string(1), "[0:0-1|snippet:(0)<>[#7]]", 'Current match');
 is($query->current_match->inflate($index->dict)->to_string,
    "[0:0-1|snippet:[aa]]", 'Current match');
+
 is($query->current_match->to_string(1), "[0:0-1|snippet:(0)<>[#7]]", 'Current match');
 is($query->current_match->to_string(1), "[0:0-1|snippet:(0)<>[#7]]", 'Current match');
 

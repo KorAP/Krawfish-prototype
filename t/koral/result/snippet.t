@@ -177,17 +177,56 @@ is($snippet->inflate($index->dict)->to_html,
    ' über die Straße',
    'Annotation snippet');
 
-diag 'Test new character based snippet system';
-diag 'Support end_char behaviour';
-diag 'Check start_char/end_char behaviour';
+is($snippet->inflate($index->dict)->to_string,
+   'snippet:Der [{7:alte{6: {5:{4:<opennlp/l=Baum>Mann</>}}}}{6:{5: ging}}] über die Straße',
+   'Annotation snippet');
+
+
+
 # when the end_char is behind the next start_char
 # {1:der{2: :1}alte:2}
+
+
+# Reset annotations
+$snippet->reset_annotations;
+
+$hit = Krawfish::Koral::Result::Enrich::Snippet::Hit->new(
+  start => 1,
+  start_char => -1,
+  end => 4,
+  end_char => 1
+);
+
+ok($snippet->add($hit), 'Add hit');
+
+$highlight = Krawfish::Koral::Result::Enrich::Snippet::Highlight->new(
+  start => 2,
+  end => 4,
+  number => 5
+);
+
+ok($snippet->add($highlight), 'Add highlight');
+
+$highlight = Krawfish::Koral::Result::Enrich::Snippet::Highlight->new(
+  start => 2,
+  start_char => -1,
+  end => 4,
+  end_char => -1,
+  number => 6
+);
+
+ok($snippet->add($highlight), 'Add highlight');
+
+is($snippet->inflate($index->dict)->to_string,
+   'snippet:Der[ alte{6: {5:Mann gin}}{5:g} ]über die Straße',
+   'Annotation snippet');
+
+
 
 done_testing;
 __END__
 
-# Reset annotations
-$snippet->reset_annotations;
+
 
 # With start and end chars
 $span = Krawfish::Koral::Result::Enrich::Snippet::Span->new(
@@ -198,6 +237,7 @@ $span = Krawfish::Koral::Result::Enrich::Snippet::Span->new(
   end => 3,
   depth => 0
 );
+
 
 ok($snippet->add($span), 'Add highlight');
 
