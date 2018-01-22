@@ -44,7 +44,7 @@ is($class->current->to_string, '[0:2-4$0,1,2,3|0,2,3,4]', 'Match');
 ok(my $current = $class->current, 'Get current');
 
 # Check classes
-my @classes = $current->get_classes;
+my @classes = $current->query_classes;
 is_deeply($classes[0], [0,2,4], 'Class 0');
 is_deeply($classes[1], [1,2,3], 'Class 1');
 is_deeply($classes[2], [2,3,4], 'Class 2');
@@ -52,7 +52,7 @@ ok(!$classes[3], 'No more classes');
 
 
 # Check classes
-@classes = $current->get_classes([1,2]);
+@classes = $current->query_classes([1,2]);
 is_deeply($classes[0], [1,2,3], 'Class 1');
 is_deeply($classes[1], [2,3,4], 'Class 2');
 ok(!$classes[2], 'No more classes');

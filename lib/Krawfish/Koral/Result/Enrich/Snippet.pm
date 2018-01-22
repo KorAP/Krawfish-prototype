@@ -85,9 +85,11 @@ sub inflate {
   # Inflate the stream
   $self->stream($self->stream->inflate($dict));
 
-  # TODO:
-  #   After inflating the stream, create a char_string and the token_position list!
-  # Use stream_offset and stream_offset_char!
+  # Initialize positions
+  unless ($self->{char_string}) {
+    $self->_init_primary_string;
+  };
+
   return $self;
 };
 
@@ -247,7 +249,7 @@ sub start_char_pos {
 
   # Not yet generated;
   unless ($self->{char_pos}) {
-    $self->_create_primary_string;
+    $self->_init_primary_string;
   };
 
   # Return character position
@@ -381,17 +383,11 @@ sub _init_primary_string {
 sub _calculate_abs {
   my $self = shift;
 
-
   if (DEBUG) {
     print_log(
       'kq_snippet',
       'Calculate absoloute char positions'
     );
-  };
-
-  # Initialize positions
-  unless ($self->{char_string}) {
-    $self->_init_primary_string;
   };
 
   # Iterate over all annotations
@@ -695,293 +691,6 @@ sub _inline_markup {
       };
 
       push @list, _new_data($char); # if $init++;
-    }
-
-    # Add closing tag
-    # - this requires something is on the balance stack
-    elsif ($balance[0]) {
-
-      # Check, if the annotation is balanced
-      while (!$anno->resembles($balance[0])) {
-        my $last = shift @balance;
-
-        # Create closing element with a terminal marker,
-        # indicating the element will be continued
-        my $close = $last->clone->is_opening(0)->is_terminal(0);
-        my $reopen = $last->clone->is_opening(1);
-
-        if (DEBUG) {
-          print_log(
-            'kq_snippet',
-            'Annotations are not balanced: ' .
-              $anno->to_string . ' vs ' . $close->to_string
-            );
-          print_log(
-            'kq_snippet',
-            'Temporarily close ' . $close->to_string
-          );
-          print_log(
-            'kq_snippet',
-            'Balance-Stack is <' . join('; ', map { $_->to_string } @balance) . '>',
-            '-'
-          );
-        };
-
-        # TODO:
-        #   Remove empty elements from stack (if they can occur!)
-
-        unshift @temp_balance, $reopen;
-        push @list, $close;
-
-        if (DEBUG) {
-          print_log('kq_snippet', 'Add annotation to list ' . $close->to_string . ' (4)');
-        };
-
-        last unless $balance[0];
-      };
-
-      if (DEBUG) {
-        print_log('kq_snippet', 'Add annotation to list: ' . $anno->to_string . ' (5)');
-      };
-
-      push @list, $anno;
-      shift @balance;
-
-      # Reopen temporary closed elements
-      # ??: unshift @balance, reverse @temp_balance;
-      unshift @$stack, @temp_balance;
-
-      if (DEBUG && @temp_balance) {
-        print_log('kq_snippet', 'Add temporary balanced tags for reopening to balance');
-        print_log(
-          'kq_snippet',
-          'Balance-Stack is <' . join('; ', map { $_->to_string } @balance) . '>',
-          '-'
-        );
-      };
-
-      @temp_balance = ();
-      $anno = shift @$stack;
-
-      if (DEBUG && $anno) {
-        print_log(
-          'kq_snippet',
-          'Get next annotation from stack: ' . $anno->to_string
-        )
-      };
-    }
-
-    # There is something wrong
-    else {
-      warn 'Annotation is not fine ' . $anno->to_string;
-      last;
-    };
-  };
-
-  if (DEBUG) {
-    print_log(
-      'kq_snippet',
-      'List of elements is ' . join('', map { $_->to_brackets } @list)
-    );
-  };
-
-  return \@list;
-};
-
-
-# Iterate over all annotations and join with the primary data stream
-# Based on HighlightCombinator.java in Krill
-# UNUSED!
-sub _inline_markup_2 {
-  my ($self, $stack) = @_;
-
-  # 5. Iterate over the stream and add all annotations.
-  #    Stream is:
-  #    Krawfish::Koral::Document::Stream
-  #    with surface annotations only
-  my @list;
-  my $stream = $self->stream;
-  my $length = $stream->length + $self->stream_offset;
-  my $i = $self->stream_offset;
-
-  if (DEBUG) {
-    print_log('kq_snippet', '> Inline markup elements at ' . $self->stream_offset);
-  };
-
-  my $anno = shift @$stack;
-
-  # This is the balance stack for annotations!
-  my @balance;
-
-  # This is an intermediate stack for closing and reopening tags
-  my @temp_balance;
-
-  # Only take care of preceding data after start
-  my $init = 0;
-
-  # Get current annotation
-  my ($preceding, $subterm) = $self->_subtoken($i);
-
-  # TODO:
-  #   Take care of preceding data for initial annotations with start_char
-  #    and preceding data of following subtoken for ending annotations
-  #    with end_char
-
-  # TODO:
-  #   Check for the case where the last subtoken is retrieved
-  #   and the preceding data of the virtual last subtoken is needed
-  while ($i < $length || $anno) {
-
-    # No more annotations
-    unless ($anno) {
-      if (DEBUG) {
-        print_log('kq_snippet', '1. Add text to list: ' . ($subterm ? $subterm : '-'));
-      };
-      push @list, _new_data($preceding) if $init++ && $preceding;
-      push @list, _new_data(substr($subterm, 1)) if $subterm;
-      ($preceding, $subterm) = $self->_subtoken(++$i);
-    }
-
-    # Next tag is opening
-    elsif ($anno->is_opening) {
-
-      # Add annotation start tag
-      if ($anno->start == $i) {
-
-        if (DEBUG) {
-          print_log('kq_snippet', 'Annotation starts with subtoken' .
-                      ' - add annotation to list ' . $anno->to_string . ' (1)');
-        };
-
-        # Take preceding data and ignore further
-        if ($preceding) {
-
-          # The start character
-          if ($anno->start_char < 0) {
-            my $start_char = $anno->start_char;
-
-            if ($start_char < (-1 * length($preceding))) {
-              warn 'invalid start char';
-            };
-
-            # Left preceding
-            my $take = substr($preceding, 0, length($preceding) + $start_char);
-            my $leave  = substr($preceding, $start_char);
-
-            if (DEBUG) {
-              print_log(
-                'kq_snippet',
-                'Annotation has start char at ' . $start_char,
-                'From "' . $preceding . '" take "' . $take . '" and leave "'.$leave.'"'
-              );
-            };
-
-            # Only add the first part, if given
-            push @list, _new_data($take) if $init++ && $take;
-            $preceding = $leave;
-          }
-          else {
-            push @list, _new_data($preceding) if $init++;
-            $preceding = undef;
-          };
-        };
-
-
-        # Check, if the last annotation on the balance stack is opening and has a
-        # close-immediately marker (e.g. on left contexts)
-        while ($balance[0] && $balance[0]->is_opening && $balance[0]->end_before_next) {
-
-          if (DEBUG) {
-            print_log('kq_snippet', 'Last element on stack is end-before-next');
-          };
-
-          my $close = shift(@balance)->clone->is_opening(0);
-
-          if (DEBUG) {
-            print_log('kq_snippet', 'Add annotation to list ' . $close->to_string . ' (1 1/2)');
-          };
-
-          push @list, $close;
-        };
-
-        if (DEBUG) {
-          print_log('kq_snippet', 'Add annotation to list ' . $anno->to_string . ' (2)');
-        };
-
-        push @list, $anno;
-        unshift @balance, $anno;
-        $anno = shift @$stack;
-
-        if (DEBUG) {
-          print_log(
-            'kq_snippet',
-            'Balance-Stack is <' . join('; ', map { $_->to_string } @balance) . '>',
-            '-'
-          );
-        };
-      }
-
-      # Current anno is smaller than i
-      elsif ($anno->start < $i) {
-
-        if (DEBUG) {
-          print_log('kq_snippet', 'Add annotation to list ' . $anno->to_string . ' (3)');
-        };
-
-        push @list, $anno;
-        unshift @balance, $anno;
-        $anno = shift @$stack;
-
-        if (DEBUG) {
-          print_log(
-            'kq_snippet',
-            'Balance-Stack is <' . join('; ', map { $_->to_string } @balance) . '>',
-            '-'
-          );
-        };
-
-      }
-
-      # Add data
-      else {
-        if (DEBUG) {
-          print_log('kq_snippet', '2. Add text to list: ' . ($subterm ? $subterm : '-'));
-        };
-        push @list, _new_data($preceding) if $init++ && $preceding;
-        push @list, _new_data(substr($subterm, 1)) if $subterm;
-        ($preceding, $subterm) = $self->_subtoken(++$i);
-      };
-    }
-
-    # Next tag is ending, but hasn't opened yet
-    elsif (!$balance[0] && $anno->start_after_all) {
-
-      if (DEBUG) {
-        print_log('kq_snippet', 'Last element on stack is start-after-all');
-      };
-
-      # Create opening tag
-      my $open = $anno->clone->is_opening(1);
-
-      if (DEBUG) {
-        print_log('kq_snippet', 'Add annotation to list ' . $open->to_string . ' (3 1/2)');
-      };
-
-      # Open tag immediately
-      push @list, $open;
-
-      # Balance
-      unshift @balance, $open;
-    }
-
-    # Next tag is ending
-    elsif ($anno->end > $i && ($subterm || $preceding)) {
-      if (DEBUG) {
-        print_log('kq_snippet', '3. Add text to list: ' . ($subterm ? $subterm : '-'));
-      };
-      push @list, _new_data($preceding) if $init++ && $preceding;
-      push @list, _new_data(substr($subterm, 1)) if $subterm;
-      ($preceding, $subterm) = $self->_subtoken(++$i);
     }
 
     # Add closing tag

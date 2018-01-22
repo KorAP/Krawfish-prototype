@@ -121,7 +121,7 @@ sub next {
   #   reposition automatically.
 
   # Get class payloads
-  my @class_infos = $current->get_classes($self->{classes});
+  my @class_infos = $current->query_classes($self->{classes});
 
   # Retrieve the requested classes for the current posting
   foreach my $class_info (@class_infos) {

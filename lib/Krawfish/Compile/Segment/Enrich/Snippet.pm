@@ -57,9 +57,7 @@ sub new {
   # - left
   # - right
   # - hit
-  #
-  # TODO:
-  #   Pass highlight class list
+  # - highlights
   return bless { @_ }, $class;
 };
 
@@ -68,12 +66,13 @@ sub new {
 sub clone {
   my $self = shift;
   __PACKAGE__->new(
-    query     => $self->{query}->clone,
-    fwd_obj   => $self->{fwd_obj},
-    left      => $self->{left},
-    right     => $self->{right},
-    extension => $self->{extension},
-    hit       => $self->{hit}
+    query      => $self->{query}->clone,
+    fwd_obj    => $self->{fwd_obj},
+    left       => $self->{left},
+    right      => $self->{right},
+    extension  => $self->{extension},
+    hit        => $self->{hit},
+    highlights => $self->{highlights}
   );
 };
 
@@ -126,7 +125,7 @@ sub current_match {
 
   # Create new snippet result object
   my $new_snippet = Krawfish::Koral::Result::Enrich::Snippet->new(
-    doc_id    => $match->doc_id
+    doc_id => $match->doc_id
   );
 
   # Add hit object
@@ -135,15 +134,16 @@ sub current_match {
   # TODO:
   #   Add context enrichments to snippet
 
+  my $highlights = $self->{highlights};
+
   # Retrieve classes from match
-  foreach my $highlight ($match->get_classes) {
+  foreach my $highlight ($match->query_classes($highlights)) {
 
     # Ignore hit-class
     next if $highlight->[0] == 0;
 
     # TODO:
     #   Check for classes with supported highlights!
-
 
     if ($highlight->[0] >= $new_snippet->hit_start &&
           $highlight->[1] <= $new_snippet->hit_end) {

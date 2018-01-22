@@ -26,7 +26,12 @@ sub to_string {
   if ($self->{right}) {
     $str .= ',right=' . $self->{right}->to_string($id);
   };
-#  $str .= $self->{hit}->to_string;
+
+  if ($self->{highlights}) {
+    $str .= ',hls=[' . join(',', @{$self->{highlights}}) . ']';
+  };
+
+  #  $str .= $self->{hit}->to_string;
   $str .= ':' . $self->{query}->to_string($id) . ')';
 };
 
@@ -87,6 +92,7 @@ sub optimize {
     query   => $query,
     fwd_obj => $segment->forward,
     # hit     => $self->{hit},
+    highlights => $self->{highlights},
     left    => $left,
     right   => $right
   );

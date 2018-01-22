@@ -46,6 +46,11 @@ sub right_context {
 };
 
 
+sub highlights {
+  $_[0]->{highlights};
+};
+
+
 # TODO:
 #   Normalize contexts here!
 sub normalize {
@@ -76,9 +81,10 @@ sub to_string {
 sub wrap {
   my ($self, $query) = @_;
     return Krawfish::Koral::Compile::Node::Enrich::Snippet->new(
-    query => $query,
-    left  => $self->left_context,
-    right => $self->right_context,
+      query => $query,
+      left  => $self->left_context,
+      right => $self->right_context,
+      highlights => $self->highlights
     # hit => $self->hit
   );
 };

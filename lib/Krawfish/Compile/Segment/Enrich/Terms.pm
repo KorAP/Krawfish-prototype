@@ -121,7 +121,7 @@ sub current_match {
   };
 
   # Get classes of the match
-  my @classes = $match->get_classes($self->{nrs});
+  my @classes = $match->query_classes($self->{nrs});
 
   # No classes found in match
   return $match unless @classes;

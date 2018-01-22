@@ -76,6 +76,10 @@ is($query->current_match->inflate($index->dict)->to_string,
 ok(!$query->next, 'No more match');
 
 
+
+
+
+
 done_testing;
 __END__
 

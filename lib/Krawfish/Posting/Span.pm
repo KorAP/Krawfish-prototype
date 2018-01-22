@@ -68,9 +68,7 @@ sub compare {
 
 
 # Return all classes in the payload
-# TODO:
-#   Rename to query_classes
-sub get_classes {
+sub query_classes {
   my ($self, $nrs) = @_;
 
   # Check payload for relevant class and return start, end
