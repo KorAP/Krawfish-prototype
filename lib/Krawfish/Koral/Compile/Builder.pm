@@ -115,7 +115,9 @@ sub e_fields {
 # Enrich with snippets
 sub e_snippet {
   shift;
-  # Accepts: left_context => $mb->e_char_context(5)
+  # Accepts:
+  #   left_context => $mb->e_char_context(5)
+  #   format => 'html' || 'koralquery'
   return Krawfish::Koral::Compile::Enrich::Snippet->new(@_);
 };
 

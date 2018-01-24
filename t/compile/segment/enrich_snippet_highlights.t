@@ -35,7 +35,7 @@ $koral->compilation(
 );
 
 is($koral->to_string,
-   "compilation=[enrich=[snippet=[hit]]],query=[[aa]{2:[bb]}]",
+   "compilation=[enrich=[snippet=[hit,hls:[2]]]],query=[[aa]{2:[bb]}]",
    'Stringification');
 
 ok($koral_query = $koral->to_query, 'Normalization');

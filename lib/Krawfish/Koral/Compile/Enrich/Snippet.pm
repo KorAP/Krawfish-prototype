@@ -51,6 +51,11 @@ sub highlights {
 };
 
 
+sub format {
+  $_[0]->{format};
+};
+
+
 # TODO:
 #   Normalize contexts here!
 sub normalize {
@@ -73,6 +78,14 @@ sub to_string {
     $str .= ',right:' . $self->right_context->to_string($id);
   };
 
+  if ($self->highlights) {
+    $str .= ',hls:[' . join(',',@{$self->highlights}) . ']';
+  };
+
+  if ($self->{format}) {
+    $str .= ',format:' . $self->{format};
+  };
+
   return $str . ']';
 };
 
@@ -84,7 +97,8 @@ sub wrap {
       query => $query,
       left  => $self->left_context,
       right => $self->right_context,
-      highlights => $self->highlights
+      highlights => $self->highlights,
+      'format'   => $self->{format}
     # hit => $self->hit
   );
 };

@@ -58,6 +58,7 @@ sub new {
   # - right
   # - hit
   # - highlights
+  # - format
   return bless { @_ }, $class;
 };
 
@@ -72,7 +73,8 @@ sub clone {
     right      => $self->{right},
     extension  => $self->{extension},
     hit        => $self->{hit},
-    highlights => $self->{highlights}
+    highlights => $self->{highlights},
+    format     => $self->{format}
   );
 };
 
@@ -125,7 +127,8 @@ sub current_match {
 
   # Create new snippet result object
   my $new_snippet = Krawfish::Koral::Result::Enrich::Snippet->new(
-    doc_id => $match->doc_id
+    doc_id => $match->doc_id,
+    format => $self->{format}
   );
 
   # Add hit object
@@ -353,6 +356,7 @@ sub to_string {
   if ($self->{right}) {
     $str .= ',' . $self->{right}->to_string($id);
   };
+
   $str .= ':' . $self->{query}->to_string($id);
   return $str . ')';
 };

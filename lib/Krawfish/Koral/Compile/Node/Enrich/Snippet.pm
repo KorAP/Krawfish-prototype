@@ -31,6 +31,10 @@ sub to_string {
     $str .= ',hls=[' . join(',', @{$self->{highlights}}) . ']';
   };
 
+  if ($self->{format}) {
+    $str .= ',format=' . $self->{format};
+  };
+
   #  $str .= $self->{hit}->to_string;
   $str .= ':' . $self->{query}->to_string($id) . ')';
 };
@@ -63,11 +67,14 @@ sub identify {
 };
 
 
+# Optimize query for segment
 sub optimize {
   my ($self, $segment) = @_;
 
+  # Optimize query
   my $query = $self->{query}->optimize($segment);
 
+  # Nothing to return
   if ($query->max_freq == 0) {
     return Krawfish::Compile::Segment::Nowhere->new;
   };
@@ -93,6 +100,7 @@ sub optimize {
     fwd_obj => $segment->forward,
     # hit     => $self->{hit},
     highlights => $self->{highlights},
+    format  => $self->{format},
     left    => $left,
     right   => $right
   );

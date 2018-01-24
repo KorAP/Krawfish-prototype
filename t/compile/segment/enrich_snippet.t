@@ -22,19 +22,19 @@ $koral->query($qb->bool_or('aa', 'bb'));
 
 $koral->compilation(
   $mb->enrich(
-    $mb->e_snippet
+    $mb->e_snippet('format' => 'html')
   )
 );
 
 is($koral->to_string,
-   "compilation=[enrich=[snippet=[hit]]],query=[aa|bb]",
+   "compilation=[enrich=[snippet=[hit,format:html]]],query=[aa|bb]",
    'Stringification');
 
 ok(my $koral_query = $koral->to_query, 'Normalization');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "snippet(hit:filter(aa|bb,[1]))",
+   "snippet(hit,format=html:filter(aa|bb,[1]))",
    'Stringification');
 
 # This is a query that is fine to be send to segments:
@@ -42,7 +42,7 @@ ok($koral_query = $koral_query->identify($index->dict), 'Identify');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string(1),
-   "snippet(hit:filter(#8|#10,[1]))",
+   "snippet(hit,format=html:filter(#8|#10,[1]))",
    'Stringification');
 
 ok(my $query = $koral_query->optimize($index->segment), 'Optimize');
@@ -70,9 +70,15 @@ is($query->current_match->inflate($index->dict)->to_string, "[0:2-3|snippet:[aa]
 
 ok($query->next, 'Next match');
 is($query->current_match->to_string(1), "[0:3-4|snippet:(0)< >[#9]]", 'Current match');
-is($query->current_match->inflate($index->dict)->to_string,
+
+my $inflate = $query->current_match->inflate($index->dict);
+is($inflate->to_string,
    "[0:3-4|snippet:[bb]]",
    'Current match');
+
+my $fragment = $inflate->to_koral_query;
+is($fragment->{snippet}->{format}, 'html');
+is($fragment->{snippet}->{string}, '<span class="match"><mark>bb</mark></span>');
 ok(!$query->next, 'No more match');
 
 

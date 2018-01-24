@@ -58,6 +58,7 @@ sub new {
   # stream
   # stream_offset
   # doc_id
+  # format
 
   # match_ids
   my $self = bless {
@@ -68,6 +69,7 @@ sub new {
   $self->{annotations} //= [];
   $self->{char_string} = undef;
   $self->{char_pos} = undef;
+  $self->{format} //= 'koralquery';
   return $self;
 };
 
@@ -233,7 +235,19 @@ sub to_html {
 # Serialize KQ
 sub to_koral_fragment {
   my $self = shift;
-  '';
+
+  # Serialize as html
+  if ($self->{format} eq 'html') {
+    return {
+      '@type' => 'koral:snippet',
+      format => 'html',
+      string => $self->to_html
+    };
+  };
+
+  # Else with primaryData, subtokens, and annotations!
+  # This means it won't work with just a single key!
+  return {};
 };
 
 

@@ -72,8 +72,10 @@ my $kq = $fields->current_match->inflate($index->dict)->to_koral_fragment;
 is($kq->{'@type'}, 'koral:match', 'KQ');
 is($kq->{fields}->[0]->{key}, 'corpus', 'KQ');
 is($kq->{fields}->[0]->{value}, 'corpus-2', 'KQ');
+is($kq->{fields}->[0]->{type}, 'type:string', 'KQ');
 is($kq->{fields}->[1]->{key}, 'license', 'KQ');
 is($kq->{fields}->[1]->{value}, 'free', 'KQ');
+is($kq->{fields}->[1]->{type}, 'type:string', 'KQ');
 
 ok($fields->next, 'Next');
 is($fields->current_match->to_string, "[1:0-1|fields:#1=#13,#7=#16]",
@@ -87,7 +89,6 @@ is($kq->{fields}->[1]->{key}, 'license', 'KQ');
 is($kq->{fields}->[1]->{value}, 'closed', 'KQ');
 
 ok(!$fields->next, 'No more next');
-
 
 
 # Fields for multiple spans
