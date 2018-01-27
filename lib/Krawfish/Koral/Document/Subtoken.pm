@@ -2,8 +2,11 @@ package Krawfish::Koral::Document::Subtoken;
 use Krawfish::Util::String qw/squote/;
 use Krawfish::Util::Constants qw/:PREFIX/;
 use Krawfish::Koral::Document::Annotation;
+use Role::Tiny::With;
 use warnings;
 use strict;
+
+with 'Krawfish::Koral::Result::Inflatable';
 
 # This represents a single token in a forward index
 
@@ -141,5 +144,15 @@ sub to_string {
   return "$str]";
 };
 
+
+sub to_koral_fragment {
+  my $self = shift;
+
+  return {
+    '@type' => 'koral:subtoken',
+    preceding => $self->preceding,
+    subterm => $self->subterm
+  }
+};
 
 1;
