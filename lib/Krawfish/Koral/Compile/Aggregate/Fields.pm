@@ -3,6 +3,9 @@ use Krawfish::Compile::Segment::Aggregate::Fields;
 use strict;
 use warnings;
 
+# TODO:
+#   Remember order of fields
+
 sub new {
   my $class = shift;
   bless [@_], $class;

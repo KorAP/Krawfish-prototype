@@ -5,6 +5,8 @@ use warnings;
 
 # This is pretty much identical to Aggregate::Facets!
 
+# TODO:
+#   Remember order of fields
 
 # Accepts fields
 sub new {

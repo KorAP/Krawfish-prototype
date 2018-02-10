@@ -33,8 +33,7 @@ sub to_string {
 
 # Materialize query for segment search
 sub optimize {
-  my ($self, $segment) = @_;
-
+  # my ($self, $segment) = @_;
   return Krawfish::Compile::Segment::Aggregate::Frequencies->new;
 };
 

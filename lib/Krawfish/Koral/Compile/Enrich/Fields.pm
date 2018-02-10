@@ -5,6 +5,9 @@ use warnings;
 
 # Define which fields per match should be used for enrichment
 
+# TODO:
+#   Remember order of fields
+
 sub new {
   my $class = shift;
   bless [@_], $class;

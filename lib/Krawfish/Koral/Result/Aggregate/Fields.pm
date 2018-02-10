@@ -18,7 +18,8 @@ with 'Krawfish::Koral::Result::Aggregate';
 #   this level on each doc.
 
 # TODO:
-#   This should be part of Koral::Result!
+#   This should accept an order field, to reconstruct the requested
+#   field order after aggregation!
 
 # TODO:
 #   It may be beneficial to deal with Koral::Type here,
@@ -318,6 +319,8 @@ sub to_koral_fragment {
     return;
   };
 
+  # TODO:
+  #   Use order field to recreate initial field order!
 
   my @classes = @{$self->_to_classes};
   my $first = 0;
