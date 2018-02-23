@@ -11,7 +11,7 @@ with 'Krawfish::Koral::Result::Aggregate';
 # corpus classes.
 
 # TODO:
-#   It may very vell also support query
+#   It may very well also support query
 #   classes.
 
 use constant {

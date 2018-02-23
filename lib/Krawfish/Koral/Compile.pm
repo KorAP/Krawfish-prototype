@@ -31,6 +31,9 @@ use warnings;
 #   Remove corpus classes, in case they are not used.
 #   This requires a method like ->used_classes
 
+# TODO:
+#   Support aggregations on groups!
+
 our %COMPILE_ORDER = (
   limit         => 1,
   cluster_merge => 2,

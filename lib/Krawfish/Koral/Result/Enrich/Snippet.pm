@@ -24,6 +24,10 @@ with 'Krawfish::Koral::Result::Inflatable';
 #   <more />
 # </context>
 
+# TODO:
+#   All annotations should have an id:
+#   {type}-{start}->{end}-{uid}
+#   Where type is either "hl", "match", "rel"
 
 # TODO:
 #   Instead of "focus" it may be called "extension"
@@ -547,9 +551,6 @@ sub _inline_markup {
   #    Krawfish::Koral::Document::Stream
   #    with surface annotations only
   my @list;
-  #my $stream = $self->stream;
-  #my $length = $stream->length + $self->stream_offset;
-  #my $i = $self->stream_offset;
 
   my $primary = $self->char_string;
   my $length = length($primary);

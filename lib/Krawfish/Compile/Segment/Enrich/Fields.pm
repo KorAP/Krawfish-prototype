@@ -20,7 +20,8 @@ sub new {
     query     => shift,
 
     # Could be treated like in Aggregate/Fields or Group/Fields!
-    fields    => shift, # Expects to be numerical sorted field identifier
+    fields    => shift,
+    # Expects to be numerical sorted field identifier
     match     => undef,
     pointer   => undef,
     last_doc_id => -1

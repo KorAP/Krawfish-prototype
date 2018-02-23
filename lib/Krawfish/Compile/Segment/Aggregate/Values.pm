@@ -17,6 +17,10 @@ with 'Krawfish::Compile::Segment::Aggregate::Base';
 # TODO:
 #   Support flags on construction
 
+# TODO:
+#   This may be reused for aggregation on groups!
+#   That means, it requires pattern passing as well.
+
 use constant DEBUG => 0;
 
 sub new {
@@ -87,7 +91,7 @@ sub each_doc {
   my $pointer = $self->{field_pointer};
 
   # Get aggregation information
-  my $aggr = $self->{result};
+  my $aggr = $self->result;
 
   # Get flags from the document
   my $flags = $current->flags($self->{flags});
@@ -96,7 +100,8 @@ sub each_doc {
   if ($pointer->skip_doc($doc_id) == $doc_id) {
 
     # collect values
-    my @values = $pointer->int_fields(@{$self->{field_ids}}) or return;
+    my @values = $pointer->int_fields(@{$self->{field_ids}})
+      or return;
 
     # Aggregate all values
     foreach my $field (@values) {

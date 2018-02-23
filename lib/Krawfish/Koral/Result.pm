@@ -123,6 +123,7 @@ sub aggregation {
 
 
 # Get or set group results
+# That's a Krawfish::Koral::Result::Group::* object
 sub group {
   my $self = shift;
   if (@_) {

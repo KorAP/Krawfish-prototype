@@ -15,6 +15,10 @@ with 'Krawfish::Koral::Result::Aggregate';
 #   What's the difference between a corpus and a rewritten
 #   corpus in regards to number of sentences.
 
+# TODO:
+#   Instead of only hashing on flags, also hash on
+#   patterns - so this can be used for Group::Aggregate!
+
 use constant {
   MIN_INIT_VALUE => 32_000,
   DEBUG => 0

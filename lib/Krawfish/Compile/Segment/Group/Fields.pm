@@ -24,15 +24,28 @@ use constant DEBUG => 1;
 #   In case the field has ranges, this will increment the group
 #   values for the whole range.
 
+# TODO:
+#   Theoretically the frequency counting could also be done
+#   using frequency group aggregation, but this would probably
+#   be slower ... though - it would be way cleaner and may
+#   be useful in case grouping without frequency information
+#   is wanted.
+
 sub new {
   my $class = shift;
-  my ($field_obj, $query, $fields) = @_;
+
+  # TODO:
+  #   Use a hash!
+  my ($field_obj, $query, $fields, $aggr) = @_;
   my $self = bless {
     field_obj  => $field_obj,
     query      => $query,
     field_keys => $fields,
+
+    # The Aggregation object is of type Group::Aggregate
+    aggr       => $aggr,
     last_doc_id => -1,
-    finished => 0
+    finished   => 0
   }, $class;
 
   # Initialize group object
@@ -48,7 +61,8 @@ sub clone {
   return __PACKAGE__->new(
     $self->{field_obj},
     $self->{query},
-    $self->{field_keys}
+    $self->{field_keys},
+    $self->{aggr}->clone
   );
 };
 
@@ -69,8 +83,15 @@ sub _init {
 # Stringification
 sub to_string {
   my ($self, $id) = @_;
-  my $str = 'gFields(' . join(',', map { $_->to_string($id) } @{$self->{field_keys}}) .
-    ':' . $self->{query}->to_string($id) . ')';
+
+  my $str = 'gFields(';
+  $str .= join(',', map { $_->to_string($id) } @{$self->{field_keys}});
+
+  if ($self->{aggr}) {
+    $str .= ';', $self->{aggr}->to_string;
+  };
+
+  $str .= ':' . $self->{query}->to_string($id) . ')';
   return $str;
 };
 
@@ -82,6 +103,7 @@ sub next {
   $self->_init;
 
   my $group = $self->{group};
+  my $aggr = $self->{aggr};
   my $pointer = $self->{field_pointer};
 
   # There is a next match
@@ -118,9 +140,6 @@ sub next {
         map { $_->term_id } @field_keys
       );
 
-#      warn scalar(@field_objs) . ': ' . join(',', @field_objs);
-#      warn scalar(@field_keys) . ': ' . join(',', @field_keys);
-
       # TODO:
       #   Skip term id #0
 
@@ -137,9 +156,7 @@ sub next {
           if (!$patterns[$key_pos] || !@{$patterns[$key_pos]}) {
             $patterns[$key_pos] = [0]
           };
-          #unless (@{$patterns[$key_pos]}) {
-          #  push @{$patterns[$key_pos]}, 0;
-          #};
+
           $key_pos++;
         }
 
@@ -185,8 +202,11 @@ sub next {
         };
       };
 
-      # This adds
+      # This adds a doc based on pattern
       $group->incr_doc(\@patterns, $flags);
+
+      # TODO:
+      #   each_doc(...);
 
       # Set last doc to current doc
       $self->{last_doc_id} = $current->doc_id;
@@ -194,6 +214,9 @@ sub next {
 
     # Add to frequencies
     $group->incr_match;
+
+    # TODO:
+    #   each_matchx(...);
 
     return 1;
   };

@@ -36,6 +36,18 @@ sub new {
     finished    => 0
   }, $class;
 
+  $self->_init_operations;
+
+  return $self;
+};
+
+
+# Initialize aggregation operations
+# TODO:
+#   This is shared with Group::Agregate
+sub _init_operations {
+  my $self = shift;
+
   # The aggregation needs to trigger on each match
   my (@each_doc, @each_match);
   foreach my $op (@{$self->{ops}}) {
@@ -51,10 +63,7 @@ sub new {
 
   $self->{each_doc}   = \@each_doc;
   $self->{each_match} = \@each_match;
-
-  return $self;
 };
-
 
 # Clone object
 sub clone {
@@ -78,9 +87,6 @@ sub next {
   my $self = shift;
 
   # There is a next match
-  # TODO:
-  #   If there is no operand per match,
-  #   only use next_doc
   if ($self->{query}->next) {
 
     # Get the current posting

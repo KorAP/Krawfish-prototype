@@ -32,7 +32,7 @@ sub new {
 };
 
 
-# Increment on a pattern, which is an ordered list of fields
+# Increment on a pattern, which is an ordered list of strings
 sub incr_doc {
   my ($self, $pattern, $flags) = @_;
 
