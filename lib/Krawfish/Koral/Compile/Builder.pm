@@ -59,6 +59,12 @@ sub aggregate {
 };
 
 
+# Aggregate on groups
+sub group_aggregate {
+  return;
+};
+
+
 # Some aggregation types
 # Aggregate frequencies
 sub a_frequencies {

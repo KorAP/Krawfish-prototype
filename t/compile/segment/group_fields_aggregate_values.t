@@ -4,6 +4,28 @@ use Data::Dumper;
 use strict;
 use warnings;
 
+use_ok('Krawfish::Koral::Result::Group::Aggregates');
+
+my $aggrs = Krawfish::Koral::Result::Group::Aggregates->new;
+
+# Get group
+ok(my $aggr = $aggrs->aggregates(
+  [
+    [qw/a b c/],
+    [qw/d e f/],
+    [qw/g h i/]
+  ]));
+
+# First group
+ok($aggr->[0], 'First group defined');
+
+# Set first value at flags 4
+$aggr->[0]->{4}->[0] = 2;
+
+# Get group with same signature
+is($aggrs->aggregates([[qw/a b c/]])->[0]->{4}->[0], 2);
+
+
 use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral');
 
@@ -15,7 +37,11 @@ $koral->compilation(
   $mb->group_by(
     $mb->g_fields('author')
   ),
-  $mb->aggregate(
+
+  # Group aggregates need a different name,
+  # as match number etc. may
+  # need to be aggregated globally in addition
+  $mb->group_aggregate(
     $mb->a_values('size')
   )
 );

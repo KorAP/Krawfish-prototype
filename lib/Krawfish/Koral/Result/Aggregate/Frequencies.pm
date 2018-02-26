@@ -11,11 +11,13 @@ with 'Krawfish::Koral::Result::Aggregate';
 # TODO:
 #   requires a merge() method
 
-# This calculates frequencies for all classes
+# This calculates frequencies for all corpus classes
 
 # TODO:
-#   Instead of keys a byte-trie may in the end
+#   Instead of keys a bit-trie or a list may in the end
 #   be the most efficient data structure.
+#   This should probably be abstracted and used by all
+#   Aggregate objects.
 
 # Constructor
 sub new {

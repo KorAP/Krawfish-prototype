@@ -5,6 +5,21 @@ use parent 'Exporter';
 use strict;
 use warnings;
 
+# This is used by
+# Krawfish::Koral::Result::Group::Fields
+
+# TODO:
+#   This should probably be relocated to
+#   Krawfish::Koral::Util::*
+
+# TODO:
+#   Instead of "list" it may be renamed to "group".
+
+our @EXPORT = qw/pattern_list/;
+
+use constant DEBUG => 0;
+
+
 # Based on a pattern, this creates a list.
 #
 # Expect a list of structure
@@ -17,19 +32,6 @@ use warnings;
 #   1,3,2
 #   1,5,2
 #   1,8,2
-
-# This is used by
-# Krawfish::Koral::Result::Group::Fields
-
-# TODO:
-#   This should probably be relocated to
-#   Krawfish::Koral::Util::*
-
-our @EXPORT = qw/pattern_list/;
-
-use constant DEBUG => 0;
-
-
 sub pattern_list {
   my @list = @_;
 
