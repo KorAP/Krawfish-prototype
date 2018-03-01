@@ -176,11 +176,17 @@ sub to_query {
   }
 
   # Only a corpus query is given
-  else {
+  elsif ($self->corpus) {
 
     # Remember the query is only a corpus query
     $corpus_only = 1;
     $query = $self->corpus;
+  }
+
+  # Neither nor - so may be a group query
+  else {
+    $corpus_only = 1;
+    $query = $self->corpus_builder->anywhere;
   };
 
   # TODO:
