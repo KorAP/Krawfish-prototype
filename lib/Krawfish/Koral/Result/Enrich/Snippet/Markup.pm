@@ -21,7 +21,7 @@ requires qw/start
             type
             clone/;
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # TODO:
 #   Have common methods with

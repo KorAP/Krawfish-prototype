@@ -8,7 +8,7 @@ with 'Krawfish::Query';
 
 # Filter duplicate postings
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # Constructor
 sub new {

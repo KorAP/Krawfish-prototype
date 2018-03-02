@@ -1,12 +1,9 @@
 package Krawfish::Compile::Segment::Group::Aggregate;
 use strict;
 use warnings;
-use Krawfish::Compile::Query::Nowhere;
-use Role::Tiny::With;
+use Krawfish::Compile::Segment::Nowhere;
 
-with 'Krawfish::Compile::Segment';
-
-use constant DEBUG;
+use constant DEBUG => 0;
 
 # Aggregate values of groups per document and per match
 

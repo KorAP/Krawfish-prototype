@@ -1,5 +1,5 @@
-package Krawfish::Koral::Compile::Aggregate;
-use Krawfish::Koral::Compile::Node::Aggregate;
+package Krawfish::Koral::Compile::Group::Aggregate;
+use Krawfish::Koral::Compile::Node::Group::Aggregate;
 use Krawfish::Log;
 use List::MoreUtils qw/uniq/;
 use strict;
@@ -12,16 +12,10 @@ use constant DEBUG => 0;
 
 # TODO:
 #   If a change is made here, check for
-#   Krawfish::Koral::Compile::Group::Aggregate
+#   Krawfish::Koral::Compile::Aggregate
 #   as well.
 
-our %AGGR_ORDER = (
-  'length' => 1,
-  'freq'   => 2,
-  'fields' => 3,
-  'values' => 4
-);
-
+# Prepare Group Aggregations
 
 # Constructor
 sub new {
@@ -32,11 +26,13 @@ sub new {
 
 # Aggregation type
 sub type {
-  'aggregate';
+  'group_aggregate';
 };
 
 
 # Get or set operations
+# TODO:
+#   Identical to Compile::Aggregate
 sub operations {
   my $self = shift;
   if (@_) {
@@ -52,27 +48,25 @@ sub wrap {
   my ($self, $query) = @_;
 
   if (DEBUG) {
-    print_log('kq_aggr', 'Wrap operation ' . join(',', @$self));
+    print_log('kq_gaggr', 'Wrap operation ' . join(',', @$self));
   };
 
+
   # Join aggregates
-  return Krawfish::Koral::Compile::Node::Aggregate->new(
+  return Krawfish::Koral::Compile::Node::Group::Aggregate->new(
     $query,
     [$self->operations]
   );
-
-  return $query;
 };
 
 
 # Normalize aggregations
+# This is similar to Compile::Aggregate, but does not sort
+# aggregations to keep columns intact
 sub normalize {
   my $self = shift;
 
-  # Sort objects in defined order
-  my @ops = sort {
-    $AGGR_ORDER{$a->type} <=> $AGGR_ORDER{$b->type}
-  } @$self;
+  my @ops = @$self;
 
   # Check for doubles
   for (my $i = 1; $i < @ops; $i++) {
@@ -117,7 +111,7 @@ sub normalize {
 # Stringification
 sub to_string {
   my ($self, $id) = @_;
-  return 'aggr=[' . join(',', map { $_->to_string($id) } @$self) . ']';
+  return 'gaggr=[' . join(',', map { $_->to_string($id) } @$self) . ']';
 };
 
 

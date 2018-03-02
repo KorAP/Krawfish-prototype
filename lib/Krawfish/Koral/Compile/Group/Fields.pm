@@ -43,16 +43,18 @@ sub normalize {
     };
   };
   @$self = @unique;
+
   return $self;
 };
 
 
 sub wrap {
   my ($self, $query) = @_;
+
   return Krawfish::Koral::Compile::Node::Group::Fields->new(
     $query,
     [$self->operations]
-  )
+  );
 };
 
 

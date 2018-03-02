@@ -27,7 +27,7 @@ with 'Krawfish::Koral::Result::Inflatable';
 #   The regex is valid for the value in case it is given.
 #   Otherwise it's valid for the key.
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 sub new {
   my $class = shift;

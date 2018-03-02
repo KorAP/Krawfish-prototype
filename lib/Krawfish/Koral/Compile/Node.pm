@@ -6,7 +6,7 @@ use warnings;
 
 # Koral class to join query results on node level
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 sub new {
   my $class = shift;

@@ -11,7 +11,7 @@ use warnings;
 with 'Krawfish::Koral::Result::Inflatable';
 with 'Krawfish::Koral::Result::Group';
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # Group on a sequence of field values
 

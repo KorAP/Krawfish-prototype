@@ -17,7 +17,7 @@ use warnings;
 #   and is different to all other
 #   Krawfish::Koral::Compile::Node::* queries
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 
 sub new {

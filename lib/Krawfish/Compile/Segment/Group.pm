@@ -8,7 +8,7 @@ with 'Krawfish::Compile::Segment';
 
 requires qw/group/;
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 
 # Override to compile data

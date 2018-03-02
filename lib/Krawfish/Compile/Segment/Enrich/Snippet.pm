@@ -14,7 +14,7 @@ use Role::Tiny;
 
 with 'Krawfish::Compile::Segment';
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 
 # TODO:

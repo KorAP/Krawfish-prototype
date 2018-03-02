@@ -14,7 +14,7 @@ use Krawfish::Koral::Compile::Node;
 with 'Krawfish::Koral::Report';
 with 'Krawfish::Koral::Result::Inflatable';
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # Parse a koral query object and transform to an
 # actual index query.

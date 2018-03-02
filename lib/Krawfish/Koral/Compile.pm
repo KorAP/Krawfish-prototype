@@ -35,15 +35,16 @@ use warnings;
 #   Support aggregations on groups!
 
 our %COMPILE_ORDER = (
-  limit         => 1,
-  cluster_merge => 2,
-  node_merge    => 3,
-  sort          => 4,
-  sample        => 5,
-  enrich        => 6,
-  group         => 7,
-  aggregate     => 8,
-  filter        => 9
+  limit           => 1,
+  cluster_merge   => 2,
+  node_merge      => 3,
+  sort            => 4,
+  sample          => 5,
+  enrich          => 6,
+  group_aggregate => 7,
+  group           => 8,
+  aggregate       => 9,
+  filter          => 10
 );
 
 
@@ -147,17 +148,18 @@ sub normalize {
   #    and take the first value for single values
   #    start_index=0 + start_index=2 => start_index=0
   #
-  # 3. Remove duplicates
-  #    aggr_freq + aggr_freq => - aggr_freq
   for (my $i = 1; $i < @compile; $i++) {
 
+    # 3. Remove duplicates
+    #    aggr_freq + aggr_freq => - aggr_freq
     # Consecutive types are identical, join
     if ($compile[$i]->type eq $compile[$i-1]->type) {
 
       # Join fields or aggregations
       if ($compile[$i]->type eq 'enrich' ||
+            $compile[$i]->type eq 'sort' ||
             $compile[$i]->type eq 'aggregate' ||
-            $compile[$i]->type eq 'sort'
+            $compile[$i]->type eq 'group_aggregate'
           ) {
 
         # The first operations have higher precedence

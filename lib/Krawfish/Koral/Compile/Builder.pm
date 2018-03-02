@@ -15,6 +15,7 @@ use Krawfish::Koral::Compile::Aggregate::Fields;
 use Krawfish::Koral::Compile::Aggregate::Length;
 use Krawfish::Koral::Compile::Aggregate::Values;
 use Krawfish::Koral::Compile::Group;
+use Krawfish::Koral::Compile::Group::Aggregate;
 use Krawfish::Koral::Compile::Group::Fields;
 use Krawfish::Koral::Compile::Group::ClassFrequencies;
 
@@ -61,7 +62,8 @@ sub aggregate {
 
 # Aggregate on groups
 sub group_aggregate {
-  return;
+  my $self = shift;
+  return Krawfish::Koral::Compile::Group::Aggregate->new(@_);
 };
 
 

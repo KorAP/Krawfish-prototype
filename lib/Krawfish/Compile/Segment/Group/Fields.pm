@@ -8,7 +8,7 @@ use Role::Tiny::With;
 
 with 'Krawfish::Compile::Segment::Group';
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # This will group matches (especially document matches) by field
 # This is useful e.g. for document browsing per corpus.
@@ -41,9 +41,8 @@ sub new {
     field_obj  => $field_obj,
     query      => $query,
     field_keys => $fields,
-
-    # The Aggregation object is of type Group::Aggregate
     aggr       => $aggr,
+
     last_doc_id => -1,
     finished   => 0
   }, $class;
@@ -55,6 +54,17 @@ sub new {
 };
 
 
+# The Aggregation object is of type Group::Aggregate
+sub aggregation {
+  my ($self, $aggr) = @_;
+  if ($aggr) {
+    $self->{aggr} = $aggr;
+    return $self;
+  };
+  return $self->{aggr};
+};
+
+
 # Clone query
 sub clone {
   my $self = shift;
@@ -62,7 +72,7 @@ sub clone {
     $self->{field_obj},
     $self->{query},
     $self->{field_keys},
-    $self->{aggr}->clone
+    $self->{aggr} ? $self->{aggr}->clone : undef
   );
 };
 
@@ -88,7 +98,7 @@ sub to_string {
   $str .= join(',', map { $_->to_string($id) } @{$self->{field_keys}});
 
   if ($self->{aggr}) {
-    $str .= ';', $self->{aggr}->to_string;
+    $str .= ';'. $self->{aggr}->to_string;
   };
 
   $str .= ':' . $self->{query}->to_string($id) . ')';
