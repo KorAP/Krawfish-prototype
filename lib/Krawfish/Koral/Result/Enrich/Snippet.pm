@@ -53,7 +53,7 @@ with 'Krawfish::Koral::Result::Inflatable';
 #   Instead of dealing with characters and
 
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # Constructor
 sub new {
@@ -170,7 +170,7 @@ sub to_string {
 sub to_html {
   my ($self, $id) = @_;
 
-    if (DEBUG) {
+  if (DEBUG) {
     print_log('kq_snippet', 'Create ordered markup');
   };
 
@@ -195,21 +195,19 @@ sub to_html {
       # Highlight is opening
       if ($anno->is_opening) {
 
+        my $level = _get_level($level_cache, $level_vector, $anno->number);
+
+        $anno->level($level);
+
         if (DEBUG) {
-          my $level = _get_level($level_cache, $level_vector, $anno->number);
-
-          $anno->level($level);
-
-          if (DEBUG) {
-            print_log(
-              'kq_snippet',
-              'Open highlight: ' . $anno->to_string . ' at l=' . $level
-            );
-            print_log(
-              'kq_snippet',
-              'Level vector is ' . join(',', @$level_vector)
-            );
-          };
+          print_log(
+            'kq_snippet',
+            'Open highlight: ' . $anno->to_string . ' at l=' . $level
+          );
+          print_log(
+            'kq_snippet',
+            'Level vector is ' . join(',', @$level_vector)
+          );
         };
       }
 
