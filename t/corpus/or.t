@@ -61,6 +61,29 @@ is($plan->to_string, "and(or(#8,andNot([1],#2)),[1])", 'Stringification');
 
 # matches($plan, [qw/[0] [1] [2] [3] [4]/], 'Matches');
 
+ok($query = $cb->bool_or(
+  $cb->anywhere,
+  $cb->anywhere
+), "Or with everywhere");
+
+is($query->to_string, '[1]|[1]', 'Stringification');
+ok($plan = $query->normalize, 'Normalization');
+is($plan->to_string, "", 'Stringification');
+ok($plan->is_anywhere, 'Is anywhere');
+
+
+ok($query = $cb->bool_or(
+  $cb->nowhere,
+  $cb->nowhere
+), "Or with nowhere");
+
+is($query->to_string, '[0]|[0]', 'Stringification');
+ok($plan = $query->normalize, 'Normalization');
+is($plan->to_string, "", 'Stringification');
+ok($plan->is_nowhere, 'Is nowhere');
+
+
+
 TODO: {
   local $TODO = 'Test further'
 };

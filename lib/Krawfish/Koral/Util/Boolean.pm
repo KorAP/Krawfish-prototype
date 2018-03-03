@@ -12,7 +12,7 @@ use warnings;
 # - Koral::Query::TermGroup
 # - Koral::Query::Or
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 requires qw/bool_and_query
             bool_or_query/;
@@ -401,6 +401,20 @@ sub _clean_and_flatten {
     # Get operand under scrutiny
     my $op = $ops->[$i];
 
+    # Check if there is only a single operand
+    # (because [1] or [] was removed)
+    if (scalar(@$ops) == 1) {
+      if ($op->is_nowhere) {
+        @$ops = ();
+        $self->is_nowhere(1);
+      }
+      elsif ($op->is_anywhere) {
+        @$ops = ();
+        $self->is_anywhere(1);
+      };
+      return $self;
+    };
+
     # Remove empty elements
     if (!defined($op) || $op->is_null) {
       $self->move_info_from($ops->[$i]);
@@ -433,6 +447,7 @@ sub _clean_and_flatten {
     elsif ($op->is_anywhere) {
 
       # A & B & [1] -> A & B
+      # [1] & [1] -> [1]
       if ($self->operation eq 'and') {
         $self->move_info_from($ops->[$i]);
         splice @$ops, $i, 1;
