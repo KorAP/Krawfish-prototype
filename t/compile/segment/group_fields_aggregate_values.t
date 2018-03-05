@@ -4,6 +4,9 @@ use Data::Dumper;
 use strict;
 use warnings;
 
+# EXPERIMENTAL!
+# Group aggregations may not be necessary at all!
+
 use_ok('Krawfish::Koral::Result::Group::Aggregates');
 
 my $aggrs = Krawfish::Koral::Result::Group::Aggregates->new;
@@ -77,7 +80,9 @@ ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimize
 
 is($query->to_string(1), 'gFields(#3;groupAggr([values:#1]):[1])', 'Optimized query');
 
-diag 'Implement Group::Aggregate!!';
+TODO: {
+  local $TODO = 'Implement Group::Aggregate!!'
+};
 
 # Example:
 #   Group all documents in a VC based

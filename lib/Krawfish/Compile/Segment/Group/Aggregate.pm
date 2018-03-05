@@ -7,6 +7,9 @@ use constant DEBUG => 0;
 
 # Aggregate values of groups per document and per match
 
+# EXPERIMENTAL!
+# Group aggregations may not be necessary at all!
+
 # Add per group values from fields,
 # like in a group on documents add the min and max values
 # of a field, e.g. the date span, or the total number

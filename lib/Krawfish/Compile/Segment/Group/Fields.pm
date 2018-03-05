@@ -14,7 +14,11 @@ use constant DEBUG => 0;
 # This is useful e.g. for document browsing per corpus.
 #
 # Because the grouping is based on ranking, the sorting will be trivial.
-#
+
+# EXPERIMENTAL!
+# Group aggregations may not be necessary at all!
+
+
 # TODO:
 #   For some mechanisms, it is not necessary to count all occurrences,
 #   e.g. to get all keywords used in a certain virtual corpus or all

@@ -4,6 +4,9 @@ use Krawfish::Compile::Segment::Nowhere;
 use strict;
 use warnings;
 
+# EXPERIMENTAL!
+# Group aggregations may not be necessary at all!
+
 # TODO:
 #   Identify() should probably first return a Segment::Aggregate object
 

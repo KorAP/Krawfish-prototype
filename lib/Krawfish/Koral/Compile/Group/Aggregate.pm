@@ -7,6 +7,9 @@ use warnings;
 
 use constant DEBUG => 0;
 
+# EXPERIMENTAL!
+# Group aggregations may not be necessary at all!
+
 # TODO:
 #   Check that only valid aggregate objects are passed
 
