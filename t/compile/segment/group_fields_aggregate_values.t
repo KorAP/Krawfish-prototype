@@ -71,11 +71,11 @@ ok(my $query = $koral->to_query, 'Normalize');
 
 # TODO:
 #   Simplify [1]&[1]!!!
-is($query->to_string, "gaggr(values:['age']:gFields('author':[1]&[1]))", 'string');
+is($query->to_string, "gaggr(values:['age']:gFields('author':[1]))", 'string');
 
 ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimize');
 
-is($query->to_string(1), 'gFields(#3;groupAggr([values:#1]):and([1],[1]))', 'Optimized query');
+is($query->to_string(1), 'gFields(#3;groupAggr([values:#1]):[1])', 'Optimized query');
 
 diag 'Implement Group::Aggregate!!';
 

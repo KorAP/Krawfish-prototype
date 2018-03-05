@@ -12,7 +12,7 @@ use warnings;
 # - Koral::Query::TermGroup
 # - Koral::Query::Or
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 requires qw/bool_and_query
             bool_or_query/;
@@ -137,6 +137,10 @@ sub normalize {
 
   $self = $self->_clean_and_flatten;
 
+  unless (Role::Tiny::does_role($self, 'Krawfish::Koral::Util::Boolean')) {
+    return $self->normalize;
+  };
+
   # Recursive normalize
   my @ops = ();
   foreach my $op (@{$self->operands}) {
@@ -154,9 +158,13 @@ sub normalize {
   # but an andNot or a leaf after the final step
   #
   # The order is important!
-  return $self
-    ->_clean_and_flatten
-    ->_resolve_idempotence
+  $self = $self->_clean_and_flatten;
+
+  unless (Role::Tiny::does_role($self, 'Krawfish::Koral::Util::Boolean')) {
+    return $self->normalize;
+  };
+
+  return $self->_resolve_idempotence
     ->_resolve_demorgan
     ->_remove_nested_idempotence
     ->_replace_negative;
@@ -404,15 +412,13 @@ sub _clean_and_flatten {
     # Check if there is only a single operand
     # (because [1] or [] was removed)
     if (scalar(@$ops) == 1) {
-      if ($op->is_nowhere) {
-        @$ops = ();
-        $self->is_nowhere(1);
-      }
-      elsif ($op->is_anywhere) {
-        @$ops = ();
-        $self->is_anywhere(1);
+
+      # Revert negativity on single operands
+      if ($self->is_negative) {
+        $op = $op->toggle_negative;
       };
-      return $self;
+
+      return $op;
     };
 
     # Remove empty elements
@@ -430,10 +436,7 @@ sub _clean_and_flatten {
 
         print_log('kq_bool', 'Group can be simplified to [0]') if DEBUG;
 
-        # Matches nowhere!
-        @$ops = ();
-        $self->is_nowhere(1);
-        last;
+        return $op;
       }
 
       # A | B | [0] -> A | B
@@ -459,9 +462,7 @@ sub _clean_and_flatten {
         print_log('kq_bool', 'Group can be simplified to [1]') if DEBUG;
 
         # Matches everywhere
-        @$ops = ();
-        $self->is_anywhere(1);
-        last;
+        return $op;
       }
     }
 

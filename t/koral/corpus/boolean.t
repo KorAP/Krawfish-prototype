@@ -7,19 +7,20 @@ use_ok('Krawfish::Koral::Corpus::Builder');
 
 ok(my $cb = Krawfish::Koral::Corpus::Builder->new, 'Create CorpusBuilder');
 
+my $tree;
+
 # Get tree
-my $tree = $cb->bool_and(
+$tree = $cb->bool_and(
   $cb->string('age')->eq('4'),
   $cb->string('author')->eq('Peter'),
   undef,
   $cb->string('age')->eq('4')
 );
 
+
 # Remove empty elements
 ok($tree = $tree->normalize, 'Query normalization');
 is($tree->to_string, 'age=4&author=Peter', 'Resolve idempotence');
-
-
 
 # Solve grouping
 $tree = $cb->bool_and(
@@ -180,9 +181,9 @@ $tree = $cb->bool_and(
 );
 
 is($tree->to_string, '[0]&x=1&z=1', 'Plain groups');
-$tree->normalize;
+ok($tree = $tree->normalize, 'Normalize');
 ok($tree->is_nowhere, 'Nowhere');
-is($tree->to_string, '', 'Nowhere');
+is($tree->to_string, '[0]', 'Nowhere');
 
 
 # Check flattening with ANY
@@ -194,10 +195,10 @@ $tree = $cb->bool_or(
 );
 
 is($tree->to_string, '[1]|x=1|z=1', 'Plain groups');
-$tree->normalize;
+ok($tree = $tree->normalize, 'Normalize');
 ok(!$tree->is_nowhere, 'No Nowhere');
 ok($tree->is_anywhere, 'Anything');
-is($tree->to_string, '', 'no string');
+is($tree->to_string, '[1]', 'no string');
 
 
 # Check flattening with ANY
@@ -209,7 +210,7 @@ $tree = $cb->bool_and(
 );
 
 is($tree->to_string, '[1]&x=1&z=1', 'Plain groups');
-$tree->normalize;
+ok($tree = $tree->normalize, 'Normalize');
 ok(!$tree->is_nowhere, 'No Nowhere');
 ok(!$tree->is_anywhere, 'No Anything');
 is($tree->to_string, 'x=1&z=1', 'no string');
@@ -224,7 +225,7 @@ $tree = $cb->bool_or(
 );
 
 is($tree->to_string, 'x!=1|y!=1|z!=1', 'Plain groups');
-$tree->normalize;
+ok($tree = $tree->normalize, 'Normalize');
 is($tree->to_string, '!(x=1&y=1&z=1)', 'no string');
 
 
@@ -237,7 +238,7 @@ $tree = $cb->bool_and(
 );
 
 is($tree->to_string, 'x!=1&y!=1&z!=1', 'Plain groups');
-$tree->normalize;
+ok($tree = $tree->normalize, 'Normalize');
 is($tree->to_string, '!(x=1|y=1|z=1)', 'no string');
 
 
@@ -252,7 +253,7 @@ $tree = $cb->bool_or(
 );
 
 is($tree->to_string, 'a!=1|b=1|c!=1|d=1|e!=1|f=1', 'Plain groups');
-$tree->normalize;
+ok($tree = $tree->normalize, 'Normalize');
 is($tree->to_string, '([1]&!(a=1&c=1&e=1))' . '|b=1|d=1|f=1', 'no string');
 
 # DeMorgan grouping with AND
@@ -266,7 +267,7 @@ $tree = $cb->bool_and(
 );
 
 is($tree->to_string, 'a!=1&b=1&c!=1&d=1&e!=1&f=1', 'Plain groups');
-$tree = $tree->normalize;
+ok($tree = $tree->normalize, 'Normalize');
 
 # TODO: This may require a direct andNot() serialization with the all-query
 is($tree->to_string, '((b=1&d=1&f=1)&!(a=1|c=1|e=1))', 'no string');
@@ -279,7 +280,7 @@ $tree = $cb->bool_and(
 )->toggle_negative;
 
 is($tree->to_string, '!(a!=1)', 'Plain groups');
-$tree = $tree->normalize;
+ok($tree = $tree->normalize, 'Normalize');
 is($tree->to_string, 'a=1', 'simple string');
 
 
@@ -290,7 +291,7 @@ $tree = $cb->bool_and(
 )->toggle_negative;
 
 is($tree->to_string, '!(a!=1&b!=1)', 'Plain groups');
-$tree = $tree->normalize;
+ok($tree = $tree->normalize, 'Normalize');
 is($tree->to_string, 'a=1|b=1', 'simple string');
 
 
@@ -323,6 +324,60 @@ $tree = $tree->normalize;
 is($tree->to_string, '!(([1]&!b=1)|c=1|d=1)', 'simple string');
 $tree = $tree->finalize;
 is($tree->to_string, '([1]&!(([1]&!b=1)|c=1|d=1))', 'simple string');
+
+
+# Check [1/0]&/|[1/0]
+ok($tree = $cb->bool_and(
+  $cb->anywhere,
+  $cb->anywhere
+), "And with everywhere");
+
+is($tree->to_string, '[1]&[1]', 'Stringification');
+ok($tree = $tree->normalize, 'Normalization');
+is($tree->to_string, '[1]', 'Stringification');
+ok($tree->is_anywhere, 'Query is anywhere');
+ok($tree = $tree->finalize, 'Planning');
+is($tree->to_string, "[1]", 'Stringification');
+
+ok($tree = $cb->bool_and(
+  $cb->nowhere,
+  $cb->nowhere
+), "And with nowhere");
+
+is($tree->to_string, '[0]&[0]', 'Stringification');
+ok($tree = $tree->normalize, 'Normalization');
+is($tree->to_string, '[0]', 'Stringification');
+ok($tree->is_nowhere, 'Is nowhere');
+ok($tree = $tree->finalize, 'Planning');
+is($tree->to_string, "[0]", 'Stringification');
+
+
+ok($tree = $cb->bool_or(
+  $cb->anywhere,
+  $cb->anywhere
+), "Or with everywhere");
+
+is($tree->to_string, '[1]|[1]', 'Stringification');
+ok($tree = $tree->normalize, 'Normalization');
+is($tree->to_string, '[1]', 'Stringification');
+ok($tree->is_anywhere, 'Is anywhere');
+ok($tree = $tree->finalize, 'Planning');
+is($tree->to_string, "[1]", 'Stringification');
+
+
+
+ok($tree = $cb->bool_or(
+  $cb->nowhere,
+  $cb->nowhere
+), "Or with nowhere");
+
+is($tree->to_string, '[0]|[0]', 'Stringification');
+ok($tree = $tree->normalize, 'Normalization');
+is($tree->to_string, '[0]', 'Stringification');
+ok($tree->is_nowhere, 'Is nowhere');
+ok($tree = $tree->finalize, 'Planning');
+is($tree->to_string, "[0]", 'Stringification');
+
 
 
 
@@ -382,5 +437,10 @@ $tree = $cb->bool_and(
 
 $tree->remove_empty->resolve_idempotence;
 is($tree->to_string, 'age!=4&author!=Peter', 'Resolve idempotence');
+
+
+
+
+
 
 done_testing;

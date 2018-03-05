@@ -104,6 +104,9 @@ sub finalize {
 
   print_log('kq_corpus', 'Do an "and" on anywhere') if DEBUG;
 
+  # Do not wrap already satisfied queries
+  return $self if $self->is_anywhere || $self->is_nowhere;
+
   return $self->builder->bool_and(
     $self->builder->anywhere,
     $self

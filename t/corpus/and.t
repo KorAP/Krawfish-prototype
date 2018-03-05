@@ -123,32 +123,6 @@ is($plan->current->to_string, '[3]', 'First doc');
 ok(!$plan->next, 'No more next');
 
 
-ok($query = $cb->bool_and(
-  $cb->anywhere,
-  $cb->anywhere
-), "And with everywhere");
-
-is($query->to_string, '[1]&[1]', 'Stringification');
-ok($plan = $query->normalize, 'Normalization');
-is($plan->to_string, "", 'Stringification');
-ok($plan->is_anywhere, 'Query is anywhere');
-# ok($plan = $plan->finalize, 'Planning');
-# is($plan->to_string, "[1]", 'Stringification');
-
-ok($query = $cb->bool_and(
-  $cb->nowhere,
-  $cb->nowhere
-), "And with nowhere");
-
-is($query->to_string, '[0]&[0]', 'Stringification');
-ok($plan = $query->normalize, 'Normalization');
-is($plan->to_string, "", 'Stringification');
-ok($plan->is_nowhere, 'Is nowhere');
-
-
-# TODO:
-#   Check [1]|[1]
-
 done_testing;
 __END__
 

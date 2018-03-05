@@ -21,7 +21,9 @@ with 'Krawfish::Koral::Corpus';
 
 # TODO:
 #   In normalization phase make
-#   X geq Y & X leq Y -> X eq Y
+#   - X >= Y & X <= Y  -> X eq Y
+#   - X > 4 & X > 3    -> X > 4
+#   - X < 4 & X < 3    -> X < 3
 
 use constant DEBUG => 0;
 
