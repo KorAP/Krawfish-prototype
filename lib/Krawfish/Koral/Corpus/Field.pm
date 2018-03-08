@@ -1,6 +1,5 @@
 package Krawfish::Koral::Corpus::Field;
 use Krawfish::Koral::Corpus::FieldID;
-use Krawfish::Util::Constants ':PREFIX';
 use Role::Tiny;
 use strict;
 use warnings;
@@ -108,29 +107,6 @@ sub can_toggle_negativity {
 };
 
 
-
-# Translate all terms to term ids
-sub identify {
-  my ($self, $dict) = @_;
-
-  unless ($self->is_regex) {
-
-    my $term = $self->to_term;
-
-    print_log('kq_term', "Translate term $term to term_id") if DEBUG;
-
-    my $term_id = $dict->term_id_by_term(FIELD_PREF . $term);
-
-    return $self->builder->nowhere unless defined $term_id;
-
-    return Krawfish::Koral::Corpus::FieldID->new($term_id);
-  };
-
-  warn 'Inflation on regex not yet supported!';
-  return;
-};
-
-
 sub optimize {
   'Irrelevant';
 };
@@ -138,13 +114,6 @@ sub optimize {
 
 sub operands {
   return [];
-};
-
-
-# TODO:
-#   Support regular expressions!
-sub is_regex {
-  0;
 };
 
 
@@ -200,12 +169,13 @@ sub to_string {
 
   return 0 if $self->is_null;
 
-  my $str = $self->{key};
+  my $str = ''; # $self->key_type . ':';
+  $str .= $self->{key};
   my $op = $self->match;
 
   unless ($self->{value}) {
     return $str unless $op eq 'excludes';
-    return KEY_PREF . $str;
+    return $str; # KEY_PREF . $str;
   };
 
   if ($op eq 'eq') {

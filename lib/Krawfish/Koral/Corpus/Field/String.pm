@@ -1,4 +1,5 @@
 package Krawfish::Koral::Corpus::Field::String;
+use Krawfish::Util::Constants ':PREFIX';
 use Role::Tiny::With;
 use strict;
 use warnings;
@@ -20,5 +21,32 @@ sub new {
 sub key_type {
   'string';
 };
+
+# Translate all terms to term ids
+sub identify {
+  my ($self, $dict) = @_;
+
+  my $term = $self->to_term;
+
+  print_log('kq_term', "Translate term $term to term_id") if DEBUG;
+
+  my $term_id = $dict->term_id_by_term(FIELD_PREF . $term);
+
+  return $self->builder->nowhere unless defined $term_id;
+
+  return Krawfish::Koral::Corpus::FieldID->new($term_id);
+};
+
+
+# Compare against another field value
+sub value_geq {
+  my ($self, $other) = @_;
+  if ($self->value ge $other->value) {
+    return 1;
+  };
+  return 0;
+};
+
+
 
 1;

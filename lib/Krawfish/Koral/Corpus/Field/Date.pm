@@ -8,6 +8,7 @@ with 'Krawfish::Koral::Corpus';
 
 use constant DEBUG => 0;
 
+# TODO: A date should probably have a different prefix
 
 sub new {
   my $class = shift;

@@ -9,6 +9,7 @@ use strict;
 use warnings;
 
 with 'Krawfish::Koral::Util::Boolean';
+with 'Krawfish::Koral::Util::Relational';
 with 'Krawfish::Koral::Corpus';
 
 # TODO:
@@ -17,13 +18,6 @@ with 'Krawfish::Koral::Corpus';
 #   -> finalize()
 #   -> memoize(cache)
 #   -> optimize(index)
-
-
-# TODO:
-#   In normalization phase make
-#   - X >= Y & X <= Y  -> X eq Y
-#   - X > 4 & X > 3    -> X > 4
-#   - X < 4 & X < 3    -> X < 3
 
 use constant DEBUG => 0;
 

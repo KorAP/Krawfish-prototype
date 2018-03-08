@@ -164,6 +164,11 @@ sub normalize {
     return $self->normalize;
   };
 
+  # Normalize relationally
+  if (Role::Tiny::does_role($self, 'Krawfish::Koral::Util::Relational')) {
+    $self = $self->normalize_relational;
+  };
+
   return $self->_resolve_idempotence
     ->_resolve_demorgan
     ->_remove_nested_idempotence

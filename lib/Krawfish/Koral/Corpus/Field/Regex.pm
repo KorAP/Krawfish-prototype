@@ -21,4 +21,10 @@ sub key_type {
   'regex';
 };
 
+
+sub optimize {
+  warn 'Inflation on regex not yet supported!';
+  return;
+};
+
 1;
