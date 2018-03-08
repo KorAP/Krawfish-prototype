@@ -1,5 +1,8 @@
 package Krawfish::Koral::Corpus::Builder;
 use Krawfish::Koral::Corpus::Field;
+use Krawfish::Koral::Corpus::Field::String;
+use Krawfish::Koral::Corpus::Field::Date;
+use Krawfish::Koral::Corpus::Field::Regex;
 use Krawfish::Koral::Corpus::FieldGroup;
 use Krawfish::Koral::Corpus::Class;
 use Krawfish::Koral::Corpus::Nowhere;
@@ -69,7 +72,7 @@ sub class {
 # May be renamed to 'field'
 sub string {
   shift;
-  return Krawfish::Koral::Corpus::Field->new('string', @_);
+  return Krawfish::Koral::Corpus::Field::String->new(@_);
 };
 
 
@@ -83,7 +86,7 @@ sub span {
 # May be renamed to 'field_date'
 sub date {
   shift;
-  return Krawfish::Koral::Corpus::Field->new('date', @_);
+  return Krawfish::Koral::Corpus::Field::Date->new(@_);
 };
 
 
@@ -91,20 +94,20 @@ sub date {
 # May be renamed to 'field_re'
 sub regex {
   shift;
-  return Krawfish::Koral::Corpus::Field->new('regex', @_);
+  return Krawfish::Koral::Corpus::Field::Regex->new(@_);
 };
 
 
 # Refer to the primary instance of the doc
 sub primary_node {
-  Krawfish::Koral::Corpus::Field->new('string', '__1');
+  Krawfish::Koral::Corpus::Field::String->new('__1');
 };
 
 
 # Refer to the replicant instance of the doc
 sub replicant_node {
   shift;
-  Krawfish::Koral::Corpus::Field->new('string', '__2:' . shift);
+  Krawfish::Koral::Corpus::Field::String->new('__2:' . shift);
 };
 
 

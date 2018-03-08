@@ -1,11 +1,9 @@
 package Krawfish::Koral::Corpus::Field;
 use Krawfish::Koral::Corpus::FieldID;
 use Krawfish::Util::Constants ':PREFIX';
-use Role::Tiny::With;
+use Role::Tiny;
 use strict;
 use warnings;
-
-with 'Krawfish::Koral::Corpus';
 
 use constant DEBUG => 0;
 
@@ -13,14 +11,6 @@ use constant DEBUG => 0;
 #   - Check for valid parameters
 #   - Only support positive terms
 #   - Wrap in negative field!
-
-sub new {
-  my $class = shift;
-  bless {
-    key_type => shift,
-    key => shift
-  }, $class;
-};
 
 sub type {
   'field';
@@ -79,12 +69,14 @@ sub is_negative {
   return $self->{negative} // 0;
 };
 
+
 sub geq {
   my $self = shift;
   $self->{match} = 'geq';
   $self->{value} = shift;
   return $self;
 };
+
 
 sub leq {
   my $self = shift;
@@ -139,6 +131,10 @@ sub identify {
 };
 
 
+sub optimize {
+  'Irrelevant';
+};
+
 
 sub operands {
   return [];
@@ -152,39 +148,9 @@ sub is_regex {
 };
 
 
-sub optimize {
-  my ($self, $segment) = @_;
-
-  warn 'Optimization not supported!';
-
-  # Negative field
-  if ($self->is_negative) {
-    warn 'Fields are not allowed to be negative';
-    return;
-  };
-
-  # Positive field
-  my $query = Krawfish::Corpus::Field->new(
-    $segment,
-    $self->to_term
-  );
-
-  if ($query->max_freq == 0) {
-    return Krawfish::Query::Nowhere->new;
-  };
-
-  return $query;
-};
-
-
 sub match {
   # TODO: Support existence
   return ($_[0]->{match} // 'eq');
-};
-
-
-sub key_type {
-  $_[0]->{key_type} // 'string';
 };
 
 
@@ -282,6 +248,7 @@ sub from_koral {
 sub to_neutral {
   $_[0]->to_term;
 };
+
 
 
 1;
