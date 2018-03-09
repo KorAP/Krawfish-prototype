@@ -117,9 +117,14 @@ sub operands {
 };
 
 
+# TODO: Support existence
 sub match {
-  # TODO: Support existence
-  return ($_[0]->{match} // 'eq');
+  my $self = shift;
+  if (@_) {
+    $self->{match} = shift;
+    return $self;
+  };
+  return ($self->{match} // 'eq');
 };
 
 

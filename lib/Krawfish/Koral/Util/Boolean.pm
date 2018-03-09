@@ -12,6 +12,13 @@ use warnings;
 # - Koral::Query::TermGroup
 # - Koral::Query::Or
 
+# TODO:
+#   Maybe it's easier to create multiple roles
+#   ->normalize_regex
+#   -> normalize_boolean
+#   -> normalize_relational
+
+
 use constant DEBUG => 0;
 
 requires qw/bool_and_query
@@ -47,6 +54,16 @@ requires qw/bool_and_query
 # DeMorgan:
 #    or(not(a),not(b))  -> not(and(a,b))
 #    and(not(a),not(b)) -> not(or(a,b))
+
+# TODO:
+#   - Remember that corpus-groups for keywords may be weird:
+#     a=1&a=2  -> a=1&a=2
+#     a=1&a!=1 -> 0
+#     a=1&a=1  -> a=1
+
+# TODO:
+#   Normalize regexes
+#   a=/abc/ | a=/def/ 0> a=/abc|def/
 
 # TODO:
 #   from managing gigabytes bool_optimiser.c

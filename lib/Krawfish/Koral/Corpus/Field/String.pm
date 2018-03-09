@@ -48,5 +48,25 @@ sub value_geq {
 };
 
 
+# Compare against another field value
+sub value_leq {
+  my ($self, $other) = @_;
+  if ($self->value le $other->value) {
+    return 1;
+  };
+  return 0;
+};
+
+
+# Compare against another field value
+sub value_eq {
+  my ($self, $other) = @_;
+  if ($self->value eq $other->value) {
+    return 1;
+  };
+  return 0;
+};
+
+
 
 1;
