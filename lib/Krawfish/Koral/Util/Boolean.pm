@@ -22,7 +22,8 @@ use warnings;
 use constant DEBUG => 0;
 
 requires qw/bool_and_query
-            bool_or_query/;
+            bool_or_query
+            operands_in_order/;
 
 # TODO:
 #   Introduce a ->complex attribute to all queries,
@@ -885,6 +886,10 @@ sub toggle_operation {
 
 
 # Create operands in order
+# TODO:
+#   This can fail in certain ways like
+#   author>=Peter & author<=Michael & author=Peter
+#   so this needs to be implemented for each class!
 sub operands_in_order {
   my $self = shift;
   my $ops = $self->{operands};

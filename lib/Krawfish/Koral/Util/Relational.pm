@@ -100,12 +100,13 @@ sub _resolve_inclusivity {
           }
         }
 
+        # The value is identical
         elsif ($op_a->value_eq($op_b)) {
 
           # TODO:
           #   Because of operand order, there is only one variant possible
-          if ($op_a->match eq 'leq' && $op_b->match eq 'geq' ||
-                $op_a->match eq 'geq' && $op_b->match eq 'leq'
+          if (($op_a->match eq 'leq' && $op_b->match eq 'geq') ||
+                ($op_a->match eq 'geq' && $op_b->match eq 'leq')
             ) {
 
             # Operation is &
@@ -122,7 +123,39 @@ sub _resolve_inclusivity {
             else {
               # Remove both operands
               splice @$ops, $i-1, 2, $self->builder->anywhere;
+            };
+          }
+
+          # TODO: Depending on the order only one variant possible
+          elsif (
+            ($op_a->match eq 'eq' && ($op_b->match eq 'geq' || $op_b->match eq 'leq')) ||
+              ($op_b->match eq 'eq' && ($op_a->match eq 'geq' || $op_a->match eq 'leq'))
+            ) {
+
+            # - X >= Y & X = Y -> X = Y
+            if ($self->operation eq 'and') {
+
+              # Set operand match
+              $op_b->match('eq');
+              splice @$ops, $i-1, 1;
             }
+
+            # Though this doesn't help much
+            # - X >= Y | X = Y -> X >= Y
+            # - X <= Y | X = Y -> X <= Y
+            else {
+
+              # First operand is equal
+              if ($op_a->match eq 'eq') {
+                splice @$ops, $i-1, 1;
+              }
+
+              # Second operand is equal
+              else {
+                splice @$ops, $i, 1;
+                $i--;
+              };
+            };
           };
         };
       };

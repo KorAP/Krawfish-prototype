@@ -73,6 +73,27 @@ ok($tree = $tree->normalize, 'Query normalization');
 is($tree->to_string, '[1]', 'Resolve idempotence');
 
 
+# Get tree
+$tree = $cb->bool_and(
+  $cb->string('name')->eq('Peter'),
+  $cb->string('name')->geq('Peter')
+);
+
+# Simplify eq & leq|geq
+ok($tree = $tree->normalize, 'Query normalization');
+is($tree->to_string, 'name=Peter', 'Resolve idempotence');
+
+
+# Get tree
+$tree = $cb->bool_or(
+  $cb->string('name')->eq('Peter'),
+  $cb->string('name')->geq('Peter')
+);
+
+# Simplify eq | leq|geq
+ok($tree = $tree->normalize, 'Query normalization');
+is($tree->to_string, 'name>=Peter', 'Resolve idempotence');
+
 
 diag 'Test more relations and mix with boolean operations';
 
