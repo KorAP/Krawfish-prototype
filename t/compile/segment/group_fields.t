@@ -70,7 +70,7 @@ ok(my $koral_query = $koral->to_query, 'Normalization');
 
 # This is a query that is fine to be send to nodes
 is($koral_query->to_string,
-   "gFields('author':[1]&(age=7|author=Peter))",
+   "gFields('author':(age=7|author=Peter)&[1])",
    'Stringification');
 
 

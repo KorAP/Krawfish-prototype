@@ -15,13 +15,13 @@ my $corpus_query = $cb->bool_and(
   $cb->date('pubDate')->geq('2014-04-03')
 );
 
-is($corpus_query->to_string, 'author=Peter&pubDate>=2014-04-03',
+is($corpus_query->to_string, 'pubDate>=2014-04-03&author=Peter',
    'Stringification of corpus query');
 
 $koral->corpus($corpus_query);
 
 is($koral->to_string,
-   'corpus=[author=Peter&pubDate>=2014-04-03]',
+   'corpus=[pubDate>=2014-04-03&author=Peter]',
    'Stringification');
 
 my $serial = $koral->to_koral_query;

@@ -95,7 +95,24 @@ ok($tree = $tree->normalize, 'Query normalization');
 is($tree->to_string, 'name>=Peter', 'Resolve idempotence');
 
 
-diag 'Test more relations and mix with boolean operations';
+###################
+# Complex queries #
+###################
+
+# Get tree
+$tree = $cb->bool_and(
+  $cb->string('name')->leq('Peter'),
+  $cb->string('name')->geq('Peter'),
+  $cb->string('name')->eq('Michael'),
+);
+
+
+# Simplify eq & leq|geq
+ok($tree = $tree->normalize, 'Query normalization');
+is($tree->to_string, 'name=Michael&name=Peter', 'Resolve idempotence');
+
+
+diag 'Mix relations with boolean operations';
 
 # Test athor!=Peter & author<=Peter & author>=Peter
 

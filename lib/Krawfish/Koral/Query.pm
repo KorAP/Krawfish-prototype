@@ -9,6 +9,10 @@ use strict;
 with 'Krawfish::Koral::Report';
 
 # TODO:
+#   Introduce operation-prefix e.g.
+#   ~span() or $span for to_sort_string()!
+
+# TODO:
 #   Share a role with Koral::Corpus and Koral::Report::Failure
 requires qw/normalize
             optimize
@@ -384,5 +388,9 @@ sub builder {
 #   };
 # };
 
+
+sub to_sort_string {
+  $_[0]->to_string;
+};
 
 1;

@@ -55,9 +55,9 @@ ok(my $query = $cb->bool_and(
   )
 ), 'Create corpus query');
 
-is($query->to_string, 'author=Peter&span([bb][cc])', 'Stringification');
+is($query->to_string, 'span([bb][cc])&author=Peter', 'Stringification');
 ok($query = $query->normalize, 'Normalize');
-is($query->to_string, 'author=Peter&span(bbcc)', 'Stringification');
+is($query->to_string, 'span(bbcc)&author=Peter', 'Stringification');
 ok($query = $query->identify($index->dict), 'Identify');
 is($query->to_string(1), '#17&span(#12#14)', 'Stringification');
 ok($query = $query->optimize($index->segment), 'Optimize');
@@ -103,7 +103,7 @@ ok($query = $cb->bool_and(
 ), 'Create corpus query');
 
 # Ignore optionality
-is($query->to_string, 'author=Peter&span([aa]{0,100})', 'Stringification');
+is($query->to_string, 'span([aa]{0,100})&author=Peter', 'Stringification');
 ok($query = $query->normalize->identify($index->dict)->optimize($index->segment), 'Optimize');
 is($query->to_string, '#17', 'Stringification');
 matches($query, [qw/[1] [2]/]);
@@ -119,7 +119,7 @@ ok($query = $cb->bool_and(
   )
 ), 'Create corpus query');
 
-is($query->to_string, 'author=Peter&span([aa]{1,100})', 'Stringification');
+is($query->to_string, 'span([aa]{1,100})&author=Peter', 'Stringification');
 ok($query = $query->normalize->identify($index->dict)->optimize($index->segment), 'Optimize');
 is($query->to_string, 'and(span(rep(1-100:#10)),#17)', 'Stringification');
 matches($query, [qw/[1] [2]/]);
@@ -133,7 +133,7 @@ ok($query = $cb->bool_and(
   )
 ), 'Create corpus query');
 
-is($query->to_string, 'author=Peter&span([zz])', 'Stringification');
+is($query->to_string, 'span([zz])&author=Peter', 'Stringification');
 ok($query = $query->normalize->identify($index->dict)->optimize($index->segment), 'Optimize');
 is($query->to_string, '[0]', 'Stringification');
 
@@ -148,7 +148,7 @@ ok($query = $cb->bool_or(
   )
 ), 'Create corpus query');
 
-is($query->to_string, 'author=Michael|span([dd][bb])', 'Stringification');
+is($query->to_string, 'span([dd][bb])|author=Michael', 'Stringification');
 ok($query = $query->normalize->identify($index->dict)->optimize($index->segment), 'Optimize');
 is($query->to_string, 'or(#2,span(constr(pos=2048:#12,#16)))', 'Stringification');
 matches($query, [qw/[0] [1] [2] [3]/]);
@@ -168,9 +168,9 @@ ok($query = $cb->bool_or(
   )
 ), 'Create corpus query');
 
-is($query->to_string, 'author=Michael|span({1:{2:[dd]}{3:[bb]}})', 'Stringification');
+is($query->to_string, 'span({1:{2:[dd]}{3:[bb]}})|author=Michael', 'Stringification');
 ok($query = $query->normalize, 'Normalize');
-is($query->to_string, 'author=Michael|span(ddbb)', 'Stringification');
+is($query->to_string, 'span(ddbb)|author=Michael', 'Stringification');
 ok($query = $query->identify($index->dict)->optimize($index->segment), 'Optimize');
 is($query->to_string, 'or(#2,span(constr(pos=2048:#12,#16)))', 'Stringification');
 matches($query, [qw/[0] [1] [2] [3]/]);

@@ -222,5 +222,10 @@ sub to_neutral {
   $_[0]->to_string;
 };
 
+# Stringification for sorting
+sub to_sort_string {
+  $_[0]->to_string;
+};
+
 
 1;

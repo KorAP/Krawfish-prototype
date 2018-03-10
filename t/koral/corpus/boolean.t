@@ -36,7 +36,7 @@ $tree = $cb->bool_and(
   )
 );
 
-is($tree->to_string, 'a=1&(b=2&c=3&(d=4&d=4&e=5))', 'Plain groups');
+is($tree->to_string, '((d=4&d=4&e=5)&b=2&c=3)&a=1', 'Plain groups');
 $tree->normalize;
 is($tree->to_string, 'a=1&b=2&c=3&d=4&e=5', 'Remove empty');
 
@@ -55,9 +55,9 @@ $tree = $cb->bool_and(
   )
 );
 
-is($tree->to_string, 'a=1&(b=2&c=3&(d=4|d=4|e=5))', 'Plain groups');
+is($tree->to_string, '((d=4|d=4|e=5)&b=2&c=3)&a=1', 'Plain groups');
 $tree->normalize;
-is($tree->to_string, 'a=1&b=2&c=3&(d=4|e=5)', 'Remove empty');
+is($tree->to_string, '(d=4|e=5)&a=1&b=2&c=3', 'Remove empty');
 
 
 # Solve nested idempotence
@@ -70,7 +70,7 @@ $tree = $cb->bool_and(
   )
 );
 
-is($tree->to_string, 'a=1&(a=1|b=1)&c=1', 'Plain groups');
+is($tree->to_string, '(a=1|b=1)&a=1&c=1', 'Plain groups');
 $tree->normalize;
 is($tree->to_string, 'a=1&c=1', 'Remove empty');
 
@@ -95,9 +95,9 @@ $tree = $cb->bool_and(
   )
 );
 
-is($tree->to_string, '(a=1|a=1|z=1)&(a=1|x=1)&b=1&(f=1|g=1)&x=1&z=1', 'Plain groups');
+is($tree->to_string, '(a=1|a=1|z=1)&(a=1|x=1)&(f=1|g=1)&b=1&x=1&z=1', 'Plain groups');
 $tree->normalize;
-is($tree->to_string, 'b=1&(f=1|g=1)&x=1&z=1', 'Remove empty');
+is($tree->to_string, '(f=1|g=1)&b=1&x=1&z=1', 'Remove empty');
 
 
 # Remove negative idempotence in AND

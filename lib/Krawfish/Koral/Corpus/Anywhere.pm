@@ -35,7 +35,6 @@ sub to_string {
   '[1]';
 };
 
-
 sub operands {
   return;
 };

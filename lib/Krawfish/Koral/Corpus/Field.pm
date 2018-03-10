@@ -169,6 +169,7 @@ sub to_koral_fragment {
 };
 
 
+# Stringification
 sub to_string {
   my $self = shift;
 
@@ -183,28 +184,40 @@ sub to_string {
     return $str; # KEY_PREF . $str;
   };
 
+  $str .= $self->match_short;
+
+  return $str . $self->{value};
+};
+
+
+sub match_short {
+  my $self = shift;
+  my $op = $self->match;
   if ($op eq 'eq') {
-    $str .= '=';
+    return '=';
   }
   elsif ($op eq 'ne') {
-    $str .= '!=';
+    return '!=';
   }
   elsif ($op eq 'geq') {
-    $str .= '>=';
+    return '>=';
   }
   elsif ($op eq 'leq') {
-    $str .= '<=';
+    return '<=';
   }
   elsif ($op eq 'contains') {
-    $str .= '~'
+    return '~'
   }
   elsif ($op eq 'excludes') {
-    $str .= '!=';
-  }
-  else {
-    $str .= '?';
+    return '!=';
   };
-  return $str . $self->{value};
+  return '?';
+};
+
+
+# Stringification for sorting
+sub to_sort_string {
+  return $_[0]->to_string;
 };
 
 

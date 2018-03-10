@@ -886,14 +886,10 @@ sub toggle_operation {
 
 
 # Create operands in order
-# TODO:
-#   This can fail in certain ways like
-#   author>=Peter & author<=Michael & author=Peter
-#   so this needs to be implemented for each class!
 sub operands_in_order {
   my $self = shift;
   my $ops = $self->{operands};
-  return [ sort { ($a && $b) ? ($a->to_string cmp $b->to_string) : 1 } @$ops ];
+  return [ sort { ($a && $b) ? ($a->to_sort_string cmp $b->to_sort_string) : 1 } @$ops ];
 };
 
 

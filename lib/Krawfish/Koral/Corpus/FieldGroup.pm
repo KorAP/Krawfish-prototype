@@ -122,6 +122,16 @@ sub to_string {
 };
 
 
+sub to_sort_string {
+  my $self = shift;
+  my $str = '';
+  my $op = $self->operation eq 'and' ? '&(' : '|(';
+  $str .= $self->is_negative ? '!(' : '+(';
+  $str .= join(',', map { !$_ ? '()' : $_->to_sort_string } @{$self->operands_in_order});
+  $str .= '))';
+  return $str;
+};
+
 sub from_koral {
   ...
 };

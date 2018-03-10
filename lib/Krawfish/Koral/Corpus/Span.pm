@@ -151,6 +151,11 @@ sub to_string {
 };
 
 
+sub to_sort_string {
+  my $self = shift;
+  return 'span(' . $self->operand->to_sort_string . ')';
+};
+
 # Serialize to KoralQuery
 sub to_koral_fragment {
   my $self = shift;

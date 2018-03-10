@@ -121,4 +121,12 @@ sub to_string {
 };
 
 
+sub to_sort_string {
+  my $self = shift;
+  my $str = '&!(';
+  $str .= join(',', map { !$_ ? '()' : $_->to_sort_string } @{$self->operands});
+  $str .= ')';
+  return $str;
+};
+
 1;

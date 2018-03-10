@@ -68,5 +68,20 @@ sub value_eq {
 };
 
 
+# Stringification for sorting
+# TODO:
+#   This may fail in case key_type and/or
+#   value may contain ':' - so this should be
+#   ensured!
+sub to_sort_string {
+  my $self = shift;
+  return 0 if $self->is_null;
+
+  my $str = $self->key_type . ':';
+  $str .= $self->key . ':';
+  $str .= ($self->value // '') . ':';
+  $str .= $self->match_short;
+  return $str;
+};
 
 1;
