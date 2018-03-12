@@ -14,10 +14,12 @@ use constant DEBUG => 0;
 # (a|b?|c?) -> (a|b|c)?
 sub _resolve_optionality {
   my $self = shift;
+
   print_log('kq_optional', 'Resolve optionality for ' . $self->to_string) if DEBUG;
 
   # Either matches nowhere or anywhere
-  return $self if $self->is_nowhere || $self->is_anywhere;
+  return if $self->is_nowhere || $self->is_anywhere;
+
   my $changes = 0;
 
   # Iterate over operands
@@ -40,18 +42,16 @@ sub _resolve_optionality {
   };
 
 
-  if ($changes) {
-    # Set operands
-    $self->operands(\@ops);
+  return unless $changes;
 
-    # In case this query is not yet optional
-    unless ($self->is_optional) {
-      my $repeat = $self->builder->repeat($self, 0, 1);
-      my $repeat_norm = $repeat->normalize;
-      return $repeat_norm ? $repeat_norm : $repeat;
-    };
+  # Set operands
+  $self->operands(\@ops);
 
-    return $self;
+  # In case this query is not yet optional
+  unless ($self->is_optional) {
+    my $repeat = $self->builder->repeat($self, 0, 1);
+    my $repeat_norm = $repeat->normalize;
+    return $repeat_norm ? $repeat_norm : $repeat;
   };
 
   # return;

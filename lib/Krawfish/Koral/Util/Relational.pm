@@ -203,9 +203,9 @@ sub _resolve_inclusivity_and_exclusivity {
     };
   };
 
-  if ($changes) {
-    $self->operands($ops);
-  };
+  return unless $changes;
+
+  $self->operands($ops);
   return $self;
 };
 

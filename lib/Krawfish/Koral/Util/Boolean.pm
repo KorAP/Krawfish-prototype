@@ -230,7 +230,7 @@ sub _resolve_idempotence {
   # TODO:
   #   copy warning messages everywhere, when operations are changed!
 
-  return $self if $self->is_nowhere || $self->is_anywhere;
+  return if $self->is_nowhere || $self->is_anywhere;
 
   # Get operands in order to identify identical subcorpora
   my $ops = $self->operands_in_order;
@@ -262,10 +262,9 @@ sub _resolve_idempotence {
   };
 
   # Set operands
-  #if ($changes) {
-    $self->operands(\@ops);
-  #};
+  return unless $changes;
 
+  $self->operands(\@ops);
   $self;
 };
 
@@ -428,7 +427,8 @@ sub _remove_nested_idempotence {
     $changes++;
   };
 
-  return $self;
+  return $self if $changes;
+  return;
 };
 
 
@@ -576,7 +576,7 @@ sub _resolve_demorgan {
 
   print_log('kq_bool', 'Resolve DeMorgan in ' . $self->to_string) if DEBUG;
 
-  return $self if $self->is_nowhere || $self->is_anywhere;
+  return if $self->is_nowhere || $self->is_anywhere;
 
   my $changes = 0;
 
@@ -624,7 +624,7 @@ sub _resolve_demorgan {
 
   # There are no negative operands
   unless (@neg) {
-    # return unless $changes;
+    return unless $changes;
     return $self;
   };
 
@@ -708,9 +708,10 @@ sub _resolve_demorgan {
 # and (a | !b) with (a | andNot([1],b))
 sub _replace_negative {
   my $self = shift;
-  my $changes = 0;
 
   print_log('kq_bool', 'Replace Negations in ' . $self->to_string) if DEBUG;
+
+  my $changes = 0;
 
   # Check for negativity in groups to toggle all or nowhere
   if ($self->is_negative) {
@@ -733,8 +734,7 @@ sub _replace_negative {
   };
 
   # Return if anywhere or nowhere
-  # return $changes ? $self : undef if $self->is_anywhere || $self->is_nowhere;
-  return $self if $self->is_anywhere || $self->is_nowhere;
+  return $changes ? $self : undef if $self->is_anywhere || $self->is_nowhere;
 
   my $ops = $self->operands;
 
@@ -766,8 +766,7 @@ sub _replace_negative {
   # And it's at the end!
 
   # All operands are positive
-  # return $changes ? $self : undef unless $ops->[-1]->is_negative;
-  return $self unless $ops->[-1]->is_negative;
+  return $changes ? $self : undef unless $ops->[-1]->is_negative;
 
   # Group all positive operands
   print_log('kq_bool', 'Create group with negation') if DEBUG;
