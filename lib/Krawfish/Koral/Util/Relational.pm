@@ -7,16 +7,17 @@ use warnings;
 # Relational normalization role for
 # Krawfish::Koral::Util::Boolean
 
+use constant DEBUG => 1;
 
 # Central normalize call
 sub normalize_relational {
   my $self = shift;
-  return $self->_resolve_inclusivity;
+  return $self->_resolve_inclusivity_and_exclusivity;
 };
 
 
-# Resolve set theoretic inclusivity
-sub _resolve_inclusivity {
+# Resolve set theoretic inclusivity and exclusivity
+sub _resolve_inclusivity_and_exclusivity {
   my $self = shift;
   my $ops = $self->operands_in_order;
 
@@ -119,7 +120,7 @@ sub _resolve_inclusivity {
             }
 
             # Operation is |
-            # - X >= Y | X <= Y  -> 1
+            # - X >= Y | X <= Y  -> [1]
             else {
               # Remove both operands
               splice @$ops, $i-1, 2, $self->builder->anywhere;
@@ -155,6 +156,43 @@ sub _resolve_inclusivity {
                 splice @$ops, $i, 1;
                 $i--;
               };
+            };
+          }
+
+          elsif (
+            ($op_a->match eq 'ne' && ($op_b->match eq 'geq' || $op_b->match eq 'leq')) ||
+              ($op_b->match eq 'ne' && ($op_a->match eq 'geq' || $op_a->match eq 'leq'))
+
+            ) {
+
+            # - X >= Y & X != Y -> X > Y
+            if ($self->operation eq 'and') {
+
+              # TODO:
+              #   This optimization is only possible with
+              #   support for > and <
+
+              # # First remove unequal operand
+              # if ($op_a->match eq 'ne') {
+              #   splice @$ops, $i-1, 1;
+              # }
+              # else {
+              #   splice @$ops, $i, 1;
+              #   $i--;
+              # }
+              #
+              # my $op = $ops->[$i];
+              # if ($op->match eq 'leq') {
+              #   $op->match('le');
+              # };
+            }
+
+            # - X >= Y | X != Y -> [1]
+            # - X <= Y | X != Y -> [1]
+            else {
+
+              # Remove both operands
+              splice @$ops, $i-1, 2, $self->builder->anywhere;
             };
           };
         };

@@ -221,6 +221,12 @@ sub to_sort_string {
 };
 
 
+sub is_relational {
+  my $self = shift;
+  return 1 if $self->match eq 'geq' || $self->match eq 'leq';
+  return 0;
+};
+
 sub to_term {
   my $self = shift;
   my $term = $self->to_string;

@@ -19,8 +19,7 @@ with 'Krawfish::Koral::Corpus';
 #   -> memoize(cache)
 #   -> optimize(index)
 
-use constant DEBUG => 0;
-
+use constant DEBUG => 1;
 
 sub new {
   my $class = shift;
@@ -48,16 +47,61 @@ sub operation {
 
 # optimize() is provided by Boolean
 
+sub normalization_order {
+  return (
+    '_clean_and_flatten',
+    '_resolve_inclusivity_and_exclusivity',
+    '_resolve_idempotence',
+    '_resolve_demorgan',
+    '_remove_nested_idempotence',
+    '_replace_negative'
+  );
+};
+
 sub normalize {
   my $self = shift;
 
-  # Normalize boolean
-  my $corpus = $self->normalize_boolean;
+  # TODO:
+  #   Design as
+  # while (1) {
+  #   unless (Role::Tiny::does_role($self, 'Krawfish::Koral::Util::Boolean')) {
+  #     return $self->normalize;
+  #   };
+  #
+  #   my $corpus = $self->_clean_and_flatten
+  #   if ($corpus (means, something has changed)) {
+  #     $self = $corpus;
+  #     next;
+  #   };
+  #   ...
+  #   return;
+  # };
 
-  # Normalize relational
-  if (Role::Tiny::does_role($corpus, 'Krawfish::Koral::Util::Relational')) {
-    $corpus = $corpus->normalize_relational;
+  # Normalize boolean
+  my $corpus = $self->_clean_and_flatten;
+
+  unless (Role::Tiny::does_role($corpus, 'Krawfish::Koral::Util::Boolean')) {
+    return $corpus->normalize;
   };
+
+  # Recursive normalize
+  my @ops = ();
+  foreach my $op (@{$corpus->operands}) {
+
+    # Operand is group!
+    push @ops, $op->normalize if $op;
+  };
+
+  $corpus->operands(\@ops);
+
+  foreach ($self->normalization_order) {
+    $corpus = $corpus->$_;
+
+    unless (Role::Tiny::does_role($corpus, 'Krawfish::Koral::Util::Boolean')) {
+      return $corpus->normalize;
+    };
+  };
+
   return $corpus;
 };
 

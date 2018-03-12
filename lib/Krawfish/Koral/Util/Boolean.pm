@@ -19,7 +19,7 @@ use warnings;
 #   -> normalize_relational
 
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 requires qw/bool_and_query
             bool_or_query
@@ -293,7 +293,7 @@ sub _remove_nested_idempotence {
       }
 
       # Item is positive
-      else {
+      elsif (!$ops->[$i]->is_relational) {
         push @pos, $i;
       }
     };
@@ -789,6 +789,8 @@ sub optimize {
   # Sort operands based on ascending frequency
   # This is - however - rather irrelevant for or-queries,
   # but it may help caching by introducing deterministic ordering
+  # TODO:
+  #   The operands are already optimized, therefore to_sort_string does not work
   @freq = sort {
     ($a->[1] < $b->[1]) ? -1 :
       (($a->[1] > $b->[1]) ? 1 :

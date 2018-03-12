@@ -112,6 +112,10 @@ sub is_nowhere {
   0
 };
 
+sub is_relational {
+  0;
+};
+
 sub operands {
   [];
 };

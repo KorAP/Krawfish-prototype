@@ -111,6 +111,29 @@ $tree = $cb->bool_and(
 ok($tree = $tree->normalize, 'Query normalization');
 is($tree->to_string, 'name=Michael&name=Peter', 'Resolve idempotence');
 
+SKIP: {
+
+  skip "> and < not yet supported", 2;
+  # Get tree
+  $tree = $cb->bool_and(
+    $cb->string('name')->ne('Peter'),
+    $cb->string('name')->leq('Peter'),
+  );
+
+  ok($tree = $tree->normalize, 'Query normalization');
+  is($tree->to_string, 'name<Peter', 'Resolve idempotence');
+};
+
+
+# Get tree
+$tree = $cb->bool_or(
+  $cb->string('name')->ne('Peter'),
+  $cb->string('name')->leq('Peter'),
+);
+
+ok($tree = $tree->normalize, 'Query normalization');
+is($tree->to_string, '[1]', 'Resolve idempotence');
+
 
 diag 'Mix relations with boolean operations';
 

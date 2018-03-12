@@ -31,6 +31,10 @@ sub is_leaf {
   1;
 };
 
+sub is_relational {
+  0;
+};
+
 sub to_string {
   '[1]';
 };
