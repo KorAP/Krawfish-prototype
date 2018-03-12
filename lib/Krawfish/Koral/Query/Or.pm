@@ -9,6 +9,7 @@ memoize('min_span');
 memoize('max_span');
 
 with 'Krawfish::Koral::Util::Boolean';
+with 'Krawfish::Koral::Util::Optional';
 with 'Krawfish::Koral::Query';
 
 # Or-Construct on spans
@@ -64,55 +65,6 @@ sub normalization_order {
     '_replace_negative',
     '_resolve_optionality'
   );
-};
-
-
-# Resolve optionality
-# (a|b?|c?) -> (a|b|c)?
-sub _resolve_optionality {
-  my $self = shift;
-  print_log('kq_span_or', 'Resolve optionality for ' . $self->to_string) if DEBUG;
-
-  # Either matches nowhere or anywhere
-  return $self if $self->is_nowhere || $self->is_anywhere;
-  my $changes = 0;
-
-  # Iterate over operands
-  my $opt = 0;
-  my @ops;
-  foreach my $op (@{$self->operands}) {
-
-    # The operand is optional
-    if ($op->is_optional) {
-
-      # Remove optionality
-      $op->is_optional(0);
-      my $norm = $op->normalize;
-      push @ops, $norm ? $norm : $opt;
-      $changes++;
-    }
-    else {
-      push @ops, $op;
-    };
-  };
-
-
-  if ($changes) {
-    # Set operands
-    $self->operands(\@ops);
-
-    # In case this query is not yet optional
-    unless ($self->is_optional) {
-      my $repeat = $self->builder->repeat($self, 0, 1);
-      my $repeat_norm = $repeat->normalize;
-      return $repeat_norm ? $repeat_norm : $repeat;
-    };
-
-    return $self;
-  };
-
-  # return;
-  return $self;
 };
 
 
