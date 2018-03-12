@@ -166,31 +166,52 @@ sub normalize {
   # };
 
   # Normalize boolean
-  my $corpus = $self->_clean_and_flatten;
+  my $boolean = $self->_clean_and_flatten;
+  $self = $boolean if $boolean;
 
-  unless (Role::Tiny::does_role($corpus, 'Krawfish::Koral::Util::Boolean')) {
-    return $corpus->normalize;
+  unless (Role::Tiny::does_role($self, 'Krawfish::Koral::Util::Boolean')) {
+    return $self->normalize;
   };
 
   # Recursive normalize
   my @ops = ();
-  foreach my $op (@{$corpus->operands}) {
+  foreach my $op (@{$self->operands}) {
 
     # Operand is group!
     push @ops, $op->normalize if $op;
   };
 
-  $corpus->operands(\@ops);
+  $self->operands(\@ops);
 
-  foreach ($self->normalization_order) {
-    $corpus = $corpus->$_;
+  my @norm_order = $self->normalization_order;
+  for (my $i = 0; $i < @norm_order; $i++) {
 
-    unless (Role::Tiny::does_role($corpus, 'Krawfish::Koral::Util::Boolean')) {
-      return $corpus->normalize;
+    my $operation = $norm_order[$i];
+
+    $boolean = $self->$operation;
+
+    # The normalization has an effect
+    if ($boolean) {
+      $self = $boolean;
+
+      if (DEBUG) {
+        print_log('kq_bool', $operation . ' had an effect');
+      };
+
+      unless (Role::Tiny::does_role($self, 'Krawfish::Koral::Util::Boolean')) {
+        return $self->normalize;
+      };
+
+      if ($self->is_nowhere) {
+        return $self->builder->nowhere;
+      }
+      elsif ($self->is_anywhere) {
+        return $self->builder->anywhere;
+      };
     };
   };
 
-  return $corpus;
+  return $self;
 };
 
 
@@ -427,7 +448,7 @@ sub _remove_nested_idempotence {
 sub _clean_and_flatten {
   my $self = shift;
 
-  return $self if $self->is_nowhere || $self->is_anywhere;
+  return if $self->is_nowhere || $self->is_anywhere;
 
   my $changes = 0;
 
@@ -536,9 +557,9 @@ sub _clean_and_flatten {
     $i--;
   };
 
-#  if ($changes) {
-    $self->operands($ops);
-#  };
+  return unless $changes;
+
+  $self->operands($ops);
 
   print_log('kq_bool', 'Group is now ' . $self->to_string) if DEBUG;
 

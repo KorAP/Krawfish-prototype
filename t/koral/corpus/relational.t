@@ -135,6 +135,17 @@ ok($tree = $tree->normalize, 'Query normalization');
 is($tree->to_string, '[1]', 'Resolve idempotence');
 
 
+# Get tree
+$tree = $cb->bool_and(
+  $cb->string('name')->ne('Peter'),
+  $cb->string('name')->leq('Peter'),
+  $cb->string('name')->geq('Peter'),
+);
+
+ok($tree = $tree->normalize, 'Query normalization');
+is($tree->to_string, '[0]', 'Resolve idempotence');
+
+
 diag 'Mix relations with boolean operations';
 
 # Test athor!=Peter & author<=Peter & author>=Peter
