@@ -23,7 +23,8 @@ use constant DEBUG => 1;
 
 requires qw/bool_and_query
             bool_or_query
-            operands_in_order/;
+            operands_in_order
+            normalization_order/;
 
 # TODO:
 #   Introduce a ->complex attribute to all queries,
@@ -145,52 +146,51 @@ requires qw/bool_and_query
 # - function: TF_Idempotent -> DONE
 
 
-# Normalize boolean query
-sub normalize_boolean {
+sub normalize {
   my $self = shift;
 
   # TODO:
-  # probably reiterate on all operands in that order.
-  # foreach (qw/_clean_and_flatten/) { ... }
+  #   Design as
+  # while (1) {
+  #   unless (Role::Tiny::does_role($self, 'Krawfish::Koral::Util::Boolean')) {
+  #     return $self->normalize;
+  #   };
+  #
+  #   my $corpus = $self->_clean_and_flatten
+  #   if ($corpus (means, something has changed)) {
+  #     $self = $corpus;
+  #     next;
+  #   };
+  #   ...
+  #   return;
+  # };
 
-  $self = $self->_clean_and_flatten;
+  # Normalize boolean
+  my $corpus = $self->_clean_and_flatten;
 
-  unless (Role::Tiny::does_role($self, 'Krawfish::Koral::Util::Boolean')) {
-    return $self->normalize;
+  unless (Role::Tiny::does_role($corpus, 'Krawfish::Koral::Util::Boolean')) {
+    return $corpus->normalize;
   };
 
   # Recursive normalize
   my @ops = ();
-  foreach my $op (@{$self->operands}) {
+  foreach my $op (@{$corpus->operands}) {
 
     # Operand is group!
-    if ($op) { #  && $op->type eq $self->type) {
-      push @ops, $op->normalize
-    }
+    push @ops, $op->normalize if $op;
   };
 
-  $self->operands(\@ops);
+  $corpus->operands(\@ops);
 
-  # Apply normalization
-  # The return value may not be a group,
-  # but an andNot or a leaf after the final step
-  #
-  # The order is important!
-  $self = $self->_clean_and_flatten;
+  foreach ($self->normalization_order) {
+    $corpus = $corpus->$_;
 
-  unless (Role::Tiny::does_role($self, 'Krawfish::Koral::Util::Boolean')) {
-    return $self->normalize;
+    unless (Role::Tiny::does_role($corpus, 'Krawfish::Koral::Util::Boolean')) {
+      return $corpus->normalize;
+    };
   };
 
-  # Normalize relationally
-  #if (Role::Tiny::does_role($self, 'Krawfish::Koral::Util::Relational')) {
-  #  $self = $self->normalize_relational;
-  #};
-
-  return $self->_resolve_idempotence
-    ->_resolve_demorgan
-    ->_remove_nested_idempotence
-    ->_replace_negative;
+  return $corpus;
 };
 
 
@@ -202,6 +202,7 @@ sub normalize_boolean {
 #   (a | b) & (a | b) = a & b
 sub _resolve_idempotence {
   my $self = shift;
+  my $changes = 0;
 
   print_log('kq_bool', 'Resolve idempotence for ' . $self->to_string) if DEBUG;
 
@@ -233,13 +234,16 @@ sub _resolve_idempotence {
     elsif (DEBUG) {
       print_log('kq_bool', 'Subcorpora are idempotent');
       $self->move_info_from($ops->[$i]);
+      $changes++;
     };
 
     $i++;
   };
 
   # Set operands
-  $self->operands(\@ops);
+  #if ($changes) {
+    $self->operands(\@ops);
+  #};
 
   $self;
 };
@@ -259,6 +263,8 @@ sub _remove_nested_idempotence {
   print_log('kq_bool', 'Remove nested idempotence for ' . $self->to_string) if DEBUG;
 
   return $self if $self->is_nowhere || $self->is_anywhere;
+
+  my $changes = 0;
 
   my $ops = $self->operands;
 
@@ -352,6 +358,7 @@ sub _remove_nested_idempotence {
 
         # Remove all operands
         $self->operands([]);
+        # $changes++;
 
         # Stop further processing
         return $self;
@@ -397,6 +404,7 @@ sub _remove_nested_idempotence {
   foreach (uniq reverse sort @remove_groups) {
     $self->move_info_from($ops->[$_]);
     splice @$ops, $_, 1;
+    $changes++;
   };
 
   return $self;
@@ -421,6 +429,8 @@ sub _clean_and_flatten {
 
   return $self if $self->is_nowhere || $self->is_anywhere;
 
+  my $changes = 0;
+
   # Get operands
   my $ops = $self->operands;
 
@@ -441,6 +451,7 @@ sub _clean_and_flatten {
         $op = $op->toggle_negative;
       };
 
+      # $changes++;
       return $op;
     };
 
@@ -448,6 +459,7 @@ sub _clean_and_flatten {
     if (!defined($op) || $op->is_null) {
       $self->move_info_from($ops->[$i]);
 
+      $changes++;
       splice @$ops, $i, 1;
     }
 
@@ -459,6 +471,7 @@ sub _clean_and_flatten {
 
         print_log('kq_bool', 'Group can be simplified to [0]') if DEBUG;
 
+        # $changes++;
         return $op;
       }
 
@@ -466,6 +479,7 @@ sub _clean_and_flatten {
       elsif ($self->operation eq 'or') {
         $self->move_info_from($ops->[$i]);
         splice @$ops, $i, 1;
+        $changes++;
       }
     }
 
@@ -477,6 +491,7 @@ sub _clean_and_flatten {
       if ($self->operation eq 'and') {
         $self->move_info_from($ops->[$i]);
         splice @$ops, $i, 1;
+        $changes++;
       }
 
       # A | B | [1] -> [1]
@@ -485,6 +500,7 @@ sub _clean_and_flatten {
         print_log('kq_bool', 'Group can be simplified to [1]') if DEBUG;
 
         # Matches everywhere
+        # $changes++;
         return $op;
       }
     }
@@ -493,8 +509,6 @@ sub _clean_and_flatten {
     elsif ($op->type eq $self->type) {
 
       # Get nested operands
-      # TODO:
-      #   Rename to $ops
       my $operands = $op->operands;
       my $nr = @$operands;
 
@@ -504,6 +518,7 @@ sub _clean_and_flatten {
         print_log('kq_bool', 'Group can be embedded') if DEBUG;
 
         splice @$ops, $i, 1, @$operands;
+        $changes++;
         $i+= $nr;
       }
 
@@ -513,6 +528,7 @@ sub _clean_and_flatten {
         print_log('kq_bool', 'Group can be resolved with demorgan') if DEBUG;
 
         splice @$ops, $i, 1, map { $_->toggle_negative; $_ } @$operands;
+        $changes++;
         $i+= $nr;
       };
     };
@@ -520,7 +536,9 @@ sub _clean_and_flatten {
     $i--;
   };
 
-  $self->operands($ops);
+#  if ($changes) {
+    $self->operands($ops);
+#  };
 
   print_log('kq_bool', 'Group is now ' . $self->to_string) if DEBUG;
 
@@ -538,6 +556,8 @@ sub _resolve_demorgan {
   print_log('kq_bool', 'Resolve DeMorgan in ' . $self->to_string) if DEBUG;
 
   return $self if $self->is_nowhere || $self->is_anywhere;
+
+  my $changes = 0;
 
   # Split negative and operands
   my (@neg, @pos) = ();
@@ -577,11 +597,17 @@ sub _resolve_demorgan {
     };
     $self->toggle_operation;
     $self->toggle_negative;
+    # $changes++
     return $self;
   };
 
   # There are no negative operands
-  return $self unless @neg;
+  unless (@neg) {
+    # return unless $changes;
+    return $self;
+  };
+
+  # $changes++;
 
   # There are negative operands
 
@@ -661,6 +687,7 @@ sub _resolve_demorgan {
 # and (a | !b) with (a | andNot([1],b))
 sub _replace_negative {
   my $self = shift;
+  my $changes = 0;
 
   print_log('kq_bool', 'Replace Negations in ' . $self->to_string) if DEBUG;
 
@@ -672,6 +699,7 @@ sub _replace_negative {
       $self->is_anywhere(0);
       $self->is_nowhere(1);
       $self->is_negative(0);
+      $changes++;
     }
 
     # ![0] -> [1]
@@ -679,10 +707,12 @@ sub _replace_negative {
       $self->is_anywhere(1);
       $self->is_nowhere(0);
       $self->is_negative(0);
+      $changes++;
     };
   };
 
   # Return if anywhere or nowhere
+  # return $changes ? $self : undef if $self->is_anywhere || $self->is_nowhere;
   return $self if $self->is_anywhere || $self->is_nowhere;
 
   my $ops = $self->operands;
@@ -694,13 +724,18 @@ sub _replace_negative {
     # return !a -> andNot(anywhere,a)
     if ($self->is_negative) {
       $self->is_negative(0);
-      return $self->builder->bool_and_not(
+      my $and_not = $self->builder->bool_and_not(
         $self->builder->anywhere,
         $self
-      )->normalize;
+      );
+
+      # $changes++;
+      my $and_not_norm = $and_not->normalize;
+      return ($and_not_norm ? $and_not_norm : $and_not);
     };
 
     # Only operand does not need a group
+    # $changes++;
     return $ops->[0];
   };
 
@@ -710,6 +745,7 @@ sub _replace_negative {
   # And it's at the end!
 
   # All operands are positive
+  # return $changes ? $self : undef unless $ops->[-1]->is_negative;
   return $self unless $ops->[-1]->is_negative;
 
   # Group all positive operands
@@ -735,26 +771,39 @@ sub _replace_negative {
     if (@$ops == 1) {
 
       print_log('kq_bool', 'Operation on a single operand') if DEBUG;
-      my $and_not = $self->builder->bool_and_not($ops->[0], $neg)->normalize;
+      my $and_not = $self->builder->bool_and_not($ops->[0], $neg);
+
+      my $and_not_norm = $and_not->normalize;
 
       print_log('kq_bool', 'Created ' . $and_not->to_string) if DEBUG;
-      return $and_not;
+
+      # $changes++
+      return ($and_not_norm ? $and_not_norm : $and_not);
     };
 
     print_log('kq_bool', 'Operation on multiple operands') if DEBUG;
 
     # There are multiple positive operands - create a new group
-    return $self->builder->bool_and_not($self, $neg)->normalize;
+    my $and_not = $self->builder->bool_and_not($self, $neg);
+
+    my $and_not_norm = $and_not->normalize;
+
+    # $changes++
+    return ($and_not_norm ? $and_not_norm : $and_not);
   }
 
   elsif ($self->operation eq 'or') {
 
     print_log('kq_bool', 'Operation is "or"') if DEBUG;
 
-    push @$ops, $self->builder->bool_and_not(
+    my $and_not = $self->builder->bool_and_not(
       $self->builder->anywhere,
       $neg
-    )->normalize;
+    );
+    my $and_not_norm = $and_not->normalize;
+    push @$ops, ($and_not_norm ? $and_not_norm : $and_not);
+
+    # $changes++
     return $self;
   };
 

@@ -272,7 +272,6 @@ ok($tree = $tree->normalize, 'Normalize');
 # TODO: This may require a direct andNot() serialization with the all-query
 is($tree->to_string, '((b=1&d=1&f=1)&!(a=1|c=1|e=1))', 'no string');
 
-
 # Remove double negativity
 # !(!a) -> a
 $tree = $cb->bool_and(
@@ -324,7 +323,6 @@ $tree = $tree->normalize;
 is($tree->to_string, '!(([1]&!b=1)|c=1|d=1)', 'simple string');
 $tree = $tree->finalize;
 is($tree->to_string, '([1]&!(([1]&!b=1)|c=1|d=1))', 'simple string');
-
 
 # Check [1/0]&/|[1/0]
 ok($tree = $cb->bool_and(
@@ -378,12 +376,6 @@ ok($tree->is_nowhere, 'Is nowhere');
 ok($tree = $tree->finalize, 'Planning');
 is($tree->to_string, "[0]", 'Stringification');
 
-
-
-
-TODO: {
-  local $TODO = 'Check with negativity for >=, <=, exists etc.'
-};
 
 
 done_testing;

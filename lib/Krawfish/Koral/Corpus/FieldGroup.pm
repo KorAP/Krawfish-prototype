@@ -58,53 +58,6 @@ sub normalization_order {
   );
 };
 
-sub normalize {
-  my $self = shift;
-
-  # TODO:
-  #   Design as
-  # while (1) {
-  #   unless (Role::Tiny::does_role($self, 'Krawfish::Koral::Util::Boolean')) {
-  #     return $self->normalize;
-  #   };
-  #
-  #   my $corpus = $self->_clean_and_flatten
-  #   if ($corpus (means, something has changed)) {
-  #     $self = $corpus;
-  #     next;
-  #   };
-  #   ...
-  #   return;
-  # };
-
-  # Normalize boolean
-  my $corpus = $self->_clean_and_flatten;
-
-  unless (Role::Tiny::does_role($corpus, 'Krawfish::Koral::Util::Boolean')) {
-    return $corpus->normalize;
-  };
-
-  # Recursive normalize
-  my @ops = ();
-  foreach my $op (@{$corpus->operands}) {
-
-    # Operand is group!
-    push @ops, $op->normalize if $op;
-  };
-
-  $corpus->operands(\@ops);
-
-  foreach ($self->normalization_order) {
-    $corpus = $corpus->$_;
-
-    unless (Role::Tiny::does_role($corpus, 'Krawfish::Koral::Util::Boolean')) {
-      return $corpus->normalize;
-    };
-  };
-
-  return $corpus;
-};
-
 
 sub bool_and_query {
   my $self = shift;

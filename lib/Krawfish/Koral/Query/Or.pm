@@ -55,13 +55,15 @@ sub bool_and_query {
 # Normalize query
 # In spans, operands may be optional,
 # so this has to be resolved as well.
-sub normalize {
-  my $self = shift;
-  my $query = $self->normalize_boolean;
-  if ($query->isa('Krawfish::Koral::Query::Or')) {
-    $query = $query->_resolve_optionality;
-  };
-  return $query;
+sub normalization_order {
+  return (
+    '_clean_and_flatten',
+    '_resolve_idempotence',
+    '_resolve_demorgan',
+    '_remove_nested_idempotence',
+    '_replace_negative',
+    '_resolve_optionality'
+  );
 };
 
 
@@ -73,6 +75,7 @@ sub _resolve_optionality {
 
   # Either matches nowhere or anywhere
   return $self if $self->is_nowhere || $self->is_anywhere;
+  my $changes = 0;
 
   # Iterate over operands
   my $opt = 0;
@@ -84,8 +87,9 @@ sub _resolve_optionality {
 
       # Remove optionality
       $op->is_optional(0);
-      push @ops, $op->normalize;
-      $opt = 1;
+      my $norm = $op->normalize;
+      push @ops, $norm ? $norm : $opt;
+      $changes++;
     }
     else {
       push @ops, $op;
@@ -93,16 +97,21 @@ sub _resolve_optionality {
   };
 
 
-  if ($opt) {
+  if ($changes) {
     # Set operands
     $self->operands(\@ops);
 
     # In case this query is not yet optional
     unless ($self->is_optional) {
-      return $self->builder->repeat($self, 0, 1)->normalize;
+      my $repeat = $self->builder->repeat($self, 0, 1);
+      my $repeat_norm = $repeat->normalize;
+      return $repeat_norm ? $repeat_norm : $repeat;
     };
+
+    return $self;
   };
 
+  # return;
   return $self;
 };
 

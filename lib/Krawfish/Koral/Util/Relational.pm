@@ -9,16 +9,14 @@ use warnings;
 
 use constant DEBUG => 1;
 
-# Central normalize call
-sub normalize_relational {
-  my $self = shift;
-  return $self->_resolve_inclusivity_and_exclusivity;
-};
-
 
 # Resolve set theoretic inclusivity and exclusivity
 sub _resolve_inclusivity_and_exclusivity {
   my $self = shift;
+
+  # Keep track of changes
+  my $changes = 0;
+
   my $ops = $self->operands_in_order;
 
   for (my $i = 1; $i < scalar(@$ops); $i++) {
@@ -67,8 +65,9 @@ sub _resolve_inclusivity_and_exclusivity {
               splice @$ops, $i, 1;
               $i--;
             };
+          };
+          $changes++;
 
-          }
         }
 
         # Simplify leq
@@ -98,7 +97,8 @@ sub _resolve_inclusivity_and_exclusivity {
               splice @$ops, $i, 1;
               $i--;
             };
-          }
+          };
+          $changes++;
         }
 
         # The value is identical
@@ -125,6 +125,7 @@ sub _resolve_inclusivity_and_exclusivity {
               # Remove both operands
               splice @$ops, $i-1, 2, $self->builder->anywhere;
             };
+            $changes++;
           }
 
           # TODO: Depending on the order only one variant possible
@@ -157,6 +158,7 @@ sub _resolve_inclusivity_and_exclusivity {
                 $i--;
               };
             };
+            $changes++;
           }
 
           elsif (
@@ -193,6 +195,7 @@ sub _resolve_inclusivity_and_exclusivity {
 
               # Remove both operands
               splice @$ops, $i-1, 2, $self->builder->anywhere;
+              $changes++;
             };
           };
         };
@@ -200,7 +203,9 @@ sub _resolve_inclusivity_and_exclusivity {
     };
   };
 
-  $self->operands($ops);
+  if ($changes) {
+    $self->operands($ops);
+  };
   return $self;
 };
 

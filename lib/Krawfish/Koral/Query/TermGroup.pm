@@ -90,9 +90,16 @@ sub type {
 };
 
 
-sub normalize {
-  return $_[0]->normalize_boolean;
+sub normalization_order {
+  return (
+    '_clean_and_flatten',
+    '_resolve_idempotence',
+    '_resolve_demorgan',
+    '_remove_nested_idempotence',
+    '_replace_negative'
+  );
 };
+
 
 # Get or set the group operation
 sub operation {
