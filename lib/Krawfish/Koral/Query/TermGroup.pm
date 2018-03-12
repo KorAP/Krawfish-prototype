@@ -90,6 +90,10 @@ sub type {
 };
 
 
+sub normalize {
+  return $_[0]->normalize_boolean;
+};
+
 # Get or set the group operation
 sub operation {
   my $self = shift;

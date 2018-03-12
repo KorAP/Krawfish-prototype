@@ -46,9 +46,21 @@ sub operation {
 };
 
 
-# normalize() is provided by Boolean
-
 # optimize() is provided by Boolean
+
+sub normalize {
+  my $self = shift;
+
+  # Normalize boolean
+  my $corpus = $self->normalize_boolean;
+
+  # Normalize relational
+  if (Role::Tiny::does_role($corpus, 'Krawfish::Koral::Util::Relational')) {
+    $corpus = $corpus->normalize_relational;
+  };
+  return $corpus;
+};
+
 
 sub bool_and_query {
   my $self = shift;

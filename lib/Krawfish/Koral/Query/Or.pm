@@ -57,8 +57,11 @@ sub bool_and_query {
 # so this has to be resolved as well.
 sub normalize {
   my $self = shift;
-  return Krawfish::Koral::Util::Boolean::normalize($self)
-    ->_resolve_optionality;
+  my $query = $self->normalize_boolean;
+  if ($query->isa('Krawfish::Koral::Query::Or')) {
+    $query = $query->_resolve_optionality;
+  };
+  return $query;
 };
 
 

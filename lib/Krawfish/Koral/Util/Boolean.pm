@@ -146,7 +146,7 @@ requires qw/bool_and_query
 
 
 # Normalize boolean query
-sub normalize {
+sub normalize_boolean {
   my $self = shift;
 
   # TODO:
@@ -183,9 +183,9 @@ sub normalize {
   };
 
   # Normalize relationally
-  if (Role::Tiny::does_role($self, 'Krawfish::Koral::Util::Relational')) {
-    $self = $self->normalize_relational;
-  };
+  #if (Role::Tiny::does_role($self, 'Krawfish::Koral::Util::Relational')) {
+  #  $self = $self->normalize_relational;
+  #};
 
   return $self->_resolve_idempotence
     ->_resolve_demorgan
