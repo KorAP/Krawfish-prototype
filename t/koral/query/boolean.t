@@ -32,9 +32,6 @@ $koral->query(
 
 ok(my $query = $koral->to_query, 'Normalize');
 
-
-
-
 todo: {
   local $TODO = 'Moving negations out of groups is currently not supported';
 

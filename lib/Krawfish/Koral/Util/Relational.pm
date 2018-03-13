@@ -14,6 +14,10 @@ use constant DEBUG => 1;
 sub _resolve_inclusivity_and_exclusivity {
   my $self = shift;
 
+  print_log('kq_relational', ': Resolve inclusivity and exclusivity for ' . $self->to_string) if DEBUG;
+
+  return if $self->is_nowhere || $self->is_anywhere;
+
   # Keep track of changes
   my $changes = 0;
 

@@ -324,6 +324,7 @@ is($tree->to_string, '!(([1]&!b=1)|c=1|d=1)', 'simple string');
 $tree = $tree->finalize;
 is($tree->to_string, '([1]&!(([1]&!b=1)|c=1|d=1))', 'simple string');
 
+
 # Check [1/0]&/|[1/0]
 ok($tree = $cb->bool_and(
   $cb->anywhere,

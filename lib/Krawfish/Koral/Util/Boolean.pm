@@ -165,6 +165,10 @@ sub normalize {
   #   return;
   # };
 
+  my $init_query = $self->to_string;
+
+  print_log('kq_bool', 'Normalize query ' . $init_query) if DEBUG;
+
   # Normalize boolean
   my $boolean = $self->_clean_and_flatten;
   $self = $boolean if $boolean;
@@ -183,6 +187,8 @@ sub normalize {
 
   $self->operands(\@ops);
 
+  my $x = 0;
+
   my @norm_order = $self->normalization_order;
   for (my $i = 0; $i < @norm_order; $i++) {
 
@@ -195,7 +201,7 @@ sub normalize {
       $self = $boolean;
 
       if (DEBUG) {
-        print_log('kq_bool', $operation . ' had an effect');
+        print_log('kq_bool', ">> $operation had an effect: " . $self->to_string);
       };
 
       unless (Role::Tiny::does_role($self, 'Krawfish::Koral::Util::Boolean')) {
@@ -207,6 +213,16 @@ sub normalize {
       }
       elsif ($self->is_anywhere) {
         return $self->builder->anywhere;
+      };
+
+      # Return to start
+      $i = 0;
+
+      # To minimize the possibility of an infinite loop!
+      if ($x++ > 10) {
+        warn $init_query . ' resulted in an infinite loop!';
+        die $!;
+        return $self;
       };
     };
   };
@@ -225,7 +241,7 @@ sub _resolve_idempotence {
   my $self = shift;
   my $changes = 0;
 
-  print_log('kq_bool', 'Resolve idempotence for ' . $self->to_string) if DEBUG;
+  print_log('kq_bool', ': Resolve idempotence for ' . $self->to_string) if DEBUG;
 
   # TODO:
   #   copy warning messages everywhere, when operations are changed!
@@ -280,7 +296,7 @@ sub _resolve_idempotence {
 sub _remove_nested_idempotence {
   my $self = shift;
 
-  print_log('kq_bool', 'Remove nested idempotence for ' . $self->to_string) if DEBUG;
+  print_log('kq_bool', ': Remove nested idempotence for ' . $self->to_string) if DEBUG;
 
   return $self if $self->is_nowhere || $self->is_anywhere;
 
@@ -363,13 +379,15 @@ sub _remove_nested_idempotence {
             );
         };
 
+        # Operation is |
         if ($self->operation eq 'or') {
 
           # Matches everything
           $self->is_anywhere(1);
         }
 
-        elsif ($self->operation eq 'and') {
+        # Operation is &
+        else {
 
           # Matches nowhere
 
@@ -448,14 +466,14 @@ sub _remove_nested_idempotence {
 sub _clean_and_flatten {
   my $self = shift;
 
+  print_log('kq_bool', ': Clean and flatten groups of ' . $self->to_string) if DEBUG;
+
   return if $self->is_nowhere || $self->is_anywhere;
 
   my $changes = 0;
 
   # Get operands
   my $ops = $self->operands;
-
-  print_log('kq_bool', 'Flatten groups of ' . $self->to_string) if DEBUG;
 
   # Flatten groups in reverse order
   for (my $i = scalar(@$ops) - 1; $i >= 0;) {
@@ -574,7 +592,7 @@ sub _clean_and_flatten {
 sub _resolve_demorgan {
   my $self = shift;
 
-  print_log('kq_bool', 'Resolve DeMorgan in ' . $self->to_string) if DEBUG;
+  print_log('kq_bool', ': Resolve DeMorgan in ' . $self->to_string) if DEBUG;
 
   return if $self->is_nowhere || $self->is_anywhere;
 
@@ -589,22 +607,28 @@ sub _resolve_demorgan {
 
     # Check if negative
     if ($ops->[$i]->is_negative) {
+
+      print_log('kq_bool', 'Operand ' . $ops->[$i]->to_string . ' identified as negative') if DEBUG;
       push @neg, $i;
     }
+
+    # There are positive elements
     else {
+
+      print_log('kq_bool', 'Operand ' . $ops->[$i]->to_string . ' identified as positive') if DEBUG;
       push @pos, $i;
     };
   };
 
   # Found no negative operands
-  return $self unless @neg;
+  return unless @neg > 1;
 
   if (DEBUG) {
     print_log(
       'kq_bool',
       'Index lists created for ' . $self->to_string . ':',
       '  Neg:    ' . join(', ', @neg),
-      '  Pos:    ' . join(', ', @pos),
+      '  Pos:    ' . join(', ', @pos)
     );
   };
 
@@ -627,8 +651,6 @@ sub _resolve_demorgan {
     return unless $changes;
     return $self;
   };
-
-  # $changes++;
 
   # There are negative operands
 
@@ -695,7 +717,7 @@ sub _resolve_demorgan {
     push @$ops, $norm;
   };
 
-  # $self->operands($ops);
+  $self->operands($ops);
 
   print_log('kq_bool', 'Group is now ' . $self->to_string) if DEBUG;
 
@@ -706,12 +728,11 @@ sub _resolve_demorgan {
 # To make queries with negation more efficient,
 # replace (a & !b) with andNot(a,b)
 # and (a | !b) with (a | andNot([1],b))
+# There is only one single negative operand possible following demorgan.
 sub _replace_negative {
   my $self = shift;
 
-  print_log('kq_bool', 'Replace Negations in ' . $self->to_string) if DEBUG;
-
-  my $changes = 0;
+  print_log('kq_bool', ': Replace Negations in ' . $self->to_string) if DEBUG;
 
   # Check for negativity in groups to toggle all or nowhere
   if ($self->is_negative) {
@@ -721,7 +742,8 @@ sub _replace_negative {
       $self->is_anywhere(0);
       $self->is_nowhere(1);
       $self->is_negative(0);
-      $changes++;
+      # $changes++;
+      return $self;
     }
 
     # ![0] -> [1]
@@ -729,12 +751,13 @@ sub _replace_negative {
       $self->is_anywhere(1);
       $self->is_nowhere(0);
       $self->is_negative(0);
-      $changes++;
+      # $changes++;
+      return $self;
     };
   };
 
   # Return if anywhere or nowhere
-  return $changes ? $self : undef if $self->is_anywhere || $self->is_nowhere;
+  return if $self->is_anywhere || $self->is_nowhere;
 
   my $ops = $self->operands;
 
@@ -762,18 +785,24 @@ sub _replace_negative {
 
   print_log('kq_bool', 'Check final operand on negativity') if DEBUG;
 
-  # There is only one single negative operand possible!
   # And it's at the end!
+  my ($i,$found) = (0, 0);
+  for (; $i < scalar(@$ops); $i++) {
+    if ($ops->[$i]->is_negative) {
+      $found = 1;
+      last;
+    };
+  };
 
   # All operands are positive
-  return $changes ? $self : undef unless $ops->[-1]->is_negative;
+  return unless $found;
 
   # Group all positive operands
   print_log('kq_bool', 'Create group with negation') if DEBUG;
 
 
   # Remove the negative operand
-  my $neg = pop @$ops;
+  my $neg = splice @$ops, $i, 1;
 
   # Switch negativity
   $neg->is_negative(0);
