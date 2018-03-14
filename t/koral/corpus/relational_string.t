@@ -146,8 +146,6 @@ ok($tree = $tree->normalize, 'Query normalization');
 is($tree->to_string, '[0]', 'Resolve idempotence');
 
 
-diag 'Mix relations with boolean operations';
-
 # Test athor!=Peter & author<=Peter & author>=Peter
 
 done_testing;
