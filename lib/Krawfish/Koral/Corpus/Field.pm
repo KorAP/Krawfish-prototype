@@ -69,22 +69,6 @@ sub is_negative {
 };
 
 
-sub geq {
-  my $self = shift;
-  $self->{match} = 'geq';
-  $self->{value} = shift;
-  return $self;
-};
-
-
-sub leq {
-  my $self = shift;
-  $self->{match} = 'leq';
-  $self->{value} = shift;
-  return $self;
-};
-
-
 # Contains the value in multi-token field
 sub contains {
   my $self = shift;
@@ -220,10 +204,7 @@ sub to_sort_string {
   return $_[0]->to_string;
 };
 
-
 sub is_relational {
-  my $self = shift;
-  return 1 if $self->match eq 'geq' || $self->match eq 'leq';
   return 0;
 };
 

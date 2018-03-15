@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 with 'Krawfish::Koral::Corpus::Field';
+with 'Krawfish::Koral::Corpus::Field::Relational';
 with 'Krawfish::Koral::Corpus';
 
 use constant DEBUG => 0;
