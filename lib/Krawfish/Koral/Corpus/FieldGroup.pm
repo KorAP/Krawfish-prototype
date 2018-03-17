@@ -10,6 +10,7 @@ use warnings;
 
 with 'Krawfish::Koral::Util::Boolean';
 with 'Krawfish::Koral::Util::Relational';
+# TODO: with 'Krawfish::Koral::Util::Regular';
 with 'Krawfish::Koral::Corpus';
 
 # TODO:
