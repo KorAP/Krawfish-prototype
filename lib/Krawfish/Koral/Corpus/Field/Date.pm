@@ -31,15 +31,15 @@ sub key_type {
 };
 
 sub year {
-  $_[0]->_parse->{year};
+  $_[0]->_parse->{year} + 0;
 };
 
 sub month {
-  $_[0]->_parse->{month};
+  ($_[0]->_parse->{month} // 0) + 0;
 };
 
 sub day {
-  $_[0]->_parse->{day};
+  ($_[0]->_parse->{day} // 0) + 0;
 };
 
 sub value_geq {
@@ -69,6 +69,18 @@ sub value_geq {
 };
 
 
+# Compare against another field value
+sub value_eq {
+  my ($self, $other) = @_;
+  if ($self->year == $other->year &&
+        $self->month == $other->month &&
+        $self->day == $other->day) {
+    return 1;
+  };
+  return 0;
+};
+
+
 sub _parse {
   my $self = shift;
   return $self if $self->{year};
@@ -78,5 +90,25 @@ sub _parse {
   $self->{day}   = $3 if $3;
   return $self;
 };
+
+sub value_string {
+  my $self = shift;
+  my $str = $self->year;
+  if ($self->month) {
+    $str .= '-' . _zero($self->month);
+    if ($self->day) {
+      $str .= '-' . _zero($self->day);
+    };
+  }
+  return $str;
+};
+
+sub _zero {
+  if ($_[0] < 10) {
+    return '0' . $_[0]
+  };
+  return $_[0];
+};
+
 
 1;

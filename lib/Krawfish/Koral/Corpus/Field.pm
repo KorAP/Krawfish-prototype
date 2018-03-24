@@ -170,9 +170,13 @@ sub to_string {
 
   $str .= $self->match_short;
 
-  return $str . $self->{value};
+  return $str . $self->value_string;
 };
 
+
+sub value_string {
+  $_[0]->{value};
+};
 
 sub match_short {
   my $self = shift;
