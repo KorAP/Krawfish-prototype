@@ -42,17 +42,18 @@ $koral->query(
 # Create virtual corpus
 $koral->corpus(
   $cb->bool_and(
-    $cb->string('author=Goethe'),
-    $cb->date('1880')
+    $cb->string('author')->eq('Goethe'),
+    $cb->date('pubDate')->eq('1880')
   )
 );
 
-is($koral->to_string, "compilation=[aggr=[fields:['size','age'],freq,length],enrich=[fields:['age']],sort=[field='author'<]],corpus=[1880&author=Goethe],query=[[/b./|aa][]cc]", 'Serialization');
+is($koral->to_string, "compilation=[aggr=[fields:['size','age'],freq,length],enrich=[fields:['age']],sort=[field='author'<]],corpus=[pubDate=1880&author=Goethe],query=[[/b./|aa][]cc]", 'Serialization');
+
 
 # Get the query
 ok(my $query = $koral->to_query, 'Create complex query construct');
 
-is($query->to_string, "sort(field='id'<:sort(field='author'<:fields('age':aggr(length,freq,fields:['size','age']:filter(/b./|aa[]cc,1880&author=Goethe)))))", 'Stringification');
+is($query->to_string, "sort(field='id'<:sort(field='author'<:fields('age':aggr(length,freq,fields:['size','age']:filter(/b./|aa[]cc,pubDate=1880&author=Goethe)))))", 'Stringification');
 
 # Identify
 # ok($query = $query->identify($index->dict), 'Create complex query construct');

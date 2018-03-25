@@ -19,7 +19,6 @@ $tree = $cb->bool_and(
 ok($tree = $tree->normalize, 'Query normalization');
 is($tree->to_string, 'pubDate>=2018', 'Resolve idempotence');
 
-
 # Get tree
 $tree = $cb->bool_and(
   $cb->date('pubDate')->geq('2014-12'),
@@ -130,10 +129,47 @@ ok($tree = $tree->normalize, 'Query normalization');
 is($tree->to_string, 'pubDate>=2014-04', 'Resolve idempotence');
 
 
+###################
+# Complex queries #
+###################
+
+# Get tree
+$tree = $cb->bool_and(
+  $cb->date('pubDate')->leq('2014-12-04'),
+  $cb->date('pubDate')->geq('2014-12-04'),
+  $cb->date('pubDate')->eq('2014-04'),
+);
 
 
+# Simplify eq & leq|geq
+ok($tree = $tree->normalize, 'Query normalization');
+is($tree->to_string, 'pubDate=2014-04&pubDate=2014-12-04',
+   'Resolve idempotence');
 
-diag 'Further complex relational tests with dates';
+# Get tree
+$tree = $cb->bool_or(
+  $cb->date('pubDate')->ne('2014-04'),
+  $cb->date('pubDate')->leq('2014-04'),
+);
+
+ok($tree = $tree->normalize, 'Query normalization');
+is($tree->to_string, '[1]', 'Resolve idempotence');
+
+# Get tree
+$tree = $cb->bool_and(
+  $cb->date('pubDate')->ne('2014-04'),
+  $cb->date('pubDate')->leq('2014-04'),
+  $cb->date('pubDate')->geq('2014-04'),
+);
+
+ok($tree = $tree->normalize, 'Query normalization');
+is($tree->to_string, '[0]', 'Resolve idempotence');
+
+SKIP: {
+  skip "> and < not yet supported", 2;
+  # See relational_string.t
+};
+
 
 done_testing;
 __END__

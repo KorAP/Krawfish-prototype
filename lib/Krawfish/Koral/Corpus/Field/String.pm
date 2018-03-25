@@ -80,7 +80,7 @@ sub to_sort_string {
 
   my $str = $self->key_type . ':';
   $str .= $self->key . ':';
-  $str .= ($self->value // '') . ':';
+  $str .= ($self->value_string // '') . ':';
   $str .= $self->match_short;
   return $str;
 };

@@ -21,7 +21,7 @@ sub is_leaf { 1 };
 sub eq {
   my $self = shift;
   $self->{match} = 'eq';
-  $self->{value} = shift;
+  $self->value(shift) or return;
   return $self;
 };
 
@@ -30,8 +30,8 @@ sub eq {
 sub ne {
   my $self = shift;
   $self->{match} = 'eq';
-  $self->{value} = shift;
   $self->is_negative(1);
+  $self->value(shift) or return;
   return $self;
 };
 
@@ -73,7 +73,7 @@ sub is_negative {
 sub contains {
   my $self = shift;
   $self->{match} = 'contains';
-  $self->{value} = shift;
+  $self->value(shift) or return;
   return $self;
 };
 
@@ -82,7 +82,7 @@ sub contains {
 sub excludes {
   my $self = shift;
   $self->{match} = 'excludes';
-  $self->{value} = shift;
+  $self->value(shift) or return;
   return $self;
 };
 
@@ -118,7 +118,12 @@ sub key {
 
 
 sub value {
-  $_[0]->{value};
+  my $self = shift;
+  if (@_) {
+    $self->{value} = shift;
+    return $self;
+  };
+  return $self->{value};
 };
 
 
@@ -205,6 +210,8 @@ sub match_short {
 
 # Stringification for sorting
 sub to_sort_string {
+  # TODO:
+  #   Maybe date, string etc. implementations are generalizable!
   return $_[0]->to_string;
 };
 

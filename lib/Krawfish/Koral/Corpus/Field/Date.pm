@@ -14,6 +14,7 @@ use constant DEBUG => 0;
 # TODO:
 #   Compare with de.ids_mannheim.korap.util.KrillDate
 
+# Construct new date field object
 sub new {
   my $class = shift;
   bless {
@@ -31,15 +32,15 @@ sub key_type {
 };
 
 sub year {
-  $_[0]->_parse->{year} + 0;
+  $_[0]->{year};
 };
 
 sub month {
-  ($_[0]->_parse->{month} // 0) + 0;
+  $_[0]->{month} // 0;
 };
 
 sub day {
-  ($_[0]->_parse->{day} // 0) + 0;
+  $_[0]->{day} // 0;
 };
 
 sub value_geq {
@@ -81,19 +82,26 @@ sub value_eq {
 };
 
 
-sub _parse {
+sub value {
   my $self = shift;
-  return $self if $self->{year};
-  $self->{value} =~ /^(\d{4})(?:-?(\d{2})(?:-?(\d{2}))?)?$/;
-  $self->{year}  = $1;
-  $self->{month} = $2 if $2;
-  $self->{day}   = $3 if $3;
-  return $self;
+  if (@_) {
+    $self->{value} = shift;
+    if ($self->{value} =~ /^(\d{4})(?:-?(\d{2})(?:-?(\d{2}))?)?$/) {
+      $self->{year}  = ($1 + 0) if $1;
+      $self->{month} = ($2 + 0) if $2;
+      $self->{day}   = ($3 + 0) if $3;
+      return $self;
+    };
+    return;
+  };
+  return $self->{value};
 };
+
 
 sub value_string {
   my $self = shift;
-  my $str = $self->year;
+  my $str = '';
+  $str .= $self->year;
   if ($self->month) {
     $str .= '-' . _zero($self->month);
     if ($self->day) {
@@ -108,6 +116,23 @@ sub _zero {
     return '0' . $_[0]
   };
   return $_[0];
+};
+
+
+# Stringification for sorting
+# TODO:
+#   This may fail in case key_type and/or
+#   value may contain ':' - so this should be
+#   ensured!
+sub to_sort_string {
+  my $self = shift;
+  return 0 if $self->is_null;
+
+  my $str = $self->key_type . ':';
+  $str .= $self->key . ':';
+  $str .= ($self->value_string // '') . ':';
+  $str .= $self->match_short;
+  return $str;
 };
 
 

@@ -6,7 +6,7 @@ use warnings;
 sub geq {
   my $self = shift;
   $self->{match} = 'geq';
-  $self->{value} = shift;
+  $self->value(shift) or return;
   return $self;
 };
 
@@ -14,7 +14,7 @@ sub geq {
 sub leq {
   my $self = shift;
   $self->{match} = 'leq';
-  $self->{value} = shift;
+  $self->value(shift) or return;
   return $self;
 };
 
