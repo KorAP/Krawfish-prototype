@@ -19,7 +19,7 @@ use warnings;
 #   -> normalize_relational
 
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 requires qw/bool_and_query
             bool_or_query
@@ -268,8 +268,8 @@ sub _resolve_idempotence {
       push @ops, $ops->[$i]
     }
 
-    elsif (DEBUG) {
-      print_log('kq_bool', 'Subcorpora are idempotent');
+    else {
+      print_log('kq_bool', 'Subcorpora are idempotent') if DEBUG;
       $self->move_info_from($ops->[$i]);
       $changes++;
     };
