@@ -97,9 +97,13 @@ sub optimize {
 
 
 sub operands {
-  return [];
+  warn 'operands() called in leaf node';
 };
 
+
+sub identify {
+  warn 'Override';
+};
 
 # TODO: Support existence
 sub match {

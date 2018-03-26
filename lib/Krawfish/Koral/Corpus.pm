@@ -122,6 +122,9 @@ sub has_classes {
   #   Memoize!
 
   my $self = shift;
+
+  return if $self->is_leaf;
+
   my $ops = $self->operands;
 
   return 0 unless $ops;
@@ -136,6 +139,7 @@ sub has_classes {
 # Remove any classes
 sub remove_classes {
   my $self = shift;
+  return $self if $self->is_leaf;
   my $ops = $self->operands;
   return $self unless $ops;
   for (my $i = 0; $i < @$ops; $i++) {
@@ -151,6 +155,7 @@ sub remove_classes {
 sub identify {
   my ($self, $dict) = @_;
 
+  return $self if $self->is_leaf;
   my $ops = $self->operands;
   return $self unless $ops;
   for (my $i = 0; $i < @$ops; $i++) {

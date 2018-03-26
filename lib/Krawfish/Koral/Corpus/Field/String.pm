@@ -27,6 +27,12 @@ sub key_type {
 sub identify {
   my ($self, $dict) = @_;
 
+  if ($self->match_short ne '=' &&
+        $self->match_short ne '~') {
+    warn 'Relational matches not supported yet: ' . $self->match_short;
+    return;
+  };
+
   my $term = $self->to_term;
 
   print_log('kq_term', "Translate term $term to term_id") if DEBUG;

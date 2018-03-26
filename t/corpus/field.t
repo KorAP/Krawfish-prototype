@@ -24,7 +24,9 @@ ok(my $plan = $field->normalize, 'Normalize');
 is($plan->to_string, "license=free", 'Stringification');
 ok($plan = $plan->finalize, 'Finalize');
 is($plan->to_string, "[1]&license=free", 'Stringification');
-ok($plan = $plan->identify($index->dict)->optimize($index->segment), 'Optimize');
+ok($plan = $plan->identify($index->dict), 'Identify');
+#is($plan->to_string, "#38&[1]", 'Stringification');
+ok($plan = $plan->optimize($index->segment), 'Optimize');
 #is($plan->to_string, "and([1],#38)", 'Stringification');
 ok(!$plan->current, 'No current');
 ok($plan->next, 'Next posting');
@@ -57,10 +59,6 @@ ok($plan->next, 'Next posting');
 is($plan->current->to_string, '[1]', 'Current doc id');
 ok(!$plan->next, 'No next posting');
 ok(!$plan->current, 'No Current doc id');
-
-ok($field = $cb->string('license'), 'String field');
-is($field->to_string, "license", 'Stringification');
-
 
 TODO: {
   local $TODO = 'Test further'

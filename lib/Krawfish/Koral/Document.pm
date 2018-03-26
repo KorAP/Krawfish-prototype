@@ -146,6 +146,9 @@ sub _parse {
     elsif ($field->{type} eq 'type:store') {
       $fields->add_store($field->{key}, $field->{value});
     }
+    elsif ($field->{type} eq 'type:date') {
+      $fields->add_date($field->{key}, $field->{value});
+    }
     else {
       warn 'unknown field type: ' . $field->{type};
     };

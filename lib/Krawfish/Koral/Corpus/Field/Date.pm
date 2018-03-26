@@ -1,4 +1,6 @@
 package Krawfish::Koral::Corpus::Field::Date;
+use Krawfish::Util::Constants ':PREFIX';
+use Krawfish::Log;
 use Role::Tiny::With;
 use strict;
 use warnings;
@@ -7,7 +9,7 @@ with 'Krawfish::Koral::Corpus::Field';
 with 'Krawfish::Koral::Corpus::Field::Relational';
 with 'Krawfish::Koral::Corpus';
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # TODO: A date should probably have a different prefix
 
@@ -67,6 +69,27 @@ sub value_geq {
     return 1;
   };
   return 0;
+};
+
+
+# Translate all terms to term ids
+sub identify {
+  my ($self, $dict) = @_;
+
+  if ($self->match_short ne '=') {
+    warn 'Relational matches not supported yet';
+    return;
+  };
+
+  my $term = $self->to_term;
+
+  print_log('kq_date', "Translate term $term to term_id") if DEBUG;
+
+  my $term_id = $dict->term_id_by_term(DATE_FIELD_PREF . $term);
+
+  return $self->builder->nowhere unless defined $term_id;
+
+  return Krawfish::Koral::Corpus::FieldID->new($term_id);
 };
 
 
