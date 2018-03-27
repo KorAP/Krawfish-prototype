@@ -13,7 +13,8 @@ sub new {
   my $class = shift;
   bless {
     operands => [shift],
-    number => shift // 1
+    number => shift // 1,
+    negative => 0
   }, $class;
 };
 
@@ -25,11 +26,6 @@ sub type {
 
 sub number {
   $_[0]->{number};
-};
-
-
-sub is_negative {
-  $_[0]->operand->is_negative;
 };
 
 
@@ -47,6 +43,12 @@ sub remove_classes {
 sub normalize {
   my $self = shift;
   $self->operand($self->operand->normalize);
+
+  # Move negativity outside
+  if ($self->operand->is_negative) {
+    $self->operand->toggle_negative;
+    $self->toggle_negative;
+  };
   $self;
 };
 
@@ -85,7 +87,8 @@ sub from_koral {
 
 sub to_string {
   my ($self, $id) = @_;
-  my $str = '{' . $self->number . ':';
+  my $str = $self->is_negative ? '!' : '';
+  $str .= '{' . $self->number . ':';
   $str . $self->operand->to_string($id) . '}';
 };
 

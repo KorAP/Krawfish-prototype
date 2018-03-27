@@ -136,7 +136,11 @@ ok($query->has_classes, 'Contains classes');
 
 is($query->to_string, '{2:author=David}&{3:age!=24}', 'Stringification');
 
-ok($query = $query->normalize->identify($index->dict)->optimize($index->segment), 'Planning');
+ok($query = $query->normalize, 'Planning');
+is($query->to_string, '({2:author=David}&!age=24)', 'Stringification');
+
+ok($query = $query->identify($index->dict), 'Identify');
+ok($query = $query->optimize($index->segment), 'Optimize');
 
 is($query->to_string,
    "andNot(class(2:#2),#13)",

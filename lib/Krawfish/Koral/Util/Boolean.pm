@@ -19,7 +19,7 @@ use warnings;
 #   -> normalize_relational
 
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 requires qw/bool_and_query
             bool_or_query
@@ -145,6 +145,12 @@ requires qw/bool_and_query
 # From managing gigabytes bool_optimiser.c
 # - function: TF_Idempotent -> DONE
 
+
+# TODO:
+#   Classes may need to be treated specially
+#   {1:A}|!{2:A} -> {1:2:[1]}
+#   {1:A}|{2:A} -> {1:{2:A}}
+#   ...
 
 sub normalize {
   my $self = shift;
@@ -338,7 +344,24 @@ sub _remove_nested_idempotence {
       elsif (!$ops->[$i]->is_relational) {
         push @pos, $i;
       }
-    };
+    }
+
+    # Operand is class
+    # TODO:
+    #   Classes may need to be treated specially
+    #   {1:A}|!{2:A} -> {1:2:[1]}
+    elsif ($ops->[$i]->type eq 'class') {
+
+      # Item is negative
+      if ($ops->[$i]->is_negative) {
+        push @neg, $i;
+      }
+
+      # Item is positive
+      else {
+        push @pos, $i;
+      }
+    }
   };
 
   if (DEBUG) {
@@ -783,8 +806,6 @@ sub _replace_negative {
     return $ops->[0];
   };
 
-  print_log('kq_bool', 'Check final operand on negativity') if DEBUG;
-
   # And it's at the end!
   my ($i,$found) = (0, 0);
   for (; $i < scalar(@$ops); $i++) {
@@ -793,6 +814,8 @@ sub _replace_negative {
       last;
     };
   };
+
+  print_log('kq_bool', 'Check final operand on negativity') if DEBUG;
 
   # All operands are positive
   return unless $found;
