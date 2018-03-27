@@ -9,7 +9,7 @@ with 'Krawfish::Koral::Corpus::Field';
 with 'Krawfish::Koral::Corpus::Field::Relational';
 with 'Krawfish::Koral::Corpus';
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # TODO: A date should probably have a different prefix
 

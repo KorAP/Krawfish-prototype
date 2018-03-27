@@ -274,7 +274,7 @@ sub add_term {
   # Normalize term to nfkc
   $term = normalize_nfkc($term);
 
-  print_log('dict', "Added term $term") if DEBUG;
+  print_log('dict', "Add term $term") if DEBUG;
 
   my $hash = $self->{hash};
 
@@ -282,7 +282,9 @@ sub add_term {
   unless (exists $hash->{$term}) {
 
     # Increment term_id
-    # TODO: This may infact fail, as term_ids are limited in size.
+    # TODO:
+    #   This may in fact fail, as term_ids are limited
+    #   in size.
     #   For hapax legomena, a special null marker will be returned
     my $term_id = $self->{last_term_id}++;
 
@@ -291,6 +293,12 @@ sub add_term {
 
     # Store term for term_id mapping
     $self->{term_array}->[$term_id] = $term;
+
+    print_log('dict', "New term $term is #" . $term_id) if DEBUG;
+  }
+
+  elsif (DEBUG) {
+    print_log('dict', "Term $term already exists");
   };
   return $hash->{$term};
 };
