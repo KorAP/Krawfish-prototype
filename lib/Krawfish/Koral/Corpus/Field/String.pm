@@ -91,4 +91,13 @@ sub to_sort_string {
   return $str;
 };
 
+
+sub normalize {
+  my $self = shift;
+  $self->{value} = normalize_nfkc($self->value) if $self->value;
+  $self->{key} = normalize_nfkc($self->key) if $self->key;
+  return $self;
+};
+
+
 1;

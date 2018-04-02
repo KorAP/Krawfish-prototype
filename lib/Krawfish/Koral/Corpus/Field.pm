@@ -1,4 +1,5 @@
 package Krawfish::Koral::Corpus::Field;
+use Krawfish::Util::String qw/normalize_nfkc/;
 use Krawfish::Koral::Corpus::FieldID;
 use Role::Tiny;
 use strict;
@@ -120,6 +121,11 @@ sub can_toggle_negativity {
   ...
 };
 
+sub normalize {
+  my $self = shift;
+  $self->{value} = normalize_nfkc($self->value) if $self->value;
+  return $self;
+};
 
 sub optimize {
   'Irrelevant';

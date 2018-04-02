@@ -15,8 +15,8 @@ use warnings;
 # TODO:
 #   Maybe it's easier to create multiple roles
 #   ->normalize_regex
-#   -> normalize_boolean
-#   -> normalize_relational
+#   ->normalize_boolean
+#   ->normalize_relational
 
 
 use constant DEBUG => 0;
