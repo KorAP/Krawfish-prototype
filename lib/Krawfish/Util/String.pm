@@ -53,6 +53,7 @@ sub _list_props {
 
 # Normalize to KC form
 sub normalize_nfkc {
+  return unless $_[0];
   return normalize('KC',$_[0]);
 };
 

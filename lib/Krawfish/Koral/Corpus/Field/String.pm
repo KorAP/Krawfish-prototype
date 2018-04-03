@@ -1,4 +1,5 @@
 package Krawfish::Koral::Corpus::Field::String;
+use Krawfish::Util::String qw/normalize_nfkc/;
 use Krawfish::Util::Constants ':PREFIX';
 use Role::Tiny::With;
 use strict;

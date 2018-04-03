@@ -1,5 +1,6 @@
 package Krawfish::Koral::Query::Term;
 use Role::Tiny::With;
+use Krawfish::Util::String qw/normalize_nfkc/;
 use Krawfish::Util::Constants qw/:PREFIX/;
 use Scalar::Util qw/looks_like_number/;
 use Krawfish::Query::Term;
@@ -395,10 +396,15 @@ sub to_neutral_escaped {
 
 # Normalize term query
 sub normalize {
+  my $self = shift;
   if (DEBUG) {
-    print_log('kq_term', 'Normalize "' . $_[0]->to_string . '"');
+    print_log('kq_term', 'Normalize "' . $self->to_string . '"');
   };
-  $_[0];
+  $self->foundry(normalize_nfkc($self->foundry)) if $self->foundry;
+  $self->layer(normalize_nfkc($self->layer)) if $self->layer;
+  $self->key(normalize_nfkc($self->key));
+  $self->value(normalize_nfkc($self->value)) if $self->value;
+  return $self;
   # return $self->is_negative || $self->is_null;
 };
 

@@ -1,4 +1,5 @@
 use Unicode::Normalize qw/normalize/;
+use utf8;
 use Test::More;
 use Test::Krawfish;
 use strict;

@@ -1,3 +1,5 @@
+use Unicode::Normalize qw/normalize/;
+use utf8;
 use Test::More;
 use Test::Krawfish;
 use strict;
@@ -26,5 +28,18 @@ ok(!$term->next, 'No more tokens');
 
 ok($term = $qb->term('opennlp/c!=N')->normalize->finalize, 'Term');
 ok($term->has_warning, 'Warnings');
+
+my $ueber = 'über';
+my $ueber_kc = normalize('KC', $ueber);
+my $ueber_kd = normalize('KD', $ueber);
+
+ok(my $term1 = $qb->term($ueber_kd)->normalize, 'Normalize');
+ok(my $term2 = $qb->term($ueber_kc)->normalize, 'Normalize');
+
+is($term1->to_string, $term2->to_string, 'Compare normalization');
+
+ok($term = $term1->finalize->identify($index->dict)->optimize($index->segment), 'Term');
+ok(!$term->current, 'Not initialized yet');
+is($term->max_freq, 1, 'Frequency');
 
 done_testing;
