@@ -35,7 +35,7 @@ my $query;
 $koral->query($qb->span('akron/c=NP'));
 ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment),
    'Materialize');
-is($query->to_string, 'filter(#11,[1])', 'Stringification');
+is($query->to_placeholder_string, 'filter(#?,[1])', 'Stringification');
 matches($query, [qw/[0:0-3] [0:4-8]/], 'Search');
 
 
@@ -43,7 +43,7 @@ matches($query, [qw/[0:0-3] [0:4-8]/], 'Search');
 $koral->query($qb->token('akron=Bau-Leiter'));
 ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment),
    'Materialize');
-is($query->to_string, 'filter(#14,[1])', 'Stringification');
+is($query->to_placeholder_string, 'filter(#?,[1])', 'Stringification');
 matches($query, [qw/[0:1-3]/], 'Search');
 
 # Search for position(startsWith|endsWith:<akron/c=NP>,akron=Bau-Leiter)
@@ -56,9 +56,8 @@ $koral->query(
 );
 ok($query = $koral->to_query->identify($index->dict)->optimize($index->segment),
    'Create query');
-is($query->to_string, 'constr(pos=272:#11,filter(#14,[1]))', 'Stringification');
+is($query->to_placeholder_string, 'constr(pos=272:#?,filter(#?,[1]))', 'Stringification');
 matches($query, [qw/[0:0-3]/], 'Search');
-
 
 ###
 # Create forward pointer
@@ -70,34 +69,34 @@ is($fwd->doc_id, 0, 'Skip to first document');
 
 ok($fwd->next, 'Go to first subtoken');
 is($fwd->pos, 0, 'First subtoken');
-is($fwd->current->term_id, 8, 'Get term id');
-is($fwd->current->term_id, 8, 'Get term id');
+is($fwd->current->term_id, 10, 'Get term id');
+is($fwd->current->term_id, 10, 'Get term id');
 
 is($fwd->current->preceding_data, '', 'Get term id');
-is($index->dict->term_by_term_id(8), SUBTERM_PREF . 'Der', 'Get term by term id');
+is($index->dict->term_by_term_id(10), SUBTERM_PREF . 'Der', 'Get term by term id');
 
 ok($fwd->next, 'Go to first subtoken');
 is($fwd->pos, 1, 'Second subtoken');
-is($fwd->current->term_id, 13, 'Get term id');
-is($fwd->current->term_id, 13, 'Get term id');
+is($fwd->current->term_id, 15, 'Get term id');
+is($fwd->current->term_id, 15, 'Get term id');
 is($fwd->current->preceding_data, ' ', 'Get term id');
-is($index->dict->term_by_term_id(13), SUBTERM_PREF . 'Bau', 'Get term by term id');
+is($index->dict->term_by_term_id(15), SUBTERM_PREF . 'Bau', 'Get term by term id');
 
 ok($fwd->next, 'Go to first subtoken');
 is($fwd->pos, 2, 'Third subtoken');
-is($fwd->current->term_id, 15, 'Get term id');
+is($fwd->current->term_id, 17, 'Get term id');
 is($fwd->current->preceding_data, '-', 'Get term id');
-is($index->dict->term_by_term_id(15), SUBTERM_PREF . 'Leiter', 'Get term by term id');
+is($index->dict->term_by_term_id(17), SUBTERM_PREF . 'Leiter', 'Get term by term id');
 
 ok($fwd->prev, 'Go to first subtoken');
 is($fwd->pos, 1, 'Second subtoken');
-is($fwd->current->term_id, 13, 'Get term id');
-is($fwd->current->term_id, 13, 'Get term id');
+is($fwd->current->term_id, 15, 'Get term id');
+is($fwd->current->term_id, 15, 'Get term id');
 is($fwd->current->preceding_data, ' ', 'Get term id');
-is($index->dict->term_by_term_id(13), SUBTERM_PREF . 'Bau', 'Get term by term id');
+is($index->dict->term_by_term_id(15), SUBTERM_PREF . 'Bau', 'Get term by term id');
 
 ok(my @anno = $fwd->current->annotations, 'Get annotations');
-is($anno[0]->[0], 14, 'Annotation');
+is($anno[0]->[0], 16, 'Annotation');
 is($index->dict->term_by_term_id($anno[0]->[0]),
    TOKEN_PREF . 'akron=Bau-Leiter', 'Annotation');
 
@@ -106,10 +105,10 @@ ok(defined $fwd->skip_doc(0), 'Skip to first document');
 ok(defined $fwd->skip_pos(2), 'Skip to second subtoken');
 is($fwd->doc_id, 0, 'Skip to first document');
 is($fwd->pos, 2, 'Third subtoken');
-is($fwd->current->term_id, 15, 'Get term id');
+is($fwd->current->term_id, 17, 'Get term id');
 is($fwd->current->preceding_data, '-', 'Get term id');
 my $dict = $index->dict;
-is($dict->term_by_term_id(15), SUBTERM_PREF . 'Leiter', 'Get term by term id');
+is($dict->term_by_term_id(17), SUBTERM_PREF . 'Leiter', 'Get term by term id');
 
 ok($fwd->next, 'Skip to next token');
 

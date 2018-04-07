@@ -45,19 +45,17 @@ is(substr($doc->stream->to_string, 0, 100),
    q!(0)<>['Der';'! . TOKEN_PREF . q!akron=Der'$1;'! .SPAN_PREF. q!akron/c=NP'$3](1)< >['Bau';'! . TOKEN_PREF . q!akron=Bau-Leiter'$3](2)<->['Leiter'](3)< >!,
    'Get stream');
 
-
-is($doc->fields->to_string, "'docID'='doc-3';'license'='closed';'textLength'=8;'URI'='http://korap.ids-mannheim.de/instance/example'", 'Fields');
-
+is($doc->fields->to_string, "'docID'='doc-3';'license'='closed';'textLength'=8;'URI'='http://korap.ids-mannheim.de/instance/example';'pubDate'='2018-04-07'", 'Fields');
 
 my $index = Krawfish::Index->new;
 
 ok($doc = $doc->identify($index->dict), 'Turn terms into term_ids');
 
-is($doc->fields->to_string(1), "#1=#2;#3=#4;#5=#6(8);#7='http://korap.ids-mannheim.de/instance/example'", 'Fields');
+is($doc->fields->to_string(1), "#1=#2;#3=#4;#5=#6(8);#7='http://korap.ids-mannheim.de/instance/example';#8=#9", 'Fields');
 
-is($doc->stream->to_string(1), q!(0)<>[#8;9$1;11$3](1)< >[#13;14$3](2)<->[#15](3)< >[#16;17$4;18$4](4)< >[#21;22$5;11$8](5)< >[#23;24$6](6)< >[#13;25$8](7)<->[#26](8)<.>[##]!, 'Stream');
+is($doc->stream->to_string(1), q!(0)<>[#10;11$1;13$3](1)< >[#15;16$3](2)<->[#17](3)< >[#18;19$4;20$4](4)< >[#23;24$5;13$8](5)< >[#25;26$6](6)< >[#15;27$8](7)<->[#28](8)<.>[##]!, 'Stream');
 
-is($doc->to_string(1), q![#1=#2;#3=#4;#5=#6(8);#7='http://korap.ids-mannheim.de/instance/example'](0)<>[#8;9$1;11$3](1)< >[#13;14$3](2)<->[#15](3)< >[#16;17$4;18$4](4)< >[#21;22$5;11$8](5)< >[#23;24$6](6)< >[#13;25$8](7)<->[#26](8)<.>[##]!, 'Stringification');
+is($doc->to_string(1), q![#1=#2;#3=#4;#5=#6(8);#7='http://korap.ids-mannheim.de/instance/example';#8=#9](0)<>[#10;11$1;13$3](1)< >[#15;16$3](2)<->[#17](3)< >[#18;19$4;20$4](4)< >[#23;24$5;13$8](5)< >[#25;26$6](6)< >[#15;27$8](7)<->[#28](8)<.>[##]!, 'Stringification');
 
 done_testing;
 __END__

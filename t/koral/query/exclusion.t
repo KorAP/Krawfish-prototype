@@ -65,6 +65,10 @@ $query = $qb->exclusion(
   $qb->term('aa'),
   $qb->term_re('h.*')
 );
+
+# TODO:
+#   I saw this failing a couple of times with
+#   min_span being 0 and max_span being -1!!
 is($query->min_span, 1, 'Span length');
 is($query->max_span, 1, 'Span length');
 

@@ -27,7 +27,7 @@ is($query->to_string, '<akron/c=NP>', 'Stringification');
 ok($query = $query->normalize, 'Normalization');
 is($query->to_string, "<akron/c=NP>", 'Stringification');
 ok($query = $query->identify($index->dict)->optimize($index->segment), 'Normalization');
-is($query->to_string, "#11", 'Stringification');
+is($query->to_placeholder_string, "#?", 'Stringification');
 
 # Span planning with zero freq
 $query = $builder->span('xxxx');

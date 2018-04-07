@@ -112,4 +112,12 @@ sub close {
 };
 
 
+# Return the stringification with placeholders instead of term ids
+sub to_placeholder_string {
+  my $string = shift->to_string;
+  $string =~ s/\#\d+/\#\?/g;
+  return $string;
+};
+
+
 1;

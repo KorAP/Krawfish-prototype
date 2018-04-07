@@ -31,6 +31,12 @@
         "key":"URI",
         "value": "http://korap.ids-mannheim.de/instance/example",
         "type":"type:store"
+      },
+      {
+        "@type":"koral:field",
+        "key":"pubDate",
+        "value":"2018-04-07",
+        "type":"type:date"
       }
     ],
     "subtokens" : [

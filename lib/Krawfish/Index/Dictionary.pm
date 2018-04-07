@@ -109,6 +109,8 @@ use Krawfish::Log;
 #   the previous term has the rank 3 and the folowing has the term
 #   4 and you want to add it as 3.5) would be nice, but I wasn't
 #   able to find one that's precise in all circumstances.
+#   Though a Stern-Brocat-Tree may be a nice approach!
+#   https://begriffs.com/posts/2018-03-20-user-defined-order.html
 #
 # add_field($term):
 #   Identical to add_term(), but returns the term_id and a boolean value
