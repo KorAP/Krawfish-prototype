@@ -1,11 +1,12 @@
 package Krawfish::Koral::Document::FieldInt;
+use warnings;
+use strict;
 use Krawfish::Util::String qw/squote/;
 use Krawfish::Util::Constants qw/:PREFIX/;
 use Krawfish::Log;
 use Role::Tiny::With;
+
 with 'Krawfish::Koral::Document::FieldBase';
-use warnings;
-use strict;
 
 use constant DEBUG => 0;
 
@@ -71,7 +72,7 @@ sub to_string {
     return '#' . $self->{key_id} . '=' . '#' . $self->{key_value_id} . '(' . $self->{value} . ')';
   };
 
-  return squote($self->{key}) . '=' . $self->{value};
+  return squote($self->key) . '=' . $self->value;
 };
 
 

@@ -60,9 +60,8 @@ sub to_koral_fragment {
 
   return {
     '@type' => 'koral:field',
-    'type' => 'type:' . (
-      $self->type eq 'store' ? 'string' : $self->type
-    ),
+    'type' => 'type:' . $self->type,
+    # $self->type eq 'store' ? 'string' : $self->type
     'key' => $self->key,
     'value' => $self->value
   };

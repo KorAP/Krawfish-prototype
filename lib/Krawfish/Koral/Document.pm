@@ -33,6 +33,11 @@ use List::MoreUtils qw/uniq/;
 #   Fields need - depending on the type -
 #   a prefix AND a postfix!
 
+# TODO:
+#   - Support type:text fields
+#   - Support type:dateRange fields
+#   - Support type:intRange fields
+
 use constant DEBUG => 0;
 
 # Parse the document and create an inverted index file
@@ -123,6 +128,8 @@ sub _parse {
 
     # Prepare for summarization
     if (!$field->{type} || $field->{type} eq 'type:string') {
+
+      # Store string fields (May be keywords)
       if (ref $field->{value} && ref $field->{value} eq 'ARRAY') {
 
         if (DEBUG) {
@@ -140,12 +147,18 @@ sub _parse {
         $fields->add_string($field->{key}, $field->{value});
       };
     }
+
+    # Store integer fields
     elsif ($field->{type} eq 'type:integer') {
       $fields->add_int($field->{key}, $field->{value});
     }
+
+    # Store store-fields
     elsif ($field->{type} eq 'type:store') {
       $fields->add_store($field->{key}, $field->{value});
     }
+
+    # Store date fields
     elsif ($field->{type} eq 'type:date') {
       $fields->add_date($field->{key}, $field->{value});
     }
