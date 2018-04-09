@@ -128,7 +128,10 @@ use Krawfish::Log;
 #     - regular expression
 #     - approximate matching
 #     - (wildcards)
+#     - integer range*
 #   Both dictionaries are searched (maybe in parallel).
+#   * To make this work, all int fields and date fields have
+#   a special data structure associated to the key identifier.
 #
 # term_id_to_term:
 #   In case the term_id is larger than the largest term_id of the
@@ -159,7 +162,7 @@ use Krawfish::Log;
 #   guaranteed to be unique, they need to be treated special
 #   in sort algorithms etc.
 #
-# rank_subterm_suffix
+# rank_subterm_suffix:
 #   see rank_subterm, but uses the reverse list.
 
 # TODO:
@@ -171,9 +174,15 @@ use Krawfish::Log;
 # TODO:
 #   This should also take into account multi-ranges like described in
 #   https://github.com/KorAP/Krill/issues/17
-#
-#   http://search.cpan.org/~davidiam/Set-SegmentTree-0.01/lib/Set/SegmentTree.pm
-#   https://en.wikipedia.org/wiki/Segment_tree
+#   See also "search_range"
+#     http://search.cpan.org/~davidiam/Set-SegmentTree-0.01/lib/Set/SegmentTree.pm
+#     https://en.wikipedia.org/wiki/Segment_tree
+#   For numeric ranges, Lucene now uses BKD trees
+#     see https://issues.apache.org/jira/browse/LUCENE-6477
+#     see https://users.cs.duke.edu/~pankaj/publications/papers/bkd-sstd.pdf
+#     see https://github.com/deepfabric/bkdtree
+#     see https://medium.com/@nickgerleman/the-bkd-tree-da19cf9493fb
+
 
 # TODO:
 #   collect_term_ids:
