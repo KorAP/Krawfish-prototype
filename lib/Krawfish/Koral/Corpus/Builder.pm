@@ -3,6 +3,7 @@ use Krawfish::Koral::Corpus::Field;
 use Krawfish::Koral::Corpus::Field::String;
 use Krawfish::Koral::Corpus::Field::Date;
 use Krawfish::Koral::Corpus::Field::Regex;
+use Krawfish::Koral::Corpus::Field::Integer;
 use Krawfish::Koral::Corpus::FieldGroup;
 use Krawfish::Koral::Corpus::Class;
 use Krawfish::Koral::Corpus::Nowhere;
@@ -89,6 +90,12 @@ sub date {
   return Krawfish::Koral::Corpus::Field::Date->new(@_);
 };
 
+# Create 'integer' field
+# May be renamed to 'field_integer'
+sub integer {
+  shift;
+  return Krawfish::Koral::Corpus::Field::Integer->new(@_);
+};
 
 # Create 'regex' field
 # May be renamed to 'field_re'

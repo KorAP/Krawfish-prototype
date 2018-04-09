@@ -7,6 +7,7 @@ use constant {
   KEY_PREF        => '!',  # Field keys
   FIELD_PREF      => '+',  # Field values
   DATE_FIELD_PREF => '+',  # Field values (may differ)
+  INT_FIELD_PREF  => '+',  # Field values (may differ)
   FOUNDRY_PREF    => '^',  # Foundry
   LAYER_PREF      => '&',  # Layer
   SUBTERM_PREF    => '.',  # * before
@@ -27,6 +28,7 @@ our $ANNO_PREFIX_RE = qr/(?:\:|\-|\@|\>|\<)/;
 our @EXPORT_OK = (qw/KEY_PREF
                      FIELD_PREF
                      DATE_FIELD_PREF
+                     INT_FIELD_PREF
                      FOUNDRY_PREF
                      LAYER_PREF
                      SUBTERM_PREF
@@ -46,6 +48,7 @@ our %EXPORT_TAGS = (
   PREFIX => [qw/KEY_PREF
                 FIELD_PREF
                 DATE_FIELD_PREF
+                INT_FIELD_PREF
                 FOUNDRY_PREF
                 LAYER_PREF
                 SUBTERM_PREF

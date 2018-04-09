@@ -6,7 +6,6 @@ use strict;
 use warnings;
 
 with 'Krawfish::Koral::Corpus::Field';
-with 'Krawfish::Koral::Corpus::Field::Relational';
 with 'Krawfish::Koral::Corpus';
 
 use constant DEBUG => 0;
@@ -43,26 +42,6 @@ sub identify {
   return $self->builder->nowhere unless defined $term_id;
 
   return Krawfish::Koral::Corpus::FieldID->new($term_id);
-};
-
-
-# Compare against another field value
-sub value_geq {
-  my ($self, $other) = @_;
-  if ($self->value ge $other->value) {
-    return 1;
-  };
-  return 0;
-};
-
-
-# Compare against another field value
-sub value_leq {
-  my ($self, $other) = @_;
-  if ($self->value le $other->value) {
-    return 1;
-  };
-  return 0;
 };
 
 
