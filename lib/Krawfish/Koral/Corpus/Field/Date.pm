@@ -9,6 +9,13 @@ with 'Krawfish::Koral::Corpus::Field';
 with 'Krawfish::Koral::Corpus::Field::Relational';
 with 'Krawfish::Koral::Corpus';
 
+# TODO:
+#   Support a method to_int for range queries!
+
+# TODO:
+#   Convert the strings to RFC3339, as this is a sortable
+#   date format.
+
 use constant DEBUG => 0;
 
 # TODO:
@@ -71,6 +78,34 @@ sub value_geq {
   };
   return 0;
 };
+
+
+sub value_leq {
+  my ($self, $other) = @_;
+  if ($self->year < $other->year) {
+    return 1;
+  }
+  elsif ($self->year > $other->year) {
+    return 0;
+  }
+  elsif (!$other->month) {
+    return 0;
+  }
+  elsif ($self->month < $other->month) {
+    return 1;
+  }
+  elsif ($self->month > $other->month) {
+    return 0;
+  }
+  elsif (!$other->day) {
+    return 0;
+  }
+  elsif ($self->day < $other->day) {
+    return 1;
+  };
+  return 0;
+};
+
 
 
 # Translate all terms to term ids

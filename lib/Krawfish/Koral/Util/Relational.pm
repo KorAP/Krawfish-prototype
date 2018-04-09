@@ -7,8 +7,23 @@ use warnings;
 # Relational normalization role for
 # Krawfish::Koral::Util::Boolean
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
+# TODO:
+#   Combine AND-constraints on the same relational key
+#   to range queries, e.g.
+#     date > 2014-03-01 & date <= 2017-02
+#     to
+#     date in [2014-03-01[--2017-02]]
+#
+#     length >= 5 & length < 2
+#     to
+#     length in [[5--]2]
+#
+#     The inner brackets mark inclusivity or exclusivity
+
+# TODO:
+#   Do not compare <= and >=, but < and > with inclusivity
 
 # Resolve set theoretic inclusivity and exclusivity
 sub _resolve_inclusivity_and_exclusivity {
@@ -43,6 +58,10 @@ sub _resolve_inclusivity_and_exclusivity {
         # Simplify geq
         if ($op_a->match eq 'geq' && $op_b->match eq 'geq') {
 
+          if (DEBUG) {
+            print_log('kq_relational', 'Both operands are geq');
+          };
+
           # Operation is &
           # - X >= 4 & X >= 3 -> X >= 4
           if ($self->operation eq 'and') {
@@ -76,6 +95,10 @@ sub _resolve_inclusivity_and_exclusivity {
 
         # Simplify leq
         elsif ($op_a->match eq 'leq' && $op_b->match eq 'leq') {
+
+          if (DEBUG) {
+            print_log('kq_relational', 'Both operands are leq');
+          };
 
           # Compare
 

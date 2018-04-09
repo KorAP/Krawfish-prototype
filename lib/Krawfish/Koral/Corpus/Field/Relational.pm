@@ -3,6 +3,13 @@ use Role::Tiny;
 use strict;
 use warnings;
 
+# TODO:
+#   Only support lt and gt and
+#   have a separate "inclusive" flag
+#   for ge and le!
+#   This would help dealing with
+#   FieldRanges!
+
 sub geq {
   my $self = shift;
   $self->{match} = 'geq';
