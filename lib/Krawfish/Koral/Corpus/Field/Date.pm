@@ -5,8 +5,8 @@ use Role::Tiny::With;
 use strict;
 use warnings;
 
-with 'Krawfish::Koral::Corpus::Field';
 with 'Krawfish::Koral::Corpus::Field::Relational';
+with 'Krawfish::Koral::Corpus::Field';
 with 'Krawfish::Koral::Corpus';
 
 # TODO:
@@ -53,7 +53,19 @@ sub day {
   $_[0]->{day} // 0;
 };
 
-sub value_geq {
+# Compare against another field value
+sub value_eq {
+  my ($self, $other) = @_;
+  if ($self->year == $other->year &&
+        $self->month == $other->month &&
+        $self->day == $other->day) {
+    return 1;
+  };
+  return 0;
+};
+
+
+sub value_gt {
   my ($self, $other) = @_;
   if ($self->year > $other->year) {
     return 1;
@@ -61,8 +73,14 @@ sub value_geq {
   elsif ($self->year < $other->year) {
     return 0;
   }
-  elsif (!$other->month) {
+  elsif (!$self->month && !$other->month) {
+    return 0; # It's equal
+  }
+  elsif ($self->month && !$other->month) {
     return 1;
+  }
+  elsif (!$self->month && $other->month) {
+    return 0;
   }
   elsif ($self->month > $other->month) {
     return 1;
@@ -70,8 +88,14 @@ sub value_geq {
   elsif ($self->month < $other->month) {
     return 0;
   }
-  elsif (!$other->day) {
+  elsif (!$self->day && !$other->day) {
+    return 0; # It's equal
+  }
+  elsif ($self->day && !$other->day) {
     return 1;
+  }
+  elsif (!$self->day && $other->day) {
+    return 0;
   }
   elsif ($self->day > $other->day) {
     return 1;
@@ -80,7 +104,7 @@ sub value_geq {
 };
 
 
-sub value_leq {
+sub value_lt {
   my ($self, $other) = @_;
   if ($self->year < $other->year) {
     return 1;
@@ -88,8 +112,14 @@ sub value_leq {
   elsif ($self->year > $other->year) {
     return 0;
   }
-  elsif (!$other->month) {
+  elsif (!$self->month && !$other->month) {
+    return 0; # It's equal
+  }
+  elsif ($self->month && !$other->month) {
     return 0;
+  }
+  elsif (!$self->month && $other->month) {
+    return 1;
   }
   elsif ($self->month < $other->month) {
     return 1;
@@ -97,8 +127,14 @@ sub value_leq {
   elsif ($self->month > $other->month) {
     return 0;
   }
-  elsif (!$other->day) {
+  elsif (!$self->day && !$other->day) {
+    return 0; # It's equal
+  }
+  elsif ($self->day && !$other->day) {
     return 0;
+  }
+  elsif (!$self->day && $other->day) {
+    return 1;
   }
   elsif ($self->day < $other->day) {
     return 1;
@@ -126,18 +162,6 @@ sub identify {
   return $self->builder->nowhere unless defined $term_id;
 
   return Krawfish::Koral::Corpus::FieldID->new($term_id);
-};
-
-
-# Compare against another field value
-sub value_eq {
-  my ($self, $other) = @_;
-  if ($self->year == $other->year &&
-        $self->month == $other->month &&
-        $self->day == $other->day) {
-    return 1;
-  };
-  return 0;
 };
 
 

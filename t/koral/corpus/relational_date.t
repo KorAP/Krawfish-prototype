@@ -9,7 +9,6 @@ ok(my $cb = Krawfish::Koral::Corpus::Builder->new, 'Create CorpusBuilder');
 
 my $tree;
 
-if (0) {
 # Get tree
 $tree = $cb->bool_and(
   $cb->date('pubDate')->geq('2014'),
@@ -84,7 +83,7 @@ $tree = $cb->bool_or(
 # Simplify geq
 ok($tree = $tree->normalize, 'Query normalization');
 is($tree->to_string, 'pubDate>=2014-04', 'Resolve relation');
-}
+
 
 # Get tree
 $tree = $cb->bool_or(

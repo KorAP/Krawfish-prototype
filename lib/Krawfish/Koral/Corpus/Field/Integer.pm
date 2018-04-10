@@ -6,8 +6,8 @@ use Role::Tiny::With;
 use strict;
 use warnings;
 
-with 'Krawfish::Koral::Corpus::Field';
 with 'Krawfish::Koral::Corpus::Field::Relational';
+with 'Krawfish::Koral::Corpus::Field';
 with 'Krawfish::Koral::Corpus';
 
 # TODO:
@@ -27,14 +27,22 @@ sub key_type {
   'int';
 };
 
-sub value_geq {
+# Compare against another field value
+sub value_eq {
   my ($self, $other) = @_;
-  return $self->value ge $other->value;
+  return $self->value == $other->value;
 };
 
-sub value_leq {
+# Compare against another field value
+sub value_gt {
   my ($self, $other) = @_;
-  return $self->value le $other->value;
+  return $self->value gt $other->value;
+};
+
+# Compare against another field value
+sub value_lt {
+  my ($self, $other) = @_;
+  return $self->value lt $other->value;
 };
 
 
@@ -59,13 +67,7 @@ sub identify {
 };
 
 
-# Compare against another field value
-sub value_eq {
-  my ($self, $other) = @_;
-  return $self->value == $other->value;
-};
-
-
+# Get or set integer value
 sub value {
   my $self = shift;
   if (@_) {
@@ -84,7 +86,6 @@ sub value {
 # sub value_string {
 #   # PREPEND WITH ZEROS
 # };
-
 
 
 # Stringification for sorting

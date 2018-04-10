@@ -30,7 +30,7 @@ sub eq {
 # Not equal
 sub ne {
   my $self = shift;
-  $self->{match} = 'eq';
+  $self->{match} = 'ne';
   $self->is_negative(1);
   $self->value(shift) or return;
   return $self;
@@ -173,7 +173,7 @@ sub to_koral_fragment {
   my $field = {
     '@type' => 'koral:field',
     key => $self->key,
-    match => 'match:' . $self->match,
+    match => 'match:' . $self->match_long,
     type => 'type:' . $self->key_type
   };
 
@@ -232,6 +232,12 @@ sub match_short {
   elsif ($op eq 'ne') {
     return '!=';
   }
+  elsif ($op eq 'gt') {
+    return '>' . ($self->is_inclusive ? '=' : '');
+  }
+  elsif ($op eq 'lt') {
+    return '<' . ($self->is_inclusive ? '=' : '');
+  }
   elsif ($op eq 'geq') {
     return '>=';
   }
@@ -247,6 +253,10 @@ sub match_short {
   return '?';
 };
 
+
+sub match_long {
+  $_[0]->match;
+};
 
 # Stringification for sorting
 sub to_sort_string {

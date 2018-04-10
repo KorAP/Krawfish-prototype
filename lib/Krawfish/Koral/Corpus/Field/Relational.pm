@@ -1,33 +1,71 @@
 package Krawfish::Koral::Corpus::Field::Relational;
+use Krawfish::Log;
 use Role::Tiny;
 use strict;
 use warnings;
 
-# TODO:
-#   Only support lt and gt and
-#   have a separate "inclusive" flag
-#   for ge and le!
-#   This would help dealing with
-#   FieldRanges!
+sub gt {
+  my $self = shift;
+  $self->{match} = 'gt';
+  $self->value(shift) or return;
+  return $self;
+};
+
+sub lt {
+  my $self = shift;
+  $self->{match} = 'lt';
+  $self->value(shift) or return;
+  return $self;
+};
+
 
 sub geq {
   my $self = shift;
-  $self->{match} = 'geq';
-  $self->value(shift) or return;
-  return $self;
+  return $self->gt(shift)->is_inclusive(1);
 };
 
 
 sub leq {
   my $self = shift;
-  $self->{match} = 'leq';
-  $self->value(shift) or return;
-  return $self;
+  return $self->lt(shift)->is_inclusive(1);
 };
+
+
+# TODO: Support existence
+sub match {
+  my $self = shift;
+  if (@_) {
+    $self->{match} = shift;
+    return $self;
+  };
+  return $self->{match};
+};
+
+# Return long match op
+sub match_long {
+  my $self = shift;
+  if ($self->is_inclusive) {
+    return 'geq' if $self->match eq 'gt';
+    return 'leq' if $self->match eq 'lt';
+  }
+  return $self->match;
+};
+
+
+# Overwrite inclusive in Field
+sub is_inclusive {
+  my $self = shift;
+  if (@_) {
+    $self->{inclusive} = shift;
+    return $self;
+  };
+  return $self->{inclusive} // 0;
+};
+
 
 sub is_relational {
   my $self = shift;
-  return 1 if $self->match eq 'geq' || $self->match eq 'leq';
+  return 1 if ($self->{match} eq 'gt' || $self->{match} eq 'lt');
   return 0;
 };
 
@@ -54,7 +92,7 @@ sub toggle_negative {
     $self->{match} = 'contains';
     $self->is_negative(0);
   }
-  elsif ($op eq 'leq' || $op eq 'geq') {
+  elsif ($op eq 'lt' || $op eq 'gt') {
     warn 'Relational operations not yet supported';
   }
   else {
