@@ -50,6 +50,46 @@ sub normalize {
 };
 
 
+# Return all terms intersecting the range
+sub to_intersecting_terms {
+  my $self = shift;
+
+  # TODO:
+  #   First order!
+
+  my ($first, $second) = ($self->{first}, $self->{second});
+
+  # TODO:
+  #   Treat inclusive terms different to
+  #   exclusive terms!
+
+  my @terms = $first->to_intersecting_terms;
+
+  if ($second) {
+    push @terms, $second->to_intersecting_terms;
+  };
+
+  my $cb = $self->builder;
+
+  # Add all years between the years
+  if ($first->year < $second->year) {
+    foreach my $year (($first->year + 1) .. ($second->year + 1)) {
+      push @terms, $first->term_all($year);
+    };
+  }
+  else {
+    # Iterate over months in between
+    ...
+  };
+
+  # if ($first->month && $first->month < 12) {
+  #   foreach () {
+  #
+  #   };
+  # };
+};
+
+
 # stringify range query
 sub to_string {
   my $self = shift;

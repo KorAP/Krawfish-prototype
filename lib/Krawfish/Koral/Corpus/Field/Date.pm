@@ -246,37 +246,40 @@ sub to_intersecting_terms {
   # Either the day, the month or the year
   # e.g. 2015], 2015-11], 2015-11-14]
   if ($self->day) {
-    push @terms,
-      $self->builder->string($self->key)->eq(
-        $self->value_string(0) . RANGE_ALL_POST
-      );
+    push @terms, $self->term_all($self->value_string(0));
   }
   elsif ($self->month) {
-    push @terms,
-      $self->builder->string($self->key)->eq(
-        $self->value_string(1) . RANGE_PART_POST
-      );
+    push @terms, $self->term_part($self->value_string(1));
   };
 
   if ($self->month) {
-    push @terms,
-      $self->builder->string($self->key)->eq(
-        $self->value_string(1) . RANGE_ALL_POST
-      );
+    push @terms, $self->term_all($self->value_string(1));
   }
   else {
-    push @terms,
-      $self->builder->string($self->key)->eq(
-        $self->value_string(2) . RANGE_PART_POST
-      );
+    push @terms, $self->term_part($self->value_string(2));
   };
 
-  push @terms,
-    $self->builder->string($self->key)->eq(
-      $self->value_string(2) . RANGE_ALL_POST
-    );
+  push @terms, $self->term_all($self->value_string(2));
 
   return @terms;
+};
+
+
+# Create string query for all ranges
+sub term_all {
+  my ($self, $term) = @_;
+  return $self->builder->string($self->key)->eq(
+    $term . RANGE_ALL_POST
+  );
+};
+
+
+# Create string query for partial ranges
+sub term_part {
+  my ($self, $term) = @_;
+  return $self->builder->string($self->key)->eq(
+    $term . RANGE_PART_POST
+  );
 };
 
 
