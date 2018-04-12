@@ -1,33 +1,33 @@
 package Krawfish::Koral::Corpus;
+use strict;
+use warnings;
 use Role::Tiny;
 use Krawfish::Koral::Corpus::Builder;
 use Krawfish::Log;
-use strict;
-use warnings;
 
 # TODO: Use the same role as Koral::Query
 
 # TODO: Add this everywhere
 with 'Krawfish::Koral::Report';
 
-requires qw/normalize
-            optimize
-            identify
+# Override:
+#   normalize
+#   operands
+#   finalize
+#   has_classes
+#   remove_classes
+#   identify
+#   is_negative
+#   is_anywhere
+#   is_nowhere
+#   is_null
+#   is_leaf
+#   to_neutral
+requires qw/optimize
             type
-            operands
-            operand
-            finalize
-            has_classes
-            remove_classes
-            is_negative
-            is_anywhere
-            is_nowhere
-            is_null
-            is_leaf
-            from_koral
-            to_koral_fragment
             to_string
-            to_neutral/;
+            from_koral
+            to_koral_fragment/;
 
 use constant DEBUG => 0;
 

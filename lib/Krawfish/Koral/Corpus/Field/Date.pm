@@ -1,16 +1,25 @@
 package Krawfish::Koral::Corpus::Field::Date;
-use Krawfish::Util::Constants ':PREFIX';
-use Krawfish::Log;
-use Role::Tiny::With;
 use strict;
 use warnings;
+use Krawfish::Util::Constants qw/:PREFIX :RANGE/;
+use Krawfish::Log;
+use Krawfish::Koral::Corpus::DateRange;
+use Role::Tiny::With;
 
 with 'Krawfish::Koral::Corpus::Field::Relational';
 with 'Krawfish::Koral::Corpus::Field';
 with 'Krawfish::Koral::Corpus';
 
-# TODO:
-#   Support a method to_int for range queries!
+# This supports range queries on special
+# date and int fields in the dictionary.
+
+# The implementation for dates has to recognize
+# that not only ranges are required to be queried, but also
+# stored.
+
+# RESTRICTION:
+#   - Currently this is restricted to dates!
+#   - currently this finds all intersecting dates!
 
 # TODO:
 #   Convert the strings to RFC3339, as this is a sortable
@@ -35,7 +44,6 @@ sub new {
     day => undef
   }, $class;
 };
-
 
 sub key_type {
   'date';
@@ -181,18 +189,25 @@ sub value {
 };
 
 
+# Serialize the value string
+# Accepts an optional granularity value
+# with: 0 = all
+#       1 = till month
+#       2 = till year
 sub value_string {
-  my $self = shift;
+  my ($self, $granularity) = @_;
+  $granularity //= 0;
   my $str = '';
   $str .= $self->year;
-  if ($self->month) {
+  if ($self->month && $granularity <= 1) {
     $str .= '-' . _zero($self->month);
-    if ($self->day) {
+    if ($self->day && $granularity <= 0) {
       $str .= '-' . _zero($self->day);
     };
   }
   return $str;
 };
+
 
 sub _zero {
   if ($_[0] < 10) {
@@ -217,6 +232,64 @@ sub to_sort_string {
   $str .= $self->match_short;
   return $str;
 };
+
+
+# Convert date to query term
+# This will represent an intersection
+# with all dates or dateranges intersecting
+# with the current date
+sub to_intersecting_terms {
+  my $self = shift;
+  my @terms;
+
+  # Match the whole granularity subtree
+  # Either the day, the month or the year
+  # e.g. 2015], 2015-11], 2015-11-14]
+  if ($self->day) {
+    push @terms,
+      $self->builder->string($self->key)->eq(
+        $self->value_string(0) . RANGE_ALL_POST
+      );
+  };
+
+  if ($self->month) {
+    push @terms,
+      $self->builder->string($self->key)->eq(
+        $self->value_string(1) . RANGE_ALL_POST
+      );
+  };
+
+  push @terms,
+    $self->builder->string($self->key)->eq(
+      $self->value_string(2) . RANGE_ALL_POST
+    );
+
+  return @terms;
+};
+
+
+# Spawn an intersecting date range query
+sub intersect {
+  my $self = shift;
+  my ($first, $second) = @_;
+
+  # Make this a DateRange query
+  if ($second) {
+    my $cb = $self->builder;
+
+    return Krawfish::Koral::Corpus::DateRange->new(
+      $cb->date($self->key)->geq($first),
+      $cb->date($self->key)->leq($second)
+    );
+  };
+
+  $self->{match} = 'intersect';
+  $self->value(shift) or return;
+
+  return $self;
+};
+
+
 
 
 1;

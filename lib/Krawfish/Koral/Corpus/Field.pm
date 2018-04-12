@@ -1,9 +1,9 @@
 package Krawfish::Koral::Corpus::Field;
-use Krawfish::Util::String qw/normalize_nfkc/;
-use Krawfish::Koral::Corpus::FieldID;
-use Role::Tiny;
 use strict;
 use warnings;
+use Role::Tiny;
+use Krawfish::Util::String qw/normalize_nfkc/;
+use Krawfish::Koral::Corpus::FieldID;
 
 use constant DEBUG => 0;
 
@@ -96,24 +96,6 @@ sub toggle_negative {
     warn 'Unknown operation';
   };
 
-  return $self;
-};
-
-
-# Contains the value in multi-token field
-sub contains {
-  my $self = shift;
-  $self->{match} = 'contains';
-  $self->value(shift) or return;
-  return $self;
-};
-
-
-# Does not contain the value in multi-token field
-sub excludes {
-  my $self = shift;
-  $self->{match} = 'excludes';
-  $self->value(shift) or return;
   return $self;
 };
 
@@ -249,6 +231,9 @@ sub match_short {
   }
   elsif ($op eq 'excludes') {
     return '!=';
+  }
+  elsif ($op eq 'intersect') {
+    return '&=';
   };
   return '?';
 };
@@ -272,7 +257,7 @@ sub is_relational {
 sub to_term {
   my $self = shift;
   my $term = $self->to_string;
-  $term =~ s/^([^=!><~\?]+?)(?:[!<>]?[=~\?])/$1:/;
+  $term =~ s/^([^=!&><~\?]+?)(?:[!<>&]?[=~\?]|[<>])/$1:/;
   return $term;
 };
 

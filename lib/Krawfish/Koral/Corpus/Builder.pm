@@ -1,4 +1,6 @@
 package Krawfish::Koral::Corpus::Builder;
+use strict;
+use warnings;
 use Krawfish::Koral::Corpus::Field;
 use Krawfish::Koral::Corpus::Field::String;
 use Krawfish::Koral::Corpus::Field::Date;
@@ -10,8 +12,6 @@ use Krawfish::Koral::Corpus::Nowhere;
 use Krawfish::Koral::Corpus::Cache;
 use Krawfish::Koral::Corpus::AndNot;
 use Krawfish::Koral::Corpus::Span;
-use strict;
-use warnings;
 
 sub new {
   my $class = shift;

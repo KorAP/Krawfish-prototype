@@ -1,8 +1,8 @@
 package Krawfish::Koral::Corpus::Field::Relational;
-use Krawfish::Log;
-use Role::Tiny;
 use strict;
 use warnings;
+use Krawfish::Log;
+use Role::Tiny;
 
 sub gt {
   my $self = shift;

@@ -1,8 +1,8 @@
 package Krawfish::Koral::Corpus::FieldID;
-use Role::Tiny::With;
-use Krawfish::Corpus::FieldID;
 use strict;
 use warnings;
+use Role::Tiny::With;
+use Krawfish::Corpus::FieldID;
 
 with 'Krawfish::Koral::Corpus';
 

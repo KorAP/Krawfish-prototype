@@ -16,6 +16,8 @@ use constant {
   ATTR_PREF       => '@',
   REL_L_PREF      => '>',
   REL_R_PREF      => '<',
+  RANGE_ALL_POST  => ']',
+  RANGE_PART_POST => '[',
   PTI_CLASS       => 0,    # Payload identifier for classes
   NOMOREDOCS      => 4_294_967_295, # (maximum value for 32 bit)
   MAX_TOP_K       => 4_294_967_295,
@@ -42,7 +44,9 @@ our @EXPORT_OK = (qw/KEY_PREF
                      NOMOREDOCS
                      MAX_TOP_K
                      MAX_SPAN_SIZE
-                     MAX_CLASS_NR/);
+                     MAX_CLASS_NR
+                     RANGE_ALL_POST
+                     RANGE_PART_POST/);
 
 our %EXPORT_TAGS = (
   PREFIX => [qw/KEY_PREF
@@ -58,7 +62,9 @@ our %EXPORT_TAGS = (
                 REL_L_PREF
                 REL_R_PREF
                 $ANNO_PREFIX_RE/],
-  PAYLOAD => [qw/PTI_CLASS/]
+  PAYLOAD => [qw/PTI_CLASS/],
+  RANGE   => [qw/RANGE_ALL_POST
+                 RANGE_PART_POST/]
 );
 
 1;
