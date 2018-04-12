@@ -250,12 +250,24 @@ sub to_intersecting_terms {
       $self->builder->string($self->key)->eq(
         $self->value_string(0) . RANGE_ALL_POST
       );
+  }
+  elsif ($self->month) {
+    push @terms,
+      $self->builder->string($self->key)->eq(
+        $self->value_string(1) . RANGE_PART_POST
+      );
   };
 
   if ($self->month) {
     push @terms,
       $self->builder->string($self->key)->eq(
         $self->value_string(1) . RANGE_ALL_POST
+      );
+  }
+  else {
+    push @terms,
+      $self->builder->string($self->key)->eq(
+        $self->value_string(2) . RANGE_PART_POST
       );
   };
 
