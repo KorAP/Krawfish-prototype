@@ -6,20 +6,27 @@ use Krawfish::Koral::Document::FieldDate;
 use warnings;
 use strict;
 
+# TODO:
+#   Introduce operands
+
 sub new {
   my $class = shift;
-  bless [], $class;
+  bless {
+    operands => [@_]
+  }, $class;
 };
+
 
 sub add_string {
   my $self = shift;
   my ($key, $value) = @_;
 
   # This may be an integer value
-  push @$self, Krawfish::Koral::Document::FieldString->new(
-    key => $key,
-    value => $value
-  );
+  push @{$self->operands},
+    Krawfish::Koral::Document::FieldString->new(
+      key => $key,
+      value => $value
+    );
 };
 
 
@@ -28,10 +35,11 @@ sub add_int {
   my ($key, $value) = @_;
 
   # This may be an integer value
-  push @$self, Krawfish::Koral::Document::FieldInt->new(
-    key => $key,
-    value => $value
-  );
+  push @{$self->operands},
+    Krawfish::Koral::Document::FieldInt->new(
+      key => $key,
+      value => $value
+    );
 };
 
 
@@ -40,10 +48,11 @@ sub add_store {
   my ($key, $value) = @_;
 
   # This may be an integer value
-  push @$self, Krawfish::Koral::Document::FieldStore->new(
-    key => $key,
-    value => $value
-  );
+  push @{$self->operands},
+    Krawfish::Koral::Document::FieldStore->new(
+      key => $key,
+      value => $value
+    );
 };
 
 
@@ -52,25 +61,38 @@ sub add_date {
   my ($key, $value) = @_;
 
   # This may be an integer value
-  push @$self, Krawfish::Koral::Document::FieldDate->new(
-    key => $key,
-    value => $value
-  );
+  push @{$self->operands},
+    Krawfish::Koral::Document::FieldDate->new(
+      key => $key,
+      value => $value
+    );
 };
 
 
 sub to_string {
   my ($self, $id) = @_;
-  return join(';', map { $_->to_string($id) } @{$self});
+  return join(';', map { $_->to_string($id) } @{$self->operands});
 };
 
 
+# Translate to term identities
 sub identify {
   my ($self, $dict) = @_;
-  foreach (@$self) {
+  foreach (@{$self->operands}) {
     $_->identify($dict);
   };
   return $self;
+};
+
+
+# Get operands
+# TODO: Duplicate to Corpus
+sub operands {
+  my $self = shift;
+  if (@_) {
+    $self->{operands} = shift;
+  };
+  $self->{operands};
 };
 
 

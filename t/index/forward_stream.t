@@ -69,34 +69,34 @@ is($fwd->doc_id, 0, 'Skip to first document');
 
 ok($fwd->next, 'Go to first subtoken');
 is($fwd->pos, 0, 'First subtoken');
-is($fwd->current->term_id, 10, 'Get term id');
-is($fwd->current->term_id, 10, 'Get term id');
+is($fwd->current->term_id, 13, 'Get term id');
+is($fwd->current->term_id, 13, 'Get term id');
 
 is($fwd->current->preceding_data, '', 'Get term id');
-is($index->dict->term_by_term_id(10), SUBTERM_PREF . 'Der', 'Get term by term id');
+is($index->dict->term_by_term_id(13), SUBTERM_PREF . 'Der', 'Get term by term id');
 
 ok($fwd->next, 'Go to first subtoken');
 is($fwd->pos, 1, 'Second subtoken');
-is($fwd->current->term_id, 15, 'Get term id');
-is($fwd->current->term_id, 15, 'Get term id');
+is($fwd->current->term_id, 18, 'Get term id');
+is($fwd->current->term_id, 18, 'Get term id');
 is($fwd->current->preceding_data, ' ', 'Get term id');
-is($index->dict->term_by_term_id(15), SUBTERM_PREF . 'Bau', 'Get term by term id');
+is($index->dict->term_by_term_id(18), SUBTERM_PREF . 'Bau', 'Get term by term id');
 
 ok($fwd->next, 'Go to first subtoken');
 is($fwd->pos, 2, 'Third subtoken');
-is($fwd->current->term_id, 17, 'Get term id');
+is($fwd->current->term_id, 20, 'Get term id');
 is($fwd->current->preceding_data, '-', 'Get term id');
-is($index->dict->term_by_term_id(17), SUBTERM_PREF . 'Leiter', 'Get term by term id');
+is($index->dict->term_by_term_id(20), SUBTERM_PREF . 'Leiter', 'Get term by term id');
 
 ok($fwd->prev, 'Go to first subtoken');
 is($fwd->pos, 1, 'Second subtoken');
-is($fwd->current->term_id, 15, 'Get term id');
-is($fwd->current->term_id, 15, 'Get term id');
+is($fwd->current->term_id, 18, 'Get term id');
+is($fwd->current->term_id, 18, 'Get term id');
 is($fwd->current->preceding_data, ' ', 'Get term id');
-is($index->dict->term_by_term_id(15), SUBTERM_PREF . 'Bau', 'Get term by term id');
+is($index->dict->term_by_term_id(18), SUBTERM_PREF . 'Bau', 'Get term by term id');
 
 ok(my @anno = $fwd->current->annotations, 'Get annotations');
-is($anno[0]->[0], 16, 'Annotation');
+is($anno[0]->[0], 19, 'Annotation');
 is($index->dict->term_by_term_id($anno[0]->[0]),
    TOKEN_PREF . 'akron=Bau-Leiter', 'Annotation');
 
@@ -105,10 +105,10 @@ ok(defined $fwd->skip_doc(0), 'Skip to first document');
 ok(defined $fwd->skip_pos(2), 'Skip to second subtoken');
 is($fwd->doc_id, 0, 'Skip to first document');
 is($fwd->pos, 2, 'Third subtoken');
-is($fwd->current->term_id, 17, 'Get term id');
+is($fwd->current->term_id, 20, 'Get term id');
 is($fwd->current->preceding_data, '-', 'Get term id');
 my $dict = $index->dict;
-is($dict->term_by_term_id(17), SUBTERM_PREF . 'Leiter', 'Get term by term id');
+is($dict->term_by_term_id(20), SUBTERM_PREF . 'Leiter', 'Get term by term id');
 
 ok($fwd->next, 'Skip to next token');
 

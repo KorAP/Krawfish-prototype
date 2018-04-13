@@ -34,7 +34,7 @@ sub new {
       warn 'Multiple fields given!';
       return 0;
     };
-  } @$fields;
+  } @{$fields->operands};
 
   # Add field data
   my @data = ();

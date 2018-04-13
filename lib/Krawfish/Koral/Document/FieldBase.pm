@@ -68,5 +68,4 @@ sub to_koral_fragment {
 };
 
 
-
 1;

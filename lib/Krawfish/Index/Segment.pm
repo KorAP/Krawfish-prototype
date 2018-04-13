@@ -173,7 +173,7 @@ sub add {
   # $self->invert->add()
 
   # Create term index for fields
-  my $fields = $doc->fields;
+  my $fields = $doc->fields->operands;
   my $ranks  = $self->field_ranks;
   foreach (@$fields) {
     next if $_->type eq 'store';
@@ -186,6 +186,8 @@ sub add {
     if ($_->sortable) {
 
       # Add field value to ranking
+      # TODO:
+      #   Support dateRange sorting!
       my $ranked_by = $ranks->by($_->key_id);
 
       if (DEBUG) {
@@ -197,6 +199,13 @@ sub add {
 
     elsif (DEBUG) {
       print_log('seg', 'Field ' . $_->key . ' is NOT sortable');
+    };
+
+    # Date or date range require specific indexing
+    if ($_->type eq 'date') {
+      foreach (@{$_->range_term_ids}) {
+        $self->postings($_)->append($doc_id);
+      };
     };
   };
 
