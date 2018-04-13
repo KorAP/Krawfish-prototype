@@ -197,18 +197,34 @@ sub value {
 sub value_string {
   my ($self, $granularity) = @_;
   $granularity //= 0;
-  my $str = '';
-  $str .= $self->year;
-  if ($self->month && $granularity <= 1) {
-    $str .= '-' . _zero($self->month);
-    if ($self->day && $granularity <= 0) {
-      $str .= '-' . _zero($self->day);
-    };
+
+  if ($granularity == 0) {
+    return $self->new_to_value_string($self->year, $self->month, $self->day);
   }
-  return $str;
+
+  elsif ($granularity == 1) {
+    return $self->new_to_value_string($self->year, $self->month);
+  };
+
+  return $self->new_to_value_string($self->year);
 };
 
 
+sub new_to_value_string {
+  my ($self, $year, $month, $day) = @_;
+  my $str = '';
+  $str .= $year;
+  if ($month) {
+    $str .= '-' . _zero($month);
+    if ($day) {
+      $str .= '-' . _zero($day);
+    };
+  };
+  return $str;
+}
+
+
+# This is duplicate in DateRange
 sub _zero {
   if ($_[0] < 10) {
     return '0' . $_[0]
@@ -284,6 +300,9 @@ sub term_part {
 
 
 # Spawn an intersecting date range query
+# TODO:
+#   - rename to overlap
+#   - This treats all terms inclusive
 sub intersect {
   my $self = shift;
   my ($first, $second) = @_;

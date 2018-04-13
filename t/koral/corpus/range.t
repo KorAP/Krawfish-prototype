@@ -41,13 +41,16 @@ is($terms[1]->to_string, 'pubDate=2015' . RANGE_ALL_POST);
 ok(!$terms[2], 'No more terms');
 
 # Create range query with two dates
-my $range = $cb->date('pubDate')->intersect('2015-11', '2017-09');
-is($range->to_string, 'pubDate&=[[2015-11--2017-09]]');
+my $range = $cb->date('pubDate')->intersect('2015', '2017');
+is($range->to_string, 'pubDate&=[[2015--2017]]');
 
-# @terms = $range->to_intersecting_terms;
-# is($terms[0]->to_string, '');
-
-#ok($range = $range->normalize, 'Normalize');
+@terms = $range->to_intersecting_terms;
+is($terms[0]->to_string, 'pubDate=2015[');
+is($terms[1]->to_string, 'pubDate=2015]');
+is($terms[2]->to_string, 'pubDate=2016[');
+is($terms[3]->to_string, 'pubDate=2016]');
+is($terms[4]->to_string, 'pubDate=2017[');
+is($terms[5]->to_string, 'pubDate=2017]');
 
 done_testing;
 __END__

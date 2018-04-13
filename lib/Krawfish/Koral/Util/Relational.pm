@@ -252,4 +252,15 @@ sub _resolve_inclusivity_and_exclusivity {
 };
 
 
+# Form date ranges for relational date
+# queries like
+#   pubDate=2015-11
+#   pubDate>2015
+#   pubDate<=2014-11-12
+#   pubDate>2015 & pubDate<2017
+# and then normalize date ranges
+sub _create_date_ranges {
+  ...
+};
+
 1;
