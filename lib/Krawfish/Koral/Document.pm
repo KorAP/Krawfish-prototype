@@ -160,7 +160,18 @@ sub _parse {
 
     # Store date fields
     elsif ($field->{type} eq 'type:date') {
-      $fields->add_date($field->{key}, $field->{value});
+
+      # Store date
+      # TODO:
+      #   maybe this is not so relevant
+      if ($field->{value}) {
+        $fields->add_date($field->{key}, $field->{value});
+      }
+
+      # Store daterange
+      elsif ($field->{from} && $field->{to}) {
+        $fields->add_daterange($field->{key}, $field->{from}, $field->{to});
+      }
     }
     else {
       warn 'unknown field type: ' . $field->{type};

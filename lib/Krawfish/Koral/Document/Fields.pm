@@ -3,6 +3,7 @@ use Krawfish::Koral::Document::FieldString;
 use Krawfish::Koral::Document::FieldInt;
 use Krawfish::Koral::Document::FieldStore;
 use Krawfish::Koral::Document::FieldDate;
+use Krawfish::Koral::Document::Field::DateRange;
 use warnings;
 use strict;
 
@@ -65,6 +66,20 @@ sub add_date {
     Krawfish::Koral::Document::FieldDate->new(
       key => $key,
       value => $value
+    );
+};
+
+
+sub add_daterange {
+  my $self = shift;
+  my ($key, $from, $to) = @_;
+
+  # This may be an integer value
+  push @{$self->operands},
+    Krawfish::Koral::Document::Field::DateRange->new(
+      key => $key,
+      from => Krawfish::Koral::Document::FieldDate->new(key => $key, value => $from),
+      to => Krawfish::Koral::Document::FieldDate->new(key => $key, value => $to)
     );
 };
 

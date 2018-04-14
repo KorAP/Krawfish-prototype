@@ -3,6 +3,7 @@ use warnings;
 use strict;
 use Krawfish::Util::String qw/squote/;
 use Krawfish::Util::Constants qw/:PREFIX :RANGE/;
+use Krawfish::Koral::Document::Field::DateRange;
 use Role::Tiny::With;
 use Krawfish::Log;
 
@@ -33,14 +34,18 @@ sub type {
 
 sub new {
   my $class = shift;
-  # key, value, key_id, key_value_id, sortable
+  # key, value (or from-to), key_id, key_value_id, sortable
   my $self = bless {
     @_
   }, $class;
 
   # Parse value!
-  $self->value($self->{value});
-  # + year, month, day
+  if ($self->{value}) {
+    # + year, month, day
+    unless ($self->value($self->{value})) {
+      return;
+    };
+  };
 
   return $self;
 };
@@ -97,12 +102,6 @@ sub identify {
 # The date is stored uncompressed
 sub inflate {
   my ($self, $dict) = @_;
-
-  # TODO:
-  #   It may not be useful to
-  #   provide this information
-  #   As the correct stored value is probably
-  #   only retrievable from the forward index.
 
   # Key id not available
   return unless $self->{key_id};
