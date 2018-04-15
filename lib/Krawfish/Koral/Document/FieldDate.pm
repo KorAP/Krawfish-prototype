@@ -3,7 +3,6 @@ use warnings;
 use strict;
 use Krawfish::Util::String qw/squote/;
 use Krawfish::Util::Constants qw/:PREFIX :RANGE/;
-use Krawfish::Koral::Document::Field::DateRange;
 use Role::Tiny::With;
 use Krawfish::Log;
 
@@ -18,14 +17,11 @@ use constant DEBUG => 0;
 #   Move parts of it to Koral::Document::Field::Date!
 
 # TODO:
-#   Support DateRange fields as well!
-
-# TODO:
 #   Join this with
 #   Krawfish::Koral::Corpus::Field::Date
 
 # TODO:
-#   Support date ranges!
+#   Make value==from
 
 sub type {
   'date';
@@ -39,12 +35,19 @@ sub new {
     @_
   }, $class;
 
-  # Parse value!
+  # It's a single date
   if ($self->{value}) {
     # + year, month, day
     unless ($self->value($self->{value})) {
       return;
     };
+  }
+
+  # It's a range
+  elsif ($self->{from} && $self->{to}) {
+    $self->{from} = __PACKAGE__->new(key => $self->{key}, value => $self->{from}),
+    $self->{to} = __PACKAGE__->new(key => $self->{key}, value => $self->{to}),
+    $self->{value} = $self->from->value_string . RANGE_SEP . $self->to->value_string;
   };
 
   return $self;
@@ -168,6 +171,44 @@ sub term_part {
   my ($self, $term) = @_;
   return DATE_FIELD_PREF . $self->{key} . ':' . $term . RANGE_PART_POST
 };
+
+
+sub to_koral_fragment {
+  my $self = shift;
+
+  unless ($self->key) {
+    warn 'Inflate!';
+    return;
+  };
+
+  if ($self->{from}) {
+    return {
+      '@type' => 'koral:field',
+      'type' => 'type:date',
+      'from' => $self->from->value_string,
+      'to' => $self->to->value_string,
+      'key' => $self->key
+    };
+  }
+  else {
+    return {
+      '@type' => 'koral:field',
+      'type' => 'type:date',
+      'value' => $self->value_string,
+    }
+  }
+};
+
+# In case it's a range
+sub from {
+  $_[0]->{from};
+};
+
+
+sub to {
+  $_[0]->{to};
+};
+
 
 
 1;

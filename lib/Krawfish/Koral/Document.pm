@@ -170,7 +170,7 @@ sub _parse {
 
       # Store daterange
       elsif ($field->{from} && $field->{to}) {
-        $fields->add_daterange($field->{key}, $field->{from}, $field->{to});
+        $fields->add_date($field->{key}, $field->{from}, $field->{to});
       }
     }
     else {
