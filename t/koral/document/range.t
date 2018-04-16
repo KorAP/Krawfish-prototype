@@ -46,8 +46,7 @@ ok($doc = Krawfish::Koral::Document->new(
         {
           '@type' => "koral:field",
           key => "pubDate",
-          from => "2016-02",
-          to => "2018-04",
+          value => "2016-02--2018-04",
           type => "type:date"
         }
       ]
@@ -55,8 +54,5 @@ ok($doc = Krawfish::Koral::Document->new(
   }), 'Index with date range');
 
 is($doc->fields->to_string, "'pubDate'=2016-02--2018-04");
-
-# @terms = $doc->fields->operands->[0]->to_range_terms;
-
 
 done_testing;

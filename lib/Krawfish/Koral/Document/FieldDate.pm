@@ -30,24 +30,31 @@ sub type {
 
 sub new {
   my $class = shift;
-  # key, value (or from-to), key_id, key_value_id, sortable
+
+  # key, value, key_id, key_value_id, sortable
   my $self = bless {
     @_
   }, $class;
 
+  return unless $self->{value};
+
+  # It's a range
+  if (index($self->{value},RANGE_SEP) > -1) {
+
+    # The range needs to be single string, so it's possible to
+    # have multiple ranges!
+    my ($from, $to) = split(RANGE_SEP, $self->{value});
+    $self->{from} = __PACKAGE__->new(key => $self->{key}, value => $from);
+    $self->{to} = __PACKAGE__->new(key => $self->{key}, value => $to);
+    $self->{value} = $self->from->value_string . RANGE_SEP . $self->to->value_string;
+  }
+
   # It's a single date
-  if ($self->{value}) {
+  else {
     # + year, month, day
     unless ($self->value($self->{value})) {
       return;
     };
-  }
-
-  # It's a range
-  elsif ($self->{from} && $self->{to}) {
-    $self->{from} = __PACKAGE__->new(key => $self->{key}, value => $self->{from}),
-    $self->{to} = __PACKAGE__->new(key => $self->{key}, value => $self->{to}),
-    $self->{value} = $self->from->value_string . RANGE_SEP . $self->to->value_string;
   };
 
   return $self;
@@ -170,33 +177,6 @@ sub term_all {
 sub term_part {
   my ($self, $term) = @_;
   return DATE_FIELD_PREF . $self->{key} . ':' . $term . RANGE_PART_POST
-};
-
-
-sub to_koral_fragment {
-  my $self = shift;
-
-  unless ($self->key) {
-    warn 'Inflate!';
-    return;
-  };
-
-  if ($self->{from}) {
-    return {
-      '@type' => 'koral:field',
-      'type' => 'type:date',
-      'from' => $self->from->value_string,
-      'to' => $self->to->value_string,
-      'key' => $self->key
-    };
-  }
-  else {
-    return {
-      '@type' => 'koral:field',
-      'type' => 'type:date',
-      'value' => $self->value_string,
-    }
-  }
 };
 
 # In case it's a range
