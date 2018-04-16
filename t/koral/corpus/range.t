@@ -5,6 +5,7 @@ use strict;
 use warnings;
 
 use_ok('Krawfish::Koral::Corpus::Builder');
+use_ok('Test::Krawfish::DateRanges');
 
 my $cb = Krawfish::Koral::Corpus::Builder->new;
 
@@ -13,7 +14,7 @@ my $date = $cb->date('pubDate')->intersect('2015-11-14');
 is($date->to_string, 'pubDate&=2015-11-14');
 
 # Get all terms to request relevant for intersection
-my @terms = $date->to_intersecting_terms;
+my @terms = $date->to_term_queries;
 is($terms[0]->to_string, 'pubDate=2015-11-14' . RANGE_ALL_POST);
 is($terms[1]->to_string, 'pubDate=2015-11' . RANGE_ALL_POST);
 is($terms[2]->to_string, 'pubDate=2015' . RANGE_ALL_POST);
@@ -24,7 +25,7 @@ $date = $cb->date('pubDate')->intersect('2015-11');
 is($date->to_string, 'pubDate&=2015-11');
 
 # Get all terms to request relevant for intersection
-@terms = $date->to_intersecting_terms;
+@terms = $date->to_term_queries;
 is($terms[0]->to_string, 'pubDate=2015-11' . RANGE_PART_POST);
 is($terms[1]->to_string, 'pubDate=2015-11' . RANGE_ALL_POST);
 is($terms[2]->to_string, 'pubDate=2015' . RANGE_ALL_POST);
@@ -35,7 +36,7 @@ $date = $cb->date('pubDate')->intersect('2015');
 is($date->to_string, 'pubDate&=2015');
 
 # Get all terms to request relevant for intersection
-@terms = $date->to_intersecting_terms;
+@terms = $date->to_term_queries;
 is($terms[0]->to_string, 'pubDate=2015' . RANGE_PART_POST);
 is($terms[1]->to_string, 'pubDate=2015' . RANGE_ALL_POST);
 ok(!$terms[2], 'No more terms');
@@ -44,13 +45,21 @@ ok(!$terms[2], 'No more terms');
 my $range = $cb->date('pubDate')->intersect('2015', '2017');
 is($range->to_string, 'pubDate&=[[2015--2017]]');
 
-@terms = $range->to_intersecting_terms;
+@terms = $range->to_term_queries;
 is($terms[0]->to_string, 'pubDate=2015[');
 is($terms[1]->to_string, 'pubDate=2015]');
 is($terms[2]->to_string, 'pubDate=2016[');
 is($terms[3]->to_string, 'pubDate=2016]');
 is($terms[4]->to_string, 'pubDate=2017[');
 is($terms[5]->to_string, 'pubDate=2017]');
+
+my $dr_index = Test::Krawfish::DateRanges->new;
+
+is($dr_index->add_range(1 => '2005'), 1);
+is($dr_index->add_range(2 => '2005-10'), 2);
+is($dr_index->add_range(3 => '2005-10-14'), 3);
+
+is_deeply($dr_index->query('2005-10-09'), [1,2], 'Check simple range query');
 
 done_testing;
 __END__

@@ -55,4 +55,6 @@ ok($doc = Krawfish::Koral::Document->new(
 
 is($doc->fields->to_string, "'pubDate'=2016-02--2018-04");
 
+diag 'Check the generated terms!';
+
 done_testing;

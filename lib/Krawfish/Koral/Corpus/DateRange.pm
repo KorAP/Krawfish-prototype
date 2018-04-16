@@ -50,7 +50,7 @@ sub normalize {
 
   my @terms;
   if ($self->{first}) {
-    push @terms, $self->{first}->to_query_terms;
+    push @terms, $self->{first}->to_term_queries;
   };
 
   # TODO:
@@ -62,7 +62,7 @@ sub normalize {
 # Return all terms intersecting the range
 # TODO:
 #   Rename to overlap?
-sub to_intersecting_terms {
+sub to_term_queries {
   my $self = shift;
 
   # TODO:
@@ -74,10 +74,10 @@ sub to_intersecting_terms {
   #   Treat inclusive terms different to
   #   exclusive terms!
 
-  my @terms = $first->to_intersecting_terms;
+  my @terms = $first->to_term_queries;
 
   if ($second) {
-    push @terms, $second->to_intersecting_terms;
+    push @terms, $second->to_term_queries;
   };
 
   my $cb = $self->builder;

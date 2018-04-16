@@ -185,7 +185,7 @@ sub to_sort_string {
 # This will represent an intersection
 # with all dates or dateranges intersecting
 # with the current date
-sub to_intersecting_terms {
+sub to_term_queries {
   my $self = shift;
   my @terms;
 
