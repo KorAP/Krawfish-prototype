@@ -59,75 +59,117 @@ sub to_range_terms {
     push @terms, $self->term_all($self->value_string(2));
   };
 
+  return @terms unless $to;
+
   # There is a target date
-  if ($to) {
+  # There was a day restriction
+  if ($self->day) {
 
-    # There was a day restriction
-    if ($self->day) {
+    # year and month are identical
+    if ($self->year == $to->year &&
+          $self->month == $to->month &&
+          $to->day) {
 
-      # year and month are identical
-      if ($self->year == $to->year &&
-            $self->month == $to->month &&
-            $to->day) {
-
-        # 2005-10-14--2005-10-20
-        foreach my $day ($self->day + 1 .. $to->day) {
-          push @terms, $self->term_all(
-            $self->new_to_value_string(
-              $self->year, $self->month, $day
-            )
-          );
-        };
-        return @terms;
-      }
-
-      # get all days to the end of the month
-      else {
-
-        # 2005-10-14--2005-10-20
-        foreach my $day ($self->day + 1 .. 31) {
-          push @terms, $self->term_all(
-            $self->new_to_value_string(
-              $self->year, $self->month, $day
-            )
-          );
-        };
+      # 2005-10-14--2005-10-20
+      foreach my $day ($self->day + 1 .. $to->day) {
+        push @terms, $self->term_all(
+          $self->new_to_value_string(
+            $self->year, $self->month, $day
+          )
+        );
       };
-    };
+      return @terms;
+    }
 
-    # There was a month restriction
-    if ($self->month) {
+    # get all days to the end of the month
+    else {
 
-      # year is identical
-      if ($self->year == $to->year &&
-            $to->month) {
-
-        # 2005-07-14--2005-11-20
-        foreach my $month ($self->month + 1 .. $to->month - 1) {
-          push @terms, $self->term_all(
-            $self->new_to_value_string(
-              $self->year, $month
-            )
-          );
-        };
-
-        # No day defined
-        unless ($to->day) {
-
-          # Store the current month as all
-          push @terms, $self->term_all(
-            $self->new_to_value_string(
-              $to->year, $to->month
-            )
-          );
-          return @terms;
-        };
+      # 2005-10-14--
+      foreach my $day ($self->day + 1 .. 31) {
+        push @terms, $self->term_all(
+          $self->new_to_value_string(
+            $self->year, $self->month, $day
+          )
+        );
       };
     };
   };
 
+  # There was a month restriction
+  if ($self->month) {
+
+    # year is identical
+    if ($self->year == $to->year &&
+          $to->month) {
+
+      # 2005-07-14--2005-11
+      # 2005-07-14--2005-11-20
+      foreach my $month ($self->month + 1 .. $to->month - 1) {
+        push @terms, $self->term_all(
+          $self->new_to_value_string(
+            $self->year, $month
+          )
+        );
+      };
+
+      # 2005-07-14--2005-11-20
+      if ($to->day) {
+        # Store the current month as partial
+        push @terms, $self->term_part(
+          $self->new_to_value_string(
+            $to->year, $to->month
+          )
+        );
+      }
+
+      # No day defined
+      # 2005-07-14--2005-11
+      else {
+        # Store the current month as all
+        push @terms, $self->term_all(
+          $self->new_to_value_string(
+            $to->year, $to->month
+          )
+        );
+        return @terms;
+      };
+    };
+  };
+
+  # The day is in a different month
+  # if ($to->day) {
+  # }
+
+  # Add years inbetween
+  foreach my $year ($self->year + 1 .. $to->year - 1) {
+    push @terms, $self->term_all(
+      $self->new_to_value_string(
+        $year
+      )
+    );
+  };
+
+  if ($to->month) {
+    ...
+  }
+
+  # No month defined
+  # 2005--2006
+  # 2005-07--2006
+  # 2005-07-14--2006
+  else {
+    # Store the current year as all
+    push @terms, $self->term_all(
+      $self->new_to_value_string(
+        $to->year, $to->month
+      )
+    );
+    return @terms;
+  }
+
   return @terms;
 };
+
 
 # Create string query for all ranges
 sub term_all {

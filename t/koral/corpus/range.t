@@ -72,6 +72,14 @@ is($dr_index->add_range(
   5 => '2005-10-27' . RANGE_SEP . '2005-12'
 ), 9);
 
+is($dr_index->add_range(
+  6 => '2005-10-27' . RANGE_SEP . '2006'
+), 8);
+
+#is($dr_index->add_range(
+#  6 => '2005-10-27' . RANGE_SEP . '2005-12-04'
+#), 9);
+
 
 # TODO:
 #   Test '2005-11--2005'
