@@ -19,7 +19,6 @@ is($terms[0]->to_string, 'pubDate=2015-11-14' . RANGE_ALL_POST);
 is($terms[1]->to_string, 'pubDate=2015-11' . RANGE_ALL_POST);
 is($terms[2]->to_string, 'pubDate=2015' . RANGE_ALL_POST);
 
-
 # Month granularity
 $date = $cb->date('pubDate')->intersect('2015-11');
 is($date->to_string, 'pubDate&=2015-11');
@@ -55,11 +54,17 @@ is($terms[5]->to_string, 'pubDate=2017]');
 
 my $dr_index = Test::Krawfish::DateRanges->new;
 
-is($dr_index->add_range(1 => '2005'), 1);
-is($dr_index->add_range(2 => '2005-10'), 2);
-is($dr_index->add_range(3 => '2005-10-14'), 3);
+is($dr_index->add_range(1 => '2005'), 1, 'Add 2005');
+is($dr_index->add_range(2 => '2005-10'), 2, 'Add 2005-10');
+is($dr_index->add_range(3 => '2005-10-14'), 3, 'Add 2005-10-14');
 
 is_deeply($dr_index->query('2005-10-09'), [1,2], 'Check simple range query');
+is_deeply($dr_index->query('2005-10'), [1,2,3], 'Check simple range query');
+is_deeply($dr_index->query('2005-10-14'), [1,2,3], 'Check simple range query');
+is_deeply($dr_index->query('2005'), [1,2,3], 'Check simple range query');
+is_deeply($dr_index->query('2005-11'), [1], 'Check simple range query');
+
+# is($dr_index->add_range(4 => '2005-10-14' . RANGE_SEP . '2005-11-03'), 4);
 
 done_testing;
 __END__

@@ -7,7 +7,7 @@ use Krawfish::Koral::Corpus::DateRange;
 use Role::Tiny::With;
 
 
-with 'Krawfish::Koral::Document::Field::Date';
+with 'Krawfish::Koral::Util::Date';
 with 'Krawfish::Koral::Corpus::Field::Relational';
 with 'Krawfish::Koral::Corpus::Field';
 with 'Krawfish::Koral::Corpus';

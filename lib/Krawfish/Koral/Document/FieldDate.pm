@@ -3,10 +3,10 @@ use warnings;
 use strict;
 use Krawfish::Util::String qw/squote/;
 use Krawfish::Util::Constants qw/:PREFIX :RANGE/;
+use Krawfish::Koral::Document::Field::Date;
 use Role::Tiny::With;
 use Krawfish::Log;
 
-with 'Krawfish::Koral::Document::Field::Date';
 with 'Krawfish::Koral::Document::FieldBase';
 
 use constant DEBUG => 0;
@@ -44,17 +44,26 @@ sub new {
     # The range needs to be single string, so it's possible to
     # have multiple ranges!
     my ($from, $to) = split(RANGE_SEP, $self->{value});
-    $self->{from} = __PACKAGE__->new(key => $self->{key}, value => $from);
-    $self->{to} = __PACKAGE__->new(key => $self->{key}, value => $to);
+    $self->{from}  = Krawfish::Koral::Document::Field::Date->new(
+      key => $self->{key},
+      value => $from
+    );
+    $self->{to}    = Krawfish::Koral::Document::Field::Date->new(
+      key => $self->{key},
+      value => $to
+    );
     $self->{value} = $self->from->value_string . RANGE_SEP . $self->to->value_string;
   }
 
   # It's a single date
   else {
-    # + year, month, day
-    unless ($self->value($self->{value})) {
-      return;
-    };
+
+    $self->{from} = $self->{to} = Krawfish::Koral::Document::Field::Date->new(
+      key => $self->{key},
+      value => $self->{value}
+    );
+
+    $self->{value} = $self->from->value_string;
   };
 
   return $self;
@@ -127,6 +136,7 @@ sub inflate {
 
 
 # Stringification
+#   Identical to date
 sub to_string {
   my ($self, $id) = @_;
 
@@ -136,48 +146,6 @@ sub to_string {
   return squote($self->key) . '=' . $self->value;
 };
 
-
-# Create all terms relevant for the index
-# TODO:
-#   Currently limited to single date strings
-sub to_range_terms {
-  my $self = shift;
-  my @terms;
-
-  # There is a single value in the day
-  if ($self->day) {
-    push @terms, $self->term_all($self->value_string(0));
-    push @terms, $self->term_part($self->value_string(1));
-    push @terms, $self->term_part($self->value_string(2));
-  }
-
-  # There is a single value in the month
-  elsif ($self->month) {
-    push @terms, $self->term_all($self->value_string(1));
-    push @terms, $self->term_part($self->value_string(2));
-  }
-
-  # There is a single value in the year
-  else {
-    push @terms, $self->term_all($self->value_string(2));
-  };
-
-  return @terms;
-};
-
-
-# Create string query for all ranges
-sub term_all {
-  my ($self, $term) = @_;
-  return DATE_FIELD_PREF . $self->{key} . ':' . $term . RANGE_ALL_POST
-};
-
-
-# Create string query for partial ranges
-sub term_part {
-  my ($self, $term) = @_;
-  return DATE_FIELD_PREF . $self->{key} . ':' . $term . RANGE_PART_POST
-};
 
 # In case it's a range
 sub from {
@@ -189,6 +157,16 @@ sub to {
   $_[0]->{to};
 };
 
+
+sub to_range_terms {
+  my $self = shift;
+  if ($self->{from}->value_string eq $self->{to}->value_string) {
+    return $self->{from}->to_range_terms;
+  };
+
+  warn '!!!';
+  return;
+};
 
 
 1;
