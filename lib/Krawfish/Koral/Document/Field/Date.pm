@@ -80,8 +80,8 @@ sub to_range_terms {
     push @terms, $self->term_all($from->value_string(2));
   };
 
+  # There is no target date
   return @terms unless $to;
-
 
   # There is a target date
   # There was a day restriction
@@ -117,36 +117,54 @@ sub to_range_terms {
     };
   };
 
+  # At this point, we have the days summed up for the from-month
+
   # There was a month restriction
   if ($from->month) {
 
     # year is identical
-    if ($from->year == $to->year &&
-          $to->month) {
+    if ($from->year == $to->year) {
 
-      # 2005-07-14--2005-11
-      # 2005-07-14--2005-11-20
-      foreach my $month ($from->month + 1 .. $to->month - 1) {
+      # There is a target month defined
+      if ($to->month) {
+
+        # 2005-07-14--2005-11
+        # 2005-07-14--2005-11-20
+        foreach my $month ($from->month + 1 .. $to->month - 1) {
+          push @terms, $self->term_all(
+            $self->new_to_value_string(
+              $from->year, $month
+            )
+          );
+        };
+
+        # No day defined
+        # 2005-07-14--2005-11
+        unless ($to->day) {
+          # Store the current month as all
+          push @terms, $self->term_all(
+            $self->new_to_value_string(
+              $to->year, $to->month
+            )
+          );
+          return @terms;
+        };
+
+        # 2005-07-14--2005-11-20
+      }
+    }
+
+    # Years are different - so months need to add up
+    else {
+
+      # Add month till the end of year
+      foreach my $month ($from->month + 1 .. 12) {
         push @terms, $self->term_all(
           $self->new_to_value_string(
             $from->year, $month
           )
         );
       };
-
-      # No day defined
-      # 2005-07-14--2005-11
-      unless ($from->day) {
-        # Store the current month as all
-        push @terms, $self->term_all(
-          $self->new_to_value_string(
-            $to->year, $to->month
-          )
-        );
-        return @terms;
-      };
-
-      # 2005-07-14--2005-11-20
     };
   };
 
