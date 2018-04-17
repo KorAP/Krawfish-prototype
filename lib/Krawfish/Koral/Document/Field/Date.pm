@@ -175,7 +175,7 @@ sub to_range_terms {
     )
   );
 
-  # Add all month
+  # Add all months
   foreach my $month (1 .. $to->month - 1) {
     push @terms, $self->term_all(
       $self->new_to_value_string(
@@ -196,7 +196,27 @@ sub to_range_terms {
     return @terms;
   };
 
-  # ...
+  # The target has a day defined
+  # 2005--2006-04-02
+  # 2005-07--2006-04-02
+  # 2005-07-14--2006-04-02
+  # Store the current month as partial
+  push @terms, $self->term_part(
+    $self->new_to_value_string(
+      $to->year, $to->month
+    )
+  );
+
+  # Add all days
+  foreach my $day (1 .. $to->day) {
+    push @terms, $self->term_all(
+      $self->new_to_value_string(
+        $to->year, $to->month, $day
+      )
+    );
+  };
+
+
 
   return @terms;
 };

@@ -81,12 +81,17 @@ is($dr_index->add_range(
 
 # Test day-to-month
 is($dr_index->add_range(
-  6 => '2005-10-27' . RANGE_SEP . '2007-04'
+  7 => '2005-10-27' . RANGE_SEP . '2007-04'
 ), 13);
 
+# Test day-to-day
+is($dr_index->add_range(
+  8 => '2005-10-27' . RANGE_SEP . '2007-04-04'
+), 17);
 
+# Test day-to-day-in-year
 #is($dr_index->add_range(
-#  6 => '2005-10-27' . RANGE_SEP . '2005-12-04'
+#  8 => '2005-10-27' . RANGE_SEP . '2007-04-'
 #), 9);
 
 
