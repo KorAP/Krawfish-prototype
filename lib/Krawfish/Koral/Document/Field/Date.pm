@@ -113,19 +113,9 @@ sub to_range_terms {
         );
       };
 
-      # 2005-07-14--2005-11-20
-      if ($to->day) {
-        # Store the current month as partial
-        push @terms, $self->term_part(
-          $self->new_to_value_string(
-            $to->year, $to->month
-          )
-        );
-      }
-
       # No day defined
       # 2005-07-14--2005-11
-      else {
+      unless ($self->day) {
         # Store the current month as all
         push @terms, $self->term_all(
           $self->new_to_value_string(
@@ -134,12 +124,10 @@ sub to_range_terms {
         );
         return @terms;
       };
+
+      # 2005-07-14--2005-11-20
     };
   };
-
-  # The day is in a different month
-  # if ($to->day) {
-  # }
 
   # Add years inbetween
   foreach my $year ($self->year + 1 .. $to->year - 1) {
@@ -164,24 +152,28 @@ sub to_range_terms {
     return @terms;
   }
 
-  # The target has a month defined
-  # 2005--2006-04
-  # 2005-07--2006-04
-  # 2005-07-14--2006-04
-  # Store the current year as partial
-  push @terms, $self->term_part(
-    $self->new_to_value_string(
-      $to->year
-    )
-  );
+  # Years differ
+  if ($self->year != $to->year) {
 
-  # Add all months
-  foreach my $month (1 .. $to->month - 1) {
-    push @terms, $self->term_all(
+    # The target has a month defined
+    # 2005--2006-04
+    # 2005-07--2006-04
+    # 2005-07-14--2006-04
+    # Store the current year as partial
+    push @terms, $self->term_part(
       $self->new_to_value_string(
-        $to->year, $month
+        $to->year
       )
     );
+
+    # Add all months
+    foreach my $month (1 .. $to->month - 1) {
+      push @terms, $self->term_all(
+        $self->new_to_value_string(
+          $to->year, $month
+        )
+      );
+    };
   };
 
   # No day defined

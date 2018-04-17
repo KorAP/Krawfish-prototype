@@ -64,7 +64,7 @@ is_deeply($dr_index->query('2005-10-14'), [1,2,3], 'Check simple range query');
 is_deeply($dr_index->query('2005'), [1,2,3], 'Check simple range query');
 is_deeply($dr_index->query('2005-11'), [1], 'Check simple range query');
 
-# Test day-in-month
+# Test day-to-day-in-month
 is($dr_index->add_range(
   4 => '2005-10-14' . RANGE_SEP . '2005-10-17'
 ), 6);
@@ -90,9 +90,9 @@ is($dr_index->add_range(
 ), 17);
 
 # Test day-to-day-in-year
-#is($dr_index->add_range(
-#  8 => '2005-10-27' . RANGE_SEP . '2007-04-'
-#), 9);
+is($dr_index->add_range(
+  8 => '2005-10-27' . RANGE_SEP . '2005-11-04'
+), 12);
 
 
 # TODO:
