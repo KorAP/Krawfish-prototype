@@ -32,6 +32,12 @@ sub to_range_terms {
   my $to = shift;
   my @terms;
 
+
+  # TODO:
+  #   Normalize
+  #   2005-09-05--2005-09 -> 2005-09
+  #   2005-09-05--2005 -> 2005
+
   # TODO:
   #   Respect inclusivity
 
@@ -55,6 +61,7 @@ sub to_range_terms {
 
   # There is a target date
   if ($to) {
+
     # There was a day restriction
     if ($self->day) {
 
@@ -72,9 +79,51 @@ sub to_range_terms {
           );
         };
         return @terms;
+      }
+
+      # get all days to the end of the month
+      else {
+
+        # 2005-10-14--2005-10-20
+        foreach my $day ($self->day + 1 .. 31) {
+          push @terms, $self->term_all(
+            $self->new_to_value_string(
+              $self->year, $self->month, $day
+            )
+          );
+        };
       };
     };
 
+    # There was a month restriction
+    if ($self->month) {
+
+      # year is identical
+      if ($self->year == $to->year &&
+            $to->month) {
+
+        # 2005-07-14--2005-11-20
+        foreach my $month ($self->month + 1 .. $to->month - 1) {
+          push @terms, $self->term_all(
+            $self->new_to_value_string(
+              $self->year, $month
+            )
+          );
+        };
+
+        # No day defined
+        unless ($to->day) {
+
+          # Store the current month as all
+          push @terms, $self->term_all(
+            $self->new_to_value_string(
+              $to->year, $to->month
+            )
+          );
+          return @terms;
+        };
+      };
+    };
   };
 
   return @terms;
