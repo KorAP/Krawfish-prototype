@@ -29,8 +29,12 @@ sub new {
 #   Currently limited to single date strings
 sub to_range_terms {
   my $self = shift;
+  my $from = $self;
   my $to = shift;
   my @terms;
+
+  # TODO:
+  #   Respect inclusivity
 
 
   # TODO:
@@ -39,43 +43,60 @@ sub to_range_terms {
   #   2005-09-05--2005 -> 2005
   #   2005-01--2006-12 -> 2005--2006
 
-  # TODO:
-  #   Respect inclusivity
+  # There is a target
+  if ($to) {
+
+    # Check if one range subordinates the other
+    if (my $part_of = $from->is_part_of($to)) {
+
+      # From subordinates to - to is irrelevant
+      if ($part_of == 1) {
+        $to = undef;
+      }
+
+      # To subordinates from - from is irrelevant
+      elsif ($part_of == -1) {
+        $from = $to;
+        $to = undef;
+      };
+    };
+  };
 
   # There is a single value in the day
-  if ($self->day) {
-    push @terms, $self->term_all($self->value_string(0));
-    push @terms, $self->term_part($self->value_string(1));
-    push @terms, $self->term_part($self->value_string(2));
+  if ($from->day) {
+    push @terms, $self->term_all($from->value_string(0));
+    push @terms, $self->term_part($from->value_string(1));
+    push @terms, $self->term_part($from->value_string(2));
   }
 
   # There is a single value in the month
-  elsif ($self->month) {
-    push @terms, $self->term_all($self->value_string(1));
-    push @terms, $self->term_part($self->value_string(2));
+  elsif ($from->month) {
+    push @terms, $self->term_all($from->value_string(1));
+    push @terms, $self->term_part($from->value_string(2));
   }
 
   # There is a single value in the year
   else {
-    push @terms, $self->term_all($self->value_string(2));
+    push @terms, $self->term_all($from->value_string(2));
   };
 
   return @terms unless $to;
 
+
   # There is a target date
   # There was a day restriction
-  if ($self->day) {
+  if ($from->day) {
 
     # year and month are identical
-    if ($self->year == $to->year &&
-          $self->month == $to->month &&
+    if ($from->year == $to->year &&
+          $from->month == $to->month &&
           $to->day) {
 
       # 2005-10-14--2005-10-20
-      foreach my $day ($self->day + 1 .. $to->day) {
+      foreach my $day ($from->day + 1 .. $to->day) {
         push @terms, $self->term_all(
           $self->new_to_value_string(
-            $self->year, $self->month, $day
+            $from->year, $from->month, $day
           )
         );
       };
@@ -86,10 +107,10 @@ sub to_range_terms {
     else {
 
       # 2005-10-14--
-      foreach my $day ($self->day + 1 .. 31) {
+      foreach my $day ($from->day + 1 .. 31) {
         push @terms, $self->term_all(
           $self->new_to_value_string(
-            $self->year, $self->month, $day
+            $from->year, $from->month, $day
           )
         );
       };
@@ -97,25 +118,25 @@ sub to_range_terms {
   };
 
   # There was a month restriction
-  if ($self->month) {
+  if ($from->month) {
 
     # year is identical
-    if ($self->year == $to->year &&
+    if ($from->year == $to->year &&
           $to->month) {
 
       # 2005-07-14--2005-11
       # 2005-07-14--2005-11-20
-      foreach my $month ($self->month + 1 .. $to->month - 1) {
+      foreach my $month ($from->month + 1 .. $to->month - 1) {
         push @terms, $self->term_all(
           $self->new_to_value_string(
-            $self->year, $month
+            $from->year, $month
           )
         );
       };
 
       # No day defined
       # 2005-07-14--2005-11
-      unless ($self->day) {
+      unless ($from->day) {
         # Store the current month as all
         push @terms, $self->term_all(
           $self->new_to_value_string(
@@ -130,7 +151,7 @@ sub to_range_terms {
   };
 
   # Add years inbetween
-  foreach my $year ($self->year + 1 .. $to->year - 1) {
+  foreach my $year ($from->year + 1 .. $to->year - 1) {
     push @terms, $self->term_all(
       $self->new_to_value_string(
         $year
@@ -153,7 +174,7 @@ sub to_range_terms {
   }
 
   # Years differ
-  if ($self->year != $to->year) {
+  if ($from->year != $to->year) {
 
     # The target has a month defined
     # 2005--2006-04
@@ -207,8 +228,6 @@ sub to_range_terms {
       )
     );
   };
-
-
 
   return @terms;
 };

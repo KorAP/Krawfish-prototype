@@ -33,8 +33,11 @@ sub add_range {
     print_log('tk_dranges', ' > ' . $term) if DEBUG;
 
     # Add doc_id to term list
-    $self->{$term} //= [];
-    push @{$self->{$term}}, $doc_id;
+    # Ignore a doc_id of 0!
+    if ($doc_id) {
+      $self->{$term} //= [];
+      push @{$self->{$term}}, $doc_id;
+    };
     $i++;
   };
   return $i;

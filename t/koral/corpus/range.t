@@ -91,12 +91,67 @@ is($dr_index->add_range(
 
 # Test day-to-day-in-year
 is($dr_index->add_range(
-  8 => '2005-10-27' . RANGE_SEP . '2005-11-04'
+  9 => '2005-10-27' . RANGE_SEP . '2005-11-04'
 ), 12);
 
 
-# TODO:
-#   Test '2005-11--2005'
+
+# NORMALIZATION CASES ##
+# Adding ranges with a doc_id of 0: ignore!
+
+# Test day-to-year-in-year
+is($dr_index->add_range(
+  0 => '2005-10-14' . RANGE_SEP . '2005'
+), 1, 'Normalize day-to-year-in-year');
+
+# Test day-to-month-in-month
+is($dr_index->add_range(
+  0 => '2005-10-14' . RANGE_SEP . '2005-10'
+), 2, 'Normalize day-to-month-in-month');
+
+# Test day-to-day-in-day
+is($dr_index->add_range(
+  0 => '2005-10-14' . RANGE_SEP . '2005-10-14'
+), 3, 'Normalize day-to-day-in-day');
+
+# ---
+
+# Test month-to-year-in-year
+is($dr_index->add_range(
+  0 => '2005-10' . RANGE_SEP . '2005'
+), 1, 'Normalize month-to-year-in-year');
+
+# Test month-to-month-in-month
+is($dr_index->add_range(
+  0 => '2005-10' . RANGE_SEP . '2005-10'
+), 2, 'Normalize month-to-month-in-month');
+
+# Test month-to-day-in-month
+is($dr_index->add_range(
+  0 => '2005-10' . RANGE_SEP . '2005-10-14'
+), 2, 'Normalize month-to-day-in-month');
+
+# ---
+
+# Test year-to-year-in-year
+is($dr_index->add_range(
+  0 => '2005' . RANGE_SEP . '2005'
+), 1, 'Normalize year-to-year-in-year');
+
+# Test year-to-month-in-year
+is($dr_index->add_range(
+  0 => '2005' . RANGE_SEP . '2005-10'
+), 1, 'Normalize year-to-month-in-year');
+
+# Test year-to-day-in-year
+is($dr_index->add_range(
+  0 => '2005' . RANGE_SEP . '2005-10-14'
+), 1, 'Normalize year-to-day-in-year');
+
+
+
+
+
 
 done_testing;
 __END__

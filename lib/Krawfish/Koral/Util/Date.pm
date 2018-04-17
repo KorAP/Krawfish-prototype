@@ -75,4 +75,147 @@ sub _zero {
   return $_[0];
 };
 
+# Compare against another field value
+sub value_eq {
+  my ($self, $other) = @_;
+  if ($self->year == $other->year &&
+        $self->month == $other->month &&
+        $self->day == $other->day) {
+    return 1;
+  };
+  return 0;
+};
+
+
+sub value_gt {
+  my ($self, $other) = @_;
+  if ($self->year > $other->year) {
+    return 1;
+  }
+  elsif ($self->year < $other->year) {
+    return 0;
+  }
+  elsif (!$self->month && !$other->month) {
+    return 0; # It's equal
+  }
+  elsif ($self->month && !$other->month) {
+    return 1;
+  }
+  elsif (!$self->month && $other->month) {
+    return 0;
+  }
+  elsif ($self->month > $other->month) {
+    return 1;
+  }
+  elsif ($self->month < $other->month) {
+    return 0;
+  }
+  elsif (!$self->day && !$other->day) {
+    return 0; # It's equal
+  }
+  elsif ($self->day && !$other->day) {
+    return 1;
+  }
+  elsif (!$self->day && $other->day) {
+    return 0;
+  }
+  elsif ($self->day > $other->day) {
+    return 1;
+  };
+  return 0;
+};
+
+
+sub value_lt {
+  my ($self, $other) = @_;
+  if ($self->year < $other->year) {
+    return 1;
+  }
+  elsif ($self->year > $other->year) {
+    return 0;
+  }
+  elsif (!$self->month && !$other->month) {
+    return 0; # It's equal
+  }
+  elsif ($self->month && !$other->month) {
+    return 0;
+  }
+  elsif (!$self->month && $other->month) {
+    return 1;
+  }
+  elsif ($self->month < $other->month) {
+    return 1;
+  }
+  elsif ($self->month > $other->month) {
+    return 0;
+  }
+  elsif (!$self->day && !$other->day) {
+    return 0; # It's equal
+  }
+  elsif ($self->day && !$other->day) {
+    return 0;
+  }
+  elsif (!$self->day && $other->day) {
+    return 1;
+  }
+  elsif ($self->day < $other->day) {
+    return 1;
+  };
+  return 0;
+};
+
+
+# Check if the daterange is completely in another daterange
+# or the other way around
+# return
+#   0:  not a part of
+#   -1: other subordinates self
+#   1:  self subordinates other
+sub is_part_of {
+  my ($self, $other) = @_;
+
+  # No
+  return if $self->year != $other->year;
+
+  # Month not given
+  if (!$self->month) {
+
+    # 2005--2005
+    # 2005--2005-10
+    # 2005--2005-10-14
+    return 1;
+  }
+
+  # No other month
+  elsif (!$other->month) {
+
+    # 2005-10--2005
+    # 2005-10-14--2005
+    return -1;
+  };
+
+  # No
+  return if $self->month != $other->month;
+
+  # Day is not given
+  if (!$self->day) {
+    # 2005-10--2005-10
+    # 2005-10--2005-10-14
+    return 1;
+  }
+
+  # No other day
+  elsif (!$other->day) {
+    # 2005-10-14--2005-10
+    return -1;
+  };
+
+  # No
+  return if $self->day != $other->day;
+
+  # Dates are equal
+  return 1;
+};
+
+
 1;
