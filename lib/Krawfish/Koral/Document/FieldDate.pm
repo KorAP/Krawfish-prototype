@@ -158,13 +158,23 @@ sub to {
 };
 
 
+# Return range terms
+# (for intersections only)
 sub to_range_terms {
   my $self = shift;
+
+  # Range query is a single date range
+  # (may nonetheless be a range, e.g. '2005')
   if ($self->{from}->value_string eq $self->{to}->value_string) {
     return $self->{from}->to_range_terms;
-  };
+  }
 
-  warn '!!!';
+  else {
+    my @terms;
+    return $self->{from}->to_range_terms(
+      $self->{to}
+    );
+  };
   return;
 };
 

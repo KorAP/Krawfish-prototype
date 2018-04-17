@@ -29,6 +29,7 @@ sub new {
 #   Currently limited to single date strings
 sub to_range_terms {
   my $self = shift;
+  my $to = shift;
   my @terms;
 
   # TODO:
@@ -50,6 +51,30 @@ sub to_range_terms {
   # There is a single value in the year
   else {
     push @terms, $self->term_all($self->value_string(2));
+  };
+
+  # There is a target date
+  if ($to) {
+    # There was a day restriction
+    if ($self->day) {
+
+      # year and month are identical
+      if ($self->year == $to->year &&
+            $self->month == $to->month &&
+            $to->day) {
+
+        # 2005-10-14--2005-10-20
+        foreach my $day ($self->day + 1 .. $to->day) {
+          push @terms, $self->term_all(
+            $self->new_to_value_string(
+              $self->year, $self->month, $day
+            )
+          );
+        };
+        return @terms;
+      };
+    };
+
   };
 
   return @terms;
