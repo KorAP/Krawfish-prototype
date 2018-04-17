@@ -37,6 +37,7 @@ sub to_range_terms {
   #   Normalize
   #   2005-09-05--2005-09 -> 2005-09
   #   2005-09-05--2005 -> 2005
+  #   2005-01--2006-12 -> 2005--2006
 
   # TODO:
   #   Respect inclusivity
@@ -149,23 +150,53 @@ sub to_range_terms {
     );
   };
 
-  if ($to->month) {
-    ...
-  }
-
   # No month defined
   # 2005--2006
   # 2005-07--2006
   # 2005-07-14--2006
-  else {
+  unless ($to->month) {
     # Store the current year as all
+    push @terms, $self->term_all(
+      $self->new_to_value_string(
+        $to->year
+      )
+    );
+    return @terms;
+  }
+
+  # The target has a month defined
+  # 2005--2006-04
+  # 2005-07--2006-04
+  # 2005-07-14--2006-04
+  # Store the current year as partial
+  push @terms, $self->term_part(
+    $self->new_to_value_string(
+      $to->year
+    )
+  );
+
+  # Add all month
+  foreach my $month (1 .. $to->month - 1) {
+    push @terms, $self->term_all(
+      $self->new_to_value_string(
+        $to->year, $month
+      )
+    );
+  };
+
+  # No day defined
+  unless ($to->day) {
+
+    # Store the current month as all
     push @terms, $self->term_all(
       $self->new_to_value_string(
         $to->year, $to->month
       )
     );
     return @terms;
-  }
+  };
+
+  # ...
 
   return @terms;
 };

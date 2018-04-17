@@ -64,17 +64,26 @@ is_deeply($dr_index->query('2005-10-14'), [1,2,3], 'Check simple range query');
 is_deeply($dr_index->query('2005'), [1,2,3], 'Check simple range query');
 is_deeply($dr_index->query('2005-11'), [1], 'Check simple range query');
 
+# Test day-in-month
 is($dr_index->add_range(
   4 => '2005-10-14' . RANGE_SEP . '2005-10-17'
 ), 6);
 
+# Test day-to-month-in-year
 is($dr_index->add_range(
   5 => '2005-10-27' . RANGE_SEP . '2005-12'
 ), 9);
 
+# Test day-to-year
 is($dr_index->add_range(
   6 => '2005-10-27' . RANGE_SEP . '2006'
 ), 8);
+
+# Test day-to-month
+is($dr_index->add_range(
+  6 => '2005-10-27' . RANGE_SEP . '2007-04'
+), 13);
+
 
 #is($dr_index->add_range(
 #  6 => '2005-10-27' . RANGE_SEP . '2005-12-04'
