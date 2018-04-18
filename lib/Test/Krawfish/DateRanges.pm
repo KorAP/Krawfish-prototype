@@ -57,6 +57,7 @@ sub query {
       print_log('tk_dranges', 'Query range ' . $first . '--' . $second);
     };
 
+    # Create inclusive daterange
     $query = Krawfish::Koral::Corpus::DateRange->new(
       Krawfish::Koral::Corpus::Field::Date->new('date')->geq($first),
       Krawfish::Koral::Corpus::Field::Date->new('date')->leq($second)

@@ -96,27 +96,101 @@ sub to_sort_string {
 # with the current date
 sub to_term_queries {
   my $self = shift;
+  my $from = $self;
+  my $to = shift;
   my @terms;
+
+  # TODO:
+  #   In case the term query is "strictly within",
+  #   it's good to not include
+  #   the "all"-queries at the start and
+  #   at the end, e.g.
+  #     2017-01-02--2018-04-20
+  #   should not include
+  #     2017], 2017-01]
+  #     2018], 2018-04]
+  #   In fact, these may be added in an andNot()
+  #   relation instead.
+  #   There may already be a normalization rule here,
+  #   for (a|b|c)!&b -> (a|c)&!b
+
+  # Normalize
+  # if ($to) {
+  # }
 
   # Match the whole granularity subtree
   # Either the day, the month or the year
   # e.g. 2015], 2015-11], 2015-11-14]
   if ($self->day) {
+
+    # Get all day
     push @terms, $self->term_all($self->value_string(0));
   }
+
   elsif ($self->month) {
+    # Get something in month
     push @terms, $self->term_part($self->value_string(1));
   };
 
   if ($self->month) {
+
+    # Get all month
     push @terms, $self->term_all($self->value_string(1));
   }
+
+  # Year is set
   else {
+
+    # Get something in year
     push @terms, $self->term_part($self->value_string(2));
   };
 
+  # Get all years
   push @terms, $self->term_all($self->value_string(2));
 
+  return @terms unless $to;
+
+  if ($from->day) {
+    # ...
+  };
+
+  if ($from->month) {
+    # ...
+  };
+
+  # Add years inbetween
+  foreach my $year ($from->year + 1 .. $to->year - 1) {
+    push @terms,
+      $self->term_part(
+        $self->new_to_value_string(
+          $year
+        )
+      ),
+      $self->term_all(
+        $self->new_to_value_string(
+          $year
+        )
+      );
+  };
+
+
+  unless ($to->month) {
+    # Store the current year as all
+    push @terms,
+      $self->term_part(
+        $self->new_to_value_string(
+          $to->year
+        )
+      ),
+      $self->term_all(
+        $self->new_to_value_string(
+          $to->year
+        )
+      );
+    return @terms;
+  };
+
+  # ...
   return @terms;
 };
 

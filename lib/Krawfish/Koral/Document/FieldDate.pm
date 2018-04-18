@@ -169,8 +169,8 @@ sub to_range_terms {
     return $self->{from}->to_range_terms;
   }
 
+  # Get range queries from->to
   else {
-    my @terms;
     return $self->{from}->to_range_terms(
       $self->{to}
     );
