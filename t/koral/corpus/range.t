@@ -7,6 +7,8 @@ use warnings;
 use_ok('Krawfish::Koral::Corpus::Builder');
 use_ok('Test::Krawfish::DateRanges');
 
+my $r = RANGE_SEP;
+
 my $cb = Krawfish::Koral::Corpus::Builder->new;
 
 my $date = $cb->date('pubDate')->intersect('2015-11-14');
@@ -110,126 +112,165 @@ is_deeply($dr_index->query('2005-11'), [1], 'Check simple range query');
 
 # Test day-to-day
 is($dr_index->add_range(
-  0 => '2005-10-27' . RANGE_SEP . '2007-04-04'
+  0 => "2005-10-27${r}2007-04-04"
 ), 19);
 
 # Test day-to-month
 is($dr_index->add_range(
-  0 => '2005-10-27' . RANGE_SEP . '2007-04'
+  0 => "2005-10-27${r}2007-04"
 ), 15);
 
 # Test day-to-year
 is($dr_index->add_range(
-  0 => '2005-10-27' . RANGE_SEP . '2006'
+  0 => "2005-10-27${r}2006"
 ), 10);
 
 # Normalize day-to-day-in-day
 is($dr_index->add_range(
-  0 => '2005-10-14' . RANGE_SEP . '2005-10-14'
+  0 => "2005-10-14${r}2005-10-14"
 ), 3, 'Normalize day-to-day-in-day');
 
 # Test day-to-month-in-year
 is($dr_index->add_range(
-  0 => '2005-10-27' . RANGE_SEP . '2005-12'
+  0 => "2005-10-27${r}2005-12"
 ), 9);
 
 # Test day-to-day-in-year
 is($dr_index->add_range(
-  0 => '2005-10-27' . RANGE_SEP . '2005-11-04'
+  0 => "2005-10-27${r}2005-11-04"
 ), 12);
 
 # Normalize day-to-month-in-month
 is($dr_index->add_range(
-  0 => '2005-10-14' . RANGE_SEP . '2005-10'
+  0 => "2005-10-14${r}2005-10"
 ), 2, 'Normalize day-to-month-in-month');
 
 # Test day-to-month-in-year
 is($dr_index->add_range(
-  0 => '2005-10-27' . RANGE_SEP . '2005-11'
+  0 => "2005-10-27${r}2005-11"
 ), 8, 'Test day-to-month-in-year');
 
 # Normalize day-to-year-in-year
 is($dr_index->add_range(
-  0 => '2005-10-14' . RANGE_SEP . '2005'
+  0 => "2005-10-14${r}2005"
 ), 1, 'Normalize day-to-year-in-year');
 
 # Test month-to-day
 is($dr_index->add_range(
-  0 => '2005-10' . RANGE_SEP . '2006-02-04'
+  0 => "2005-10${r}2006-02-04"
 ), 11, 'Test month-to-day');
 
 # Test month-to-month
 is($dr_index->add_range(
-  0 => '2005-10' . RANGE_SEP . '2006-11'
+  0 => "2005-10${r}2006-11"
 ), 16, 'Test month-to-month');
 
 # Test month-to-year
 is($dr_index->add_range(
-  0 => '2005-10' . RANGE_SEP . '2008'
+  0 => "2005-10${r}2008"
 ), 7, 'Test month-to-year');
 
 # Normalize month-to-day-in-month
 is($dr_index->add_range(
-  0 => '2005-10' . RANGE_SEP . '2005-10-14'
+  0 => "2005-10${r}2005-10-14"
 ), 2, 'Normalize month-to-day-in-month');
 
 # Test month-to-day-in-year
 is($dr_index->add_range(
-  0 => '2005-10' . RANGE_SEP . '2005-11-02'
+  0 => "2005-10${r}2005-11-02"
 ), 5, 'Test month-to-day-in-year');
 
 # Normalize month-to-month-in-month
 is($dr_index->add_range(
-  0 => '2005-10' . RANGE_SEP . '2005-10'
+  0 => "2005-10${r}2005-10"
 ), 2, 'Normalize month-to-month-in-month');
 
 # Test month-to-month-in-year
 is($dr_index->add_range(
-  0 => '2005-10' . RANGE_SEP . '2005-12'
+  0 => "2005-10${r}2005-12"
 ), 4, 'Test month-to-month-in-year');
 
 # Normalize month-to-year-in-year
 is($dr_index->add_range(
-  0 => '2005-10' . RANGE_SEP . '2005'
+  0 => "2005-10${r}2005"
 ), 1, 'Normalize month-to-year-in-year');
 
 # Test year-to-day
 is($dr_index->add_range(
-  0 => '2005' . RANGE_SEP . '2006-02-02'
+  0 => "2005${r}2006-02-02"
 ), 6, 'Test year-to-day');
 
 # Test year-to-month
 is($dr_index->add_range(
-  0 => '2005' . RANGE_SEP . '2006-02'
+  0 => "2005${r}2006-02"
 ), 4, 'Test year-to-day');
 
 # Test year-to-year
 is($dr_index->add_range(
-  0 => '2005' . RANGE_SEP . '2008'
+  0 => "2005${r}2008"
 ), 4, 'Test year-to-year');
 
 # Test year-to-day-in-year
 is($dr_index->add_range(
-  0 => '2005' . RANGE_SEP . '2005-10-14'
+  0 => "2005${r}2005-10-14"
 ), 1, 'Normalize year-to-day-in-year');
 
 # Test year-to-month-in-year
 is($dr_index->add_range(
-  0 => '2005' . RANGE_SEP . '2005-10'
+  0 => "2005${r}2005-10"
 ), 1, 'Normalize year-to-month-in-year');
 
 # Test year-to-year-in-year
 is($dr_index->add_range(
-  0 => '2005' . RANGE_SEP . '2005'
+  0 => "2005${r}2005"
 ), 1, 'Normalize year-to-year-in-year');
 
+
+ok($dr_index->clear, 'Clear index');
+# Queries
+
+
+# Check simple ranges with single date queries
+ok($dr_index->add_range(1 => "2005${r}2007"), 'Add y2y');
+ok($dr_index->add_range(2 => "2005-02${r}2007-10"), 'Add m2m');
+ok($dr_index->add_range(3 => "2005-02-07${r}2007-10-14"), 'Add d2d');
+
+is_deeply($dr_index->query('2005-02-06'), [1,2], 'Query before 3');
+is_deeply($dr_index->query('2005-02-09'), [1,2,3], 'Query in 3a');
+is_deeply($dr_index->query('2006-04-12'), [1,2,3], 'Query in 3b');
+is_deeply($dr_index->query('2007-09-13'), [1,2,3], 'Query in 3c');
+is_deeply($dr_index->query('2007-10-17'), [1,2], 'Query after 3');
+
+is_deeply($dr_index->query('2005-01-04'), [1], 'Query before 2');
+is_deeply($dr_index->query('2005-02-04'), [1,2], 'Query in 2a');
+is_deeply($dr_index->query('2006-02-04'), [1,2,3], 'Query in 2b');
+is_deeply($dr_index->query('2007-10-31'), [1,2], 'Query in 2c');
+is_deeply($dr_index->query('2007-11-01'), [1], 'Query after 2');
+
+is_deeply($dr_index->query('2004-12-31'), [], 'Query before 1');
+is_deeply($dr_index->query('2008-01-01'), [], 'Query after 1');
+
+# 3 overlapping timeranges
+ok($dr_index->add_range(4 => "2001-04-05${r}2002-02-07"), 'Add d2d');
+ok($dr_index->add_range(5 => "2002-01-02${r}2003-10-08"), 'Add d2d');
+ok($dr_index->add_range(6 => "2002-09-31${r}2003-11-05"), 'Add d2d');
+
+is_deeply($dr_index->query('2001-02'), [], 'Query before 4');
+is_deeply($dr_index->query('2001-09'), [4], 'Query in 4');
+is_deeply($dr_index->query('2002-02'), [4,5], 'Query in 4 and 5');
+is_deeply($dr_index->query('2002-05'), [5], 'Query in 5');
+is_deeply($dr_index->query('2002-10'), [5,6], 'Query in 5 and 6');
+is_deeply($dr_index->query('2003-10'), [5,6], 'Query in 5 and 6');
+is_deeply($dr_index->query('2003-11'), [6], 'Query in 6');
+is_deeply($dr_index->query('2003-12'), [], 'Query after 6');
+
+# TODO:
+#   Check daterange queries with the same systematic as before.
 
 # TODO:
 # normalize 2007-01-01--2008-12-31
 # -> 2007-2008
 diag 'Normalize implicite month and year spans';
-
-diag 'Test queries';
 
 done_testing;
 __END__

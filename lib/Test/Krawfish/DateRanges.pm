@@ -15,6 +15,7 @@ sub new {
 
 
 # Add a document with a date range
+# Returns the number of terms to index
 sub add_range {
   my ($self, $doc_id, $range) = @_;
   my $field_date = Krawfish::Koral::Document::FieldDate->new(
@@ -76,6 +77,14 @@ sub query {
   };
 
   return [sort keys %match_docs];
+};
+
+
+# Clear DateRange index
+sub clear {
+  my $self = shift;
+  %{$self} = ();
+  return 1;
 };
 
 1;

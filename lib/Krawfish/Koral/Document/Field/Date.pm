@@ -36,11 +36,8 @@ sub to_range_terms {
   # TODO:
   #   Respect inclusivity
 
-
   # TODO:
   #   Normalize
-  #   2005-09-05--2005-09 -> 2005-09
-  #   2005-09-05--2005 -> 2005
   #   2005-01--2006-12 -> 2005--2006
 
   # There is a target
