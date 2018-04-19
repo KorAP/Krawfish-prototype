@@ -266,6 +266,7 @@ is_deeply($dr->query('2003-10'), [5,6], 'Query in 5 and 6');
 is_deeply($dr->query('2003-11'), [6], 'Query in 6');
 is_deeply($dr->query('2003-12'), [], 'Query after 6');
 
+
 # 1 => "2005${r}2007"
 # 2 => "2005-02${r}2007-10"
 # 3 => "2005-02-07${r}2007-10-14"
@@ -301,8 +302,16 @@ is_deeply($dr->query('2005-02-12', '2005-02-14'), [1,2,3], 'Query d2d-in-month')
 is_deeply($dr->query('2007-10-28', '2007-11-01'), [1,2], 'Query d2d-in-year');
 
 ok($dr->add_range(8 => "2007-11-04"), 'Add day');
-ok($dr->add_range(9 => "2007-11-04"), 'Add day');
+ok($dr->add_range(9 => "2007-12-04"), 'Add day');
+
+# 8 => "2007-11-04"
+# 9 => "2007-12-04"
+
 is_deeply($dr->query('2007-10-28', '2007-12'), [1,2,8,9], 'Query d2m-in-year');
+
+is_deeply($dr->query('2007-11-04', '2007-11-04'), [1,8], 'Normalize d2=d');
+is_deeply($dr->query('2007-11', '2007-11'), [1,8], 'Normalize m2=m');
+is_deeply($dr->query('2007', '2007'), [1,2,3,8,9], 'Normalize y2=y');
 
 # TODO:
 # normalize 2007-01-01--2008-12-31

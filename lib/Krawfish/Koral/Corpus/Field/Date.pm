@@ -115,8 +115,24 @@ sub to_term_queries {
   #   for (a|b|c)!&b -> (a|c)&!b
 
   # Normalize
-  # if ($to) {
-  # }
+  if ($to) {
+
+    if (my $part_of = $from->is_part_of($to)) {
+
+      # From subordinates to - to is irrelevant
+      # 2005-10--2005-10-14
+      if ($part_of == 1) {
+        $to = undef;
+      }
+
+      # To subordinates from - from is irrelevant
+      # 2005-10-01--2005-10
+      elsif ($part_of == -1) {
+        $from = $to;
+        $to = undef;
+      };
+    };
+  };
 
   # Match the whole granularity subtree
   # Either the day, the month or the year
@@ -313,7 +329,6 @@ sub to_term_queries {
     );
   };
 
-  # ...
   return @terms;
 };
 
