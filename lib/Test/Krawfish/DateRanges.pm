@@ -7,7 +7,7 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 sub new {
   bless {}, shift;
@@ -31,7 +31,7 @@ sub add_range {
   my $i = 0;
   foreach my $term ($field_date->to_range_terms) {
 
-    print_log('tk_dranges', ' > ' . $term) if DEBUG;
+    print_log('tk_dranges', ' +> ' . $term) if DEBUG;
 
     # Add doc_id to term list
     # Ignore a doc_id of 0!
@@ -71,7 +71,9 @@ sub query {
   my %match_docs = ();
   foreach my $tq ($query->to_term_queries) {
     my $term = DATE_FIELD_PREF . $tq->to_neutral;
-    print_log('tk_dranges', 'Search for ' . $term) if DEBUG;
+
+    print_log('tk_dranges', ' ?> ' . $term) if DEBUG;
+
     foreach (@{$self->{$term}}) {
       $match_docs{$_} = 1;
     };

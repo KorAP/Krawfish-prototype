@@ -266,10 +266,23 @@ is_deeply($dr->query('2003-10'), [5,6], 'Query in 5 and 6');
 is_deeply($dr->query('2003-11'), [6], 'Query in 6');
 is_deeply($dr->query('2003-12'), [], 'Query after 6');
 
+# 1 => "2005${r}2007"
+# 2 => "2005-02${r}2007-10"
+# 3 => "2005-02-07${r}2007-10-14"
+# 4 => "2001-04-05${r}2002-02-07"
+# 5 => "2002-01-02${r}2003-10-08"
+# 6 => "2002-09-31${r}2003-11-05"
+
 # TODO:
 #   Check daterange queries with the same systematic as before.
-# is_deeply($dr->query('2001-02-03', '2001-04-16'), [4], 'Query d2d');
+is_deeply($dr->query('2001', '2001'), [4], 'Query y2y');
+is_deeply($dr->query('2001', '2002'), [4,5,6], 'Query y2y');
+is_deeply($dr->query('2002', '2003'), [4,5,6], 'Query y2y');
+is_deeply($dr->query('2003', '2005'), [1,2,3,5,6], 'Query y2y');
 
+is_deeply($dr->query('2001-02', '2005-02'), [1,2,3,4,5,6], 'Query m2m');
+is_deeply($dr->query('2003-11', '2005-02'), [1,2,3,6], 'Query m2m');
+is_deeply($dr->query('2003-11', '2005-01'), [1,6], 'Query m2m');
 
 # TODO:
 # normalize 2007-01-01--2008-12-31

@@ -25,6 +25,8 @@ sub type {
   'dateRange'
 };
 
+
+# Constructor
 sub new {
   my $class = shift;
 
@@ -43,6 +45,7 @@ sub new {
     second => $second,
   }, $class;
 };
+
 
 # Turn the date range query into an or-query
 sub normalize {

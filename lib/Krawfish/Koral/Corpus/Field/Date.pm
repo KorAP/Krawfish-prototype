@@ -154,19 +154,32 @@ sub to_term_queries {
     # ...
   };
 
+
+  # There was a month
   if ($from->month) {
-    # ...
+
+    if ($from->year == $to->year) {
+      # ...
+    }
+
+    # Years are different - so months need to add up
+    else {
+
+      # Get anything in the manths till the end
+      foreach my $month ($from->month + 1 .. 12) {
+        push @terms, $self->term_all_or_part(
+          $self->new_to_value_string(
+            $from->year, $month
+          )
+        );
+      };
+    }
   };
 
-  # Add years inbetween
+  # Get anything in the years inbetween
   foreach my $year ($from->year + 1 .. $to->year - 1) {
     push @terms,
-      $self->term_part(
-        $self->new_to_value_string(
-          $year
-        )
-      ),
-      $self->term_all(
+      $self->term_all_or_part(
         $self->new_to_value_string(
           $year
         )
@@ -174,19 +187,50 @@ sub to_term_queries {
   };
 
 
+  # Ends with a whole year
   unless ($to->month) {
-    # Store the current year as all
+
+    # Get anything in the current year
     push @terms,
-      $self->term_part(
-        $self->new_to_value_string(
-          $to->year
-        )
-      ),
-      $self->term_all(
+      $self->term_all_or_part(
         $self->new_to_value_string(
           $to->year
         )
       );
+    return @terms;
+  };
+
+
+  # Years differ
+  if ($from->year != $to->year) {
+
+    # Target has a month defined
+    # Get all spanning years
+    push @terms, $self->term_all(
+      $self->new_to_value_string(
+        $to->year
+      )
+    );
+
+    # Get anything in the months between
+    foreach my $month (1 .. $to->month - 1) {
+      push @terms, $self->term_all_or_part(
+        $self->new_to_value_string(
+          $to->year, $month
+        )
+      );
+    };
+  };
+
+  # No day defined
+  unless ($to->day) {
+
+    # Get all spanning month
+    push @terms, $self->term_all_or_part(
+      $self->new_to_value_string(
+        $to->year, $to->month
+      )
+    );
     return @terms;
   };
 
@@ -212,6 +256,18 @@ sub term_part {
   );
 };
 
+
+sub term_all_or_part {
+  my ($self, $term) = @_;
+  return (
+    $self->builder->string($self->key)->eq(
+      $term . RANGE_ALL_POST
+    ),
+    $self->builder->string($self->key)->eq(
+      $term . RANGE_PART_POST
+    )
+  );
+};
 
 # Spawn an intersecting date range query
 # TODO:
