@@ -6,7 +6,7 @@ use Krawfish::Log;
 use warnings;
 use strict;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 
 # TODO:

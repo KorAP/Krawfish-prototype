@@ -1,11 +1,11 @@
-package Krawfish::Koral::Document::FieldString;
+package Krawfish::Koral::Document::Field::String;
 use warnings;
 use strict;
 use Krawfish::Util::String qw/squote/;
 use Krawfish::Util::Constants ':PREFIX';
 use Role::Tiny::With;
 
-with 'Krawfish::Koral::Document::FieldBase';
+with 'Krawfish::Koral::Document::Field';
 
 # Class for string fields
 

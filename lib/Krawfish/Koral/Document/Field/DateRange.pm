@@ -1,4 +1,4 @@
-package Krawfish::Koral::Document::FieldDate;
+package Krawfish::Koral::Document::Field::DateRange;
 use warnings;
 use strict;
 use Krawfish::Util::String qw/squote/;
@@ -7,7 +7,7 @@ use Krawfish::Koral::Document::Field::Date;
 use Role::Tiny::With;
 use Krawfish::Log;
 
-with 'Krawfish::Koral::Document::FieldBase';
+with 'Krawfish::Koral::Document::Field';
 
 use constant DEBUG => 0;
 
@@ -147,12 +147,13 @@ sub to_string {
 };
 
 
-# In case it's a range
+# Get from-date
 sub from {
   $_[0]->{from};
 };
 
 
+# Get to-date
 sub to {
   $_[0]->{to};
 };

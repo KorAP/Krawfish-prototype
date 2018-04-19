@@ -1,4 +1,4 @@
-package Krawfish::Koral::Document::FieldBase;
+package Krawfish::Koral::Document::Field;
 use Krawfish::Log;
 use Role::Tiny;
 use warnings;

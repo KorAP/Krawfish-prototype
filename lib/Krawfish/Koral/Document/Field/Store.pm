@@ -1,4 +1,4 @@
-package Krawfish::Koral::Document::FieldStore;
+package Krawfish::Koral::Document::Field::Store;
 use warnings;
 use strict;
 use Krawfish::Util::String qw/squote/;
@@ -11,7 +11,7 @@ use Role::Tiny::With;
 # TODO:
 #   use enc_string and dec_string!
 
-with 'Krawfish::Koral::Document::FieldBase';
+with 'Krawfish::Koral::Document::Field';
 
 
 sub type {

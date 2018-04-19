@@ -1,5 +1,5 @@
 package Test::Krawfish::DateRanges;
-use Krawfish::Koral::Document::FieldDate;
+use Krawfish::Koral::Document::Field::DateRange;
 use Krawfish::Koral::Corpus::Field::Date;
 use Krawfish::Koral::Corpus::DateRange;
 use Krawfish::Util::Constants qw/DATE_FIELD_PREF/;
@@ -18,7 +18,7 @@ sub new {
 # Returns the number of terms to index
 sub add_range {
   my ($self, $doc_id, $range) = @_;
-  my $field_date = Krawfish::Koral::Document::FieldDate->new(
+  my $field_date = Krawfish::Koral::Document::Field::DateRange->new(
     key => 'date',
     value => $range
   );

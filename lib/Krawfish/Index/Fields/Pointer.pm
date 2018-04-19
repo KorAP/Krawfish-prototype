@@ -1,13 +1,17 @@
 package Krawfish::Index::Fields::Pointer;
-use Krawfish::Koral::Document::FieldInt;
-use Krawfish::Koral::Document::FieldStore;
-use Krawfish::Koral::Document::FieldString;
+use Krawfish::Koral::Document::Field::Integer;
+use Krawfish::Koral::Document::Field::Store;
+use Krawfish::Koral::Document::Field::String;
+use Krawfish::Koral::Document::Field::DateRange;
 use Krawfish::Util::Constants qw/NOMOREDOCS/;
 use Krawfish::Log;
 use warnings;
 use strict;
 
 use constant DEBUG => 0;
+
+# TODO:
+#   Deal with DateRanges!
 
 # API:
 # ->next_doc
@@ -137,7 +141,7 @@ sub int_fields {
         if (DEBUG) {
           print_log('f_point', "Found value for " . $key_ids[$key_pos] . ' at ' . $key_pos);
         };
-        push @values, Krawfish::Koral::Document::FieldInt->new(
+        push @values, Krawfish::Koral::Document::Field::Integer->new(
           key_id => $key_id,
           value => $doc->[$self->{pos}++]
         );
@@ -267,7 +271,7 @@ sub _get_by_type {
 
   # Read integer
   if ($type eq 'integer') {
-    return Krawfish::Koral::Document::FieldInt->new(
+    return Krawfish::Koral::Document::Field::Integer->new(
       key_id => $key_id,
       key_value_id => $doc->[$self->{pos}++],
       value => $doc->[$self->{pos}++]
@@ -276,7 +280,7 @@ sub _get_by_type {
 
   # read string
   elsif ($type eq 'string') {
-    return Krawfish::Koral::Document::FieldString->new(
+    return Krawfish::Koral::Document::Field::String->new(
       key_id => $key_id,
       key_value_id => $doc->[$self->{pos}++]
     );
@@ -284,10 +288,19 @@ sub _get_by_type {
 
   # read store
   elsif ($type eq 'store') {
-    return Krawfish::Koral::Document::FieldStore->new(
+    return Krawfish::Koral::Document::Field::Store->new(
       key_id => $key_id,
       value => $doc->[$self->{pos}++]
     );
+  }
+
+  # Read date
+  elsif ($type eq 'date') {
+    return Krawfish::Koral::Document::Field::DateRange->new(
+      key_id => $key_id,
+      key_value_id => $doc->[$self->{pos}++]
+    );
+
   };
 };
 

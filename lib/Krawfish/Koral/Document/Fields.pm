@@ -1,8 +1,8 @@
 package Krawfish::Koral::Document::Fields;
-use Krawfish::Koral::Document::FieldString;
-use Krawfish::Koral::Document::FieldInt;
-use Krawfish::Koral::Document::FieldStore;
-use Krawfish::Koral::Document::FieldDate;
+use Krawfish::Koral::Document::Field::String;
+use Krawfish::Koral::Document::Field::Integer;
+use Krawfish::Koral::Document::Field::Store;
+use Krawfish::Koral::Document::Field::DateRange;
 use warnings;
 use strict;
 
@@ -23,7 +23,7 @@ sub add_string {
 
   # This may be an integer value
   push @{$self->operands},
-    Krawfish::Koral::Document::FieldString->new(
+    Krawfish::Koral::Document::Field::String->new(
       key => $key,
       value => $value
     );
@@ -36,7 +36,7 @@ sub add_int {
 
   # This may be an integer value
   push @{$self->operands},
-    Krawfish::Koral::Document::FieldInt->new(
+    Krawfish::Koral::Document::Field::Integer->new(
       key => $key,
       value => $value
     );
@@ -49,7 +49,7 @@ sub add_store {
 
   # This may be an integer value
   push @{$self->operands},
-    Krawfish::Koral::Document::FieldStore->new(
+    Krawfish::Koral::Document::Field::Store->new(
       key => $key,
       value => $value
     );
@@ -61,21 +61,11 @@ sub add_date {
   my ($key, $from, $to) = @_;
 
   # This may be an integer value
-  unless ($to) {
-    push @{$self->operands},
-      Krawfish::Koral::Document::FieldDate->new(
-        key => $key,
-        value => $from
-      );
-  }
-  else {
-    push @{$self->operands},
-      Krawfish::Koral::Document::FieldDate->new(
-        key => $key,
-        from => $from,
-        to => $to
-      );
-  }
+  push @{$self->operands},
+    Krawfish::Koral::Document::Field::DateRange->new(
+      key => $key,
+      value => $from
+    );
 };
 
 

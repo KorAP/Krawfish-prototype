@@ -1,4 +1,4 @@
-package Krawfish::Koral::Document::FieldInt;
+package Krawfish::Koral::Document::Field::Integer;
 use warnings;
 use strict;
 use Krawfish::Util::String qw/squote/;
@@ -6,7 +6,7 @@ use Krawfish::Util::Constants qw/:PREFIX/;
 use Krawfish::Log;
 use Role::Tiny::With;
 
-with 'Krawfish::Koral::Document::FieldBase';
+with 'Krawfish::Koral::Document::Field';
 
 use constant DEBUG => 0;
 
