@@ -150,8 +150,31 @@ sub to_term_queries {
 
   return @terms unless $to;
 
+  # There is a target date
   if ($from->day) {
-    # ...
+
+    # year and month are identical
+    if ($from->year == $to->year &&
+          $from->month == $to->month &&
+          $to->day) {
+      # ...
+    }
+
+    # Get all days to the end of the month
+    else {
+
+      # Retrieve all days till the end of the month
+      foreach my $day ($from->day + 1 .. 31) {
+
+        # TODO:
+        #   Get all_or_part() in case dates support time
+        push @terms, $self->term_all(
+          $self->new_to_value_string(
+            $from->year, $from->month, $day
+          )
+        );
+      };
+    };
   };
 
 
@@ -232,6 +255,25 @@ sub to_term_queries {
       )
     );
     return @terms;
+  };
+
+  # The target has a day defined
+  # Accept the whole month
+  push @terms, $self->term_all(
+    $self->new_to_value_string(
+      $to->year, $to->month
+    )
+  );
+
+  # Add all days
+  foreach my $day (1 .. $to->day) {
+    # TODO:
+    #   Get all_or_part() in case dates support time
+    push @terms, $self->term_all(
+      $self->new_to_value_string(
+        $to->year, $to->month, $day
+      )
+    );
   };
 
   # ...

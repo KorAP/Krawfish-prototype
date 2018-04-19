@@ -100,7 +100,7 @@ sub to_range_terms {
       return @terms;
     }
 
-    # get all days to the end of the month
+    # Store all days to the end of the month
     else {
 
       # 2005-10-14--
