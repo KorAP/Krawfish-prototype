@@ -157,7 +157,16 @@ sub to_term_queries {
     if ($from->year == $to->year &&
           $from->month == $to->month &&
           $to->day) {
-      # ...
+
+      # 2005-10-14--2005-10-20
+      foreach my $day ($from->day + 1 .. $to->day) {
+        push @terms, $self->term_all(
+          $self->new_to_value_string(
+            $from->year, $from->month, $day
+          )
+        );
+      };
+      return @terms;
     }
 
     # Get all days to the end of the month
@@ -181,8 +190,36 @@ sub to_term_queries {
   # There was a month
   if ($from->month) {
 
+    # year is identical
     if ($from->year == $to->year) {
-      # ...
+
+      # There is a target month defined
+      if ($to->month) {
+
+        # 2005-07-14--2005-11
+        # 2005-07-14--2005-11-20
+      #  foreach my $month ($from->month + 1 .. $to->month - 1) {
+      #    push @terms, $self->term_all(
+      #      $self->new_to_value_string(
+      #        $from->year, $month
+      #      )
+      #    );
+      #  };
+
+        # No day defined
+        # 2005-07-14--2005-11
+#        unless ($to->day) {
+#          # Store the current month as all
+#          push @terms, $self->term_all(
+#            $self->new_to_value_string(
+#              $to->year, $to->month
+#            )
+#          );
+#          return @terms;
+#        };
+
+        # 2005-07-14--2005-11-20
+      }
     }
 
     # Years are different - so months need to add up
