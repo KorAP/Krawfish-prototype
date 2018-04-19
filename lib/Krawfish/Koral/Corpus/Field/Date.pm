@@ -198,25 +198,25 @@ sub to_term_queries {
 
         # 2005-07-14--2005-11
         # 2005-07-14--2005-11-20
-      #  foreach my $month ($from->month + 1 .. $to->month - 1) {
-      #    push @terms, $self->term_all(
-      #      $self->new_to_value_string(
-      #        $from->year, $month
-      #      )
-      #    );
-      #  };
+        foreach my $month ($from->month + 1 .. $to->month - 1) {
+          push @terms, $self->term_all_or_part(
+            $self->new_to_value_string(
+              $from->year, $month
+            )
+          );
+        };
 
         # No day defined
         # 2005-07-14--2005-11
-#        unless ($to->day) {
-#          # Store the current month as all
-#          push @terms, $self->term_all(
-#            $self->new_to_value_string(
-#              $to->year, $to->month
-#            )
-#          );
-#          return @terms;
-#        };
+        unless ($to->day) {
+          # Get the current month as part
+          push @terms, $self->term_all_or_part(
+            $self->new_to_value_string(
+              $to->year, $to->month
+            )
+          );
+          return @terms;
+        };
 
         # 2005-07-14--2005-11-20
       }

@@ -297,7 +297,12 @@ ok($dr->add_range(7 => "2005-02-10"), 'Add day');
 
 is_deeply($dr->query('2005-02-08', '2005-02-11'), [1,2,3,7], 'Query d2d-in-month');
 is_deeply($dr->query('2005-02-12', '2005-02-14'), [1,2,3], 'Query d2d-in-month');
-is_deeply($dr->query('2007-10-28', '2007-11-01'), [1,2], 'Query d2d-in-month');
+
+is_deeply($dr->query('2007-10-28', '2007-11-01'), [1,2], 'Query d2d-in-year');
+
+ok($dr->add_range(8 => "2007-11-04"), 'Add day');
+ok($dr->add_range(9 => "2007-11-04"), 'Add day');
+is_deeply($dr->query('2007-10-28', '2007-12'), [1,2,8,9], 'Query d2m-in-year');
 
 # TODO:
 # normalize 2007-01-01--2008-12-31
