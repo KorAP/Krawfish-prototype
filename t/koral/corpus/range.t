@@ -266,6 +266,9 @@ is_deeply($dr->query('2003-10'), [5,6], 'Query in 5 and 6');
 is_deeply($dr->query('2003-11'), [6], 'Query in 6');
 is_deeply($dr->query('2003-12'), [], 'Query after 6');
 
+ok($dr->add_range(7 => "2005-02-10"), 'Add day');
+ok($dr->add_range(8 => "2007-11-04"), 'Add day');
+ok($dr->add_range(9 => "2007-12-04"), 'Add day');
 
 # 1 => "2005${r}2007"
 # 2 => "2005-02${r}2007-10"
@@ -273,45 +276,73 @@ is_deeply($dr->query('2003-12'), [], 'Query after 6');
 # 4 => "2001-04-05${r}2002-02-07"
 # 5 => "2002-01-02${r}2003-10-08"
 # 6 => "2002-09-31${r}2003-11-05"
-
-# TODO:
-#   Check daterange queries with the same systematic as before.
-is_deeply($dr->query('2001', '2001'), [4], 'Query y2y-in-year');
-
-is_deeply($dr->query('2001', '2002'), [4,5,6], 'Query y2y');
-is_deeply($dr->query('2002', '2003'), [4,5,6], 'Query y2y');
-is_deeply($dr->query('2003', '2005'), [1,2,3,5,6], 'Query y2y');
-
-is_deeply($dr->query('2001-02', '2005-02'), [1,2,3,4,5,6], 'Query m2m');
-is_deeply($dr->query('2003-11', '2005-02'), [1,2,3,6], 'Query m2m');
-is_deeply($dr->query('2003-11', '2005-01'), [1,6], 'Query m2m');
-
-is_deeply($dr->query('2002-02-09', '2002-11-03'), [5,6], 'Query d2d');
-is_deeply($dr->query('2005-02-02', '2006-01-02'), [1,2,3], 'Query d2d');
-is_deeply($dr->query('2007-10-18', '2008-12-03'), [1,2], 'Query d2d');
-is_deeply($dr->query('2007-11-02', '2008-12-03'), [1], 'Query d2d');
-
-is_deeply($dr->query('2007-10-02', '2007-10-05'), [1,2,3], 'Query d2d-in-month');
-is_deeply($dr->query('2007-09-02', '2007-09-05'), [1,2,3], 'Query d2d-in-month');
-
-ok($dr->add_range(7 => "2005-02-10"), 'Add day');
-
-is_deeply($dr->query('2005-02-08', '2005-02-11'), [1,2,3,7], 'Query d2d-in-month');
-is_deeply($dr->query('2005-02-12', '2005-02-14'), [1,2,3], 'Query d2d-in-month');
-
-is_deeply($dr->query('2007-10-28', '2007-11-01'), [1,2], 'Query d2d-in-year');
-
-ok($dr->add_range(8 => "2007-11-04"), 'Add day');
-ok($dr->add_range(9 => "2007-12-04"), 'Add day');
-
+# 7 => "2005-02-10"
 # 8 => "2007-11-04"
 # 9 => "2007-12-04"
 
+# TODO:
+#   Check daterange queries with the same systematic as before.
+
+is_deeply($dr->query('2005-02-02', '2006-01-02'), [1,2,3,7], 'Query d2d');
+is_deeply($dr->query('2007-10-18', '2008-12-03'), [1,2,8,9], 'Query d2d');
+is_deeply($dr->query('2007-11-02', '2008-12-03'), [1,8,9], 'Query d2d');
+
+is_deeply($dr->query('2002-02-09', '2003-11'), [5,6], 'Query d2m');
+
+is_deeply($dr->query('2002-02-06', '2003'), [4,5,6], 'Query d2y');
+is_deeply($dr->query('2002-02-09', '2003'), [5,6], 'Query d2y');
+
+is_deeply($dr->query('2007-11-04', '2007-11-04'), [1,8], 'Normalize d2d-in-day');
+
+is_deeply($dr->query('2007-10-02', '2007-10-05'), [1,2,3], 'Query d2d-in-month');
+is_deeply($dr->query('2007-09-02', '2007-09-05'), [1,2,3], 'Query d2d-in-month');
+is_deeply($dr->query('2005-02-12', '2005-02-14'), [1,2,3], 'Query d2d-in-month');
+is_deeply($dr->query('2005-02-08', '2005-02-11'), [1,2,3,7], 'Query d2d-in-month');
+
+is_deeply($dr->query('2002-02-09', '2002-11-03'), [5,6], 'Query d2d-in-year');
+is_deeply($dr->query('2007-10-28', '2007-11-01'), [1,2], 'Query d2d-in-year');
+
+is_deeply($dr->query('2007-11-28', '2007-11'), [1,8], 'Normalize d2m-in-month');
+
 is_deeply($dr->query('2007-10-28', '2007-12'), [1,2,8,9], 'Query d2m-in-year');
 
-is_deeply($dr->query('2007-11-04', '2007-11-04'), [1,8], 'Normalize d2=d');
-is_deeply($dr->query('2007-11', '2007-11'), [1,8], 'Normalize m2=m');
-is_deeply($dr->query('2007', '2007'), [1,2,3,8,9], 'Normalize y2=y');
+is_deeply($dr->query('2007-10-28', '2007'), [1,2,3,8,9], 'Normalize d2m-in-year');
+
+is_deeply($dr->query('2002-03', '2003-01-12'), [5,6], 'Query m2d');
+
+is_deeply($dr->query('2001-02', '2005-02'), [1,2,3,4,5,6,7], 'Query m2m');
+is_deeply($dr->query('2003-11', '2005-02'), [1,2,3,6,7], 'Query m2m');
+is_deeply($dr->query('2003-11', '2005-01'), [1,6], 'Query m2m');
+
+is_deeply($dr->query('2003-11', '2005'), [1,2,3,6,7], 'Query m2y');
+
+is_deeply($dr->query('2003-03', '2003-03-28'), [5,6], 'Normalize m2d-in-month');
+
+is_deeply($dr->query('2003-03', '2003-04-28'), [5,6], 'Query m2d');
+
+is_deeply($dr->query('2007-11', '2007-11'), [1,8], 'Normalize m2m-in-month');
+
+is_deeply($dr->query('2007-10', '2007-12'), [1,2,3,8,9], 'Query m2m-in-year');
+
+is_deeply($dr->query('2002-11', '2002'), [4,5,6], 'Normalize m2y-in-year');
+
+is_deeply($dr->query('2002', '2003-10-10'), [4,5,6], 'Query y2d');
+
+is_deeply($dr->query('2002', '2003-10'), [4,5,6], 'Query y2m');
+
+is_deeply($dr->query('2001', '2002'), [4,5,6], 'Query y2y');
+is_deeply($dr->query('2002', '2003'), [4,5,6], 'Query y2y');
+is_deeply($dr->query('2003', '2005'), [1,2,3,5,6,7], 'Query y2y');
+
+is_deeply($dr->query('2007', '2007-10-28'), [1,2,3,8,9], 'Normalize y2d-in-year');
+is_deeply($dr->query('2002', '2002-11-30'), [4,5,6], 'Normalize y2d-in-year');
+
+is_deeply($dr->query('2007', '2007-11'), [1,2,3,8,9], 'Normalize y2m-in-year');
+
+is_deeply($dr->query('2007', '2007'), [1,2,3,8,9], 'Normalize y2y-in-year');
+is_deeply($dr->query('2001', '2001'), [4], 'Normalize y2y-in-year');
+
+
 
 # TODO:
 # normalize 2007-01-01--2008-12-31

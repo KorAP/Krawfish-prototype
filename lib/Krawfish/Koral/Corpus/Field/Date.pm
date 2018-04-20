@@ -27,7 +27,7 @@ with 'Krawfish::Koral::Corpus';
 #   Convert the strings to RFC3339, as this is a sortable
 #   date format.
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # TODO:
 #   A date should probably have a different prefix
@@ -119,6 +119,8 @@ sub to_term_queries {
 
     if (my $part_of = $from->is_part_of($to)) {
 
+      print_log('kq_date', "Normalize daterange with part of=$part_of") if DEBUG;
+
       # From subordinates to - to is irrelevant
       # 2005-10--2005-10-14
       if ($part_of == 1) {
@@ -137,32 +139,32 @@ sub to_term_queries {
   # Match the whole granularity subtree
   # Either the day, the month or the year
   # e.g. 2015], 2015-11], 2015-11-14]
-  if ($self->day) {
+  if ($from->day) {
 
     # Get all day
-    push @terms, $self->term_all($self->value_string(0));
+    push @terms, $self->term_all($from->value_string(0));
   }
 
-  elsif ($self->month) {
+  elsif ($from->month) {
     # Get something in month
-    push @terms, $self->term_part($self->value_string(1));
+    push @terms, $self->term_part($from->value_string(1));
   };
 
-  if ($self->month) {
+  if ($from->month) {
 
     # Get all month
-    push @terms, $self->term_all($self->value_string(1));
+    push @terms, $self->term_all($from->value_string(1));
   }
 
   # Year is set
   else {
 
     # Get something in year
-    push @terms, $self->term_part($self->value_string(2));
+    push @terms, $self->term_part($from->value_string(2));
   };
 
   # Get all years
-  push @terms, $self->term_all($self->value_string(2));
+  push @terms, $self->term_all($from->value_string(2));
 
   return @terms unless $to;
 
