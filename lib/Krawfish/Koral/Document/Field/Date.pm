@@ -36,12 +36,14 @@ sub to_range_terms {
   # TODO:
   #   Respect inclusivity
 
-  # TODO:
-  #   Normalize
-  #   2005-01--2006-12 -> 2005--2006
-
   # There is a target
   if ($to) {
+
+    if ($from->value_gt($to)) {
+      my $temp = $from;
+      $from = $to;
+      $to = $temp;
+    };
 
     # Normalize calendaric information
     $from->normalize_range_calendaric(

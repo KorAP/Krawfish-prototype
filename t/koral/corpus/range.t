@@ -443,6 +443,10 @@ is($dr->add_range(
 $date = $cb->date('pubDate')->intersect('2015-11','2005-02-31');
 is($date->to_string, 'pubDate&=[[2005-02-31--2015-11]]');
 
+is($dr->add_range(
+  0 => "2005-12-31${r}2005-02-28" # 2005-02-28--2005-12
+), 16, 'Test month-to-year with reverted data');
+
 
 diag 'Order ranges';
 

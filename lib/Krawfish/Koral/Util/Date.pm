@@ -3,19 +3,26 @@ use Role::Tiny;
 use strict;
 use warnings;
 
+
+# Get year value
 sub year {
   $_[0]->{year};
 };
 
+
+# Get month value
 sub month {
   $_[0]->{month} // 0;
 };
 
+
+# Get day value
 sub day {
   $_[0]->{day} // 0;
 };
 
 
+# Get or set date value
 sub value {
   my $self = shift;
   if (@_) {
@@ -53,6 +60,7 @@ sub value_string {
 };
 
 
+# Stringification of year, month, day
 sub new_to_value_string {
   my ($self, $year, $month, $day) = @_;
   my $str = '';
@@ -64,7 +72,7 @@ sub new_to_value_string {
     };
   };
   return $str;
-}
+};
 
 
 # This is duplicate in DateRange
@@ -74,6 +82,7 @@ sub _zero {
   };
   return $_[0];
 };
+
 
 # Compare against another field value
 sub value_eq {
@@ -87,6 +96,7 @@ sub value_eq {
 };
 
 
+# Compare against another field value
 sub value_gt {
   my ($self, $other) = @_;
   if ($self->year > $other->year) {
@@ -126,6 +136,7 @@ sub value_gt {
 };
 
 
+# Compare against another field value
 sub value_lt {
   my ($self, $other) = @_;
   if ($self->year < $other->year) {
