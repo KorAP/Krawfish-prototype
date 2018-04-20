@@ -114,27 +114,7 @@ sub to_term_queries {
   #   There may already be a normalization rule here,
   #   for (a|b|c)!&b -> (a|c)&!b
 
-  # Normalize
-  if ($to) {
 
-    if (my $part_of = $from->is_part_of($to)) {
-
-      print_log('kq_date', "Normalize daterange with part of=$part_of") if DEBUG;
-
-      # From subordinates to - to is irrelevant
-      # 2005-10--2005-10-14
-      if ($part_of == 1) {
-        $to = undef;
-      }
-
-      # To subordinates from - from is irrelevant
-      # 2005-10-01--2005-10
-      elsif ($part_of == -1) {
-        $from = $to;
-        $to = undef;
-      };
-    };
-  };
 
   # Match the whole granularity subtree
   # Either the day, the month or the year
@@ -341,6 +321,17 @@ sub term_all {
   return $self->builder->string($self->key)->eq(
     $term . RANGE_ALL_POST
   );
+};
+
+
+# Only for testing:
+# Serialization of all range terms
+sub to_range_term_string {
+  my $self = shift;
+  my @terms = sort {
+    $a->to_sort_string cmp $b->to_sort_string
+  } $self->to_term_queries;
+  return join(',', map { $_->to_string } @terms);
 };
 
 

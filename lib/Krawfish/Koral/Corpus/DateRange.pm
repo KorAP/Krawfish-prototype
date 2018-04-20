@@ -1,7 +1,10 @@
 package Krawfish::Koral::Corpus::DateRange;
 use Role::Tiny::With;
+use Krawfish::Log;
 use strict;
 use warnings;
+
+use constant DEBUG => 1;
 
 with 'Krawfish::Koral::Corpus';
 
@@ -52,9 +55,46 @@ sub normalize {
   my $self = shift;
 
   my @terms;
-  if ($self->{first}) {
-    push @terms, $self->{first}->to_term_queries;
+
+  my ($from, $to) = ($self->{first}, $self->{second});
+
+  if ($to) {
+    $from->normalize_range_calendaric(
+      $to
+    );
+
+    if (my $part_of = $from->is_part_of($to)) {
+
+      if (DEBUG) {
+        print_log(
+          'kq_daterange',
+          "Normalize daterange with part of=$part_of"
+        );
+      };
+
+      # From subordinates to - to is irrelevant
+      # 2005-10--2005-10-14
+      if ($part_of == 1) {
+        return $from->match('eq')->normalize;
+      }
+
+      # To subordinates from - from is irrelevant
+      # 2005-10-01--2005-10
+      elsif ($part_of == -1) {
+        # $from = $to;
+        # $to = undef;
+        return $to->match('eq')->normalize;
+      };
+    };
   };
+
+  $self->{first} = $from;
+  $self->{second} = $to;
+
+
+#  if ($self->{first}) {
+#    push @terms, $self->{first}->to_term_queries;
+#  };
 
   # TODO:
   #   Return or-query
@@ -80,6 +120,17 @@ sub to_term_queries {
   return $first->to_term_queries(
     $second
   );
+};
+
+
+# Only for testing:
+# Serialization of all range terms
+sub to_range_term_string {
+  my $self = shift;
+  my @terms = sort {
+    $a->to_sort_string cmp $b->to_sort_string
+  } $self->to_term_queries;
+  return join(',', map { $_->to_string } @terms);
 };
 
 

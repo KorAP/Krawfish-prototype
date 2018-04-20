@@ -218,4 +218,91 @@ sub is_part_of {
 };
 
 
+# Normalize implicite range
+# 2007-01-01--2008-12-31
+# -> 2007-2008
+sub normalize_range_calendaric {
+  my ($self, $other) = @_;
+
+  # Either in different year or in different month
+  if ($self->year != $other->year ||
+        $self->month != $other->month) {
+
+    # First month is completely covered
+    if ($self->day == 1) {
+      $self->{day} = 0;
+    };
+
+    # Last Month is completely covered
+    if ($other->is_last_day_of_month) {
+      $other->{day} = 0;
+    };
+  }
+
+  # In same year and same month
+  elsif ($self->year == $other->year) {
+    if ($self->month == $other->month) {
+      if ($self->day == 1 && $other->is_last_day_of_month) {
+        $self->{day} = 0;
+        $other->{day} = 0;
+      };
+    };
+  };
+
+
+  if ($self->year != $other->year) {
+
+    # 2007-01--2008-02
+    if (!$self->day && $self->month == 1) {
+      $self->{month} = 0;
+    };
+
+    # 2007-05--2008-12
+    if (!$other->day && $other->month == 12) {
+      $other->{month} = 0;
+    };
+  }
+
+  # Year is the same
+  elsif (!$self->day &&
+           !$other->day &&
+           $self->month == 1 &&
+           $other->month == 12) {
+    $self->{month} = 0;
+    $other->{month} = 0;
+  };
+
+  return 1;
+};
+
+
+# Check if the given day is the last day of the month
+sub is_last_day_of_month {
+  my $self = shift;
+
+  if ($self->day == 31) {
+    return 1;
+  }
+
+  # Month has 30 days
+  if ($self->day == 30 && (
+    $self->month == 2 ||
+      $self->month == 4 ||
+      $self->month == 6 ||
+      $self->month == 9 ||
+      $self->month == 11)
+    ) {
+    return 1;
+  };
+
+  # Nonth has 29 days max
+  if ($self->day == 29 &&
+        $self->month == 2) {
+    return 1;
+  };
+
+  return 0;
+};
+
+
 1;

@@ -343,11 +343,91 @@ is_deeply($dr->query('2007', '2007'), [1,2,3,8,9], 'Normalize y2y-in-year');
 is_deeply($dr->query('2001', '2001'), [4], 'Normalize y2y-in-year');
 
 
+# Normalize calendaric implicite information
+# [[2007-01-01--2007-01-31]] -> 2007-01
+$range = $cb->date('pubDate')->intersect(
+  '2007-01-01', '2007-01-31'
+);
+is($range->to_string, 'pubDate&=[[2007-01-01--2007-01-31]]');
+ok($range = $range->normalize, 'Normalization');
+is($range->to_string, 'pubDate=2007-01');
+is($range->to_range_term_string,
+   'pubDate=2007-01[,pubDate=2007-01],pubDate=2007]',
+   'Calendaric normalization in-month'
+ );
+
+# [[2007-01-01--2007-02-31]] -> [[2007-01--2007-02]]
+$range = $cb->date('pubDate')->intersect(
+  '2007-01-01', '2007-02-31'
+);
+is($range->to_string, 'pubDate&=[[2007-01-01--2007-02-31]]');
+ok($range = $range->normalize, 'Normalization');
+is($range->to_string, 'pubDate&=[[2007-01--2007-02]]');
+
+is($range->to_range_term_string,
+   'pubDate=2007-01[,pubDate=2007-01],pubDate=2007-02[,pubDate=2007-02],pubDate=2007]',
+   'Calendaric normalization in-year'
+ );
+
+# [[2007-01-01--2008-02-31]] -> [[2007-01--2008-02]]
+$range = $cb->date('pubDate')->intersect(
+  '2007-11-01', '2008-02-31'
+);
+is($range->to_string, 'pubDate&=[[2007-11-01--2008-02-31]]');
+ok($range = $range->normalize, 'Normalization');
+is($range->to_string, 'pubDate&=[[2007-11--2008-02]]');
+is($range->to_range_term_string,
+   'pubDate=2007-11[,pubDate=2007-11],pubDate=2007-12[,pubDate=2007-12],pubDate=2007],pubDate=2008-01[,pubDate=2008-01],pubDate=2008-02[,pubDate=2008-02],pubDate=2008]',
+   'Calendaric normalization in-year'
+ );
+
+# [[2007-01-01--2008-02-31]] -> [[2007--2008-02]]
+$range = $cb->date('pubDate')->intersect(
+  '2007-01-01', '2008-02-31'
+);
+is($range->to_string, 'pubDate&=[[2007-01-01--2008-02-31]]');
+ok($range = $range->normalize, 'Normalization');
+is($range->to_string, 'pubDate&=[[2007--2008-02]]');
+is($range->to_range_term_string,
+   'pubDate=2007[,pubDate=2007],pubDate=2008-01[,pubDate=2008-01],pubDate=2008-02[,pubDate=2008-02],pubDate=2008]',
+   'Calendaric normalization in-year'
+ );
+
+
+# [[2007-01-01--2007-12-31]] -> 2007
+$range = $cb->date('pubDate')->intersect(
+  '2007-01-01', '2007-12-31'
+);
+is($range->to_string, 'pubDate&=[[2007-01-01--2007-12-31]]');
+ok($range = $range->normalize, 'Normalization');
+is($range->to_string, 'pubDate=2007');
+is($range->to_range_term_string,
+   'pubDate=2007[,pubDate=2007]',
+   'Calendaric normalization in-year'
+ );
+
+
+# [[2007-01-01--2009-12-31]] -> 2009
+$range = $cb->date('pubDate')->intersect(
+  '2007-01-01', '2009-12-31'
+);
+is($range->to_string, 'pubDate&=[[2007-01-01--2009-12-31]]');
+ok($range = $range->normalize, 'Normalization');
+is($range->to_string, 'pubDate&=[[2007--2009]]');
+is($range->to_range_term_string,
+   'pubDate=2007[,pubDate=2007],pubDate=2008[,pubDate=2008],pubDate=2009[,pubDate=2009]',
+   'Calendaric normalization in-year'
+ );
+
+
+
+diag 'Normalize implicite month and year spans';
 
 # TODO:
-# normalize 2007-01-01--2008-12-31
-# -> 2007-2008
-diag 'Normalize implicite month and year spans';
+#   - Order range 2008-2007
+#   - Merge ranges in Boolean/Relational
+#   - Limit open ranges like >= 2007 to [[2007--2100]], <= 2004 to [[1000--2004]]
+#   - Respect inclusivity
 
 done_testing;
 __END__
