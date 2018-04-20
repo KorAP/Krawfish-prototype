@@ -43,6 +43,11 @@ sub to_range_terms {
   # There is a target
   if ($to) {
 
+    # Normalize calendaric information
+    $from->normalize_range_calendaric(
+      $to
+    );
+
     # Check if one range subordinates the other
     if (my $part_of = $from->is_part_of($to)) {
 

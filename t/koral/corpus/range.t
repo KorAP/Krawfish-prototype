@@ -420,8 +420,25 @@ is($range->to_range_term_string,
  );
 
 
+# Calendaric normalization of index fields
+is($dr->add_range(
+  0 => "2005-01-01${r}2008-12-31" # 2005--2008
+), 4, 'Test month-to-year');
 
-diag 'Normalize implicite month and year spans';
+is($dr->add_range(
+  0 => "2005-01-01${r}2005-03-04" # 2005-01--2005-03-04
+), 8, 'Test month-to-year');
+
+is($dr->add_range(
+  0 => "2005-02-28${r}2005-03-31" # 2005-02-28--2005-03
+), 7, 'Test month-to-year');
+
+is($dr->add_range(
+  0 => "2005-02-28${r}2005-12-31" # 2005-02-28--2005-12
+), 16, 'Test month-to-year');
+
+
+diag 'Order ranges';
 
 # TODO:
 #   - Order range 2008-2007
