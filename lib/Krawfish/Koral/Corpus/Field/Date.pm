@@ -324,17 +324,6 @@ sub term_all {
 };
 
 
-# Only for testing:
-# Serialization of all range terms
-sub to_range_term_string {
-  my $self = shift;
-  my @terms = sort {
-    $a->to_sort_string cmp $b->to_sort_string
-  } $self->to_term_queries;
-  return join(',', map { $_->to_string } @terms);
-};
-
-
 # Create string query for partial ranges
 sub term_part {
   my ($self, $term) = @_;

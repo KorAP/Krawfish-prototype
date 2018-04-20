@@ -351,10 +351,6 @@ $range = $cb->date('pubDate')->intersect(
 is($range->to_string, 'pubDate&=[[2007-01-01--2007-01-31]]');
 ok($range = $range->normalize, 'Normalization');
 is($range->to_string, 'pubDate=2007-01');
-is($range->to_range_term_string,
-   'pubDate=2007-01[,pubDate=2007-01],pubDate=2007]',
-   'Calendaric normalization in-month'
- );
 
 # [[2007-01-01--2007-02-31]] -> [[2007-01--2007-02]]
 $range = $cb->date('pubDate')->intersect(
@@ -362,12 +358,8 @@ $range = $cb->date('pubDate')->intersect(
 );
 is($range->to_string, 'pubDate&=[[2007-01-01--2007-02-31]]');
 ok($range = $range->normalize, 'Normalization');
-is($range->to_string, 'pubDate&=[[2007-01--2007-02]]');
+is($range->to_string, 'pubDate=2007-01[|pubDate=2007-01]|pubDate=2007-02[|pubDate=2007-02]|pubDate=2007]');
 
-is($range->to_range_term_string,
-   'pubDate=2007-01[,pubDate=2007-01],pubDate=2007-02[,pubDate=2007-02],pubDate=2007]',
-   'Calendaric normalization in-year'
- );
 
 # [[2007-01-01--2008-02-31]] -> [[2007-01--2008-02]]
 $range = $cb->date('pubDate')->intersect(
@@ -375,11 +367,8 @@ $range = $cb->date('pubDate')->intersect(
 );
 is($range->to_string, 'pubDate&=[[2007-11-01--2008-02-31]]');
 ok($range = $range->normalize, 'Normalization');
-is($range->to_string, 'pubDate&=[[2007-11--2008-02]]');
-is($range->to_range_term_string,
-   'pubDate=2007-11[,pubDate=2007-11],pubDate=2007-12[,pubDate=2007-12],pubDate=2007],pubDate=2008-01[,pubDate=2008-01],pubDate=2008-02[,pubDate=2008-02],pubDate=2008]',
-   'Calendaric normalization in-year'
- );
+is($range->to_string, 'pubDate=2007-11[|pubDate=2007-11]|pubDate=2007-12[|pubDate=2007-12]|pubDate=2007]|pubDate=2008-01[|pubDate=2008-01]|pubDate=2008-02[|pubDate=2008-02]|pubDate=2008]');
+
 
 # [[2007-01-01--2008-02-31]] -> [[2007--2008-02]]
 $range = $cb->date('pubDate')->intersect(
@@ -387,11 +376,7 @@ $range = $cb->date('pubDate')->intersect(
 );
 is($range->to_string, 'pubDate&=[[2007-01-01--2008-02-31]]');
 ok($range = $range->normalize, 'Normalization');
-is($range->to_string, 'pubDate&=[[2007--2008-02]]');
-is($range->to_range_term_string,
-   'pubDate=2007[,pubDate=2007],pubDate=2008-01[,pubDate=2008-01],pubDate=2008-02[,pubDate=2008-02],pubDate=2008]',
-   'Calendaric normalization in-year'
- );
+is($range->to_string, 'pubDate=2007[|pubDate=2007]|pubDate=2008-01[|pubDate=2008-01]|pubDate=2008-02[|pubDate=2008-02]|pubDate=2008]');
 
 
 # [[2007-01-01--2007-12-31]] -> 2007
@@ -401,11 +386,6 @@ $range = $cb->date('pubDate')->intersect(
 is($range->to_string, 'pubDate&=[[2007-01-01--2007-12-31]]');
 ok($range = $range->normalize, 'Normalization');
 is($range->to_string, 'pubDate=2007');
-is($range->to_range_term_string,
-   'pubDate=2007[,pubDate=2007]',
-   'Calendaric normalization in-year'
- );
-
 
 # [[2007-01-01--2009-12-31]] -> 2009
 $range = $cb->date('pubDate')->intersect(
@@ -413,11 +393,7 @@ $range = $cb->date('pubDate')->intersect(
 );
 is($range->to_string, 'pubDate&=[[2007-01-01--2009-12-31]]');
 ok($range = $range->normalize, 'Normalization');
-is($range->to_string, 'pubDate&=[[2007--2009]]');
-is($range->to_range_term_string,
-   'pubDate=2007[,pubDate=2007],pubDate=2008[,pubDate=2008],pubDate=2009[,pubDate=2009]',
-   'Calendaric normalization in-year'
- );
+is($range->to_string, 'pubDate=2007[|pubDate=2007]|pubDate=2008[|pubDate=2008]|pubDate=2009[|pubDate=2009]');
 
 
 # Calendaric normalization of index fields
@@ -447,14 +423,23 @@ is($dr->add_range(
   0 => "2005-12-31${r}2005-02-28" # 2005-02-28--2005-12
 ), 16, 'Test month-to-year with reverted data');
 
+$date = $cb->date('pubDate')->intersect('2015-02','2014-11-01');
+is($date->to_string, 'pubDate&=[[2014-11-01--2015-02]]');
+ok($date = $date->normalize, 'Normalize');
+is($date->to_string,
+   'pubDate=2014-11[|pubDate=2014-11]|pubDate=2014-12[|pubDate=2014-12]|pubDate=2014]|pubDate=2015-01[|pubDate=2015-01]|pubDate=2015-02[|pubDate=2015-02]|pubDate=2015]');
 
-diag 'Order ranges';
+
 
 # TODO:
 #   - Order range 2008-2007
 #   - Merge ranges in Boolean/Relational
 #   - Limit open ranges like >= 2007 to [[2007--2100]], <= 2004 to [[1000--2004]]
 #   - Respect inclusivity
+
+
+
+diag 'Merge ranges in Relational';
 
 done_testing;
 __END__

@@ -91,14 +91,9 @@ sub normalize {
   $self->{first} = $from;
   $self->{second} = $to;
 
-
-#  if ($self->{first}) {
-#    push @terms, $self->{first}->to_term_queries;
-#  };
-
-  # TODO:
-  #   Return or-query
-  return $self;
+  return $self->builder->bool_or(
+    $self->to_term_queries
+  )->normalize;
 };
 
 
@@ -125,13 +120,13 @@ sub to_term_queries {
 
 # Only for testing:
 # Serialization of all range terms
-sub to_range_term_string {
-  my $self = shift;
-  my @terms = sort {
-    $a->to_sort_string cmp $b->to_sort_string
-  } $self->to_term_queries;
-  return join(',', map { $_->to_string } @terms);
-};
+#sub to_range_term_string {
+#  my $self = shift;
+#  my @terms = sort {
+#    $a->to_sort_string cmp $b->to_sort_string
+#  } $self->to_term_queries;
+#  return join(',', map { $_->to_string } @terms);
+#};
 
 
 # stringify range query
