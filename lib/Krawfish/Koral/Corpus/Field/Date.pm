@@ -368,12 +368,26 @@ sub intersect {
   if ($second) {
     my $cb = $self->builder;
 
+    my $first = $cb->date($self->key)->eq($first);
+    my $second = $cb->date($self->key)->eq($second);
+
+    my ($from, $to);
+    if ($first->value_lt($second)) {
+      $from = $first->match('gt')->is_inclusive(1);
+      $to = $second->match('lt')->is_inclusive(1);
+    }
+    else {
+      $to = $first->match('lt')->is_inclusive(1);
+      $from = $second->match('gt')->is_inclusive(1);
+    };
+
     return Krawfish::Koral::Corpus::DateRange->new(
-      $cb->date($self->key)->geq($first),
-      $cb->date($self->key)->leq($second)
+      $from,
+      $to
     );
   };
 
+  # Only single value available
   $self->{match} = 'intersect';
   $self->value(shift) or return;
 

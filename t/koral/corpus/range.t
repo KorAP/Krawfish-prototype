@@ -438,6 +438,12 @@ is($dr->add_range(
 ), 16, 'Test month-to-year');
 
 
+
+# Order dates in range
+$date = $cb->date('pubDate')->intersect('2015-11','2005-02-31');
+is($date->to_string, 'pubDate&=[[2005-02-31--2015-11]]');
+
+
 diag 'Order ranges';
 
 # TODO:
