@@ -149,6 +149,10 @@ sub add {
   my ($self, $doc) = @_;
 
   # TODO:
+  #   All these actions should be atomic, so in case
+  #   a document object is invalid, this won't add partial data
+
+  # TODO:
   #   This may use a prepared pool of PostingsLists
   #   that are lifted before - for term_ids in numerical order
 

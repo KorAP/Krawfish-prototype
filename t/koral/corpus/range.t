@@ -430,14 +430,20 @@ is($date->to_string,
    'pubDate=2014-11[|pubDate=2014-11]|pubDate=2014-12[|pubDate=2014-12]|pubDate=2014]|pubDate=2015-01[|pubDate=2015-01]|pubDate=2015-02[|pubDate=2015-02]|pubDate=2015]');
 
 
+# Order dates in range
+$date = $cb->date('pubDate')->intersect('2015-11');
+is($date->to_string, 'pubDate&=2015-11');
+diag $date;
+ok($date = $date->normalize, 'Normalize');
+is($date->to_string,
+   'pubDate=2015-11[|pubDate=2015-11]|pubDate=2015]');
+
+
 
 # TODO:
-#   - Order range 2008-2007
 #   - Merge ranges in Boolean/Relational
 #   - Limit open ranges like >= 2007 to [[2007--2100]], <= 2004 to [[1000--2004]]
 #   - Respect inclusivity
-
-
 
 diag 'Merge ranges in Relational';
 

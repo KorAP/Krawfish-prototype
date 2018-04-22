@@ -384,6 +384,17 @@ sub intersect {
 };
 
 
+sub normalize {
+  my $self = shift;
+  if ($self->match eq 'intersect') {
+    return $self->builder->bool_or(
+      $self->to_term_queries
+    )->normalize;
+  };
+
+  $self->{value} = normalize_nfkc($self->value) if $self->value;
+  return $self;
+};
 
 
 1;
