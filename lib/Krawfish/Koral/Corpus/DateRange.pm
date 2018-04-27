@@ -25,7 +25,7 @@ with 'Krawfish::Koral::Corpus';
 
 
 sub type {
-  'dateRange'
+  'date_range'
 };
 
 
@@ -57,6 +57,9 @@ sub normalize {
   my @terms;
 
   my ($from, $to) = ($self->{first}, $self->{second});
+
+  # The daterange may be negative
+  my $neg = $self->is_negative;
 
   if ($to) {
     $from->normalize_range_calendaric(
@@ -91,9 +94,14 @@ sub normalize {
   $self->{first} = $from;
   $self->{second} = $to;
 
-  return $self->builder->bool_or(
+  my $group = $self->builder->bool_or(
     $self->to_term_queries
-  )->normalize;
+  );
+  if ($neg) {
+    $group->is_negative(1);
+  };
+
+  return $group->normalize;
 };
 
 
@@ -118,17 +126,6 @@ sub to_term_queries {
 };
 
 
-# Only for testing:
-# Serialization of all range terms
-#sub to_range_term_string {
-#  my $self = shift;
-#  my @terms = sort {
-#    $a->to_sort_string cmp $b->to_sort_string
-#  } $self->to_term_queries;
-#  return join(',', map { $_->to_string } @terms);
-#};
-
-
 # stringify range query
 sub to_string {
   my $self = shift;
@@ -136,9 +133,14 @@ sub to_string {
   return 0 if $self->is_null;
 
   my $str = '';
+
   $str .= $self->{first}->key;
 
-  $str .= '&=';
+  $str .= '&';
+  if ($self->is_negative) {
+    $str .= '!';
+  };
+  $str .= '=';
 
   $str .= '[';
 

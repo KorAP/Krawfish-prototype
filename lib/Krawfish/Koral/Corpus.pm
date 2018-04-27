@@ -170,6 +170,7 @@ sub is_negative {
   my $self = shift;
   if (scalar @_ == 1) {
     $self->{negative} = shift;
+    return $self;
   };
   return $self->{negative} // 0;
 };

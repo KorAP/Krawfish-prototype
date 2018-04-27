@@ -10,6 +10,7 @@ use warnings;
 
 with 'Krawfish::Koral::Util::Boolean';
 with 'Krawfish::Koral::Util::Relational';
+with 'Krawfish::Koral::Util::Ranges';
 # TODO: with 'Krawfish::Koral::Util::Regular';
 with 'Krawfish::Koral::Corpus';
 
@@ -53,6 +54,7 @@ sub normalization_order {
     '_clean_and_flatten',
     '_resolve_inclusivity_and_exclusivity',
     '_resolve_idempotence',
+    '_merge_to_date_ranges',
     '_resolve_demorgan',
     '_remove_nested_idempotence',
     '_replace_negative'
