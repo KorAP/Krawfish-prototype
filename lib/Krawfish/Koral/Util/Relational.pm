@@ -7,7 +7,7 @@ use warnings;
 # Relational normalization role for
 # Krawfish::Koral::Util::Boolean
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # TODO:
 #   Combine AND-constraints on the same relational key
@@ -39,13 +39,6 @@ sub _resolve_inclusivity_and_exclusivity {
 
     my ($op_a, $op_b) = ($ops->[$i-1], $ops->[$i]);
 
-    if (DEBUG) {
-      print_log(
-        'kq_relational',
-        'Compare ' . $op_a->to_string . ' and ' . $op_b->to_string
-      );
-    };
-
     # Both operands are fields
     next unless $op_a->is_leaf && $op_b->is_leaf;
 
@@ -58,6 +51,12 @@ sub _resolve_inclusivity_and_exclusivity {
     # At least one operand needs to be relational
     next unless $op_a->is_relational || $op_b->is_relational;
 
+    if (DEBUG) {
+      print_log(
+        'kq_relational',
+        'Compare ' . $op_a->to_string . ' and ' . $op_b->to_string
+      );
+    };
 
     # Both operands have the same match operator
     # Simplify geq (> or >=)

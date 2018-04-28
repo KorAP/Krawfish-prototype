@@ -1,8 +1,9 @@
 package Krawfish::Koral::Corpus::Field::Date;
 use strict;
 use warnings;
-use Krawfish::Util::Constants qw/:PREFIX :RANGE/;
+use Krawfish::Util::Constants qw/:PREFIX/;
 use Krawfish::Log;
+use Krawfish::Koral::Corpus::Field::DateString;
 use Krawfish::Koral::Corpus::DateRange;
 use Role::Tiny::With;
 
@@ -318,30 +319,22 @@ sub to_term_queries {
 # Create string query for all ranges
 sub term_all {
   my ($self, $term) = @_;
-  return $self->builder->string($self->key)->eq(
-    $term . RANGE_ALL_POST
-  );
+  return Krawfish::Koral::Corpus::Field::DateString->new($self->key)->all($term);
 };
 
 
 # Create string query for partial ranges
 sub term_part {
   my ($self, $term) = @_;
-  return $self->builder->string($self->key)->eq(
-    $term . RANGE_PART_POST
-  );
+  return Krawfish::Koral::Corpus::Field::DateString->new($self->key)->part($term);
 };
 
 
 sub term_all_or_part {
   my ($self, $term) = @_;
   return (
-    $self->builder->string($self->key)->eq(
-      $term . RANGE_ALL_POST
-    ),
-    $self->builder->string($self->key)->eq(
-      $term . RANGE_PART_POST
-    )
+    $self->term_all($term),
+    $self->term_part($term)
   );
 };
 

@@ -55,6 +55,7 @@ sub normalization_order {
     '_resolve_inclusivity_and_exclusivity',
     '_resolve_idempotence',
     '_merge_to_date_ranges',
+    '_resolve_date_string_subsumption',
     '_resolve_demorgan',
     '_remove_nested_idempotence',
     '_replace_negative'
