@@ -4,6 +4,7 @@ use warnings;
 use Krawfish::Koral::Corpus::Field;
 use Krawfish::Koral::Corpus::Field::String;
 use Krawfish::Koral::Corpus::Field::Date;
+use Krawfish::Koral::Corpus::Field::DateString;
 use Krawfish::Koral::Corpus::Field::Regex;
 use Krawfish::Koral::Corpus::Field::Integer;
 use Krawfish::Koral::Corpus::FieldGroup;
@@ -74,6 +75,13 @@ sub class {
 sub string {
   shift;
   return Krawfish::Koral::Corpus::Field::String->new(@_);
+};
+
+# Create 'date_string' field as partial
+# This is for in
+sub date_string {
+  shift;
+  return Krawfish::Koral::Corpus::Field::DateString->new(@_);
 };
 
 

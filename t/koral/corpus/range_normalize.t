@@ -11,8 +11,6 @@ my $cb = Krawfish::Koral::Corpus::Builder->new;
 
 my $dr;
 
-if (0) {
-
 # Merge dates to ranges
 $dr = $cb->bool_and(
   $cb->date('pub')->geq('2015'),
@@ -60,8 +58,6 @@ is($dr->to_string,
    'Normalization');
 
 
-};
-
 # Embedding combination
 $dr = $cb->bool_or(
   $cb->bool_and(
@@ -73,6 +69,7 @@ $dr = $cb->bool_or(
     $cb->date('pub')->leq('2003-11-09')
   )
 );
+
 is($dr->to_string, '(pub>=2001&pub<=2005)|(pub>=2002-10-14&pub<=2003-11-09)', 'Stringification');
 ok($dr = $dr->normalize, 'Normalize');
 ok($dr = $dr->finalize, 'Finalize');
