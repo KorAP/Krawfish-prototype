@@ -48,6 +48,7 @@ sub new {
   }, $class;
 };
 
+
 sub key_type {
   'date';
 };
@@ -114,7 +115,6 @@ sub to_term_queries {
   #   relation instead.
   #   There may already be a normalization rule here,
   #   for (a|b|c)!&b -> (a|c)&!b
-
 
 
   # Match the whole granularity subtree
@@ -330,6 +330,7 @@ sub term_part {
 };
 
 
+# Create String queries for partial and all ranges
 sub term_all_or_part {
   my ($self, $term) = @_;
   return (
@@ -337,6 +338,7 @@ sub term_all_or_part {
     $self->term_part($term)
   );
 };
+
 
 # Spawn an intersecting date range query
 # TODO:
@@ -377,6 +379,7 @@ sub intersect {
 };
 
 
+# Normalize date
 sub normalize {
   my $self = shift;
   if ($self->match eq 'intersect') {
