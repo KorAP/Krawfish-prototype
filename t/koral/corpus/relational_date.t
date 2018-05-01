@@ -175,8 +175,17 @@ $tree = $cb->bool_and(
 ok($tree = $tree->normalize, 'Query normalization');
 is($tree->to_string, '[0]', 'Resolve idempotence');
 
+
+ok(my $min = $cb->date('pubDate')->minimum, 'Create minimum date');
+is($min->to_string, 'pubDate=1000-01-01', 'Minimum date');
+
+ok(my $max = $cb->date('pubDate')->maximum, 'Create maximum date');
+is($max->to_string, 'pubDate=2200-12-31', 'Minimum date');
+
+
 SKIP: {
   skip "> and < not yet supported", 2;
+  # TODO: Deal with year==900
   # See relational_string.t
 };
 

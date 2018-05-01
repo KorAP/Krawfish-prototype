@@ -3,6 +3,10 @@ use Role::Tiny;
 use strict;
 use warnings;
 
+use constant {
+  MAXIMUM_YEAR => 2200,
+  MINIMUM_YEAR => 1000
+};
 
 # Get year value
 sub year {
@@ -315,5 +319,34 @@ sub is_last_day_of_month {
   return 0;
 };
 
+
+# Get maximum date
+sub maximum {
+  my $self = shift;
+  $self->{match} = 'eq';
+  $self->value(
+    $self->new_to_value_string(
+      MAXIMUM_YEAR,
+      12,
+      31
+    )
+  ) or return;
+  return $self;
+};
+
+
+# Get minimum date
+sub minimum {
+  my $self = shift;
+  $self->{match} = 'eq';
+  $self->value(
+    $self->new_to_value_string(
+      MINIMUM_YEAR,
+      1,
+      1
+    )
+  ) or return;
+  return $self;
+};
 
 1;
