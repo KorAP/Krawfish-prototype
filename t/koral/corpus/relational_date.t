@@ -182,6 +182,27 @@ is($min->to_string, 'pubDate=1000-01-01', 'Minimum date');
 ok(my $max = $cb->date('pubDate')->maximum, 'Create maximum date');
 is($max->to_string, 'pubDate=2200-12-31', 'Minimum date');
 
+is($cb->date('pubDate')->minimum->next_date->to_string, 'pubDate=1000-01-02',
+   'Get next date');
+
+is($cb->date('pubDate')->eq('2005')->next_date->to_string, 'pubDate=2006',
+   'Get next date');
+
+is($cb->date('pubDate')->eq('2005-10')->next_date->to_string, 'pubDate=2005-11',
+   'Get next date');
+
+is($cb->date('pubDate')->eq('2005-10-06')->next_date->to_string, 'pubDate=2005-10-07',
+   'Get next date');
+
+is($cb->date('pubDate')->eq('2005-10-31')->next_date->to_string, 'pubDate=2005-11-01',
+   'Get next date');
+
+is($cb->date('pubDate')->eq('2005-12')->next_date->to_string, 'pubDate=2006-01',
+   'Get next date');
+
+is($cb->date('pubDate')->eq('2005-12-31')->next_date->to_string, 'pubDate=2006-01-01',
+   'Get next date');
+
 
 SKIP: {
   skip "> and < not yet supported", 2;

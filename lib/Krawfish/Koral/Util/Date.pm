@@ -349,4 +349,40 @@ sub minimum {
   return $self;
 };
 
+
+# Get the next possible date
+sub next_date {
+  my $self = shift;
+
+  # Increment day only
+  if ($self->day) {
+
+    if ($self->is_last_day_of_month) {
+      $self->{day} = 1;
+      $self->{month}++;
+      if ($self->month > 12) {
+        $self->{month} = 1;
+        $self->{year}++;
+      };
+      return $self;
+    };
+    $self->{day}++;
+    return $self;
+  };
+
+  # Increment month only
+  if ($self->month) {
+    $self->{month}++;
+    if ($self->month > 12) {
+      $self->{month} = 1;
+      $self->{year}++;
+    };
+    return $self;
+  };
+
+  # Increment year only
+  $self->{year}++;
+  return $self;
+};
+
 1;
