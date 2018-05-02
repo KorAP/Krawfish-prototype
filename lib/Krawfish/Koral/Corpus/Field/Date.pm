@@ -116,7 +116,6 @@ sub to_term_queries {
   #   There may already be a normalization rule here,
   #   for (a|b|c)!&b -> (a|c)&!b
 
-
   # Match the whole granularity subtree
   # Either the day, the month or the year
   # e.g. 2015], 2015-11], 2015-11-14]
@@ -343,7 +342,6 @@ sub term_all_or_part {
 # Spawn an intersecting date range query
 # TODO:
 #   - rename to overlap
-#   - This treats all terms inclusive
 sub intersect {
   my $self = shift;
   my ($first, $second) = @_;

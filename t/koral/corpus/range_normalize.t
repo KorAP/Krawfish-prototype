@@ -101,6 +101,55 @@ is($dr->to_string,
    'Normalization');
 
 
+# Respect inclusivity
+$dr = $cb->bool_and(
+  $cb->date('pub')->gt('2001'),
+  $cb->date('pub')->lt('2005'),
+);
+is($dr->to_string, 'pub>2001&pub<2005',
+   'Stringification');
+ok($dr = $dr->normalize, 'Normalize');
+is($dr->to_string, 'pub=2002[|pub=2002]|pub=2003[|pub=2003]|pub=2004[|pub=2004]',
+   'Stringification');
+
+# Respect inclusivity
+$dr = $cb->bool_and(
+  $cb->date('pub')->gt('2001'),
+  $cb->date('pub')->leq('2005'),
+);
+is($dr->to_string, 'pub>2001&pub<=2005',
+   'Stringification');
+ok($dr = $dr->normalize, 'Normalize');
+is($dr->to_string, 'pub=2002[|pub=2002]|pub=2003[|pub=2003]|pub=2004[|pub=2004]|pub=2005[|pub=2005]',
+   'Stringification');
+
+# Respect inclusivity
+$dr = $cb->bool_and(
+  $cb->date('pub')->geq('2001'),
+  $cb->date('pub')->lt('2005'),
+);
+is($dr->to_string, 'pub>=2001&pub<2005',
+   'Stringification');
+ok($dr = $dr->normalize, 'Normalize');
+is($dr->to_string, 'pub=2001[|pub=2001]|pub=2002[|pub=2002]|pub=2003[|pub=2003]|pub=2004[|pub=2004]',
+   'Stringification');
+
+
+
+# Respect inclusivity
+$dr = $cb->bool_and(
+  $cb->date('pub')->gt('2001-12-31'),
+  $cb->date('pub')->lt('2005-01-01'),
+);
+is($dr->to_string, 'pub>2001-12-31&pub<2005-01-01',
+   'Stringification');
+ok($dr = $dr->normalize, 'Normalize');
+is($dr->to_string, 'pub=2002[|pub=2002]|pub=2003[|pub=2003]|pub=2004[|pub=2004]',
+   'Stringification');
+
+
+
+
 
 diag 'Limit open ranges';
 # like >= 2007 to [[2007--2100]], <= 2004 to [[1000--2004]]

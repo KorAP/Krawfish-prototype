@@ -14,7 +14,7 @@ with 'Krawfish::Koral::Corpus';
 
 # RESTRICTION:
 #   - Currently this is restricted to dates!
-#   - currently this finds all intersecting dates!
+#   - currently this finds all intersecting dates only!
 
 
 # TODO:
@@ -57,6 +57,17 @@ sub normalize {
   my @terms;
 
   my ($from, $to) = ($self->{first}, $self->{second});
+
+  # Respect inclusivity/exclusivity
+  unless ($from->is_inclusive) {
+    $from = $from->next_date->is_inclusive(1);
+    $self->{first} = $from;
+  };
+
+  unless ($to->is_inclusive) {
+    $to = $to->previous_date->is_inclusive(1);
+    $self->{second} = $to;
+  };
 
   # The daterange may be negative
   my $neg = $self->is_negative;
@@ -114,14 +125,21 @@ sub to_term_queries {
   # TODO:
   #   First order!
 
-  my ($first, $second) = ($self->{first}, $self->{second});
+  my ($from, $to) = ($self->{first}, $self->{second});
 
-  # TODO:
-  #   Treat inclusive terms different to
-  #   exclusive terms!
+  # Respect inclusivity/exclusivity
+  unless ($from->is_inclusive) {
+    $from = $from->next_date->is_inclusive(1);
+    $self->{first} = $from;
+  };
 
-  return $first->to_term_queries(
-    $second
+  unless ($to->is_inclusive) {
+    $to = $to->previous_date->is_inclusive(1);
+    $self->{second} = $to;
+  };
+
+  return $from->to_term_queries(
+    $to
   );
 };
 
