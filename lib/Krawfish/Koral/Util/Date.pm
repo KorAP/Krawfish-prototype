@@ -299,7 +299,7 @@ sub is_last_day_of_month {
     return 1;
   }
 
-  # Month has 30 days
+  # Month has 30 days or less
   if ($self->day == 30 && (
     $self->month == 2 ||
       $self->month == 4 ||
@@ -319,6 +319,22 @@ sub is_last_day_of_month {
   return 0;
 };
 
+
+# Get the last day of a month
+sub _get_last_day_of_month {
+  my $month = shift;
+
+  return 29 if $month == 2;
+
+  if ($month == 4 ||
+      $month == 6 ||
+      $month == 9 ||
+      $month == 11) {
+    return 30;
+  };
+
+  return 31;
+};
 
 # Get maximum date
 sub maximum {
@@ -384,5 +400,51 @@ sub next_date {
   $self->{year}++;
   return $self;
 };
+
+
+# Get the next possible date
+sub previous_date {
+  my $self = shift;
+
+  # Decrement day only
+  if ($self->day) {
+
+    if ($self->day == 1) {
+      if ($self->month == 1) {
+        $self->{day} = 31;
+        $self->{month} = 12;
+        $self->{year}--;
+
+        # TODO:
+        #   Ensure year was not 1000!
+        return $self;
+      };
+
+      $self->{month}--;
+      $self->{day} = _get_last_day_of_month($self->month);
+      return $self;
+    };
+
+    $self->{day}--;
+    return $self;
+  };
+
+  # Decrement month only
+  if ($self->month) {
+    if ($self->month != 1) {
+      $self->{month}--;
+      return $self;
+    };
+    $self->{month} = 12;
+  };
+
+  # Decrement year only
+  # TODO:
+  #   Ensure year was not 1000!
+  $self->{year}--;
+  return $self;
+};
+
+
 
 1;

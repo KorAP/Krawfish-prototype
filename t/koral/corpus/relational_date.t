@@ -185,6 +185,11 @@ is($max->to_string, 'pubDate=2200-12-31', 'Minimum date');
 is($cb->date('pubDate')->minimum->next_date->to_string, 'pubDate=1000-01-02',
    'Get next date');
 
+# is($cb->date('pubDate')->maximum->next_date->to_string, 'pubDate=1000-01-02',
+#    'Get next date');
+
+
+# Check next date
 is($cb->date('pubDate')->eq('2005')->next_date->to_string, 'pubDate=2006',
    'Get next date');
 
@@ -203,11 +208,38 @@ is($cb->date('pubDate')->eq('2005-12')->next_date->to_string, 'pubDate=2006-01',
 is($cb->date('pubDate')->eq('2005-12-31')->next_date->to_string, 'pubDate=2006-01-01',
    'Get next date');
 
+# Check previous date
+is($cb->date('pubDate')->eq('2005')->previous_date->to_string, 'pubDate=2004',
+   'Get previous date');
+
+is($cb->date('pubDate')->eq('2005-08')->previous_date->to_string, 'pubDate=2005-07',
+   'Get previous date');
+
+is($cb->date('pubDate')->eq('2005-08-07')->previous_date->to_string, 'pubDate=2005-08-06',
+   'Get previous date');
+
+is($cb->date('pubDate')->eq('2005-10-01')->previous_date->to_string, 'pubDate=2005-09-30',
+   'Get previous date');
+
+is($cb->date('pubDate')->eq('2005-09-01')->previous_date->to_string, 'pubDate=2005-08-31',
+   'Get previous date');
+
+is($cb->date('pubDate')->eq('2005-03-01')->previous_date->to_string, 'pubDate=2005-02-29',
+   'Get previous date');
+
+is($cb->date('pubDate')->eq('2005-01-01')->previous_date->to_string, 'pubDate=2004-12-31',
+   'Get previous date');
+
+is($cb->date('pubDate')->eq('2005-01')->previous_date->to_string, 'pubDate=2004-12',
+   'Get previous date');
+
 
 SKIP: {
   skip "> and < not yet supported", 2;
   # TODO: Deal with year==900
   # See relational_string.t
+  # TODO:
+  #   Limit maximum and minimum for next_date and previous_date
 };
 
 
