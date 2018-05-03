@@ -9,6 +9,9 @@ use constant DEBUG => 0;
 with 'Krawfish::Koral::Corpus';
 
 
+# TODO:
+#   Introduce finalize!
+
 sub new {
   my $class = shift;
   bless {
@@ -52,6 +55,10 @@ sub normalize {
   $self;
 };
 
+
+sub finalize {
+  ...
+};
 
 # Optimize query
 sub optimize {

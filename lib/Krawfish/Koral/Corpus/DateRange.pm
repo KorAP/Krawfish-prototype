@@ -4,7 +4,7 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 with 'Krawfish::Koral::Corpus';
 
@@ -54,6 +54,8 @@ sub new {
 sub normalize {
   my $self = shift;
 
+  print_log('kq_daterange', 'Normalize DateRange ' . $self->to_string) if DEBUG;
+
   my @terms;
 
   my ($from, $to) = ($self->{first}, $self->{second});
@@ -89,7 +91,7 @@ sub normalize {
       # From subordinates to - to is irrelevant
       # 2005-10--2005-10-14
       if ($part_of == 1) {
-        return $from->match('eq')->normalize;
+        return $from->match('intersect')->normalize;
       }
 
       # To subordinates from - from is irrelevant
@@ -97,7 +99,7 @@ sub normalize {
       elsif ($part_of == -1) {
         # $from = $to;
         # $to = undef;
-        return $to->match('eq')->normalize;
+        return $to->match('intersect')->normalize;
       };
     };
   };

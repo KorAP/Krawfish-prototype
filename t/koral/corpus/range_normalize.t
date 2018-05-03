@@ -22,7 +22,6 @@ is($dr->to_string,
    'pub=2015[|pub=2015]|pub=2016[|pub=2016]|pub=2017[|pub=2017]|pub=2018[|pub=2018]',
  'Normalization');
 
-
 # Create negative normalization
 $dr = $cb->bool_and(
   $cb->date('pub')->leq('2015'),
@@ -147,7 +146,15 @@ ok($dr = $dr->normalize, 'Normalize');
 is($dr->to_string, 'pub=2002[|pub=2002]|pub=2003[|pub=2003]|pub=2004[|pub=2004]',
    'Stringification');
 
-
+# Support open ranges
+$dr = $cb->date('pub')->gt('2014-12-31');
+is($dr->to_string, 'pub>2014-12-31',
+   'Stringification');
+ok($dr = $dr->normalize, 'Normalize');
+is($dr->to_string, 'pub>2014-12-31',
+   'Stringification');
+ok($dr = $dr->finalize, 'Finalize');
+like($dr->to_string, qr/^\(pub=2015\[\|pub=2015\]/, 'Stringification');
 
 
 
@@ -155,7 +162,7 @@ diag 'Limit open ranges';
 # like >= 2007 to [[2007--2100]], <= 2004 to [[1000--2004]]
 
 # TODO:
-#   - Respect inclusivity
+#   - Check pub>=2015|pub=2012
 #   - Introduce DateTerm Field
 #     This will be identical to String,
 #     but can be normalized more efficiently,

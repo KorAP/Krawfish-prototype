@@ -81,35 +81,45 @@ sub cache {
 };
 
 
+# This is the class to be overwritten
+# by subclasses
+sub _finalize {
+  $_[0];
+};
+
+
 # Normalize to be on the root
 sub finalize {
   my $self = shift;
+  my $corpus = $self;
 
   print_log('kq_corpus', 'Finalize tree or field') if DEBUG;
 
-  if ($self->is_negative) {
+  $corpus = $corpus->_finalize;
+
+  if ($corpus->is_negative) {
 
     print_log('kq_corpus', 'Query is negative') if DEBUG;
 
     # Toggle negativity
-    $self->is_negative(0);
+    $corpus->is_negative(0);
 
     print_log('kq_corpus', 'Do an "andNot" on anywhere') if DEBUG;
 
     return $self->builder->bool_and_not(
       $self->builder->anywhere,
-      $self
+      $corpus
     );
-  }
+  };
 
   print_log('kq_corpus', 'Do an "and" on anywhere') if DEBUG;
 
   # Do not wrap already satisfied queries
-  return $self if $self->is_anywhere || $self->is_nowhere;
+  return $corpus if $corpus->is_anywhere || $corpus->is_nowhere;
 
   return $self->builder->bool_and(
     $self->builder->anywhere,
-    $self
+    $corpus
   );
 };
 

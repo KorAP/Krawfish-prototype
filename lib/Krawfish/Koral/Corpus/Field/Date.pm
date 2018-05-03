@@ -28,7 +28,7 @@ with 'Krawfish::Koral::Corpus';
 #   Convert the strings to RFC3339, as this is a sortable
 #   date format.
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # TODO:
 #   A date should probably have a different prefix
@@ -380,6 +380,12 @@ sub intersect {
 # Normalize date
 sub normalize {
   my $self = shift;
+
+  $self->{key} = normalize_nfkc($self->key) if $self->key;
+
+  print_log('kq_date', "Normalize " . $self->to_string) if DEBUG;
+
+  # Treat query as intersection
   if ($self->match eq 'intersect') {
     return $self->builder->bool_or(
       $self->to_term_queries
@@ -387,6 +393,25 @@ sub normalize {
   };
 
   $self->{value} = normalize_nfkc($self->value) if $self->value;
+  return $self;
+};
+
+
+sub _finalize {
+  my $self = shift;
+  if ($self->match eq 'gt') {
+    return Krawfish::Koral::Corpus::DateRange->new(
+      $self,
+      __PACKAGE__->new($self->key)->maximum
+    )->normalize;
+  }
+
+  elsif ($self->match eq 'lt') {
+    return Krawfish::Koral::Corpus::DateRange->new(
+      __PACKAGE__->new($self->key)->minimum,
+      $self
+    )->normalize;
+  };
   return $self;
 };
 
