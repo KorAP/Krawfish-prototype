@@ -146,6 +146,8 @@ ok($dr = $dr->normalize, 'Normalize');
 is($dr->to_string, 'pub=2002[|pub=2002]|pub=2003[|pub=2003]|pub=2004[|pub=2004]',
    'Stringification');
 
+
+
 # Support open ranges
 $dr = $cb->date('pub')->gt('2014-12-31');
 is($dr->to_string, 'pub>2014-12-31',
@@ -154,7 +156,37 @@ ok($dr = $dr->normalize, 'Normalize');
 is($dr->to_string, 'pub>2014-12-31',
    'Stringification');
 ok($dr = $dr->finalize, 'Finalize');
-like($dr->to_string, qr/^\(pub=2015\[\|pub=2015\]/, 'Stringification');
+my $final = $dr->to_string;
+like($final, qr/^\(pub=2015\[\|pub=2015\]/, 'Stringification');
+like($final, qr/\|pub=2200\[\|pub=2200\]\)&\[1\]$/, 'Stringification');
+
+
+# Support open ranges
+$dr = $cb->date('pub')->lt('2013-03-14');
+is($dr->to_string, 'pub<2013-03-14',
+   'Stringification');
+ok($dr = $dr->normalize, 'Normalize');
+is($dr->to_string, 'pub<2013-03-14',
+   'Stringification');
+ok($dr = $dr->finalize, 'Finalize');
+$final = $dr->to_string;
+like($final, qr/^\(pub=1000\[|pub=1000\]/, 'Stringification');
+like($final,
+     qr/\\|pub=2013-03-11\]\|pub=2013-03-12\]\|pub=2013-03-13\]\|pub=2013-03\]\|pub=2013\]\)&\[1\]$/,
+     'Stringification');
+
+
+# Finalize eq to intersection
+$dr = $cb->date('pub')->eq('2013-03-14');
+is($dr->to_string, 'pub=2013-03-14',
+   'Stringification');
+ok($dr = $dr->normalize, 'Normalize');
+is($dr->to_string, 'pub=2013-03-14',
+   'Stringification');
+ok($dr = $dr->finalize, 'Finalize');
+$final = $dr->to_string;
+is($final, '(pub=2013-03-14]|pub=2013-03]|pub=2013])&[1]', 'Stringification');
+
 
 
 

@@ -397,20 +397,28 @@ sub normalize {
 };
 
 
+# Finalize open dates to dateranges
 sub _finalize {
   my $self = shift;
+
+  # Date is open
   if ($self->match eq 'gt') {
     return Krawfish::Koral::Corpus::DateRange->new(
       $self,
-      __PACKAGE__->new($self->key)->maximum
+      __PACKAGE__->new($self->key)->maximum->is_inclusive(1)
     )->normalize;
   }
 
+  # Date is open
   elsif ($self->match eq 'lt') {
     return Krawfish::Koral::Corpus::DateRange->new(
-      __PACKAGE__->new($self->key)->minimum,
+      __PACKAGE__->new($self->key)->minimum->is_inclusive(1),
       $self
     )->normalize;
+  }
+
+  elsif ($self->match eq 'eq') {
+    return $self->match('intersect')->normalize;
   };
   return $self;
 };

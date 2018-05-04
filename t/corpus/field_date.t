@@ -27,12 +27,13 @@ ok_index($index, {
 
 ok(my $cb = Krawfish::Koral::Corpus::Builder->new, 'Create CorpusBuilder');
 
+# eq is identically interpreted as 'intersect', as there are no 'eq' fields indexed
 ok(my $field = $cb->date('pubDate')->eq('2014-01-13'), 'String field');
 is($field->to_string, "pubDate=2014-01-13", 'Stringification');
 ok(my $plan = $field->normalize, 'Finalize');
 is($plan->to_string, "pubDate=2014-01-13", 'Stringification');
 ok($plan = $plan->finalize, 'Finalize');
-is($plan->to_string, "[1]&pubDate=2014-01-13", 'Stringification');
+is($plan->to_string, "(pubDate=2014-01-13]|pubDate=2014-01]|pubDate=2014])&[1]", 'Stringification');
 ok($plan = $plan->identify($index->dict), 'Identify');
 # is($plan->to_string, "#4&[1]", 'Stringification');
 ok($plan = $plan->optimize($index->segment), 'Optimize');
@@ -40,6 +41,8 @@ ok($plan = $plan->optimize($index->segment), 'Optimize');
 ok(!$plan->current, 'No current');
 ok($plan->next, 'Next posting');
 is($plan->current->to_string, '[0]', 'Current doc id');
+ok($plan->next, 'Next posting');
+is($plan->current->to_string, '[1]', 'Current doc id');
 ok(!$plan->next, 'No next posting');
 ok(!$plan->current, 'No Current doc id');
 
