@@ -196,18 +196,20 @@ sub normalize {
   my $x = 0;
 
   my @norm_order = $self->normalization_order;
-  for (my $i = 0; $i < @norm_order; $i++) {
+  for (my $i = 0; $i < @norm_order;) {
 
     my $operation = $norm_order[$i];
 
     $boolean = $self->$operation;
 
+    my $str = $self->to_string;
+
     # The normalization has an effect
     if ($boolean) {
       $self = $boolean;
 
-      if (DEBUG) {
-        print_log('kq_bool', ">> $operation had an effect: " . $self->to_string);
+      if (1) {
+        print_log('kq_bool', ">> $operation had an effect " . $self->to_string);
       };
 
       unless (Role::Tiny::does_role($self, 'Krawfish::Koral::Util::Boolean')) {
@@ -230,6 +232,11 @@ sub normalize {
         die $!;
         return $self;
       };
+    }
+
+    # Increment
+    else {
+      $i++;
     };
   };
 
@@ -585,7 +592,8 @@ sub _clean_and_flatten {
       }
 
       # Resolve grouped deMorgan-negativity
-      elsif ($op->is_negative && $op->operation ne $self->operation) {
+      # Do not resolve demorgan, if group is already normalized
+      elsif ($op->is_negative && !$op->already_normalized && $op->operation ne $self->operation) {
 
         print_log('kq_bool', 'Group can be resolved with demorgan') if DEBUG;
 
@@ -666,6 +674,7 @@ sub _resolve_demorgan {
     $self->toggle_operation;
     $self->toggle_negative;
     # $changes++
+    $self->already_normalized(1);
     return $self;
   };
 
@@ -731,6 +740,7 @@ sub _resolve_demorgan {
 
     # Set group to negative
     $new_group->is_negative(1);
+    $new_group->already_normalized(1);
 
 
     # Be aware this could lead to heavy and unnecessary recursion

@@ -9,7 +9,7 @@ use_ok('Test::Krawfish::DateRanges');
 
 my $cb = Krawfish::Koral::Corpus::Builder->new;
 
-my $dr;
+my ($dr, $final, $norm);
 
 # Merge dates to ranges
 $dr = $cb->bool_and(
@@ -156,7 +156,7 @@ ok($dr = $dr->normalize, 'Normalize');
 is($dr->to_string, 'pub>2014-12-31',
    'Stringification');
 ok($dr = $dr->finalize, 'Finalize');
-my $final = $dr->to_string;
+$final = $dr->to_string;
 like($final, qr/^\(pub=2015\[\|pub=2015\]/, 'Stringification');
 like($final, qr/\|pub=2200\[\|pub=2200\]\)&\[1\]$/, 'Stringification');
 
@@ -176,6 +176,21 @@ like($final,
      'Stringification');
 
 
+# Support open ranges in or-relation
+$dr = $cb->bool_or(
+  $cb->date('pub')->lt('1001-03-14'),
+  $cb->string('author')->eq('Peter')
+);
+is($dr->to_string, 'pub<1001-03-14|author=Peter', 'Stringification');
+ok($dr = $dr->normalize, 'Normalize');
+$norm = $dr->to_string;
+like($norm, qr/^pub=1000\[\|pub=1000\]\|pub=1001-01\[/, 'Stringification');
+like($norm, qr/\|pub=1001-03-12\]\|pub=1001-03-13\]\|pub=1001-03\]\|pub=1001\]\|author=Peter$/, 'Stringification');
+ok($dr = $dr->finalize, 'Finalize');
+$final = $dr->to_string;
+like($final, qr/^\(pub=1000\[\|pub=1000\]\|pub=1001-01\[/, 'Stringification');
+like($final, qr/\|pub=1001-03-12\]\|pub=1001-03-13\]\|pub=1001-03\]\|pub=1001\]\|author=Peter\)\&\[1\]$/, 'Stringification');
+
 # Finalize eq to intersection
 $dr = $cb->date('pub')->eq('2013-03-14');
 is($dr->to_string, 'pub=2013-03-14',
@@ -186,7 +201,6 @@ is($dr->to_string, 'pub=2013-03-14',
 ok($dr = $dr->finalize, 'Finalize');
 $final = $dr->to_string;
 is($final, '(pub=2013-03-14]|pub=2013-03]|pub=2013])&[1]', 'Stringification');
-
 
 
 

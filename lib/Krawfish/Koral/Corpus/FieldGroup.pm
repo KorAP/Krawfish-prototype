@@ -47,6 +47,17 @@ sub operation {
 };
 
 
+# Mark group as already normalized
+sub already_normalized {
+  my $self = shift;
+  if (@_) {
+    $self->{normalized} = shift;
+    return $self;
+  };
+  $self->{normalized};
+};
+
+
 # optimize() is provided by Boolean
 
 sub normalization_order {
@@ -55,6 +66,7 @@ sub normalization_order {
     '_resolve_inclusivity_and_exclusivity',
     '_resolve_idempotence',
     '_merge_to_date_ranges',
+    '_create_open_date_ranges',
     '_resolve_date_string_subsumption',
     '_resolve_demorgan',
     '_remove_nested_idempotence',

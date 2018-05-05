@@ -111,6 +111,16 @@ sub operation {
   $self->{operation};
 };
 
+# Mark group as already normalized
+sub already_normalized {
+  my $self = shift;
+  if (@_) {
+    $self->{normalized} = shift;
+    return $self;
+  };
+  $self->{normalized};
+};
+
 
 # There are no classes allowed in term groups
 sub remove_classes {

@@ -92,13 +92,6 @@ ok(!$plan->next, 'No next posting');
 ok(!$plan->current, 'No Current doc id');
 
 
-
-
-done_testing;
-__END__
-
-
-
 TODO: {
   local $TODO = 'Test further'
 };

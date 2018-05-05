@@ -184,8 +184,64 @@ sub _resolve_date_string_subsumption {
 
 #   pubDate>2015
 #   pubDate<=2014-11-12
-sub _create_date_ranges {
-  ...
+sub _create_open_date_ranges {
+  my $self = shift;
+
+  print_log('kq_range', ': Create open date ranges') if DEBUG;
+
+  return if $self->is_nowhere || $self->is_anywhere;
+
+  # Keep track of changes
+  my $changes = 0;
+
+  # Operand order is irrelevant
+  my $ops = $self->operands;
+
+  # Iterate over all operands
+  for (my $i = 0; $i < scalar(@$ops); $i++) {
+
+    my $op = $ops->[$i];
+
+    # Operand is no field
+    next if $op->type ne 'field';
+
+    # Operand is no date
+    next if $op->key_type ne 'date';
+
+    # Open to lower
+    if ($op->match eq 'lt') {
+      if (DEBUG) {
+        print_log('kq_range', 'Create open date range for ' . $op->to_string);
+      };
+
+      $ops->[$i] = Krawfish::Koral::Corpus::DateRange->new(
+        Krawfish::Koral::Corpus::Field::Date->new($op->key)->minimum->is_inclusive(1),
+        $op
+      )->normalize;
+
+      $changes++;
+    }
+
+    # Open to greater
+    elsif ($op->match eq 'gt') {
+      if (DEBUG) {
+        print_log('kq_range', 'Create open date range for ' . $op->to_string);
+      };
+
+      $ops->[$i] = Krawfish::Koral::Corpus::DateRange->new(
+        $op,
+        Krawfish::Koral::Corpus::Field::Date->new($op->key)->maximum->is_inclusive(1),
+      )->normalize;
+
+      $changes++;
+    };
+  };
+
+  return unless $changes;
+
+  $self->operands($ops);
+  return $self;
+
 };
 
 

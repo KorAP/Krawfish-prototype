@@ -40,7 +40,6 @@ is($tree->to_string, '((d=4&d=4&e=5)&b=2&c=3)&a=1', 'Plain groups');
 $tree->normalize;
 is($tree->to_string, 'a=1&b=2&c=3&d=4&e=5', 'Remove empty');
 
-
 # Solve grouping with reverse groups
 $tree = $cb->bool_and(
   $cb->string('a')->eq('1'),
@@ -114,7 +113,6 @@ is($tree->to_string, '', 'Remove empty');
 ok($tree->is_nowhere, 'Matches nowhere');
 ok(!$tree->is_anywhere, 'Matches everywhere');
 
-
 $tree = $cb->bool_or(
   $cb->string('x')->eq('1'),
   $cb->string('z')->eq('1'),
@@ -153,6 +151,7 @@ $tree = $cb->bool_or(
   ),
 );
 
+
 is($tree->to_string, '(a!=1&a=1)|x=1|z=1', 'Plain groups');
 $tree->normalize;
 is($tree->to_string, 'x=1|z=1', 'Remove empty');
@@ -171,6 +170,7 @@ is($tree->to_string, '[0]|x=1|z=1', 'Plain groups');
 $tree->normalize;
 ok(!$tree->is_nowhere, 'No Nowhere');
 is($tree->to_string, 'x=1|z=1', 'Remove empty');
+
 
 
 # ([0] & a) -> [0]
@@ -255,6 +255,7 @@ $tree = $cb->bool_or(
 is($tree->to_string, 'a!=1|b=1|c!=1|d=1|e!=1|f=1', 'Plain groups');
 ok($tree = $tree->normalize, 'Normalize');
 is($tree->to_string, '([1]&!(a=1&c=1&e=1))' . '|b=1|d=1|f=1', 'no string');
+
 
 # DeMorgan grouping with AND
 $tree = $cb->bool_and(
@@ -349,7 +350,6 @@ is($tree->to_string, '[0]', 'Stringification');
 ok($tree->is_nowhere, 'Is nowhere');
 ok($tree = $tree->finalize, 'Planning');
 is($tree->to_string, "[0]", 'Stringification');
-
 
 ok($tree = $cb->bool_or(
   $cb->anywhere,
