@@ -22,6 +22,7 @@ is($dr->to_string,
    'pub=2015[|pub=2015]|pub=2016[|pub=2016]|pub=2017[|pub=2017]|pub=2018[|pub=2018]',
  'Normalization');
 
+
 # Create negative normalization
 $dr = $cb->bool_and(
   $cb->date('pub')->leq('2015'),
@@ -111,6 +112,7 @@ ok($dr = $dr->normalize, 'Normalize');
 is($dr->to_string, 'pub=2002[|pub=2002]|pub=2003[|pub=2003]|pub=2004[|pub=2004]',
    'Stringification');
 
+
 # Respect inclusivity
 $dr = $cb->bool_and(
   $cb->date('pub')->gt('2001'),
@@ -121,6 +123,7 @@ is($dr->to_string, 'pub>2001&pub<=2005',
 ok($dr = $dr->normalize, 'Normalize');
 is($dr->to_string, 'pub=2002[|pub=2002]|pub=2003[|pub=2003]|pub=2004[|pub=2004]|pub=2005[|pub=2005]',
    'Stringification');
+
 
 # Respect inclusivity
 $dr = $cb->bool_and(
@@ -191,6 +194,24 @@ $final = $dr->to_string;
 like($final, qr/^\(pub=1000\[\|pub=1000\]\|pub=1001-01\[/, 'Stringification');
 like($final, qr/\|pub=1001-03-12\]\|pub=1001-03-13\]\|pub=1001-03\]\|pub=1001\]\|author=Peter\)\&\[1\]$/, 'Stringification');
 
+
+# Support open ranges in and-relation
+$dr = $cb->bool_and(
+  $cb->date('pub')->lt('1001-03-14'),
+  $cb->string('author')->eq('Peter')
+);
+is($dr->to_string, 'pub<1001-03-14&author=Peter', 'Stringification');
+ok($dr = $dr->normalize, 'Normalize');
+$norm = $dr->to_string;
+like($norm, qr/^\(pub=1000\[\|pub=1000\]\|pub=1001-01\[/, 'Stringification');
+like($norm, qr/\|pub=1001-03-12\]\|pub=1001-03-13\]\|pub=1001-03\]\|pub=1001\]\)\&author=Peter$/, 'Stringification');
+ok($dr = $dr->finalize, 'Finalize');
+$final = $dr->to_string;
+like($final, qr/^\(\(pub=1000\[\|pub=1000\]\|pub=1001-01\[/, 'Stringification');
+like($final, qr/\|pub=1001-03-12\]\|pub=1001-03-13\]\|pub=1001-03\]\|pub=1001\]\)\&author=Peter\)\&\[1\]$/, 'Stringification');
+
+
+
 # Finalize eq to intersection
 $dr = $cb->date('pub')->eq('2013-03-14');
 is($dr->to_string, 'pub=2013-03-14',
@@ -203,6 +224,20 @@ $final = $dr->to_string;
 is($final, '(pub=2013-03-14]|pub=2013-03]|pub=2013])&[1]', 'Stringification');
 
 
+# Simplify open range with equal
+$dr = $cb->bool_or(
+  $cb->date('pub')->geq('2195'),
+  $cb->date('pub')->eq('2197')
+);
+is($dr->to_string, 'pub>=2195|pub=2197',
+   'Stringification');
+ok($dr = $dr->normalize, 'Normalize');
+#is($dr->to_string, 'pub=2195[|pub=2195]|pub=2196[|pub=2196]|pub=2197[|pub=2197]|pub=2198[|pub=2198]|pub=2199[|pub=2199]|pub=2200[|pub=2200]',
+#   'Stringification');
+#ok($dr = $dr->finalize, 'Normalize');
+#is($dr->to_string, '(pub=2195[|pub=2195]|pub=2196[|pub=2196]|pub=2197[|pub=2197]|pub=2198[|pub=2198]|pub=2199[|pub=2199]|pub=2200[|pub=2200])&[1]',
+#   'Stringification');
+
 
 diag 'Limit open ranges';
 # like >= 2007 to [[2007--2100]], <= 2004 to [[1000--2004]]
@@ -213,6 +248,10 @@ diag 'Limit open ranges';
 #     This will be identical to String,
 #     but can be normalized more efficiently,
 #     as 2007[|2007-10[ is -> 2007[ etc.
+
+# TODO:
+#   Test
+#   date>2007&date!=2004
 
 done_testing;
 __END__

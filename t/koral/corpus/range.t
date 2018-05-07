@@ -350,7 +350,9 @@ $range = $cb->date('pubDate')->intersect(
 );
 is($range->to_string, 'pubDate&=[[2007-01-01--2007-01-31]]');
 ok($range = $range->normalize, 'Normalization');
-is($range->to_string, 'pubDate=2007-01[|pubDate=2007-01]|pubDate=2007]');
+is($range->to_string, 'pubDate&=2007-01');
+ok($range = $range->finalize, 'Normalization');
+is($range->to_string, '(pubDate=2007-01[|pubDate=2007-01]|pubDate=2007])&[1]');
 
 # [[2007-01-01--2007-02-31]] -> [[2007-01--2007-02]]
 $range = $cb->date('pubDate')->intersect(
@@ -385,7 +387,9 @@ $range = $cb->date('pubDate')->intersect(
 );
 is($range->to_string, 'pubDate&=[[2007-01-01--2007-12-31]]');
 ok($range = $range->normalize, 'Normalization');
-is($range->to_string, 'pubDate=2007[|pubDate=2007]');
+is($range->to_string, 'pubDate&=2007');
+ok($range = $range->finalize, 'Normalization');
+is($range->to_string, '(pubDate=2007[|pubDate=2007])&[1]');
 
 # [[2007-01-01--2009-12-31]] -> 2009
 $range = $cb->date('pubDate')->intersect(
@@ -434,8 +438,10 @@ is($date->to_string,
 $date = $cb->date('pubDate')->intersect('2015-11');
 is($date->to_string, 'pubDate&=2015-11');
 ok($date = $date->normalize, 'Normalize');
+is($date->to_string, 'pubDate&=2015-11');
+ok($date = $date->finalize, 'Normalize');
 is($date->to_string,
-   'pubDate=2015-11[|pubDate=2015-11]|pubDate=2015]');
+   '(pubDate=2015-11[|pubDate=2015-11]|pubDate=2015])&[1]');
 
 
 done_testing;

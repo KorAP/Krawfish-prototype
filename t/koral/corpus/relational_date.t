@@ -104,6 +104,8 @@ $tree = $cb->bool_and(
 # Simplify leq and geq
 ok($tree = $tree->normalize, 'Query normalization');
 is($tree->to_string, 'pubDate=2014-04', 'Resolve idempotence');
+ok($tree = $tree->finalize, 'Query normalization');
+is($tree->to_string, '(pubDate=2014-04[|pubDate=2014-04]|pubDate=2014])&[1]', 'Resolve idempotence');
 
 
 # Get tree
@@ -125,8 +127,9 @@ $tree = $cb->bool_and(
 
 # Simplify eq & leq|geq
 ok($tree = $tree->normalize, 'Query normalization');
-is($tree->to_string, 'pubDate=2014-04', 'Resolve idempotence');
-
+is($tree->to_string, 'pubDate=2014-04', 'Normalization');
+ok($tree = $tree->finalize, 'Query finalization');
+is($tree->to_string, '(pubDate=2014-04[|pubDate=2014-04]|pubDate=2014])&[1]', 'Normalization');
 
 # Get tree
 $tree = $cb->bool_or(
@@ -136,7 +139,12 @@ $tree = $cb->bool_or(
 
 # Simplify eq | leq|geq
 ok($tree = $tree->normalize, 'Query normalization');
-is($tree->to_string, 'pubDate>=2014-04', 'Resolve idempotence');
+is($tree->to_string, 'pubDate>=2014-04', 'Stringification');
+ok($tree = $tree->finalize, 'Query finalization');
+my $norm = $tree->to_string;
+like($norm, qr/^\(pubDate=2014-04\[\|pubDate=2014-04\]\|/, 'Resolve idempotence');
+like($norm, qr/\|pubDate=2199\]\|pubDate=2200\[\|pubDate=2200\]\)&\[1\]$/, 'Resolve idempotence');
+
 
 
 ###################
@@ -152,8 +160,11 @@ $tree = $cb->bool_and(
 
 
 # Simplify eq & leq|geq
+# TODO: this may be simplified even more
 ok($tree = $tree->normalize, 'Query normalization');
-is($tree->to_string, 'pubDate=2014-04&pubDate=2014-12-04',
+is($tree->to_string, 'pubDate=2014-04&pubDate=2014-12-04', 'Resolve idempotence');
+ok($tree = $tree->finalize, 'Query finalization');
+is($tree->to_string, '((pubDate=2014-04[|pubDate=2014-04]|pubDate=2014])&(pubDate=2014-12-04]|pubDate=2014-12]|pubDate=2014]))&[1]',
    'Resolve idempotence');
 
 # Get tree

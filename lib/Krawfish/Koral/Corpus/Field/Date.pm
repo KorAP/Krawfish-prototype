@@ -385,19 +385,15 @@ sub normalize {
 
   print_log('kq_date', "Normalize " . $self->to_string) if DEBUG;
 
-  # Treat query as intersection
-  if ($self->match eq 'intersect') {
-    return $self->builder->bool_or(
-      $self->to_term_queries
-    )->normalize;
-  };
-
+  # This should not work
   $self->{value} = normalize_nfkc($self->value) if $self->value;
   return $self;
 };
 
 
 # Finalize open dates to dateranges
+# TODO:
+#   Maybe better in _relaize_term_queries!
 sub _finalize {
   my $self = shift;
 
@@ -417,11 +413,24 @@ sub _finalize {
     )->normalize;
   }
 
-  elsif ($self->match eq 'eq') {
-    return $self->match('intersect')->normalize;
-  };
   return $self;
 };
+
+
+# Realize query as a term query
+sub realize {
+  my $self = shift;
+
+  # Treat query as intersection
+  if ($self->match eq 'intersect' || $self->match eq 'eq') {
+    return $self->builder->bool_or(
+      $self->to_term_queries
+    )->normalize;
+  };
+
+  return $self;
+};
+
 
 
 1;

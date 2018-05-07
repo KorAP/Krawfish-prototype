@@ -184,14 +184,7 @@ sub normalize {
   };
 
   # Recursive normalize
-  my @ops = ();
-  foreach my $op (@{$self->operands}) {
-
-    # Operand is group!
-    push @ops, $op->normalize if $op;
-  };
-
-  $self->operands(\@ops);
+  $self->_normalize_operands;
 
   my $x = 0;
 
@@ -208,7 +201,7 @@ sub normalize {
     if ($boolean) {
       $self = $boolean;
 
-      if (1) {
+      if (DEBUG) {
         print_log('kq_bool', ">> $operation had an effect " . $self->to_string);
       };
 
@@ -243,6 +236,30 @@ sub normalize {
   return $self;
 };
 
+
+sub _normalize_operands {
+  my $self = shift;
+
+  my @ops = ();
+  my $changes = 0;
+  foreach my $op (@{$self->operands}) {
+
+    my $norm = $op->normalize;
+    if ($norm) {
+    # Operand is group!
+      push @ops, $norm;
+      $changes++;
+    }
+    else {
+      push @ops, $op;
+    }
+  };
+
+  return unless $changes;
+
+  $self->operands(\@ops);
+  return $self;
+};
 
 # Resolve idempotence
 # a & a = a

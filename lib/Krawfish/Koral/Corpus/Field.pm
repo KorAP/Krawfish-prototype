@@ -271,5 +271,9 @@ sub to_neutral {
 };
 
 
+sub realize {
+  $_[0];
+};
+
 
 1;

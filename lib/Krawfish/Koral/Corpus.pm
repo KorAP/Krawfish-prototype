@@ -97,6 +97,9 @@ sub finalize {
 
   $corpus = $corpus->_finalize;
 
+  # Realize term queriesalize
+  $corpus = $corpus->realize;
+
   if ($corpus->is_negative) {
 
     print_log('kq_corpus', 'Query is negative') if DEBUG;
@@ -241,6 +244,23 @@ sub to_neutral {
 # Stringification for sorting
 sub to_sort_string {
   $_[0]->to_string;
+};
+
+
+# Realize
+sub realize {
+  my $self = shift;
+  return $self unless $self->operands;
+
+  my $ops = $self->operands;
+  return $self unless $ops;
+
+  for (my $i = 0; $i < @$ops; $i++) {
+    my $real = $ops->[$i]->realize;
+    $ops->[$i] = $real if $real;
+  };
+  return $self;
+  $self;
 };
 
 

@@ -163,6 +163,7 @@ sub _resolve_inclusivity_and_exclusivity {
           # Remove both operands
           splice @$ops, $i-1, 2, $self->builder->anywhere;
         };
+
         $changes++;
       }
 

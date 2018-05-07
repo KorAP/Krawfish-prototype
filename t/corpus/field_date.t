@@ -50,7 +50,7 @@ ok(!$plan->current, 'No Current doc id');
 ok($field = $cb->date('pubDate')->intersect('2014-01-16'), 'Create intersection range query');
 is($field->to_string, "pubDate&=2014-01-16", 'Stringification');
 ok($plan = $field->normalize, 'Normalize');
-is($plan->to_string, 'pubDate=2014-01-16]|pubDate=2014-01]|pubDate=2014]', 'Stringification');
+is($plan->to_string, 'pubDate&=2014-01-16', 'Stringification');
 ok($plan = $plan->finalize, 'Finalize');
 is($plan->to_string,
    '(pubDate=2014-01-16]|pubDate=2014-01]|pubDate=2014])&[1]',
