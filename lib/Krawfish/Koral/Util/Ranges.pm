@@ -11,6 +11,10 @@ use constant DEBUG => 0;
 #   Rename to 'RangeNormalized', and 'BooleanNormalized' etc.
 
 # TODO:
+#   [2--6]|[3--5] -> [2--6]
+#   [2--6]&[3--5] -> [3--5]
+
+# TODO:
 #   Combine AND-constraints on the same relational key
 #   to range queries, e.g.
 #     date > 2014-03-01 & date <= 2017-02

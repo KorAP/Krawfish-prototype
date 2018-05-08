@@ -391,10 +391,8 @@ sub normalize {
 };
 
 
-# Finalize open dates to dateranges
-# TODO:
-#   Maybe better in _relaize_term_queries!
-sub _finalize {
+# Realize query as a term query
+sub realize {
   my $self = shift;
 
   # Date is open
@@ -402,7 +400,7 @@ sub _finalize {
     return Krawfish::Koral::Corpus::DateRange->new(
       $self,
       __PACKAGE__->new($self->key)->maximum->is_inclusive(1)
-    )->normalize;
+    )->normalize->realize;
   }
 
   # Date is open
@@ -410,25 +408,17 @@ sub _finalize {
     return Krawfish::Koral::Corpus::DateRange->new(
       __PACKAGE__->new($self->key)->minimum->is_inclusive(1),
       $self
-    )->normalize;
+    )->normalize->realize;
   }
 
-  return $self;
-};
-
-
-# Realize query as a term query
-sub realize {
-  my $self = shift;
-
   # Treat query as intersection
-  if ($self->match eq 'intersect' || $self->match eq 'eq') {
+  elsif ($self->match eq 'intersect' || $self->match eq 'eq') {
     return $self->builder->bool_or(
       $self->to_term_queries
-    )->normalize;
+    )->normalize->realize;
   };
 
-  return $self;
+  return;
 };
 
 

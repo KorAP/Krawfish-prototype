@@ -74,6 +74,7 @@ sub normalize {
   # The daterange may be negative
   my $neg = $self->is_negative;
 
+  # There is a range target
   if ($to) {
     $from->normalize_range_calendaric(
       $to
@@ -91,6 +92,8 @@ sub normalize {
       # From subordinates to - to is irrelevant
       # 2005-10--2005-10-14
       if ($part_of == 1) {
+
+        # TODO: RESPECT NEGATIVITY
         return $from->match('intersect')->normalize;
       }
 
@@ -107,14 +110,29 @@ sub normalize {
   $self->{first} = $from;
   $self->{second} = $to;
 
+  return $self;
+};
+
+
+# Realize term queries
+# TODO:
+#   terminologcally this may be renamed to_term_queries
+#   and change meanings.
+sub realize {
+  my $self = shift;
+
+  # The daterange may be negative
+  my $neg = $self->is_negative;
+
   my $group = $self->builder->bool_or(
     $self->to_term_queries
   );
+
   if ($neg) {
     $group->is_negative(1);
   };
 
-  return $group->normalize;
+  return $group->normalize->realize;
 };
 
 

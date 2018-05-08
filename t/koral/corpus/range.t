@@ -359,8 +359,8 @@ $range = $cb->date('pubDate')->intersect(
   '2007-01-01', '2007-02-31'
 );
 is($range->to_string, 'pubDate&=[[2007-01-01--2007-02-31]]');
-ok($range = $range->normalize, 'Normalization');
-is($range->to_string, 'pubDate=2007-01[|pubDate=2007-01]|pubDate=2007-02[|pubDate=2007-02]|pubDate=2007]');
+ok($range = $range->normalize->finalize, 'Normalization');
+is($range->to_string, '(pubDate=2007-01[|pubDate=2007-01]|pubDate=2007-02[|pubDate=2007-02]|pubDate=2007])&[1]');
 
 
 # [[2007-01-01--2008-02-31]] -> [[2007-01--2008-02]]
@@ -368,8 +368,8 @@ $range = $cb->date('pubDate')->intersect(
   '2007-11-01', '2008-02-31'
 );
 is($range->to_string, 'pubDate&=[[2007-11-01--2008-02-31]]');
-ok($range = $range->normalize, 'Normalization');
-is($range->to_string, 'pubDate=2007-11[|pubDate=2007-11]|pubDate=2007-12[|pubDate=2007-12]|pubDate=2007]|pubDate=2008-01[|pubDate=2008-01]|pubDate=2008-02[|pubDate=2008-02]|pubDate=2008]');
+ok($range = $range->normalize->finalize, 'Normalization');
+is($range->to_string, '(pubDate=2007-11[|pubDate=2007-11]|pubDate=2007-12[|pubDate=2007-12]|pubDate=2007]|pubDate=2008-01[|pubDate=2008-01]|pubDate=2008-02[|pubDate=2008-02]|pubDate=2008])&[1]', 'Stringification');
 
 
 # [[2007-01-01--2008-02-31]] -> [[2007--2008-02]]
@@ -377,8 +377,8 @@ $range = $cb->date('pubDate')->intersect(
   '2007-01-01', '2008-02-31'
 );
 is($range->to_string, 'pubDate&=[[2007-01-01--2008-02-31]]');
-ok($range = $range->normalize, 'Normalization');
-is($range->to_string, 'pubDate=2007[|pubDate=2007]|pubDate=2008-01[|pubDate=2008-01]|pubDate=2008-02[|pubDate=2008-02]|pubDate=2008]');
+ok($range = $range->normalize->finalize, 'Normalization');
+is($range->to_string, '(pubDate=2007[|pubDate=2007]|pubDate=2008-01[|pubDate=2008-01]|pubDate=2008-02[|pubDate=2008-02]|pubDate=2008])&[1]');
 
 
 # [[2007-01-01--2007-12-31]] -> 2007
@@ -396,8 +396,8 @@ $range = $cb->date('pubDate')->intersect(
   '2007-01-01', '2009-12-31'
 );
 is($range->to_string, 'pubDate&=[[2007-01-01--2009-12-31]]');
-ok($range = $range->normalize, 'Normalization');
-is($range->to_string, 'pubDate=2007[|pubDate=2007]|pubDate=2008[|pubDate=2008]|pubDate=2009[|pubDate=2009]');
+ok($range = $range->normalize->finalize, 'Normalization');
+is($range->to_string, '(pubDate=2007[|pubDate=2007]|pubDate=2008[|pubDate=2008]|pubDate=2009[|pubDate=2009])&[1]', 'Stringification');
 
 
 # Calendaric normalization of index fields
@@ -429,9 +429,9 @@ is($dr->add_range(
 
 $date = $cb->date('pubDate')->intersect('2015-02','2014-11-01');
 is($date->to_string, 'pubDate&=[[2014-11-01--2015-02]]');
-ok($date = $date->normalize, 'Normalize');
+ok($date = $date->normalize->finalize, 'Normalize');
 is($date->to_string,
-   'pubDate=2014-11[|pubDate=2014-11]|pubDate=2014-12[|pubDate=2014-12]|pubDate=2014]|pubDate=2015-01[|pubDate=2015-01]|pubDate=2015-02[|pubDate=2015-02]|pubDate=2015]');
+   '(pubDate=2014-11[|pubDate=2014-11]|pubDate=2014-12[|pubDate=2014-12]|pubDate=2014]|pubDate=2015-01[|pubDate=2015-01]|pubDate=2015-02[|pubDate=2015-02]|pubDate=2015])&[1]');
 
 
 # Order dates in range

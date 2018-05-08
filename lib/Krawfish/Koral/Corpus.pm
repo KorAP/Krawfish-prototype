@@ -97,8 +97,19 @@ sub finalize {
 
   $corpus = $corpus->_finalize;
 
-  # Realize term queriesalize
-  $corpus = $corpus->realize;
+  # Realize term queries
+  my $temp_corpus_1 = $corpus->realize;
+
+  # In case the result is different and is a field group - normalize again
+  if ($temp_corpus_1) {
+    if (Role::Tiny::does_role($temp_corpus_1, 'Krawfish::Koral::Util::Boolean') &&
+        (my $temp_corpus_2 = $temp_corpus_1->normalize)) {
+      $corpus = $temp_corpus_2;
+    }
+    else {
+      $corpus = $temp_corpus_1;
+    };
+  };
 
   if ($corpus->is_negative) {
 
@@ -250,6 +261,8 @@ sub to_sort_string {
 # Realize
 sub realize {
   my $self = shift;
+  my $changes = 0;
+
   return $self unless $self->operands;
 
   my $ops = $self->operands;
@@ -257,10 +270,13 @@ sub realize {
 
   for (my $i = 0; $i < @$ops; $i++) {
     my $real = $ops->[$i]->realize;
-    $ops->[$i] = $real if $real;
+    if ($real) {
+      $ops->[$i] = $real;
+      $changes++;
+    };
   };
-  return $self;
-  $self;
+  return $self if $changes;
+  return;
 };
 
 

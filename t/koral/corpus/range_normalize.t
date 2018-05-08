@@ -19,9 +19,12 @@ $dr = $cb->bool_and(
 is($dr->to_string, 'pub>=2015&pub<=2018', 'Stringification');
 ok($dr = $dr->normalize, 'Normalize');
 is($dr->to_string,
-   'pub=2015[|pub=2015]|pub=2016[|pub=2016]|pub=2017[|pub=2017]|pub=2018[|pub=2018]',
+   'pub&=[[2015--2018]]',
  'Normalization');
-
+ok($dr = $dr->finalize, 'Finalize');
+is($dr->to_string,
+   '(pub=2015[|pub=2015]|pub=2016[|pub=2016]|pub=2017[|pub=2017]|pub=2018[|pub=2018])&[1]',
+ 'Normalization');
 
 # Create negative normalization
 $dr = $cb->bool_and(
@@ -30,11 +33,11 @@ $dr = $cb->bool_and(
 );
 is($dr->to_string, 'pub<=2015&pub>=2018', 'Stringification');
 ok($dr = $dr->normalize, 'Normalize');
+is($dr->to_string, 'pub&!=[[2018--2015]]', 'Normalization');
 ok($dr = $dr->finalize, 'Finalize');
 is($dr->to_string,
    '([1]&!(pub=2015[|pub=2015]|pub=2018[|pub=2018]))',
    'Normalization');
-
 
 # Simple combination
 $dr = $cb->bool_or(
@@ -49,15 +52,15 @@ $dr = $cb->bool_or(
 );
 is($dr->to_string, '(pub>=2001&pub<=2005)|(pub>=2007&pub<=2009)', 'Stringification');
 ok($dr = $dr->normalize, 'Normalize');
+is($dr->to_string,
+   'pub&=[[2001--2005]]|pub&=[[2007--2009]]',
+   'Normalization');
 ok($dr = $dr->finalize, 'Finalize');
 
 # This normalization may fail with "within" queries
 is($dr->to_string,
-   '(pub=2001[|pub=2001]|pub=2002[|pub=2002]|pub=2003[|pub=2003]|'.
-     'pub=2004[|pub=2004]|pub=2005[|pub=2005]|pub=2007[|pub=2007]|pub=2008[|pub=2008]|pub=2009[|pub=2009])&[1]',
+   '(pub=2001[|pub=2001]|pub=2002[|pub=2002]|pub=2003[|pub=2003]|pub=2004[|pub=2004]|pub=2005[|pub=2005]|pub=2007[|pub=2007]|pub=2008[|pub=2008]|pub=2009[|pub=2009])&[1]',
    'Normalization');
-
-
 
 # Embedding combination
 $dr = $cb->bool_or(
@@ -73,14 +76,16 @@ $dr = $cb->bool_or(
 
 is($dr->to_string, '(pub>=2001&pub<=2005)|(pub>=2002-10-14&pub<=2003-11-09)', 'Stringification');
 ok($dr = $dr->normalize, 'Normalize');
+is($dr->to_string,
+   'pub&=[[2001--2005]]|pub&=[[2002-10-14--2003-11-09]]',
+   'Stringification');
+
 ok($dr = $dr->finalize, 'Finalize');
 
 # This normalization may fail with "within" queries
 is($dr->to_string,
    '(pub=2001[|pub=2001]|pub=2002[|pub=2002]|pub=2003[|pub=2003]|pub=2004[|pub=2004]|pub=2005[|pub=2005])&[1]',
    'Normalization');
-
-
 
 # >=2001 & <=2005 & >= 2002-10-14 & <= 2003-11-09
 # Embedding combination
@@ -109,9 +114,10 @@ $dr = $cb->bool_and(
 is($dr->to_string, 'pub>2001&pub<2005',
    'Stringification');
 ok($dr = $dr->normalize, 'Normalize');
-is($dr->to_string, 'pub=2002[|pub=2002]|pub=2003[|pub=2003]|pub=2004[|pub=2004]',
+is($dr->to_string, 'pub&=[[2002--2004]]', 'Stringification');
+ok($dr = $dr->finalize, 'Normalize');
+is($dr->to_string, '(pub=2002[|pub=2002]|pub=2003[|pub=2003]|pub=2004[|pub=2004])&[1]',
    'Stringification');
-
 
 # Respect inclusivity
 $dr = $cb->bool_and(
@@ -121,8 +127,10 @@ $dr = $cb->bool_and(
 is($dr->to_string, 'pub>2001&pub<=2005',
    'Stringification');
 ok($dr = $dr->normalize, 'Normalize');
-is($dr->to_string, 'pub=2002[|pub=2002]|pub=2003[|pub=2003]|pub=2004[|pub=2004]|pub=2005[|pub=2005]',
+is($dr->to_string, 'pub&=[[2002--2005]]',
    'Stringification');
+ok($dr = $dr->finalize, 'Finalize');
+is($dr->to_string, '(pub=2002[|pub=2002]|pub=2003[|pub=2003]|pub=2004[|pub=2004]|pub=2005[|pub=2005])&[1]', 'Stringification');
 
 
 # Respect inclusivity
@@ -133,9 +141,10 @@ $dr = $cb->bool_and(
 is($dr->to_string, 'pub>=2001&pub<2005',
    'Stringification');
 ok($dr = $dr->normalize, 'Normalize');
-is($dr->to_string, 'pub=2001[|pub=2001]|pub=2002[|pub=2002]|pub=2003[|pub=2003]|pub=2004[|pub=2004]',
+is($dr->to_string, 'pub&=[[2001--2004]]', 'Stringification');
+ok($dr = $dr->finalize, 'Normalize');
+is($dr->to_string, '(pub=2001[|pub=2001]|pub=2002[|pub=2002]|pub=2003[|pub=2003]|pub=2004[|pub=2004])&[1]',
    'Stringification');
-
 
 
 # Respect inclusivity
@@ -146,9 +155,10 @@ $dr = $cb->bool_and(
 is($dr->to_string, 'pub>2001-12-31&pub<2005-01-01',
    'Stringification');
 ok($dr = $dr->normalize, 'Normalize');
-is($dr->to_string, 'pub=2002[|pub=2002]|pub=2003[|pub=2003]|pub=2004[|pub=2004]',
+is($dr->to_string, 'pub&=[[2002--2004]]', 'Stringification');
+ok($dr = $dr->finalize, 'Normalize');
+is($dr->to_string, '(pub=2002[|pub=2002]|pub=2003[|pub=2003]|pub=2004[|pub=2004])&[1]',
    'Stringification');
-
 
 
 # Support open ranges
@@ -165,17 +175,17 @@ like($final, qr/\|pub=2200\[\|pub=2200\]\)&\[1\]$/, 'Stringification');
 
 
 # Support open ranges
-$dr = $cb->date('pub')->lt('2013-03-14');
-is($dr->to_string, 'pub<2013-03-14',
+$dr = $cb->date('pub')->lt('1013-03-14');
+is($dr->to_string, 'pub<1013-03-14',
    'Stringification');
 ok($dr = $dr->normalize, 'Normalize');
-is($dr->to_string, 'pub<2013-03-14',
+is($dr->to_string, 'pub<1013-03-14',
    'Stringification');
 ok($dr = $dr->finalize, 'Finalize');
 $final = $dr->to_string;
 like($final, qr/^\(pub=1000\[|pub=1000\]/, 'Stringification');
 like($final,
-     qr/\\|pub=2013-03-11\]\|pub=2013-03-12\]\|pub=2013-03-13\]\|pub=2013-03\]\|pub=2013\]\)&\[1\]$/,
+     qr/\\|pub=1013-03-11\]\|pub=1013-03-12\]\|pub=1013-03-13\]\|pub=1013-03\]\|pub=1013\]\)&\[1\]$/,
      'Stringification');
 
 
@@ -186,9 +196,7 @@ $dr = $cb->bool_or(
 );
 is($dr->to_string, 'pub<1001-03-14|author=Peter', 'Stringification');
 ok($dr = $dr->normalize, 'Normalize');
-$norm = $dr->to_string;
-like($norm, qr/^pub=1000\[\|pub=1000\]\|pub=1001-01\[/, 'Stringification');
-like($norm, qr/\|pub=1001-03-12\]\|pub=1001-03-13\]\|pub=1001-03\]\|pub=1001\]\|author=Peter$/, 'Stringification');
+is($dr->to_string, 'pub&=[[1000--1001-03-13]]|author=Peter', 'Stringification');
 ok($dr = $dr->finalize, 'Finalize');
 $final = $dr->to_string;
 like($final, qr/^\(pub=1000\[\|pub=1000\]\|pub=1001-01\[/, 'Stringification');
@@ -202,9 +210,7 @@ $dr = $cb->bool_and(
 );
 is($dr->to_string, 'pub<1001-03-14&author=Peter', 'Stringification');
 ok($dr = $dr->normalize, 'Normalize');
-$norm = $dr->to_string;
-like($norm, qr/^\(pub=1000\[\|pub=1000\]\|pub=1001-01\[/, 'Stringification');
-like($norm, qr/\|pub=1001-03-12\]\|pub=1001-03-13\]\|pub=1001-03\]\|pub=1001\]\)\&author=Peter$/, 'Stringification');
+is($dr->to_string, 'pub&=[[1000--1001-03-13]]&author=Peter', 'Stringification');
 ok($dr = $dr->finalize, 'Finalize');
 $final = $dr->to_string;
 like($final, qr/^\(\(pub=1000\[\|pub=1000\]\|pub=1001-01\[/, 'Stringification');
@@ -232,11 +238,11 @@ $dr = $cb->bool_or(
 is($dr->to_string, 'pub>=2195|pub=2197',
    'Stringification');
 ok($dr = $dr->normalize, 'Normalize');
-#is($dr->to_string, 'pub=2195[|pub=2195]|pub=2196[|pub=2196]|pub=2197[|pub=2197]|pub=2198[|pub=2198]|pub=2199[|pub=2199]|pub=2200[|pub=2200]',
-#   'Stringification');
-#ok($dr = $dr->finalize, 'Normalize');
-#is($dr->to_string, '(pub=2195[|pub=2195]|pub=2196[|pub=2196]|pub=2197[|pub=2197]|pub=2198[|pub=2198]|pub=2199[|pub=2199]|pub=2200[|pub=2200])&[1]',
-#   'Stringification');
+is($dr->to_string, 'pub=2197|pub&=[[2195--2200]]',
+   'Stringification');
+ok($dr = $dr->finalize, 'Normalize');
+is($dr->to_string, '(pub=2195[|pub=2195]|pub=2196[|pub=2196]|pub=2197[|pub=2197]|pub=2198[|pub=2198]|pub=2199[|pub=2199]|pub=2200[|pub=2200])&[1]',
+   'Stringification');
 
 
 diag 'Limit open ranges';

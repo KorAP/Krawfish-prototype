@@ -76,7 +76,7 @@ ok($field = $cb->date('pubDate')->intersect('2014-01-16','2014-01-19'),
    'Create intersection range query');
 is($field->to_string, "pubDate&=[[2014-01-16--2014-01-19]]", 'Stringification');
 ok($plan = $field->normalize, 'Normalize');
-is($plan->to_string, 'pubDate=2014-01-16]|pubDate=2014-01-17]|pubDate=2014-01-18]|pubDate=2014-01-19]|pubDate=2014-01]|pubDate=2014]', 'Stringification');
+is($plan->to_string, 'pubDate&=[[2014-01-16--2014-01-19]]', 'Stringification');
 ok($plan = $plan->finalize, 'Finalize');
 is($plan->to_string,
    '(pubDate=2014-01-16]|pubDate=2014-01-17]|pubDate=2014-01-18]|pubDate=2014-01-19]|pubDate=2014-01]|pubDate=2014])&[1]',
