@@ -271,7 +271,7 @@ sub to_neutral {
 };
 
 
-sub realize {
+sub to_term_query {
   $_[0];
 };
 

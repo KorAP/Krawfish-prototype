@@ -115,31 +115,28 @@ sub normalize {
 
 
 # Realize term queries
-# TODO:
-#   terminologcally this may be renamed to_term_queries
-#   and change meanings.
-sub realize {
+sub to_term_query {
   my $self = shift;
 
   # The daterange may be negative
   my $neg = $self->is_negative;
 
   my $group = $self->builder->bool_or(
-    $self->to_term_queries
+    $self->to_term_query_array
   );
 
   if ($neg) {
     $group->is_negative(1);
   };
 
-  return $group->normalize->realize;
+  return $group->normalize->to_term_query;
 };
 
 
 # Return all terms intersecting the range
 # TODO:
 #   Rename to overlap?
-sub to_term_queries {
+sub to_term_query_array {
   my $self = shift;
 
   # TODO:
@@ -158,7 +155,7 @@ sub to_term_queries {
     $self->{second} = $to;
   };
 
-  return $from->to_term_queries(
+  return $from->to_term_query_array(
     $to
   );
 };

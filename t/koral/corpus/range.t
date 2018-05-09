@@ -16,7 +16,7 @@ my $date = $cb->date('pubDate')->intersect('2015-11-14');
 is($date->to_string, 'pubDate&=2015-11-14');
 
 # Get all terms to request relevant for intersection
-my @terms = $date->to_term_queries;
+my @terms = $date->to_term_query_array;
 is($terms[0]->to_string, 'pubDate=2015-11-14' . RANGE_ALL_POST);
 is($terms[1]->to_string, 'pubDate=2015-11' . RANGE_ALL_POST);
 is($terms[2]->to_string, 'pubDate=2015' . RANGE_ALL_POST);
@@ -26,7 +26,7 @@ $date = $cb->date('pubDate')->intersect('2015-11');
 is($date->to_string, 'pubDate&=2015-11');
 
 # Get all terms to request relevant for intersection
-@terms = $date->to_term_queries;
+@terms = $date->to_term_query_array;
 is($terms[0]->to_string, 'pubDate=2015-11' . RANGE_PART_POST);
 is($terms[1]->to_string, 'pubDate=2015-11' . RANGE_ALL_POST);
 is($terms[2]->to_string, 'pubDate=2015' . RANGE_ALL_POST);
@@ -37,7 +37,7 @@ $date = $cb->date('pubDate')->intersect('2015');
 is($date->to_string, 'pubDate&=2015');
 
 # Get all terms to request relevant for intersection
-@terms = $date->to_term_queries;
+@terms = $date->to_term_query_array;
 is($terms[0]->to_string, 'pubDate=2015' . RANGE_PART_POST);
 is($terms[1]->to_string, 'pubDate=2015' . RANGE_ALL_POST);
 ok(!$terms[2], 'No more terms');
@@ -48,7 +48,7 @@ is($range->to_string, 'pubDate&=[[2015--2017]]');
 
 @terms = sort {
   $a->to_sort_string cmp $b->to_sort_string
-} $range->to_term_queries;
+} $range->to_term_query_array;
 is($terms[0]->to_string, 'pubDate=2015[');
 is($terms[1]->to_string, 'pubDate=2015]');
 is($terms[2]->to_string, 'pubDate=2016[');

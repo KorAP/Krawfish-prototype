@@ -69,7 +69,7 @@ sub query {
   };
 
   my %match_docs = ();
-  foreach my $tq ($query->to_term_queries) {
+  foreach my $tq ($query->to_term_query_array) {
     my $term = DATE_FIELD_PREF . $tq->to_neutral;
 
     print_log('tk_dranges', ' ?> ' . $term) if DEBUG;

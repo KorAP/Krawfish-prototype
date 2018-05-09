@@ -96,7 +96,7 @@ sub to_sort_string {
 # This will represent an intersection
 # with all dates or dateranges intersecting
 # with the current date
-sub to_term_queries {
+sub to_term_query_array {
   my $self = shift;
   my $from = $self;
   my $to = shift;
@@ -392,7 +392,7 @@ sub normalize {
 
 
 # Realize query as a term query
-sub realize {
+sub to_term_query {
   my $self = shift;
 
   # Date is open
@@ -400,7 +400,7 @@ sub realize {
     return Krawfish::Koral::Corpus::DateRange->new(
       $self,
       __PACKAGE__->new($self->key)->maximum->is_inclusive(1)
-    )->normalize->realize;
+    )->normalize->to_term_query;
   }
 
   # Date is open
@@ -408,14 +408,14 @@ sub realize {
     return Krawfish::Koral::Corpus::DateRange->new(
       __PACKAGE__->new($self->key)->minimum->is_inclusive(1),
       $self
-    )->normalize->realize;
+    )->normalize->to_term_query;
   }
 
   # Treat query as intersection
   elsif ($self->match eq 'intersect' || $self->match eq 'eq') {
     return $self->builder->bool_or(
-      $self->to_term_queries
-    )->normalize->realize;
+      $self->to_term_query_array
+    )->normalize->to_term_query;
   };
 
   return;

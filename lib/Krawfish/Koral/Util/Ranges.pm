@@ -13,6 +13,8 @@ use constant DEBUG => 0;
 # TODO:
 #   [2--6]|[3--5] -> [2--6]
 #   [2--6]&[3--5] -> [3--5]
+#   [2--7]|[4--9] -> [2--9]
+#   [2--7]&[4--9] -> [4--7]
 
 # TODO:
 #   Combine AND-constraints on the same relational key
@@ -245,7 +247,19 @@ sub _create_open_date_ranges {
 
   $self->operands($ops);
   return $self;
+};
 
+
+# Merge date ranges that are subsumptions
+#   [2--6]|[3--5] -> [2--6]
+#   [2--6]&[3--5] -> [3--5]
+#   [2--7]|[4--9] -> [2--9]
+#   [2--7]&[4--9] -> [4--7]
+
+# TODO:
+#   2015&[12-01-2015--20-01-2015] -> 2015
+sub _merge_date_range_subsumption {
+  ...
 };
 
 

@@ -98,7 +98,7 @@ sub finalize {
   $corpus = $corpus->_finalize;
 
   # Realize term queries
-  my $temp_corpus_1 = $corpus->realize;
+  my $temp_corpus_1 = $corpus->to_term_query;
 
   # In case the result is different and is a field group - normalize again
   if ($temp_corpus_1) {
@@ -258,8 +258,8 @@ sub to_sort_string {
 };
 
 
-# Realize
-sub realize {
+# Realize as a term query
+sub to_term_query {
   my $self = shift;
   my $changes = 0;
 
@@ -269,7 +269,7 @@ sub realize {
   return $self unless $ops;
 
   for (my $i = 0; $i < @$ops; $i++) {
-    my $real = $ops->[$i]->realize;
+    my $real = $ops->[$i]->to_term_query;
     if ($real) {
       $ops->[$i] = $real;
       $changes++;
