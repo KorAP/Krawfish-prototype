@@ -67,7 +67,7 @@ sub normalization_order {
     '_resolve_idempotence',
     '_merge_to_date_ranges',
     '_create_open_date_ranges',
-    '_resolve_date_string_subsumption',
+    '_resolve_date_subsumption',
     '_resolve_demorgan',
     '_remove_nested_idempotence',
     '_replace_negative'

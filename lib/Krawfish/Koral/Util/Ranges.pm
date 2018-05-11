@@ -5,7 +5,7 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # TODO:
 #   Rename to 'RangeNormalized', and 'BooleanNormalized' etc.
@@ -96,7 +96,7 @@ sub _merge_to_date_ranges {
                   ' to ' . $dr->to_string) if DEBUG;
 
       if ($neg) {
-        $dr = $dr->is_negative(1);
+        $dr->is_negative(1);
         print_log('kq_range', 'DateRange is now negative ' . $dr->to_string) if DEBUG;
       };
 
@@ -117,10 +117,23 @@ sub _merge_to_date_ranges {
 # Check if term strings are already subsumed by other termranges
 # 2005[ and 2005-11] -> 2005[
 # This is okay, but way slower than a direct daterange merge
-sub _resolve_date_string_subsumption {
+# But it should only be done in finalize(), not normalize()
+
+# Merge date ranges that are subsumptions
+#   [2--6]|[3--5] -> [2--6]
+#   [2--6]&[3--5] -> [3--5]
+#   [2--7]|[4--9] -> [2--9]
+#   [2--7]&[4--9] -> [4--7]
+
+# TODO:
+#   2015&[12-01-2015--20-01-2015] -> 2015
+
+sub _resolve_date_subsumption {
   my $self = shift;
 
-  print_log('kq_range', ': Check date term strings for subsumption for ' . $self->to_string) if DEBUG;
+  if (DEBUG) {
+    print_log('kq_range', ': Check dates for subsumption for ' . $self->to_string);
+  };
 
   return if $self->is_nowhere || $self->is_anywhere;
 
@@ -142,42 +155,50 @@ sub _resolve_date_string_subsumption {
     # Both operands are fields
     next unless $op_a->is_leaf && $op_b->is_leaf;
 
-    # Both operands require to be dates
-    next unless $op_a->key_type eq $op_b->key_type && $op_a->key_type eq 'date_string';
-
     # Both operands require the same key
     next unless $op_a->key eq $op_b->key;
 
-    my $is_part_of = $op_a->is_part_of($op_b);
+    # Both operands require to be datestrings
+    # DateString subsumption
+    if ($op_a->key_type eq $op_b->key_type && $op_a->key_type eq 'date_string') {
 
-    if (DEBUG) {
-      print_log('kq_range', 'Compare ' . $op_a->to_string . ' and ' . $op_b->to_string);
-    };
-
-    # 2005[ | 2015-10[
-    if ($is_part_of == 1) {
+      my $is_part_of = $op_a->is_part_of($op_b);
 
       if (DEBUG) {
-        print_log('kq_range', 'A: ' . $op_a->to_string . ' is part of ' . $op_b->to_string);
+        print_log('kq_range', 'Compare ' . $op_a->to_string . ' and ' . $op_b->to_string);
       };
 
-      # Remove b
-      splice @$ops, $i, 1;
-      $i--;
-      $changes++;
+      # 2005[ | 2015-10[
+      if ($is_part_of == 1) {
+
+        if (DEBUG) {
+          print_log('kq_range', 'A: ' . $op_a->to_string . ' is part of ' . $op_b->to_string);
+        };
+
+        # Remove b
+        splice @$ops, $i, 1;
+        $i--;
+        $changes++;
+      }
+
+      # 2005-10[ | 2015[
+      elsif ($is_part_of == -1) {
+
+        if (DEBUG) {
+          print_log('kq_range', 'B: ' . $op_b->to_string . ' is part of ' . $op_a->to_string);
+        };
+
+        # Remove a
+        splice @$ops, $i-1, 1;
+        $i-=2; # May merge with the one before
+        $changes++;
+      };
     }
 
-    # 2005-10[ | 2015[
-    elsif ($is_part_of == -1) {
-
-      if (DEBUG) {
-        print_log('kq_range', 'B: ' . $op_b->to_string . ' is part of ' . $op_a->to_string);
-      };
-
-      # Remove a
-      splice @$ops, $i-1, 1;
-      $i-=2; # May merge with the one before
-      $changes++;
+    elsif ($op_a->key_type && $op_b->key_type &&
+             $op_a->key_type eq $op_b->key_type &&
+             $op_a->key_type eq 'date') {
+      # ...
     };
   };
 
@@ -247,19 +268,6 @@ sub _create_open_date_ranges {
 
   $self->operands($ops);
   return $self;
-};
-
-
-# Merge date ranges that are subsumptions
-#   [2--6]|[3--5] -> [2--6]
-#   [2--6]&[3--5] -> [3--5]
-#   [2--7]|[4--9] -> [2--9]
-#   [2--7]&[4--9] -> [4--7]
-
-# TODO:
-#   2015&[12-01-2015--20-01-2015] -> 2015
-sub _merge_date_range_subsumption {
-  ...
 };
 
 

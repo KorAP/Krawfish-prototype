@@ -11,17 +11,17 @@ with 'Krawfish::Koral::Corpus';
 
 use constant DEBUG => 0;
 
+sub key_type {
+  'date_string';
+};
+
+
 sub new {
   my $class = shift;
   bless {
     key => shift,
     match => 'eq'
   }, $class;
-};
-
-
-sub key_type {
-  'date_string';
 };
 
 

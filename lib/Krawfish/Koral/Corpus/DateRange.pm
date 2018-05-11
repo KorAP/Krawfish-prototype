@@ -6,6 +6,7 @@ use warnings;
 
 use constant DEBUG => 0;
 
+with 'Krawfish::Koral::Corpus::Field';
 with 'Krawfish::Koral::Corpus';
 
 # The implementation for dates has to recognize
@@ -25,7 +26,19 @@ with 'Krawfish::Koral::Corpus';
 
 
 sub type {
-  'date_range'
+  'range'
+};
+
+sub key_type {
+  'date';
+};
+
+sub key {
+  '';
+};
+
+sub is_leaf {
+  1;
 };
 
 

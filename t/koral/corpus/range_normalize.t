@@ -50,6 +50,7 @@ $dr = $cb->bool_or(
     $cb->date('pub')->leq('2009')
   )
 );
+
 is($dr->to_string, '(pub>=2001&pub<=2005)|(pub>=2007&pub<=2009)', 'Stringification');
 ok($dr = $dr->normalize, 'Normalize');
 is($dr->to_string,
