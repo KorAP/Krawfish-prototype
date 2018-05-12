@@ -245,6 +245,67 @@ is($cb->date('pubDate')->eq('2005-01')->previous_date->to_string, 'pubDate=2004-
    'Get previous date');
 
 
+sub join_ranges {
+  my ($range_a, $range_b) = @_;
+  return $cb->date('date')->intersect(
+    $range_a->[0],
+    $range_a->[1]
+  )->join_with(
+    $cb->date('date')->intersect(
+      $range_b->[0],
+      $range_b->[1]
+    )
+  );
+};
+
+
+
+# Check joins
+# MATCHES
+is(join_ranges(
+  ['2007', '2011'],
+  ['2007', '2011']
+)->to_string, 'date&=[[2007--2011]]');
+
+# ALIGNS_LEFT
+is(join_ranges(
+  ['2007', '2009'],
+  ['2007', '2011']
+)->to_string, 'date&=[[2007--2011]]');
+
+# PRECEDES_DIRECTLY
+is(join_ranges(
+  ['2007', '2009'],
+  ['2009', '2012']
+)->to_string, 'date&=[[2007--2012]]');
+
+# ENDS_WITH
+is(join_ranges(
+  ['2007', '2017'],
+  ['2009', '2017']
+)->to_string, 'date&=[[2007--2017]]');
+
+# OVERLAPS_LEFT
+is(join_ranges(
+  ['2007', '2009'],
+  ['2008', '2011']
+)->to_string, 'date&=[[2007--2011]]');
+
+# IS_AROUND
+is(join_ranges(
+  ['2007', '2016'],
+  ['2009', '2011']
+)->to_string, 'date&=[[2007--2016]]');
+
+# !PRECEDES
+ok(!join_ranges(
+  ['2007', '2009'],
+  ['2010', '2012']
+), 'No precedes');
+
+
+
+
 
 SKIP: {
   skip "> and < not yet supported", 2;

@@ -2,12 +2,16 @@ package Test::Krawfish::DateRanges;
 use Krawfish::Koral::Document::Field::DateRange;
 use Krawfish::Koral::Corpus::Field::Date;
 use Krawfish::Koral::Corpus::DateRange;
+use Krawfish::Koral::Corpus::Builder;
 use Krawfish::Util::Constants qw/DATE_FIELD_PREF/;
 use Krawfish::Log;
+use Exporter 'import';
 use strict;
 use warnings;
 
 use constant DEBUG => 1;
+
+# our @EXPORT = qw(join_ranges);
 
 sub new {
   bless {}, shift;
@@ -89,7 +93,6 @@ sub clear {
   %{$self} = ();
   return 1;
 };
-
 
 
 1;

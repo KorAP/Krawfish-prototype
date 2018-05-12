@@ -4,7 +4,7 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 with 'Krawfish::Koral::Corpus::Field';
 with 'Krawfish::Koral::Corpus';
@@ -62,6 +62,15 @@ sub new {
   }, $class;
 };
 
+
+sub from {
+  $_[0]->{first};
+};
+
+
+sub to {
+  $_[0]->{second};
+};
 
 # Turn the date range query into an or-query
 sub normalize {
@@ -126,6 +135,85 @@ sub normalize {
   return $self;
 };
 
+
+# Join a daterange with a date,
+# if possible
+sub join_with {
+  my ($self, $other) = @_;
+
+  if (DEBUG) {
+    print_log(
+      'kq_daterange',
+      'Join DateRanges ' . $self->to_string . ' and ' . $other->to_string
+    );
+  };
+
+  # Sort by range, in case it wasn't sort before
+  my ($first, $second);
+  if ($self->from->value_lt($other->from)) {
+    ($first, $second) = ($self, $other);
+  }
+  elsif ($self->from->value_gt($other->from)) {
+    ($second, $first) = ($self, $other);
+  }
+  elsif ($self->to->value_lt($other->to)) {
+    ($first, $second) = ($self, $other);
+  }
+  elsif ($self->to->value_gt($other->to)) {
+    ($second, $first) = ($self, $other);
+  }
+
+  # Identical
+  else {
+
+    # MATCHES
+    return $self;
+  };
+
+  if (DEBUG) {
+    print_log(
+      'kq_daterange',
+      'Sorted DateRanges to ' . $first->to_string . ' and ' . $second->to_string
+    );
+  };
+
+  # TODO: Check for inclusivity!
+
+  # 2012-... | 2012-...
+  if ($first->from->value_eq($second->from)) {
+
+    # 2007-2009 | 2007-2011 # alignsLeft
+    # 2007-2017 | 2007-2017 # matches
+    return $second;
+
+  }
+
+  # 2007-2016 | 2009-2011 # is_around
+  elsif ($first->to->value_gt($second->to)) {
+    return $first;
+  }
+
+  elsif (
+
+    # 2007-2011 | 2011-2016 # precedesDirectly
+    $first->to->value_eq($second->from) ||
+
+      # 2007-2017 | 2009-2017 # endsWith
+      $first->to->value_eq($second->to) ||
+
+      # 2007-2009 | 2008-2011 # overlapsLeft
+      $first->to->value_gt($second->from)
+    ) {
+
+    return __PACKAGE__->new(
+      $first->from,
+      $second->to
+    );
+  };
+
+  # 2007-2009 | 2011-2016 # precedes
+  return;
+};
 
 # Realize term queries
 sub to_term_query {

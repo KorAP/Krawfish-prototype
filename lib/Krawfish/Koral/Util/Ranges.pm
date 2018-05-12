@@ -198,7 +198,8 @@ sub _resolve_date_subsumption {
     elsif ($op_a->key_type && $op_b->key_type &&
              $op_a->key_type eq $op_b->key_type &&
              $op_a->key_type eq 'date') {
-      # ...
+#      if ($op_a->type eq 'range') {
+#      };
     };
   };
 

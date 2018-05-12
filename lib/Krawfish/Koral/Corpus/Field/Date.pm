@@ -3,9 +3,9 @@ use strict;
 use warnings;
 use Krawfish::Util::Constants qw/:PREFIX/;
 use Krawfish::Log;
-use Krawfish::Koral::Corpus::Field::DateString;
-use Krawfish::Koral::Corpus::DateRange;
 use Role::Tiny::With;
+use Krawfish::Koral::Corpus::DateRange;
+use Krawfish::Koral::Corpus::Field::DateString;
 
 
 with 'Krawfish::Koral::Util::Date';
