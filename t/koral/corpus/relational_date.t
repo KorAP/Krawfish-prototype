@@ -260,7 +260,7 @@ sub join_ranges {
 
 
 
-# Check joins
+# Check joins (all 13 possible configurations)
 # MATCHES
 is(join_ranges(
   ['2007', '2011'],
@@ -273,10 +273,22 @@ is(join_ranges(
   ['2007', '2011']
 )->to_string, 'date&=[[2007--2011]]');
 
+# ALIGNS_LEFT REV
+is(join_ranges(
+  ['2007', '2011'],
+  ['2007', '2009']
+)->to_string, 'date&=[[2007--2011]]');
+
 # PRECEDES_DIRECTLY
 is(join_ranges(
   ['2007', '2009'],
   ['2009', '2012']
+)->to_string, 'date&=[[2007--2012]]');
+
+# PRECEDES_DIRECTLY REV
+is(join_ranges(
+  ['2009', '2012'],
+  ['2007', '2009']
 )->to_string, 'date&=[[2007--2012]]');
 
 # ENDS_WITH
@@ -285,10 +297,22 @@ is(join_ranges(
   ['2009', '2017']
 )->to_string, 'date&=[[2007--2017]]');
 
+# ENDS_WITH REV
+is(join_ranges(
+  ['2009', '2017'],
+  ['2007', '2017']
+)->to_string, 'date&=[[2007--2017]]');
+
 # OVERLAPS_LEFT
 is(join_ranges(
   ['2007', '2009'],
   ['2008', '2011']
+)->to_string, 'date&=[[2007--2011]]');
+
+# OVERLAPS_LEFT REV
+is(join_ranges(
+  ['2008', '2011'],
+  ['2007', '2009']
 )->to_string, 'date&=[[2007--2011]]');
 
 # IS_AROUND
@@ -297,14 +321,23 @@ is(join_ranges(
   ['2009', '2011']
 )->to_string, 'date&=[[2007--2016]]');
 
+# IS_AROUND REV
+is(join_ranges(
+  ['2009', '2011'],
+  ['2007', '2016']
+)->to_string, 'date&=[[2007--2016]]');
+
 # !PRECEDES
 ok(!join_ranges(
   ['2007', '2009'],
   ['2010', '2012']
 ), 'No precedes');
 
-
-
+# !PRECEDES REV
+ok(!join_ranges(
+  ['2010', '2012'],
+  ['2007', '2009']
+), 'No precedes');
 
 
 SKIP: {
