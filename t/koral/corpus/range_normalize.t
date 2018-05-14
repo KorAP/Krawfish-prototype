@@ -78,15 +78,14 @@ $dr = $cb->bool_or(
 is($dr->to_string, '(pub>=2001&pub<=2005)|(pub>=2002-10-14&pub<=2003-11-09)', 'Stringification');
 ok($dr = $dr->normalize, 'Normalize');
 is($dr->to_string,
-   'pub&=[[2001--2005]]|pub&=[[2002-10-14--2003-11-09]]',
+   'pub&=[[2001--2005]]',
    'Stringification');
-
 ok($dr = $dr->finalize, 'Finalize');
-
 # This normalization may fail with "within" queries
 is($dr->to_string,
    '(pub=2001[|pub=2001]|pub=2002[|pub=2002]|pub=2003[|pub=2003]|pub=2004[|pub=2004]|pub=2005[|pub=2005])&[1]',
    'Normalization');
+
 
 # >=2001 & <=2005 & >= 2002-10-14 & <= 2003-11-09
 # Embedding combination
@@ -231,8 +230,48 @@ $final = $dr->to_string;
 is($final, '(pub=2013-03-14]|pub=2013-03]|pub=2013])&[1]', 'Stringification');
 
 
+# Simplify embedded ranges
+$dr = $cb->bool_or(
+  $cb->date('pub')->intersect('2017', '2019'),
+  $cb->date('pub')->intersect('2017-02-03', '2018-01')
+);
+is($dr->to_string, 'pub&=[[2017--2019]]|pub&=[[2017-02-03--2018-01]]',
+   'Stringification');
+ok($dr = $dr->normalize, 'Normalize');
+is($dr->to_string, 'pub&=[[2017--2019]]',
+   'Stringification');
+
+
+
+# Simplify overlapping ranges
+$dr = $cb->bool_or(
+  $cb->date('pub')->intersect('2017', '2019'),
+  $cb->date('pub')->intersect('2018', '2021')
+);
+is($dr->to_string, 'pub&=[[2017--2019]]|pub&=[[2018--2021]]',
+   'Stringification');
+ok($dr = $dr->normalize, 'Normalize');
+is($dr->to_string, 'pub&=[[2017--2021]]',
+   'Stringification');
+
+
+# Simplify matching ranges
+$dr = $cb->bool_or(
+  $cb->date('pub')->intersect('2017', '2019'),
+  $cb->date('pub')->intersect('2017', '2019')
+);
+is($dr->to_string, 'pub&=[[2017--2019]]|pub&=[[2017--2019]]',
+   'Stringification');
+ok($dr = $dr->normalize, 'Normalize');
+is($dr->to_string, 'pub&=[[2017--2019]]',
+   'Stringification');
+
+
+
+# TODO:
 if (0) {
-# Simplify open range with equal
+
+  # Simplify open range with equal
 $dr = $cb->bool_or(
   $cb->date('pub')->geq('2195'),
   $cb->date('pub')->eq('2197')
@@ -245,8 +284,6 @@ is($dr->to_string, 'pub&=[[2195--2200]]',
 ok($dr = $dr->finalize, 'Normalize');
 is($dr->to_string, '(pub=2195[|pub=2195]|pub=2196[|pub=2196]|pub=2197[|pub=2197]|pub=2198[|pub=2198]|pub=2199[|pub=2199]|pub=2200[|pub=2200])&[1]',
    'Stringification');
-
-
 };
 
 diag 'Limit open ranges';
@@ -262,6 +299,10 @@ diag 'Limit open ranges';
 # TODO:
 #   Test
 #   date>2007&date!=2004
+
+# TODO:
+#   simplify join with negativity
+#   pub&=[[2017--2018]]&&pub!&=[[2017-02--2017-03]]
 
 done_testing;
 __END__

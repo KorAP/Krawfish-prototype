@@ -5,16 +5,19 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # TODO:
 #   Rename to 'RangeNormalized', and 'BooleanNormalized' etc.
 
 # TODO:
-#   [2--6]|[3--5] -> [2--6]
-#   [2--6]&[3--5] -> [3--5]
-#   [2--7]|[4--9] -> [2--9]
-#   [2--7]&[4--9] -> [4--7]
+#   [2--6]|3 -> [2--6]
+#   [2--6]&3 -> 3
+
+# TODO:
+#   The relation with AND needs to be defined as well
+#   [2--6] && [3-4] -> [3--4]
+
 
 # TODO:
 #   Combine AND-constraints on the same relational key
@@ -195,11 +198,35 @@ sub _resolve_date_subsumption {
       };
     }
 
+    # Check if there are dates to join
     elsif ($op_a->key_type && $op_b->key_type &&
              $op_a->key_type eq $op_b->key_type &&
              $op_a->key_type eq 'date') {
-#      if ($op_a->type eq 'range') {
-#      };
+
+      # Check for ranges exclusively
+      if ($op_a->type eq 'range' && $op_b->type eq 'range') {
+
+        # Check join operation
+        # TODO:
+        #   For the moment this ignores negativity
+        #   of operators completely
+        my $join = $op_a->join_with($op_b);
+
+        # There is a join on ranges possible
+        if ($join) {
+
+          if (DEBUG) {
+            print_log(
+              'kq_range',
+              'Join ' . $op_a->to_string . ' and ' . $op_b->to_string .
+                ' to ' . $join->to_string);
+          };
+
+          splice @$ops, $i-1, 2, $join;
+          $i-=1;
+          $changes++;
+        };
+      };
     };
   };
 
