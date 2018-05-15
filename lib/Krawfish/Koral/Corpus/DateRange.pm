@@ -4,7 +4,7 @@ use Krawfish::Log;
 use strict;
 use warnings;
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 with 'Krawfish::Koral::Corpus::Field';
 with 'Krawfish::Koral::Corpus';
@@ -34,7 +34,7 @@ sub key_type {
 };
 
 sub key {
-  '';
+  $_[0]->{first}->key;
 };
 
 sub is_leaf {
@@ -214,6 +214,7 @@ sub join_with {
   # 2007-2009 | 2011-2016 # precedes
   return;
 };
+
 
 # Realize term queries
 sub to_term_query {

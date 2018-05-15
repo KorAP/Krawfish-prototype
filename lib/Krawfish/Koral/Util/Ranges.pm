@@ -203,6 +203,21 @@ sub _resolve_date_subsumption {
              $op_a->key_type eq $op_b->key_type &&
              $op_a->key_type eq 'date') {
 
+      # One parameter is a field
+      if ($op_a->type eq 'field') {
+
+        if (DEBUG) {
+          print_log('kq_range', 'Make date query to date range');
+        };
+
+        $op_a->is_inclusive(1);
+        $op_a = Krawfish::Koral::Corpus::DateRange->new(
+          $op_a,
+          $op_a
+        );
+
+      };
+
       # Check for ranges exclusively
       if ($op_a->type eq 'range' && $op_b->type eq 'range') {
 

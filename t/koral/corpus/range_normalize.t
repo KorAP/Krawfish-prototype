@@ -11,6 +11,7 @@ my $cb = Krawfish::Koral::Corpus::Builder->new;
 
 my ($dr, $final, $norm);
 
+
 # Merge dates to ranges
 $dr = $cb->bool_and(
   $cb->date('pub')->geq('2015'),
@@ -230,6 +231,8 @@ $final = $dr->to_string;
 is($final, '(pub=2013-03-14]|pub=2013-03]|pub=2013])&[1]', 'Stringification');
 
 
+
+
 # Simplify embedded ranges
 $dr = $cb->bool_or(
   $cb->date('pub')->intersect('2017', '2019'),
@@ -240,8 +243,6 @@ is($dr->to_string, 'pub&=[[2017--2019]]|pub&=[[2017-02-03--2018-01]]',
 ok($dr = $dr->normalize, 'Normalize');
 is($dr->to_string, 'pub&=[[2017--2019]]',
    'Stringification');
-
-
 
 # Simplify overlapping ranges
 $dr = $cb->bool_or(
@@ -265,6 +266,31 @@ is($dr->to_string, 'pub&=[[2017--2019]]|pub&=[[2017--2019]]',
 ok($dr = $dr->normalize, 'Normalize');
 is($dr->to_string, 'pub&=[[2017--2019]]',
    'Stringification');
+
+
+
+# Simplify embedding date in range
+$dr = $cb->bool_or(
+  $cb->date('pub')->intersect('2017', '2019'),
+  $cb->date('pub')->eq('2017-02-03')
+);
+is($dr->to_string, 'pub=2017-02-03|pub&=[[2017--2019]]',
+   'Stringification');
+ok($dr = $dr->normalize, 'Normalize');
+is($dr->to_string, 'pub&=[[2017--2019]]',
+   'Stringification');
+
+# Simplify embedding date in range
+$dr = $cb->bool_or(
+  $cb->date('pub')->eq('2017-02-03'),
+  $cb->date('pub')->intersect('2017', '2019')
+);
+is($dr->to_string, 'pub=2017-02-03|pub&=[[2017--2019]]',
+   'Stringification');
+ok($dr = $dr->normalize, 'Normalize');
+is($dr->to_string, 'pub&=[[2017--2019]]',
+   'Stringification');
+
 
 
 
