@@ -70,7 +70,7 @@ sub new {
     negative => 0,
     extended => 0,
     extended_left => 0,
-   extended_right => 0
+    extended_right => 0
   }, $class;
 };
 

@@ -22,11 +22,10 @@ use constant DEBUG => 0;
 #   []{1,30,2}
 #   means valid: [][], [][][][], [][][][][], ...
 
-
 # Constructor
 sub new {
   my $class = shift;
-  bless {
+  return bless {
     span => shift,
     min => shift,
     max => shift,

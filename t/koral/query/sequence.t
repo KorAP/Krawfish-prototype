@@ -7,9 +7,9 @@ use Data::Dumper;
 use_ok('Krawfish::Koral');
 use_ok('Krawfish::Index');
 
-my $index = Krawfish::Index->new;
+# my $index = Krawfish::Index->new;
 
-ok_index_file($index, 'doc1.jsonld', 'Add new document');
+# ok_index_file($index, 'doc1.jsonld', 'Add new document');
 
 my $koral = Krawfish::Koral->new;
 

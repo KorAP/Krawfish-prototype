@@ -4,6 +4,7 @@ use warnings;
 use Role::Tiny;
 use Krawfish::Log;
 use Krawfish::Query::Nowhere;
+use Krawfish::Query::Extension;
 use Krawfish::Query::Constraint::Position;
 use Krawfish::Query::Constraint::InBetween;
 use Krawfish::Query::Constraint::ClassBetween;
@@ -11,7 +12,7 @@ use Krawfish::Query::Constraint;
 use List::MoreUtils qw!uniq!;
 
 use constant {
-  DEBUG  => 0,
+  DEBUG  => 1,
   NULL   => 0,
   POS    => 1,
   OPT    => 2,
@@ -232,6 +233,11 @@ sub has_problems {
 sub optimize {
   my ($self, $segment) = @_;
 
+  unless ($segment) {
+    print_log('kq_sequtil', 'Segment undefined - ABORT');
+    return;
+  };
+
   # The second operand in constraint queries should probably be less frequent,
   # because it needs to be buffered! Another thing to keep in mind is the complexity
   # regarding payloads, so an additional feature for costs may be useful!
@@ -255,47 +261,74 @@ sub optimize {
 
     my $op = $ops->[$i];
 
-    # Query matches anywhere
+    # Operand matches anywhere
     if ($op->is_anywhere) {
       $queries[$i] = [ANY, -1, undef, $op];
+
+      if (DEBUG) {
+        print_log(
+          'kq_sequtil',
+          'Operand matches anywhere ' . $op->to_string
+        );
+      }
     }
 
-    # Is negative operand
+    # Operand is negative
     elsif ($op->is_negative) {
-
       $queries[$i] = [NEG, -1, undef, $op];
+
+      if (DEBUG) {
+        print_log(
+          'kq_sequtil',
+          'Operand is negative ' . $op->to_string
+        );
+      }
     }
 
-    # Is positive operand
+    # Operand is positive
     else {
 
+      if (DEBUG) {
+        print_log(
+          'kq_sequtil',
+          'Operand is positive ' . $op->to_string
+        );
+      }
+
       # The operand is not optional, so the filter may be applied
-      unless ($ops->[$i]->is_optional) {
+      unless ($op->is_optional) {
 
         # Directly collect positive queries
-        my $query = $ops->[$i]->optimize($segment);
+        my $query = $op->optimize($segment);
+
+        if (DEBUG) {
+          print_log(
+            'kq_sequtil',
+            'Get frequencies for possible anchor ' . $query->to_string
+          );
+        };
 
         # Get frequency of operand
         my $freq = $query->max_freq;
-
-        if (DEBUG) {
-          print_log('kq_sequtil', 'Get frequencies for possible anchor ' . $query->to_string);
-        };
 
         # One element matches nowhere - the whole sequence matches nowhere
         return Krawfish::Query::Nowhere->new if $freq == 0;
 
         # Current query is less common
-        # if (!defined $filterable_query || $freq < $queries[$filterable_query]->max_freq) {
+        # if (!defined $filterable_query ||
+        #   $freq < $queries[$filterable_query]->max_freq) {
         #  $filterable_query = $_;
         #};
-        $queries[$i] = [POS, $freq, $query, $ops->[$i]];
+        $queries[$i] = [POS, $freq, $query, $op];
       }
 
       # The operand is optional
       else {
-        print_log('kq_sequtil', $ops->[$i]->to_string . ' is optional') if DEBUG;
-        $queries[$i] = [OPT, -1, undef, $ops->[$i]];
+        print_log(
+          'kq_sequtil',
+          $op->to_string . ' is optional'
+        ) if DEBUG;
+        $queries[$i] = [OPT, -1, undef, $op];
       };
     };
   };
@@ -341,7 +374,10 @@ sub optimize {
   while (scalar(@queries) > 1) {
 
     if (DEBUG) {
-      print_log('kq_sequtil', 'Sort ' . scalar(@queries) . ' remaining operands');
+      print_log(
+        'kq_sequtil',
+        'Sort ' . scalar(@queries) . ' remaining operands'
+      );
     };
 
     my $queries = \@queries;
@@ -349,17 +385,18 @@ sub optimize {
     # Get the best positive operands available to build a group
     my ($index_a, $index_b) = _get_best_pair($queries);
 
-    print_log(
-      'kq_sequtil', 'Check ' .
-      $queries->[$index_a]->[QUERY]->to_string . ' and ' .
-        $queries->[$index_b]->[QUERY]->to_string
-      ) if DEBUG;
-
-
     # Check the distance between the operands
     my $dist = defined $index_b ? abs($index_a - $index_b) : 0;
 
-    print_log('kq_sequtil', 'Distance is ' . $dist) if DEBUG;
+    if (DEBUG) {
+      my $str = 'Check ';
+      $str .= $queries->[$index_a]->[QUERY]->to_string;
+      $str .= ' and ' . $queries->[$index_b]->[QUERY]->to_string if defined $index_b;
+      print_log('kq_sequtil', $str);
+
+      print_log('kq_sequtil', 'Distance is ' . $dist);
+    };
+
 
     # Best operands are consecutive
     if ($dist == 1) {
@@ -401,21 +438,50 @@ sub optimize {
 
     # Matches are too far away or there is no index_b
     # Extend with surrounding operands
-    print_log('kq_sequtil', 'Extend operand with surrounding') if DEBUG;
+    if (DEBUG) {
+      print_log('kq_sequtil', 'Extend anchor operand with surrounding');
+    };
 
     # Get surrounding queries
     my $surr_l = $index_a - 1;
     my $surr_r = $index_a + 1;
-    my $surr_i;
-    my $surr_l_query = $surr_l > 0 ? $queries->[$surr_l] : undef;
+    my $surr_l_query = $surr_l >= 0 ? $queries->[$surr_l] : undef;
     my $surr_r_query = $surr_r < scalar(@$queries) ? $queries->[$surr_r] : undef;
+
+    if (DEBUG) {
+      if ($surr_l_query) {
+        print_log(
+          'kq_sequtil',
+          'Left operand is ' . $surr_l_query->[KQUERY]->to_string
+        );
+      };
+
+      if ($surr_r_query) {
+        print_log(
+          'kq_sequtil',
+          'Right operand is ' . $surr_r_query->[KQUERY]->to_string
+        );
+      };
+    };
+
+    my $surr_i;
     my $new_query;
 
     # c) If there is an optional, variable, classed OPT operand
     #    make an extension
+    #    e.g. [aa]?[bb]
     if (($surr_l_query && $surr_l_query->[TYPE] == OPT) ||
           ($surr_r_query && $surr_r_query->[TYPE] == OPT)) {
       _extend_opt($queries, $index_a, $index_b, $segment);
+      CORE::next;
+    }
+
+    # x) If there is an optional, variable, classed ANY operand
+    #    make an extension
+    #    e.g. []{2,3}[bb]
+    elsif (($surr_l_query && $surr_l_query->[TYPE] == ANY) ||
+          ($surr_r_query && $surr_r_query->[TYPE] == ANY)) {
+      _extend_any($queries, $index_a, $index_b, $segment);
       CORE::next;
     }
 
@@ -484,8 +550,9 @@ sub optimize {
     };
   };
 
-
-
+  # ####################################
+  # Algorithm for operand combination: #
+  ######################################
   # 1. ---
   #   my ($a, $b) = _rarest_pair;
   #   if (distance($a, $b) > 1) {
@@ -846,9 +913,11 @@ sub _extend_opt {
 
   print_log('kq_sequtil', 'Extend operand with optional operand') if DEBUG;
 
+  # TODO:
+  #   This is kind of redundant
   my $surr_l = $index_a - 1;
   my $surr_r = $index_a + 1;
-  my $surr_l_query = $surr_l > 0 ? $queries->[$surr_l] : undef;
+  my $surr_l_query = $surr_l >= 0 ? $queries->[$surr_l] : undef;
   my $surr_r_query = $surr_r < scalar(@$queries) ? $queries->[$surr_r] : undef;
   my $index_ext;
 
@@ -983,6 +1052,75 @@ sub _extend_opt {
   };
 };
 
+
+# Extend to anymatch sequence
+sub _extend_any {
+  my ($queries, $index_a, $index_b, $index) = @_;
+
+  print_log('kq_sequtil', 'Extend operand with any match operand') if DEBUG;
+
+  # TODO:
+  #   This is kind of redundant
+  my $surr_l = $index_a - 1;
+  my $surr_r = $index_a + 1;
+  my $surr_l_query = $surr_l >= 0 ? $queries->[$surr_l] : undef;
+  my $surr_r_query = $surr_r < scalar(@$queries) ? $queries->[$surr_r] : undef;
+  my $index_ext;
+
+  # The left surrounding index matches anywhere
+  if ($surr_l_query && $surr_l_query->[TYPE] == ANY) {
+
+    # Both surroundings match anywhere
+    if ($surr_r_query && $surr_r_query->[TYPE] == ANY) {
+      # TODO:
+      #   Compare min_span and max_span, and prefer
+      #   the smaller expansion over the larger one,
+      #   although this desicion needs to be benchmarked,
+      #   because choosing right extension may always
+      #   be faster
+
+      $index_ext = $surr_r;
+    }
+
+    # Only the left query is an any query
+    else {
+      $index_ext = $surr_l;
+    }
+  }
+
+  # Only the right query is an any query
+  else {
+    $index_ext = $surr_r;
+  };
+
+  my $query_a = $queries->[$index_a];
+  my $query_ext = $queries->[$index_ext];
+
+  # The optional operand exists - create new operand
+  my $new_query;
+
+  # Create new extension query
+  $new_query = Krawfish::Query::Extension->new(
+    # Extension is to the left or to the right
+    $index_a < $index_ext ? 0 : 1,
+    $query_ext->[KQUERY]->min,
+    $query_ext->[KQUERY]->max,
+    $query_a->[QUERY]->clone
+  );
+
+  # Add new query
+  $queries->[$index_a] = [POS, $new_query->max_freq, $new_query];
+
+  # Remove old query
+  splice(@$queries, $index_ext, 1);
+
+  if (DEBUG) {
+    print_log(
+      'kq_sequtil',
+      'Query has an any extension, build query ' . $new_query->to_string
+    );
+  };
+}
 
 
 # Get the query segments based on frequency,

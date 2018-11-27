@@ -3,13 +3,15 @@ use strict;
 use warnings;
 use Role::Tiny::With;
 
-with 'Krawfish::Query::Base::Dual';
 with 'Krawfish::Query';
+
+use constant DEBUG => 0;
 
 # This query adds subtokens to the left or the right
 # of a matching span
 #
-# Support gaps like with Constraint::InBetween
+# TODO:
+#   Support gaps like with Constraint::InBetween
 
 
 # Constructor
@@ -20,6 +22,7 @@ sub new {
     min => shift,
     max => shift,
     span => shift,
+    buffer => Krawfish::Util::Buffer->new
   }, $class;
   # min, max ...
 };
@@ -41,15 +44,15 @@ sub check {
 sub to_string {
   my $self = shift;
   my $string ='ext(';
-  $string .= $self->{left} ? 'left' : 'right';
-  $string .= $self->{min} . ',' $self->{max};
-  return $string . $self->{span}->to_string . ')';
+  $string .= $self->{left} ? '<' : '>';
+  $string .= ':' . $self->{min} . '-' . $self->{max};
+  return $string . ',' . $self->{span}->to_string . ')';
 };
 
 
 # Get maximum frequency
 sub max_freq {
-  $_[0]->{span}->max_freq;
+  return $_[0]->{span}->max_freq * (($_[0]->{max} - $_[0]->{min}) + 1);
 };
 
 
@@ -64,5 +67,17 @@ sub requires_filter {
   return $_[0]->{span}->requires_filter;
 };
 
+
+# Move to next posting
+sub next {
+  # right extensions just add
+  # right tokens and match,
+  # as long as the document span is not reached
+
+  # left extensions require a buffer
+  # with the size of max (+1?) to hold
+  # candidates
+  ...
+};
 
 1;

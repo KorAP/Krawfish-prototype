@@ -58,12 +58,14 @@ is($q->max_span, -1, 'Minimum length');
 
 # query is anywhere
 $q = $qb->length($qb->anywhere,3,5);
+is($qb->anywhere->min_span, 1);
+is($qb->anywhere->max_span, 1);
 is($q->min_span, 1, 'Minimum length');
-is($q->max_span, 1, 'Minimum length');
+is($q->max_span, 1, 'Maximum length');
 is($q->to_string, "length(3-5:[])", 'Query is valid');
 ok($q = $q->normalize, 'Normalization');
 is($q->min_span, 1, 'Minimum length');
-is($q->max_span, 1, 'Minimum length');
+is($q->max_span, 1, 'Maximum length');
 
 
 TODO: {
