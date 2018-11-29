@@ -24,26 +24,19 @@ my $qb = Krawfish::Koral::Query::Builder->new;
 # 4.    bb cc
 # 5.    bb cc dd
 # 6.    bb cc dd dd
-
 ok(my $wrap = $qb->seq($qb->token('bb'), $qb->repeat($qb->token, 1, 3)),
    'Extension to the right');
 is($wrap->to_string, '[bb][]{1,3}', 'Stringification');
 
-ok($wrap = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
-is($wrap->to_string, 'ext(>:1-3,#2)', 'Stringification');
-is($wrap->max_freq, 6);
+ok(my $ext = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
+is($ext->to_string, 'ext(>:1-3,#2)', 'Stringification');
+is($ext->max_freq, 6);
+#matches($ext, [qw/[0:1-2]/]);
 
 
 # Left expansion
 
 # []{0,3} [bb]
-ok($wrap = $qb->seq($qb->repeat($qb->token, 0, 3), $qb->token('dd')), 'Extension to the left');
-is($wrap->to_string, '[]{0,3}[dd]', 'Stringification');
-
-ok($wrap = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
-is($wrap->to_string, 'ext(<:0-3,#6)', 'Stringification');
-is($wrap->max_freq, 8);
-
 # extend(0-3, 'left', dd)
 # [bb][bb][cc][dd][dd]
 # 1. bb bb cc dd
@@ -54,6 +47,22 @@ is($wrap->max_freq, 8);
 # 6.          dd
 # 7.          dd dd
 # 8.             dd
+ok($wrap = $qb->seq($qb->repeat($qb->token, 0, 3), $qb->token('dd')), 'Extension to the left');
+is($wrap->to_string, '[]{0,3}[dd]', 'Stringification');
+
+ok($ext = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
+is($ext->to_string, 'ext(<:0-3,#6)', 'Stringification');
+is($ext->max_freq, 8);
+
+
+# Normalize extensions:
+ok($wrap = $qb->seq($qb->token('bb'), $qb->repeat($qb->token, 0, 2), $qb->repeat($qb->token, 1, 3)),
+   'Extension to the right');
+is($wrap->to_string, '[bb][]{0,2}[]{1,3}', 'Stringification');
+
+ok($ext = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
+is($ext->to_string, 'ext(>:1-5,#2)', 'Stringification');
+
 
 
 done_testing;

@@ -13,6 +13,8 @@ use constant DEBUG => 0;
 # TODO:
 #   Support gaps like with Constraint::InBetween
 
+# TODO:
+#   Support classes
 
 # Constructor
 sub new {
@@ -30,7 +32,13 @@ sub new {
 
 # Clone query
 sub clone {
-  ...
+  my $self = shift;
+  return __PACKAGE__->new(
+    $self->{left},
+    $self->{min},
+    $self->{max},
+    $self->{span}->clone
+  );
 };
 
 
@@ -70,6 +78,7 @@ sub requires_filter {
 
 # Move to next posting
 sub next {
+  my $self = shift;
   # right extensions just add
   # right tokens and match,
   # as long as the document span is not reached
@@ -77,7 +86,35 @@ sub next {
   # left extensions require a buffer
   # with the size of max (+1?) to hold
   # candidates
-  ...
+
+  $self->{span}->next;
+
+  my $buffer = $self->{buffer};
+
+  if ($buffer->next) {
+    return $buffer->current;
+  }
+  else {
+
+    # For right!
+    my $current = $self->{span}->current;
+
+    # Extend the match with min to max tokens to the right
+    for (my $i = $self->{min}; $i <= $self->{max}; $i++) {
+
+      # Create new extended posting
+      my $posting = Krawfish::Posting::Span->new(
+        doc_id  => $current->doc_id,
+        start   => $current->start,
+        end     => $current->end + $i, # This does not check for text end
+        payload => $current->payload,
+        flags   => $current->flags
+      );
+
+      # Remember in buffer
+      $buffer->remember($posting);
+    };
+  }
 };
 
 1;

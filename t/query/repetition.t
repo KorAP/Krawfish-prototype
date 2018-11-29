@@ -7,15 +7,18 @@ use Data::Dumper;
 use_ok('Krawfish::Index');
 use_ok('Krawfish::Koral::Query::Builder');
 
-my $index = Krawfish::Index->new;
 
-ok_index($index, [qw/aa bb bb bb bb cc/], 'Add new document');
+my ($wrap, $index, $rep);
 
 my $qb = Krawfish::Koral::Query::Builder->new;
 
-ok(my $wrap = $qb->repeat( $qb->token('bb'), 2, 3), 'Repeat');
+$index = Krawfish::Index->new;
+
+ok_index($index, [qw/aa bb bb bb bb cc/], 'Add new document');
+
+ok($wrap = $qb->repeat( $qb->token('bb'), 2, 3), 'Repeat');
 is($wrap->to_string, '[bb]{2,3}', 'Stringification');
-ok(my $rep = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
+ok($rep = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
 # is($rep->to_string, "rep(2-3:#4)", 'Stringification');
 
 # This is 4 * 2
@@ -59,6 +62,7 @@ matches($rep, [qw/[0:1-2]
                   [1:2-3]
                   [1:2-4]
                   [1:3-4]/]);
+
 
 # Next test
 $index = Krawfish::Index->new;

@@ -8,7 +8,7 @@ use Krawfish::Posting;
 
 with 'Krawfish::Query';
 
-use constant DEBUG => 0;
+use constant DEBUG => 1;
 
 # TODO:
 #   Support next_doc()!!!
@@ -47,13 +47,17 @@ sub clone {
 
 # Initialize spans and buffer
 sub _init {
-  return if $_[0]->{init}++;
-  $_[0]->{span}->next;
-  print_log('repeat', 'Init span') if DEBUG;
+  my $self = shift;
+
+  return if $self->{init}++;
+
+  print_log('repeat', 'Init span ' . $self->{span}->to_string . ' for ' . $self->to_string) if DEBUG;
+
+  $self->{span}->next;
   # $_[0]->{buffer}->remember($_[0]->{span}->current);
 
   # Set finger to -1
-  $_[0]->{buffer}->backward;
+  $self->{buffer}->backward;
   1;
 };
 
@@ -67,19 +71,34 @@ sub next {
   # Get the buffer
   my $buffer = $self->{buffer};
   my $last;
+  $self->{doc_id} = undef;
 
   while (1) {
 
+
+    if (DEBUG) {
+      print_log('repeat', 'Check buffer for match ' . $buffer->to_string);
+    };
+
     # Buffer is greater than minimum length
-    if (($buffer->finger + 1) >= $self->{min}) {
-      print_log('repeat', 'Buffer is greater equal than min ' . $self->{min}) if DEBUG;
+    if (
+
+      # ($buffer->finger + 1)
+       $buffer->size
+        >= $self->{min}) {
+      if (DEBUG) {
+        print_log(
+          'repeat',
+          'Buffer is greater equal than min ' . $self->{min}
+        );
+      };
 
       # Buffer is below maximum length
       if (($buffer->finger + 1) <= $self->{max}) {
         if (DEBUG) {
           print_log(
             'repeat',
-            'Buffer is below than max ' . $self->{max} . ' at ' . $buffer->finger
+            'Buffer is smaller equal than max ' . $self->{max} . ' at ' . $buffer->finger
           );
         };
 
@@ -98,8 +117,12 @@ sub next {
         $self->{start}  = $first->start;
         $self->{end}    = $last->end;
 
-        print_log('repeat', 'There is a match - make current match: ' .
-                    $self->current) if DEBUG;
+        if (DEBUG) {
+          print_log(
+            'repeat',
+            'There is a match - make current MATCH: ' . $self->current
+          );
+        };
 
         # Forward and remember
         unless ($buffer->next) {
@@ -107,8 +130,18 @@ sub next {
           # Get the current span
           my $current = $self->{span}->current;
 
+          if (DEBUG) {
+            if ($last) {
+              print_log('repeat', 'Last element in buffer is ' . $last->to_string . ' (1)');
+            };
+            if ($current) {
+              print_log('repeat', 'Current element is ' . $current->to_string . ' (1)');
+            };
+          };
+
           # The current element is fine - remember
           if ($current &&
+                $last &&
                 $last->doc_id == $current->doc_id &&
                 $last->end == $current->start) {
 
@@ -119,13 +152,43 @@ sub next {
           }
 
           # Current element is not fine
-          else {
-            print_log('repeat', 'No matching doc ids (1)') if DEBUG;
-            print_log('repeat', 'Forget the first buffer element (1)') if DEBUG;
+          elsif ($last) {
+            if (DEBUG) {
+              if ($current) {
+                if ($last->doc_id != $current->doc_id) {
+                  print_log('repeat', 'No matching doc ids (1)');
+                }
+                elsif ($last->end != $current->start) {
+                  print_log('repeat', 'There is a gap between last and current');
+                };
+              }
+              elsif (!$current) {
+                print_log('repeat', 'There is no more current');
+              }
+              elsif (!$last) {
+                print_log('repeat', 'There is no more last');
+              };
+              print_log('repeat', 'Forget the first buffer element (1)');
+              print_log('repeat', 'Maybe the buffer contains a match with another offset');
+            };
 
             # Shrink the buffer
             $buffer->forget;
-            $buffer->finger($self->{min} - 1);
+
+            # If the buffer is empty now - move to -1
+            # TODO:
+            #   This is horribly complicated, but works for the moment
+            if ($buffer->size < $self->{min}) {
+              $buffer->backward;
+            }
+
+            # The finger needs to be sat back, but not before the
+            # minimum possible repetition
+            else {
+              $buffer->finger($self->{min} - 1);
+            };
+            # $buffer->backward;
+            # CORE::next;
           };
         };
 
@@ -136,38 +199,80 @@ sub next {
 
       # Buffer is greater than maximum size
       else {
-        print_log('repeat', '!Buffer is greater than maximum size') if DEBUG;
-        print_log('repeat', 'Forget the first buffer element (2)') if DEBUG;
+        if (DEBUG) {
+          print_log('repeat', '!Buffer is greater than max ' . $self->{max});
+          print_log('repeat', 'Forget the first buffer element (2)');
+        };
 
         # Let the buffer shrink
         # TODO: This will reposition finger with no need
         $buffer->forget;
-        $buffer->finger($self->{min} - 1);
+
+        # If the buffer is empty now - move to -1
+        # TODO:
+        #   This is horribly complicated, but works for the moment
+        if ($buffer->size < $self->{min}) {
+          $buffer->clear;
+          $buffer->backward;
+        }
+
+        # The finger needs to be sat back, but not before the
+        # minimum possible repetition
+        else {
+          $buffer->finger($self->{min} - 1);
+        };
+
+        # $buffer->backward;
+        # $buffer->finger($self->{min} - 1);
       };
     }
 
     # Buffer has not minimum size yet
     else {
-      print_log('repeat', '!Buffer is shorter than minimum: ' . $buffer->to_string) if DEBUG;
 
-      my $last = $buffer->current;
+      # Get the last element from buffer
+      $last = $buffer->current;
+
+      # Get the current span
+      my $current = $self->{span}->current;
+
+      if (DEBUG) {
+        print_log('repeat', '!Buffer is smaller than min ' . $self->{min});
+        print_log('repeat', 'Last element in buffer is ' . $last->to_string . ' (2)') if $last;
+        print_log('repeat', 'Current element is ' . $current->to_string . ' (2)') if $current;
+
+      };
+
+      # The buffer and current are divided - clear the buffer
+      if ($last &&
+            $current &&
+            ($last->doc_id != $current->doc_id ||
+             $last->end != $current->start)) {
+        print_log('repeat', 'Current element and last buffer item are disjointed - clear buffer');
+        $buffer->clear;
+        $buffer->backward;
+        CORE::next;
+      };
 
       # Forward and remember
       unless ($buffer->next) {
 
-        # Get the current span
-        my $current = $self->{span}->current;
-
         if (DEBUG) {
-          print_log('repeat', "Last element in buffer is " . $last->to_string) if $last;
-          print_log('repeat', "Current element is " . $current->to_string) if $current;
+          if ($last) {
+            print_log('repeat', "Last element in buffer was " . $last->to_string . ' (3)');
+          };
+          if ($current) {
+            print_log('repeat', "Current element is " . $current->to_string . ' (3)');
+          };
+          print_log('repeat', 'Current buffer is ' . $buffer->to_string);
         };
 
         unless ($current) {
           print_log('repeat', 'No current - clear buffer (2)') if DEBUG;
           $buffer->clear;
           $buffer->backward;
-          $self->{doc_id} = undef;
+          return 1 if $self->{doc_id};
+          # $self->{doc_id} = undef;
           return;
         }
 
@@ -185,7 +290,8 @@ sub next {
           print_log('repeat', 'Clear buffer') if DEBUG;
           $buffer->clear;
           $buffer->backward;
-          $self->{doc_id} = undef;
+          return 1 if $self->{doc_id};
+          # $self->{doc_id} = undef;
           return;
         };
       };

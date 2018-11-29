@@ -391,5 +391,40 @@ is($rep->min_span, 4, 'Span length');
 is($rep->max_span, 10, 'Span length');
 
 
+# Optimize to repetition
+# [b][a][a][a]
+$rep = $qb->seq(
+  $qb->token('b'),
+  $qb->token('a'),
+  $qb->token('a'),
+  $qb->token('a')
+);
+is($rep->to_string, '[b][a][a][a]', 'Stringification');
+is($rep->min_span, 4, 'Span length');
+is($rep->max_span, 4, 'Span length');
+ok($rep = $rep->normalize, 'Normalization');
+is($rep->to_string, 'ba{3}', 'Stringification');
+is($rep->min_span, 4, 'Span length');
+is($rep->max_span, 4, 'Span length');
+
+
+# Optimize to repetition
+$rep = $qb->bool_or(
+  $qb->term('cc'),
+  $qb->seq(
+    $qb->term('aa'),
+    $qb->term('aa'),
+  ),
+  $qb->term('bb'),
+  $qb->seq(
+    $qb->term('aa'),
+    $qb->term('bb'),
+  ),
+  $qb->term('aa'),
+);
+is($rep->to_string, '(aa)|(aaaa)|(aabb)|(bb)|(cc)', 'Stringification');
+ok($rep = $rep->normalize, 'Normalization');
+is($rep->to_string, '(aa)|(aabb)|(aa{2})|(bb)|(cc)', 'Stringification');
+
 done_testing;
 __END__

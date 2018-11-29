@@ -45,7 +45,7 @@ sub min_span {
   # This needs to be stored,
   # otherwise the value changes after normalization
   return $self->{min_span} if defined $self->{min_span};
-  $self->{min_span} = $self->operand->min_span * ($self->min // 0);
+  $self->{min_span} = $self->operand->min_span * ($self->min // 1);
   return $self->{min_span};
 };
 

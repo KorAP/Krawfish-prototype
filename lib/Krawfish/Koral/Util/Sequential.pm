@@ -12,7 +12,7 @@ use Krawfish::Query::Constraint;
 use List::MoreUtils qw!uniq!;
 
 use constant {
-  DEBUG  => 1,
+  DEBUG  => 0,
   NULL   => 0,
   POS    => 1,
   OPT    => 2,
@@ -143,6 +143,7 @@ sub normalize {
     };
   };
 
+
   # No operands left
   unless (scalar @$ops) {
 
@@ -169,11 +170,9 @@ sub normalize {
   # Store operands
   $self->operands($ops);
 
-  # TODO:
-  #   Simplify repetitions
-  #   $self = $self->_resolve_consecutive_repetitions;
-
   print_log('kq_sequtil', 'Sequence has ' . ($problems+0) . ' problems') if DEBUG;
+
+  $self = $self->_join_consecutive_operands;
 
   # Remember problems
   $self->{_problems} = 1 if $problems;
@@ -181,41 +180,70 @@ sub normalize {
 };
 
 
-
 # TODO:
-#   See t/koral/sequential.t
-sub _resolve_consecutive_repetitions {
+#   See t/koral/query/sequential.t
+sub _join_consecutive_operands {
   my $self = shift;
+
+  if (DEBUG) {
+    print_log(
+      'kq_sequtil',
+      '2nd pass - join consecutive operands in ' . $self->to_string
+    );
+  };
 
   my $ops = $self->operands;
 
   # Second pass - resolve simple consecutive operands
-  for (my $i = 0; $i < @$ops; $i++) {
+  for (my $i = 1; $i < @$ops; $i++) {
 
-    my ($op1, $op2, $op1_min, $op1_max, $op2_min, $op2_max) = ();
+    my ($op1, $op2) = ();
+    my ($op1_min, $op1_max, $op2_min, $op2_max) = (1,1,1,1);
+
     if ($ops->[$i-1]->type eq 'repetition') {
       my $preceding = $ops->[$i-1];
-      $op1 = $preceding->span->to_string;
+      $op1 = $preceding->operand;
       $op1_min = $preceding->min;
       $op1_max = $preceding->max;
     }
     else {
-      $op1 = $ops->[$i-1]->to_string;
+      $op1 = $ops->[$i-1];
     };
 
     if ($ops->[$i]->type eq 'repetition') {
       my $this = $ops->[$i];
-      $op2 = $this->span->to_string;
+      $op2 = $this->operand;
       $op2_min = $this->min;
       $op2_max = $this->max;
     }
     else {
-      $op2 = $ops->[$i]->to_string;
+      $op2 = $ops->[$i];
+    };
+
+    # TODO:
+    #   Hash may be better than string
+    if ($op1->to_signature eq $op2->to_signature) {
+      if (DEBUG) {
+        print_log(
+          'kq_sequtil',
+          "Compare 2x " . $op1->to_string .
+            " with $op1_min,$op1_max and $op2_min,$op2_max"
+        );
+      };
+
+      my $new_op = $self->builder->repeat(
+        $op1,
+        $op1_min + $op2_min,
+        $op1_max + $op2_max
+      );
+
+      # Replace operand with operand list
+      splice @$ops, $i-1, 2, $new_op->normalize;
+      $i--;
     };
   };
 
   return $self;
-  ...
 };
 
 
