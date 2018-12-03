@@ -1,0 +1,65 @@
+package Krawfish::Util::RepetitionPattern;
+use Krawfish::Log;
+use strict;
+use warnings;
+
+# Create a vector of bits to check for valid repetitions.
+# Used by Extension queries, to support patterns like
+# []{2}{1,3}
+# May also be useful for repetition queries and
+# distance constraints.
+
+use constant DEBUG => 1;
+
+sub new {
+  my $class = shift;
+
+  my @vector = ();
+
+  my ($min, $max) = (100_000, 0);
+  foreach (_set(\@_, 0)) {
+    $min = $_ if $_ < $min;
+    $max = $_ if $_ > $max;
+    $vector[$_] = 1;
+
+    print_log('util_repp', 'Found ' . $_) if DEBUG;
+  };
+
+  return bless {
+    min => $min,
+    max => $max,
+    finger => 0,
+    vector => \@vector
+  }, $class;
+};
+
+sub _set {
+  my $list = shift;
+  my $depth = shift;
+
+  return (1) unless defined $list->[0];
+
+  my $factor = shift @$list;
+
+  my @result = ();
+  # print_log('util_repp', "Check in range") if DEBUG;
+  foreach my $v (_set($list, $depth+1)) {
+    foreach my $f ($factor->[0] .. ($factor->[1] // $factor->[0])) {
+      # print_log('util_repp', "Multiply $f and $v in $depth") if DEBUG;
+      push @result, $f * $v;
+    };
+  };
+
+  return @result;
+};
+
+
+# Check if a repetition of the any symbol is valid
+sub check {
+  my $self = shift;
+  my $pos = shift;
+  return $self->{vector}->[$pos];
+};
+
+
+1;
