@@ -13,6 +13,7 @@ use constant DEBUG => 0;
 
 sub new {
   my $class = shift;
+  my $ranges = [@_];
 
   my @vector = ();
 
@@ -26,6 +27,7 @@ sub new {
   };
 
   return bless {
+    ranges => $ranges,
     min => $min,
     max => $max,
     finger => 0,
@@ -33,6 +35,12 @@ sub new {
   }, $class;
 };
 
+
+sub ranges {
+  $_[0]->{ranges}
+};
+
+# Private setting routine
 sub _set {
   my $list = shift;
   my $depth = shift;
@@ -61,5 +69,18 @@ sub check {
   return $self->{vector}->[$pos];
 };
 
+
+sub min {
+  $_[0]->{min};
+};
+
+
+sub max {
+  $_[0]->{max};
+};
+
+sub to_string {
+  join(';', map { $_->[0] . '-' . $_->[1] } @{$_[0]->{ranges}});
+};
 
 1;

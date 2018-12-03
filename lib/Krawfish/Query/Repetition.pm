@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use Role::Tiny::With;
 use Krawfish::Util::Buffer;
+use Krawfish::Util::RepetitionPattern;
 use Krawfish::Log;
 use Krawfish::Posting;
 
@@ -22,8 +23,7 @@ sub new {
   my $class = shift;
   return bless {
     span => shift,
-    min => shift,
-    max => shift,
+    pattern => Krawfish::Util::RepetitionPattern->new(@{shift()}),
     buffer => Krawfish::Util::Buffer->new
   }, $class;
 };
@@ -34,8 +34,7 @@ sub clone {
   my $self = shift;
   __PACKAGE__->new(
     $self->{span}->clone,
-    $self->{min},
-    $self->{max}
+    $self->{pattern}->ranges
   );
 };
 
@@ -67,6 +66,9 @@ sub next {
   my $buffer = $self->{buffer};
   my $last;
   $self->{doc_id} = undef;
+  my $valid = 0;
+
+  my $pattern = $self->{pattern};
 
   while (1) {
 
@@ -76,31 +78,34 @@ sub next {
 
     # Buffer is greater than minimum length
     # # Old: ($buffer->finger + 1)
-    if ($buffer->size >= $self->{min}) {
+    if ($buffer->size >= $pattern->min) {
       if (DEBUG) {
         print_log(
           'repeat',
-          'Buffer is greater equal than min ' . $self->{min}
+          'Buffer is greater equal than min ' . $pattern->min
         );
       };
 
       # Buffer is below maximum length
       # # Old: ($buffer->finger + 1)
-      if ($buffer->size <= $self->{max}) {
+      if ($buffer->size <= $pattern->max) {
         if (DEBUG) {
           print_log(
             'repeat',
-            'Buffer is smaller equal than max ' . $self->{max} . ' at ' . $buffer->finger
+            'Buffer is smaller equal than max ' . $pattern->max . ' at ' . $buffer->finger
           );
         };
 
         $last = $buffer->current;
+
+        $valid = $pattern->check($buffer->finger + 1);
 
         if (!$last) {
           $buffer->clear;
           $buffer->backward;
           CORE::next;
         };
+
 
         # Set current
         my $first = $buffer->first;
@@ -170,19 +175,22 @@ sub next {
             # If the buffer is empty now - move to -1
             # TODO:
             #   This is horribly complicated, but works for the moment
-            if ($buffer->size < $self->{min}) {
+            if ($buffer->size < $pattern->min) {
               $buffer->backward;
             }
 
             # The finger needs to be sat back, but not before the
             # minimum possible repetition
             else {
-              $buffer->finger($self->{min} - 1);
+              $buffer->finger($pattern->min - 1);
             };
             # $buffer->backward;
             # CORE::next;
           };
         };
+
+        # In case the pattern is invalid, go on
+        CORE::next unless $valid;
 
         # Match
         print_log('repeat', "MATCH " . $self->current->to_string) if DEBUG;
@@ -192,7 +200,7 @@ sub next {
       # Buffer is greater than maximum size
       else {
         if (DEBUG) {
-          print_log('repeat', '!Buffer is greater than max ' . $self->{max});
+          print_log('repeat', '!Buffer is greater than max ' . $pattern->max);
           print_log('repeat', 'Forget the first buffer element (2)');
         };
 
@@ -203,7 +211,7 @@ sub next {
         # If the buffer is empty now - move to -1
         # TODO:
         #   This is horribly complicated, but works for the moment
-        if ($buffer->size < $self->{min}) {
+        if ($buffer->size < $pattern->min) {
           $buffer->clear;
           $buffer->backward;
         }
@@ -211,7 +219,7 @@ sub next {
         # The finger needs to be sat back, but not before the
         # minimum possible repetition
         else {
-          $buffer->finger($self->{min} - 1);
+          $buffer->finger($pattern->min - 1);
         };
 
         # $buffer->backward;
@@ -229,7 +237,7 @@ sub next {
       my $current = $self->{span}->current;
 
       if (DEBUG) {
-        print_log('repeat', '!Buffer is smaller than min ' . $self->{min});
+        print_log('repeat', '!Buffer is smaller than min ' . $pattern->min);
         print_log('repeat', 'Last element in buffer is ' . $last->to_string . ' (2)') if $last;
         print_log('repeat', 'Current element is ' . $current->to_string . ' (2)') if $current;
 
@@ -296,7 +304,7 @@ sub next {
 sub to_string {
   my $self = shift;
   my $str = 'rep(';
-  $str .= $self->{min} . '-' . $self->{max} . ':';
+  $str .= $self->{pattern}->to_string . ':'; # $self->{min} . '-' . $self->{max} . ':';
   $str .= $self->{span}->to_string;
   return $str . ')';
 };
@@ -310,7 +318,7 @@ sub to_string {
 #   freq([a]{1,2}) == freq([a])*2
 sub max_freq {
   my $self = shift;
-  $self->{span}->max_freq * ($self->{max} - $self->{min} + 1)
+  $self->{span}->max_freq * ($self->{pattern}->max - $self->{pattern}->min + 1)
 };
 
 

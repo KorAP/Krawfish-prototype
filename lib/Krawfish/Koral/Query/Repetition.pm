@@ -146,10 +146,6 @@ sub is_extended_right {
 
 sub type { 'repetition' };
 
-
-
-# TODO:
-#   If the query is a class query, reverse the hierarchical ordering!
 # Normalize the query
 sub normalize {
   my $self = shift;
@@ -259,8 +255,24 @@ sub finalize {
 sub optimize {
   my ($self, $segment) = @_;
 
+
+  # This will use RepetitionPattern instead
+  # of nested reptitions, like
+  #
+  #   (der{2}){2,4} -> der{2;2,4}
+
+  my $op = $self->operand;
+
+  my @ranges = ([$self->min, $self->max]);
+
+  # Collect all ranges
+  while ($op->type eq 'repetition') {
+    unshift @ranges, [$op->min, $op->max];
+    $op = $op->operand;
+  };
+
   # optimize span query
-  my $span = $self->operand->optimize($segment);
+  my $span = $op->optimize($segment);
 
   # Span matches nowhere
   return $span if $span->max_freq == 0;
@@ -268,8 +280,7 @@ sub optimize {
   # Create repetition span
   return Krawfish::Query::Repetition->new(
     $span,
-    $self->{min},
-    $self->{max}
+    \@ranges
   );
 };
 

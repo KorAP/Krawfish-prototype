@@ -90,8 +90,31 @@ matches($rep, [qw/[0:0-1]
                   [0:7-8]
                   [0:9-10]/]);
 
-# TODO:
-#   Support next_doc()!
+
+# Test with repetition pattern
+$index = Krawfish::Index->new;
+ok_index($index, [qw/aa bb bb bb bb bb bb cc/], 'Add new document');
+ok_index($index, [qw/bb bb bb cc/], 'Add new document');
+
+ok($wrap = $qb->repeat($qb->repeat( $qb->token('bb'), 1, 3),2), 'Repeat');
+is($wrap->to_string, '([bb]{1,3}){2}', 'Stringification');
+ok($rep = $wrap->normalize, 'Normalize');
+is($rep->to_string, '(bb{1,3}){2}', 'Stringification');
+ok($rep = $wrap->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
+is($rep->to_string, 'rep(1-3;2-2:#4)', 'Stringification');
+
+matches($rep, [qw/[0:1-3]
+                  [0:1-5]
+                  [0:1-7]
+                  [0:2-4]
+                  [0:2-6]
+                  [0:3-5]
+                  [0:3-7]
+                  [0:4-6]
+                  [0:5-7]
+                  [1:0-2]
+                  [1:1-3]/]);
+
 
 done_testing;
 __END__
