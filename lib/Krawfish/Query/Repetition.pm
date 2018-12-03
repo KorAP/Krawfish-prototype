@@ -8,19 +8,14 @@ use Krawfish::Posting;
 
 with 'Krawfish::Query';
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 # TODO:
-#   Support next_doc()!!!
+#   Support skip_doc()!!!
 
 # TODO:
 #   Support next_pos, in case current start
 #   position can not succeed, e.g. in case of position
-
-# TODO:
-#   Support steps:
-#   []{1,30,2}
-#   means valid: [][], [][][][], [][][][][], ...
 
 # Constructor
 sub new {
@@ -75,17 +70,13 @@ sub next {
 
   while (1) {
 
-
     if (DEBUG) {
       print_log('repeat', 'Check buffer for match ' . $buffer->to_string);
     };
 
     # Buffer is greater than minimum length
-    if (
-
-      # ($buffer->finger + 1)
-       $buffer->size
-        >= $self->{min}) {
+    # # Old: ($buffer->finger + 1)
+    if ($buffer->size >= $self->{min}) {
       if (DEBUG) {
         print_log(
           'repeat',
@@ -94,7 +85,8 @@ sub next {
       };
 
       # Buffer is below maximum length
-      if (($buffer->finger + 1) <= $self->{max}) {
+      # # Old: ($buffer->finger + 1)
+      if ($buffer->size <= $self->{max}) {
         if (DEBUG) {
           print_log(
             'repeat',
@@ -335,5 +327,31 @@ sub requires_filter {
   return $_[0]->{span}->requires_filter;
 };
 
+
+# Move to next document
+sub next_doc {
+  my $self = shift;
+
+  $self->_init;
+
+  my $current = $self->current or return;
+  my $current_doc_id = $current->doc_id;
+
+  if (DEBUG) {
+    print_log('repeat', refaddr($self) . ": go to next doc following $current_doc_id");
+    print_log('repeat', 'Buffer is ' . $self->{buffer}->to_string)
+  };
+
+  if ($self->{span}->current->doc_id == $current->doc_id) {
+    $self->{span}->next_doc or return;
+  }
+
+  $self->{buffer}->clear;
+  $self->{buffer}->backward;
+
+  $self->next or return;
+
+  return 1;
+};
 
 1;

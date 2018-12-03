@@ -44,8 +44,10 @@ ok_index($index, {
 ok(my $cb = Krawfish::Koral::Corpus::Builder->new, 'Create CorpusBuilder');
 ok(my $qb = Krawfish::Koral::Query::Builder->new, 'Create QueryBuilder');
 
+my $query;
+
 # Search in documents containing the sequence [bb][cc]
-ok(my $query = $cb->bool_and(
+ok($query = $cb->bool_and(
   $cb->string('author')->eq('Peter'),
   $cb->span(
     $qb->seq(
@@ -107,7 +109,6 @@ is($query->to_string, 'span([aa]{0,100})&author=Peter', 'Stringification');
 ok($query = $query->normalize->identify($index->dict)->optimize($index->segment), 'Optimize');
 is($query->to_string, '#17', 'Stringification');
 matches($query, [qw/[1] [2]/]);
-
 
 # Search in documents containing an non-optional span
 ok($query = $cb->bool_and(

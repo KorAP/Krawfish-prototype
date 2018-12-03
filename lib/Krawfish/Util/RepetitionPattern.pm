@@ -9,7 +9,7 @@ use warnings;
 # May also be useful for repetition queries and
 # distance constraints.
 
-use constant DEBUG => 1;
+use constant DEBUG => 0;
 
 sub new {
   my $class = shift;
