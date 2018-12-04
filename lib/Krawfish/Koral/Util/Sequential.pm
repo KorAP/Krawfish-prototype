@@ -1131,9 +1131,12 @@ sub _extend_any {
   $new_query = Krawfish::Query::Extension->new(
     # Extension is to the left or to the right
     $index_a < $index_ext ? 0 : 1,
-    $query_ext->[KQUERY]->min,
-    $query_ext->[KQUERY]->max,
-    $query_a->[QUERY]->clone
+    $query_a->[QUERY]->clone,
+    [
+      [
+        $query_ext->[KQUERY]->min, $query_ext->[KQUERY]->max
+      ]
+    ]
   );
 
   # Add new query

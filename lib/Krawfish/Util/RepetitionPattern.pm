@@ -17,11 +17,15 @@ sub new {
 
   my @vector = ();
 
+  my $card = 0;
   my ($min, $max) = (100_000, 0);
   foreach (_set(\@_, 0)) {
-    $min = $_ if $_ < $min;
-    $max = $_ if $_ > $max;
-    $vector[$_] = 1;
+    unless ($vector[$_]) {
+      $min = $_ if $_ < $min;
+      $max = $_ if $_ > $max;
+      $vector[$_] = 1;
+      $card++;
+    };
 
     print_log('util_repp', 'Found ' . $_) if DEBUG;
   };
@@ -31,7 +35,8 @@ sub new {
     min => $min,
     max => $max,
     finger => 0,
-    vector => \@vector
+    vector => \@vector,
+    card => $card
   }, $class;
 };
 
@@ -77,6 +82,10 @@ sub min {
 
 sub max {
   $_[0]->{max};
+};
+
+sub cardinality {
+  $_[0]->{card}
 };
 
 sub to_string {

@@ -1,6 +1,7 @@
 package Krawfish::Query::Extension;
 use strict;
 use warnings;
+use Krawfish::Util::RepetitionPattern;
 use Role::Tiny::With;
 
 with 'Krawfish::Query';
@@ -16,14 +17,19 @@ use constant DEBUG => 0;
 # TODO:
 #   Support classes
 
+# TODO:
+#   Support patterns, so
+#   []{2}{1,30}
+#   means valid: [][], [][][][], [][][][][], ...
+#   Realisation as a Krawfish::Util::RepetitionPattern
+
 # Constructor
 sub new {
   my $class = shift;
   bless {
     left => shift,
-    min => shift,
-    max => shift,
     span => shift,
+    pattern => Krawfish::Util::RepetitionPattern->new(@{shift()}),
     buffer => Krawfish::Util::Buffer->new
   }, $class;
   # min, max ...
@@ -35,9 +41,8 @@ sub clone {
   my $self = shift;
   return __PACKAGE__->new(
     $self->{left},
-    $self->{min},
-    $self->{max},
-    $self->{span}->clone
+    $self->{span}->clone,
+    $self->{pattern}->ranges
   );
 };
 
@@ -53,14 +58,16 @@ sub to_string {
   my $self = shift;
   my $string ='ext(';
   $string .= $self->{left} ? '<' : '>';
-  $string .= ':' . $self->{min} . '-' . $self->{max};
-  return $string . ',' . $self->{span}->to_string . ')';
+  $string .= ':' . $self->{pattern}->to_string;
+  return $string . ':' . $self->{span}->to_string . ')';
 };
 
 
 # Get maximum frequency
+# TODO:
+#   Introduce a cardinality() method to Krawfish::Util::RepetitionPattern
 sub max_freq {
-  return $_[0]->{span}->max_freq * (($_[0]->{max} - $_[0]->{min}) + 1);
+  return $_[0]->{span}->max_freq * $_[0]->{pattern}->cardinality;
 };
 
 

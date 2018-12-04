@@ -116,6 +116,21 @@ matches($rep, [qw/[0:1-3]
                   [1:1-3]/]);
 
 
+ok($wrap = $qb->repeat(
+  $qb->class(
+    $qb->class(
+      $qb->repeat($qb->token('bb'), 1, 3),
+      1
+    ),
+    2
+  ),
+  2
+), 'Repeat');
+ok($rep = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Optimize');
+is($rep->max_freq, 27, 'Max freq');
+is($rep->to_string, 'class(2:class(1:rep(1-3;2-2:#4)))', 'Stringification');
+
+# 9*3=
 done_testing;
 __END__
 

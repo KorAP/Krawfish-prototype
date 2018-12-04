@@ -318,7 +318,7 @@ sub to_string {
 #   freq([a]{1,2}) == freq([a])*2
 sub max_freq {
   my $self = shift;
-  $self->{span}->max_freq * ($self->{pattern}->max - $self->{pattern}->min + 1)
+  $self->{span}->max_freq * $self->{pattern}->cardinality
 };
 
 
