@@ -2,7 +2,7 @@ package Krawfish::Koral::Corpus::Field;
 use strict;
 use warnings;
 use Role::Tiny;
-use Krawfish::Util::String qw/normalize_nfkc/;
+use Krawfish::Util::String qw/normalize_nfkc squote/;
 use Krawfish::Koral::Corpus::FieldID;
 
 use constant DEBUG => 0;
@@ -196,6 +196,14 @@ sub to_string {
   };
 
   $str .= $self->match_short;
+
+  # TODO:
+  #if ($self->key_type eq 'regex') {
+  #  return $str . '/' . $self->value_string . '/';
+  #}
+  #elsif ($self->key_type eq 'string' || $self->key_type eq 'text') #{
+  #  return $str . squote($self->value_string);
+  #};
 
   return $str . $self->value_string;
 };

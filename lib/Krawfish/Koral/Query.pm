@@ -330,6 +330,8 @@ sub maybe_anchor      {
 # a wrapped relation query, classed operands may
 # be in arbitrary order. When focussing on these
 # classes, the span has to me reordered.
+# This may also be true for moving position constraints,
+# see https://github.com/KorAP/Krill/issues/7
 # TODO:
 #   Rename to classes_maybe_unsorted
 sub maybe_unsorted {

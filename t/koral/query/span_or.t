@@ -31,6 +31,16 @@ ok($query = $query->finalize, 'Finalize');
 is($query->to_string, '(a)|(b)|(d)', 'or');
 
 
+# Wrap class
+$query = $qb->bool_or(
+  $qb->class($qb->token('a'),1), $qb->class($qb->token('b'), 1)
+);
+is($query->to_string, '({1:[a]})|({1:[b]})', 'or with classes');
+ok($query = $query->normalize, 'Normalize');
+is($query->to_string, '{1:a|b}', 'or with classes');
+
+
+
 TODO: {
   local $TODO = 'Test more systematically and with negative operands';
 };

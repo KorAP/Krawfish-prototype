@@ -70,6 +70,7 @@ sub normalization_order {
     '_resolve_date_subsumption',
     '_resolve_demorgan',
     '_remove_nested_idempotence',
+    '_wrap_classes',
     '_replace_negative'
   );
 };

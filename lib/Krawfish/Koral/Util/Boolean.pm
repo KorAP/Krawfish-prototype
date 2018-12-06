@@ -775,6 +775,52 @@ sub _resolve_demorgan {
 };
 
 
+# {1:a}|{1:b} -> {1:(a|b)}
+# {1:a}&{1:b} -> {1:(a&b)}
+sub _wrap_classes {
+  my $self = shift;
+
+  return if $self->is_nowhere || $self->is_anywhere;
+
+  # Iterate over operands
+  my $ops = $self->operands;
+
+  # Operand is no class
+  unless ($ops->[0]->type eq 'class') {
+    return;
+  };
+
+  # Iterate over all operands
+  my $nr = $ops->[0]->number;
+  for (my $i = 1; $i < @$ops; $i++) {
+
+    # Not all operands have the same class
+    if ($ops->[$i]->type ne 'class' || $ops->[$i]->number != $nr) {
+      return;
+    };
+  };
+
+  # All operands have the same class - wrap!
+  my @new_ops;
+  for (my $i = 0; $i < @$ops; $i++) {
+    push @new_ops, $ops->[$i]->operand;
+  };
+
+  my $kb = $self->builder;
+  if ($self->operation eq 'and') {
+    return $kb->class(
+      $kb->bool_and(@new_ops),
+      $nr
+    )->normalize;
+  };
+
+  return $kb->class(
+    $kb->bool_or(@new_ops),
+    $nr
+  )->normalize;
+};
+
+
 # To make queries with negation more efficient,
 # replace (a & !b) with andNot(a,b)
 # and (a | !b) with (a | andNot([1],b))

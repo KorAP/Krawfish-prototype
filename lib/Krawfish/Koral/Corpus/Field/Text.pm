@@ -6,6 +6,10 @@ use Role::Tiny::With;
 with 'Krawfish::Koral::Corpus::Field';
 with 'Krawfish::Koral::Corpus';
 
+sub key_type {
+  'text';
+};
+
 
 # Contains the value in multi-token field
 sub contains {

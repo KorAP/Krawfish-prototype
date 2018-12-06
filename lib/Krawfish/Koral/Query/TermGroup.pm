@@ -96,6 +96,7 @@ sub normalization_order {
     '_resolve_idempotence',
     '_resolve_demorgan',
     '_remove_nested_idempotence',
+    # '_wrap_classes',
     '_replace_negative'
   );
 };
