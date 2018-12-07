@@ -9,6 +9,10 @@ with 'Krawfish::Query';
 use constant DEBUG => 0;
 
 # TODO:
+#   Support RepetitionPattern, so the length query can
+#   be used for contains([]{2,6}{1,2}, <base/s=s>)
+
+# TODO:
 #   This should respect different tokenizations!
 
 # Constructor

@@ -1106,7 +1106,6 @@ sub _extend_any {
       #   although this desicion needs to be benchmarked,
       #   because choosing right extension may always
       #   be faster
-
       $index_ext = $surr_r;
     }
 
@@ -1127,16 +1126,22 @@ sub _extend_any {
   # The optional operand exists - create new operand
   my $new_query;
 
+  my $ext = $query_ext->[KQUERY];
+  my @ranges = ([$ext->min, $ext->max]);
+  $ext = $ext->operand;
+
+  # Collect all ranges
+  while ($ext->type eq 'repetition') {
+    unshift @ranges, [$ext->min, $ext->max];
+    $ext = $ext->operand;
+  };
+
   # Create new extension query
   $new_query = Krawfish::Query::Extension->new(
     # Extension is to the left or to the right
     $index_a < $index_ext ? 0 : 1,
     $query_a->[QUERY]->clone,
-    [
-      [
-        $query_ext->[KQUERY]->min, $query_ext->[KQUERY]->max
-      ]
-    ]
+    \@ranges
   );
 
   # Add new query

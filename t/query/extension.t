@@ -13,6 +13,8 @@ ok_index($index, [qw/bb bb cc dd dd/], 'Add new document');
 
 my $qb = Krawfish::Koral::Query::Builder->new;
 
+my ($wrap, $ext);
+
 # Right expansion
 
 # [bb][]{1,3}
@@ -24,11 +26,11 @@ my $qb = Krawfish::Koral::Query::Builder->new;
 # 4.    bb cc
 # 5.    bb cc dd
 # 6.    bb cc dd dd
-ok(my $wrap = $qb->seq($qb->token('bb'), $qb->repeat($qb->token, 1, 3)),
+ok($wrap = $qb->seq($qb->token('bb'), $qb->repeat($qb->token, 1, 3)),
    'Extension to the right');
 is($wrap->to_string, '[bb][]{1,3}', 'Stringification');
 
-ok(my $ext = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
+ok($ext = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
 is($ext->to_string, 'ext(>:1-3:#2)', 'Stringification');
 is($ext->max_freq, 6);
 #matches($ext, [qw/[0:1-2]/]);
@@ -65,6 +67,7 @@ is($ext->to_string, 'ext(>:1-5:#2)', 'Stringification');
 is($ext->max_freq, 10, 'Maximum frequency');
 
 
+
 # Normalize extensions with nested repetitions
 ok($wrap = $qb->seq($qb->token('bb'), $qb->repeat($qb->repeat($qb->token, 0, 2),1,3)),
    'Extension to the right');
@@ -73,6 +76,16 @@ is($wrap->to_string, '[bb]([]{0,2}){1,3}', 'Stringification');
 ok($ext = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
 is($ext->max_freq, 12, 'Maximum frequency');
 is($ext->to_string, 'ext(>:0-2;1-3:#2)', 'Stringification');
+
+
+# Normalize extensions with nested repetitions left
+ok($wrap = $qb->seq($qb->repeat($qb->repeat($qb->token, 0, 2),1,3), $qb->token('bb')),
+   'Extension to the right');
+is($wrap->to_string, '([]{0,2}){1,3}[bb]', 'Stringification');
+
+ok($ext = $wrap->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Rewrite');
+is($ext->max_freq, 12, 'Maximum frequency');
+is($ext->to_string, 'ext(<:0-2;1-3:#2)', 'Stringification');
 
 
 done_testing;
