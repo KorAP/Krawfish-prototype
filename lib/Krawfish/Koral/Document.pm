@@ -154,8 +154,8 @@ sub _parse {
     }
 
     # Store store-fields
-    elsif ($field->{type} eq 'type:store') {
-      $fields->add_store($field->{key}, $field->{value});
+    elsif ($field->{type} eq 'type:attachement') {
+      $fields->add_attachement($field->{key}, $field->{value});
     }
 
     # Store date fields

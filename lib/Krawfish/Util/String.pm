@@ -16,6 +16,7 @@ our @EXPORT = qw/fold_case
                  remove_diacritics
                  normalize_nfkc
                  squote
+                 aquote
                  unsquote
                  binary_short/;
 
@@ -63,6 +64,13 @@ sub squote {
   my $str = shift;
   $str =~ s/(['\\])/\\$1/g;
   return qq{'$str'};
+};
+
+
+sub aquote {
+  my $str = shift;
+  $str =~ s/([<>\\])/\\$1/g;
+  return qq{<$str>};
 };
 
 

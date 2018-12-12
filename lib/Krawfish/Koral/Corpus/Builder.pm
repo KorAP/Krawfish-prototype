@@ -132,7 +132,7 @@ sub existent {
 
   # This should either use rankings or (if not defined) fields
   # directly (although this will probably be slow).
-  # Therefore it will also work with "store only" fields.
+  # Therefore it will also work with "attachement" fields.
   ...
 };
 

@@ -39,7 +39,7 @@ is($fields[2]->term_id, 6, 'Field id');
 is($index->dict->term_by_term_id(6), FIELD_PREF . 'textLength:8', 'Term');
 ok($fields[3], 'Field id');
 ok(!$fields[3]->term_id, 'No field id');
-is($fields[3]->value, 'http://korap.ids-mannheim.de/instance/example', 'No field id');
+is($fields[3]->value, 'data:application/x.korap-link,http://korap.ids-mannheim.de/instance/example', 'No field id');
 ok(!$fields[4], 'No more fields');
 
 ok($pointer = $index->segment->fields->pointer, 'Get pointer');
@@ -65,20 +65,20 @@ ok_index($index, {
   id => 7,
   author => 'Carol',
   integer_size => 2,
-  store_uri => 'https://korap.ids-mannheim.de/instance/example7'
+  attachement_uri => 'https://korap.ids-mannheim.de/instance/example7'
 } => [qw/aa bb/], 'Add complex document');
 
 ok_index($index, {
   id => 3,
   author => 'Amy',
   integer_size => 3,
-  store_uri => 'https://korap.ids-mannheim.de/instance/example3'
+  attachement_uri => 'data:application/x.korap-link,https://korap.ids-mannheim.de/instance/example3'
 } => [qw/aa cc cc/], 'Add complex document');
 ok_index($index, {
   id => 1,
   author => 'Bob',
   integer_size => 17,
-  store_uri => 'https://korap.ids-mannheim.de/instance/example1'
+  attachement_uri => 'data:application/x.korap-link,https://korap.ids-mannheim.de/instance/example1'
 } => [qw/aa bb/], 'Add complex document');
 
 
@@ -292,6 +292,45 @@ is($ranks->asc_rank_for(5), 2, 'Get ascending rank');
 is($ranks->asc_key_for(1), 1, 'Get ascending key');
 is($ranks->asc_key_for(2), 2, 'Get ascending key');
 is($ranks->asc_key_for(4), 4, 'Get ascending key');
+
+# Add assets
+ok($index = Krawfish::Index->new, 'Create new index');
+
+# Add some data
+ok($doc = Krawfish::Koral::Document->new(
+  't/data/doc5-assets.jsonld'
+), 'Load document');
+
+# Transform dictionary to term_id stream
+ok($doc = $doc->identify($index->dict), 'Translate to term identifiers');
+
+# Add document to segment
+$index->segment->add($doc);
+
+ok($pointer = $index->segment->fields->pointer, 'Get pointer');
+is($pointer->skip_doc(0), 0, 'Skip');
+ok(@fields = $pointer->fields, 'Get fields');
+
+is($fields[0]->inflate($index->dict)->to_string,
+   "'docID'='doc-5'",
+   'Inflate string');
+
+is($fields[1]->inflate($index->dict)->to_string,
+   "'license'='free'",
+   'Inflate string');
+
+is($fields[2]->inflate($index->dict)->to_string,
+   "'Wikipedia'=<data:application/x.korap-link,https://de.wikipedia.org/wiki/Beispiel>",
+   'Inflate string');
+
+is($fields[3]->inflate($index->dict)->to_string,
+   "'Reference'=<data:text/plain,This is a reference string>",
+   'Inflate string');
+
+is($fields[4]->inflate($index->dict)->to_string,
+   "'textLength'=12",
+   'Inflate string');
+
 
 
 done_testing;

@@ -180,7 +180,8 @@ sub add {
   my $fields = $doc->fields->operands;
   my $ranks  = $self->field_ranks;
   foreach (@$fields) {
-    next if $_->type eq 'store';
+    next if $_->type eq 'attachement';
+
     if (DEBUG) {
       print_log('seg', 'Added field #' . $_->term_id . ' for doc_id=' . $doc_id);
     };

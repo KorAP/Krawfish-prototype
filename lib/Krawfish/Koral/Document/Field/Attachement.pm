@@ -1,7 +1,7 @@
-package Krawfish::Koral::Document::Field::Store;
+package Krawfish::Koral::Document::Field::Attachement;
 use warnings;
 use strict;
-use Krawfish::Util::String qw/squote/;
+use Krawfish::Util::String qw/squote aquote/;
 use Krawfish::Util::Constants ':PREFIX';
 use Role::Tiny::With;
 
@@ -15,7 +15,7 @@ with 'Krawfish::Koral::Document::Field';
 
 
 sub type {
-  'store'
+  'attachement'
 };
 
 # There is no term_id, but it's required for sorting
@@ -63,7 +63,7 @@ sub to_string {
   else {
     $str .= squote($self->key);
   };
-  return $str . '=' . squote($self->value);
+  return $str . '=' . aquote($self->value);
 };
 
 1;

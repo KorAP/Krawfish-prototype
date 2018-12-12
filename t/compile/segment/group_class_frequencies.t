@@ -23,7 +23,7 @@ ok_index($index, {
   id => 'doc-3',
   license => 'free',
   corpus => 'corpus-1',
-  store_uri => 'My URL'
+  attachement_uri => 'My URL'
 } => '[aa|xx][bb|yy][cc|yy]', 'Add new document');
 
 

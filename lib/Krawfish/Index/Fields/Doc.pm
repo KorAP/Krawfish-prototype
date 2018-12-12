@@ -45,8 +45,8 @@ sub new {
     push @data, $_->key_id;     # Key data
     push @data, $_->type;       # Key type marker
                                 # Store term or value!
-    push @data, $_->term_id unless $_->type eq 'store';
-    push @data, $_->value if $_->type eq 'integer' || $_->type eq 'store';
+    push @data, $_->term_id unless $_->type eq 'attachement';
+    push @data, $_->value if $_->type eq 'integer' || $_->type eq 'attachement';
   };
 
 

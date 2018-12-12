@@ -150,7 +150,7 @@ sub next {
       my @field_keys = @{$self->{field_keys}};
 
       # Ignore stored fields
-      my @field_objs = grep { $_->type ne 'store' } $pointer->fields(
+      my @field_objs = grep { $_->type ne 'attachement' } $pointer->fields(
         map { $_->term_id } @field_keys
       );
 

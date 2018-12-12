@@ -29,8 +29,8 @@
       {
         "@type":"koral:field",
         "key":"URI",
-        "value": "http://korap.ids-mannheim.de/instance/example",
-        "type":"type:store"
+        "value": "data:application/x.korap-link,http://korap.ids-mannheim.de/instance/example",
+        "type":"type:attachement"
       },
       {
         "@type":"koral:field",

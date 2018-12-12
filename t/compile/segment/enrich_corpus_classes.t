@@ -23,7 +23,7 @@ ok_index($index, {
   id => 'doc-3',
   license => 'free',
   corpus => 'corpus-1',
-  store_uri => 'My URL',
+  attachement_uri => 'My URL',
   integer_year => 2002
 } => [qw/bb cc/], 'Add new document');
 
@@ -97,7 +97,7 @@ is($query->current_match->to_string, "[1:1-2!2|fields:#1=#13|inCorpus:2]",
 
 ok($query->next, 'Next');
 is($query->current->to_string, '[2:0-1!1]', 'Current object');
-is($query->current_match->to_string, "[2:0-1!1|fields:#1=#17|inCorpus:1]",
+is($query->current_match->to_string, "[2:0-1!1|fields:#1=#18|inCorpus:1]",
    'Current match');
 ok(!$query->next, 'Next');
 

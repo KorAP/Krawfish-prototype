@@ -1,0 +1,95 @@
+{
+  "@context" : "http://korap.ids-mannheim.de/ns/koral/0.3/context.jsonld",
+  "document" : {
+    "@type" : "koral:document",
+    "primaryData" : "Der alte Mann ging über die Straße.",
+    "id" : 5,
+    "fields" : [
+      {
+        "@type":"koral:field",
+        "key":"docID",
+        "value":"doc-5",
+        "type":"type:string",
+        "sortable":true
+      },
+      {
+        "@type":"koral:field",
+        "key":"license",
+        "value":"free",
+        "type":"type:string",
+        "sortable":true
+      },
+      {
+        "@type":"koral:field",
+        "key":"Wikipedia",
+        "value":"data:application/x.korap-link,https://de.wikipedia.org/wiki/Beispiel",
+        "type":"type:attachement"
+      },
+      {
+        "@type":"koral:field",
+        "key":"Reference",
+        "value":"data:text/plain,This is a reference string",
+        "type":"type:attachement"
+      },
+      {
+        "@type":"koral:field",
+        "key":"textLength",
+        "value": 12,
+        "type":"type:integer",
+        "sortable":true
+      }
+    ],
+    "annotations" : [
+      {
+        "@type": "koral:token",
+        "offsets" : [0,3],
+        "wrap" : {
+          "@type": "koral:term",
+          "key" : "Der"
+        }
+      },{
+        "@type": "koral:token", 
+	      "wrap" : {
+          "@type" : "koral:term",
+          "key" : "alte"
+        },
+        "offsets" : [4,8]
+      },{
+        "@type": "koral:token", 
+	      "wrap" : {
+          "@type" : "koral:term",
+          "key" : "Mann"
+        },
+        "offsets" : [9,13]
+      },{
+        "@type": "koral:token", 
+	      "wrap" : {
+          "@type" : "koral:term",
+          "key" : "ging"
+        },
+        "offsets" : [14,18]
+      },{
+        "@type": "koral:token", 
+	      "wrap" : {
+          "@type" : "koral:term",
+          "key" : "über"
+        },
+        "offsets" : [19,23]
+      },{
+        "@type": "koral:token", 
+	      "wrap" : {
+          "@type" : "koral:term",
+          "key" : "die"
+        },
+        "offsets" : [24,27]
+      },{
+        "@type": "koral:token", 
+	      "wrap" : {
+          "@type" : "koral:term",
+          "key" : "Straße"
+        },
+        "offsets" : [28,34]
+      }
+    ]
+  }
+}

@@ -100,7 +100,7 @@ sub each_doc {
     foreach my $field ($pointer->fields(@{$self->{field_keys}}))  {
 
       # This should probably be a method in the fields pointer!
-      next if $field->type eq 'store';
+      next if $field->type eq 'attachement';
 
       # Increment occurrence
       $result->incr_doc($field->key_id, $field->term_id, $flags);

@@ -1,7 +1,7 @@
 package Krawfish::Koral::Document::Fields;
 use Krawfish::Koral::Document::Field::String;
 use Krawfish::Koral::Document::Field::Integer;
-use Krawfish::Koral::Document::Field::Store;
+use Krawfish::Koral::Document::Field::Attachement;
 use Krawfish::Koral::Document::Field::DateRange;
 use warnings;
 use strict;
@@ -43,13 +43,13 @@ sub add_int {
 };
 
 
-sub add_store {
+sub add_attachement {
   my $self = shift;
   my ($key, $value) = @_;
 
   # This may be an integer value
   push @{$self->operands},
-    Krawfish::Koral::Document::Field::Store->new(
+    Krawfish::Koral::Document::Field::Attachement->new(
       key => $key,
       value => $value
     );

@@ -278,7 +278,7 @@ sub _fields {
   foreach my $key (sort keys %$hash) {
     my $type = 'string';
     my $long_key = $key;
-    if ($key =~ s/^(string|date|int(?:eger)?|store)_//) {
+    if ($key =~ s/^(string|date|int(?:eger)?|attachement)_//) {
       if ($1 eq 'int') {
         $type = 'integer';
       }

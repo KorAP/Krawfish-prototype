@@ -1,6 +1,6 @@
 package Krawfish::Index::Fields::Pointer;
 use Krawfish::Koral::Document::Field::Integer;
-use Krawfish::Koral::Document::Field::Store;
+use Krawfish::Koral::Document::Field::Attachement;
 use Krawfish::Koral::Document::Field::String;
 use Krawfish::Koral::Document::Field::DateRange;
 use Krawfish::Util::Constants qw/NOMOREDOCS/;
@@ -160,7 +160,7 @@ sub int_fields {
       $self->{pos}++;
       $type = $doc->[$self->{pos}++];
       $self->{pos}++;
-      $self->{pos}++ if $type eq 'integer' || $type eq 'store'
+      $self->{pos}++ if $type eq 'integer' || $type eq 'attachement'
     };
 
     # Remember the current field
@@ -244,8 +244,8 @@ sub fields {
       else {
         $self->{pos}++;
         $type = $doc->[$self->{pos}++];
-        $self->{pos}++ if $type ne 'store';
-        $self->{pos}++ if $type eq 'integer' || $type eq 'store';
+        $self->{pos}++ if $type ne 'attachement';
+        $self->{pos}++ if $type eq 'integer' || $type eq 'attachement';
       };
 
 
@@ -286,9 +286,9 @@ sub _get_by_type {
     );
   }
 
-  # read store
-  elsif ($type eq 'store') {
-    return Krawfish::Koral::Document::Field::Store->new(
+  # read attachement
+  elsif ($type eq 'attachement') {
+    return Krawfish::Koral::Document::Field::Attachement->new(
       key_id => $key_id,
       value => $doc->[$self->{pos}++]
     );

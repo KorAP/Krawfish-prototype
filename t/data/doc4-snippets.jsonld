@@ -3,7 +3,7 @@
   "document" : {
     "@type" : "koral:document",
     "primaryData" : "Der Mann sagte: \"Hallo!\"",
-    "id" : 3,
+    "id" : 4,
     "fields" : [
       {
         "@type" : "koral:field",
