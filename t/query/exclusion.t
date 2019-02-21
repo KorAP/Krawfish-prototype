@@ -202,5 +202,29 @@ ok($wrap = $query->normalize->finalize->identify($index->dict)->optimize($index-
 matches($wrap, [qw/[1:0-1] [2:0-1]/]);
 
 
+# Example query from the C2 textbook:
+#   "Da wegen eigentlich 1.669.349 mal im Archiv belegt ist, wurden durch die
+#    obigen Suchanfragen 1.669.349 - 1.669.294 = 55 Fälle nicht abgedeckt.
+#    Es handelt sich um Fälle, bei denen wegen außerhalb einer <s> ... </s>
+#    Markierung (in einem <byline> außerhalb des Textbody) gefunden wurde.
+#    Diese Fälle lassen sich mit folgender Suchanfrage unter Verwendung der
+#    Ausschließungsoption % erfragen:
+#    Q1 = IN(wegen,'%',ELEM(S))"
+$index = Krawfish::Index->new;
+ok_index($index, '<1:s>[wegen]</1><2:s>[wegen]</2>[wegen]', 'Add complex document');
+$query = $qb->exclusion(
+  [qw/alignsRight
+      isWithin
+      matches
+      alignsLeft/],
+  $qb->token('wegen'),
+  $qb->span('s')
+);
+ok($wrap = $query->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Planning');
+matches($wrap, [qw/[0:2-3]/]);
+
+
+
+
 done_testing;
 __END__
