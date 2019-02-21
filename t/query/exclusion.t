@@ -211,7 +211,7 @@ matches($wrap, [qw/[1:0-1] [2:0-1]/]);
 #    Ausschließungsoption % erfragen:
 #    Q1 = IN(wegen,'%',ELEM(S))"
 $index = Krawfish::Index->new;
-ok_index($index, '<1:s>[wegen]</1><2:s>[wegen]</2>[wegen]', 'Add complex document');
+ok_index($index, '<1:s>[wegen]</1><2:s>[wegen][aa]</1><2:s>[aa][wegen]</2><3:s>[aa][wegen][aa]</3><4:s>[wegen]</4>[wegen]', 'Add complex document');
 $query = $qb->exclusion(
   [qw/alignsRight
       isWithin
@@ -221,7 +221,7 @@ $query = $qb->exclusion(
   $qb->span('s')
 );
 ok($wrap = $query->normalize->finalize->identify($index->dict)->optimize($index->segment), 'Planning');
-matches($wrap, [qw/[0:2-3]/]);
+matches($wrap, [qw/[0:9-10]/]);
 
 
 
