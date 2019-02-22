@@ -147,8 +147,8 @@ sub normalize {
   $self->operands([
     $first_norm,
 
-    # Remove all classes, as they can't match
-    $second_norm->remove_classes
+    # Remove unused classes, as they can't match
+    $second_norm->remove_unused_classes
   ]);
 
   return $self;

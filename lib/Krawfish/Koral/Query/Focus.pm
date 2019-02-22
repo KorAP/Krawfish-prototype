@@ -13,6 +13,8 @@ with 'Krawfish::Koral::Query';
 #   If span is maybe_unsorted, use a sorted focus,
 #   otherwise an unsorted focus.
 
+# See https://github.com/KorAP/Krill/issues/7
+# See https://github.com/KorAP/Krill/issues/48
 
 sub new {
   my $class = shift;
@@ -22,10 +24,25 @@ sub new {
   }, $class;
 };
 
+
+sub type { 'focus' };
+
 sub nrs {
   $_[0]->{nrs};
 };
 
+
+sub normalize {
+  # TODO:
+  return $_[0];
+};
+
+sub uses_classes {
+  return [
+    @{$_[0]->operand->uses_classes},
+    @{$_[0]->{nrs}}
+  ];
+};
 
 # Optimize query to potentially need sorting
 sub optimize {
@@ -65,6 +82,24 @@ sub max_span {
   #   Find the nested operands and calculate the span length,
   #   though this may not be trivial
   -1
+};
+
+sub from_koral {
+  ...
+};
+
+sub to_koral_fragment {
+  ...
+};
+
+sub to_string {
+  my $self = shift;
+  my $str = 'focus(';
+  $str .= join ',', @{$self->{nrs}};
+  $str .= ':';
+  $str .= $self->operand->to_string;
+  return $str . ')';
+
 };
 
 1;

@@ -16,6 +16,7 @@ use Krawfish::Koral::Query::Class;
 use Krawfish::Koral::Query::Constraint;
 use Krawfish::Koral::Query::Length;
 use Krawfish::Koral::Query::Nowhere;
+use Krawfish::Koral::Query::Focus;
 use Krawfish::Koral::Query::Or;
 use Krawfish::Koral::Query::Filter;
 use Krawfish::Koral::Query::Match;
@@ -174,6 +175,13 @@ sub in_corpus {
   shift;
   Krawfish::Koral::Query::InCorpus->new(@_);
 };
+
+
+# Focus on a class query
+sub focus {
+  shift;
+  Krawfish::Koral::Query::Focus->new(@_);
+}
 
 
 # Create reference query

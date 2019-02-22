@@ -3,6 +3,7 @@ use Role::Tiny;
 # use Krawfish::Koral::Query::Builder;
 use Krawfish::Log;
 use Mojo::Util qw/md5_sum/;
+use List::Util qw/uniq/;
 use warnings;
 use strict;
 
@@ -171,17 +172,35 @@ sub finalize {
 };
 
 
+# Remove all classes not used.
+# Pass classes required for highlighting or grouping,
+# and take classes from uses_classes() into account.
+# This is not done recursively, as it first needs to
+# gather all classes and then can remove them.
 sub remove_unused_classes {
-  my ($self, $classes) = @_;
+  my ($self, $keep) = @_;
   my $used = $self->uses_classes;
-  # Pass classes required for highlighting or grouping,
-  # and take classes from uses_classes() into account.
-  # This is not done recursively, as it first needs to
-  # gather all classes and then can remove them.
+
+  return $self->remove_classes([
+    uniq(@$keep, @$used)
+  ]);
 };
 
+
+# Return all classes used by this query
 sub uses_classes {
-  warn 'Not yet implemented';
+  my $self = shift;
+
+  my $ops = $self->operands;
+
+  return [] unless $ops;
+
+  my @classes = ();
+  for (my $i = 0; $i < @$ops; $i++) {
+    my $classes = $ops->[$i]->uses_classes;
+    push @classes, @$classes if $classes;
+  };
+  return \@classes;
 };
 
 

@@ -73,6 +73,32 @@ is($query->min_span, 1, 'Span length');
 is($query->max_span, 1, 'Span length');
 
 
+
+$query = $qb->exclusion(
+  ['isAround'],
+  $qb->span('aa'),
+  $qb->class(
+    $qb->focus(
+      $qb->class(
+        $qb->token('bb'),
+        2
+      ),
+      [2]
+    ),
+    [3]
+  )
+);
+ok($query = $query->normalize, 'Normalization');
+is($query->to_string, 'excl(isAround:<aa>,focus(2:{2:[bb]}))', 'Stringification');
+
+#ok($query = $query->identify($index->dict), 'Optimization');
+#is($query->to_string, "#2", 'Stringification');
+#ok($query = $query->normalize, 'Normalization');
+#is($query->to_string, "#2", 'Stringification');
+#ok($query = $query->optimize($index->segment), 'Optimization');
+#is($query->to_string, "#2", 'Stringification');
+
+
 TODO: {
   local $TODO = 'Test further'
 };
