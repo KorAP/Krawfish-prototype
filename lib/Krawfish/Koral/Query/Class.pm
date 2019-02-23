@@ -53,11 +53,44 @@ sub remove_classes {
 };
 
 
+# Return defined classes
+sub defined_classes {
+  my $self = shift;
+
+  return [
+    @{$self->operand->defined_classes},
+    $self->number
+  ];
+};
 
 
 # Normalize the class query
 sub normalize {
   my $self = shift;
+
+  # Sort based on numbers
+  while ($self->operand->type eq 'class') {
+
+    # Get nested class
+    my $class = $self->operand;
+
+    # Remove irrelevant class
+    if ($self->number == $class->number) {
+      $self->operand($class->operand);
+    }
+
+    # Switch numbers
+    elsif ($self->number < $self->operand->number) {
+      my $number = $self->number;
+      $self->number($self->operand->number);
+      $self->operand->number($number);
+    }
+
+    # Last
+    else {
+      last;
+    };
+  };
 
   # Normalize the span
   my $span;
@@ -118,6 +151,10 @@ sub to_string {
 
 
 sub number {
+  if (defined $_[1]) {
+    $_[0]->{number} = $_[1];
+    return $_[0];
+  };
   $_[0]->{number};
 };
 

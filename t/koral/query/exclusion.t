@@ -73,7 +73,9 @@ is($query->min_span, 1, 'Span length');
 is($query->max_span, 1, 'Span length');
 
 
-
+# In case the exclusion wraps a class,
+# this class can securely be removed in
+# normalization
 $query = $qb->exclusion(
   ['isAround'],
   $qb->span('aa'),
@@ -85,18 +87,12 @@ $query = $qb->exclusion(
       ),
       [2]
     ),
-    [3]
+    3
   )
 );
+is($query->to_string, 'excl(isAround:<aa>,{3:focus(2:{2:[bb]})})', 'Stringification');
 ok($query = $query->normalize, 'Normalization');
-is($query->to_string, 'excl(isAround:<aa>,focus(2:{2:[bb]}))', 'Stringification');
-
-#ok($query = $query->identify($index->dict), 'Optimization');
-#is($query->to_string, "#2", 'Stringification');
-#ok($query = $query->normalize, 'Normalization');
-#is($query->to_string, "#2", 'Stringification');
-#ok($query = $query->optimize($index->segment), 'Optimization');
-#is($query->to_string, "#2", 'Stringification');
+is($query->to_string, 'excl(isAround:<aa>,{2:bb})', 'Stringification');
 
 
 TODO: {

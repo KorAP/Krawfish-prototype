@@ -24,6 +24,9 @@ requires qw/normalize
             finalize
 
             uses_classes
+            remove_classes
+            remove_unused_classes
+            defined_classes
 
             is_anywhere
             is_optional
@@ -220,6 +223,21 @@ sub remove_classes {
   return $self;
 };
 
+
+# Return all classes defined in this query
+sub defined_classes {
+  my $self = shift;
+
+  my $ops = $self->operands;
+
+  return [] unless $ops;
+
+  my @classes;
+  for (my $i = 0; $i < @$ops; $i++) {
+    push @classes, @{$ops->[$i]->defined_classes};
+  };
+  return \@classes;
+};
 
 # Get and set operands
 sub operands {

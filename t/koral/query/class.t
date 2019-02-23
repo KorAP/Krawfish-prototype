@@ -42,6 +42,20 @@ is($query->to_string, '{3:[!der]}', 'Stringification');
 ok($query = $query->normalize, 'Normalize');
 is($query->to_string, '[!der]', 'Stringification');
 
+
+# Remove equal classes
+$query = $qb->class($qb->class($qb->token('Der'), 3),3);
+is($query->to_string, '{3:{3:[Der]}}', 'Stringification');
+ok($query = $query->normalize, 'Normalize');
+is($query->to_string, '{3:Der}', 'Stringification');
+
+# Sort nested classes
+$query = $qb->class($qb->class($qb->token('Der'), 2),3);
+is($query->to_string, '{3:{2:[Der]}}', 'Stringification');
+ok($query = $query->normalize, 'Normalize');
+is($query->to_string, '{3:{2:Der}}', 'Stringification');
+
+
 done_testing;
 __END__
 
