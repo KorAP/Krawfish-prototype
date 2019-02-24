@@ -66,6 +66,14 @@ sub frames {
 };
 
 
+sub maybe_unsorted {
+  # Return true, if the frames may lead to unsorted results.
+  # Single match or startsWith can't be unsorted, but most
+  # other combinations can.
+  # A within query with the text as an operand (which can occur often)
+  # may be treated specially.
+};
+
 # List all positions of a frame
 sub to_list {
   my $frame = shift;

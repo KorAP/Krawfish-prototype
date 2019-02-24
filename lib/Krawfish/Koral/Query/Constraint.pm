@@ -339,6 +339,13 @@ sub identify {
 # Return true if the query can be unsorted
 sub maybe_unsorded {
   ...
+
+  # TODO:
+  #   This returns true, if one operand
+  #   is maybe_usnorted. If not,
+  #   this needs to check all constraints
+  #   and returns true, if one constraint
+  #   returns true.
 };
 
 

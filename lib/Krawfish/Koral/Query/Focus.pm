@@ -3,7 +3,6 @@ use strict;
 use warnings;
 use List::Util qw'uniq';
 use Role::Tiny::With;
-use Krawfish::Query::Base::Sorted;
 use Krawfish::Koral::Query::Nowhere;
 use Memoize;
 memoize('min_span');
@@ -14,9 +13,6 @@ with 'Krawfish::Koral::Query';
 # TODO:
 #   If span is maybe_unsorted, use a sorted focus,
 #   otherwise an unsorted focus.
-
-# See https://github.com/KorAP/Krill/issues/7
-# See https://github.com/KorAP/Krill/issues/48
 
 sub new {
   my $class = shift;
@@ -125,13 +121,14 @@ sub optimize {
     return $self->builder->nowhere;
   };
 
-  $span = Krawfish::Query::Focus->new($span, $self->nrs);
-
-  # Does not require sorted buffering
-  return $span unless $self->operand->maybe_unsorted;
-
-  # Requires sorted buffering
-  return Krawfish::Query::Base::Sorted->new($span, 1000);
+  # maybe_unsorted are
+  # * relation queries
+  # * within queries (but not match or startswith)
+  return Krawfish::Query::Focus->new(
+    $span,
+    $self->nrs,
+    $self->operand->maybe_unsorted ? 1 : 0
+  );
 };
 
 sub min_span {
