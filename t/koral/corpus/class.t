@@ -39,4 +39,20 @@ is($cq->to_string, '{2:author=Nils}|{2:doc_id=WPD.*}');
 ok($cq = $cq->normalize, 'Normalization');
 is($cq->to_string, '{2:doc_id=WPD.*|author=Nils}');
 
+$cq = $cb->class(
+  $cb->bool_and(
+    $cb->class(
+      $cb->string('author')->eq('Nils'),
+      3
+    ),
+    $cb->regex('doc_id')->eq('WPD.*')
+  ),
+  2
+);
+
+is($cq->to_string, '{2:doc_id=WPD.*&{3:author=Nils}}');
+ok($cq = $cq->remove_classes, 'Remove classes');
+is($cq->to_string, 'doc_id=WPD.*&author=Nils');
+
+
 done_testing;

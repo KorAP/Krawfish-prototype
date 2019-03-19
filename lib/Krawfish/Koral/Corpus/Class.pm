@@ -39,7 +39,7 @@ sub has_classes {
 
 # Remove classes
 sub remove_classes {
-  return $_[0]->operand;
+  return $_[0]->operand->remove_classes;
 };
 
 
