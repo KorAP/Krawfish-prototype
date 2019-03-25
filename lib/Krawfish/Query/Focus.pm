@@ -6,11 +6,7 @@ use Role::Tiny::With;
 # Maybe
 #   use Krawfish::Query::Base::Sorted;
 
-
 with 'Krawfish::Query';
-
-# See 
-# See 
 
 # The focus query can focus on a specific part of the
 # subquery, that may be in the span of the subquery
@@ -33,7 +29,7 @@ with 'Krawfish::Query';
 # when it moves forward, all spans in the priority queue
 # with start position smaller than the new start position
 # of the longest subspan can be released.
-# To guarantee sorted focus spans, the focus query keeps
+# To guarantee sorted nested focus spans, the focus query keeps
 # track of the largest possible span (by adding a payload
 # with a fixed class number > 128 including minimal start
 # and maximum end position),

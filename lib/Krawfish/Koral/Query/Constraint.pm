@@ -338,14 +338,22 @@ sub identify {
 
 # Return true if the query can be unsorted
 sub maybe_unsorded {
-  ...
-
   # TODO:
   #   This returns true, if one operand
   #   is maybe_usnorted. If not,
   #   this needs to check all constraints
   #   and returns true, if one constraint
   #   returns true.
+  #
+  # There is one special case: If there is
+  # an embedded query with one operand
+  # being <base/s:t>, this is guaranteed to be
+  # sorted, as there can't be more <base/s:t>
+  # in the document. This is an important
+  # optimization, because wrapping a query in
+  # a <base/s:t> is automatically introduced
+  # often, when a query is extended to the
+  # right.
 };
 
 

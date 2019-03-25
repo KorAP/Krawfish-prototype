@@ -34,7 +34,7 @@ sub bool_or {
 };
 
 
-# Create 'and' group
+# Create 'and not' group
 sub bool_and_not {
   shift;
   return Krawfish::Koral::Corpus::AndNot->new(@_);

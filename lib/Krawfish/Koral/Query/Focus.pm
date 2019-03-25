@@ -124,6 +124,18 @@ sub optimize {
   # maybe_unsorted are
   # * relation queries
   # * within queries (but not match or startswith)
+  #
+  # TODO:
+  #   A further optimization to this approach would involve
+  #   an attribute like "keepTrack" being passed as well,
+  #   that advises a focus query to alter the payload and keep
+  #   track of the maximum possible span instead of the
+  #   wrapping query only in case it is wrapped by another
+  #   focus query.
+  #   This would require a maybe_focussed or maybe_referenced
+  #   attribute.
+  #   This could even take into account if the new focus is
+  #   embedded in the old one or outside.
   return Krawfish::Query::Focus->new(
     $span,
     $self->nrs,
