@@ -888,7 +888,8 @@ sub _replace_negative {
     };
   };
 
-  print_log('kq_bool', 'Check final operand on negativity') if DEBUG;
+  print_log('kq_bool', "Check final operand on negativity at $i is " .
+              $ops->[$i]->to_string()) if DEBUG;
 
   # All operands are positive
   return unless $found;

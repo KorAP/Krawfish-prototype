@@ -54,5 +54,13 @@ is($cq->to_string, '{2:doc_id=WPD.*&{3:author=Nils}}');
 ok($cq = $cq->remove_classes, 'Remove classes');
 is($cq->to_string, 'doc_id=WPD.*&author=Nils');
 
+$cq = $cb->class(
+  $cb->anywhere,
+  3
+);
+
+ok($cq = $cq->normalize, 'Normalization');
+is($cq->to_string, '{3:[1]}');
+ok($cq->is_anywhere, 'Is anywhere');
 
 done_testing;

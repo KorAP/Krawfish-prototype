@@ -377,7 +377,52 @@ ok($tree->is_nowhere, 'Is nowhere');
 ok($tree = $tree->finalize, 'Planning');
 is($tree->to_string, "[0]", 'Stringification');
 
+# Deal with demorgan in AND
+$tree = $cb->bool_and(
+  $cb->string("age")->eq("4"),
+  $cb->bool_or(
+    $cb->string("author")->ne("Peter"),
+    $cb->string("age")->eq("7"),
+  )->is_negative(1)
+);
 
+is("(!(age=7|author!=Peter))&age=4", $tree->to_string, "Clean and flatten");
+is("((age=4&author=Peter)&!age=7)", $tree->normalize->to_string, "Clean and flatten");
+
+
+# Replace negative
+$tree = $cb->bool_and(
+  $cb->string("age")->eq("2"),
+  $cb->string("age")->ne("4"),
+  $cb->string("age")->eq("3")
+);
+
+is("age=2&age=3&age!=4", $tree->to_string, "Clean and flatten");
+is("((age=2&age=3)&!age=4)", $tree->normalize->to_string, "Clean and flatten");
+
+$tree = $cb->bool_or(
+  $cb->string("author")->eq("fontane"),
+  $cb->bool_and(
+    $cb->string("editor")->ne("schiller"),
+    $cb->nowhere(),
+    $cb->string("editor")->eq("goethe"),
+    $cb->string("editor")->eq("marx"),
+  ),
+  $cb->class(
+    $cb->class(
+      $cb->bool_or(
+        $cb->string("date")->eq("May"),
+        $cb->anywhere(),
+        $cb->string("date")->eq("June"),
+      ),
+      3,
+    ),
+    2,
+  ),
+);
+
+is("([0]&editor=goethe&editor=marx&editor!=schiller)|author=fontane|{2:{3:[1]|date=June|date=May}}", $tree->to_string, "Clean and flatten");
+is("{2:{3:[1]}}", $tree->normalize->to_string, "Clean and flatten");
 
 done_testing;
 __END__

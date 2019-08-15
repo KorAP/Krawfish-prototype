@@ -99,4 +99,17 @@ sub to_string {
   $str . $self->operand->to_string($id) . '}';
 };
 
+
+# Matches everything
+sub is_anywhere {
+  return $_[0]->operand->is_anywhere;
+};
+
+
+# Matches nowhere
+sub is_nowhere {
+  return $_[0]->operand->is_nowhere;
+};
+
+
 1;
