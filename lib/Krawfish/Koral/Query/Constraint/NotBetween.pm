@@ -10,7 +10,7 @@ use warnings;
 
 with 'Krawfish::Koral::Query::Constraint::Base';
 
-# Check that a query between two operands is does nmot occur.
+# Check that a query between two operands does not occur.
 # In case this operand never occurs, it will at least set a relevant length.
 
 # Constructor

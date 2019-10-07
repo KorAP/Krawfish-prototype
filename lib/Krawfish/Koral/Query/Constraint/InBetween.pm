@@ -11,6 +11,13 @@ with 'Krawfish::Koral::Query::Boundary';
 #   Support foundry for tokenization
 #   and gaps parameter.
 
+# TODO:
+#   This query should also be constructed by
+#   inQuery constraints.
+
+# TODO:
+#   Multiple InBetween constraints can be joined
+#   in the normalization phase.
 
 sub new {
   my $class = shift;
