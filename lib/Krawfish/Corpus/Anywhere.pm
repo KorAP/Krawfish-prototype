@@ -53,8 +53,6 @@ sub max_freq {
 };
 
 
-# TODO:
-# This currently does not support flags
 sub current {
   my $live = $_[0]->{live};
 

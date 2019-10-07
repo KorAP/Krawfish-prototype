@@ -42,7 +42,7 @@ with 'Krawfish::Corpus';
 #
 #     distr(token[1:1:~10%]: 'author:Goethe', 'author:Schiller')
 #
-#   that would buffer documents from a and be and check the
+#   that would buffer documents from a and b and check the
 #   number of subtokens and always release the buffer, once the
 #   tolerance level is reached (remembering the token difference)
 #   for the buffer. This can be problematic, in case the
@@ -62,5 +62,12 @@ with 'Krawfish::Corpus';
 #   sampled (by randomly removing items).
 #   This will be slow!
 
+# TODO:
+#   It's important that all elements are treated as xor(),
+#   so in sampledistr([2:1]: a, b), a and b are distinct.
+#   The sampling and distribution should be done in a single run.
+#   It should be tested, if
+#     sample([3:3:1]: a, b, c)
+#     -> sample([6:1],sample([1:1]:a,b),c)
 
 1;

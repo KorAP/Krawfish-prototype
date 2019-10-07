@@ -35,6 +35,7 @@ use constant DEBUG => 0;
 #   be useful in case grouping without frequency information
 #   is wanted.
 
+
 sub new {
   my $class = shift;
 

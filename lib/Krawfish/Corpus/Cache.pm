@@ -8,7 +8,7 @@ use Krawfish::Util::Constants qw/NOMOREDOCS/;
 
 with 'Krawfish::Corpus';
 
-# Caching is not always a good thing. Caching is only applyable
+# Caching is not always a good thing. Caching is only applicable
 # to certain subqueries, caching may slow down the queries, when the
 # cache is not indexed, caching as for now has to be done on the
 # index level only and caching will probably need an "invalidate all
@@ -30,6 +30,28 @@ with 'Krawfish::Corpus';
 #  - If a query is cached but not indexed, the cache may
 #    be indexed next time
 #  - the signature of the koralquery can be used for caching
+
+# TODO:
+#   Better:
+#   - be stupid! Let Kustvakt decide what to cache and store!
+#   - the API should be:
+#     cache(CacheKey, SUBQUERY?)
+#     When a CacheKey is given, the system looks up,
+#     if the CacheKey exists in Cache and then uses the cache.
+#     if the CacheKey does not exist, but is stored, retrieve
+#     the subquery from the store and cache.
+#     if the CacheKey does not exist and is not stored,
+#     store the subquery and cache.
+#     if the CacheKey does not exist, is not stored, and
+#     has no subquery, return a failure.
+#     If the cache should only store and not cache,
+#     the query should be a store(CacheKey, SUBQUERY?)
+# - If two segments are merged, check for cached streams.
+#   for every cache key there need to be a zero-length postinglist
+#   at least, to mark that it is cached. Before two
+#   segments are merged, run all cached queries.
+# - If a query key was deleted, remove the caches on merge.
+
 
 # TODO:
 #   - support corpus classes
