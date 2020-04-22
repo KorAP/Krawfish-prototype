@@ -4,6 +4,14 @@ use List::MoreUtils qw/uniq/;
 use strict;
 use warnings;
 
+# Mark a match if it is part of a corpus class.
+# This can be used for comparing different classes,
+# but also for marking special matches, e.g.
+# when a VC has a certain index constraint (<= 2020-08-09)
+# an addition like
+# "and (lastModified lte 2020-08-09 | {16:lastModified gt 2020-08-09}"
+# can flag all texts that were modified after the date, but indexed before.
+
 sub new {
   my $class = shift;
   bless [@_], $class;
