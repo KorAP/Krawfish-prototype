@@ -28,6 +28,14 @@ with 'Krawfish::Koral::Corpus';
 #   Convert the strings to RFC3339, as this is a sortable
 #   date format.
 
+# TODO:
+#   Support Date patterns like C2:
+#   <date>m2=Year1-Year2 und Month1-Month2 </date>
+#   Datumsbereich Schema 2: z.B. "1990-2000 und 06-06"
+#   "Für die Auswahl von Texten, die in diesem Beispiel in den 90gern im Juni
+#   erschienen sind. Anwendungen: Themen in den Sommermonaten, evtl. nur
+#   Dez-Texte, etc."
+
 use constant DEBUG => 0;
 
 # TODO:
