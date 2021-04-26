@@ -71,6 +71,9 @@ sub check {
     # Check constrained
     my $check = $_->check($first, $second);
 
+    # TODO:
+    #   check() should also return skippos information!
+
     # Combine NEXTA and NEXTB rules
     $ret_val &= $check;
 

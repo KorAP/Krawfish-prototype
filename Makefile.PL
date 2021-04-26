@@ -19,6 +19,7 @@ WriteMakefile(
     'Role::Tiny' => '2.000005',
     'Unicode::CaseFold' => 0,
     'Unicode::Normalize' => 0,
+    'Unicode::Properties' => 0,
     'Scalar::Util' => 0,
     'List::MoreUtils' => 0,
     'List::Util' => 0,

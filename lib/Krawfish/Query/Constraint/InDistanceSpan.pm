@@ -10,6 +10,12 @@ with 'Krawfish::Query::Constraint::Base';
 # spans, maybe in the same (max=0) or with a distance.
 # There are gaps allowed in the distance.
 
+# TODO:
+#   Better rename to InQuery.
+
+# TODO:
+#   Use MaxLenght.
+
 use constant {
   NEXTA => 1,
   NEXTB => 2,
