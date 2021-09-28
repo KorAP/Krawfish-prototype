@@ -18,6 +18,10 @@ with 'Krawfish::Query';
 # It checks for an operand X that there is no operand Y
 # in the given positional relation
 
+# TODO:
+#   Exclusion may have boundaries, like
+#   %+w1:6 or %-w2:8.
+
 use constant DEBUG => 0;
 
 
