@@ -11,6 +11,7 @@ with 'Krawfish::Query::Constraint::Base';
 # This constraint validates positions
 # between spans and returns a valid forwarding mechanism
 
+# see https://github.com/francesconi/go-rampart
 
 # TODO:
 #   Sometimes the max_length assumption for first and second query
