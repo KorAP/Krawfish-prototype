@@ -50,10 +50,13 @@ sub next {
 
   # Count matches
   my $query = $self->{query};
-  my $count = 1;
-  my $init_current_doc_id = $query->current->doc_id;
   my $current_doc_id;
 
+ OUTER:
+
+  $self->{current} = undef;
+  my $count = 1;
+  my $init_current_doc_id = $query->current->doc_id;
 
   while (1) {
     $query->next or return;
@@ -64,8 +67,41 @@ sub next {
     if ($current_doc_id == $init_current_doc_id) {
       $count++;
       if ($count >= $self->{min}) {
-        return 1;
-      }
+
+        return 1 unless defined $self->{max};
+
+        # Here check for max
+        while (1) {
+
+          $self->{current} = $query->current;
+
+          # There is no more span
+          unless ($query->next) {
+            if ($count <= $self->{max}) {
+
+              # This will loose the current doc!
+              return 1;
+            };
+            $self->{current} = undef;
+            return 0;
+          };
+
+          # This is in a new document
+          if ($query->current->doc_id != $init_current_doc_id) {
+            if ($count <= $self->{max}) {
+              return 1;
+            };
+            goto OUTER;
+          };
+
+          $count++;
+
+          if ($count > $self->{max}) {
+            $self->{query}->next_doc or return;
+            goto OUTER
+          };
+        };
+      };
     }
     else {
       $init_current_doc_id = $current_doc_id;
@@ -80,8 +116,8 @@ sub next {
 # Get current posting
 sub current {
   my $self = shift;
-  my $current = $self->{query}->current or return;
-  return Krawfish::Posting->new(
+  my $current = ($self->{current} // $self->{query}->current) or return;
+  Krawfish::Posting->new(
     doc_id => $current->doc_id
   );
 };

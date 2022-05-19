@@ -38,7 +38,7 @@ ok_index($index, {
   author => 'Michael',
   genre => 'newsletter',
   integer_age => 7
-} => [qw/aa bb aa bb/], 'Add complex document');
+} => [qw/aa bb aa bb aa/], 'Add complex document');
 
 
 ok(my $cb = Krawfish::Koral::Corpus::Builder->new, 'Create CorpusBuilder');
@@ -72,9 +72,6 @@ ok($query->next, 'Move to first item');
 is($query->current->to_string, '[2]', 'Current doc');
 ok(!$query->next, 'No more documents');
 
-
-
-
 # Search in documents containing the sequence [aa][bb]
 ok($query = $cb->span(
   $qb->seq(
@@ -89,7 +86,7 @@ is($query->to_string, 'span(aabb)', 'Stringification');
 ok($query = $query->identify($index->dict), 'Identify');
 is($query->to_string(1), 'span(#10#12)', 'Stringification');
 ok($query = $query->optimize($index->segment), 'Optimize');
-is($query->to_string, 'span(constr(pos=2048:#12,#10))', 'Stringification');
+is($query->to_string, 'span(constr(pos=2:#10,#12))', 'Stringification');
 
 matches($query, [qw/[0] [1] [2] [3]/]);
 
@@ -198,6 +195,29 @@ is($query->current->to_string, '[1]', 'Current doc');
 ok($query->next, 'Move to first item');
 is($query->current->to_string, '[3]', 'Current doc');
 ok(!$query->next, 'No more documents');
+
+
+# Search in documents containing the sequence [aa] at exactly twice
+ok($query = $cb->span(
+  $qb->token('aa'),
+  2,
+  2
+), 'Create corpus query');
+
+
+is($query->to_string, 'span([aa],2,2)', 'Stringification');
+ok($query = $query->normalize, 'Normalize');
+is($query->to_string, 'span(aa,2,2)', 'Stringification');
+ok($query = $query->identify($index->dict), 'Identify');
+is($query->to_string(1), 'span(#10,2,2)', 'Stringification');
+ok($query = $query->optimize($index->segment), 'Optimize');
+is($query->to_string, 'span(#10,2,2)', 'Stringification');
+
+# [1]
+ok($query->next, 'Move to first item');
+is($query->current->to_string, '[1]', 'Current doc');
+ok(!$query->next, 'No more documents');
+
 
 done_testing;
 __END__
