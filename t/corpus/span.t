@@ -177,5 +177,27 @@ is($query->to_string, 'or(#2,span(constr(pos=2048:#12,#16)))', 'Stringification'
 matches($query, [qw/[0] [1] [2] [3]/]);
 
 
+# Search in documents containing the sequence [aa] at least twice
+ok($query = $cb->span(
+  $qb->token('aa'),
+  2
+), 'Create corpus query');
+
+
+is($query->to_string, 'span([aa],2)', 'Stringification');
+ok($query = $query->normalize, 'Normalize');
+is($query->to_string, 'span(aa,2)', 'Stringification');
+ok($query = $query->identify($index->dict), 'Identify');
+is($query->to_string(1), 'span(#10,2)', 'Stringification');
+ok($query = $query->optimize($index->segment), 'Optimize');
+is($query->to_string, 'span(#10,2)', 'Stringification');
+
+# [1][3]
+ok($query->next, 'Move to first item');
+is($query->current->to_string, '[1]', 'Current doc');
+ok($query->next, 'Move to first item');
+is($query->current->to_string, '[3]', 'Current doc');
+ok(!$query->next, 'No more documents');
+
 done_testing;
 __END__

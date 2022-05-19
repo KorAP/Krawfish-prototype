@@ -14,7 +14,9 @@ use constant DEBUG => 0;
 sub new {
   my $class = shift;
   bless {
-    operands => [shift]
+    operands => [shift],
+    min => (shift // 1),
+    max => shift
   }, $class;
 };
 
@@ -44,7 +46,7 @@ sub normalize {
     print_log('kq_c_span', 'Remove classes from ' . $self->operand->to_string);
   };
 
-  # Remove classes from operand (the can't be used)
+  # Remove classes from operand (they can't be used)
   my $span = $self->operand->remove_classes;
 
   if (DEBUG) {
@@ -63,6 +65,10 @@ sub normalize {
   # Deal with anywhere spans
   if ($norm->is_anywhere || $norm->is_optional || $norm->is_null) {
     return $norm->builder->anywhere;
+  };
+
+  if ($self->{min} == 0) {
+    return $self->builder->anywhere;
   };
 
   # Finalize span query to ensure,
@@ -103,7 +109,9 @@ sub optimize {
 
   # Return span query
   return Krawfish::Corpus::Span->new(
-    $span
+    $span,
+    $self->{min},
+    $self->{max}
   );
 };
 
@@ -147,22 +155,39 @@ sub is_null {
 # Stringify
 sub to_string {
   my ($self, $id) = @_;
-  return 'span(' . $self->operand->to_string($id) . ')'
+  my $str = 'span(' . $self->operand->to_string($id);
+  if ($self->{min} != 1 || defined $self->{max}) {
+    $str .= ',' . $self->{min};
+    $str .= ',' . $self->{max} if $self->{max};
+  };
+  return $str . ')';
 };
 
 
 sub to_sort_string {
   my $self = shift;
-  return 'span(' . $self->operand->to_sort_string . ')';
+  my $str = 'span(' . $self->operand->to_sort_string;
+  if ($self->{min} != 1 || defined $self->{max}) {
+    $str .= ',' . $self->{min};
+    $str .= ',' . $self->{max} if $self->{max};
+  };
+  return $str . ')';
 };
 
 # Serialize to KoralQuery
 sub to_koral_fragment {
   my $self = shift;
-  return {
+  my $obj = {
     '@type' => 'koral:query',
     'span' => $self->operand->to_koral_fragment
-  }
+  };
+  if ($self->{min} != 1) {
+    $obj->{min} = $self->{min};
+  };
+  if (defined $self->{max}) {
+    $obj->{max} = $self->{max};
+  };
+  return $obj;
 };
 
 

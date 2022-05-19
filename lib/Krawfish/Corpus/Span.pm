@@ -9,8 +9,10 @@ with 'Krawfish::Corpus';
 
 sub new {
   my $class = shift;
-  bless {
+  return bless {
     query => shift,
+    min => (shift // 1),
+    max => shift,
     _init => undef
   }, $class;
 };
@@ -20,7 +22,9 @@ sub new {
 sub clone {
   my $self = shift;
   __PACKAGE__->new(
-    $self->{query}->clone
+    $self->{query}->clone,
+    $self->{min},
+    $self->{max}
   );
 };
 
@@ -29,11 +33,47 @@ sub clone {
 sub next {
   my $self = shift;
 
+  my $next;
+
   unless ($self->{_init}) {
     $self->{_init}++;
-    return $self->{query}->next;
+
+    $next = $self->{query}->next or return;
+  }
+  else {
+    $next = $self->{query}->next_doc or return;
   };
-  return $self->{query}->next_doc;
+
+  if ($self->{min} == 1 && !defined $self->{max}) {
+    return $next;
+  };
+
+  # Count matches
+  my $query = $self->{query};
+  my $count = 1;
+  my $init_current_doc_id = $query->current->doc_id;
+  my $current_doc_id;
+
+
+  while (1) {
+    $query->next or return;
+
+    $current_doc_id = $query->current->doc_id;
+
+    # Check if it's still in the same document
+    if ($current_doc_id == $init_current_doc_id) {
+      $count++;
+      if ($count >= $self->{min}) {
+        return 1;
+      }
+    }
+    else {
+      $init_current_doc_id = $current_doc_id;
+      $count = 1;
+    }
+  };
+
+  return;
 };
 
 
@@ -61,7 +101,12 @@ sub max_freq {
 
 # stringification
 sub to_string {
-  'span(' . $_[0]->{query}->to_string . ')'
+  my $str = 'span(' . $_[0]->{query}->to_string;
+  if ($_[0]->{min} != 1 || defined $_[0]->{max}) {
+    $str .= ',' . $_[0]->{min};
+    $str .= ',' . $_[0]->{max} if $_[0]->{max};
+  };
+  return $str . ')';
 };
 
 
