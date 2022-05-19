@@ -130,6 +130,11 @@ sub normalize {
     return;
   };
 
+  # TODO
+  #   Here are some cases for normalization,
+  #   e.g. when the relation is match (or similar bound),
+  #   but the embedding part starts or ends with []*.
+  #
   return $self;
 };
 
