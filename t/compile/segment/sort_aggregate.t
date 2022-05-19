@@ -88,8 +88,8 @@ is($query1->compile->inflate($index->dict)->to_string,
      '[freq=total:[4,4]][fields=total:[genre=newsletter:[3,3],novel:[1,1]]]'.
    ']'.
    '[matches='.
-     '[4:0-2::G80..AA=,5]'.
-     '[2:0-2::G80..wAA,1]'.
+     '[4:0-2::InA..gAA,5]'.
+     '[2:0-2::InA..gAA,1]'.
      '[0:0-2::-,2]'.
      '[3:0-2::-,6]'.
    ']',
@@ -107,8 +107,8 @@ is($query2->compile->inflate($index->dict)->to_string,
      '[freq=total:[4,4]][fields=total:[genre=newsletter:[3,3],novel:[1,1]]]'.
    ']'.
    '[matches='.
-     '[4:0-2::G80..AA=,5]'.
-     '[2:0-2::G80..wAA,1]'.
+     '[4:0-2::InA..gAA,5]'.
+     '[2:0-2::InA..gAA,1]'.
      '[0:0-2::-,2]'.
      '[3:0-2::-,6]'.
    ']',

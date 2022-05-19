@@ -160,6 +160,9 @@ is($rank->to_asc_string, '[5][3][1][2][4][2][4][4]', 'Rank string');
 
 # Create new object with german collation
 $coll = Krawfish::Index::Dictionary::Collation->new('DE');
+
+is(43, $coll->version);
+
 ok($rank = Krawfish::Index::Fields::Rank->new($coll), 'Create new rank');
 
 ok($rank->add('Peter', 0), 'Add a single value');
@@ -173,13 +176,12 @@ ok($rank->add('Michael', 6), 'Add a single value');
 ok($rank->add('Michael', 7), 'Add a single value');
 
 is($rank->to_string,
-   '<GQw..A==:2;Gak..wAA:3;GhA..AA=:1;Gm4..A==:4;Gs4..wAA:0>'.
-     '{Gak..wAA:5;Gm4..A==:6;Gm4..A==:7}', 'Stringification');
+   '<H6I..gAA:2;IEI..gAA:3;IKs..gAA:1;IQk..gAA:4;IWs..gAA:0>{IEI..gAA:5;IQk..gAA:6;IQk..gAA:7}', 'Stringification');
 
 ok($rank->commit, 'Commit data');
 # Abraham:1:[2];Fritz:2:[3,5];Julian:3:[1];Michael:4:[4,6,7];Peter:5:[0]
 is($rank->to_string,
-   '<GQw..A==:2;Gak..wAA:3,5;GhA..AA=:1;Gm4..A==:4,6,7;Gs4..wAA:0>',
+   '<H6I..gAA:2;IEI..gAA:3,5;IKs..gAA:1;IQk..gAA:4,6,7;IWs..gAA:0>',
    'Stringification');
 
 # ?:2;?:3,5;?:1;?:4,6;?:7;?:0

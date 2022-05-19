@@ -48,7 +48,7 @@ is($query->to_string,
    'Stringification');
 ok($result = $query->compile->inflate($index->dict), 'Run clone');
 is($result->to_string,
-   '[matches=[1:0-1::GhA..AA=,3][0:0-1::Gs4..wAA,2][2:0-1::-,1]]',
+   '[matches=[1:0-1::IKs..gAA,3][0:0-1::IWs..gAA,2][2:0-1::-,1]]',
    'Stringification');
 
 # Sort in reverse order with an empty field
@@ -71,7 +71,7 @@ is($query->to_string(1),
    'Stringification');
 ok($result = $query->compile->inflate($index->dict), 'Run clone');
 is($result->to_string,
-   '[matches=[0:0-1::Gs4..wAA,2][1:0-1::GhA..AA=,3][2:0-1::-,1]]',
+   '[matches=[0:0-1::IWs..gAA,2][1:0-1::IKs..gAA,3][2:0-1::-,1]]',
    'Stringification');
 
 # Sort after with an empty field
@@ -98,7 +98,7 @@ ok(!$query->next_bundle, 'Next');
 
 ok($result = $clone->compile->inflate($index->dict), 'Run clone');
 is($result->to_string,
-   '[matches=[1:0-1::4,GhA..AA=,3][0:0-1::4,Gs4..wAA,2][2:0-1::4,-,1]]',
+   '[matches=[1:0-1::4,IKs..gAA,3][0:0-1::4,IWs..gAA,2][2:0-1::4,-,1]]',
    'Stringification');
 
 # Sort after in reverse order with an empty field
@@ -114,7 +114,7 @@ is($query->to_string,
    'Stringification');
 ok($result = $query->compile->inflate($index->dict), 'Run clone');
 is($result->to_string,
-   '[matches=[0:0-1::4,Gs4..wAA,2][1:0-1::4,GhA..AA=,3][2:0-1::4,-,1]]',
+   '[matches=[0:0-1::4,IWs..gAA,2][1:0-1::4,IKs..gAA,3][2:0-1::4,-,1]]',
    'Stringification');
 
 

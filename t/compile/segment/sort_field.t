@@ -268,14 +268,14 @@ ok($result = $clone->compile->inflate($index->dict), 'Run clone');
 
 is($result->to_string,
    '[matches='.
-     '[2:0-2::GQw..A==,1]'.
-     '[3:0-2::Gak..wAA,6]'.
-     '[5:0-2::Gak..wAA,8]'.
-     '[4:0-2::Gm4..A==,5]'.
-     '[7:0-2::Gm4..A==,7]'.
-     '[7:2-4::Gm4..A==,7]'.
-     '[6:0-2::Gm4..A==,9]'.
-     '[0:0-2::Gs4..wAA,2]'.
+     '[2:0-2::H6I..gAA,1]'.
+     '[3:0-2::IEI..gAA,6]'.
+     '[5:0-2::IEI..gAA,8]'.
+     '[4:0-2::IQk..gAA,5]'.
+     '[7:0-2::IQk..gAA,7]'.
+     '[7:2-4::IQk..gAA,7]'.
+     '[6:0-2::IQk..gAA,9]'.
+     '[0:0-2::IWs..gAA,2]'.
      ']',
    'Stringification');
 
@@ -313,21 +313,21 @@ ok($result = $query->compile->inflate($index->dict), 'Run clone');
 is($result->to_string,
    # genre,title,id:
    '[matches='.
-     '[4:0-1::Gn0..A==,G80..AA=,5]'. # Newsletter,
+     '[4:0-1::IRg..gAA,InA..gAA,5]'. # Newsletter,
      #                                 Your new way to success!
-     '[4:1-2::Gn0..A==,G80..AA=,5]'. # Newsletter,
+     '[4:1-2::IRg..gAA,InA..gAA,5]'. # Newsletter,
      #                                 Your new way to success!
-     '[2:0-1::Gn0..A==,G80..wAA,1]'. # Newsletter,
+     '[2:0-1::IRg..gAA,InA..gAA,1]'. # Newsletter,
      #                                 Your way to success!
-     '[2:1-2::Gn0..A==,G80..wAA,1]'. # Newsletter,
+     '[2:1-2::IRg..gAA,InA..gAA,1]'. # Newsletter,
      #                                 Your way to success!
-     '[2:2-3::Gn0..A==,G80..wAA,1]'. # Newsletter,
+     '[2:2-3::IRg..gAA,InA..gAA,1]'. # Newsletter,
      #                                 Your way to success!
-     '[3:0-1::Gn0..A==,-,6]'.        # Newsletter
-     '[3:1-2::Gn0..A==,-,6]'.        # Newsletter
-     '[0:0-1::Gn0..wAA,-,2]'.        # Novel
-     '[0:1-2::Gn0..wAA,-,2]'.        # Novel
-     '[1:0-1::Gn0..wAA,-,3]'.        # Novel
+     '[3:0-1::IRg..gAA,-,6]'.        # Newsletter
+     '[3:1-2::IRg..gAA,-,6]'.        # Newsletter
+     '[0:0-1::IRg..gAA,-,2]'.        # Novel
+     '[0:1-2::IRg..gAA,-,2]'.        # Novel
+     '[1:0-1::IRg..gAA,-,3]'.        # Novel
      '[7:0-1::-,-,7]'.
      '[7:1-2::-,-,7]'.
      '[7:2-3::-,-,7]'.

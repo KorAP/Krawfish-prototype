@@ -45,9 +45,10 @@ sub remove_diacritics {
 
 sub _list_props {
   my $string = shift;
-  use Unicode::Properties 'uniprops';
+#  use Unicode::Properties 'uniprops';
   foreach (split('', normalize('D', $string))) {
-    print ord($_) . ': ' . join(', ', uniprops($_)), "\n";
+#    print ord($_) . ': ' . join(', ', uniprops($_)), "\n";
+    print ord($_) . ': ' . join(', ', $_), "\n";
   };
 };
 

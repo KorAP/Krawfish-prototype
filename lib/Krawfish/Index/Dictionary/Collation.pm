@@ -11,13 +11,22 @@ sub new {
 
   # Create collation object (may be lazy loaded)
   my $coll = Unicode::Collate::Locale->new(
-    locale => $locale,
-    normalization => undef
+    UCA_Version => 43,
+    locale => ($locale eq 'DE' ? 'de__phonebook' : $locale),
+    normalization => undef, # !Should normalize!
+    level => 3,
+    long_contraction => 1,
+    upper_before_lower => undef,
+    variable => 'non-ignorable',
   );
 
   bless \$coll, $class;
 };
 
+sub version {
+  my $self = shift;
+  return $$self->{UCA_Version};
+}
 
 # Get sort key for value
 sub sort_key {

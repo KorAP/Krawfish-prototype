@@ -143,18 +143,18 @@ is($node_query->compile->inflate($index->dict)->to_string,
      '[values=total:[size:[sum:39,freq:8,min:4,max:8,avg:4.875]]]'.
    ']'.
    '[matches='.
-     '[1:0-2::GQw..A==,4]'.
-     '[1:1-3::Gak..wAA,3]'.
-     '[3:0-2::Gdw..A==,8]'.
-     '[3:2-4::Gdw..A==,8]'.
-     '[2:1-3::GhA..A==,5]'.
-     '[0:0-2::Gjs..wAA,2]'.
-     '[0:4-6::Gjs..wAA,2]'.
-     '[0:6-8::Gjs..wAA,2]'.
-     '[3:1-3::Gm4..AA=,7]'.
-     '[0:0-2::Gs4..wAA,1]'.
-     '[0:2-4::Gs4..wAA,1]'.
-     '[2:0-2::G8E..wAA,6]'.
+   '[1:0-2::H6I..gAA,4]'.
+   '[1:1-3::IEI..gAA,3]'.
+   '[3:0-2::IHU..gAA,8]'.
+   '[3:2-4::IHU..gAA,8]'.
+   '[2:1-3::IKs..gAA,5]'.
+   '[0:0-2::INY..gAA,2]'.
+   '[0:4-6::INY..gAA,2]'.
+   '[0:6-8::INY..gAA,2]'.
+   '[3:1-3::IQk..gAA,7]'.
+   '[0:0-2::IWs..gAA,1]'.
+   '[0:2-4::IWs..gAA,1]'.
+   '[2:0-2::ImQ..gAA,6]'.
    ']',
    'Stringification');
 
