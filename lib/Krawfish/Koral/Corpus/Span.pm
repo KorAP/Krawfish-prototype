@@ -9,6 +9,8 @@ use warnings;
 
 with 'Krawfish::Koral::Corpus';
 
+# This VC criterion takes a query and checks for existence (or occurrence) in texts
+
 use constant DEBUG => 0;
 
 sub new {
@@ -40,6 +42,11 @@ sub is_leaf { 0 };
 # Normalize query
 sub normalize {
   my $self = shift;
+
+  # TODO:
+  #   This could be normalized to optimize, in case the embedded query
+  #   is a single token. Then the number of tokens per text can be checked instead
+  #   of the occurrences.
 
   if (DEBUG) {
     print_log('kq_c_span', 'Normalize span query');

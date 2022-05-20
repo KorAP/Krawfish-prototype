@@ -196,14 +196,12 @@ ok($query->next, 'Move to first item');
 is($query->current->to_string, '[3]', 'Current doc');
 ok(!$query->next, 'No more documents');
 
-
 # Search in documents containing the sequence [aa] at exactly twice
 ok($query = $cb->span(
   $qb->token('aa'),
   2,
   2
 ), 'Create corpus query');
-
 
 is($query->to_string, 'span([aa],2,2)', 'Stringification');
 ok($query = $query->normalize, 'Normalize');
@@ -217,6 +215,29 @@ is($query->to_string, 'span(#10,2,2)', 'Stringification');
 ok($query->next, 'Move to first item');
 is($query->current->to_string, '[1]', 'Current doc');
 ok(!$query->next, 'No more documents');
+
+
+# Search in documents containing the sequence [bb] exactly once
+ok($query = $cb->span(
+  $qb->token('bb'),
+  1,
+  1
+), 'Create corpus query');
+
+
+is($query->to_string, 'span([bb],1,1)', 'Stringification');
+ok($query = $query->normalize, 'Normalize');
+is($query->to_string, 'span(bb,1,1)', 'Stringification');
+ok($query = $query->identify($index->dict), 'Identify');
+is($query->to_string(1), 'span(#12,1,1)', 'Stringification');
+ok($query = $query->optimize($index->segment), 'Optimize');
+is($query->to_string, 'span(#12,1,1)', 'Stringification');
+
+# [0]
+ok($query->next, 'Move to first item');
+is($query->current->to_string, '[0]', 'Current doc');
+ok(!$query->next, 'No more documents');
+
 
 
 done_testing;

@@ -34,14 +34,22 @@ sub next {
   my $self = shift;
 
   my $next;
+  my $query = $self->{query};
 
   unless ($self->{_init}) {
     $self->{_init}++;
 
-    $next = $self->{query}->next or return;
+    $next = $query->next or return;
   }
+
+  # The real current posting is already nexted
+  elsif (defined $self->{current}) {
+    $self->{current} = undef;
+  }
+
+  # Jump to the next doc
   else {
-    $next = $self->{query}->next_doc or return;
+    $next = $query->next_doc or return;
   };
 
   if ($self->{min} == 1 && !defined $self->{max}) {
@@ -49,7 +57,6 @@ sub next {
   };
 
   # Count matches
-  my $query = $self->{query};
   my $current_doc_id;
 
  OUTER:
@@ -59,7 +66,18 @@ sub next {
   my $init_current_doc_id = $query->current->doc_id;
 
   while (1) {
-    $query->next or return;
+
+    # Current contains current doc before next
+    $self->{current} = $query->current;
+
+    unless ($query->next) {
+      if ($count < $self->{min} || $count >= $self->{max}) {
+        $self->{current} = undef;
+        return;
+      };
+
+      return 1;
+    };
 
     $current_doc_id = $query->current->doc_id;
 
@@ -68,7 +86,10 @@ sub next {
       $count++;
       if ($count >= $self->{min}) {
 
-        return 1 unless defined $self->{max};
+        unless (defined $self->{max}) {
+          $self->{current} = undef;
+          return 1;
+        };
 
         # Here check for max
         while (1) {
@@ -79,7 +100,7 @@ sub next {
           unless ($query->next) {
             if ($count <= $self->{max}) {
 
-              # This will loose the current doc!
+              # The current doc is kept in {current}
               return 1;
             };
             $self->{current} = undef;
@@ -89,6 +110,7 @@ sub next {
           # This is in a new document
           if ($query->current->doc_id != $init_current_doc_id) {
             if ($count <= $self->{max}) {
+              # The current doc is kept in {current}
               return 1;
             };
             goto OUTER;
@@ -104,6 +126,12 @@ sub next {
       };
     }
     else {
+
+      if ($count >= $self->{min} && (!defined $self->{max} || $count <= $self->{max})) {
+        # The current doc is kept in {current}
+        return 1;
+      };
+
       $init_current_doc_id = $current_doc_id;
       $count = 1;
     }
