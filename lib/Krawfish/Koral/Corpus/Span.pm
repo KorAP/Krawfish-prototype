@@ -75,7 +75,18 @@ sub normalize {
   };
 
   if ($self->{min} == 0) {
-    return $self->builder->anywhere;
+    if (!defined $self->{max} || $self->{max} == 0) {
+      return $self->builder->anywhere;
+    }
+    else {
+      return $self->builder->bool_and_not(
+        $self->builder->anywhere,
+        $self->builder->span(
+          $norm,
+          $self->{max} + 1
+        )
+      )->normalize;
+    }
   };
 
   # Finalize span query to ensure,

@@ -238,6 +238,26 @@ ok($query->next, 'Move to first item');
 is($query->current->to_string, '[0]', 'Current doc');
 ok(!$query->next, 'No more documents');
 
+# Search in documents containing the sequence [bb] at least 0 times
+ok($query = $cb->span(
+  $qb->token('bb'),
+  0
+), 'Create corpus query');
+
+is($query->to_string, 'span([bb],0)', 'Stringification');
+ok($query = $query->normalize, 'Normalize');
+is($query->to_string, '[1]', 'Stringification');
+
+# Search in documents containing the sequence [bb] at least 0 times
+ok($query = $cb->span(
+  $qb->token('bb'),
+  0,
+  3
+), 'Create corpus query');
+
+is($query->to_string, 'span([bb],0,3)', 'Stringification');
+ok($query = $query->normalize, 'Normalize');
+is($query->to_string, '([1]&!span(bb,4))', 'Stringification');
 
 
 done_testing;
