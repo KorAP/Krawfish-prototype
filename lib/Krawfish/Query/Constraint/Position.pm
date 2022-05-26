@@ -82,6 +82,7 @@ $next_a[PRECEDES] =
   ALIGNS_LEFT |
   STARTS_WITH |
   MATCHES |
+  IS_WITHIN |
   IS_AROUND |
   ENDS_WITH |
   ALIGNS_RIGHT |
@@ -345,7 +346,7 @@ sub check {
   if ($case & $frames) {
 
     print_log('posC', 'There is a match') if DEBUG;
-    return NEXTA | NEXTB | MATCH;
+    return NEXTA | NEXTB | MATCH; # Maybe that's not actually necessary!
   };
 
   # Initialize the return value
