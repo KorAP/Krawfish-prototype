@@ -30,6 +30,9 @@ with 'Krawfish::Koral::Report';
 #   Resolve optionality!
 # The filter is only necessary at the top element of one anchor
 
+# TODO:
+#   Simplify sequences in boolean form, like
+#   der alte Baum | der junge Baum -> der (alte|junge) Baum
 
 # Normalize query and check for anchors
 sub normalize {
