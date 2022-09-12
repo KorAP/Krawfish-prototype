@@ -12,7 +12,9 @@ use warnings;
 #   (foundry/layer) in the index to synchronize this information with Kustvakt
 
 # TODO:
-#   There should be a similar mechanism available that respects VC
+#   There should be a similar mechanism available that respects VC.
+#   That's required to get a list of "validated" terms in a VC for Glemm
+#   and may be useful for metadata value retrieval for project corpora.
 
 sub terms {
   my $c = shift;
